@@ -83,7 +83,7 @@ class GererMarquesTest {
         assertThat(gerer.proches(" ")).isEmpty();
     }
 
-    private static final class MarquesEnMemoire extends ValeursEnMemoire<Marque>
+    private static final class MarquesEnMemoire extends ValeursSimplesEnMemoire<Marque>
             implements MarqueRepository, MarquesProchesLecture {
 
         @Override

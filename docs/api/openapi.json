@@ -9,17 +9,29 @@
     "url" : "/"
   } ],
   "tags" : [ {
+    "description" : "Référentiel : zones commerciales, continents (C.10.4)",
+    "name" : "zones-commerciales"
+  }, {
+    "description" : "Référentiel : produits commercialisés (C.10.9.3)",
+    "name" : "produits-commercialises"
+  }, {
+    "description" : "Référentiel : contenances (C.10.9.4)",
+    "name" : "contenances"
+  }, {
+    "description" : "Référentiel : circuits de distribution (C.10.9.2)",
+    "name" : "circuits-distribution"
+  }, {
+    "description" : "Référentiel : pays (C.10.5)",
+    "name" : "pays"
+  }, {
     "description" : "Référentiel : types de visite (C.10.8.4)",
     "name" : "types-visite"
   }, {
     "description" : "Sonde technique",
     "name" : "systeme"
   }, {
-    "description" : "Référentiel : zones commerciales, continents (C.10.4)",
-    "name" : "zones-commerciales"
-  }, {
-    "description" : "Référentiel : produits commercialisés (C.10.9.3)",
-    "name" : "produits-commercialises"
+    "description" : "Référentiel : régions (C.10.6)",
+    "name" : "regions"
   }, {
     "description" : "Référentiel : centres d'intérêt (C.10.8.6)",
     "name" : "centres-interet"
@@ -32,9 +44,6 @@
   }, {
     "description" : "Référentiel : marques (C.10.9.1)",
     "name" : "marques"
-  }, {
-    "description" : "Référentiel : circuits de distribution (C.10.9.2)",
-    "name" : "circuits-distribution"
   }, {
     "description" : "Référentiel : titres (C.10.8.1)",
     "name" : "titres"
@@ -402,6 +411,188 @@
         },
         "summary" : "Réactiver une valeur (RG-REF-04)",
         "tags" : [ "circuits-distribution" ]
+      }
+    },
+    "/api/referentiels/contenances" : {
+      "get" : {
+        "operationId" : "listerContenances",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le libellé saisi ou le volume",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Contenance"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les contenances, par volume croissant",
+        "tags" : [ "contenances" ]
+      },
+      "post" : {
+        "operationId" : "creerContenance",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationContenance"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contenance"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une contenance (RG-REF-10)",
+        "tags" : [ "contenances" ]
+      }
+    },
+    "/api/referentiels/contenances/{volume}" : {
+      "get" : {
+        "operationId" : "consulterContenance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "volume",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contenance"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une contenance, active ou non",
+        "tags" : [ "contenances" ]
+      },
+      "put" : {
+        "operationId" : "modifierContenance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "volume",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationContenance"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contenance"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le volume est immuable (RG-REF-02)",
+        "tags" : [ "contenances" ]
+      }
+    },
+    "/api/referentiels/contenances/{volume}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverContenance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "volume",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contenance"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une contenance (RG-REF-04)",
+        "tags" : [ "contenances" ]
+      }
+    },
+    "/api/referentiels/contenances/{volume}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverContenance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "volume",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contenance"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une contenance (RG-REF-04)",
+        "tags" : [ "contenances" ]
       }
     },
     "/api/referentiels/labels" : {
@@ -980,6 +1171,188 @@
         "tags" : [ "marques" ]
       }
     },
+    "/api/referentiels/pays" : {
+      "get" : {
+        "operationId" : "listerPays",
+        "parameters" : [ {
+          "description" : "Absent : actifs et inactifs",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code, le code ISO ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Pays"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les pays, triés par libellé",
+        "tags" : [ "pays" ]
+      },
+      "post" : {
+        "operationId" : "creerPays",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationPays"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pays"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer un pays (RG-REF-01, 03, 05 à 09)",
+        "tags" : [ "pays" ]
+      }
+    },
+    "/api/referentiels/pays/{code}" : {
+      "get" : {
+        "operationId" : "consulterPays",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pays"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter un pays, actif ou non",
+        "tags" : [ "pays" ]
+      },
+      "put" : {
+        "operationId" : "modifierPays",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationPays"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pays"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier un pays ; le code est immuable (RG-REF-02)",
+        "tags" : [ "pays" ]
+      }
+    },
+    "/api/referentiels/pays/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverPays",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pays"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver un pays (RG-REF-04)",
+        "tags" : [ "pays" ]
+      }
+    },
+    "/api/referentiels/pays/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverPays",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Pays"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver un pays (RG-REF-04)",
+        "tags" : [ "pays" ]
+      }
+    },
     "/api/referentiels/produits-commercialises" : {
       "get" : {
         "operationId" : "listerProduitsCommercialises",
@@ -1160,6 +1533,188 @@
         },
         "summary" : "Réactiver une valeur (RG-REF-04)",
         "tags" : [ "produits-commercialises" ]
+      }
+    },
+    "/api/referentiels/regions" : {
+      "get" : {
+        "operationId" : "listerRegions",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Region"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les régions, triées par libellé",
+        "tags" : [ "regions" ]
+      },
+      "post" : {
+        "operationId" : "creerRegion",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationRegion"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Region"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une région (RG-REF-01, RG-REF-03)",
+        "tags" : [ "regions" ]
+      }
+    },
+    "/api/referentiels/regions/{code}" : {
+      "get" : {
+        "operationId" : "consulterRegion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Region"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une région, active ou non",
+        "tags" : [ "regions" ]
+      },
+      "put" : {
+        "operationId" : "modifierRegion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationRegion"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Region"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier une région ; le code est immuable (RG-REF-02)",
+        "tags" : [ "regions" ]
+      }
+    },
+    "/api/referentiels/regions/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverRegion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Region"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une région (RG-REF-04)",
+        "tags" : [ "regions" ]
+      }
+    },
+    "/api/referentiels/regions/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverRegion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Region"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une région (RG-REF-04)",
+        "tags" : [ "regions" ]
       }
     },
     "/api/referentiels/titres" : {
@@ -1730,6 +2285,101 @@
   },
   "components" : {
     "schemas" : {
+      "Contenance" : {
+        "type" : "object",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "libelle" : {
+            "type" : "string",
+            "description" : "Libellé saisi, sinon dérivé du volume",
+            "example" : "0,70 L"
+          },
+          "libelleSaisi" : {
+            "type" : "string",
+            "description" : "Libellé saisi ; absent si dérivé du volume"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Volume en litres, identifiant",
+            "example" : 0.7
+          }
+        },
+        "required" : [ "actif", "libelle", "volume" ]
+      },
+      "CreationContenance" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "description" : "Facultatif : dérivé du volume si absent"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "En litres, trois décimales au plus",
+            "example" : 0.7
+          }
+        },
+        "required" : [ "volume" ]
+      },
+      "CreationPays" : {
+        "type" : "object",
+        "properties" : {
+          "ageMinimum" : {
+            "type" : "string",
+            "description" : "Compte d'âge : 00, 0, 1, 2… ; absent si aucun",
+            "example" : "4"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "codeIso" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "langueCertificat" : {
+            "type" : "string",
+            "description" : "Absent : FR_EN (H-REF-2)",
+            "enum" : [ "FR_EN", "FR_ES", "FR_IT" ]
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "États-Unis"
+          },
+          "membreUe" : {
+            "type" : "boolean"
+          },
+          "niveauDetailCertificat" : {
+            "type" : "string",
+            "description" : "Absent : CUMUL_DEGRE (H-REF-2)",
+            "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
+          },
+          "zoneCommerciale" : {
+            "type" : "string",
+            "example" : "AMN"
+          }
+        },
+        "required" : [ "code", "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
+      },
+      "CreationRegion" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "GERS"
+          },
+          "enRegionDelimitee" : {
+            "type" : "boolean"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Gers"
+          }
+        },
+        "required" : [ "code", "enRegionDelimitee", "libelle" ]
+      },
       "CreationValeurSimple" : {
         "type" : "object",
         "properties" : {
@@ -1763,6 +2413,67 @@
         },
         "required" : [ "application", "version", "versionBase" ]
       },
+      "ModificationContenance" : {
+        "type" : "object",
+        "description" : "Le volume est immuable (RG-REF-02) : seul le libellé change",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "description" : "Facultatif : dérivé du volume si absent"
+          }
+        }
+      },
+      "ModificationPays" : {
+        "type" : "object",
+        "description" : "Tout sauf le code, immuable (RG-REF-02)",
+        "properties" : {
+          "ageMinimum" : {
+            "type" : "string",
+            "description" : "Compte d'âge : 00, 0, 1, 2… ; absent si aucun",
+            "example" : "4"
+          },
+          "codeIso" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "langueCertificat" : {
+            "type" : "string",
+            "description" : "Absent : FR_EN (H-REF-2)",
+            "enum" : [ "FR_EN", "FR_ES", "FR_IT" ]
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "États-Unis"
+          },
+          "membreUe" : {
+            "type" : "boolean"
+          },
+          "niveauDetailCertificat" : {
+            "type" : "string",
+            "description" : "Absent : CUMUL_DEGRE (H-REF-2)",
+            "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
+          },
+          "zoneCommerciale" : {
+            "type" : "string",
+            "example" : "AMN"
+          }
+        },
+        "required" : [ "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
+      },
+      "ModificationRegion" : {
+        "type" : "object",
+        "description" : "Le code est immuable (RG-REF-02)",
+        "properties" : {
+          "enRegionDelimitee" : {
+            "type" : "boolean"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Gers"
+          }
+        },
+        "required" : [ "enRegionDelimitee", "libelle" ]
+      },
       "ModificationValeurSimple" : {
         "type" : "object",
         "description" : "Le code est immuable (RG-REF-02) : seul le libellé change",
@@ -1773,6 +2484,68 @@
           }
         },
         "required" : [ "libelle" ]
+      },
+      "Pays" : {
+        "type" : "object",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "ageMinimum" : {
+            "type" : "string",
+            "description" : "Compte d'âge : 00, 0, 1, 2…",
+            "example" : "4"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "codeIso" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "langueCertificat" : {
+            "type" : "string",
+            "enum" : [ "FR_EN", "FR_ES", "FR_IT" ]
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "États-Unis"
+          },
+          "membreUe" : {
+            "type" : "boolean"
+          },
+          "niveauDetailCertificat" : {
+            "type" : "string",
+            "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
+          },
+          "zoneCommerciale" : {
+            "type" : "string",
+            "description" : "Code de la zone commerciale",
+            "example" : "AMN"
+          }
+        },
+        "required" : [ "actif", "code", "codeIso", "langueCertificat", "libelle", "membreUe", "niveauDetailCertificat", "zoneCommerciale" ]
+      },
+      "Region" : {
+        "type" : "object",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "GERS"
+          },
+          "enRegionDelimitee" : {
+            "type" : "boolean"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Gers"
+          }
+        },
+        "required" : [ "actif", "code", "enRegionDelimitee", "libelle" ]
       },
       "ValeurSimple" : {
         "type" : "object",

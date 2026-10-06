@@ -78,7 +78,7 @@ class GererZonesCommercialesTest {
         assertThatThrownBy(() -> gerer.desactiver("XXX")).isInstanceOf(ElementIntrouvable.class);
     }
 
-    private static final class ZonesEnMemoire extends ValeursEnMemoire<ZoneCommerciale>
+    private static final class ZonesEnMemoire extends ValeursSimplesEnMemoire<ZoneCommerciale>
             implements ZoneCommercialeRepository {
     }
 }
