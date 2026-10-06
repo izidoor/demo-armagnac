@@ -1,0 +1,11 @@
+# Profil de développement : PostgreSQL de backend/compose.yaml, démarré au besoin (ADR-003).
+spring:
+  docker:
+    compose:
+      enabled: true
+      file: ../compose.yaml
+      lifecycle-management: start-only
+
+logging:
+  level:
+    fr.bnia: debug

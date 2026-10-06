@@ -1,0 +1,8 @@
+-- Schéma de la plateforme BNIA.
+--
+-- Migration unique pendant le prototype (ADR-005) : ce fichier est modifié sur place à chaque
+-- incrément, jamais complété par une V2. Après modification : ./dev-reset.sh.
+-- Les données de démonstration n'y figurent pas (profil demo).
+--
+-- Convention (ADR-001) : tables et colonnes en français, sans accents, en snake_case.
+-- Une section par bounded context, dans l'ordre de docs/contextes.md.

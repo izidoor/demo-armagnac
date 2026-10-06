@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: bnia
+  datasource:
+    url: ${BNIA_DB_URL:jdbc:postgresql://localhost:5432/bnia}
+    username: ${BNIA_DB_USER:bnia}
+    password: ${BNIA_DB_PASSWORD:bnia}
+  flyway:
+    locations: classpath:db/migration
+  mvc:
+    problemdetails:
+      enabled: true
+  docker:
+    compose:
+      enabled: false
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  paths-to-match: /api/**
+  default-produces-media-type: application/json
+  # Sortie stable : le contrat exporté (docs/api/openapi.json) ne varie qu'avec l'API (ADR-007).
+  writer-with-default-pretty-printer: true
+  writer-with-order-by-keys: true

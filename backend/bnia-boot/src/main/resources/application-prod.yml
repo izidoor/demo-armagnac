@@ -1,0 +1,10 @@
+# Profil de production : tout vient de l'environnement, aucune valeur par défaut.
+spring:
+  datasource:
+    url: ${BNIA_DB_URL}
+    username: ${BNIA_DB_USER}
+    password: ${BNIA_DB_PASSWORD}
+
+springdoc:
+  swagger-ui:
+    enabled: false

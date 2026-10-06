@@ -1,0 +1,59 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "description" : "Back-office BNIA et portail opérateur",
+    "title" : "API BNIA",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "tags" : [ {
+    "description" : "Sonde technique",
+    "name" : "systeme"
+  } ],
+  "paths" : {
+    "/api/systeme/info" : {
+      "get" : {
+        "operationId" : "consulterInfoSysteme",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InfoSysteme"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Version de l'application et de la base",
+        "tags" : [ "systeme" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "InfoSysteme" : {
+        "type" : "object",
+        "description" : "Identification de l'application et de la base qui la sert",
+        "properties" : {
+          "application" : {
+            "type" : "string",
+            "example" : "BNIA"
+          },
+          "version" : {
+            "type" : "string",
+            "example" : "0.1.0-SNAPSHOT"
+          },
+          "versionBase" : {
+            "type" : "string",
+            "example" : "PostgreSQL 18.0"
+          }
+        },
+        "required" : [ "application", "version", "versionBase" ]
+      }
+    }
+  }
+}

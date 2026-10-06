@@ -1,0 +1,15 @@
+# Base de développement (ADR-003). Recréation : ./dev-reset.sh à la racine du dépôt.
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: bnia
+      POSTGRES_USER: bnia
+      POSTGRES_PASSWORD: bnia
+    ports:
+      - "5432:5432"
+    volumes:
+      - bnia-pgdata:/var/lib/postgresql
+
+volumes:
+  bnia-pgdata:

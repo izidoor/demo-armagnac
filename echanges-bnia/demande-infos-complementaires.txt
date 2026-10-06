@@ -1,0 +1,51 @@
+Bonjour Messieurs, 
+
+Je vous remercie de m'avoir adressé l'appel d'offres pour la création de votre nouvelle plateforme filière.
+
+J'ai effectué une première analyse détaillée ce jour. Afin de pouvoir mener une étude minutieuse et vous transmettre une proposition sérieuse et sans ambiguïté, j'aurais besoin des éléments suivants.
+
+1) Documents : Les pièces jointes annoncées en annexe E du CDC ne m'ont pas été transmises : 
+- "ENVOI_DSM_NEGOCIANT.xlsx" : Matrice`DSM`servant de base au format unique<br>de saisie et d’import.
+- "ENVOI_DSM_PRODUCTEUR.xlsx" : Même matrice appliquée à un opérateur de<br>type producteur, avec les colonnes hors<br>périmètre grisées.
+- "ENVOI_DSM_PRODUCTEUR_ANCIEN_FORMAT.xlsx" : Matrice`DSM`producteur actuelle, fournie à titre<br>de comparaison avec le format unique retenu.
+- "ENVOI_VENTES_EXPORT.xlsx" : Matrice proposée pour la saisie et l’import des<br>ventes export, construite sur le style de la<br>matrice`DSM`négociant.
+- "FACT CVO NORMALE.pdf" : Exemple de facture`CVO`mise à disposition de<br>l’opérateur.
+- "FACTURE DISTILLATION.pdf" : Exemple de facture de cotisation sur fin de<br>travaux de distillation.
+- "FACT MANUELLE PROVISION.pdf" : Exemple de facture manuelle ou<br>provisionnelle.
+- "CERTIF EXPORT.pdf" : Exemple de certificat export au format<br>standard.
+- "CERTIF EXPORT DETAILS.pdf" : Exemple de certificat export avec détail des<br>produits.
+- "CERTIF EXPORT DETAILS VRAC.pdf" : Exemple de certificat export avec détail<br>adapté aux flux vrac.
+- "EXEMPLE DAE 1.pdf" : Exemple de document justificatif de type`DAE`<br>utilisable en appui des contrôles export ou<br>`DSM`.
+- "EXEMPLE DAE 2.pdf" : Second exemple de document justificatif de<br>type`DAE`.
+- "EXEMPLE JUSTIFICATIF EXPORT 1.pdf" : Exemple de justificatif export transmis pour<br>une demande de certificat export.
+- "EXEMPLE JUSTIFICATIF EXPORT 2.pdf" : Second exemple de justificatif export transmis<br>pour une demande de certificat export.
+
+
+2) Pouvez-vous donner les ordres de grandeur annuels afin de pouvoir dimensionner la solution : nombre d'opérateurs par type, nombre de DSM, nombre de factures, nombre de certificats export, nombre de contrats vin et de déclarations de fin de travaux ? Ces chiffres sont indispensables pour provisionner les ressources matériels ( serveur, mémoire, etc), mais également pour les chiffrages séparés demandés par le CDC : intégration d'une solution de signature électronique et l'intégration de la "plateforme douanière Otentik".
+
+3) L'intégration via import de données issus de logiciels métiers :  les éditeurs ont-il été contacté et ont-ils émis des préférences ? Ont-ils indiqué un délai de mise en oeuvre à partir du jour où nous leur communiquons un format de fichier ?
+
+4) Pluri-annuel Armagnac, Pluri-annuel Vin : les CDC les mentionne "en discussion". Où en êtes vous ? Sont-ils maintenus dans le périmètre du présent appel d'offres ?
+
+5) ODG : où en est le remplacement d'Innovagro par TimeTonic, et quelle date est envisagée ? Sans plus d'information, le point 4.5.2 du CDC n'est pas évaluable. 
+
+6) Le CDC mentionne la "plateforme douannière otentik". Qu'en est-il exactement ? Quel contact, quelle documentation, quel calendrier ? Dans l'état actuel du CDC, le point 4.8.7 n'est pas évaluable. 
+
+7) Facturation électronique. Obligation de réception au 1er septembre 2026 : quelles sont les dipositions prises par le BNIA pour se conformer à cette première obligation ? Obligation d'émisssion au 1er septembre 2027 : le CDC mentionne Zeendoc. Avez-vous à disposition la documentation de l'API Zeendoc pour permettre d'envisager les flux entre la plateforme Armagnac et Zeendoc ?
+
+8) Les passages du CDC mentionnant les données à rependre du site armagnac.fr ne me permettent pas d'avoir une vision claire sur ce qui est demandé. Pouvez-vous préciser l'articulation entre l'annuaire opérateur d'armagnac.fr et l'actuelle fiche opérateur dans InteGraal ? Quelles informations de l'annuaire sont aujourd'hui saisies ou mises à jour par les opérateurs eux-mêmes, et lesquelles par le BNIA ? Une fois la nouvelle plateforme en service, comment le BNIA souhaite-t-il que l'annuaire reste à jour ? 
+
+9) Boutique : combien de références produits à prévoir ? 
+
+10) Le point 2.7 de la note détaillée de l'AO mentionne la remontée d'informations depuis la plateforme La Box pour les inventaires de chai. Ce point n'est pas présent dans le CDC. Qu'en est-il exactement ?
+
+11-a) Reprises des données : les données actuelles d'InteGraal et de l'extranet vous paraissent-elles fiables, ou existe-t-il des doublons, fiches inactives, informations anciennes ? Autrement dit, les données sont-elles à reprendre "telle que l'on nous les donne", ou un nettoyage métier est-il à prévoir ?
+
+11-b) Reprises des données : le CDC ne garantit pas l'extraction des données à reprendre. Il ne fait que proposer une mise en forme pour ces données et mentionne qu'une prise de contact avec AGI sera nécessaire. Avez-vous clairement sécurisé le processus de reprise de données sur ces points critiques :  format, date de disponibilité, mode de récupération, fréquence de renouvellement des extractions ? Disposez-vous déja d'un jeu anonymisé de données de test ? Avez-vous une échéance de résiliation à respecter avec AGI ?
+
+
+Je vous propose de discuter de ces points à votre convenance. Je serai joignable demain mardi ou jeudi 8 en journée. Entre-temps, n'hésitez pas à m'envoyer les fichiers cités en annexe E.
+
+Trés bonne soirée, 
+Pierre-Yves POLLET 
+

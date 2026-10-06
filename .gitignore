@@ -1,3 +1,18 @@
+# Python (outils de conversion)
 .venv/
 __pycache__/
 *.pyc
+
+# Java / Maven
+target/
+
+# Front
+node_modules/
+dist/
+*.tsbuildinfo
+
+# IDE et environnement
+.idea/
+*.iml
+.vscode/
+.env*
