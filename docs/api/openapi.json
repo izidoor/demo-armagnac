@@ -9,13 +9,1523 @@
     "url" : "/"
   } ],
   "tags" : [ {
+    "description" : "Référentiel : types de visite (C.10.8.4)",
+    "name" : "types-visite"
+  }, {
     "description" : "Sonde technique",
     "name" : "systeme"
   }, {
     "description" : "Référentiel : zones commerciales, continents (C.10.4)",
     "name" : "zones-commerciales"
+  }, {
+    "description" : "Référentiel : produits commercialisés (C.10.9.3)",
+    "name" : "produits-commercialises"
+  }, {
+    "description" : "Référentiel : centres d'intérêt (C.10.8.6)",
+    "name" : "centres-interet"
+  }, {
+    "description" : "Référentiel : labels (C.10.8.3)",
+    "name" : "labels"
+  }, {
+    "description" : "Référentiel : langues (C.10.8.5)",
+    "name" : "langues"
+  }, {
+    "description" : "Référentiel : marques (C.10.9.1)",
+    "name" : "marques"
+  }, {
+    "description" : "Référentiel : circuits de distribution (C.10.9.2)",
+    "name" : "circuits-distribution"
+  }, {
+    "description" : "Référentiel : titres (C.10.8.1)",
+    "name" : "titres"
   } ],
   "paths" : {
+    "/api/referentiels/centres-interet" : {
+      "get" : {
+        "operationId" : "listerCentresInteret",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "centres-interet" ]
+      },
+      "post" : {
+        "operationId" : "creerCentreInteret",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "centres-interet" ]
+      }
+    },
+    "/api/referentiels/centres-interet/{code}" : {
+      "get" : {
+        "operationId" : "consulterCentreInteret",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "centres-interet" ]
+      },
+      "put" : {
+        "operationId" : "modifierCentreInteret",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "centres-interet" ]
+      }
+    },
+    "/api/referentiels/centres-interet/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverCentreInteret",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "centres-interet" ]
+      }
+    },
+    "/api/referentiels/centres-interet/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverCentreInteret",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "centres-interet" ]
+      }
+    },
+    "/api/referentiels/circuits-distribution" : {
+      "get" : {
+        "operationId" : "listerCircuitsDistribution",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "circuits-distribution" ]
+      },
+      "post" : {
+        "operationId" : "creerCircuitDistribution",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "circuits-distribution" ]
+      }
+    },
+    "/api/referentiels/circuits-distribution/{code}" : {
+      "get" : {
+        "operationId" : "consulterCircuitDistribution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "circuits-distribution" ]
+      },
+      "put" : {
+        "operationId" : "modifierCircuitDistribution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "circuits-distribution" ]
+      }
+    },
+    "/api/referentiels/circuits-distribution/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverCircuitDistribution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "circuits-distribution" ]
+      }
+    },
+    "/api/referentiels/circuits-distribution/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverCircuitDistribution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "circuits-distribution" ]
+      }
+    },
+    "/api/referentiels/labels" : {
+      "get" : {
+        "operationId" : "listerLabels",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "labels" ]
+      },
+      "post" : {
+        "operationId" : "creerLabel",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "labels" ]
+      }
+    },
+    "/api/referentiels/labels/{code}" : {
+      "get" : {
+        "operationId" : "consulterLabel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "labels" ]
+      },
+      "put" : {
+        "operationId" : "modifierLabel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "labels" ]
+      }
+    },
+    "/api/referentiels/labels/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverLabel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "labels" ]
+      }
+    },
+    "/api/referentiels/labels/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverLabel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "labels" ]
+      }
+    },
+    "/api/referentiels/langues" : {
+      "get" : {
+        "operationId" : "listerLangues",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "langues" ]
+      },
+      "post" : {
+        "operationId" : "creerLangue",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "langues" ]
+      }
+    },
+    "/api/referentiels/langues/{code}" : {
+      "get" : {
+        "operationId" : "consulterLangue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "langues" ]
+      },
+      "put" : {
+        "operationId" : "modifierLangue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "langues" ]
+      }
+    },
+    "/api/referentiels/langues/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverLangue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "langues" ]
+      }
+    },
+    "/api/referentiels/langues/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverLangue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "langues" ]
+      }
+    },
+    "/api/referentiels/marques" : {
+      "get" : {
+        "operationId" : "listerMarques",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "marques" ]
+      },
+      "post" : {
+        "operationId" : "creerMarque",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/marques/proches" : {
+      "get" : {
+        "operationId" : "listerMarquesProches",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "libelle",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Marques au libellé proche d'un texte saisi, actives ou non (RG-REF-15)",
+        "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/marques/{code}" : {
+      "get" : {
+        "operationId" : "consulterMarque",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "marques" ]
+      },
+      "put" : {
+        "operationId" : "modifierMarque",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/marques/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverMarque",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/marques/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverMarque",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/produits-commercialises" : {
+      "get" : {
+        "operationId" : "listerProduitsCommercialises",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "produits-commercialises" ]
+      },
+      "post" : {
+        "operationId" : "creerProduitCommercialise",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "produits-commercialises" ]
+      }
+    },
+    "/api/referentiels/produits-commercialises/{code}" : {
+      "get" : {
+        "operationId" : "consulterProduitCommercialise",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "produits-commercialises" ]
+      },
+      "put" : {
+        "operationId" : "modifierProduitCommercialise",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "produits-commercialises" ]
+      }
+    },
+    "/api/referentiels/produits-commercialises/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverProduitCommercialise",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "produits-commercialises" ]
+      }
+    },
+    "/api/referentiels/produits-commercialises/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverProduitCommercialise",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "produits-commercialises" ]
+      }
+    },
+    "/api/referentiels/titres" : {
+      "get" : {
+        "operationId" : "listerTitres",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "titres" ]
+      },
+      "post" : {
+        "operationId" : "creerTitre",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "titres" ]
+      }
+    },
+    "/api/referentiels/titres/{code}" : {
+      "get" : {
+        "operationId" : "consulterTitre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "titres" ]
+      },
+      "put" : {
+        "operationId" : "modifierTitre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "titres" ]
+      }
+    },
+    "/api/referentiels/titres/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverTitre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "titres" ]
+      }
+    },
+    "/api/referentiels/titres/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverTitre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "titres" ]
+      }
+    },
+    "/api/referentiels/types-visite" : {
+      "get" : {
+        "operationId" : "listerTypesVisite",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "types-visite" ]
+      },
+      "post" : {
+        "operationId" : "creerTypeVisite",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "types-visite" ]
+      }
+    },
+    "/api/referentiels/types-visite/{code}" : {
+      "get" : {
+        "operationId" : "consulterTypeVisite",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "types-visite" ]
+      },
+      "put" : {
+        "operationId" : "modifierTypeVisite",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "types-visite" ]
+      }
+    },
+    "/api/referentiels/types-visite/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverTypeVisite",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "types-visite" ]
+      }
+    },
+    "/api/referentiels/types-visite/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverTypeVisite",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "types-visite" ]
+      }
+    },
     "/api/referentiels/zones-commerciales" : {
       "get" : {
         "operationId" : "listerZonesCommerciales",
