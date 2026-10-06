@@ -5,7 +5,7 @@ import fr.bnia.commun.domain.Millesime;
 import fr.bnia.operateurs.application.FicheOperateur;
 import fr.bnia.operateurs.domain.CodeOperateur;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
-import fr.bnia.operateurs.domain.NiveauDiffusion;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.TypeAlambic;
 import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
@@ -75,6 +75,18 @@ public record FicheOperateurResponse(
         List<OperateurResumeResponse> autresDuGroupe) {
 
     static FicheOperateurResponse depuis(FicheOperateur fiche) {
+        return depuis(fiche, false);
+    }
+
+    /**
+     * RG-OPE-36 : au portail, le commentaire interne est masqué ; les signalements propres au BNIA (code
+     * proposé, autres fiches du groupe) ne sont pas montrés.
+     */
+    static FicheOperateurResponse pourPortail(FicheOperateur fiche) {
+        return depuis(fiche, true);
+    }
+
+    private static FicheOperateurResponse depuis(FicheOperateur fiche, boolean portail) {
         Operateur o = fiche.operateur();
         IdentiteOperateur i = o.identite();
         var a = i.adresse();
@@ -84,7 +96,7 @@ public record FicheOperateurResponse(
                 a.pays(), i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral()), texte(i.siteWeb()),
                 texte(i.siteCommercial()), i.gps() == null ? null : i.gps().latitude(),
                 i.gps() == null ? null : i.gps().longitude(), i.membreBnia(), i.accordDiffusionGeneral(),
-                i.commentaireInterne(), o.declaratif().periodicite(),
+                portail ? null : i.commentaireInterne(), o.declaratif().periodicite(),
                 PeriodiciteDsm.parDefaut(o.type()).orElse(null), o.declaratif().statut(), o.production().region(),
                 o.production().appellations().stream().sorted().toList(),
                 o.production().alambics().stream()
@@ -97,8 +109,8 @@ public record FicheOperateurResponse(
                 o.destinataireFactures().map(d -> texte(d.adresse())).orElse(null),
                 o.emailFacturation().map(e -> e.valeur()).orElse(null),
                 fiche.champsManquants(), fiche.codeConforme(),
-                fiche.codePropose().map(CodeOperateur::valeur).orElse(null),
-                fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList());
+                portail ? null : fiche.codePropose().map(CodeOperateur::valeur).orElse(null),
+                portail ? List.of() : fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList());
     }
 
     @Schema(name = "Alambic")

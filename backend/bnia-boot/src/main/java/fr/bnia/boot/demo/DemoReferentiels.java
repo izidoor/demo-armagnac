@@ -134,11 +134,13 @@ public class DemoReferentiels implements ApplicationRunner {
     }
 
     /**
-     * Une trentaine de pays exportateurs, codés par leur code ISO, rattachés à leur zone par son code. Langue du certificat : espagnol pour
+     * La France et une trentaine de pays exportateurs, codés par leur code ISO, rattachés à leur zone par son code. Langue du certificat : espagnol pour
      * l'Espagne, italien pour l'Italie, anglais sinon (§7.1).
      */
     private void paysExportateurs() {
         Object[][] liste = {
+                // La France, pays des opérateurs : pays par défaut d'une fiche et code négociant (spec 02).
+                {"FR", "France", "EUR", true},
                 {"DE", "Allemagne", "EUR", true}, {"AT", "Autriche", "EUR", true}, {"BE", "Belgique", "EUR", true},
                 {"DK", "Danemark", "EUR", true}, {"ES", "Espagne", "EUR", true}, {"FI", "Finlande", "EUR", true},
                 {"IE", "Irlande", "EUR", true}, {"IT", "Italie", "EUR", true}, {"LU", "Luxembourg", "EUR", true},

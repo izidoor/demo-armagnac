@@ -9,9 +9,11 @@ import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ElementUtilise;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.operateurs.domain.CodeOperateur;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
+import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.LangueCertificat;
 import fr.bnia.referentiels.domain.partage.NiveauDetailCertificat;
@@ -36,7 +38,7 @@ class GererOperateursTest {
     private final OperateursEnMemoire memoire = new OperateursEnMemoire();
     private final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
     private final GererOperateurs gerer = new GererOperateurs(memoire, memoire, memoire, referentiels,
-            new JournalEnMemoire(), new EvenementsCaptures(), Clock.systemUTC());
+            mock(OperateursLecture.class), new JournalEnMemoire(), new EvenementsCaptures(), Clock.systemUTC());
 
     @BeforeEach
     void referentiels() {
@@ -188,6 +190,43 @@ class GererOperateursTest {
 
         assertThat(gerer.desactiver(utilise).estActif()).isFalse();
         assertThat(gerer.reactiver(utilise).estActif()).isTrue();
+    }
+
+    @Test
+    @DisplayName("RG-OPE-36 : au portail, seuls les champs ouverts changent ; la diffusion sans l'accès aux statistiques")
+    void rg_ope_36_profil_portail() {
+        var saisie = avecOdg(saisie(TypeOperateur.PRODUCTEUR, "000001", "Domaine A", "32100", FRANCE), "ODG-1");
+        long id = gerer.creer(saisie).id();
+        gerer.modifierDiffusion(id, new SaisieDiffusion(NiveauDiffusion.REFUS, List.of(), true));
+
+        var profil = new SaisieProfilPortail(TITRE_ACTIF, "Les Vignes", "2 rue du Moulin", null, null, "32100", "Condom",
+                FRANCE, "05 62 00 00 00", null, null, "contact@vignes.fr", "https://vignes.fr", null, null, null, true);
+        var modifie = gerer.modifierProfilPortail(id, profil);
+        gerer.modifierDiffusionPortail(id, NiveauDiffusion.PARTIEL, List.of(2005));
+
+        assertThat(modifie.identite().nomCommercial()).isEqualTo("Les Vignes");
+        assertThat(modifie.identite().raisonSociale()).isEqualTo("Domaine A");
+        assertThat(modifie.identite().identifiantOdg()).isEqualTo("ODG-1");
+        assertThat(modifie.code()).isEqualTo(CodeOperateur.de("000001"));
+        assertThat(gerer.consulter(id).accesStatistiques()).isTrue();
+        assertThat(gerer.consulter(id).diffusion().niveau()).isEqualTo(NiveauDiffusion.PARTIEL);
+    }
+
+    @Test
+    @DisplayName("RG-OPE-35 : l'espace portail d'un opérateur inactif est fermé")
+    void rg_ope_35_operateur_inactif() {
+        long id = gerer.creer(saisie(TypeOperateur.PRODUCTEUR, "000001", "Domaine A", "32100", FRANCE)).id();
+        gerer.desactiver(id);
+
+        assertThatThrownBy(() -> gerer.verifierAccesPortail(id))
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-35");
+    }
+
+    @Test
+    @DisplayName("RG-OPE-37 : la recherche du portail exige trois caractères")
+    void rg_ope_37_trois_caracteres() {
+        assertThatThrownBy(() -> gerer.rechercher(" ab "))
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-37");
     }
 
     private static PaysVue pays(long id, String iso, String libelle) {

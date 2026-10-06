@@ -40,14 +40,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { BadgeEtat } from '../commun/badge-etat'
+import { BadgeEtat } from '@/components/metier/badge-etat'
+import { afficherErreur } from '@/components/metier/erreur-formulaire'
+import { ErreurRacine } from '@/components/metier/erreur-racine'
+import { LignesEtat } from '@/components/metier/lignes-etat'
+import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
-import { afficherErreur } from '../commun/erreur-formulaire'
-import { ErreurRacine } from '../commun/erreur-racine'
 import { BarreFiltre } from '../commun/filtre-valeurs'
-import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
-import { PageParametrage } from '../commun/page-parametrage'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 
@@ -78,7 +78,7 @@ export function PageRegions() {
     edition === 'nouvelle' ? undefined : (edition ?? undefined)
 
   return (
-    <PageParametrage
+    <PageMetier
       titre='Régions'
       description="Régions de rattachement des opérateurs ; l'indicateur distingue la région délimitée de l'Armagnac (C.10.6, C.1.1.2)."
       actions={
@@ -159,7 +159,7 @@ export function PageRegions() {
         }
         onSucces={rafraichir}
       />
-    </PageParametrage>
+    </PageMetier>
   )
 }
 

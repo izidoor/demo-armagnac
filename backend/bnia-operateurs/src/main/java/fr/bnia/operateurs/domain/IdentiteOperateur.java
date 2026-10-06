@@ -47,6 +47,13 @@ public record IdentiteOperateur(
         commentaireInterne = Textes.facultatif(commentaireInterne);
     }
 
+    /** RG-OPE-36 : la même identité, avec les seuls champs que le portail modifie. */
+    public IdentiteOperateur avecProfil(ProfilPortail p) {
+        return new IdentiteOperateur(groupe, cvi, siret, accise, bureauDouanes, identifiantOdg, p.titre(), raisonSociale,
+                p.nomCommercial(), p.adresse(), p.telephone1(), p.telephone2(), p.portable(), p.emailGeneral(),
+                p.siteWeb(), p.siteCommercial(), p.gps(), membreBnia, p.accordDiffusionGeneral(), commentaireInterne);
+    }
+
     /** RG-OPE-08 : forme de comparaison de la raison sociale. */
     public String raisonSocialeNormalisee() {
         return Textes.normalise(raisonSociale);

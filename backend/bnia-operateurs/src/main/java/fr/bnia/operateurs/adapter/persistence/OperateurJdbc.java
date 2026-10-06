@@ -18,7 +18,7 @@ import fr.bnia.operateurs.domain.DroitsPortail;
 import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteContact;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
-import fr.bnia.operateurs.domain.NiveauDiffusion;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.NumeroAccise;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.Production;

@@ -11,7 +11,7 @@ export function LignesEtat({ requete, colonnes }: LignesEtatProps) {
   let message: string | null = null
   if (requete.isPending) message = 'Chargement…'
   else if (requete.isError) message = 'Impossible de charger la liste.'
-  else if (requete.data?.length === 0) message = 'Aucune valeur.'
+  else if (requete.data?.length === 0) message = 'Aucun élément.'
   if (!message) return null
   return (
     <TableRow>

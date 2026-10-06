@@ -52,7 +52,7 @@ public class GererContacts {
 
     /** RG-OPE-21, 27, 28. */
     public Contact creer(long idOperateur, SaisieContact saisie, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         IdentiteContact identite = identite(saisie);
         verifierReferences(identite, null);
         Contact contact = operateur.ajouterContact(identifiants.prochain(), identite);
@@ -62,7 +62,7 @@ public class GererContacts {
 
     /** RG-OPE-21, 27, 28, 29, 32. */
     public Contact modifier(long idOperateur, long idContact, SaisieContact saisie, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         IdentiteContact identite = identite(saisie);
         verifierReferences(identite, operateur.contact(idContact).identite());
         operateur.modifierContact(idContact, identite);
@@ -72,7 +72,7 @@ public class GererContacts {
 
     /** RG-OPE-29, 30, 31. */
     public Contact modifierDroits(long idOperateur, long idContact, SaisieDroits saisie, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         operateur.modifierDroits(idContact, new DroitsPortail(saisie.acces(), saisie.administrateur(), saisie.modules()),
                 canal);
         enregistreur.enregistrer(operateur, canal);
@@ -81,7 +81,7 @@ public class GererContacts {
 
     /** RG-OPE-22, 23, 29, 30, 33. */
     public Contact desactiver(long idOperateur, long idContact, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         operateur.desactiverContact(idContact, canal);
         enregistreur.enregistrer(operateur, canal);
         return operateur.contact(idContact);
@@ -89,7 +89,7 @@ public class GererContacts {
 
     /** RG-OPE-33. */
     public Contact reactiver(long idOperateur, long idContact, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         operateur.reactiverContact(idContact);
         enregistreur.enregistrer(operateur, canal);
         return operateur.contact(idContact);
@@ -97,14 +97,14 @@ public class GererContacts {
 
     /** RG-OPE-22, 23, 29, 30, 33, 34. */
     public void supprimer(long idOperateur, long idContact, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         operateur.supprimerContact(idContact, canal);
         enregistreur.enregistrer(operateur, canal);
     }
 
     /** RG-OPE-22, 23, 24. */
     public Operateur designer(long idOperateur, SaisieDesignations saisie, Canal canal) {
-        Operateur operateur = operateur(idOperateur);
+        Operateur operateur = operateur(idOperateur, canal);
         Email adresse = Email.facultatif(saisie.destinataireEmail(), "RG-OPE-24");
         if (saisie.destinataireContact() != null && adresse != null) {
             throw new RegleEnfreinte("RG-OPE-23",
@@ -141,6 +141,16 @@ public class GererContacts {
     private Operateur operateur(long id) {
         return repository.parId(id).orElseThrow(() -> new fr.bnia.commun.domain.ElementIntrouvable(
                 "Opérateur " + id + " introuvable."));
+    }
+
+    /** RG-OPE-35 : au portail, l'opérateur doit être actif. */
+    private Operateur operateur(long id, Canal canal) {
+        Operateur operateur = operateur(id);
+        if (canal == Canal.PORTAIL && !operateur.estActif()) {
+            throw new RegleEnfreinte("RG-OPE-35", "L'opérateur « " + operateur.identite().raisonSociale()
+                    + " » est inactif : son espace portail est fermé.");
+        }
+        return operateur;
     }
 
     private static IdentiteContact identite(SaisieContact s) {

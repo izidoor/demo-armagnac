@@ -26,6 +26,10 @@ Chemins relatifs à `backend/` ou `frontend/`.
 | Date du jour : `java.time.Clock` injectée (bean dans `bnia-boot`), horloge fixe en test | `GererClassesTva.java`, `boot/HorlogeConfiguration.java` |
 | Port de lecture (listing) distinct du port d'écriture ; modèle de lecture en record (`…Ligne`) | `PaysLecture.java`, `PaysLigne.java` |
 | Partie publiée : vues immuables (records) et interface à méthodes typées (par id, par code, actives) | `referentiels/domain/partage/`, `application/partage/` |
+| Agrégat qui produit des faits (événements, entrées de journal) relevés par le cas d'usage après l'enregistrement (`releverFaits()`), puis publiés et journalisés par un `Enregistreur` commun | `operateurs/domain/Operateur.java`, `application/Enregistreur.java` |
+| Règle qui dépend du canal (back-office, portail) : un `Canal` passé au cas d'usage, jamais deviné | `operateurs/domain/Canal.java` (RG-OPE-30) |
+| Événements entre contextes : port `PublicationEvenements`, adapter Spring et écouteurs dans `adapter.evenement` (ADR-013) | `operateurs/adapter/evenement/` |
+| Tester un cas d'usage qui lit `ReferentielsLecture` : Mockito (`mock(ReferentielsLecture.class)`), l'interface étant trop large pour un faux écrit à la main | `operateurs/application/GererOperateursTest.java` |
 
 ## Persistance
 
@@ -34,6 +38,9 @@ Chemins relatifs à `backend/` ou `frontend/`.
 | Ligne Spring Data JDBC en record imbriqué dans l'adapter, `@Table(schema = SCHEMA, …)`, mapping explicite `versLigne` / `versDomaine` | `adapter/persistence/PaysJdbc.java` |
 | `JdbcAggregateTemplate.insert` (renvoie l'id) et `update` explicites | `adapter/persistence/ValeursJdbc.java` |
 | Agrégat avec collection : `@MappedCollection(idColumn = …)`, enfants en `on delete cascade` | `adapter/persistence/ClasseTvaJdbc.java` |
+| Entité enfant référencée ailleurs (contact) : identifiant tiré de la séquence avant l'enregistrement (`nextval`), réinséré tel quel ; clés étrangères vers elle `deferrable initially deferred` | `operateurs/adapter/persistence/OperateurJdbc.java`, `V1__schema.sql` |
+| Agrégat 1 pour 1 de même identifiant : `insert` au premier enregistrement (`existsById`), `update` ensuite | `operateurs/adapter/persistence/PresentationJdbc.java` |
+| Export Excel : fastexcel dans `adapter.rest`, `ResponseEntity<byte[]>` avec `Content-Disposition`, relu en IT par `fastexcel-reader` | `operateurs/adapter/rest/ExportExcelOperateurs.java`, `PortailOperateurIT` |
 | Suppression : `DataIntegrityViolationException` (clé étrangère) traduite en `ElementUtilise` | `ValeursJdbc.supprimer` |
 | Listing : `Sql.where(filtre, colonnes…)` (actif, recherche `ilike` échappée), paramètre `null` typé (`Types.BIGINT`) | `adapter/persistence/Sql.java` |
 | Unicité à la casse près : index unique sur `lower(code)` ; normalisation stockée si besoin (`libelle_normalise`) | `V1__schema.sql`, `MarqueJdbc.java` |
@@ -45,6 +52,7 @@ Chemins relatifs à `backend/` ou `frontend/`.
 | Ressources désignées par leur id (`/{id}`), `POST` → 201, `DELETE` → 204, actions en sous-ressources (`/{id}/desactivation`) | `adapter/rest/PaysController.java` |
 | Même DTO de saisie pour la création et la modification (`Saisie…Request`) | `SaisiePaysRequest.java` |
 | `operationId` explicite, ou `@Ressource(singulier, pluriel)` pour les opérations héritées | `ClasseTvaController.java`, `ZoneCommercialeController.java` |
+| Mêmes endpoints au back-office et au portail : controller abstrait, une sous-classe par canal (chemin, `@Ressource`, contrôle d'accès) | `operateurs/adapter/rest/ContactsController.java` |
 | Erreurs en `ProblemDetail` avec la propriété `regle` | `bnia-commun/.../adapter/rest/GestionErreurs.java` |
 
 ## Tests
@@ -62,7 +70,10 @@ Chemins relatifs à `backend/` ou `frontend/`.
 |---|---|
 | Appels par le SDK généré avec `throwOnError: true` ; clés de cache `[ressource, filtre]`, invalidation par `[ressource]` | `features/referentiels/pays/page-pays.tsx` |
 | Page générique configurée par objet quand plusieurs ont la même forme | `features/referentiels/listes-simples/` |
-| Gabarit de page, filtre (recherche avec anti-rebond, état actif), menu d'actions, confirmations | `features/referentiels/commun/` |
+| Gabarit de page (`PageMetier`), badge d'état, lignes d'état, erreurs de formulaire : partagés entre contextes | `components/metier/` |
+| Filtre (recherche avec anti-rebond, état actif), menu d'actions, confirmations | `features/referentiels/commun/` |
+| Mêmes écrans au back-office et au portail : un `Espace` (`'bo'`, `'portail'`) et une fabrique d'appels qui choisit les endpoints | `features/operateurs/commun/api.ts` |
+| État local initialisé depuis une donnée chargée : pas de `setState` dans un effet (lint) ; le parent remonte le composant avec une `key` tirée de la donnée, ou un brouillon `null` tant que rien n'est modifié | `operateurs/fiche/designations.tsx`, `fiche/use-presentation.ts` |
 | Formulaire `react-hook-form` + zod ; erreurs serveur sur le champ visé par la règle (`afficherErreur(form, error, { 'RG-REF-06': 'codeIso' })`), mutation marquée `meta: { erreurAffichee: true }` | `features/referentiels/pays/formulaire-pays.tsx`, `src/main.tsx` |
 | Valeur inactive encore proposée si c'est la valeur actuelle de l'objet édité | `formulaire-pays.tsx` (zones) |
 | Dates `YYYY-MM-DD` formatées avec `date-fns` (`parseISO`), nombres avec `Intl.NumberFormat('fr-FR')` | `features/referentiels/classes-tva/format.ts` |

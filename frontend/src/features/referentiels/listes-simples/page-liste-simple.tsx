@@ -11,12 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { BadgeEtat } from '../commun/badge-etat'
+import { BadgeEtat } from '@/components/metier/badge-etat'
+import { LignesEtat } from '@/components/metier/lignes-etat'
+import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
 import { BarreFiltre } from '../commun/filtre-valeurs'
-import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
-import { PageParametrage } from '../commun/page-parametrage'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { FormulaireValeurSimple } from './formulaire-valeur-simple'
@@ -42,7 +42,7 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
     edition === 'nouvelle' ? undefined : (edition ?? undefined)
 
   return (
-    <PageParametrage
+    <PageMetier
       titre={config.titre}
       description={config.description}
       actions={
@@ -118,6 +118,6 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
         supprimer={() => api.supprimer(suppression!.id)}
         onSucces={rafraichir}
       />
-    </PageParametrage>
+    </PageMetier>
   )
 }

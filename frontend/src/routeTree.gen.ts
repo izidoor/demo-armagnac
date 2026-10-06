@@ -14,12 +14,16 @@ import { Route as BoRouteRouteImport } from './routes/bo/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortailIndexRouteImport } from './routes/portail/index'
 import { Route as BoIndexRouteImport } from './routes/bo/index'
+import { Route as PortailEntrepriseRouteImport } from './routes/portail/entreprise'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as PortailContactsIndexRouteImport } from './routes/portail/contacts/index'
+import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
+import { Route as PortailContactsContactRouteImport } from './routes/portail/contacts/$contact'
 import { Route as BoParametrageZonesCommercialesRouteImport } from './routes/bo/parametrage/zones-commerciales'
 import { Route as BoParametrageTypesVisiteRouteImport } from './routes/bo/parametrage/types-visite'
 import { Route as BoParametrageTitresRouteImport } from './routes/bo/parametrage/titres'
@@ -34,7 +38,9 @@ import { Route as BoParametrageContenancesRouteImport } from './routes/bo/parame
 import { Route as BoParametrageCircuitsDistributionRouteImport } from './routes/bo/parametrage/circuits-distribution'
 import { Route as BoParametrageCentresInteretRouteImport } from './routes/bo/parametrage/centres-interet'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
+import { Route as BoOperateursIdIndexRouteImport } from './routes/bo/operateurs/$id/index'
 import { Route as BoParametrageClassesTvaIdRouteImport } from './routes/bo/parametrage/classes-tva/$id'
+import { Route as BoOperateursIdContactsContactRouteImport } from './routes/bo/operateurs/$id/contacts/$contact'
 
 const PortailRouteRoute = PortailRouteRouteImport.update({
   id: '/portail',
@@ -60,6 +66,11 @@ const BoIndexRoute = BoIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => BoRouteRoute,
+} as any)
+const PortailEntrepriseRoute = PortailEntrepriseRouteImport.update({
+  id: '/entreprise',
+  path: '/entreprise',
+  getParentRoute: () => PortailRouteRoute,
 } as any)
 const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
@@ -90,6 +101,21 @@ const authSignInRoute = authSignInRouteImport.update({
   id: '/(auth)/sign-in',
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PortailContactsIndexRoute = PortailContactsIndexRouteImport.update({
+  id: '/contacts/',
+  path: '/contacts/',
+  getParentRoute: () => PortailRouteRoute,
+} as any)
+const BoOperateursIndexRoute = BoOperateursIndexRouteImport.update({
+  id: '/operateurs/',
+  path: '/operateurs/',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const PortailContactsContactRoute = PortailContactsContactRouteImport.update({
+  id: '/contacts/$contact',
+  path: '/contacts/$contact',
+  getParentRoute: () => PortailRouteRoute,
 } as any)
 const BoParametrageZonesCommercialesRoute =
   BoParametrageZonesCommercialesRouteImport.update({
@@ -169,10 +195,21 @@ const BoParametrageClassesTvaIndexRoute =
     path: '/parametrage/classes-tva/',
     getParentRoute: () => BoRouteRoute,
   } as any)
+const BoOperateursIdIndexRoute = BoOperateursIdIndexRouteImport.update({
+  id: '/operateurs/$id/',
+  path: '/operateurs/$id/',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoParametrageClassesTvaIdRoute =
   BoParametrageClassesTvaIdRouteImport.update({
     id: '/parametrage/classes-tva/$id',
     path: '/parametrage/classes-tva/$id',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoOperateursIdContactsContactRoute =
+  BoOperateursIdContactsContactRouteImport.update({
+    id: '/operateurs/$id/contacts/$contact',
+    path: '/operateurs/$id/contacts/$contact',
     getParentRoute: () => BoRouteRoute,
   } as any)
 
@@ -186,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/portail/entreprise': typeof PortailEntrepriseRoute
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
@@ -201,8 +239,13 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/portail/contacts/$contact': typeof PortailContactsContactRoute
+  '/bo/operateurs': typeof BoOperateursIndexRoute
+  '/portail/contacts': typeof PortailContactsIndexRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
+  '/bo/operateurs/$id': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
+  '/bo/operateurs/$id/contacts/$contact': typeof BoOperateursIdContactsContactRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -212,6 +255,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/portail/entreprise': typeof PortailEntrepriseRoute
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
   '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
@@ -227,8 +271,13 @@ export interface FileRoutesByTo {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/portail/contacts/$contact': typeof PortailContactsContactRoute
+  '/bo/operateurs': typeof BoOperateursIndexRoute
+  '/portail/contacts': typeof PortailContactsIndexRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
+  '/bo/operateurs/$id': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
+  '/bo/operateurs/$id/contacts/$contact': typeof BoOperateursIdContactsContactRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -241,6 +290,7 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/portail/entreprise': typeof PortailEntrepriseRoute
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
@@ -256,8 +306,13 @@ export interface FileRoutesById {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/portail/contacts/$contact': typeof PortailContactsContactRoute
+  '/bo/operateurs/': typeof BoOperateursIndexRoute
+  '/portail/contacts/': typeof PortailContactsIndexRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
+  '/bo/operateurs/$id/': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva/': typeof BoParametrageClassesTvaIndexRoute
+  '/bo/operateurs/$id/contacts/$contact': typeof BoOperateursIdContactsContactRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -271,6 +326,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/portail/entreprise'
     | '/bo/'
     | '/portail/'
     | '/bo/parametrage/centres-interet'
@@ -286,8 +342,13 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
+    | '/portail/contacts/$contact'
+    | '/bo/operateurs'
+    | '/portail/contacts'
     | '/bo/parametrage/classes-tva/$id'
+    | '/bo/operateurs/$id'
     | '/bo/parametrage/classes-tva'
+    | '/bo/operateurs/$id/contacts/$contact'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -297,6 +358,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/portail/entreprise'
     | '/bo'
     | '/portail'
     | '/bo/parametrage/centres-interet'
@@ -312,8 +374,13 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
+    | '/portail/contacts/$contact'
+    | '/bo/operateurs'
+    | '/portail/contacts'
     | '/bo/parametrage/classes-tva/$id'
+    | '/bo/operateurs/$id'
     | '/bo/parametrage/classes-tva'
+    | '/bo/operateurs/$id/contacts/$contact'
   id:
     | '__root__'
     | '/'
@@ -325,6 +392,7 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/portail/entreprise'
     | '/bo/'
     | '/portail/'
     | '/bo/parametrage/centres-interet'
@@ -340,8 +408,13 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
+    | '/portail/contacts/$contact'
+    | '/bo/operateurs/'
+    | '/portail/contacts/'
     | '/bo/parametrage/classes-tva/$id'
+    | '/bo/operateurs/$id/'
     | '/bo/parametrage/classes-tva/'
+    | '/bo/operateurs/$id/contacts/$contact'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -393,6 +466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/portail/entreprise': {
+      id: '/portail/entreprise'
+      path: '/entreprise'
+      fullPath: '/portail/entreprise'
+      preLoaderRoute: typeof PortailEntrepriseRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
     '/(errors)/503': {
       id: '/(errors)/503'
       path: '/503'
@@ -434,6 +514,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/sign-in'
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/portail/contacts/': {
+      id: '/portail/contacts/'
+      path: '/contacts'
+      fullPath: '/portail/contacts'
+      preLoaderRoute: typeof PortailContactsIndexRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
+    '/bo/operateurs/': {
+      id: '/bo/operateurs/'
+      path: '/operateurs'
+      fullPath: '/bo/operateurs'
+      preLoaderRoute: typeof BoOperateursIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/portail/contacts/$contact': {
+      id: '/portail/contacts/$contact'
+      path: '/contacts/$contact'
+      fullPath: '/portail/contacts/$contact'
+      preLoaderRoute: typeof PortailContactsContactRouteImport
+      parentRoute: typeof PortailRouteRoute
     }
     '/bo/parametrage/zones-commerciales': {
       id: '/bo/parametrage/zones-commerciales'
@@ -533,11 +634,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageClassesTvaIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/operateurs/$id/': {
+      id: '/bo/operateurs/$id/'
+      path: '/operateurs/$id'
+      fullPath: '/bo/operateurs/$id'
+      preLoaderRoute: typeof BoOperateursIdIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/parametrage/classes-tva/$id': {
       id: '/bo/parametrage/classes-tva/$id'
       path: '/parametrage/classes-tva/$id'
       fullPath: '/bo/parametrage/classes-tva/$id'
       preLoaderRoute: typeof BoParametrageClassesTvaIdRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/operateurs/$id/contacts/$contact': {
+      id: '/bo/operateurs/$id/contacts/$contact'
+      path: '/operateurs/$id/contacts/$contact'
+      fullPath: '/bo/operateurs/$id/contacts/$contact'
+      preLoaderRoute: typeof BoOperateursIdContactsContactRouteImport
       parentRoute: typeof BoRouteRoute
     }
   }
@@ -558,8 +673,11 @@ interface BoRouteRouteChildren {
   BoParametrageTitresRoute: typeof BoParametrageTitresRoute
   BoParametrageTypesVisiteRoute: typeof BoParametrageTypesVisiteRoute
   BoParametrageZonesCommercialesRoute: typeof BoParametrageZonesCommercialesRoute
+  BoOperateursIndexRoute: typeof BoOperateursIndexRoute
   BoParametrageClassesTvaIdRoute: typeof BoParametrageClassesTvaIdRoute
+  BoOperateursIdIndexRoute: typeof BoOperateursIdIndexRoute
   BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
+  BoOperateursIdContactsContactRoute: typeof BoOperateursIdContactsContactRoute
 }
 
 const BoRouteRouteChildren: BoRouteRouteChildren = {
@@ -579,19 +697,28 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoParametrageTitresRoute: BoParametrageTitresRoute,
   BoParametrageTypesVisiteRoute: BoParametrageTypesVisiteRoute,
   BoParametrageZonesCommercialesRoute: BoParametrageZonesCommercialesRoute,
+  BoOperateursIndexRoute: BoOperateursIndexRoute,
   BoParametrageClassesTvaIdRoute: BoParametrageClassesTvaIdRoute,
+  BoOperateursIdIndexRoute: BoOperateursIdIndexRoute,
   BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,
+  BoOperateursIdContactsContactRoute: BoOperateursIdContactsContactRoute,
 }
 
 const BoRouteRouteWithChildren =
   BoRouteRoute._addFileChildren(BoRouteRouteChildren)
 
 interface PortailRouteRouteChildren {
+  PortailEntrepriseRoute: typeof PortailEntrepriseRoute
   PortailIndexRoute: typeof PortailIndexRoute
+  PortailContactsContactRoute: typeof PortailContactsContactRoute
+  PortailContactsIndexRoute: typeof PortailContactsIndexRoute
 }
 
 const PortailRouteRouteChildren: PortailRouteRouteChildren = {
+  PortailEntrepriseRoute: PortailEntrepriseRoute,
   PortailIndexRoute: PortailIndexRoute,
+  PortailContactsContactRoute: PortailContactsContactRoute,
+  PortailContactsIndexRoute: PortailContactsIndexRoute,
 }
 
 const PortailRouteRouteWithChildren = PortailRouteRoute._addFileChildren(

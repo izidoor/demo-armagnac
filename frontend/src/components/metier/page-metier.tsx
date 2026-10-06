@@ -4,20 +4,20 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 
-type PageParametrageProps = {
+type PageMetierProps = {
   titre: string
   description: ReactNode
   actions?: ReactNode
   children: ReactNode
 }
 
-/** Gabarit commun des pages du menu « Paramétrage » du back-office. */
-export function PageParametrage({
+/** Gabarit commun des pages métier : en-tête, titre, description, actions. */
+export function PageMetier({
   titre,
   description,
   actions,
   children,
-}: PageParametrageProps) {
+}: PageMetierProps) {
   return (
     <>
       <Header fixed>

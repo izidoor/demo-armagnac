@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponses, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContactData, ConsulterContactResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterJournalContactData, ConsulterJournalContactResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterMembreBniaData, ConsulterMembreBniaResponses, ConsulterOperateurData, ConsulterOperateurResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContactData, CreerContactResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueResponses, CreerMembreBniaData, CreerMembreBniaResponses, CreerOperateurData, CreerOperateurResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContactData, DesactiverContactResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverMembreBniaData, DesactiverMembreBniaResponses, DesactiverOperateurData, DesactiverOperateurResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, DesignerContactsOperateurData, DesignerContactsOperateurResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerContenancesData, ListerContenancesResponses, ListerDoublonsOperateurData, ListerDoublonsOperateurResponses, ListerGroupesOperateursData, ListerGroupesOperateursResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerMembresBniaData, ListerMembresBniaResponses, ListerOperateursData, ListerOperateursResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContactData, ModifierContactResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponses, ModifierDroitsContactData, ModifierDroitsContactResponses, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierMembreBniaData, ModifierMembreBniaResponses, ModifierPaysData, ModifierPaysResponses, ModifierPresentationOperateurData, ModifierPresentationOperateurResponses, ModifierProductionOperateurData, ModifierProductionOperateurResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ProposerCodeOperateurData, ProposerCodeOperateurResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContactData, ReactiverContactResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverMembreBniaData, ReactiverMembreBniaResponses, ReactiverOperateurData, ReactiverOperateurResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContactData, SupprimerContactResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerMembreBniaData, SupprimerMembreBniaResponses, SupprimerOperateurData, SupprimerOperateurResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses } from './types.gen';
+import type { AjouterTauxTvaData, AjouterTauxTvaResponses, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContactData, ConsulterContactPortailData, ConsulterContactPortailResponses, ConsulterContactResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterJournalContactData, ConsulterJournalContactPortailData, ConsulterJournalContactPortailResponses, ConsulterJournalContactResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterMembreBniaData, ConsulterMembreBniaResponses, ConsulterOperateurData, ConsulterOperateurDemoPortailData, ConsulterOperateurDemoPortailResponses, ConsulterOperateurResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponses, ConsulterPresentationPortailData, ConsulterPresentationPortailResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterProfilPortailData, ConsulterProfilPortailResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContactData, CreerContactPortailData, CreerContactPortailResponses, CreerContactResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueResponses, CreerMembreBniaData, CreerMembreBniaResponses, CreerOperateurData, CreerOperateurResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContactData, DesactiverContactPortailData, DesactiverContactPortailResponses, DesactiverContactResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverMembreBniaData, DesactiverMembreBniaResponses, DesactiverOperateurData, DesactiverOperateurResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, DesignerContactsOperateurData, DesignerContactsOperateurResponses, DesignerContactsPortailData, DesignerContactsPortailResponses, ExporterOperateursData, ExporterOperateursResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerContenancesData, ListerContenancesResponses, ListerDoublonsOperateurData, ListerDoublonsOperateurResponses, ListerGroupesOperateursData, ListerGroupesOperateursResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerMembresBniaData, ListerMembresBniaResponses, ListerOperateursData, ListerOperateursResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContactData, ModifierContactPortailData, ModifierContactPortailResponses, ModifierContactResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponses, ModifierDiffusionPortailData, ModifierDiffusionPortailResponses, ModifierDroitsContactData, ModifierDroitsContactPortailData, ModifierDroitsContactPortailResponses, ModifierDroitsContactResponses, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierMembreBniaData, ModifierMembreBniaResponses, ModifierPaysData, ModifierPaysResponses, ModifierPresentationOperateurData, ModifierPresentationOperateurResponses, ModifierPresentationPortailData, ModifierPresentationPortailResponses, ModifierProductionOperateurData, ModifierProductionOperateurResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierProfilPortailData, ModifierProfilPortailResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ProposerCodeOperateurData, ProposerCodeOperateurResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContactData, ReactiverContactPortailData, ReactiverContactPortailResponses, ReactiverContactResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverMembreBniaData, ReactiverMembreBniaResponses, ReactiverOperateurData, ReactiverOperateurResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RechercherOperateursPortailData, RechercherOperateursPortailResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContactData, SupprimerContactPortailData, SupprimerContactPortailResponses, SupprimerContactResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerMembreBniaData, SupprimerMembreBniaResponses, SupprimerOperateurData, SupprimerOperateurResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -55,6 +55,15 @@ export const proposerCodeOperateur = <ThrowOnError extends boolean = false>(opti
 export const listerDoublonsOperateur = <ThrowOnError extends boolean = false>(options?: Options<ListerDoublonsOperateurData, ThrowOnError>): RequestResult<ListerDoublonsOperateurResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListerDoublonsOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
     url: '/api/operateurs/doublons',
+    ...options
+});
+
+/**
+ * Exporter le listing filtré au format Excel (RG-OPE-38)
+ */
+export const exporterOperateurs = <ThrowOnError extends boolean = false>(options?: Options<ExporterOperateursData, ThrowOnError>): RequestResult<ExporterOperateursResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ExporterOperateursResponses, unknown, ThrowOnError>({
+    responseType: 'blob',
+    url: '/api/operateurs/export.xlsx',
     ...options
 });
 
@@ -260,6 +269,174 @@ export const modifierPresentationOperateur = <ThrowOnError extends boolean = fal
         'Content-Type': 'application/json',
         ...options.headers
     }
+});
+
+/**
+ * Opérateur ouvert au portail en attendant le contexte acces ; 404 hors profil demo
+ */
+export const consulterOperateurDemoPortail = <ThrowOnError extends boolean = false>(options?: Options<ConsulterOperateurDemoPortailData, ThrowOnError>): RequestResult<ConsulterOperateurDemoPortailResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ConsulterOperateurDemoPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateur-demo',
+    ...options
+});
+
+/**
+ * Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)
+ */
+export const rechercherOperateursPortail = <ThrowOnError extends boolean = false>(options: Options<RechercherOperateursPortailData, ThrowOnError>): RequestResult<RechercherOperateursPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<RechercherOperateursPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/recherche',
+    ...options
+});
+
+/**
+ * Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24, 36)
+ */
+export const designerContactsPortail = <ThrowOnError extends boolean = false>(options: Options<DesignerContactsPortailData, ThrowOnError>): RequestResult<DesignerContactsPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<DesignerContactsPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{id}/designations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Modifier la diffusion des millésimes (RG-OPE-14, 36)
+ */
+export const modifierDiffusionPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierDiffusionPortailData, ThrowOnError>): RequestResult<ModifierDiffusionPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierDiffusionPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{id}/diffusion',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Consulter la présentation de l'opérateur
+ */
+export const consulterPresentationPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterPresentationPortailData, ThrowOnError>): RequestResult<ConsulterPresentationPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterPresentationPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{id}/presentation',
+    ...options
+});
+
+/**
+ * Remplacer la présentation (RG-OPE-16 à 19, 21, 35)
+ */
+export const modifierPresentationPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierPresentationPortailData, ThrowOnError>): RequestResult<ModifierPresentationPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierPresentationPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{id}/presentation',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * « Mon entreprise » : la fiche, sans le commentaire interne (RG-OPE-35, 36)
+ */
+export const consulterProfilPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterProfilPortailData, ThrowOnError>): RequestResult<ConsulterProfilPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterProfilPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{id}/profil',
+    ...options
+});
+
+/**
+ * Modifier les champs ouverts au portail (RG-OPE-20, 21, 24, 35, 36)
+ */
+export const modifierProfilPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierProfilPortailData, ThrowOnError>): RequestResult<ModifierProfilPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierProfilPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{id}/profil',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)
+ */
+export const creerContactPortail = <ThrowOnError extends boolean = false>(options: Options<CreerContactPortailData, ThrowOnError>): RequestResult<CreerContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).post<CreerContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)
+ */
+export const supprimerContactPortail = <ThrowOnError extends boolean = false>(options: Options<SupprimerContactPortailData, ThrowOnError>): RequestResult<SupprimerContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerContactPortailResponses, unknown, ThrowOnError>({ url: '/api/portail/operateurs/{operateur}/contacts/{contact}', ...options });
+
+/**
+ * Consulter un contact, ses droits et ses désignations
+ */
+export const consulterContactPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterContactPortailData, ThrowOnError>): RequestResult<ConsulterContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}',
+    ...options
+});
+
+/**
+ * Modifier un contact (RG-OPE-21, 27, 28, 29, 32)
+ */
+export const modifierContactPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierContactPortailData, ThrowOnError>): RequestResult<ModifierContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Désactiver : retire l'accès et les désignations (RG-OPE-33)
+ */
+export const desactiverContactPortail = <ThrowOnError extends boolean = false>(options: Options<DesactiverContactPortailData, ThrowOnError>): RequestResult<DesactiverContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/desactivation',
+    ...options
+});
+
+/**
+ * Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)
+ */
+export const consulterJournalContactPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalContactPortailData, ThrowOnError>): RequestResult<ConsulterJournalContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/journal',
+    ...options
+});
+
+/**
+ * Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)
+ */
+export const modifierDroitsContactPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierDroitsContactPortailData, ThrowOnError>): RequestResult<ModifierDroitsContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierDroitsContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/portail',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Réactiver, sans accès (RG-OPE-33)
+ */
+export const reactiverContactPortail = <ThrowOnError extends boolean = false>(options: Options<ReactiverContactPortailData, ThrowOnError>): RequestResult<ReactiverContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverContactPortailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/reactivation',
+    ...options
 });
 
 /**

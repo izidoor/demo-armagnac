@@ -3,11 +3,13 @@ package fr.bnia.operateurs.application;
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.operateurs.domain.Canal;
 import fr.bnia.operateurs.domain.CircuitPresente;
 import fr.bnia.operateurs.domain.LabelObtenu;
 import fr.bnia.operateurs.domain.MarquePresentee;
 import fr.bnia.operateurs.domain.MedailleConcours;
 import fr.bnia.operateurs.domain.Oenotourisme;
+import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.PresentationOperateur;
 import fr.bnia.operateurs.domain.VisiteProposee;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
@@ -44,8 +46,11 @@ public class GererPresentation {
         return repository.parId(operateur).orElseGet(() -> PresentationOperateur.vide(operateur));
     }
 
-    /** RG-OPE-16 à 19, 21. */
-    public PresentationOperateur modifier(long operateur, SaisiePresentation saisie) {
+    /** RG-OPE-16 à 19, 21 ; au portail, l'opérateur doit être actif (RG-OPE-35). */
+    public PresentationOperateur modifier(long operateur, SaisiePresentation saisie, Canal canal) {
+        if (canal == Canal.PORTAIL && !operateurs.parId(operateur).map(Operateur::estActif).orElse(true)) {
+            throw new RegleEnfreinte("RG-OPE-35", "L'opérateur est inactif : son espace portail est fermé.");
+        }
         PresentationOperateur presentation = consulter(operateur);
         verifierReferences(saisie, presentation);
         presentation.modifier(

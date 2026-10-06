@@ -16,11 +16,15 @@ import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
 import fr.bnia.operateurs.domain.NumeroAccise;
 import fr.bnia.operateurs.domain.Operateur;
+import fr.bnia.operateurs.domain.ProfilPortail;
 import fr.bnia.operateurs.domain.Production;
 import fr.bnia.operateurs.domain.SerieCode;
 import fr.bnia.operateurs.domain.Siret;
 import fr.bnia.operateurs.domain.SiteWeb;
 import fr.bnia.operateurs.domain.Textes;
+import fr.bnia.operateurs.application.partage.OperateursLecture;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
+import fr.bnia.operateurs.domain.partage.ResultatRecherche;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.PaysVue;
@@ -45,15 +49,17 @@ public class GererOperateurs {
     private final ListingOperateurs listing;
     private final NumerotationLecture numerotation;
     private final ReferentielsLecture referentiels;
+    private final OperateursLecture lecture;
     private final Enregistreur enregistreur;
 
     public GererOperateurs(OperateurRepository repository, ListingOperateurs listing,
-            NumerotationLecture numerotation, ReferentielsLecture referentiels, JournalContacts journal,
-            PublicationEvenements publication, Clock horloge) {
+            NumerotationLecture numerotation, ReferentielsLecture referentiels, OperateursLecture lecture,
+            JournalContacts journal, PublicationEvenements publication, Clock horloge) {
         this.repository = repository;
         this.listing = listing;
         this.numerotation = numerotation;
         this.referentiels = referentiels;
+        this.lecture = lecture;
         this.enregistreur = new Enregistreur(repository, journal, publication, referentiels, horloge);
     }
 
@@ -139,6 +145,55 @@ public class GererOperateurs {
         operateur.modifierAccesStatistiques(saisie.accesStatistiques());
         enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
+    }
+
+    // Portail
+
+    /**
+     * RG-OPE-35 : l'espace portail d'un opérateur inactif est fermé (RG-OPE-26). Le contrôle du rôle
+     * d'administrateur viendra avec {@code acces} : d'ici là, l'utilisateur du portail administre
+     * l'opérateur de démonstration (spec 02, §6.2).
+     */
+    public Operateur verifierAccesPortail(long id) {
+        Operateur operateur = consulter(id);
+        if (!operateur.estActif()) {
+            throw new RegleEnfreinte("RG-OPE-35", "L'opérateur « " + operateur.identite().raisonSociale()
+                    + " » est inactif : son espace portail est fermé.");
+        }
+        return operateur;
+    }
+
+    /** « Mon entreprise » : seuls les champs de RG-OPE-36 changent (RG-OPE-20, 21, 24). */
+    public Operateur modifierProfilPortail(long id, SaisieProfilPortail s) {
+        Operateur operateur = verifierAccesPortail(id);
+        var profil = new ProfilPortail(s.titre(), s.nomCommercial(),
+                new Adresse(s.adresseLigne1(), s.adresseLigne2(), s.adresseLigne3(), s.codePostal(), s.ville(), s.pays()),
+                s.telephone1(), s.telephone2(), s.portable(), Email.facultatif(s.emailGeneral(), "RG-OPE-24"),
+                SiteWeb.facultatif(s.siteWeb()), SiteWeb.facultatif(s.siteCommercial()),
+                CoordonneesGps.facultatives(s.latitude(), s.longitude()), s.accordDiffusionGeneral());
+        IdentiteOperateur identite = operateur.identite().avecProfil(profil);
+        verifierReferences(identite, operateur.identite());
+        operateur.modifierIdentite(operateur.type(), operateur.code(), identite);
+        enregistreur.enregistrer(operateur, Canal.PORTAIL);
+        return operateur;
+    }
+
+    /** RG-OPE-14, 36 : au portail, la diffusion seule ; l'accès aux statistiques reste fixé par le BNIA. */
+    public Operateur modifierDiffusionPortail(long id, NiveauDiffusion niveau, List<Integer> millesimes) {
+        Operateur operateur = verifierAccesPortail(id);
+        operateur.modifierDiffusion(DiffusionMillesimes.saisie(niveau, millesimes));
+        enregistreur.enregistrer(operateur, Canal.PORTAIL);
+        return operateur;
+    }
+
+    /** RG-OPE-37 : au moins trois caractères ; opérateurs actifs, vingt au plus. */
+    public List<ResultatRecherche> rechercher(String texte) {
+        String recherche = Textes.facultatif(texte);
+        if (recherche == null || recherche.length() < 3) {
+            throw new RegleEnfreinte("RG-OPE-37", "Saisissez au moins trois caractères du code, de la raison sociale"
+                    + " ou du nom commercial.");
+        }
+        return lecture.rechercher(recherche);
     }
 
     /** RG-OPE-05 : attribue le code proposé pour le type et le code postal actuels (RG-OPE-03). */

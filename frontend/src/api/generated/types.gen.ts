@@ -401,6 +401,17 @@ export type Region = {
     libelle: string;
 };
 
+/**
+ * Autre opérateur, vu du portail : rien d'autre que ces champs (RG-OPE-37)
+ */
+export type ResultatRechercheOperateur = {
+    code: string;
+    id: number;
+    nomCommercial?: string;
+    raisonSociale: string;
+    ville?: string;
+};
+
 export type SaisieAlambic = {
     /**
      * Strictement positive (RG-OPE-13)
@@ -483,6 +494,17 @@ export type SaisieDiffusion = {
     accesStatistiques: boolean;
     /**
      * En accord partiel : au moins un, sans doublon ; ignorés sinon (RG-OPE-14)
+     */
+    millesimes?: Array<number>;
+    niveau: 'REFUS' | 'PARTIEL' | 'TOTAL';
+};
+
+/**
+ * Diffusion des millésimes, au portail ; l'accès aux statistiques reste fixé par le BNIA (RG-OPE-36)
+ */
+export type SaisieDiffusionPortail = {
+    /**
+     * En accord partiel : au moins un, sans doublon (RG-OPE-14)
      */
     millesimes?: Array<number>;
     niveau: 'REFUS' | 'PARTIEL' | 'TOTAL';
@@ -611,6 +633,35 @@ export type SaisieProduction = {
      * Jamais OUI pour un opérateur AUTRE (RG-OPE-11)
      */
     statutDeclarationStock: 'OUI' | 'NON' | 'SOMMEIL' | 'CLOTURE';
+};
+
+/**
+ * « Mon entreprise » : les seuls champs modifiables au portail (RG-OPE-36)
+ */
+export type SaisieProfilPortail = {
+    accordDiffusionGeneral: boolean;
+    adresseLigne1?: string;
+    adresseLigne2?: string;
+    adresseLigne3?: string;
+    codePostal?: string;
+    emailGeneral?: string;
+    latitude?: number;
+    longitude?: number;
+    nomCommercial?: string;
+    /**
+     * Identifiant du pays
+     */
+    pays?: number;
+    portable?: string;
+    siteCommercial?: string;
+    siteWeb?: string;
+    telephone1?: string;
+    telephone2?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    ville?: string;
 };
 
 /**
@@ -784,6 +835,31 @@ export type ListerDoublonsOperateurResponses = {
 };
 
 export type ListerDoublonsOperateurResponse = ListerDoublonsOperateurResponses[keyof ListerDoublonsOperateurResponses];
+
+export type ExporterOperateursData = {
+    body?: never;
+    path?: never;
+    query?: {
+        type?: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+        code?: string;
+        raisonSociale?: string;
+        nomCommercial?: string;
+        codePostal?: string;
+        ville?: string;
+        actif?: boolean;
+        incomplet?: boolean;
+    };
+    url: '/api/operateurs/export.xlsx';
+};
+
+export type ExporterOperateursResponses = {
+    /**
+     * OK
+     */
+    200: Blob | File;
+};
+
+export type ExporterOperateursResponse = ExporterOperateursResponses[keyof ExporterOperateursResponses];
 
 export type ListerGroupesOperateursData = {
     body?: never;
@@ -1151,6 +1227,299 @@ export type ModifierPresentationOperateurResponses = {
 };
 
 export type ModifierPresentationOperateurResponse = ModifierPresentationOperateurResponses[keyof ModifierPresentationOperateurResponses];
+
+export type ConsulterOperateurDemoPortailData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/portail/operateur-demo';
+};
+
+export type ConsulterOperateurDemoPortailResponses = {
+    /**
+     * OK
+     */
+    200: ResultatRechercheOperateur;
+};
+
+export type ConsulterOperateurDemoPortailResponse = ConsulterOperateurDemoPortailResponses[keyof ConsulterOperateurDemoPortailResponses];
+
+export type RechercherOperateursPortailData = {
+    body?: never;
+    path?: never;
+    query: {
+        texte: string;
+    };
+    url: '/api/portail/operateurs/recherche';
+};
+
+export type RechercherOperateursPortailResponses = {
+    /**
+     * OK
+     */
+    200: Array<ResultatRechercheOperateur>;
+};
+
+export type RechercherOperateursPortailResponse = RechercherOperateursPortailResponses[keyof RechercherOperateursPortailResponses];
+
+export type DesignerContactsPortailData = {
+    body: SaisieDesignations;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{id}/designations';
+};
+
+export type DesignerContactsPortailResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type DesignerContactsPortailResponse = DesignerContactsPortailResponses[keyof DesignerContactsPortailResponses];
+
+export type ModifierDiffusionPortailData = {
+    body: SaisieDiffusionPortail;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{id}/diffusion';
+};
+
+export type ModifierDiffusionPortailResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ModifierDiffusionPortailResponse = ModifierDiffusionPortailResponses[keyof ModifierDiffusionPortailResponses];
+
+export type ConsulterPresentationPortailData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{id}/presentation';
+};
+
+export type ConsulterPresentationPortailResponses = {
+    /**
+     * OK
+     */
+    200: PresentationOperateur;
+};
+
+export type ConsulterPresentationPortailResponse = ConsulterPresentationPortailResponses[keyof ConsulterPresentationPortailResponses];
+
+export type ModifierPresentationPortailData = {
+    body: PresentationOperateur;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{id}/presentation';
+};
+
+export type ModifierPresentationPortailResponses = {
+    /**
+     * OK
+     */
+    200: PresentationOperateur;
+};
+
+export type ModifierPresentationPortailResponse = ModifierPresentationPortailResponses[keyof ModifierPresentationPortailResponses];
+
+export type ConsulterProfilPortailData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{id}/profil';
+};
+
+export type ConsulterProfilPortailResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ConsulterProfilPortailResponse = ConsulterProfilPortailResponses[keyof ConsulterProfilPortailResponses];
+
+export type ModifierProfilPortailData = {
+    body: SaisieProfilPortail;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{id}/profil';
+};
+
+export type ModifierProfilPortailResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ModifierProfilPortailResponse = ModifierProfilPortailResponses[keyof ModifierProfilPortailResponses];
+
+export type CreerContactPortailData = {
+    body: SaisieContact;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts';
+};
+
+export type CreerContactPortailResponses = {
+    /**
+     * Created
+     */
+    201: Contact;
+};
+
+export type CreerContactPortailResponse = CreerContactPortailResponses[keyof CreerContactPortailResponses];
+
+export type SupprimerContactPortailData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}';
+};
+
+export type SupprimerContactPortailResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerContactPortailResponse = SupprimerContactPortailResponses[keyof SupprimerContactPortailResponses];
+
+export type ConsulterContactPortailData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}';
+};
+
+export type ConsulterContactPortailResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ConsulterContactPortailResponse = ConsulterContactPortailResponses[keyof ConsulterContactPortailResponses];
+
+export type ModifierContactPortailData = {
+    body: SaisieContact;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}';
+};
+
+export type ModifierContactPortailResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ModifierContactPortailResponse = ModifierContactPortailResponses[keyof ModifierContactPortailResponses];
+
+export type DesactiverContactPortailData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/desactivation';
+};
+
+export type DesactiverContactPortailResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type DesactiverContactPortailResponse = DesactiverContactPortailResponses[keyof DesactiverContactPortailResponses];
+
+export type ConsulterJournalContactPortailData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/journal';
+};
+
+export type ConsulterJournalContactPortailResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneJournalContact>;
+};
+
+export type ConsulterJournalContactPortailResponse = ConsulterJournalContactPortailResponses[keyof ConsulterJournalContactPortailResponses];
+
+export type ModifierDroitsContactPortailData = {
+    body: SaisieDroits;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/portail';
+};
+
+export type ModifierDroitsContactPortailResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ModifierDroitsContactPortailResponse = ModifierDroitsContactPortailResponses[keyof ModifierDroitsContactPortailResponses];
+
+export type ReactiverContactPortailData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/reactivation';
+};
+
+export type ReactiverContactPortailResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ReactiverContactPortailResponse = ReactiverContactPortailResponses[keyof ReactiverContactPortailResponses];
 
 export type ListerCentresInteretData = {
     body?: never;

@@ -88,7 +88,7 @@ Le **contact** appartient à un opérateur et porte ses droits au portail : acc�
 Hors du contexte : compte portail (`acces`), dernières déclarations et historique de la fiche (assemblés par l'écran), export « plus d'1 hl » (`statistiques`), dérogations -40 % vol (en attente, Q-OPE-2).
 **Agrégats :** `Operateur` (avec alambics, millésimes diffusables, appellations et ses **contacts**), `PresentationOperateur` (marques, circuits, visites, labels, œnotourisme, médailles) ; journal des contacts hors agrégat (A-OPE-3).
 **Relations :** lu par presque tous à travers une **partie publiée en lecture seule** (`..operateurs.domain.partage`, `..operateurs.application.partage.OperateursLecture`), comme `referentiels` (A-OPE-1) ; événements Spring synchrones avec `acces`, types définis dans `operateurs.domain.partage` (A-OPE-2).
-**Spec :** [specs/02-operateurs](specs/02-operateurs/spec.md) (terminée, à implémenter)
+**Spec :** [specs/02-operateurs](specs/02-operateurs/spec.md) (terminée, **implémentée**)
 **Sources :** [BO 4.3](source/cdc/4-back-office-bnia/03-gestion-des-operateurs.md) · [Portail 5.13](source/cdc/5-portail-operateur/13-gestion-des-contacts.md) · [C.1](source/cdc/A-annexes/C01-gestion-des-operateurs.md) · [AGI 2.1](source/agi/2-vues-attendues-donnees-integraal/01-referentiel-des-professionnels.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
 
 ### 3. `acces`
@@ -246,3 +246,4 @@ flowchart LR
 | 2026-10-06 | `operateurs` | Spec 02, phase E : partie publiée en lecture seule pour `operateurs` (extension de l'exception d'ADR-008) ; événements Spring synchrones, types dans la partie publiée du contexte dont l'autre dépend ; `Millesime` et `Appellation` dans `commun.domain`. |
 | 2026-10-06 | `operateurs` | Spec 02 terminée (validée). Prochaine étape : ADR de la spec 02, puis implémentation de `MembreBnia` dans `referentiels` et de `operateurs`. |
 | 2026-10-06 | `operateurs` | ADR-012 (partie publiée de `operateurs`, agrégats) et ADR-013 (événements entre contextes) ; ADR-008 et ADR-009 amendés ; CLAUDE.md mis à jour. |
+| 2026-10-06 | `operateurs` | Contexte implémenté (lots 1 à 9) : `MembreBnia` dans `referentiels` ; `Millesime` et `Appellation` dans `commun.domain` ; agrégats `Operateur` (identité, déclaratif, production, diffusion, contacts et droits au portail) et `PresentationOperateur` ; journal des contacts ; événements publiés et écoutés (ADR-013), sans consommateur tant que `acces` n'existe pas ; partie publiée `OperateursLecture` ; export Excel ; écrans du back-office (menu Opérateurs) et du portail (« Mon entreprise », « Contacts », recherche d'opérateur) sur un opérateur de démonstration ; données de démonstration. Prochaine étape : spec de `acces`. |

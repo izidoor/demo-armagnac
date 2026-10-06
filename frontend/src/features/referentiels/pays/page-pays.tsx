@@ -21,12 +21,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { BadgeEtat } from '../commun/badge-etat'
+import { BadgeEtat } from '@/components/metier/badge-etat'
+import { LignesEtat } from '@/components/metier/lignes-etat'
+import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
 import { BarreFiltre } from '../commun/filtre-valeurs'
-import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
-import { PageParametrage } from '../commun/page-parametrage'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { FormulairePays, type SaisiePays } from './formulaire-pays'
@@ -64,7 +64,7 @@ export function PagePays() {
   const paysEdite = edition === 'nouveau' ? undefined : (edition ?? undefined)
 
   return (
-    <PageParametrage
+    <PageMetier
       titre='Pays'
       description="Zone commerciale, appartenance à l'UE, certificat export et âge minimum (C.10.5)."
       actions={
@@ -170,6 +170,6 @@ export function PagePays() {
         }
         onSucces={rafraichir}
       />
-    </PageParametrage>
+    </PageMetier>
   )
 }

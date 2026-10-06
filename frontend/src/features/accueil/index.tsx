@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -8,9 +9,11 @@ import { InfoSystemeCard } from '@/features/systeme/info-systeme-card'
 
 type AccueilProps = {
   espace: Espace
+  /** Cartes propres à l'espace, après celles communes. */
+  children?: ReactNode
 }
 
-export function Accueil({ espace }: AccueilProps) {
+export function Accueil({ espace, children }: AccueilProps) {
   return (
     <>
       <Header fixed>
@@ -28,6 +31,7 @@ export function Accueil({ espace }: AccueilProps) {
         </div>
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           <InfoSystemeCard />
+          {children}
         </div>
       </Main>
     </>

@@ -31,8 +31,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { afficherErreur } from '../commun/erreur-formulaire'
-import { ErreurRacine } from '../commun/erreur-racine'
+import { afficherErreur } from '@/components/metier/erreur-formulaire'
+import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { LANGUES_CERTIFICAT, NIVEAUX_DETAIL } from './libelles'
 
 const schema = z.object({

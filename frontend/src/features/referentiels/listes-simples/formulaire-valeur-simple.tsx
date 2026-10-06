@@ -23,8 +23,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { afficherErreur } from '../commun/erreur-formulaire'
-import { ErreurRacine } from '../commun/erreur-racine'
+import { afficherErreur } from '@/components/metier/erreur-formulaire'
+import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { ValeursProches } from './valeurs-proches'
 
 const schema = z.object({

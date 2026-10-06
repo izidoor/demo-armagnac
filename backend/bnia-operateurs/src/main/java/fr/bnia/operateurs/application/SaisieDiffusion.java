@@ -1,6 +1,6 @@
 package fr.bnia.operateurs.application;
 
-import fr.bnia.operateurs.domain.NiveauDiffusion;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import java.util.List;
 
 /**

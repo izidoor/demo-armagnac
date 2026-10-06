@@ -29,9 +29,11 @@ filles.
 ## Décision
 - **Partie publiée en lecture seule.** `operateurs` publie deux packages, les seuls que les autres
   contextes peuvent importer :
-  - `fr.bnia.operateurs.domain.partage` : vues immuables (`OperateurVue`, `ContactVue`,
-    `ResultatRecherche`), listes fermées (`TypeOperateur`, `PeriodiciteDsm`, `StatutDeclarationStock`,
-    `ModulePortail`) et types des événements échangés (ADR-013) ;
+  - `fr.bnia.operateurs.domain.partage` : vues immuables (`OperateurVue`, avec `AdresseVue`,
+    `ContactVue`, `ResultatRecherche`), listes fermées (`TypeOperateur`, `PeriodiciteDsm`,
+    `StatutDeclarationStock`, `NiveauDiffusion`, `ModulePortail`) et types des événements échangés
+    (ADR-013). `AdresseVue` et `NiveauDiffusion` ont été ajoutés à l'implémentation (2026-10-06) : la
+    facturation fige l'adresse, les statistiques lisent la diffusion des millésimes ;
   - `fr.bnia.operateurs.application.partage` : l'interface `OperateursLecture`, implémentée dans
     `operateurs` (opérateur par identifiant, par code, par identifiant ODG, par CVI ou SIRET ; déclarants
     attendus ; recherche restreinte ; contacts d'un e-mail ; contacts par centre d'intérêt).

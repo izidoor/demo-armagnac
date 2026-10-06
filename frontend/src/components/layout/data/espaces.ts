@@ -1,5 +1,6 @@
 import {
   ArrowLeftRight,
+  Building2,
   Globe,
   LayoutDashboard,
   Percent,
@@ -21,6 +22,12 @@ export const espaceBackOffice: Espace = {
     {
       title: 'Général',
       items: [{ title: 'Accueil', url: '/bo', icon: LayoutDashboard }],
+    },
+    {
+      // Opérateurs (spec 02, §6.1). Droit « Gestion des opérateurs : Lecture, Écriture » appliqué avec
+      // le contexte acces ; d'ici là, tout utilisateur du back-office administre.
+      title: 'Opérateurs',
+      items: [{ title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 }],
     },
     {
       // Référentiels (spec 01, §6.1). Droits « Référentiels métier : Gérer » et « Taux de TVA :
@@ -95,6 +102,18 @@ export const espacePortail: Espace = {
     {
       title: 'Général',
       items: [{ title: 'Accueil', url: '/portail', icon: LayoutDashboard }],
+    },
+    {
+      // Spec 02, §6.2 : l'opérateur de démonstration tant que le contexte acces n'existe pas.
+      title: 'Mon entreprise',
+      items: [
+        {
+          title: 'Mon entreprise',
+          url: '/portail/entreprise',
+          icon: Building2,
+        },
+        { title: 'Contacts', url: '/portail/contacts', icon: Users },
+      ],
     },
     {
       title: 'Espaces',

@@ -10,7 +10,16 @@ import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,11 +42,16 @@ import org.springframework.web.bind.annotation.RestController;
 class OperateurController {
 
     private final GererOperateurs gerer;
-    private final GererContacts contacts;
+    private static final MediaType XLSX =
+            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-    OperateurController(GererOperateurs gerer, GererContacts contacts) {
+    private final GererContacts contacts;
+    private final Clock horloge;
+
+    OperateurController(GererOperateurs gerer, GererContacts contacts, Clock horloge) {
         this.gerer = gerer;
         this.contacts = contacts;
+        this.horloge = horloge;
     }
 
     @GetMapping
@@ -53,6 +67,28 @@ class OperateurController {
             @Parameter(description = "Vrai : fiches incomplètes seulement (RG-OPE-02)") @RequestParam(required = false) Boolean incomplet) {
         var filtre = new FiltreOperateurs(type, code, raisonSociale, nomCommercial, codePostal, ville, actif, incomplet);
         return gerer.lister(filtre).stream().map(OperateurLigneResponse::depuis).toList();
+    }
+
+    @GetMapping(value = "/export.xlsx", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @Operation(operationId = "exporterOperateurs", summary = "Exporter le listing filtré au format Excel (RG-OPE-38)",
+            responses = @ApiResponse(responseCode = "200", content = @Content(
+                    mediaType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    schema = @Schema(type = "string", format = "binary"))))
+    ResponseEntity<byte[]> exporter(
+            @RequestParam(required = false) TypeOperateur type,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String raisonSociale,
+            @RequestParam(required = false) String nomCommercial,
+            @RequestParam(required = false) String codePostal,
+            @RequestParam(required = false) String ville,
+            @RequestParam(required = false) Boolean actif,
+            @RequestParam(required = false) Boolean incomplet) {
+        var filtre = new FiltreOperateurs(type, code, raisonSociale, nomCommercial, codePostal, ville, actif, incomplet);
+        String fichier = "operateurs-" + LocalDate.now(horloge) + ".xlsx";
+        return ResponseEntity.ok()
+                .contentType(XLSX)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(fichier).build().toString())
+                .body(ExportExcelOperateurs.classeur(gerer.lister(filtre)));
     }
 
     @GetMapping("/{id}")

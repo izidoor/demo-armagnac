@@ -12,10 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { BadgeEtat } from '../commun/badge-etat'
+import { BadgeEtat } from '@/components/metier/badge-etat'
+import { LignesEtat } from '@/components/metier/lignes-etat'
+import { PageMetier } from '@/components/metier/page-metier'
 import { BarreFiltre } from '../commun/filtre-valeurs'
-import { LignesEtat } from '../commun/lignes-etat'
-import { PageParametrage } from '../commun/page-parametrage'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
 import { formatDate, formatTaux } from './format'
@@ -35,7 +35,7 @@ export function PageClassesTva() {
   const [creation, setCreation] = useState(false)
 
   return (
-    <PageParametrage
+    <PageMetier
       titre='Classes de TVA'
       description='Classes de TVA et historique de leurs taux ; les taux ne se chevauchent pas (§4.11.1, C.10.1-2). Cliquer une classe pour ouvrir son historique.'
       actions={
@@ -121,6 +121,6 @@ export function PageClassesTva() {
           })
         }}
       />
-    </PageParametrage>
+    </PageMetier>
   )
 }

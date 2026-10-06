@@ -7,9 +7,11 @@ import static org.mockito.Mockito.when;
 
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.operateurs.domain.Canal;
 import fr.bnia.operateurs.domain.Portee;
 import fr.bnia.operateurs.domain.PresentationOperateur;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
+import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
 import java.time.Clock;
@@ -34,7 +36,8 @@ class GererPresentationTest {
 
     @BeforeEach
     void operateur() {
-        condom = new GererOperateurs(operateurs, operateurs, operateurs, referentiels, new JournalEnMemoire(),
+        condom = new GererOperateurs(operateurs, operateurs, operateurs, referentiels, mock(OperateursLecture.class),
+                new JournalEnMemoire(),
                 new EvenementsCaptures(), Clock.systemUTC())
                 .creer(GererOperateursTest.saisie(TypeOperateur.PRODUCTEUR, "000012", "Maison Durand", "32100", null)).id();
         when(referentiels.marque(MARQUE)).thenReturn(Optional.of(new ValeurVue(MARQUE, "DEMO-1", "Domaine de la Démonstration", true)));
@@ -49,12 +52,12 @@ class GererPresentationTest {
     @Test
     @DisplayName("RG-OPE-21 : une marque choisie doit être active ; celle déjà portée reste acceptée")
     void rg_ope_21_marque_active() {
-        gerer.modifier(condom, saisie(MARQUE));
+        gerer.modifier(condom, saisie(MARQUE), Canal.BACK_OFFICE);
         when(referentiels.marque(MARQUE)).thenReturn(Optional.of(new ValeurVue(MARQUE, "DEMO-1", "Domaine de la Démonstration", false)));
         when(referentiels.marque(4)).thenReturn(Optional.of(new ValeurVue(4, "DEMO-2", "Château Exemple", false)));
 
-        assertThat(gerer.modifier(condom, saisie(MARQUE)).marques()).hasSize(1);
-        assertThatThrownBy(() -> gerer.modifier(condom, saisie(4)))
+        assertThat(gerer.modifier(condom, saisie(MARQUE), Canal.BACK_OFFICE).marques()).hasSize(1);
+        assertThatThrownBy(() -> gerer.modifier(condom, saisie(4), Canal.BACK_OFFICE))
                 .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("Château Exemple")
                 .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-21");
     }

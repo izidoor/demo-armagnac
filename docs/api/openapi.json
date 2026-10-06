@@ -30,6 +30,9 @@
     "description" : "Référentiel : pays (C.10.5)",
     "name" : "pays"
   }, {
+    "description" : "Portail : contacts de l'opérateur (§5.13)",
+    "name" : "portail-contacts"
+  }, {
     "description" : "Référentiel : types de visite (C.10.8.4)",
     "name" : "types-visite"
   }, {
@@ -38,6 +41,9 @@
   }, {
     "description" : "Opérateurs : contacts et droits au portail (§4.3.4, C.1.9)",
     "name" : "contacts"
+  }, {
+    "description" : "Portail : profil de l'opérateur, recherche d'opérateurs (§5.13)",
+    "name" : "portail-operateur"
   }, {
     "description" : "Référentiel : régions (C.10.6)",
     "name" : "regions"
@@ -279,6 +285,84 @@
           }
         },
         "summary" : "Fiches qui portent déjà la raison sociale, le CVI, le SIRET ou le n° d'accise saisis (RG-OPE-06, 08)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/export.xlsx" : {
+      "get" : {
+        "operationId" : "exporterOperateurs",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "code",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "raisonSociale",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "nomCommercial",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "codePostal",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "ville",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "incomplet",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "binary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Exporter le listing filtré au format Excel (RG-OPE-38)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -959,6 +1043,561 @@
         },
         "summary" : "Remplacer la présentation (RG-OPE-16 à 19, 21)",
         "tags" : [ "presentation" ]
+      }
+    },
+    "/api/portail/operateur-demo" : {
+      "get" : {
+        "operationId" : "consulterOperateurDemoPortail",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResultatRechercheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Opérateur ouvert au portail en attendant le contexte acces ; 404 hors profil demo",
+        "tags" : [ "portail-operateur" ]
+      }
+    },
+    "/api/portail/operateurs/recherche" : {
+      "get" : {
+        "operationId" : "rechercherOperateursPortail",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "texte",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ResultatRechercheOperateur"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)",
+        "tags" : [ "portail-operateur" ]
+      }
+    },
+    "/api/portail/operateurs/{id}/designations" : {
+      "put" : {
+        "operationId" : "designerContactsPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDesignations"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24, 36)",
+        "tags" : [ "portail-operateur" ]
+      }
+    },
+    "/api/portail/operateurs/{id}/diffusion" : {
+      "put" : {
+        "operationId" : "modifierDiffusionPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDiffusionPortail"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier la diffusion des millésimes (RG-OPE-14, 36)",
+        "tags" : [ "portail-operateur" ]
+      }
+    },
+    "/api/portail/operateurs/{id}/presentation" : {
+      "get" : {
+        "operationId" : "consulterPresentationPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PresentationOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter la présentation de l'opérateur",
+        "tags" : [ "portail-operateur" ]
+      },
+      "put" : {
+        "operationId" : "modifierPresentationPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PresentationOperateur"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PresentationOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Remplacer la présentation (RG-OPE-16 à 19, 21, 35)",
+        "tags" : [ "portail-operateur" ]
+      }
+    },
+    "/api/portail/operateurs/{id}/profil" : {
+      "get" : {
+        "operationId" : "consulterProfilPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "« Mon entreprise » : la fiche, sans le commentaire interne (RG-OPE-35, 36)",
+        "tags" : [ "portail-operateur" ]
+      },
+      "put" : {
+        "operationId" : "modifierProfilPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieProfilPortail"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier les champs ouverts au portail (RG-OPE-20, 21, 24, 35, 36)",
+        "tags" : [ "portail-operateur" ]
+      }
+    },
+    "/api/portail/operateurs/{operateur}/contacts" : {
+      "post" : {
+        "operationId" : "creerContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieContact"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)",
+        "tags" : [ "portail-contacts" ]
+      }
+    },
+    "/api/portail/operateurs/{operateur}/contacts/{contact}" : {
+      "delete" : {
+        "operationId" : "supprimerContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)",
+        "tags" : [ "portail-contacts" ]
+      },
+      "get" : {
+        "operationId" : "consulterContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter un contact, ses droits et ses désignations",
+        "tags" : [ "portail-contacts" ]
+      },
+      "put" : {
+        "operationId" : "modifierContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieContact"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier un contact (RG-OPE-21, 27, 28, 29, 32)",
+        "tags" : [ "portail-contacts" ]
+      }
+    },
+    "/api/portail/operateurs/{operateur}/contacts/{contact}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver : retire l'accès et les désignations (RG-OPE-33)",
+        "tags" : [ "portail-contacts" ]
+      }
+    },
+    "/api/portail/operateurs/{operateur}/contacts/{contact}/journal" : {
+      "get" : {
+        "operationId" : "consulterJournalContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneJournalContact"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)",
+        "tags" : [ "portail-contacts" ]
+      }
+    },
+    "/api/portail/operateurs/{operateur}/contacts/{contact}/portail" : {
+      "put" : {
+        "operationId" : "modifierDroitsContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDroits"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)",
+        "tags" : [ "portail-contacts" ]
+      }
+    },
+    "/api/portail/operateurs/{operateur}/contacts/{contact}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverContactPortail",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "contact",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contact"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver, sans accès (RG-OPE-33)",
+        "tags" : [ "portail-contacts" ]
       }
     },
     "/api/referentiels/centres-interet" : {
@@ -4834,6 +5473,29 @@
         },
         "required" : [ "actif", "code", "enRegionDelimitee", "id", "libelle" ]
       },
+      "ResultatRechercheOperateur" : {
+        "type" : "object",
+        "description" : "Autre opérateur, vu du portail : rien d'autre que ces champs (RG-OPE-37)",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nomCommercial" : {
+            "type" : "string"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "id", "raisonSociale" ]
+      },
       "SaisieAlambic" : {
         "type" : "object",
         "properties" : {
@@ -4971,6 +5633,25 @@
           }
         },
         "required" : [ "accesStatistiques", "niveau" ]
+      },
+      "SaisieDiffusionPortail" : {
+        "type" : "object",
+        "description" : "Diffusion des millésimes, au portail ; l'accès aux statistiques reste fixé par le BNIA (RG-OPE-36)",
+        "properties" : {
+          "millesimes" : {
+            "type" : "array",
+            "description" : "En accord partiel : au moins un, sans doublon (RG-OPE-14)",
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "niveau" : {
+            "type" : "string",
+            "enum" : [ "REFUS", "PARTIEL", "TOTAL" ]
+          }
+        },
+        "required" : [ "niveau" ]
       },
       "SaisieDroits" : {
         "type" : "object",
@@ -5190,6 +5871,68 @@
           }
         },
         "required" : [ "alambics", "appellations", "statutDeclarationStock" ]
+      },
+      "SaisieProfilPortail" : {
+        "type" : "object",
+        "description" : "« Mon entreprise » : les seuls champs modifiables au portail (RG-OPE-36)",
+        "properties" : {
+          "accordDiffusionGeneral" : {
+            "type" : "boolean"
+          },
+          "adresseLigne1" : {
+            "type" : "string"
+          },
+          "adresseLigne2" : {
+            "type" : "string"
+          },
+          "adresseLigne3" : {
+            "type" : "string"
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "emailGeneral" : {
+            "type" : "string"
+          },
+          "latitude" : {
+            "type" : "number"
+          },
+          "longitude" : {
+            "type" : "number"
+          },
+          "nomCommercial" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du pays"
+          },
+          "portable" : {
+            "type" : "string"
+          },
+          "siteCommercial" : {
+            "type" : "string"
+          },
+          "siteWeb" : {
+            "type" : "string"
+          },
+          "telephone1" : {
+            "type" : "string"
+          },
+          "telephone2" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "accordDiffusionGeneral" ]
       },
       "SaisieRegion" : {
         "type" : "object",

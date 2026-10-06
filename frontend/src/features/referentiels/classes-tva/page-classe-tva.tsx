@@ -46,11 +46,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ConfirmDialog } from '@/components/confirm-dialog'
-import { BadgeEtat } from '../commun/badge-etat'
+import { BadgeEtat } from '@/components/metier/badge-etat'
+import { afficherErreur } from '@/components/metier/erreur-formulaire'
+import { ErreurRacine } from '@/components/metier/erreur-racine'
+import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
-import { afficherErreur } from '../commun/erreur-formulaire'
-import { ErreurRacine } from '../commun/erreur-racine'
-import { PageParametrage } from '../commun/page-parametrage'
 import { Suppression } from '../commun/suppression'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
 import { formatDate, formatTaux } from './format'
@@ -104,19 +104,19 @@ export function PageClasseTva({ id }: { id: number }) {
 
   if (!classe) {
     return (
-      <PageParametrage titre='Classe de TVA' description={`Classe ${id}`}>
+      <PageMetier titre='Classe de TVA' description={`Classe ${id}`}>
         {retour}
         <p className='text-muted-foreground'>
           {requete.isError ? 'Classe introuvable.' : 'Chargement…'}
         </p>
-      </PageParametrage>
+      </PageMetier>
     )
   }
 
   const enVigueur = classe.tauxEnVigueur?.dateDebut
 
   return (
-    <PageParametrage
+    <PageMetier
       titre={classe.libelle}
       description={
         <span className='flex items-center gap-2'>
@@ -260,7 +260,7 @@ export function PageClasseTva({ id }: { id: number }) {
         isLoading={retirer.isPending}
         handleConfirm={() => retrait && retirer.mutate(retrait)}
       />
-    </PageParametrage>
+    </PageMetier>
   )
 }
 

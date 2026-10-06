@@ -2,6 +2,7 @@ package fr.bnia.operateurs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.PaysVue;
 import fr.bnia.support.AbstractIT;
@@ -28,6 +29,9 @@ class OperateurIT extends AbstractIT {
     @Autowired
     ReferentielsLecture referentiels;
 
+    @Autowired
+    OperateursLecture operateurs;
+
     private long france;
     private long belgique;
 
@@ -35,6 +39,17 @@ class OperateurIT extends AbstractIT {
     void pays() {
         france = pays("FR", "France");
         belgique = pays("BE", "Belgique");
+        // Les codes proposés par ces tests partent de ces numéros : ils laissent libres ceux des données de
+        // démonstration (000001…, N320001…), chargées par DemoOperateursIT dans la même base.
+        reserver("PRODUCTEUR", "900000", "32100");
+        reserver("NEGOCIANT", "N329000", "32100");
+        reserver("NEGOCIANT", "N2A9000", "20150");
+    }
+
+    private void reserver(String type, String code, String codePostal) {
+        if (operateurs.operateurParCode(code).isEmpty()) {
+            creer(URL, saisie(type, code, "Réserve de numérotation " + code, codePostal));
+        }
     }
 
     @Test

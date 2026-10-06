@@ -1,5 +1,6 @@
 package fr.bnia.operateurs.domain;
 
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.commun.domain.Millesime;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import java.util.Collection;

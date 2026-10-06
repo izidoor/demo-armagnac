@@ -1,6 +1,7 @@
 package fr.bnia.operateurs.adapter.rest;
 
 import fr.bnia.operateurs.application.GererPresentation;
+import fr.bnia.operateurs.domain.Canal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +32,6 @@ class PresentationController {
     @PutMapping
     @Operation(operationId = "modifierPresentationOperateur", summary = "Remplacer la présentation (RG-OPE-16 à 19, 21)")
     PresentationDto modifier(@PathVariable long operateur, @RequestBody PresentationDto requete) {
-        return PresentationDto.depuis(gerer.modifier(operateur, requete.versSaisie()));
+        return PresentationDto.depuis(gerer.modifier(operateur, requete.versSaisie(), Canal.BACK_OFFICE));
     }
 }

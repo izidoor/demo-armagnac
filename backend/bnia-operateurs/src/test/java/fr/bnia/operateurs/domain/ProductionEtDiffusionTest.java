@@ -1,5 +1,6 @@
 package fr.bnia.operateurs.domain;
 
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import static fr.bnia.operateurs.domain.OperateurTest.adresse;
 import static fr.bnia.operateurs.domain.OperateurTest.identite;
 import static fr.bnia.operateurs.domain.partage.PeriodiciteDsm.ANNUELLE;

@@ -13,6 +13,7 @@ import fr.bnia.operateurs.domain.ChampContact;
 import fr.bnia.operateurs.domain.partage.AccesPortailAccorde;
 import fr.bnia.operateurs.domain.partage.ModulePortail;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
+import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
 import java.time.Clock;
@@ -36,8 +37,8 @@ class GererContactsTest {
     private final EvenementsCaptures evenements = new EvenementsCaptures();
     private final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
     private final Clock horloge = Clock.fixed(MAINTENANT, ZoneOffset.UTC);
-    private final GererOperateurs operateurs = new GererOperateurs(memoire, memoire, memoire, referentiels, journal,
-            evenements, horloge);
+    private final GererOperateurs operateurs = new GererOperateurs(memoire, memoire, memoire, referentiels,
+            mock(OperateursLecture.class), journal, evenements, horloge);
     private final GererContacts gerer = new GererContacts(memoire, memoire, journal, evenements, referentiels, horloge);
 
     private long condom;
@@ -109,6 +110,16 @@ class GererContactsTest {
 
         assertThat(gerer.consulter(eauze, aEauze).contact().identite().email().valeur()).isEqualTo("jeanne@durand.fr");
         assertThat(gerer.journal(eauze, aEauze)).anyMatch(l -> l.auteur().equals("Mon compte"));
+    }
+
+    @Test
+    @DisplayName("RG-OPE-35 : au portail, les contacts d'un opérateur inactif ne se gèrent plus")
+    void rg_ope_35_operateur_inactif() {
+        operateurs.desactiver(condom);
+
+        assertThatThrownBy(() -> gerer.creer(condom, durand(null, Set.of()), Canal.PORTAIL))
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-35");
+        assertThat(gerer.creer(condom, durand(null, Set.of()), Canal.BACK_OFFICE).estActif()).isTrue();
     }
 
     @Test

@@ -4,8 +4,8 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { ajouterTauxTva, attribuerNouveauCodeOperateur, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContact, consulterContenance, consulterInfoSysteme, consulterJournalContact, consulterLabel, consulterLangue, consulterMarque, consulterMembreBnia, consulterOperateur, consulterPays, consulterPresentationOperateur, consulterProduitCommercialise, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContact, creerContenance, creerLabel, creerLangue, creerMarque, creerMembreBnia, creerOperateur, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContact, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverMembreBnia, desactiverOperateur, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, designerContactsOperateur, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerDoublonsOperateur, listerGroupesOperateurs, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerMembresBnia, listerOperateurs, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContact, modifierContenance, modifierDiffusionOperateur, modifierDroitsContact, modifierIdentiteOperateur, modifierLabel, modifierLangue, modifierMarque, modifierMembreBnia, modifierPays, modifierPresentationOperateur, modifierProductionOperateur, modifierProduitCommercialise, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, proposerCodeOperateur, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContact, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverMembreBnia, reactiverOperateur, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, retirerTauxTva, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContact, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerMembreBnia, supprimerOperateur, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale } from '../sdk.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponse, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContactData, ConsulterContactResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterJournalContactData, ConsulterJournalContactResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterMembreBniaData, ConsulterMembreBniaResponse, ConsulterOperateurData, ConsulterOperateurResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContactData, CreerContactResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerMembreBniaData, CreerMembreBniaResponse, CreerOperateurData, CreerOperateurResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContactData, DesactiverContactResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverMembreBniaData, DesactiverMembreBniaResponse, DesactiverOperateurData, DesactiverOperateurResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, DesignerContactsOperateurData, DesignerContactsOperateurResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerDoublonsOperateurData, ListerDoublonsOperateurResponse, ListerGroupesOperateursData, ListerGroupesOperateursResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerMembresBniaData, ListerMembresBniaResponse, ListerOperateursData, ListerOperateursResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContactData, ModifierContactResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponse, ModifierDroitsContactData, ModifierDroitsContactResponse, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierMembreBniaData, ModifierMembreBniaResponse, ModifierPaysData, ModifierPaysResponse, ModifierPresentationOperateurData, ModifierPresentationOperateurResponse, ModifierProductionOperateurData, ModifierProductionOperateurResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ProposerCodeOperateurData, ProposerCodeOperateurResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContactData, ReactiverContactResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverMembreBniaData, ReactiverMembreBniaResponse, ReactiverOperateurData, ReactiverOperateurResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContactData, SupprimerContactResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerMembreBniaData, SupprimerMembreBniaResponse, SupprimerOperateurData, SupprimerOperateurResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse } from '../types.gen';
+import { ajouterTauxTva, attribuerNouveauCodeOperateur, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContact, consulterContactPortail, consulterContenance, consulterInfoSysteme, consulterJournalContact, consulterJournalContactPortail, consulterLabel, consulterLangue, consulterMarque, consulterMembreBnia, consulterOperateur, consulterOperateurDemoPortail, consulterPays, consulterPresentationOperateur, consulterPresentationPortail, consulterProduitCommercialise, consulterProfilPortail, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContact, creerContactPortail, creerContenance, creerLabel, creerLangue, creerMarque, creerMembreBnia, creerOperateur, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContact, desactiverContactPortail, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverMembreBnia, desactiverOperateur, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, designerContactsOperateur, designerContactsPortail, exporterOperateurs, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerDoublonsOperateur, listerGroupesOperateurs, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerMembresBnia, listerOperateurs, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContact, modifierContactPortail, modifierContenance, modifierDiffusionOperateur, modifierDiffusionPortail, modifierDroitsContact, modifierDroitsContactPortail, modifierIdentiteOperateur, modifierLabel, modifierLangue, modifierMarque, modifierMembreBnia, modifierPays, modifierPresentationOperateur, modifierPresentationPortail, modifierProductionOperateur, modifierProduitCommercialise, modifierProfilPortail, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, proposerCodeOperateur, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContact, reactiverContactPortail, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverMembreBnia, reactiverOperateur, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, rechercherOperateursPortail, retirerTauxTva, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContact, supprimerContactPortail, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerMembreBnia, supprimerOperateur, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale } from '../sdk.gen';
+import type { AjouterTauxTvaData, AjouterTauxTvaResponse, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContactData, ConsulterContactPortailData, ConsulterContactPortailResponse, ConsulterContactResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterJournalContactData, ConsulterJournalContactPortailData, ConsulterJournalContactPortailResponse, ConsulterJournalContactResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterMembreBniaData, ConsulterMembreBniaResponse, ConsulterOperateurData, ConsulterOperateurDemoPortailData, ConsulterOperateurDemoPortailResponse, ConsulterOperateurResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponse, ConsulterPresentationPortailData, ConsulterPresentationPortailResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterProfilPortailData, ConsulterProfilPortailResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContactData, CreerContactPortailData, CreerContactPortailResponse, CreerContactResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerMembreBniaData, CreerMembreBniaResponse, CreerOperateurData, CreerOperateurResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContactData, DesactiverContactPortailData, DesactiverContactPortailResponse, DesactiverContactResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverMembreBniaData, DesactiverMembreBniaResponse, DesactiverOperateurData, DesactiverOperateurResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, DesignerContactsOperateurData, DesignerContactsOperateurResponse, DesignerContactsPortailData, DesignerContactsPortailResponse, ExporterOperateursData, ExporterOperateursResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerDoublonsOperateurData, ListerDoublonsOperateurResponse, ListerGroupesOperateursData, ListerGroupesOperateursResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerMembresBniaData, ListerMembresBniaResponse, ListerOperateursData, ListerOperateursResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContactData, ModifierContactPortailData, ModifierContactPortailResponse, ModifierContactResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponse, ModifierDiffusionPortailData, ModifierDiffusionPortailResponse, ModifierDroitsContactData, ModifierDroitsContactPortailData, ModifierDroitsContactPortailResponse, ModifierDroitsContactResponse, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierMembreBniaData, ModifierMembreBniaResponse, ModifierPaysData, ModifierPaysResponse, ModifierPresentationOperateurData, ModifierPresentationOperateurResponse, ModifierPresentationPortailData, ModifierPresentationPortailResponse, ModifierProductionOperateurData, ModifierProductionOperateurResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierProfilPortailData, ModifierProfilPortailResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ProposerCodeOperateurData, ProposerCodeOperateurResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContactData, ReactiverContactPortailData, ReactiverContactPortailResponse, ReactiverContactResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverMembreBniaData, ReactiverMembreBniaResponse, ReactiverOperateurData, ReactiverOperateurResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RechercherOperateursPortailData, RechercherOperateursPortailResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContactData, SupprimerContactPortailData, SupprimerContactPortailResponse, SupprimerContactResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerMembreBniaData, SupprimerMembreBniaResponse, SupprimerOperateurData, SupprimerOperateurResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -109,6 +109,24 @@ export const listerDoublonsOperateurOptions = (options?: Options<ListerDoublonsO
         return data;
     },
     queryKey: listerDoublonsOperateurQueryKey(options)
+});
+
+export const exporterOperateursQueryKey = (options?: Options<ExporterOperateursData>) => createQueryKey('exporterOperateurs', options);
+
+/**
+ * Exporter le listing filtré au format Excel (RG-OPE-38)
+ */
+export const exporterOperateursOptions = (options?: Options<ExporterOperateursData>) => queryOptions<ExporterOperateursResponse, AxiosError<DefaultError>, ExporterOperateursResponse, ReturnType<typeof exporterOperateursQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await exporterOperateurs({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: exporterOperateursQueryKey(options)
 });
 
 export const listerGroupesOperateursQueryKey = (options?: Options<ListerGroupesOperateursData>) => createQueryKey('listerGroupesOperateurs', options);
@@ -446,6 +464,284 @@ export const modifierPresentationOperateurMutation = (options?: Partial<Options<
     const mutationOptions: UseMutationOptions<ModifierPresentationOperateurResponse, AxiosError<DefaultError>, Options<ModifierPresentationOperateurData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await modifierPresentationOperateur({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterOperateurDemoPortailQueryKey = (options?: Options<ConsulterOperateurDemoPortailData>) => createQueryKey('consulterOperateurDemoPortail', options);
+
+/**
+ * Opérateur ouvert au portail en attendant le contexte acces ; 404 hors profil demo
+ */
+export const consulterOperateurDemoPortailOptions = (options?: Options<ConsulterOperateurDemoPortailData>) => queryOptions<ConsulterOperateurDemoPortailResponse, AxiosError<DefaultError>, ConsulterOperateurDemoPortailResponse, ReturnType<typeof consulterOperateurDemoPortailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterOperateurDemoPortail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterOperateurDemoPortailQueryKey(options)
+});
+
+export const rechercherOperateursPortailQueryKey = (options: Options<RechercherOperateursPortailData>) => createQueryKey('rechercherOperateursPortail', options);
+
+/**
+ * Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)
+ */
+export const rechercherOperateursPortailOptions = (options: Options<RechercherOperateursPortailData>) => queryOptions<RechercherOperateursPortailResponse, AxiosError<DefaultError>, RechercherOperateursPortailResponse, ReturnType<typeof rechercherOperateursPortailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await rechercherOperateursPortail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: rechercherOperateursPortailQueryKey(options)
+});
+
+/**
+ * Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24, 36)
+ */
+export const designerContactsPortailMutation = (options?: Partial<Options<DesignerContactsPortailData>>): UseMutationOptions<DesignerContactsPortailResponse, AxiosError<DefaultError>, Options<DesignerContactsPortailData>> => {
+    const mutationOptions: UseMutationOptions<DesignerContactsPortailResponse, AxiosError<DefaultError>, Options<DesignerContactsPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await designerContactsPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Modifier la diffusion des millésimes (RG-OPE-14, 36)
+ */
+export const modifierDiffusionPortailMutation = (options?: Partial<Options<ModifierDiffusionPortailData>>): UseMutationOptions<ModifierDiffusionPortailResponse, AxiosError<DefaultError>, Options<ModifierDiffusionPortailData>> => {
+    const mutationOptions: UseMutationOptions<ModifierDiffusionPortailResponse, AxiosError<DefaultError>, Options<ModifierDiffusionPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierDiffusionPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterPresentationPortailQueryKey = (options: Options<ConsulterPresentationPortailData>) => createQueryKey('consulterPresentationPortail', options);
+
+/**
+ * Consulter la présentation de l'opérateur
+ */
+export const consulterPresentationPortailOptions = (options: Options<ConsulterPresentationPortailData>) => queryOptions<ConsulterPresentationPortailResponse, AxiosError<DefaultError>, ConsulterPresentationPortailResponse, ReturnType<typeof consulterPresentationPortailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterPresentationPortail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterPresentationPortailQueryKey(options)
+});
+
+/**
+ * Remplacer la présentation (RG-OPE-16 à 19, 21, 35)
+ */
+export const modifierPresentationPortailMutation = (options?: Partial<Options<ModifierPresentationPortailData>>): UseMutationOptions<ModifierPresentationPortailResponse, AxiosError<DefaultError>, Options<ModifierPresentationPortailData>> => {
+    const mutationOptions: UseMutationOptions<ModifierPresentationPortailResponse, AxiosError<DefaultError>, Options<ModifierPresentationPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierPresentationPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterProfilPortailQueryKey = (options: Options<ConsulterProfilPortailData>) => createQueryKey('consulterProfilPortail', options);
+
+/**
+ * « Mon entreprise » : la fiche, sans le commentaire interne (RG-OPE-35, 36)
+ */
+export const consulterProfilPortailOptions = (options: Options<ConsulterProfilPortailData>) => queryOptions<ConsulterProfilPortailResponse, AxiosError<DefaultError>, ConsulterProfilPortailResponse, ReturnType<typeof consulterProfilPortailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterProfilPortail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterProfilPortailQueryKey(options)
+});
+
+/**
+ * Modifier les champs ouverts au portail (RG-OPE-20, 21, 24, 35, 36)
+ */
+export const modifierProfilPortailMutation = (options?: Partial<Options<ModifierProfilPortailData>>): UseMutationOptions<ModifierProfilPortailResponse, AxiosError<DefaultError>, Options<ModifierProfilPortailData>> => {
+    const mutationOptions: UseMutationOptions<ModifierProfilPortailResponse, AxiosError<DefaultError>, Options<ModifierProfilPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierProfilPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)
+ */
+export const creerContactPortailMutation = (options?: Partial<Options<CreerContactPortailData>>): UseMutationOptions<CreerContactPortailResponse, AxiosError<DefaultError>, Options<CreerContactPortailData>> => {
+    const mutationOptions: UseMutationOptions<CreerContactPortailResponse, AxiosError<DefaultError>, Options<CreerContactPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await creerContactPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)
+ */
+export const supprimerContactPortailMutation = (options?: Partial<Options<SupprimerContactPortailData>>): UseMutationOptions<SupprimerContactPortailResponse, AxiosError<DefaultError>, Options<SupprimerContactPortailData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerContactPortailResponse, AxiosError<DefaultError>, Options<SupprimerContactPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerContactPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterContactPortailQueryKey = (options: Options<ConsulterContactPortailData>) => createQueryKey('consulterContactPortail', options);
+
+/**
+ * Consulter un contact, ses droits et ses désignations
+ */
+export const consulterContactPortailOptions = (options: Options<ConsulterContactPortailData>) => queryOptions<ConsulterContactPortailResponse, AxiosError<DefaultError>, ConsulterContactPortailResponse, ReturnType<typeof consulterContactPortailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterContactPortail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterContactPortailQueryKey(options)
+});
+
+/**
+ * Modifier un contact (RG-OPE-21, 27, 28, 29, 32)
+ */
+export const modifierContactPortailMutation = (options?: Partial<Options<ModifierContactPortailData>>): UseMutationOptions<ModifierContactPortailResponse, AxiosError<DefaultError>, Options<ModifierContactPortailData>> => {
+    const mutationOptions: UseMutationOptions<ModifierContactPortailResponse, AxiosError<DefaultError>, Options<ModifierContactPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierContactPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Désactiver : retire l'accès et les désignations (RG-OPE-33)
+ */
+export const desactiverContactPortailMutation = (options?: Partial<Options<DesactiverContactPortailData>>): UseMutationOptions<DesactiverContactPortailResponse, AxiosError<DefaultError>, Options<DesactiverContactPortailData>> => {
+    const mutationOptions: UseMutationOptions<DesactiverContactPortailResponse, AxiosError<DefaultError>, Options<DesactiverContactPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await desactiverContactPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterJournalContactPortailQueryKey = (options: Options<ConsulterJournalContactPortailData>) => createQueryKey('consulterJournalContactPortail', options);
+
+/**
+ * Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)
+ */
+export const consulterJournalContactPortailOptions = (options: Options<ConsulterJournalContactPortailData>) => queryOptions<ConsulterJournalContactPortailResponse, AxiosError<DefaultError>, ConsulterJournalContactPortailResponse, ReturnType<typeof consulterJournalContactPortailQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterJournalContactPortail({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterJournalContactPortailQueryKey(options)
+});
+
+/**
+ * Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)
+ */
+export const modifierDroitsContactPortailMutation = (options?: Partial<Options<ModifierDroitsContactPortailData>>): UseMutationOptions<ModifierDroitsContactPortailResponse, AxiosError<DefaultError>, Options<ModifierDroitsContactPortailData>> => {
+    const mutationOptions: UseMutationOptions<ModifierDroitsContactPortailResponse, AxiosError<DefaultError>, Options<ModifierDroitsContactPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierDroitsContactPortail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Réactiver, sans accès (RG-OPE-33)
+ */
+export const reactiverContactPortailMutation = (options?: Partial<Options<ReactiverContactPortailData>>): UseMutationOptions<ReactiverContactPortailResponse, AxiosError<DefaultError>, Options<ReactiverContactPortailData>> => {
+    const mutationOptions: UseMutationOptions<ReactiverContactPortailResponse, AxiosError<DefaultError>, Options<ReactiverContactPortailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await reactiverContactPortail({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

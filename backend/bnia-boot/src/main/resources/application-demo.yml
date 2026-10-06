@@ -1,2 +1,8 @@
 # Profil de démonstration : réservé au chargeur de données de démo (ADR-005).
 # Les données de démonstration ne figurent jamais dans la migration Flyway.
+
+bnia:
+  portail:
+    # Opérateur ouvert au portail tant que le contexte acces n'existe pas (spec 02, §6.2) :
+    # le chai de Condom de la Maison Durand, dont Mme Durand est administratrice.
+    operateur-demo: "000001"

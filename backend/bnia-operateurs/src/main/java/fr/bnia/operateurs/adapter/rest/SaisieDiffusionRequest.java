@@ -1,7 +1,7 @@
 package fr.bnia.operateurs.adapter.rest;
 
 import fr.bnia.operateurs.application.SaisieDiffusion;
-import fr.bnia.operateurs.domain.NiveauDiffusion;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
