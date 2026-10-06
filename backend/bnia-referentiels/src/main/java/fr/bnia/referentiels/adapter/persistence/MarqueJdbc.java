@@ -29,16 +29,16 @@ class MarqueJdbc extends ValeursSimplesJdbc<Marque, MarqueJdbc.Ligne>
 
     @Override
     public Optional<Marque> parLibelleNormalise(LibelleNormalise libelle) {
-        return jdbcClient.sql("select code from " + table + " where libelle_normalise = :libelle")
+        return jdbcClient.sql("select id from " + table + " where libelle_normalise = :libelle")
                 .param("libelle", libelle.valeur())
-                .query(String.class)
+                .query(Long.class)
                 .optional()
-                .flatMap(code -> parCode(Code.de(code)));
+                .flatMap(this::parId);
     }
 
     @Override
     public List<ValeurSimpleLigne> proches(LibelleNormalise texte, int nombreMaximum) {
-        return jdbcClient.sql("select code, libelle, actif from " + table
+        return jdbcClient.sql("select id, code, libelle, actif from " + table
                         + " where libelle_normalise like :motif escape '\\' order by libelle, code limit :limite")
                 .param("motif", Sql.motifContient(texte.valeur()))
                 .param("limite", nombreMaximum)
@@ -48,16 +48,16 @@ class MarqueJdbc extends ValeursSimplesJdbc<Marque, MarqueJdbc.Ligne>
 
     @Override
     protected Ligne versLigne(Marque marque) {
-        return new Ligne(marque.code().valeur(), marque.libelle().valeur(), marque.libelleNormalise().valeur(),
+        return new Ligne(marque.id(), marque.code().valeur(), marque.libelle().valeur(), marque.libelleNormalise().valeur(),
                 marque.estActif());
     }
 
     @Override
     protected Marque versDomaine(Ligne ligne) {
-        return Marque.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return Marque.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "marque")
-    record Ligne(@Id String code, String libelle, String libelleNormalise, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, String libelleNormalise, boolean actif) {
     }
 }

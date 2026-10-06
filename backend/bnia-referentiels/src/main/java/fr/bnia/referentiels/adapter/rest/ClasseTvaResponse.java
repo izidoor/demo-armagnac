@@ -7,6 +7,7 @@ import java.util.List;
 
 @Schema(name = "ClasseTva", description = "Classe de TVA avec l'historique de ses taux")
 public record ClasseTvaResponse(
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "1") long id,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "NORMAL") String code,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Normal") String libelle,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean actif,
@@ -14,7 +15,7 @@ public record ClasseTvaResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Du plus récent au plus ancien") List<TauxTvaResponse> taux) {
 
     static ClasseTvaResponse depuis(ClasseTva classe, LocalDate aujourdhui) {
-        return new ClasseTvaResponse(classe.code().valeur(), classe.libelle().valeur(), classe.estActif(),
+        return new ClasseTvaResponse(classe.id(), classe.code().valeur(), classe.libelle().valeur(), classe.estActif(),
                 classe.tauxApplicable(aujourdhui).map(TauxTvaResponse::depuis).orElse(null),
                 classe.taux().stream().map(TauxTvaResponse::depuis).toList());
     }

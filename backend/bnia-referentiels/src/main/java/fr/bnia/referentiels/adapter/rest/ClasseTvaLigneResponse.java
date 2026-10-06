@@ -6,12 +6,13 @@ import java.math.BigDecimal;
 
 @Schema(name = "ClasseTvaLigne", description = "Ligne du listing des classes de TVA")
 public record ClasseTvaLigneResponse(
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "1") long id,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "NORMAL") String code,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Normal") String libelle,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean actif,
         @Schema(description = "Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)", example = "20.00") BigDecimal tauxEnVigueur) {
 
     static ClasseTvaLigneResponse depuis(ClasseTvaLigne ligne) {
-        return new ClasseTvaLigneResponse(ligne.code(), ligne.libelle(), ligne.actif(), ligne.tauxEnVigueur());
+        return new ClasseTvaLigneResponse(ligne.id(), ligne.code(), ligne.libelle(), ligne.actif(), ligne.tauxEnVigueur());
     }
 }

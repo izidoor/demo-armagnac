@@ -20,15 +20,15 @@ class ZoneCommercialeJdbc extends ValeursSimplesJdbc<ZoneCommerciale, ZoneCommer
 
     @Override
     protected Ligne versLigne(ZoneCommerciale zone) {
-        return new Ligne(zone.code().valeur(), zone.libelle().valeur(), zone.estActif());
+        return new Ligne(zone.id(), zone.code().valeur(), zone.libelle().valeur(), zone.estActif());
     }
 
     @Override
     protected ZoneCommerciale versDomaine(Ligne ligne) {
-        return ZoneCommerciale.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return ZoneCommerciale.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "zone_commerciale")
-    record Ligne(@Id String code, String libelle, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean actif) {
     }
 }

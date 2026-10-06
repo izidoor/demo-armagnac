@@ -5,18 +5,19 @@ import fr.bnia.referentiels.domain.partage.LangueCertificat;
 import fr.bnia.referentiels.domain.partage.NiveauDetailCertificat;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(name = "ModificationPays", description = "Tout sauf le code, immuable (RG-REF-02)")
-public record ModificationPaysRequest(
+@Schema(name = "SaisiePays", description = "Création ou modification d'un pays ; tout se corrige, code compris")
+public record SaisiePaysRequest(
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "US") String code,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "États-Unis") String libelle,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "US") String codeIso,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "AMN") String zoneCommerciale,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Identifiant de la zone commerciale", example = "2") Long zoneCommerciale,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean membreUe,
         @Schema(description = "Absent : FR_EN (H-REF-2)") LangueCertificat langueCertificat,
         @Schema(description = "Absent : CUMUL_DEGRE (H-REF-2)") NiveauDetailCertificat niveauDetailCertificat,
         @Schema(description = "Compte d'âge : 00, 0, 1, 2… ; absent si aucun", example = "4") String ageMinimum) {
 
     SaisiePays versSaisie() {
-        return new SaisiePays(libelle, codeIso, zoneCommerciale, membreUe, langueCertificat, niveauDetailCertificat,
-                ageMinimum);
+        return new SaisiePays(code, libelle, codeIso, zoneCommerciale, membreUe, langueCertificat,
+                niveauDetailCertificat, ageMinimum);
     }
 }

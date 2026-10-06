@@ -48,8 +48,8 @@ class GererMarquesTest {
     @Test
     @DisplayName("RG-REF-15 : une marque inactive bloque son libellé et invite à la réactiver")
     void rg_ref_15_marque_inactive_bloque_son_libelle() {
-        gerer.creer("CX", "Château X");
-        gerer.desactiver("CX");
+        long id = gerer.creer("CX", "Château X").id();
+        gerer.desactiver(id);
 
         assertThatThrownBy(() -> gerer.creer("CX2", "Château X"))
                 .isInstanceOf(ConflitUnicite.class)
@@ -60,17 +60,17 @@ class GererMarquesTest {
     @DisplayName("RG-REF-15 : une modification ne peut pas reprendre le libellé d'une autre marque")
     void rg_ref_15_modification_vers_un_libelle_pris() {
         gerer.creer("CX", "Château X");
-        gerer.creer("CY", "Château Y");
+        long cy = gerer.creer("CY", "Château Y").id();
 
-        assertThatThrownBy(() -> gerer.modifier("CY", "Chateau X")).isInstanceOf(ConflitUnicite.class);
+        assertThatThrownBy(() -> gerer.modifier(cy, "CY", "Chateau X")).isInstanceOf(ConflitUnicite.class);
     }
 
     @Test
     @DisplayName("RG-REF-15 : une marque peut corriger la casse ou les accents de son propre libellé")
     void rg_ref_15_modification_de_son_propre_libelle() {
-        gerer.creer("CX", "Chateau X");
+        long id = gerer.creer("CX", "Chateau X").id();
 
-        assertThat(gerer.modifier("CX", "Château X").libelle().valeur()).isEqualTo("Château X");
+        assertThat(gerer.modifier(id, "CX", "Château X").libelle().valeur()).isEqualTo("Château X");
     }
 
     @Test
@@ -86,6 +86,10 @@ class GererMarquesTest {
     private static final class MarquesEnMemoire extends ValeursSimplesEnMemoire<Marque>
             implements MarqueRepository, MarquesProchesLecture {
 
+        MarquesEnMemoire() {
+            super((id, m) -> Marque.reconstituer(id, m.code(), m.libelle(), m.estActif()));
+        }
+
         @Override
         public Optional<Marque> parLibelleNormalise(LibelleNormalise libelle) {
             return valeurs.values().stream().filter(m -> m.libelleNormalise().equals(libelle)).findFirst();
@@ -96,7 +100,7 @@ class GererMarquesTest {
             return valeurs.values().stream()
                     .filter(m -> m.libelleNormalise().valeur().contains(texte.valeur()))
                     .limit(nombreMaximum)
-                    .map(m -> new ValeurSimpleLigne(m.code().valeur(), m.libelle().valeur(), m.estActif()))
+                    .map(m -> new ValeurSimpleLigne(m.id(), m.code().valeur(), m.libelle().valeur(), m.estActif()))
                     .toList();
         }
     }

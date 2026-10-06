@@ -39,7 +39,7 @@ type FormulaireValeurSimpleProps<R> = {
   onOuvertChange: (ouvert: boolean) => void
   titre: string
   /** Valeur modifiée ; absente à la création. */
-  valeur?: { code: string; libelle: string }
+  valeur?: { id: number; code: string; libelle: string }
   enregistrer: (saisie: SaisieValeurSimple) => Promise<R>
   /** Reçoit le résultat de l'enregistrement. */
   onSucces: (resultat: R) => void
@@ -48,8 +48,8 @@ type FormulaireValeurSimpleProps<R> = {
 }
 
 /**
- * Création ou modification d'une valeur : code et libellé. Le code n'est saisi qu'à la création, il
- * est ensuite immuable (RG-REF-02).
+ * Création ou modification d'une valeur : code et libellé, tous deux corrigeables ; le code reste
+ * unique dans la liste (RG-REF-01, RG-REF-02).
  */
 export function FormulaireValeurSimple<R>({
   ouvert,
@@ -92,9 +92,7 @@ export function FormulaireValeurSimple<R>({
         <DialogHeader>
           <DialogTitle>{titre}</DialogTitle>
           <DialogDescription>
-            {valeur
-              ? 'Le code est immuable : seul le libellé change.'
-              : 'Le code ne pourra plus être modifié après la création.'}
+            Le code est unique dans la liste.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -111,7 +109,7 @@ export function FormulaireValeurSimple<R>({
                 <FormItem>
                   <FormLabel>Code</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={!!valeur} autoComplete='off' />
+                    <Input {...field} autoComplete='off' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +129,7 @@ export function FormulaireValeurSimple<R>({
                       <ValeursProches
                         libelle={libelle}
                         proches={proches}
-                        sauf={valeur?.code}
+                        sauf={valeur?.id}
                       />
                     </FormDescription>
                   )}

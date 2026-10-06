@@ -3,8 +3,9 @@ package fr.bnia.referentiels.domain;
 import fr.bnia.commun.domain.RegleEnfreinte;
 
 /**
- * Code métier d'une valeur de référentiel : obligatoire, sans espaces en tête ni en fin (RG-REF-01),
- * immuable (RG-REF-02). Les autres contextes y font référence (A-REF-1).
+ * Code d'une valeur de référentiel : obligatoire, sans espaces en tête ni en fin, unique dans sa liste
+ * (RG-REF-01). Modifiable : les autres contextes référencent la valeur par son identifiant technique
+ * (RG-REF-02, ADR-011).
  */
 public record Code(String valeur) {
 

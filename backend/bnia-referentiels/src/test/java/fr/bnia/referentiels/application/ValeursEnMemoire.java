@@ -5,29 +5,53 @@ import fr.bnia.referentiels.domain.ValeurSimple;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
-/** Liste de référentiel en mémoire, pour les tests de cas d'usage. */
+/**
+ * Liste de référentiel en mémoire, pour les tests de cas d'usage. Attribue les identifiants à
+ * l'insertion, comme la base.
+ */
 class ValeursEnMemoire<T extends ValeurSimple> implements ValeursRepository<T> {
 
-    final Map<String, T> valeurs = new LinkedHashMap<>();
+    final Map<Long, T> valeurs = new LinkedHashMap<>();
+    private final BiFunction<Long, T, T> avecId;
+    private long prochainId = 1;
 
-    @Override
-    public Optional<T> parCode(Code code) {
-        return Optional.ofNullable(valeurs.get(code.valeur()));
+    /** @param avecId reconstitue la valeur avec l'identifiant attribué */
+    ValeursEnMemoire(BiFunction<Long, T, T> avecId) {
+        this.avecId = avecId;
     }
 
     @Override
-    public boolean existeCode(Code code) {
-        return valeurs.keySet().stream().anyMatch(cle -> cle.equalsIgnoreCase(code.valeur()));
+    public Optional<T> parId(long id) {
+        return Optional.ofNullable(valeurs.get(id));
     }
 
     @Override
-    public void inserer(T valeur) {
-        valeurs.put(valeur.code().valeur(), valeur);
+    public boolean existeCode(Code code, Long sauf) {
+        return valeurs.values().stream()
+                .anyMatch(v -> v.code().valeur().equalsIgnoreCase(code.valeur()) && !v.id().equals(sauf));
+    }
+
+    @Override
+    public T inserer(T valeur) {
+        T enregistree = avecId.apply(prochainId++, valeur);
+        valeurs.put(enregistree.id(), enregistree);
+        return enregistree;
     }
 
     @Override
     public void mettreAJour(T valeur) {
-        valeurs.put(valeur.code().valeur(), valeur);
+        valeurs.put(valeur.id(), valeur);
+    }
+
+    @Override
+    public void supprimer(long id) {
+        valeurs.remove(id);
+    }
+
+    /** L'identifiant de la valeur qui porte ce code. */
+    long id(String code) {
+        return valeurs.values().stream().filter(v -> v.code().valeur().equals(code)).findFirst().orElseThrow().id();
     }
 }

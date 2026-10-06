@@ -7,17 +7,12 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 /** Règles propres aux marques : RG-REF-14 et RG-REF-15. */
 class MarqueIT extends AbstractIT {
 
     private static final String URL = "/api/referentiels/marques";
-
-    @Autowired
-    RestTestClient client;
 
     @Test
     @DisplayName("RG-REF-14 : la création de marque, commune au paramétrage et à la fiche opérateur, exige un code")
@@ -32,7 +27,7 @@ class MarqueIT extends AbstractIT {
     @DisplayName("RG-REF-15 : un libellé déjà pris à la casse, aux accents et aux espaces près est refusé en 409")
     void rg_ref_15_libelle_en_double() {
         String suffixe = suffixe();
-        creer("A" + suffixe, "Château " + suffixe);
+        creerMarque("A" + suffixe, "Château " + suffixe);
 
         client.post().uri(URL).body(Map.of("code", "B" + suffixe, "libelle", "  CHATEAU   " + suffixe.toLowerCase()))
                 .exchange()
@@ -46,8 +41,8 @@ class MarqueIT extends AbstractIT {
     @DisplayName("RG-REF-15 : une marque inactive bloque son libellé et invite à la réactiver")
     void rg_ref_15_inactive_bloque_son_libelle() {
         String suffixe = suffixe();
-        creer("A" + suffixe, "Domaine " + suffixe);
-        client.post().uri(URL + "/{code}/desactivation", "A" + suffixe).exchange().expectStatus().isOk();
+        long id = creerMarque("A" + suffixe, "Domaine " + suffixe);
+        client.post().uri(URL + "/{id}/desactivation", id).exchange().expectStatus().isOk();
 
         client.post().uri(URL).body(Map.of("code", "B" + suffixe, "libelle", "Domaine " + suffixe))
                 .exchange()
@@ -60,9 +55,9 @@ class MarqueIT extends AbstractIT {
     @DisplayName("RG-REF-15 : les marques au libellé proche sont proposées, accents et casse ignorés")
     void rg_ref_15_marques_proches() {
         String suffixe = suffixe();
-        creer("A" + suffixe, "Château Lestang " + suffixe);
-        creer("B" + suffixe, "Domaine Lestang " + suffixe);
-        creer("C" + suffixe, "Autre " + suffixe);
+        creerMarque("A" + suffixe, "Château Lestang " + suffixe);
+        creerMarque("B" + suffixe, "Domaine Lestang " + suffixe);
+        creerMarque("C" + suffixe, "Autre " + suffixe);
 
         client.get().uri(u -> u.path(URL + "/proches").queryParam("libelle", "lestang " + suffixe.toLowerCase()).build())
                 .exchange()
@@ -78,10 +73,8 @@ class MarqueIT extends AbstractIT {
                 .expectBody().jsonPath("$.length()").isEqualTo(1);
     }
 
-    private void creer(String code, String libelle) {
-        client.post().uri(URL).body(Map.of("code", code, "libelle", libelle))
-                .exchange()
-                .expectStatus().isCreated();
+    private long creerMarque(String code, String libelle) {
+        return creer(URL, Map.of("code", code, "libelle", libelle));
     }
 
     private static String suffixe() {

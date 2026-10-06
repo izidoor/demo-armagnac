@@ -41,8 +41,8 @@ class ContenanceTest {
 
         assertThat(contenance.libelle()).isEqualTo("Bouteille 70 cl");
 
-        contenance.renommer(null);
-        assertThat(contenance.libelle()).isEqualTo("0,70 L");
+        contenance.decrire(Volume.de("0.75"), null);
+        assertThat(contenance.libelle()).isEqualTo("0,75 L");
     }
 
     @Test

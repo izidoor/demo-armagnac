@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -11,13 +12,15 @@ type MenuActionsProps = {
   actif: boolean
   onModifier: () => void
   onChangerEtat: () => void
+  onSupprimer: () => void
 }
 
-/** Actions d'une ligne : modifier, désactiver ou réactiver (RG-REF-04 : jamais supprimer). */
+/** Actions d'une ligne : modifier, désactiver ou réactiver, supprimer si rien ne l'utilise (RG-REF-04). */
 export function MenuActions({
   actif,
   onModifier,
   onChangerEtat,
+  onSupprimer,
 }: MenuActionsProps) {
   return (
     <DropdownMenu modal={false}>
@@ -31,6 +34,10 @@ export function MenuActions({
         <DropdownMenuItem onClick={onModifier}>Modifier</DropdownMenuItem>
         <DropdownMenuItem onClick={onChangerEtat}>
           {actif ? 'Désactiver' : 'Réactiver'}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant='destructive' onClick={onSupprimer}>
+          Supprimer
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

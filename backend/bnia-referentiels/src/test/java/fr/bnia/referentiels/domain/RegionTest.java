@@ -10,9 +10,9 @@ class RegionTest {
     void une_region_porte_l_indicateur_de_region_delimitee() {
         var gers = Region.creer(Code.de("GERS"), Libelle.de("Gers"), true);
 
-        gers.decrire(Libelle.de("Gers (32)"), false);
+        gers.decrire(Code.de("GERS-32"), Libelle.de("Gers (32)"), false);
 
-        assertThat(gers.code()).isEqualTo(Code.de("GERS"));
+        assertThat(gers.code()).isEqualTo(Code.de("GERS-32"));
         assertThat(gers.libelle()).isEqualTo(Libelle.de("Gers (32)"));
         assertThat(gers.estEnRegionDelimitee()).isFalse();
         assertThat(gers.estActif()).isTrue();

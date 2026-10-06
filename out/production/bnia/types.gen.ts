@@ -10,6 +10,7 @@ export type ClientOptions = {
 export type ClasseTva = {
     actif: boolean;
     code: string;
+    id: number;
     libelle: string;
     /**
      * Du plus récent au plus ancien
@@ -27,6 +28,7 @@ export type ClasseTva = {
 export type ClasseTvaLigne = {
     actif: boolean;
     code: string;
+    id: number;
     libelle: string;
     /**
      * Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)
@@ -36,6 +38,7 @@ export type ClasseTvaLigne = {
 
 export type Contenance = {
     actif: boolean;
+    id: number;
     /**
      * Libellé saisi, sinon dérivé du volume
      */
@@ -45,51 +48,9 @@ export type Contenance = {
      */
     libelleSaisi?: string;
     /**
-     * Volume en litres, identifiant
+     * Volume en litres, unique
      */
     volume: number;
-};
-
-export type CreationContenance = {
-    /**
-     * Facultatif : dérivé du volume si absent
-     */
-    libelle?: string;
-    /**
-     * En litres, trois décimales au plus
-     */
-    volume: number;
-};
-
-export type CreationPays = {
-    /**
-     * Compte d'âge : 00, 0, 1, 2… ; absent si aucun
-     */
-    ageMinimum?: string;
-    code: string;
-    codeIso: string;
-    /**
-     * Absent : FR_EN (H-REF-2)
-     */
-    langueCertificat?: 'FR_EN' | 'FR_ES' | 'FR_IT';
-    libelle: string;
-    membreUe: boolean;
-    /**
-     * Absent : CUMUL_DEGRE (H-REF-2)
-     */
-    niveauDetailCertificat?: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
-    zoneCommerciale: string;
-};
-
-export type CreationRegion = {
-    code: string;
-    enRegionDelimitee: boolean;
-    libelle: string;
-};
-
-export type CreationValeurSimple = {
-    code: string;
-    libelle: string;
 };
 
 /**
@@ -101,24 +62,56 @@ export type InfoSysteme = {
     versionBase: string;
 };
 
+export type Pays = {
+    actif: boolean;
+    /**
+     * Compte d'âge : 00, 0, 1, 2…
+     */
+    ageMinimum?: string;
+    code: string;
+    codeIso: string;
+    id: number;
+    langueCertificat: 'FR_EN' | 'FR_ES' | 'FR_IT';
+    libelle: string;
+    membreUe: boolean;
+    niveauDetailCertificat: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
+    /**
+     * Identifiant de la zone commerciale
+     */
+    zoneCommerciale: number;
+};
+
+export type Region = {
+    actif: boolean;
+    code: string;
+    enRegionDelimitee: boolean;
+    id: number;
+    libelle: string;
+};
+
 /**
- * Le volume est immuable (RG-REF-02) : seul le libellé change
+ * Création ou modification d'une contenance, volume compris
  */
-export type ModificationContenance = {
+export type SaisieContenance = {
     /**
      * Facultatif : dérivé du volume si absent
      */
     libelle?: string;
+    /**
+     * En litres, trois décimales au plus
+     */
+    volume: number;
 };
 
 /**
- * Tout sauf le code, immuable (RG-REF-02)
+ * Création ou modification d'un pays ; tout se corrige, code compris
  */
-export type ModificationPays = {
+export type SaisiePays = {
     /**
      * Compte d'âge : 00, 0, 1, 2… ; absent si aucun
      */
     ageMinimum?: string;
+    code: string;
     codeIso: string;
     /**
      * Absent : FR_EN (H-REF-2)
@@ -130,44 +123,16 @@ export type ModificationPays = {
      * Absent : CUMUL_DEGRE (H-REF-2)
      */
     niveauDetailCertificat?: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
-    zoneCommerciale: string;
+    /**
+     * Identifiant de la zone commerciale
+     */
+    zoneCommerciale: number;
 };
 
 /**
- * Le code est immuable (RG-REF-02)
+ * Création ou modification d'une région, code compris
  */
-export type ModificationRegion = {
-    enRegionDelimitee: boolean;
-    libelle: string;
-};
-
-/**
- * Le code est immuable (RG-REF-02) : seul le libellé change
- */
-export type ModificationValeurSimple = {
-    libelle: string;
-};
-
-export type Pays = {
-    actif: boolean;
-    /**
-     * Compte d'âge : 00, 0, 1, 2…
-     */
-    ageMinimum?: string;
-    code: string;
-    codeIso: string;
-    langueCertificat: 'FR_EN' | 'FR_ES' | 'FR_IT';
-    libelle: string;
-    membreUe: boolean;
-    niveauDetailCertificat: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
-    /**
-     * Code de la zone commerciale
-     */
-    zoneCommerciale: string;
-};
-
-export type Region = {
-    actif: boolean;
+export type SaisieRegion = {
     code: string;
     enRegionDelimitee: boolean;
     libelle: string;
@@ -183,6 +148,14 @@ export type SaisieTauxTva = {
      * Pourcentage entre 0 et 100, deux décimales au plus
      */
     taux: number;
+};
+
+/**
+ * Création ou modification : le code se corrige (RG-REF-02)
+ */
+export type SaisieValeurSimple = {
+    code: string;
+    libelle: string;
 };
 
 export type TauxTva = {
@@ -203,6 +176,10 @@ export type TauxTva = {
 export type ValeurSimple = {
     actif: boolean;
     code: string;
+    /**
+     * Identifiant technique, référencé par les autres contextes
+     */
+    id: number;
     libelle: string;
 };
 
@@ -232,7 +209,7 @@ export type ListerCentresInteretResponses = {
 export type ListerCentresInteretResponse = ListerCentresInteretResponses[keyof ListerCentresInteretResponses];
 
 export type CreerCentreInteretData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/centres-interet';
@@ -247,13 +224,31 @@ export type CreerCentreInteretResponses = {
 
 export type CreerCentreInteretResponse = CreerCentreInteretResponses[keyof CreerCentreInteretResponses];
 
+export type SupprimerCentreInteretData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/centres-interet/{id}';
+};
+
+export type SupprimerCentreInteretResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerCentreInteretResponse = SupprimerCentreInteretResponses[keyof SupprimerCentreInteretResponses];
+
 export type ConsulterCentreInteretData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/centres-interet/{code}';
+    url: '/api/referentiels/centres-interet/{id}';
 };
 
 export type ConsulterCentreInteretResponses = {
@@ -266,12 +261,12 @@ export type ConsulterCentreInteretResponses = {
 export type ConsulterCentreInteretResponse = ConsulterCentreInteretResponses[keyof ConsulterCentreInteretResponses];
 
 export type ModifierCentreInteretData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/centres-interet/{code}';
+    url: '/api/referentiels/centres-interet/{id}';
 };
 
 export type ModifierCentreInteretResponses = {
@@ -286,10 +281,10 @@ export type ModifierCentreInteretResponse = ModifierCentreInteretResponses[keyof
 export type DesactiverCentreInteretData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/centres-interet/{code}/desactivation';
+    url: '/api/referentiels/centres-interet/{id}/desactivation';
 };
 
 export type DesactiverCentreInteretResponses = {
@@ -304,10 +299,10 @@ export type DesactiverCentreInteretResponse = DesactiverCentreInteretResponses[k
 export type ReactiverCentreInteretData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/centres-interet/{code}/reactivation';
+    url: '/api/referentiels/centres-interet/{id}/reactivation';
 };
 
 export type ReactiverCentreInteretResponses = {
@@ -345,7 +340,7 @@ export type ListerCircuitsDistributionResponses = {
 export type ListerCircuitsDistributionResponse = ListerCircuitsDistributionResponses[keyof ListerCircuitsDistributionResponses];
 
 export type CreerCircuitDistributionData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/circuits-distribution';
@@ -360,13 +355,31 @@ export type CreerCircuitDistributionResponses = {
 
 export type CreerCircuitDistributionResponse = CreerCircuitDistributionResponses[keyof CreerCircuitDistributionResponses];
 
+export type SupprimerCircuitDistributionData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/circuits-distribution/{id}';
+};
+
+export type SupprimerCircuitDistributionResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerCircuitDistributionResponse = SupprimerCircuitDistributionResponses[keyof SupprimerCircuitDistributionResponses];
+
 export type ConsulterCircuitDistributionData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/circuits-distribution/{code}';
+    url: '/api/referentiels/circuits-distribution/{id}';
 };
 
 export type ConsulterCircuitDistributionResponses = {
@@ -379,12 +392,12 @@ export type ConsulterCircuitDistributionResponses = {
 export type ConsulterCircuitDistributionResponse = ConsulterCircuitDistributionResponses[keyof ConsulterCircuitDistributionResponses];
 
 export type ModifierCircuitDistributionData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/circuits-distribution/{code}';
+    url: '/api/referentiels/circuits-distribution/{id}';
 };
 
 export type ModifierCircuitDistributionResponses = {
@@ -399,10 +412,10 @@ export type ModifierCircuitDistributionResponse = ModifierCircuitDistributionRes
 export type DesactiverCircuitDistributionData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/circuits-distribution/{code}/desactivation';
+    url: '/api/referentiels/circuits-distribution/{id}/desactivation';
 };
 
 export type DesactiverCircuitDistributionResponses = {
@@ -417,10 +430,10 @@ export type DesactiverCircuitDistributionResponse = DesactiverCircuitDistributio
 export type ReactiverCircuitDistributionData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/circuits-distribution/{code}/reactivation';
+    url: '/api/referentiels/circuits-distribution/{id}/reactivation';
 };
 
 export type ReactiverCircuitDistributionResponses = {
@@ -458,7 +471,7 @@ export type ListerClassesTvaResponses = {
 export type ListerClassesTvaResponse = ListerClassesTvaResponses[keyof ListerClassesTvaResponses];
 
 export type CreerClasseTvaData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/classes-tva';
@@ -473,13 +486,31 @@ export type CreerClasseTvaResponses = {
 
 export type CreerClasseTvaResponse = CreerClasseTvaResponses[keyof CreerClasseTvaResponses];
 
+export type SupprimerClasseTvaData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{id}';
+};
+
+export type SupprimerClasseTvaResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerClasseTvaResponse = SupprimerClasseTvaResponses[keyof SupprimerClasseTvaResponses];
+
 export type ConsulterClasseTvaData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}';
+    url: '/api/referentiels/classes-tva/{id}';
 };
 
 export type ConsulterClasseTvaResponses = {
@@ -492,12 +523,12 @@ export type ConsulterClasseTvaResponses = {
 export type ConsulterClasseTvaResponse = ConsulterClasseTvaResponses[keyof ConsulterClasseTvaResponses];
 
 export type ModifierClasseTvaData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}';
+    url: '/api/referentiels/classes-tva/{id}';
 };
 
 export type ModifierClasseTvaResponses = {
@@ -512,10 +543,10 @@ export type ModifierClasseTvaResponse = ModifierClasseTvaResponses[keyof Modifie
 export type DesactiverClasseTvaData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}/desactivation';
+    url: '/api/referentiels/classes-tva/{id}/desactivation';
 };
 
 export type DesactiverClasseTvaResponses = {
@@ -530,10 +561,10 @@ export type DesactiverClasseTvaResponse = DesactiverClasseTvaResponses[keyof Des
 export type ReactiverClasseTvaData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}/reactivation';
+    url: '/api/referentiels/classes-tva/{id}/reactivation';
 };
 
 export type ReactiverClasseTvaResponses = {
@@ -548,10 +579,10 @@ export type ReactiverClasseTvaResponse = ReactiverClasseTvaResponses[keyof React
 export type AjouterTauxTvaData = {
     body: SaisieTauxTva;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}/taux';
+    url: '/api/referentiels/classes-tva/{id}/taux';
 };
 
 export type AjouterTauxTvaResponses = {
@@ -566,11 +597,11 @@ export type AjouterTauxTvaResponse = AjouterTauxTvaResponses[keyof AjouterTauxTv
 export type RetirerTauxTvaData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
         dateDebut: string;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}/taux/{dateDebut}';
+    url: '/api/referentiels/classes-tva/{id}/taux/{dateDebut}';
 };
 
 export type RetirerTauxTvaResponses = {
@@ -585,11 +616,11 @@ export type RetirerTauxTvaResponse = RetirerTauxTvaResponses[keyof RetirerTauxTv
 export type ModifierTauxTvaData = {
     body: SaisieTauxTva;
     path: {
-        code: string;
+        id: number;
         dateDebut: string;
     };
     query?: never;
-    url: '/api/referentiels/classes-tva/{code}/taux/{dateDebut}';
+    url: '/api/referentiels/classes-tva/{id}/taux/{dateDebut}';
 };
 
 export type ModifierTauxTvaResponses = {
@@ -627,7 +658,7 @@ export type ListerContenancesResponses = {
 export type ListerContenancesResponse = ListerContenancesResponses[keyof ListerContenancesResponses];
 
 export type CreerContenanceData = {
-    body: CreationContenance;
+    body: SaisieContenance;
     path?: never;
     query?: never;
     url: '/api/referentiels/contenances';
@@ -642,13 +673,31 @@ export type CreerContenanceResponses = {
 
 export type CreerContenanceResponse = CreerContenanceResponses[keyof CreerContenanceResponses];
 
+export type SupprimerContenanceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/contenances/{id}';
+};
+
+export type SupprimerContenanceResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerContenanceResponse = SupprimerContenanceResponses[keyof SupprimerContenanceResponses];
+
 export type ConsulterContenanceData = {
     body?: never;
     path: {
-        volume: number;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/contenances/{volume}';
+    url: '/api/referentiels/contenances/{id}';
 };
 
 export type ConsulterContenanceResponses = {
@@ -661,12 +710,12 @@ export type ConsulterContenanceResponses = {
 export type ConsulterContenanceResponse = ConsulterContenanceResponses[keyof ConsulterContenanceResponses];
 
 export type ModifierContenanceData = {
-    body: ModificationContenance;
+    body: SaisieContenance;
     path: {
-        volume: number;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/contenances/{volume}';
+    url: '/api/referentiels/contenances/{id}';
 };
 
 export type ModifierContenanceResponses = {
@@ -681,10 +730,10 @@ export type ModifierContenanceResponse = ModifierContenanceResponses[keyof Modif
 export type DesactiverContenanceData = {
     body?: never;
     path: {
-        volume: number;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/contenances/{volume}/desactivation';
+    url: '/api/referentiels/contenances/{id}/desactivation';
 };
 
 export type DesactiverContenanceResponses = {
@@ -699,10 +748,10 @@ export type DesactiverContenanceResponse = DesactiverContenanceResponses[keyof D
 export type ReactiverContenanceData = {
     body?: never;
     path: {
-        volume: number;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/contenances/{volume}/reactivation';
+    url: '/api/referentiels/contenances/{id}/reactivation';
 };
 
 export type ReactiverContenanceResponses = {
@@ -740,7 +789,7 @@ export type ListerLabelsResponses = {
 export type ListerLabelsResponse = ListerLabelsResponses[keyof ListerLabelsResponses];
 
 export type CreerLabelData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/labels';
@@ -755,13 +804,31 @@ export type CreerLabelResponses = {
 
 export type CreerLabelResponse = CreerLabelResponses[keyof CreerLabelResponses];
 
+export type SupprimerLabelData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/labels/{id}';
+};
+
+export type SupprimerLabelResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerLabelResponse = SupprimerLabelResponses[keyof SupprimerLabelResponses];
+
 export type ConsulterLabelData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/labels/{code}';
+    url: '/api/referentiels/labels/{id}';
 };
 
 export type ConsulterLabelResponses = {
@@ -774,12 +841,12 @@ export type ConsulterLabelResponses = {
 export type ConsulterLabelResponse = ConsulterLabelResponses[keyof ConsulterLabelResponses];
 
 export type ModifierLabelData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/labels/{code}';
+    url: '/api/referentiels/labels/{id}';
 };
 
 export type ModifierLabelResponses = {
@@ -794,10 +861,10 @@ export type ModifierLabelResponse = ModifierLabelResponses[keyof ModifierLabelRe
 export type DesactiverLabelData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/labels/{code}/desactivation';
+    url: '/api/referentiels/labels/{id}/desactivation';
 };
 
 export type DesactiverLabelResponses = {
@@ -812,10 +879,10 @@ export type DesactiverLabelResponse = DesactiverLabelResponses[keyof DesactiverL
 export type ReactiverLabelData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/labels/{code}/reactivation';
+    url: '/api/referentiels/labels/{id}/reactivation';
 };
 
 export type ReactiverLabelResponses = {
@@ -853,7 +920,7 @@ export type ListerLanguesResponses = {
 export type ListerLanguesResponse = ListerLanguesResponses[keyof ListerLanguesResponses];
 
 export type CreerLangueData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/langues';
@@ -868,13 +935,31 @@ export type CreerLangueResponses = {
 
 export type CreerLangueResponse = CreerLangueResponses[keyof CreerLangueResponses];
 
+export type SupprimerLangueData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/langues/{id}';
+};
+
+export type SupprimerLangueResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerLangueResponse = SupprimerLangueResponses[keyof SupprimerLangueResponses];
+
 export type ConsulterLangueData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/langues/{code}';
+    url: '/api/referentiels/langues/{id}';
 };
 
 export type ConsulterLangueResponses = {
@@ -887,12 +972,12 @@ export type ConsulterLangueResponses = {
 export type ConsulterLangueResponse = ConsulterLangueResponses[keyof ConsulterLangueResponses];
 
 export type ModifierLangueData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/langues/{code}';
+    url: '/api/referentiels/langues/{id}';
 };
 
 export type ModifierLangueResponses = {
@@ -907,10 +992,10 @@ export type ModifierLangueResponse = ModifierLangueResponses[keyof ModifierLangu
 export type DesactiverLangueData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/langues/{code}/desactivation';
+    url: '/api/referentiels/langues/{id}/desactivation';
 };
 
 export type DesactiverLangueResponses = {
@@ -925,10 +1010,10 @@ export type DesactiverLangueResponse = DesactiverLangueResponses[keyof Desactive
 export type ReactiverLangueData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/langues/{code}/reactivation';
+    url: '/api/referentiels/langues/{id}/reactivation';
 };
 
 export type ReactiverLangueResponses = {
@@ -966,7 +1051,7 @@ export type ListerMarquesResponses = {
 export type ListerMarquesResponse = ListerMarquesResponses[keyof ListerMarquesResponses];
 
 export type CreerMarqueData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/marques';
@@ -999,13 +1084,31 @@ export type ListerMarquesProchesResponses = {
 
 export type ListerMarquesProchesResponse = ListerMarquesProchesResponses[keyof ListerMarquesProchesResponses];
 
+export type SupprimerMarqueData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/marques/{id}';
+};
+
+export type SupprimerMarqueResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerMarqueResponse = SupprimerMarqueResponses[keyof SupprimerMarqueResponses];
+
 export type ConsulterMarqueData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/marques/{code}';
+    url: '/api/referentiels/marques/{id}';
 };
 
 export type ConsulterMarqueResponses = {
@@ -1018,12 +1121,12 @@ export type ConsulterMarqueResponses = {
 export type ConsulterMarqueResponse = ConsulterMarqueResponses[keyof ConsulterMarqueResponses];
 
 export type ModifierMarqueData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/marques/{code}';
+    url: '/api/referentiels/marques/{id}';
 };
 
 export type ModifierMarqueResponses = {
@@ -1038,10 +1141,10 @@ export type ModifierMarqueResponse = ModifierMarqueResponses[keyof ModifierMarqu
 export type DesactiverMarqueData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/marques/{code}/desactivation';
+    url: '/api/referentiels/marques/{id}/desactivation';
 };
 
 export type DesactiverMarqueResponses = {
@@ -1056,10 +1159,10 @@ export type DesactiverMarqueResponse = DesactiverMarqueResponses[keyof Desactive
 export type ReactiverMarqueData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/marques/{code}/reactivation';
+    url: '/api/referentiels/marques/{id}/reactivation';
 };
 
 export type ReactiverMarqueResponses = {
@@ -1097,7 +1200,7 @@ export type ListerPaysResponses = {
 export type ListerPaysResponse = ListerPaysResponses[keyof ListerPaysResponses];
 
 export type CreerPaysData = {
-    body: CreationPays;
+    body: SaisiePays;
     path?: never;
     query?: never;
     url: '/api/referentiels/pays';
@@ -1112,13 +1215,31 @@ export type CreerPaysResponses = {
 
 export type CreerPaysResponse = CreerPaysResponses[keyof CreerPaysResponses];
 
+export type SupprimerPaysData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/pays/{id}';
+};
+
+export type SupprimerPaysResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerPaysResponse = SupprimerPaysResponses[keyof SupprimerPaysResponses];
+
 export type ConsulterPaysData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/pays/{code}';
+    url: '/api/referentiels/pays/{id}';
 };
 
 export type ConsulterPaysResponses = {
@@ -1131,12 +1252,12 @@ export type ConsulterPaysResponses = {
 export type ConsulterPaysResponse = ConsulterPaysResponses[keyof ConsulterPaysResponses];
 
 export type ModifierPaysData = {
-    body: ModificationPays;
+    body: SaisiePays;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/pays/{code}';
+    url: '/api/referentiels/pays/{id}';
 };
 
 export type ModifierPaysResponses = {
@@ -1151,10 +1272,10 @@ export type ModifierPaysResponse = ModifierPaysResponses[keyof ModifierPaysRespo
 export type DesactiverPaysData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/pays/{code}/desactivation';
+    url: '/api/referentiels/pays/{id}/desactivation';
 };
 
 export type DesactiverPaysResponses = {
@@ -1169,10 +1290,10 @@ export type DesactiverPaysResponse = DesactiverPaysResponses[keyof DesactiverPay
 export type ReactiverPaysData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/pays/{code}/reactivation';
+    url: '/api/referentiels/pays/{id}/reactivation';
 };
 
 export type ReactiverPaysResponses = {
@@ -1210,7 +1331,7 @@ export type ListerProduitsCommercialisesResponses = {
 export type ListerProduitsCommercialisesResponse = ListerProduitsCommercialisesResponses[keyof ListerProduitsCommercialisesResponses];
 
 export type CreerProduitCommercialiseData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/produits-commercialises';
@@ -1225,13 +1346,31 @@ export type CreerProduitCommercialiseResponses = {
 
 export type CreerProduitCommercialiseResponse = CreerProduitCommercialiseResponses[keyof CreerProduitCommercialiseResponses];
 
+export type SupprimerProduitCommercialiseData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/produits-commercialises/{id}';
+};
+
+export type SupprimerProduitCommercialiseResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerProduitCommercialiseResponse = SupprimerProduitCommercialiseResponses[keyof SupprimerProduitCommercialiseResponses];
+
 export type ConsulterProduitCommercialiseData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/produits-commercialises/{code}';
+    url: '/api/referentiels/produits-commercialises/{id}';
 };
 
 export type ConsulterProduitCommercialiseResponses = {
@@ -1244,12 +1383,12 @@ export type ConsulterProduitCommercialiseResponses = {
 export type ConsulterProduitCommercialiseResponse = ConsulterProduitCommercialiseResponses[keyof ConsulterProduitCommercialiseResponses];
 
 export type ModifierProduitCommercialiseData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/produits-commercialises/{code}';
+    url: '/api/referentiels/produits-commercialises/{id}';
 };
 
 export type ModifierProduitCommercialiseResponses = {
@@ -1264,10 +1403,10 @@ export type ModifierProduitCommercialiseResponse = ModifierProduitCommercialiseR
 export type DesactiverProduitCommercialiseData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/produits-commercialises/{code}/desactivation';
+    url: '/api/referentiels/produits-commercialises/{id}/desactivation';
 };
 
 export type DesactiverProduitCommercialiseResponses = {
@@ -1282,10 +1421,10 @@ export type DesactiverProduitCommercialiseResponse = DesactiverProduitCommercial
 export type ReactiverProduitCommercialiseData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/produits-commercialises/{code}/reactivation';
+    url: '/api/referentiels/produits-commercialises/{id}/reactivation';
 };
 
 export type ReactiverProduitCommercialiseResponses = {
@@ -1323,7 +1462,7 @@ export type ListerRegionsResponses = {
 export type ListerRegionsResponse = ListerRegionsResponses[keyof ListerRegionsResponses];
 
 export type CreerRegionData = {
-    body: CreationRegion;
+    body: SaisieRegion;
     path?: never;
     query?: never;
     url: '/api/referentiels/regions';
@@ -1338,13 +1477,31 @@ export type CreerRegionResponses = {
 
 export type CreerRegionResponse = CreerRegionResponses[keyof CreerRegionResponses];
 
+export type SupprimerRegionData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/regions/{id}';
+};
+
+export type SupprimerRegionResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerRegionResponse = SupprimerRegionResponses[keyof SupprimerRegionResponses];
+
 export type ConsulterRegionData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/regions/{code}';
+    url: '/api/referentiels/regions/{id}';
 };
 
 export type ConsulterRegionResponses = {
@@ -1357,12 +1514,12 @@ export type ConsulterRegionResponses = {
 export type ConsulterRegionResponse = ConsulterRegionResponses[keyof ConsulterRegionResponses];
 
 export type ModifierRegionData = {
-    body: ModificationRegion;
+    body: SaisieRegion;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/regions/{code}';
+    url: '/api/referentiels/regions/{id}';
 };
 
 export type ModifierRegionResponses = {
@@ -1377,10 +1534,10 @@ export type ModifierRegionResponse = ModifierRegionResponses[keyof ModifierRegio
 export type DesactiverRegionData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/regions/{code}/desactivation';
+    url: '/api/referentiels/regions/{id}/desactivation';
 };
 
 export type DesactiverRegionResponses = {
@@ -1395,10 +1552,10 @@ export type DesactiverRegionResponse = DesactiverRegionResponses[keyof Desactive
 export type ReactiverRegionData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/regions/{code}/reactivation';
+    url: '/api/referentiels/regions/{id}/reactivation';
 };
 
 export type ReactiverRegionResponses = {
@@ -1436,7 +1593,7 @@ export type ListerTitresResponses = {
 export type ListerTitresResponse = ListerTitresResponses[keyof ListerTitresResponses];
 
 export type CreerTitreData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/titres';
@@ -1451,13 +1608,31 @@ export type CreerTitreResponses = {
 
 export type CreerTitreResponse = CreerTitreResponses[keyof CreerTitreResponses];
 
+export type SupprimerTitreData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/titres/{id}';
+};
+
+export type SupprimerTitreResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerTitreResponse = SupprimerTitreResponses[keyof SupprimerTitreResponses];
+
 export type ConsulterTitreData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/titres/{code}';
+    url: '/api/referentiels/titres/{id}';
 };
 
 export type ConsulterTitreResponses = {
@@ -1470,12 +1645,12 @@ export type ConsulterTitreResponses = {
 export type ConsulterTitreResponse = ConsulterTitreResponses[keyof ConsulterTitreResponses];
 
 export type ModifierTitreData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/titres/{code}';
+    url: '/api/referentiels/titres/{id}';
 };
 
 export type ModifierTitreResponses = {
@@ -1490,10 +1665,10 @@ export type ModifierTitreResponse = ModifierTitreResponses[keyof ModifierTitreRe
 export type DesactiverTitreData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/titres/{code}/desactivation';
+    url: '/api/referentiels/titres/{id}/desactivation';
 };
 
 export type DesactiverTitreResponses = {
@@ -1508,10 +1683,10 @@ export type DesactiverTitreResponse = DesactiverTitreResponses[keyof DesactiverT
 export type ReactiverTitreData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/titres/{code}/reactivation';
+    url: '/api/referentiels/titres/{id}/reactivation';
 };
 
 export type ReactiverTitreResponses = {
@@ -1549,7 +1724,7 @@ export type ListerTypesVisiteResponses = {
 export type ListerTypesVisiteResponse = ListerTypesVisiteResponses[keyof ListerTypesVisiteResponses];
 
 export type CreerTypeVisiteData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/types-visite';
@@ -1564,13 +1739,31 @@ export type CreerTypeVisiteResponses = {
 
 export type CreerTypeVisiteResponse = CreerTypeVisiteResponses[keyof CreerTypeVisiteResponses];
 
+export type SupprimerTypeVisiteData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/types-visite/{id}';
+};
+
+export type SupprimerTypeVisiteResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerTypeVisiteResponse = SupprimerTypeVisiteResponses[keyof SupprimerTypeVisiteResponses];
+
 export type ConsulterTypeVisiteData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/types-visite/{code}';
+    url: '/api/referentiels/types-visite/{id}';
 };
 
 export type ConsulterTypeVisiteResponses = {
@@ -1583,12 +1776,12 @@ export type ConsulterTypeVisiteResponses = {
 export type ConsulterTypeVisiteResponse = ConsulterTypeVisiteResponses[keyof ConsulterTypeVisiteResponses];
 
 export type ModifierTypeVisiteData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/types-visite/{code}';
+    url: '/api/referentiels/types-visite/{id}';
 };
 
 export type ModifierTypeVisiteResponses = {
@@ -1603,10 +1796,10 @@ export type ModifierTypeVisiteResponse = ModifierTypeVisiteResponses[keyof Modif
 export type DesactiverTypeVisiteData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/types-visite/{code}/desactivation';
+    url: '/api/referentiels/types-visite/{id}/desactivation';
 };
 
 export type DesactiverTypeVisiteResponses = {
@@ -1621,10 +1814,10 @@ export type DesactiverTypeVisiteResponse = DesactiverTypeVisiteResponses[keyof D
 export type ReactiverTypeVisiteData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/types-visite/{code}/reactivation';
+    url: '/api/referentiels/types-visite/{id}/reactivation';
 };
 
 export type ReactiverTypeVisiteResponses = {
@@ -1662,7 +1855,7 @@ export type ListerZonesCommercialesResponses = {
 export type ListerZonesCommercialesResponse = ListerZonesCommercialesResponses[keyof ListerZonesCommercialesResponses];
 
 export type CreerZoneCommercialeData = {
-    body: CreationValeurSimple;
+    body: SaisieValeurSimple;
     path?: never;
     query?: never;
     url: '/api/referentiels/zones-commerciales';
@@ -1677,13 +1870,31 @@ export type CreerZoneCommercialeResponses = {
 
 export type CreerZoneCommercialeResponse = CreerZoneCommercialeResponses[keyof CreerZoneCommercialeResponses];
 
+export type SupprimerZoneCommercialeData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/zones-commerciales/{id}';
+};
+
+export type SupprimerZoneCommercialeResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerZoneCommercialeResponse = SupprimerZoneCommercialeResponses[keyof SupprimerZoneCommercialeResponses];
+
 export type ConsulterZoneCommercialeData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/zones-commerciales/{code}';
+    url: '/api/referentiels/zones-commerciales/{id}';
 };
 
 export type ConsulterZoneCommercialeResponses = {
@@ -1696,12 +1907,12 @@ export type ConsulterZoneCommercialeResponses = {
 export type ConsulterZoneCommercialeResponse = ConsulterZoneCommercialeResponses[keyof ConsulterZoneCommercialeResponses];
 
 export type ModifierZoneCommercialeData = {
-    body: ModificationValeurSimple;
+    body: SaisieValeurSimple;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/zones-commerciales/{code}';
+    url: '/api/referentiels/zones-commerciales/{id}';
 };
 
 export type ModifierZoneCommercialeResponses = {
@@ -1716,10 +1927,10 @@ export type ModifierZoneCommercialeResponse = ModifierZoneCommercialeResponses[k
 export type DesactiverZoneCommercialeData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/zones-commerciales/{code}/desactivation';
+    url: '/api/referentiels/zones-commerciales/{id}/desactivation';
 };
 
 export type DesactiverZoneCommercialeResponses = {
@@ -1734,10 +1945,10 @@ export type DesactiverZoneCommercialeResponse = DesactiverZoneCommercialeRespons
 export type ReactiverZoneCommercialeData = {
     body?: never;
     path: {
-        code: string;
+        id: number;
     };
     query?: never;
-    url: '/api/referentiels/zones-commerciales/{code}/reactivation';
+    url: '/api/referentiels/zones-commerciales/{id}/reactivation';
 };
 
 export type ReactiverZoneCommercialeResponses = {

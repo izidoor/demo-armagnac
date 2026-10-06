@@ -18,17 +18,18 @@ public final class ClasseTva extends ValeurSimple {
 
     private final List<TauxTva> taux;
 
-    private ClasseTva(Code code, Libelle libelle, boolean actif, Collection<TauxTva> taux) {
-        super(code, libelle, actif);
+    private ClasseTva(Long id, Code code, Libelle libelle, boolean actif, Collection<TauxTva> taux) {
+        super(id, code, libelle, actif);
         this.taux = new ArrayList<>(taux);
     }
 
     public static ClasseTva creer(Code code, Libelle libelle) {
-        return new ClasseTva(code, libelle, true, List.of());
+        return new ClasseTva(null, code, libelle, true, List.of());
     }
 
-    public static ClasseTva reconstituer(Code code, Libelle libelle, boolean actif, Collection<TauxTva> taux) {
-        return new ClasseTva(code, libelle, actif, taux);
+    public static ClasseTva reconstituer(Long id, Code code, Libelle libelle, boolean actif,
+            Collection<TauxTva> taux) {
+        return new ClasseTva(id, code, libelle, actif, taux);
     }
 
     /** Les taux, du plus récent au plus ancien. */

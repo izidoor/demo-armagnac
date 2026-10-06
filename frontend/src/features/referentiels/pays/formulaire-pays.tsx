@@ -73,7 +73,10 @@ type FormulairePaysProps = {
   ouvert: boolean
   onOuvertChange: (ouvert: boolean) => void
   pays?: Pays
-  /** Toutes les zones : seules les actives sont proposées, plus la zone actuelle du pays (RG-REF-05). */
+  /**
+   * Toutes les zones : seules les actives sont proposées, plus la zone actuelle du pays (RG-REF-05).
+   * Le formulaire porte l'identifiant de la zone, sous forme de texte.
+   */
   zones: ValeurSimple[]
   enregistrer: (saisie: SaisiePays) => Promise<unknown>
   onSucces: () => void
@@ -94,7 +97,15 @@ export function FormulairePays({
 
   useEffect(() => {
     if (ouvert)
-      form.reset(pays ? { ...pays, ageMinimum: pays.ageMinimum ?? '' } : VIDE)
+      form.reset(
+        pays
+          ? {
+              ...pays,
+              zoneCommerciale: String(pays.zoneCommerciale),
+              ageMinimum: pays.ageMinimum ?? '',
+            }
+          : VIDE
+      )
   }, [ouvert, pays, form])
 
   const mutation = useMutation({
@@ -115,7 +126,7 @@ export function FormulairePays({
   })
 
   const zonesProposees = zones.filter(
-    (z) => z.actif || z.code === pays?.zoneCommerciale
+    (z) => z.actif || z.id === pays?.zoneCommerciale
   )
 
   return (
@@ -126,7 +137,7 @@ export function FormulairePays({
             {pays ? `Modifier « ${pays.libelle} »` : 'Nouveau pays'}
           </DialogTitle>
           <DialogDescription>
-            Le code est immuable après la création.
+            Le code et le code ISO sont uniques.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -145,7 +156,7 @@ export function FormulairePays({
                 <FormItem>
                   <FormLabel>Code</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={!!pays} autoComplete='off' />
+                    <Input {...field} autoComplete='off' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -191,7 +202,7 @@ export function FormulairePays({
                     </FormControl>
                     <SelectContent>
                       {zonesProposees.map((z) => (
-                        <SelectItem key={z.code} value={z.code}>
+                        <SelectItem key={z.id} value={String(z.id)}>
                           {z.libelle}
                           {z.actif ? '' : ' (inactive)'}
                         </SelectItem>

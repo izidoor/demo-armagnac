@@ -8,16 +8,16 @@ package fr.bnia.referentiels.domain;
  */
 public final class Marque extends ValeurSimple {
 
-    private Marque(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private Marque(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static Marque creer(Code code, Libelle libelle) {
-        return new Marque(code, libelle, true);
+        return new Marque(null, code, libelle, true);
     }
 
-    public static Marque reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new Marque(code, libelle, actif);
+    public static Marque reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new Marque(id, code, libelle, actif);
     }
 
     public LibelleNormalise libelleNormalise() {

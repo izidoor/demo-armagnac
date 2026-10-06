@@ -22,7 +22,8 @@ abstract class ValeursSimplesJdbc<T extends ValeurSimple, R> extends ValeursJdbc
     @Override
     public List<ValeurSimpleLigne> lister(FiltreValeurs filtre) {
         Sql.Where where = Sql.where(filtre, "code", "libelle");
-        return jdbcClient.sql("select code, libelle, actif from " + table + where.clause() + " order by libelle, code")
+        return jdbcClient.sql("select id, code, libelle, actif from " + table + where.clause()
+                        + " order by libelle, code")
                 .params(where.parametres())
                 .query(ValeurSimpleLigne.class)
                 .list();

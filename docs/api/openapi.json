@@ -96,7 +96,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -118,15 +118,35 @@
         "tags" : [ "centres-interet" ]
       }
     },
-    "/api/referentiels/centres-interet/{code}" : {
+    "/api/referentiels/centres-interet/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerCentreInteret",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "centres-interet" ]
+      },
       "get" : {
         "operationId" : "consulterCentreInteret",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -148,17 +168,18 @@
         "operationId" : "modifierCentreInteret",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -176,19 +197,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "centres-interet" ]
       }
     },
-    "/api/referentiels/centres-interet/{code}/desactivation" : {
+    "/api/referentiels/centres-interet/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverCentreInteret",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -207,15 +229,16 @@
         "tags" : [ "centres-interet" ]
       }
     },
-    "/api/referentiels/centres-interet/{code}/reactivation" : {
+    "/api/referentiels/centres-interet/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverCentreInteret",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -278,7 +301,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -300,15 +323,35 @@
         "tags" : [ "circuits-distribution" ]
       }
     },
-    "/api/referentiels/circuits-distribution/{code}" : {
+    "/api/referentiels/circuits-distribution/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerCircuitDistribution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "circuits-distribution" ]
+      },
       "get" : {
         "operationId" : "consulterCircuitDistribution",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -330,17 +373,18 @@
         "operationId" : "modifierCircuitDistribution",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -358,19 +402,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "circuits-distribution" ]
       }
     },
-    "/api/referentiels/circuits-distribution/{code}/desactivation" : {
+    "/api/referentiels/circuits-distribution/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverCircuitDistribution",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -389,15 +434,16 @@
         "tags" : [ "circuits-distribution" ]
       }
     },
-    "/api/referentiels/circuits-distribution/{code}/reactivation" : {
+    "/api/referentiels/circuits-distribution/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverCircuitDistribution",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -460,7 +506,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -482,15 +528,35 @@
         "tags" : [ "classes-tva" ]
       }
     },
-    "/api/referentiels/classes-tva/{code}" : {
+    "/api/referentiels/classes-tva/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerClasseTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une classe, avec ses taux, qu'aucune autre donnée n'utilise (RG-REF-04)",
+        "tags" : [ "classes-tva" ]
+      },
       "get" : {
         "operationId" : "consulterClasseTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -512,17 +578,18 @@
         "operationId" : "modifierClasseTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -540,19 +607,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "classes-tva" ]
       }
     },
-    "/api/referentiels/classes-tva/{code}/desactivation" : {
+    "/api/referentiels/classes-tva/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverClasseTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -571,15 +639,16 @@
         "tags" : [ "classes-tva" ]
       }
     },
-    "/api/referentiels/classes-tva/{code}/reactivation" : {
+    "/api/referentiels/classes-tva/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverClasseTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -598,15 +667,16 @@
         "tags" : [ "classes-tva" ]
       }
     },
-    "/api/referentiels/classes-tva/{code}/taux" : {
+    "/api/referentiels/classes-tva/{id}/taux" : {
       "post" : {
         "operationId" : "ajouterTauxTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
@@ -635,15 +705,16 @@
         "tags" : [ "classes-tva" ]
       }
     },
-    "/api/referentiels/classes-tva/{code}/taux/{dateDebut}" : {
+    "/api/referentiels/classes-tva/{id}/taux/{dateDebut}" : {
       "delete" : {
         "operationId" : "retirerTauxTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         }, {
           "in" : "path",
@@ -673,10 +744,11 @@
         "operationId" : "modifierTauxTva",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         }, {
           "in" : "path",
@@ -757,7 +829,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationContenance"
+                "$ref" : "#/components/schemas/SaisieContenance"
               }
             }
           },
@@ -779,15 +851,35 @@
         "tags" : [ "contenances" ]
       }
     },
-    "/api/referentiels/contenances/{volume}" : {
+    "/api/referentiels/contenances/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerContenance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une contenance qu'aucune autre donnée n'utilise (RG-REF-04)",
+        "tags" : [ "contenances" ]
+      },
       "get" : {
         "operationId" : "consulterContenance",
         "parameters" : [ {
           "in" : "path",
-          "name" : "volume",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "number"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -809,17 +901,18 @@
         "operationId" : "modifierContenance",
         "parameters" : [ {
           "in" : "path",
-          "name" : "volume",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "number"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationContenance"
+                "$ref" : "#/components/schemas/SaisieContenance"
               }
             }
           },
@@ -837,19 +930,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le volume est immuable (RG-REF-02)",
+        "summary" : "Modifier le volume et le libellé (RG-REF-02, RG-REF-10)",
         "tags" : [ "contenances" ]
       }
     },
-    "/api/referentiels/contenances/{volume}/desactivation" : {
+    "/api/referentiels/contenances/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverContenance",
         "parameters" : [ {
           "in" : "path",
-          "name" : "volume",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "number"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -868,15 +962,16 @@
         "tags" : [ "contenances" ]
       }
     },
-    "/api/referentiels/contenances/{volume}/reactivation" : {
+    "/api/referentiels/contenances/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverContenance",
         "parameters" : [ {
           "in" : "path",
-          "name" : "volume",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "number"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -939,7 +1034,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -961,15 +1056,35 @@
         "tags" : [ "labels" ]
       }
     },
-    "/api/referentiels/labels/{code}" : {
+    "/api/referentiels/labels/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerLabel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "labels" ]
+      },
       "get" : {
         "operationId" : "consulterLabel",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -991,17 +1106,18 @@
         "operationId" : "modifierLabel",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1019,19 +1135,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "labels" ]
       }
     },
-    "/api/referentiels/labels/{code}/desactivation" : {
+    "/api/referentiels/labels/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverLabel",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1050,15 +1167,16 @@
         "tags" : [ "labels" ]
       }
     },
-    "/api/referentiels/labels/{code}/reactivation" : {
+    "/api/referentiels/labels/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverLabel",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1121,7 +1239,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1143,15 +1261,35 @@
         "tags" : [ "langues" ]
       }
     },
-    "/api/referentiels/langues/{code}" : {
+    "/api/referentiels/langues/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerLangue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "langues" ]
+      },
       "get" : {
         "operationId" : "consulterLangue",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1173,17 +1311,18 @@
         "operationId" : "modifierLangue",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1201,19 +1340,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "langues" ]
       }
     },
-    "/api/referentiels/langues/{code}/desactivation" : {
+    "/api/referentiels/langues/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverLangue",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1232,15 +1372,16 @@
         "tags" : [ "langues" ]
       }
     },
-    "/api/referentiels/langues/{code}/reactivation" : {
+    "/api/referentiels/langues/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverLangue",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1303,7 +1444,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1355,15 +1496,35 @@
         "tags" : [ "marques" ]
       }
     },
-    "/api/referentiels/marques/{code}" : {
+    "/api/referentiels/marques/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerMarque",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "marques" ]
+      },
       "get" : {
         "operationId" : "consulterMarque",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1385,17 +1546,18 @@
         "operationId" : "modifierMarque",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1413,19 +1575,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "marques" ]
       }
     },
-    "/api/referentiels/marques/{code}/desactivation" : {
+    "/api/referentiels/marques/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverMarque",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1444,15 +1607,16 @@
         "tags" : [ "marques" ]
       }
     },
-    "/api/referentiels/marques/{code}/reactivation" : {
+    "/api/referentiels/marques/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverMarque",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1515,7 +1679,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationPays"
+                "$ref" : "#/components/schemas/SaisiePays"
               }
             }
           },
@@ -1537,15 +1701,35 @@
         "tags" : [ "pays" ]
       }
     },
-    "/api/referentiels/pays/{code}" : {
+    "/api/referentiels/pays/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerPays",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer un pays qu'aucune autre donnée n'utilise (RG-REF-04)",
+        "tags" : [ "pays" ]
+      },
       "get" : {
         "operationId" : "consulterPays",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1567,17 +1751,18 @@
         "operationId" : "modifierPays",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationPays"
+                "$ref" : "#/components/schemas/SaisiePays"
               }
             }
           },
@@ -1595,19 +1780,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier un pays ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier un pays, code compris (RG-REF-01 à 03, 05 à 09)",
         "tags" : [ "pays" ]
       }
     },
-    "/api/referentiels/pays/{code}/desactivation" : {
+    "/api/referentiels/pays/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverPays",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1626,15 +1812,16 @@
         "tags" : [ "pays" ]
       }
     },
-    "/api/referentiels/pays/{code}/reactivation" : {
+    "/api/referentiels/pays/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverPays",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1697,7 +1884,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1719,15 +1906,35 @@
         "tags" : [ "produits-commercialises" ]
       }
     },
-    "/api/referentiels/produits-commercialises/{code}" : {
+    "/api/referentiels/produits-commercialises/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerProduitCommercialise",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "produits-commercialises" ]
+      },
       "get" : {
         "operationId" : "consulterProduitCommercialise",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1749,17 +1956,18 @@
         "operationId" : "modifierProduitCommercialise",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -1777,19 +1985,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "produits-commercialises" ]
       }
     },
-    "/api/referentiels/produits-commercialises/{code}/desactivation" : {
+    "/api/referentiels/produits-commercialises/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverProduitCommercialise",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1808,15 +2017,16 @@
         "tags" : [ "produits-commercialises" ]
       }
     },
-    "/api/referentiels/produits-commercialises/{code}/reactivation" : {
+    "/api/referentiels/produits-commercialises/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverProduitCommercialise",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1879,7 +2089,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationRegion"
+                "$ref" : "#/components/schemas/SaisieRegion"
               }
             }
           },
@@ -1901,15 +2111,35 @@
         "tags" : [ "regions" ]
       }
     },
-    "/api/referentiels/regions/{code}" : {
+    "/api/referentiels/regions/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerRegion",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une région qu'aucune autre donnée n'utilise (RG-REF-04)",
+        "tags" : [ "regions" ]
+      },
       "get" : {
         "operationId" : "consulterRegion",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1931,17 +2161,18 @@
         "operationId" : "modifierRegion",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationRegion"
+                "$ref" : "#/components/schemas/SaisieRegion"
               }
             }
           },
@@ -1959,19 +2190,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier une région ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier une région, code compris (RG-REF-01 à 03)",
         "tags" : [ "regions" ]
       }
     },
-    "/api/referentiels/regions/{code}/desactivation" : {
+    "/api/referentiels/regions/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverRegion",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -1990,15 +2222,16 @@
         "tags" : [ "regions" ]
       }
     },
-    "/api/referentiels/regions/{code}/reactivation" : {
+    "/api/referentiels/regions/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverRegion",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2061,7 +2294,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -2083,15 +2316,35 @@
         "tags" : [ "titres" ]
       }
     },
-    "/api/referentiels/titres/{code}" : {
+    "/api/referentiels/titres/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerTitre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "titres" ]
+      },
       "get" : {
         "operationId" : "consulterTitre",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2113,17 +2366,18 @@
         "operationId" : "modifierTitre",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -2141,19 +2395,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "titres" ]
       }
     },
-    "/api/referentiels/titres/{code}/desactivation" : {
+    "/api/referentiels/titres/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverTitre",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2172,15 +2427,16 @@
         "tags" : [ "titres" ]
       }
     },
-    "/api/referentiels/titres/{code}/reactivation" : {
+    "/api/referentiels/titres/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverTitre",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2243,7 +2499,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -2265,15 +2521,35 @@
         "tags" : [ "types-visite" ]
       }
     },
-    "/api/referentiels/types-visite/{code}" : {
+    "/api/referentiels/types-visite/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerTypeVisite",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "types-visite" ]
+      },
       "get" : {
         "operationId" : "consulterTypeVisite",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2295,17 +2571,18 @@
         "operationId" : "modifierTypeVisite",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -2323,19 +2600,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "types-visite" ]
       }
     },
-    "/api/referentiels/types-visite/{code}/desactivation" : {
+    "/api/referentiels/types-visite/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverTypeVisite",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2354,15 +2632,16 @@
         "tags" : [ "types-visite" ]
       }
     },
-    "/api/referentiels/types-visite/{code}/reactivation" : {
+    "/api/referentiels/types-visite/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverTypeVisite",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2425,7 +2704,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/CreationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -2447,15 +2726,35 @@
         "tags" : [ "zones-commerciales" ]
       }
     },
-    "/api/referentiels/zones-commerciales/{code}" : {
+    "/api/referentiels/zones-commerciales/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerZoneCommerciale",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "zones-commerciales" ]
+      },
       "get" : {
         "operationId" : "consulterZoneCommerciale",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2477,17 +2776,18 @@
         "operationId" : "modifierZoneCommerciale",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/ModificationValeurSimple"
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
               }
             }
           },
@@ -2505,19 +2805,20 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
         "tags" : [ "zones-commerciales" ]
       }
     },
-    "/api/referentiels/zones-commerciales/{code}/desactivation" : {
+    "/api/referentiels/zones-commerciales/{id}/desactivation" : {
       "post" : {
         "operationId" : "desactiverZoneCommerciale",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2536,15 +2837,16 @@
         "tags" : [ "zones-commerciales" ]
       }
     },
-    "/api/referentiels/zones-commerciales/{code}/reactivation" : {
+    "/api/referentiels/zones-commerciales/{id}/reactivation" : {
       "post" : {
         "operationId" : "reactiverZoneCommerciale",
         "parameters" : [ {
           "in" : "path",
-          "name" : "code",
+          "name" : "id",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "integer",
+            "format" : "int64"
           }
         } ],
         "responses" : {
@@ -2596,6 +2898,11 @@
             "type" : "string",
             "example" : "NORMAL"
           },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 1
+          },
           "libelle" : {
             "type" : "string",
             "example" : "Normal"
@@ -2612,7 +2919,7 @@
             "description" : "Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)"
           }
         },
-        "required" : [ "actif", "code", "libelle", "taux" ]
+        "required" : [ "actif", "code", "id", "libelle", "taux" ]
       },
       "ClasseTvaLigne" : {
         "type" : "object",
@@ -2625,6 +2932,11 @@
             "type" : "string",
             "example" : "NORMAL"
           },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 1
+          },
           "libelle" : {
             "type" : "string",
             "example" : "Normal"
@@ -2635,13 +2947,18 @@
             "example" : 20.0
           }
         },
-        "required" : [ "actif", "code", "libelle" ]
+        "required" : [ "actif", "code", "id", "libelle" ]
       },
       "Contenance" : {
         "type" : "object",
         "properties" : {
           "actif" : {
             "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 5
           },
           "libelle" : {
             "type" : "string",
@@ -2654,97 +2971,11 @@
           },
           "volume" : {
             "type" : "number",
-            "description" : "Volume en litres, identifiant",
+            "description" : "Volume en litres, unique",
             "example" : 0.7
           }
         },
-        "required" : [ "actif", "libelle", "volume" ]
-      },
-      "CreationContenance" : {
-        "type" : "object",
-        "properties" : {
-          "libelle" : {
-            "type" : "string",
-            "description" : "Facultatif : dérivé du volume si absent"
-          },
-          "volume" : {
-            "type" : "number",
-            "description" : "En litres, trois décimales au plus",
-            "example" : 0.7
-          }
-        },
-        "required" : [ "volume" ]
-      },
-      "CreationPays" : {
-        "type" : "object",
-        "properties" : {
-          "ageMinimum" : {
-            "type" : "string",
-            "description" : "Compte d'âge : 00, 0, 1, 2… ; absent si aucun",
-            "example" : "4"
-          },
-          "code" : {
-            "type" : "string",
-            "example" : "US"
-          },
-          "codeIso" : {
-            "type" : "string",
-            "example" : "US"
-          },
-          "langueCertificat" : {
-            "type" : "string",
-            "description" : "Absent : FR_EN (H-REF-2)",
-            "enum" : [ "FR_EN", "FR_ES", "FR_IT" ]
-          },
-          "libelle" : {
-            "type" : "string",
-            "example" : "États-Unis"
-          },
-          "membreUe" : {
-            "type" : "boolean"
-          },
-          "niveauDetailCertificat" : {
-            "type" : "string",
-            "description" : "Absent : CUMUL_DEGRE (H-REF-2)",
-            "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
-          },
-          "zoneCommerciale" : {
-            "type" : "string",
-            "example" : "AMN"
-          }
-        },
-        "required" : [ "code", "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
-      },
-      "CreationRegion" : {
-        "type" : "object",
-        "properties" : {
-          "code" : {
-            "type" : "string",
-            "example" : "GERS"
-          },
-          "enRegionDelimitee" : {
-            "type" : "boolean"
-          },
-          "libelle" : {
-            "type" : "string",
-            "example" : "Gers"
-          }
-        },
-        "required" : [ "code", "enRegionDelimitee", "libelle" ]
-      },
-      "CreationValeurSimple" : {
-        "type" : "object",
-        "properties" : {
-          "code" : {
-            "type" : "string",
-            "example" : "EUR"
-          },
-          "libelle" : {
-            "type" : "string",
-            "example" : "Europe"
-          }
-        },
-        "required" : [ "code", "libelle" ]
+        "required" : [ "actif", "id", "libelle", "volume" ]
       },
       "InfoSysteme" : {
         "type" : "object",
@@ -2765,24 +2996,107 @@
         },
         "required" : [ "application", "version", "versionBase" ]
       },
-      "ModificationContenance" : {
+      "Pays" : {
         "type" : "object",
-        "description" : "Le volume est immuable (RG-REF-02) : seul le libellé change",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "ageMinimum" : {
+            "type" : "string",
+            "description" : "Compte d'âge : 00, 0, 1, 2…",
+            "example" : "4"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "codeIso" : {
+            "type" : "string",
+            "example" : "US"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 12
+          },
+          "langueCertificat" : {
+            "type" : "string",
+            "enum" : [ "FR_EN", "FR_ES", "FR_IT" ]
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "États-Unis"
+          },
+          "membreUe" : {
+            "type" : "boolean"
+          },
+          "niveauDetailCertificat" : {
+            "type" : "string",
+            "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
+          },
+          "zoneCommerciale" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la zone commerciale",
+            "example" : 2
+          }
+        },
+        "required" : [ "actif", "code", "codeIso", "id", "langueCertificat", "libelle", "membreUe", "niveauDetailCertificat", "zoneCommerciale" ]
+      },
+      "Region" : {
+        "type" : "object",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "GERS"
+          },
+          "enRegionDelimitee" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 3
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Gers"
+          }
+        },
+        "required" : [ "actif", "code", "enRegionDelimitee", "id", "libelle" ]
+      },
+      "SaisieContenance" : {
+        "type" : "object",
+        "description" : "Création ou modification d'une contenance, volume compris",
         "properties" : {
           "libelle" : {
             "type" : "string",
             "description" : "Facultatif : dérivé du volume si absent"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "En litres, trois décimales au plus",
+            "example" : 0.7
           }
-        }
+        },
+        "required" : [ "volume" ]
       },
-      "ModificationPays" : {
+      "SaisiePays" : {
         "type" : "object",
-        "description" : "Tout sauf le code, immuable (RG-REF-02)",
+        "description" : "Création ou modification d'un pays ; tout se corrige, code compris",
         "properties" : {
           "ageMinimum" : {
             "type" : "string",
             "description" : "Compte d'âge : 00, 0, 1, 2… ; absent si aucun",
             "example" : "4"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "US"
           },
           "codeIso" : {
             "type" : "string",
@@ -2806,85 +3120,18 @@
             "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
           },
           "zoneCommerciale" : {
-            "type" : "string",
-            "example" : "AMN"
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la zone commerciale",
+            "example" : 2
           }
         },
-        "required" : [ "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
+        "required" : [ "code", "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
       },
-      "ModificationRegion" : {
+      "SaisieRegion" : {
         "type" : "object",
-        "description" : "Le code est immuable (RG-REF-02)",
+        "description" : "Création ou modification d'une région, code compris",
         "properties" : {
-          "enRegionDelimitee" : {
-            "type" : "boolean"
-          },
-          "libelle" : {
-            "type" : "string",
-            "example" : "Gers"
-          }
-        },
-        "required" : [ "enRegionDelimitee", "libelle" ]
-      },
-      "ModificationValeurSimple" : {
-        "type" : "object",
-        "description" : "Le code est immuable (RG-REF-02) : seul le libellé change",
-        "properties" : {
-          "libelle" : {
-            "type" : "string",
-            "example" : "Europe"
-          }
-        },
-        "required" : [ "libelle" ]
-      },
-      "Pays" : {
-        "type" : "object",
-        "properties" : {
-          "actif" : {
-            "type" : "boolean"
-          },
-          "ageMinimum" : {
-            "type" : "string",
-            "description" : "Compte d'âge : 00, 0, 1, 2…",
-            "example" : "4"
-          },
-          "code" : {
-            "type" : "string",
-            "example" : "US"
-          },
-          "codeIso" : {
-            "type" : "string",
-            "example" : "US"
-          },
-          "langueCertificat" : {
-            "type" : "string",
-            "enum" : [ "FR_EN", "FR_ES", "FR_IT" ]
-          },
-          "libelle" : {
-            "type" : "string",
-            "example" : "États-Unis"
-          },
-          "membreUe" : {
-            "type" : "boolean"
-          },
-          "niveauDetailCertificat" : {
-            "type" : "string",
-            "enum" : [ "CUMUL_DEGRE", "DETAIL_COMPTE_AGE", "DETAIL_MILLESIME" ]
-          },
-          "zoneCommerciale" : {
-            "type" : "string",
-            "description" : "Code de la zone commerciale",
-            "example" : "AMN"
-          }
-        },
-        "required" : [ "actif", "code", "codeIso", "langueCertificat", "libelle", "membreUe", "niveauDetailCertificat", "zoneCommerciale" ]
-      },
-      "Region" : {
-        "type" : "object",
-        "properties" : {
-          "actif" : {
-            "type" : "boolean"
-          },
           "code" : {
             "type" : "string",
             "example" : "GERS"
@@ -2897,7 +3144,7 @@
             "example" : "Gers"
           }
         },
-        "required" : [ "actif", "code", "enRegionDelimitee", "libelle" ]
+        "required" : [ "code", "enRegionDelimitee", "libelle" ]
       },
       "SaisieTauxTva" : {
         "type" : "object",
@@ -2919,6 +3166,21 @@
           }
         },
         "required" : [ "dateDebut", "taux" ]
+      },
+      "SaisieValeurSimple" : {
+        "type" : "object",
+        "description" : "Création ou modification : le code se corrige (RG-REF-02)",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "EUR"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Europe"
+          }
+        },
+        "required" : [ "code", "libelle" ]
       },
       "TauxTva" : {
         "type" : "object",
@@ -2952,12 +3214,18 @@
             "type" : "string",
             "example" : "EUR"
           },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant technique, référencé par les autres contextes",
+            "example" : 1
+          },
           "libelle" : {
             "type" : "string",
             "example" : "Europe"
           }
         },
-        "required" : [ "actif", "code", "libelle" ]
+        "required" : [ "actif", "code", "id", "libelle" ]
       }
     }
   }

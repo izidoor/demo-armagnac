@@ -5,15 +5,15 @@ package fr.bnia.referentiels.domain;
  */
 public final class CentreInteret extends ValeurSimple {
 
-    private CentreInteret(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private CentreInteret(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static CentreInteret creer(Code code, Libelle libelle) {
-        return new CentreInteret(code, libelle, true);
+        return new CentreInteret(null, code, libelle, true);
     }
 
-    public static CentreInteret reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new CentreInteret(code, libelle, actif);
+    public static CentreInteret reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new CentreInteret(id, code, libelle, actif);
     }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Attributs propres d'un pays, en plus du code, du libellé et de l'état actif de toute valeur.
  *
- * @param zoneCommerciale        code de la zone commerciale, son continent (H-REF-5)
+ * @param zoneCommerciale        identifiant de la zone commerciale, son continent (H-REF-5)
  * @param membreUe               indépendant de la zone commerciale (RG-REF-08)
  * @param langueCertificat       {@code null} : {@link LangueCertificat#PAR_DEFAUT} (RG-REF-07, H-REF-2)
  * @param niveauDetailCertificat {@code null} : {@link NiveauDetailCertificat#PAR_DEFAUT} (RG-REF-07, H-REF-2)
@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 public record DescriptionPays(
         CodeIso codeIso,
-        Code zoneCommerciale,
+        long zoneCommerciale,
         boolean membreUe,
         LangueCertificat langueCertificat,
         NiveauDetailCertificat niveauDetailCertificat,
@@ -26,7 +26,6 @@ public record DescriptionPays(
 
     public DescriptionPays {
         Objects.requireNonNull(codeIso);
-        Objects.requireNonNull(zoneCommerciale);
         langueCertificat = langueCertificat == null ? LangueCertificat.PAR_DEFAUT : langueCertificat;
         niveauDetailCertificat = niveauDetailCertificat == null ? NiveauDetailCertificat.PAR_DEFAUT : niveauDetailCertificat;
         ageMinimum = ageMinimum == null ? Optional.empty() : ageMinimum;

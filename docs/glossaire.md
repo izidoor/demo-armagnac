@@ -108,7 +108,7 @@ une valeur **inactive** n'est plus proposée à la saisie mais reste affichée l
 | Âge minimum à l'export | — | `CompteDAge` minimum attendu pour exporter vers un pays. Une vente plus jeune déclenche une alerte non bloquante (contexte `exportation`). | p.52, 128 |
 | Région | `Region` | Région métier de rattachement d'un opérateur, avec un indicateur « en région délimitée ». | p.52, 102, 129 |
 | Région délimitée | — | Aire de l'appellation Armagnac. Distingue les opérateurs « région Armagnac / hors région » et les flux de DSM en ou hors région délimitée. | p.24, 102 |
-| Contenance | `Contenance` | Volume reconnu d'un contenant, en litres (`BigDecimal`). Identifiée par son volume ; entre dans le calcul du volume d'alcool pur des ventes export. | p.40, 131 |
+| Contenance | `Contenance` | Volume reconnu d'un contenant, en litres (`BigDecimal`). Volume unique dans le référentiel ; entre dans le calcul du volume d'alcool pur des ventes export. | p.40, 131 |
 | Classe de TVA | `ClasseTva` | Catégorie de taxe (code, libellé, active) portant un historique de taux. | p.52, 127 |
 | Taux de TVA | `TauxTva` | Taux d'une classe sur une période (début, fin facultative). Pas de chevauchement dans une classe. Figé sur les factures et avoirs qui l'appliquent. | p.52, 127 |
 | Marque | `Marque` | Marque commerciale exploitée par un opérateur (portée France ou Export sur la fiche). Créable depuis la fiche opérateur, au back-office comme au portail ; libellé unique à la casse et aux accents près. | p.19, 131 |

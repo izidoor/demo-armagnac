@@ -7,5 +7,5 @@ import java.math.BigDecimal;
  *
  * @param tauxEnVigueur taux applicable à la date du listing, {@code null} s'il n'y en a pas (RG-REF-12)
  */
-public record ClasseTvaLigne(String code, String libelle, boolean actif, BigDecimal tauxEnVigueur) {
+public record ClasseTvaLigne(long id, String code, String libelle, boolean actif, BigDecimal tauxEnVigueur) {
 }

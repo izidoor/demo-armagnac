@@ -19,15 +19,15 @@ class TypeVisiteJdbc extends ValeursSimplesJdbc<TypeVisite, TypeVisiteJdbc.Ligne
 
     @Override
     protected Ligne versLigne(TypeVisite valeur) {
-        return new Ligne(valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
+        return new Ligne(valeur.id(), valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
     }
 
     @Override
     protected TypeVisite versDomaine(Ligne ligne) {
-        return TypeVisite.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return TypeVisite.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "type_visite")
-    record Ligne(@Id String code, String libelle, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean actif) {
     }
 }

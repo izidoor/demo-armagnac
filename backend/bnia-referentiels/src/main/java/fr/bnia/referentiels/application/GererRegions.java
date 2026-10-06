@@ -25,9 +25,10 @@ public class GererRegions extends GererValeurs<Region> {
         return enregistrerNouvelle(Region.creer(Code.de(code), Libelle.de(libelle), enRegionDelimitee));
     }
 
-    /** Tout sauf le code (RG-REF-02, RG-REF-03). */
-    public Region modifier(String code, String libelle, boolean enRegionDelimitee) {
+    /** RG-REF-01 à 03. */
+    public Region modifier(long id, String code, String libelle, boolean enRegionDelimitee) {
+        Code nouveauCode = Code.de(code);
         Libelle nouveau = Libelle.de(libelle);
-        return modifierValeur(code, region -> region.decrire(nouveau, enRegionDelimitee));
+        return modifierValeur(id, region -> region.decrire(nouveauCode, nouveau, enRegionDelimitee));
     }
 }

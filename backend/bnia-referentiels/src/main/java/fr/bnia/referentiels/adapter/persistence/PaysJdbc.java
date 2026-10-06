@@ -29,11 +29,11 @@ class PaysJdbc extends ValeursJdbc<Pays, PaysJdbc.Ligne> implements PaysReposito
     }
 
     @Override
-    public boolean existeCodeIso(CodeIso codeIso, Code sauf) {
+    public boolean existeCodeIso(CodeIso codeIso, Long sauf) {
         return jdbcClient.sql("select exists (select 1 from " + table
-                        + " where code_iso = :codeIso and code is distinct from :sauf)")
+                        + " where code_iso = :codeIso and id is distinct from :sauf)")
                 .param("codeIso", codeIso.valeur())
-                .param("sauf", sauf == null ? null : sauf.valeur(), Types.VARCHAR)
+                .param("sauf", sauf, Types.BIGINT)
                 .query(Boolean.class)
                 .single();
     }
@@ -41,7 +41,7 @@ class PaysJdbc extends ValeursJdbc<Pays, PaysJdbc.Ligne> implements PaysReposito
     @Override
     public List<PaysLigne> lister(FiltreValeurs filtre) {
         Sql.Where where = Sql.where(filtre, "code", "code_iso", "libelle");
-        return jdbcClient.sql("select code, code_iso, libelle, zone_commerciale, membre_ue, langue_certificat,"
+        return jdbcClient.sql("select id, code, code_iso, libelle, zone_commerciale_id as zone_commerciale, membre_ue, langue_certificat,"
                         + " niveau_detail_certificat, age_minimum, actif from " + table + where.clause()
                         + " order by libelle, code")
                 .params(where.parametres())
@@ -52,25 +52,26 @@ class PaysJdbc extends ValeursJdbc<Pays, PaysJdbc.Ligne> implements PaysReposito
     @Override
     protected Ligne versLigne(Pays pays) {
         DescriptionPays d = pays.description();
-        return new Ligne(pays.code().valeur(), d.codeIso().valeur(), pays.libelle().valeur(),
-                d.zoneCommerciale().valeur(), d.membreUe(), d.langueCertificat(), d.niveauDetailCertificat(),
+        return new Ligne(pays.id(), pays.code().valeur(), d.codeIso().valeur(), pays.libelle().valeur(),
+                d.zoneCommerciale(), d.membreUe(), d.langueCertificat(), d.niveauDetailCertificat(),
                 d.ageMinimum().map(CompteDAge::toString).orElse(null), pays.estActif());
     }
 
     @Override
     protected Pays versDomaine(Ligne ligne) {
-        var description = new DescriptionPays(CodeIso.de(ligne.codeIso()), Code.de(ligne.zoneCommerciale()),
+        var description = new DescriptionPays(CodeIso.de(ligne.codeIso()), ligne.zoneCommercialeId(),
                 ligne.membreUe(), ligne.langueCertificat(), ligne.niveauDetailCertificat(),
                 Optional.ofNullable(ligne.ageMinimum()).map(CompteDAge::de));
-        return Pays.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), description, ligne.actif());
+        return Pays.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), description, ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "pays")
     record Ligne(
-            @Id String code,
+            @Id Long id,
+            String code,
             String codeIso,
             String libelle,
-            String zoneCommerciale,
+            long zoneCommercialeId,
             boolean membreUe,
             LangueCertificat langueCertificat,
             NiveauDetailCertificat niveauDetailCertificat,

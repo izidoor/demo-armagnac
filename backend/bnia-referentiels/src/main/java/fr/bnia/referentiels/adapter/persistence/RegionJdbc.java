@@ -24,7 +24,7 @@ class RegionJdbc extends ValeursJdbc<Region, RegionJdbc.Ligne> implements Region
     @Override
     public List<RegionLigne> lister(FiltreValeurs filtre) {
         Sql.Where where = Sql.where(filtre, "code", "libelle");
-        return jdbcClient.sql("select code, libelle, en_region_delimitee, actif from " + table + where.clause()
+        return jdbcClient.sql("select id, code, libelle, en_region_delimitee, actif from " + table + where.clause()
                         + " order by libelle, code")
                 .params(where.parametres())
                 .query(RegionLigne.class)
@@ -33,17 +33,17 @@ class RegionJdbc extends ValeursJdbc<Region, RegionJdbc.Ligne> implements Region
 
     @Override
     protected Ligne versLigne(Region region) {
-        return new Ligne(region.code().valeur(), region.libelle().valeur(), region.estEnRegionDelimitee(),
+        return new Ligne(region.id(), region.code().valeur(), region.libelle().valeur(), region.estEnRegionDelimitee(),
                 region.estActif());
     }
 
     @Override
     protected Region versDomaine(Ligne ligne) {
-        return Region.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.enRegionDelimitee(),
+        return Region.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.enRegionDelimitee(),
                 ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "region")
-    record Ligne(@Id String code, String libelle, boolean enRegionDelimitee, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean enRegionDelimitee, boolean actif) {
     }
 }

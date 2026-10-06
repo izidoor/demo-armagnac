@@ -38,27 +38,31 @@ public class GererClassesTva extends GererValeurs<ClasseTva> {
         return enregistrerNouvelle(ClasseTva.creer(Code.de(code), Libelle.de(libelle)));
     }
 
-    /** Seul le libellé change (RG-REF-02, RG-REF-03). */
-    public ClasseTva modifier(String code, String libelle) {
+    /** RG-REF-01 à 03. */
+    public ClasseTva modifier(long id, String code, String libelle) {
+        Code nouveauCode = Code.de(code);
         Libelle nouveau = Libelle.de(libelle);
-        return modifierValeur(code, classe -> classe.renommer(nouveau));
+        return modifierValeur(id, classe -> {
+            classe.recoder(nouveauCode);
+            classe.renommer(nouveau);
+        });
     }
 
     /** RG-REF-11. */
-    public ClasseTva ajouterTaux(String code, SaisieTauxTva saisie) {
+    public ClasseTva ajouterTaux(long id, SaisieTauxTva saisie) {
         TauxTva taux = taux(saisie);
-        return modifierValeur(code, classe -> classe.ajouterTaux(taux));
+        return modifierValeur(id, classe -> classe.ajouterTaux(taux));
     }
 
     /** RG-REF-11. Le taux est désigné par sa date de début actuelle. */
-    public ClasseTva modifierTaux(String code, LocalDate debutActuel, SaisieTauxTva saisie) {
+    public ClasseTva modifierTaux(long id, LocalDate debutActuel, SaisieTauxTva saisie) {
         TauxTva taux = taux(saisie);
-        return modifierValeur(code, classe -> classe.modifierTaux(debutActuel, taux));
+        return modifierValeur(id, classe -> classe.modifierTaux(debutActuel, taux));
     }
 
     /** Correction d'une erreur de saisie dans l'historique (spec 01, §5.1). */
-    public ClasseTva retirerTaux(String code, LocalDate debut) {
-        return modifierValeur(code, classe -> classe.retirerTaux(debut));
+    public ClasseTva retirerTaux(long id, LocalDate debut) {
+        return modifierValeur(id, classe -> classe.retirerTaux(debut));
     }
 
     private static TauxTva taux(SaisieTauxTva saisie) {

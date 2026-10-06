@@ -5,15 +5,15 @@ package fr.bnia.referentiels.domain;
  */
 public final class CircuitDistribution extends ValeurSimple {
 
-    private CircuitDistribution(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private CircuitDistribution(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static CircuitDistribution creer(Code code, Libelle libelle) {
-        return new CircuitDistribution(code, libelle, true);
+        return new CircuitDistribution(null, code, libelle, true);
     }
 
-    public static CircuitDistribution reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new CircuitDistribution(code, libelle, actif);
+    public static CircuitDistribution reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new CircuitDistribution(id, code, libelle, actif);
     }
 }

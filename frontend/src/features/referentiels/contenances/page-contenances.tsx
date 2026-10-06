@@ -10,6 +10,7 @@ import {
   listerContenances,
   modifierContenance,
   reactiverContenance,
+  supprimerContenance,
   type Contenance,
 } from '@/api/generated'
 import { Button } from '@/components/ui/button'
@@ -47,6 +48,7 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
 import { PageParametrage } from '../commun/page-parametrage'
+import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 
 const schema = z.object({
@@ -86,6 +88,7 @@ export function PageContenances() {
 
   const [edition, setEdition] = useState<Contenance | 'nouvelle' | null>(null)
   const [changement, setChangement] = useState<Contenance | null>(null)
+  const [suppression, setSuppression] = useState<Contenance | null>(null)
   const contenanceEditee =
     edition === 'nouvelle' ? undefined : (edition ?? undefined)
 
@@ -116,7 +119,7 @@ export function PageContenances() {
           <TableBody>
             <LignesEtat requete={requete} colonnes={4} />
             {requete.data?.map((contenance) => (
-              <TableRow key={contenance.volume}>
+              <TableRow key={contenance.id}>
                 <TableCell className='text-end font-mono'>
                   {litres.format(contenance.volume)}
                 </TableCell>
@@ -134,6 +137,7 @@ export function PageContenances() {
                     actif={contenance.actif}
                     onModifier={() => setEdition(contenance)}
                     onChangerEtat={() => setChangement(contenance)}
+                    onSupprimer={() => setSuppression(contenance)}
                   />
                 </TableCell>
               </TableRow>
@@ -152,11 +156,22 @@ export function PageContenances() {
         valeur={changement}
         onFermer={() => setChangement(null)}
         changer={() => {
-          const path = { volume: changement!.volume }
+          const path = { id: changement!.id }
           return changement!.actif
             ? desactiverContenance({ path, throwOnError: true })
             : reactiverContenance({ path, throwOnError: true })
         }}
+        onSucces={rafraichir}
+      />
+      <Suppression
+        valeur={suppression}
+        onFermer={() => setSuppression(null)}
+        supprimer={() =>
+          supprimerContenance({
+            path: { id: suppression!.id },
+            throwOnError: true,
+          })
+        }
         onSucces={rafraichir}
       />
     </PageParametrage>
@@ -194,20 +209,19 @@ function FormulaireContenance({
   }, [ouvert, contenance, form])
 
   const mutation = useMutation({
-    mutationFn: ({ volume, libelle }: SaisieContenance) =>
-      contenance
+    mutationFn: ({ volume, libelle }: SaisieContenance) => {
+      const body = {
+        volume: Number(volume.replace(',', '.')),
+        libelle: libelle.trim() || undefined,
+      }
+      return contenance
         ? modifierContenance({
-            path: { volume: contenance.volume },
-            body: { libelle: libelle.trim() || undefined },
+            path: { id: contenance.id },
+            body,
             throwOnError: true,
           })
-        : creerContenance({
-            body: {
-              volume: Number(volume.replace(',', '.')),
-              libelle: libelle.trim() || undefined,
-            },
-            throwOnError: true,
-          }),
+        : creerContenance({ body, throwOnError: true })
+    },
     meta: { erreurAffichee: true },
     onSuccess: () => {
       onSucces()
@@ -226,8 +240,7 @@ function FormulaireContenance({
               : 'Nouvelle contenance'}
           </DialogTitle>
           <DialogDescription>
-            Le volume identifie la contenance : il ne change plus après la
-            création.
+            Le volume est unique dans le référentiel.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -246,7 +259,6 @@ function FormulaireContenance({
                   <FormControl>
                     <Input
                       {...field}
-                      disabled={!!contenance}
                       inputMode='decimal'
                       placeholder='0,70'
                       autoComplete='off'

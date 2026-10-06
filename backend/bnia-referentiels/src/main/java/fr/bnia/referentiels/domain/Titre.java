@@ -5,15 +5,15 @@ package fr.bnia.referentiels.domain;
  */
 public final class Titre extends ValeurSimple {
 
-    private Titre(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private Titre(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static Titre creer(Code code, Libelle libelle) {
-        return new Titre(code, libelle, true);
+        return new Titre(null, code, libelle, true);
     }
 
-    public static Titre reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new Titre(code, libelle, actif);
+    public static Titre reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new Titre(id, code, libelle, actif);
     }
 }

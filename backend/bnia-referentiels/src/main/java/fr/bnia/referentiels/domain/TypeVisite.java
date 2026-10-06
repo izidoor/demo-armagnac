@@ -5,15 +5,15 @@ package fr.bnia.referentiels.domain;
  */
 public final class TypeVisite extends ValeurSimple {
 
-    private TypeVisite(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private TypeVisite(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static TypeVisite creer(Code code, Libelle libelle) {
-        return new TypeVisite(code, libelle, true);
+        return new TypeVisite(null, code, libelle, true);
     }
 
-    public static TypeVisite reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new TypeVisite(code, libelle, actif);
+    public static TypeVisite reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new TypeVisite(id, code, libelle, actif);
     }
 }

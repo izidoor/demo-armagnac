@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
  * Endpoints communs aux listes simples. Chaque liste a son controller (A-REF-3), qui fixe le chemin,
- * le tag et la {@link fr.bnia.commun.adapter.rest.Ressource} nommant ses opérations.
+ * le tag et la {@link fr.bnia.commun.adapter.rest.Ressource} nommant ses opérations. Les valeurs sont
+ * désignées par leur identifiant technique (ADR-011).
  */
 abstract class ValeursSimplesController<T extends ValeurSimple> {
 
@@ -37,34 +39,41 @@ abstract class ValeursSimplesController<T extends ValeurSimple> {
                 .toList();
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @Operation(summary = "Consulter une valeur, active ou non")
-    ValeurSimpleResponse consulter(@PathVariable String code) {
-        return ValeurSimpleResponse.depuis(gerer.consulter(code));
+    ValeurSimpleResponse consulter(@PathVariable long id) {
+        return ValeurSimpleResponse.depuis(gerer.consulter(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Créer une valeur (RG-REF-01, RG-REF-03)")
-    ValeurSimpleResponse creer(@RequestBody CreationValeurSimpleRequest requete) {
+    ValeurSimpleResponse creer(@RequestBody SaisieValeurSimpleRequest requete) {
         return ValeurSimpleResponse.depuis(gerer.creer(requete.code(), requete.libelle()));
     }
 
-    @PutMapping("/{code}")
-    @Operation(summary = "Modifier le libellé ; le code est immuable (RG-REF-02)")
-    ValeurSimpleResponse modifier(@PathVariable String code, @RequestBody ModificationValeurSimpleRequest requete) {
-        return ValeurSimpleResponse.depuis(gerer.modifier(code, requete.libelle()));
+    @PutMapping("/{id}")
+    @Operation(summary = "Modifier le code et le libellé (RG-REF-01 à 03)")
+    ValeurSimpleResponse modifier(@PathVariable long id, @RequestBody SaisieValeurSimpleRequest requete) {
+        return ValeurSimpleResponse.depuis(gerer.modifier(id, requete.code(), requete.libelle()));
     }
 
-    @PostMapping("/{code}/desactivation")
+    @PostMapping("/{id}/desactivation")
     @Operation(summary = "Désactiver une valeur (RG-REF-04)")
-    ValeurSimpleResponse desactiver(@PathVariable String code) {
-        return ValeurSimpleResponse.depuis(gerer.desactiver(code));
+    ValeurSimpleResponse desactiver(@PathVariable long id) {
+        return ValeurSimpleResponse.depuis(gerer.desactiver(id));
     }
 
-    @PostMapping("/{code}/reactivation")
+    @PostMapping("/{id}/reactivation")
     @Operation(summary = "Réactiver une valeur (RG-REF-04)")
-    ValeurSimpleResponse reactiver(@PathVariable String code) {
-        return ValeurSimpleResponse.depuis(gerer.reactiver(code));
+    ValeurSimpleResponse reactiver(@PathVariable long id) {
+        return ValeurSimpleResponse.depuis(gerer.reactiver(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)")
+    void supprimer(@PathVariable long id) {
+        gerer.supprimer(id);
     }
 }

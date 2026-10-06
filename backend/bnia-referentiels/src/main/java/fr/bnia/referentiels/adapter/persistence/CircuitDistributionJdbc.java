@@ -19,15 +19,15 @@ class CircuitDistributionJdbc extends ValeursSimplesJdbc<CircuitDistribution, Ci
 
     @Override
     protected Ligne versLigne(CircuitDistribution valeur) {
-        return new Ligne(valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
+        return new Ligne(valeur.id(), valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
     }
 
     @Override
     protected CircuitDistribution versDomaine(Ligne ligne) {
-        return CircuitDistribution.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return CircuitDistribution.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "circuit_distribution")
-    record Ligne(@Id String code, String libelle, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean actif) {
     }
 }

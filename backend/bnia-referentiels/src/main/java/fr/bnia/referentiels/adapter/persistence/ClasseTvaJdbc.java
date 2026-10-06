@@ -37,8 +37,8 @@ class ClasseTvaJdbc extends ValeursJdbc<ClasseTva, ClasseTvaJdbc.Ligne> implemen
         Sql.Where where = Sql.where(filtre, "code", "libelle");
         var parametres = new HashMap<>(where.parametres());
         parametres.put("date", date);
-        return jdbcClient.sql("select code, libelle, actif, (select t.taux from " + SCHEMA + ".taux_tva t"
-                        + " where t.classe_tva_code = c.code and t.date_debut <= :date"
+        return jdbcClient.sql("select id, code, libelle, actif, (select t.taux from " + SCHEMA + ".taux_tva t"
+                        + " where t.classe_tva_id = c.id and t.date_debut <= :date"
                         + " and (t.date_fin is null or t.date_fin >= :date)) as taux_en_vigueur"
                         + " from " + table + " c" + where.clause() + " order by libelle, code")
                 .params(parametres)
@@ -51,21 +51,22 @@ class ClasseTvaJdbc extends ValeursJdbc<ClasseTva, ClasseTvaJdbc.Ligne> implemen
         Set<TauxLigne> taux = classe.taux().stream()
                 .map(t -> new TauxLigne(t.taux(), t.debut(), t.fin()))
                 .collect(Collectors.toSet());
-        return new Ligne(classe.code().valeur(), classe.libelle().valeur(), classe.estActif(), taux);
+        return new Ligne(classe.id(), classe.code().valeur(), classe.libelle().valeur(), classe.estActif(), taux);
     }
 
     @Override
     protected ClasseTva versDomaine(Ligne ligne) {
-        return ClasseTva.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif(),
+        return ClasseTva.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif(),
                 ligne.taux().stream().map(t -> new TauxTva(t.taux(), t.dateDebut(), t.dateFin())).toList());
     }
 
     @Table(schema = SCHEMA, name = "classe_tva")
     record Ligne(
-            @Id String code,
+            @Id Long id,
+            String code,
             String libelle,
             boolean actif,
-            @MappedCollection(idColumn = "classe_tva_code") Set<TauxLigne> taux) {
+            @MappedCollection(idColumn = "classe_tva_id") Set<TauxLigne> taux) {
     }
 
     @Table(schema = SCHEMA, name = "taux_tva")

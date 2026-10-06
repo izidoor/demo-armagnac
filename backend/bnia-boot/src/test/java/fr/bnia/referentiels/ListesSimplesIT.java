@@ -10,9 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
  * Contrat commun des neuf listes simples (A-REF-3) : REST, cas d'usage, Spring Data JDBC, PostgreSQL.
@@ -23,47 +21,51 @@ class ListesSimplesIT extends AbstractIT {
 
     private static final String RACINE = "/api/referentiels/";
 
-    @Autowired
-    RestTestClient client;
-
     @ListesSimples
     void creer_consulter_modifier_desactiver_reactiver(String liste) {
         String url = RACINE + liste;
         String code = codeUnique();
 
-        client.post().uri(url).body(Map.of("code", code, "libelle", "Valeur " + code))
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody().jsonPath("$.code").isEqualTo(code).jsonPath("$.actif").isEqualTo(true);
+        long id = creer(url, Map.of("code", code, "libelle", "Valeur " + code));
 
-        client.put().uri(url + "/{code}", code).body(Map.of("libelle", "Valeur modifiée " + code))
+        client.put().uri(url + "/{id}", id).body(Map.of("code", code + "-C", "libelle", "Valeur modifiée " + code))
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().jsonPath("$.libelle").isEqualTo("Valeur modifiée " + code);
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(id)
+                .jsonPath("$.code").isEqualTo(code + "-C")
+                .jsonPath("$.libelle").isEqualTo("Valeur modifiée " + code);
 
-        client.post().uri(url + "/{code}/desactivation", code)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody().jsonPath("$.actif").isEqualTo(false);
-
-        client.get().uri(url + "/{code}", code)
+        client.post().uri(url + "/{id}/desactivation", id)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.actif").isEqualTo(false);
 
-        client.post().uri(url + "/{code}/reactivation", code)
+        client.get().uri(url + "/{id}", id)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.actif").isEqualTo(false).jsonPath("$.code").isEqualTo(code + "-C");
+
+        client.post().uri(url + "/{id}/reactivation", id)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.actif").isEqualTo(true);
     }
 
     @ListesSimples
-    @DisplayName("RG-REF-01 : un code déjà pris, à la casse près, est refusé en 409")
+    @DisplayName("RG-REF-01 : un code déjà pris, à la casse près, est refusé en 409, à la création comme à la modification")
     void rg_ref_01_code_en_double(String liste) {
         String url = RACINE + liste;
-        String code = creer(url);
+        String code = codeUnique();
+        creer(url, Map.of("code", code, "libelle", "Valeur " + code));
+        long autre = creer(url, Map.of("code", code + "-B", "libelle", "Autre " + code));
 
-        client.post().uri(url).body(Map.of("code", code.toLowerCase(), "libelle", "Autre " + code))
+        client.post().uri(url).body(Map.of("code", code.toLowerCase(), "libelle", "Doublon " + code))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-REF-01");
+
+        client.put().uri(url + "/{id}", autre).body(Map.of("code", code, "libelle", "Autre " + code))
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.CONFLICT)
                 .expectBody().jsonPath("$.regle").isEqualTo("RG-REF-01");
@@ -83,14 +85,14 @@ class ListesSimplesIT extends AbstractIT {
     void rg_ref_04_filtre_actif(String liste) {
         String url = RACINE + liste;
         String code = codeUnique();
-        String actif = creer(url, code + "A", "Filtre " + code + " actif");
-        String inactif = creer(url, code + "I", "Filtre " + code + " inactif");
-        client.post().uri(url + "/{code}/desactivation", inactif).exchange().expectStatus().isOk();
+        long actif = creer(url, Map.of("code", code + "A", "libelle", "Filtre " + code + " actif"));
+        long inactif = creer(url, Map.of("code", code + "I", "libelle", "Filtre " + code + " inactif"));
+        client.post().uri(url + "/{id}/desactivation", inactif).exchange().expectStatus().isOk();
 
         client.get().uri(u -> u.path(url).queryParam("actif", true).queryParam("recherche", "filtre " + code).build())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().jsonPath("$.length()").isEqualTo(1).jsonPath("$[0].code").isEqualTo(actif);
+                .expectBody().jsonPath("$.length()").isEqualTo(1).jsonPath("$[0].id").isEqualTo(actif);
 
         client.get().uri(u -> u.path(url).queryParam("recherche", "FILTRE " + code).build())
                 .exchange()
@@ -99,22 +101,22 @@ class ListesSimplesIT extends AbstractIT {
     }
 
     @ListesSimples
+    @DisplayName("RG-REF-04 : une valeur que rien n'utilise se supprime")
+    void rg_ref_04_supprimer(String liste) {
+        String url = RACINE + liste;
+        String code = codeUnique();
+        long id = creer(url, Map.of("code", code, "libelle", "À supprimer " + code));
+
+        client.delete().uri(url + "/{id}", id).exchange().expectStatus().isNoContent();
+
+        client.get().uri(url + "/{id}", id).exchange().expectStatus().isNotFound();
+    }
+
+    @ListesSimples
     void une_valeur_inconnue_renvoie_404(String liste) {
-        client.get().uri(RACINE + liste + "/{code}", "INCONNU-" + codeUnique())
+        client.get().uri(RACINE + liste + "/{id}", Long.MAX_VALUE)
                 .exchange()
                 .expectStatus().isNotFound();
-    }
-
-    private String creer(String url) {
-        String code = codeUnique();
-        return creer(url, code, "Valeur " + code);
-    }
-
-    private String creer(String url, String code, String libelle) {
-        client.post().uri(url).body(Map.of("code", code, "libelle", libelle))
-                .exchange()
-                .expectStatus().isCreated();
-        return code;
     }
 
     private static String codeUnique() {

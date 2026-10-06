@@ -31,9 +31,13 @@ public abstract class GererValeursSimples<T extends ValeurSimple> extends GererV
         return enregistrerNouvelle(fabrique.apply(Code.de(code), Libelle.de(libelle)));
     }
 
-    /** Seul le libellé change ; le code est immuable (RG-REF-02, RG-REF-03). */
-    public T modifier(String code, String libelle) {
-        Libelle nouveau = Libelle.de(libelle);
-        return modifierValeur(code, valeur -> valeur.renommer(nouveau));
+    /** Le code et le libellé se corrigent (RG-REF-01 à 03). */
+    public T modifier(long id, String code, String libelle) {
+        Code nouveauCode = Code.de(code);
+        Libelle nouveauLibelle = Libelle.de(libelle);
+        return modifierValeur(id, valeur -> {
+            valeur.recoder(nouveauCode);
+            valeur.renommer(nouveauLibelle);
+        });
     }
 }

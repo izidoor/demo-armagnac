@@ -39,7 +39,8 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - Pas d'import direct entre contextes :
   passer par des ports ou des événements. Deux exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et la partie publiée en lecture de `referentiels`
-  (`fr.bnia.referentiels.*.partage`, ADR-008). Référence entre contextes par code métier.
+  (`fr.bnia.referentiels.*.partage`, ADR-008). Référence entre contextes par identifiant technique,
+  avec clé étrangère (ADR-011).
 
 ## Persistance
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance

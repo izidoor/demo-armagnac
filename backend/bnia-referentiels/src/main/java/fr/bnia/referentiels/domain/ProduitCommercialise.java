@@ -5,15 +5,15 @@ package fr.bnia.referentiels.domain;
  */
 public final class ProduitCommercialise extends ValeurSimple {
 
-    private ProduitCommercialise(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private ProduitCommercialise(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static ProduitCommercialise creer(Code code, Libelle libelle) {
-        return new ProduitCommercialise(code, libelle, true);
+        return new ProduitCommercialise(null, code, libelle, true);
     }
 
-    public static ProduitCommercialise reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new ProduitCommercialise(code, libelle, actif);
+    public static ProduitCommercialise reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new ProduitCommercialise(id, code, libelle, actif);
     }
 }

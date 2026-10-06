@@ -1,6 +1,6 @@
 # ADR-008 : Référentiels, partie publiée en lecture et référence par code
 
-- Statut : accepté
+- Statut : accepté ; la référence par code est remplacée par l'identifiant technique (ADR-011)
 - Date : 2026-10-06
 - Spec : `docs/specs/01-referentiels/spec.md` (décisions A-REF-1 à 3)
 
@@ -28,7 +28,7 @@ prennent les listes dans le code.
   appelle le cas d'usage de `referentiels`.
 - **Exception limitée à `referentiels`.** Les autres contextes ne communiquent toujours que par ports et
   événements (ADR-002).
-- **Référence par code métier.** Un contexte qui pointe vers une valeur de référence stocke son code
+- **Référence par code métier** (remplacée par l'ADR-011 : identifiant technique, code modifiable). Un contexte qui pointe vers une valeur de référence stocke son code
   (`pays_code = 'US'`), immuable par règle de gestion. La contenance n'a pas de code : on stocke son
   volume. Pas d'identifiant technique entre contextes.
 - **Une classe par liste.** Chaque liste de valeurs (`Titre`, `Label`, `Marque`…) a sa classe, son
@@ -52,8 +52,9 @@ Options écartées :
   `fr.bnia.referentiels.domain.partage..` et `fr.bnia.referentiels.application.partage..`. Une
   nouvelle règle interdit aux autres contextes tout autre package de `referentiels`.
 - Changer la partie publiée touche tous les contextes : elle doit rester petite et stable.
-- Le code étant immuable, une erreur de code se corrige en désactivant la valeur et en en créant une
-  autre. Aucune valeur n'est supprimée.
+- ~~Le code étant immuable, une erreur de code se corrige en désactivant la valeur et en en créant une
+  autre. Aucune valeur n'est supprimée.~~ Remplacé par l'ADR-011 : le code se corrige, une valeur
+  inutilisée se supprime.
 - Un consommateur vérifie lui-même, par `ReferentielsLecture`, qu'un code existe et qu'il est actif au
   moment de la saisie.
 - Treize classes, tables et endpoints au lieu d'un seul modèle générique : plus de code, en partie

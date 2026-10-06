@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,34 +37,41 @@ class PaysController {
         return gerer.lister(new FiltreValeurs(actif, recherche)).stream().map(PaysResponse::depuis).toList();
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @Operation(operationId = "consulterPays", summary = "Consulter un pays, actif ou non")
-    PaysResponse consulter(@PathVariable String code) {
-        return PaysResponse.depuis(gerer.consulter(code));
+    PaysResponse consulter(@PathVariable long id) {
+        return PaysResponse.depuis(gerer.consulter(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerPays", summary = "Créer un pays (RG-REF-01, 03, 05 à 09)")
-    PaysResponse creer(@RequestBody CreationPaysRequest requete) {
-        return PaysResponse.depuis(gerer.creer(requete.code(), requete.versSaisie()));
+    PaysResponse creer(@RequestBody SaisiePaysRequest requete) {
+        return PaysResponse.depuis(gerer.creer(requete.versSaisie()));
     }
 
-    @PutMapping("/{code}")
-    @Operation(operationId = "modifierPays", summary = "Modifier un pays ; le code est immuable (RG-REF-02)")
-    PaysResponse modifier(@PathVariable String code, @RequestBody ModificationPaysRequest requete) {
-        return PaysResponse.depuis(gerer.modifier(code, requete.versSaisie()));
+    @PutMapping("/{id}")
+    @Operation(operationId = "modifierPays", summary = "Modifier un pays, code compris (RG-REF-01 à 03, 05 à 09)")
+    PaysResponse modifier(@PathVariable long id, @RequestBody SaisiePaysRequest requete) {
+        return PaysResponse.depuis(gerer.modifier(id, requete.versSaisie()));
     }
 
-    @PostMapping("/{code}/desactivation")
+    @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverPays", summary = "Désactiver un pays (RG-REF-04)")
-    PaysResponse desactiver(@PathVariable String code) {
-        return PaysResponse.depuis(gerer.desactiver(code));
+    PaysResponse desactiver(@PathVariable long id) {
+        return PaysResponse.depuis(gerer.desactiver(id));
     }
 
-    @PostMapping("/{code}/reactivation")
+    @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverPays", summary = "Réactiver un pays (RG-REF-04)")
-    PaysResponse reactiver(@PathVariable String code) {
-        return PaysResponse.depuis(gerer.reactiver(code));
+    PaysResponse reactiver(@PathVariable long id) {
+        return PaysResponse.depuis(gerer.reactiver(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(operationId = "supprimerPays", summary = "Supprimer un pays qu'aucune autre donnée n'utilise (RG-REF-04)")
+    void supprimer(@PathVariable long id) {
+        gerer.supprimer(id);
     }
 }

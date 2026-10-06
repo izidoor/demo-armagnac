@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
  * Exporte le contrat OpenAPI généré depuis les controllers vers {@code docs/api/openapi.json}
@@ -17,9 +15,6 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 class OpenApiContratIT extends AbstractIT {
 
     private static final Path CONTRAT = Path.of("../../docs/api/openapi.json");
-
-    @Autowired
-    RestTestClient client;
 
     @Test
     void exporte_le_contrat_openapi() throws IOException {

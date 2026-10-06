@@ -48,21 +48,24 @@ class DemoReferentielsIT extends AbstractIT {
     @Test
     void charge_les_referentiels_et_peut_etre_relance() {
         var demo = new DemoReferentiels(zones, pays, regions, titres, labels, typesVisite, langues, centresInteret,
-                marques, circuits, produits, contenances, classesTva);
+                marques, circuits, produits, contenances, classesTva, lecture);
 
         demo.run(new DefaultApplicationArguments());
         demo.run(new DefaultApplicationArguments());
 
         assertThat(lecture.zonesCommercialesActives()).extracting(v -> v.code()).contains("EUR", "OCE");
         assertThat(lecture.paysActifs()).hasSizeGreaterThanOrEqualTo(30);
-        assertThat(lecture.pays("ES").orElseThrow().langueCertificat()).isEqualTo(LangueCertificat.FR_ES);
-        assertThat(lecture.pays("IT").orElseThrow().langueCertificat()).isEqualTo(LangueCertificat.FR_IT);
-        assertThat(lecture.pays("DE").orElseThrow().membreUe()).isTrue();
-        assertThat(lecture.pays("CH").orElseThrow().membreUe()).isFalse();
-        assertThat(lecture.region("GERS").orElseThrow().enRegionDelimitee()).isTrue();
-        assertThat(lecture.region("GIRONDE").orElseThrow().enRegionDelimitee()).isFalse();
-        assertThat(lecture.contenance(new BigDecimal("0.7")).orElseThrow().libelle()).isEqualTo("0,70 L");
-        assertThat(lecture.tauxTva("NORMAL", LocalDate.of(2026, 1, 1)).orElseThrow().taux()).isEqualByComparingTo("20");
-        assertThat(classesTva.consulter("NORMAL").taux()).hasSize(1);
+        assertThat(lecture.paysParCode("ES").orElseThrow().langueCertificat()).isEqualTo(LangueCertificat.FR_ES);
+        assertThat(lecture.paysParCode("IT").orElseThrow().langueCertificat()).isEqualTo(LangueCertificat.FR_IT);
+        assertThat(lecture.paysParCode("DE").orElseThrow().membreUe()).isTrue();
+        assertThat(lecture.paysParCode("CH").orElseThrow().membreUe()).isFalse();
+        assertThat(lecture.paysParCode("US").orElseThrow().zoneCommerciale())
+                .isEqualTo(lecture.zoneCommercialeParCode("AMN").orElseThrow().id());
+        assertThat(lecture.regionParCode("GERS").orElseThrow().enRegionDelimitee()).isTrue();
+        assertThat(lecture.regionParCode("GIRONDE").orElseThrow().enRegionDelimitee()).isFalse();
+        assertThat(lecture.contenanceParVolume(new BigDecimal("0.7")).orElseThrow().libelle()).isEqualTo("0,70 L");
+        long normal = lecture.classeTvaParCode("NORMAL").orElseThrow().id();
+        assertThat(lecture.tauxTva(normal, LocalDate.of(2026, 1, 1)).orElseThrow().taux()).isEqualByComparingTo("20");
+        assertThat(classesTva.consulter(normal).taux()).hasSize(1);
     }
 }

@@ -33,7 +33,7 @@ import { Route as BoParametrageContenancesRouteImport } from './routes/bo/parame
 import { Route as BoParametrageCircuitsDistributionRouteImport } from './routes/bo/parametrage/circuits-distribution'
 import { Route as BoParametrageCentresInteretRouteImport } from './routes/bo/parametrage/centres-interet'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
-import { Route as BoParametrageClassesTvaCodeRouteImport } from './routes/bo/parametrage/classes-tva/$code'
+import { Route as BoParametrageClassesTvaIdRouteImport } from './routes/bo/parametrage/classes-tva/$id'
 
 const PortailRouteRoute = PortailRouteRouteImport.update({
   id: '/portail',
@@ -162,10 +162,10 @@ const BoParametrageClassesTvaIndexRoute =
     path: '/parametrage/classes-tva/',
     getParentRoute: () => BoRouteRoute,
   } as any)
-const BoParametrageClassesTvaCodeRoute =
-  BoParametrageClassesTvaCodeRouteImport.update({
-    id: '/parametrage/classes-tva/$code',
-    path: '/parametrage/classes-tva/$code',
+const BoParametrageClassesTvaIdRoute =
+  BoParametrageClassesTvaIdRouteImport.update({
+    id: '/parametrage/classes-tva/$id',
+    path: '/parametrage/classes-tva/$id',
     getParentRoute: () => BoRouteRoute,
   } as any)
 
@@ -193,7 +193,7 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
-  '/bo/parametrage/classes-tva/$code': typeof BoParametrageClassesTvaCodeRoute
+  '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -218,7 +218,7 @@ export interface FileRoutesByTo {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
-  '/bo/parametrage/classes-tva/$code': typeof BoParametrageClassesTvaCodeRoute
+  '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
 }
 export interface FileRoutesById {
@@ -246,7 +246,7 @@ export interface FileRoutesById {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
-  '/bo/parametrage/classes-tva/$code': typeof BoParametrageClassesTvaCodeRoute
+  '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/bo/parametrage/classes-tva/': typeof BoParametrageClassesTvaIndexRoute
 }
 export interface FileRouteTypes {
@@ -275,7 +275,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
-    | '/bo/parametrage/classes-tva/$code'
+    | '/bo/parametrage/classes-tva/$id'
     | '/bo/parametrage/classes-tva'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -300,7 +300,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
-    | '/bo/parametrage/classes-tva/$code'
+    | '/bo/parametrage/classes-tva/$id'
     | '/bo/parametrage/classes-tva'
   id:
     | '__root__'
@@ -327,7 +327,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
-    | '/bo/parametrage/classes-tva/$code'
+    | '/bo/parametrage/classes-tva/$id'
     | '/bo/parametrage/classes-tva/'
   fileRoutesById: FileRoutesById
 }
@@ -513,11 +513,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageClassesTvaIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
-    '/bo/parametrage/classes-tva/$code': {
-      id: '/bo/parametrage/classes-tva/$code'
-      path: '/parametrage/classes-tva/$code'
-      fullPath: '/bo/parametrage/classes-tva/$code'
-      preLoaderRoute: typeof BoParametrageClassesTvaCodeRouteImport
+    '/bo/parametrage/classes-tva/$id': {
+      id: '/bo/parametrage/classes-tva/$id'
+      path: '/parametrage/classes-tva/$id'
+      fullPath: '/bo/parametrage/classes-tva/$id'
+      preLoaderRoute: typeof BoParametrageClassesTvaIdRouteImport
       parentRoute: typeof BoRouteRoute
     }
   }
@@ -537,7 +537,7 @@ interface BoRouteRouteChildren {
   BoParametrageTitresRoute: typeof BoParametrageTitresRoute
   BoParametrageTypesVisiteRoute: typeof BoParametrageTypesVisiteRoute
   BoParametrageZonesCommercialesRoute: typeof BoParametrageZonesCommercialesRoute
-  BoParametrageClassesTvaCodeRoute: typeof BoParametrageClassesTvaCodeRoute
+  BoParametrageClassesTvaIdRoute: typeof BoParametrageClassesTvaIdRoute
   BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
 }
 
@@ -557,7 +557,7 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoParametrageTitresRoute: BoParametrageTitresRoute,
   BoParametrageTypesVisiteRoute: BoParametrageTypesVisiteRoute,
   BoParametrageZonesCommercialesRoute: BoParametrageZonesCommercialesRoute,
-  BoParametrageClassesTvaCodeRoute: BoParametrageClassesTvaCodeRoute,
+  BoParametrageClassesTvaIdRoute: BoParametrageClassesTvaIdRoute,
   BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,
 }
 

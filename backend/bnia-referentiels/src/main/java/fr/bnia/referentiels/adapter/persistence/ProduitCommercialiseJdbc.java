@@ -19,15 +19,15 @@ class ProduitCommercialiseJdbc extends ValeursSimplesJdbc<ProduitCommercialise, 
 
     @Override
     protected Ligne versLigne(ProduitCommercialise valeur) {
-        return new Ligne(valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
+        return new Ligne(valeur.id(), valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
     }
 
     @Override
     protected ProduitCommercialise versDomaine(Ligne ligne) {
-        return ProduitCommercialise.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return ProduitCommercialise.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "produit_commercialise")
-    record Ligne(@Id String code, String libelle, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean actif) {
     }
 }

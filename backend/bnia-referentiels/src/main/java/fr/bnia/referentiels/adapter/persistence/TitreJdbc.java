@@ -19,15 +19,15 @@ class TitreJdbc extends ValeursSimplesJdbc<Titre, TitreJdbc.Ligne> implements Ti
 
     @Override
     protected Ligne versLigne(Titre valeur) {
-        return new Ligne(valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
+        return new Ligne(valeur.id(), valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
     }
 
     @Override
     protected Titre versDomaine(Ligne ligne) {
-        return Titre.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return Titre.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "titre")
-    record Ligne(@Id String code, String libelle, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean actif) {
     }
 }

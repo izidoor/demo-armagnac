@@ -5,9 +5,9 @@ import fr.bnia.referentiels.application.GererContenances;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Contenances, identifiées par leur volume en litres ({@code /contenances/0.7}). */
 @RestController
 @RequestMapping("/api/referentiels/contenances")
 @Tag(name = "contenances", description = "Référentiel : contenances (C.10.9.4)")
@@ -38,34 +37,41 @@ class ContenanceController {
         return gerer.lister(new FiltreValeurs(actif, recherche)).stream().map(ContenanceResponse::depuis).toList();
     }
 
-    @GetMapping("/{volume}")
+    @GetMapping("/{id}")
     @Operation(operationId = "consulterContenance", summary = "Consulter une contenance, active ou non")
-    ContenanceResponse consulter(@PathVariable BigDecimal volume) {
-        return ContenanceResponse.depuis(gerer.consulter(volume));
+    ContenanceResponse consulter(@PathVariable long id) {
+        return ContenanceResponse.depuis(gerer.consulter(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerContenance", summary = "Créer une contenance (RG-REF-10)")
-    ContenanceResponse creer(@RequestBody CreationContenanceRequest requete) {
+    ContenanceResponse creer(@RequestBody SaisieContenanceRequest requete) {
         return ContenanceResponse.depuis(gerer.creer(requete.volume(), requete.libelle()));
     }
 
-    @PutMapping("/{volume}")
-    @Operation(operationId = "modifierContenance", summary = "Modifier le libellé ; le volume est immuable (RG-REF-02)")
-    ContenanceResponse modifier(@PathVariable BigDecimal volume, @RequestBody ModificationContenanceRequest requete) {
-        return ContenanceResponse.depuis(gerer.modifier(volume, requete.libelle()));
+    @PutMapping("/{id}")
+    @Operation(operationId = "modifierContenance", summary = "Modifier le volume et le libellé (RG-REF-02, RG-REF-10)")
+    ContenanceResponse modifier(@PathVariable long id, @RequestBody SaisieContenanceRequest requete) {
+        return ContenanceResponse.depuis(gerer.modifier(id, requete.volume(), requete.libelle()));
     }
 
-    @PostMapping("/{volume}/desactivation")
+    @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverContenance", summary = "Désactiver une contenance (RG-REF-04)")
-    ContenanceResponse desactiver(@PathVariable BigDecimal volume) {
-        return ContenanceResponse.depuis(gerer.desactiver(volume));
+    ContenanceResponse desactiver(@PathVariable long id) {
+        return ContenanceResponse.depuis(gerer.desactiver(id));
     }
 
-    @PostMapping("/{volume}/reactivation")
+    @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverContenance", summary = "Réactiver une contenance (RG-REF-04)")
-    ContenanceResponse reactiver(@PathVariable BigDecimal volume) {
-        return ContenanceResponse.depuis(gerer.reactiver(volume));
+    ContenanceResponse reactiver(@PathVariable long id) {
+        return ContenanceResponse.depuis(gerer.reactiver(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(operationId = "supprimerContenance", summary = "Supprimer une contenance qu'aucune autre donnée n'utilise (RG-REF-04)")
+    void supprimer(@PathVariable long id) {
+        gerer.supprimer(id);
     }
 }

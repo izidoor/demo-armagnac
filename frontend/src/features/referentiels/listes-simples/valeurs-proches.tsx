@@ -5,8 +5,8 @@ import { useDebounce } from '@/hooks/use-debounce'
 type ValeursProchesProps = {
   libelle: string
   proches: (libelle: string) => Promise<ValeurSimple[]>
-  /** Code de la valeur modifiée, à ne pas proposer. */
-  sauf?: string
+  /** Identifiant de la valeur modifiée, à ne pas proposer. */
+  sauf?: number
 }
 
 /**
@@ -24,13 +24,13 @@ export function ValeursProches({
     queryFn: () => proches(texte),
     enabled: texte.length >= 2,
   })
-  const valeurs = (data ?? []).filter((v) => v.code !== sauf)
+  const valeurs = (data ?? []).filter((v) => v.id !== sauf)
   if (texte.length < 2 || valeurs.length === 0) return null
   return (
     <span className='block'>
       Libellés proches :{' '}
       {valeurs.map((v, i) => (
-        <span key={v.code}>
+        <span key={v.id}>
           {i > 0 && ', '}
           <span className='text-foreground font-medium'>{v.libelle}</span> (
           {v.code}

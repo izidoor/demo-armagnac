@@ -10,6 +10,7 @@ import {
   listerRegions,
   modifierRegion,
   reactiverRegion,
+  supprimerRegion,
   type Region,
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
@@ -47,6 +48,7 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
 import { PageParametrage } from '../commun/page-parametrage'
+import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 
 const schema = z.object({
@@ -71,6 +73,7 @@ export function PageRegions() {
 
   const [edition, setEdition] = useState<Region | 'nouvelle' | null>(null)
   const [changement, setChangement] = useState<Region | null>(null)
+  const [suppression, setSuppression] = useState<Region | null>(null)
   const regionEditee =
     edition === 'nouvelle' ? undefined : (edition ?? undefined)
 
@@ -99,7 +102,7 @@ export function PageRegions() {
           <TableBody>
             <LignesEtat requete={requete} colonnes={5} />
             {requete.data?.map((region) => (
-              <TableRow key={region.code}>
+              <TableRow key={region.id}>
                 <TableCell className='font-mono'>{region.code}</TableCell>
                 <TableCell>{region.libelle}</TableCell>
                 <TableCell>
@@ -117,6 +120,7 @@ export function PageRegions() {
                     actif={region.actif}
                     onModifier={() => setEdition(region)}
                     onChangerEtat={() => setChangement(region)}
+                    onSupprimer={() => setSuppression(region)}
                   />
                 </TableCell>
               </TableRow>
@@ -137,13 +141,21 @@ export function PageRegions() {
         changer={() =>
           changement!.actif
             ? desactiverRegion({
-                path: { code: changement!.code },
+                path: { id: changement!.id },
                 throwOnError: true,
               })
             : reactiverRegion({
-                path: { code: changement!.code },
+                path: { id: changement!.id },
                 throwOnError: true,
               })
+        }
+        onSucces={rafraichir}
+      />
+      <Suppression
+        valeur={suppression}
+        onFermer={() => setSuppression(null)}
+        supprimer={() =>
+          supprimerRegion({ path: { id: suppression!.id }, throwOnError: true })
         }
         onSucces={rafraichir}
       />
@@ -175,14 +187,14 @@ function FormulaireRegion({
   }, [ouvert, region, form])
 
   const mutation = useMutation({
-    mutationFn: ({ code, ...saisie }: SaisieRegion) =>
+    mutationFn: (saisie: SaisieRegion) =>
       region
         ? modifierRegion({
-            path: { code: region.code },
+            path: { id: region.id },
             body: saisie,
             throwOnError: true,
           })
-        : creerRegion({ body: { code, ...saisie }, throwOnError: true }),
+        : creerRegion({ body: saisie, throwOnError: true }),
     meta: { erreurAffichee: true },
     onSuccess: () => {
       onSucces()
@@ -217,7 +229,7 @@ function FormulaireRegion({
                 <FormItem>
                   <FormLabel>Code</FormLabel>
                   <FormControl>
-                    <Input {...field} disabled={!!region} autoComplete='off' />
+                    <Input {...field} autoComplete='off' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -8,6 +8,7 @@ import {
   listerZonesCommerciales,
   modifierPays,
   reactiverPays,
+  supprimerPays,
   type Pays,
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
@@ -26,12 +27,17 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
 import { PageParametrage } from '../commun/page-parametrage'
+import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { FormulairePays, type SaisiePays } from './formulaire-pays'
 import { LANGUES_CERTIFICAT, NIVEAUX_DETAIL } from './libelles'
 
-function versRequete({ code: _code, ageMinimum, ...saisie }: SaisiePays) {
-  return { ...saisie, ageMinimum: ageMinimum || undefined }
+function versRequete({ zoneCommerciale, ageMinimum, ...saisie }: SaisiePays) {
+  return {
+    ...saisie,
+    zoneCommerciale: Number(zoneCommerciale),
+    ageMinimum: ageMinimum || undefined,
+  }
 }
 
 export function PagePays() {
@@ -48,12 +54,13 @@ export function PagePays() {
     queryFn: () =>
       listerZonesCommerciales({ throwOnError: true }).then((r) => r.data),
   })
-  const libelleZone = (code: string) =>
-    zones.data?.find((z) => z.code === code)?.libelle ?? code
+  const libelleZone = (id: number) =>
+    zones.data?.find((z) => z.id === id)?.libelle ?? String(id)
   const rafraichir = () => queryClient.invalidateQueries({ queryKey: ['pays'] })
 
   const [edition, setEdition] = useState<Pays | 'nouveau' | null>(null)
   const [changement, setChangement] = useState<Pays | null>(null)
+  const [suppression, setSuppression] = useState<Pays | null>(null)
   const paysEdite = edition === 'nouveau' ? undefined : (edition ?? undefined)
 
   return (
@@ -88,7 +95,7 @@ export function PagePays() {
           <TableBody>
             <LignesEtat requete={requete} colonnes={9} />
             {requete.data?.map((pays) => (
-              <TableRow key={pays.code}>
+              <TableRow key={pays.id}>
                 <TableCell className='font-mono'>{pays.code}</TableCell>
                 <TableCell className='font-mono'>{pays.codeIso}</TableCell>
                 <TableCell>{pays.libelle}</TableCell>
@@ -111,6 +118,7 @@ export function PagePays() {
                     actif={pays.actif}
                     onModifier={() => setEdition(pays)}
                     onChangerEtat={() => setChangement(pays)}
+                    onSupprimer={() => setSuppression(pays)}
                   />
                 </TableCell>
               </TableRow>
@@ -127,12 +135,12 @@ export function PagePays() {
         enregistrer={(saisie) =>
           paysEdite
             ? modifierPays({
-                path: { code: paysEdite.code },
+                path: { id: paysEdite.id },
                 body: versRequete(saisie),
                 throwOnError: true,
               })
             : creerPays({
-                body: { code: saisie.code, ...versRequete(saisie) },
+                body: versRequete(saisie),
                 throwOnError: true,
               })
         }
@@ -144,13 +152,21 @@ export function PagePays() {
         changer={() =>
           changement!.actif
             ? desactiverPays({
-                path: { code: changement!.code },
+                path: { id: changement!.id },
                 throwOnError: true,
               })
             : reactiverPays({
-                path: { code: changement!.code },
+                path: { id: changement!.id },
                 throwOnError: true,
               })
+        }
+        onSucces={rafraichir}
+      />
+      <Suppression
+        valeur={suppression}
+        onFermer={() => setSuppression(null)}
+        supprimer={() =>
+          supprimerPays({ path: { id: suppression!.id }, throwOnError: true })
         }
         onSucces={rafraichir}
       />

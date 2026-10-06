@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,34 +37,42 @@ class RegionController {
         return gerer.lister(new FiltreValeurs(actif, recherche)).stream().map(RegionResponse::depuis).toList();
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @Operation(operationId = "consulterRegion", summary = "Consulter une région, active ou non")
-    RegionResponse consulter(@PathVariable String code) {
-        return RegionResponse.depuis(gerer.consulter(code));
+    RegionResponse consulter(@PathVariable long id) {
+        return RegionResponse.depuis(gerer.consulter(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerRegion", summary = "Créer une région (RG-REF-01, RG-REF-03)")
-    RegionResponse creer(@RequestBody CreationRegionRequest requete) {
+    RegionResponse creer(@RequestBody SaisieRegionRequest requete) {
         return RegionResponse.depuis(gerer.creer(requete.code(), requete.libelle(), requete.enRegionDelimitee()));
     }
 
-    @PutMapping("/{code}")
-    @Operation(operationId = "modifierRegion", summary = "Modifier une région ; le code est immuable (RG-REF-02)")
-    RegionResponse modifier(@PathVariable String code, @RequestBody ModificationRegionRequest requete) {
-        return RegionResponse.depuis(gerer.modifier(code, requete.libelle(), requete.enRegionDelimitee()));
+    @PutMapping("/{id}")
+    @Operation(operationId = "modifierRegion", summary = "Modifier une région, code compris (RG-REF-01 à 03)")
+    RegionResponse modifier(@PathVariable long id, @RequestBody SaisieRegionRequest requete) {
+        return RegionResponse.depuis(
+                gerer.modifier(id, requete.code(), requete.libelle(), requete.enRegionDelimitee()));
     }
 
-    @PostMapping("/{code}/desactivation")
+    @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverRegion", summary = "Désactiver une région (RG-REF-04)")
-    RegionResponse desactiver(@PathVariable String code) {
-        return RegionResponse.depuis(gerer.desactiver(code));
+    RegionResponse desactiver(@PathVariable long id) {
+        return RegionResponse.depuis(gerer.desactiver(id));
     }
 
-    @PostMapping("/{code}/reactivation")
+    @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverRegion", summary = "Réactiver une région (RG-REF-04)")
-    RegionResponse reactiver(@PathVariable String code) {
-        return RegionResponse.depuis(gerer.reactiver(code));
+    RegionResponse reactiver(@PathVariable long id) {
+        return RegionResponse.depuis(gerer.reactiver(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(operationId = "supprimerRegion", summary = "Supprimer une région qu'aucune autre donnée n'utilise (RG-REF-04)")
+    void supprimer(@PathVariable long id) {
+        gerer.supprimer(id);
     }
 }

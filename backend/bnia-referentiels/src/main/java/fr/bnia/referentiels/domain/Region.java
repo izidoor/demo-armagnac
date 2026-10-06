@@ -8,24 +8,26 @@ public final class Region extends ValeurSimple {
 
     private boolean enRegionDelimitee;
 
-    private Region(Code code, Libelle libelle, boolean enRegionDelimitee, boolean actif) {
-        super(code, libelle, actif);
+    private Region(Long id, Code code, Libelle libelle, boolean enRegionDelimitee, boolean actif) {
+        super(id, code, libelle, actif);
         this.enRegionDelimitee = enRegionDelimitee;
     }
 
     public static Region creer(Code code, Libelle libelle, boolean enRegionDelimitee) {
-        return new Region(code, libelle, enRegionDelimitee, true);
+        return new Region(null, code, libelle, enRegionDelimitee, true);
     }
 
-    public static Region reconstituer(Code code, Libelle libelle, boolean enRegionDelimitee, boolean actif) {
-        return new Region(code, libelle, enRegionDelimitee, actif);
+    public static Region reconstituer(Long id, Code code, Libelle libelle, boolean enRegionDelimitee,
+            boolean actif) {
+        return new Region(id, code, libelle, enRegionDelimitee, actif);
     }
 
     public boolean estEnRegionDelimitee() {
         return enRegionDelimitee;
     }
 
-    public void decrire(Libelle libelle, boolean enRegionDelimitee) {
+    public void decrire(Code code, Libelle libelle, boolean enRegionDelimitee) {
+        recoder(code);
         renommer(libelle);
         this.enRegionDelimitee = enRegionDelimitee;
     }

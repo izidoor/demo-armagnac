@@ -58,11 +58,11 @@ export function PageClassesTva() {
           <TableBody>
             <LignesEtat requete={requete} colonnes={4} />
             {requete.data?.map((classe) => (
-              <TableRow key={classe.code}>
+              <TableRow key={classe.id}>
                 <TableCell className='font-mono'>
                   <Link
-                    to='/bo/parametrage/classes-tva/$code'
-                    params={{ code: classe.code }}
+                    to='/bo/parametrage/classes-tva/$id'
+                    params={{ id: String(classe.id) }}
                     className='underline-offset-4 hover:underline'
                   >
                     {classe.code}
@@ -98,8 +98,8 @@ export function PageClassesTva() {
           queryClient.invalidateQueries({ queryKey: ['classes-tva'] })
           // Une classe naît sans taux : on l'ouvre pour saisir le premier.
           navigate({
-            to: '/bo/parametrage/classes-tva/$code',
-            params: { code: classe.code },
+            to: '/bo/parametrage/classes-tva/$id',
+            params: { id: String(classe.id) },
           })
         }}
       />

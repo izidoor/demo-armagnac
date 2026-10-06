@@ -2,7 +2,6 @@ package fr.bnia.referentiels.application;
 
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.ConflitUnicite;
-import fr.bnia.referentiels.domain.Code;
 import fr.bnia.referentiels.domain.Libelle;
 import fr.bnia.referentiels.domain.LibelleNormalise;
 import fr.bnia.referentiels.domain.Marque;
@@ -34,11 +33,11 @@ public class GererMarques extends GererValeursSimples<Marque> {
         return super.creer(code, libelle);
     }
 
-    /** RG-REF-02, RG-REF-03, RG-REF-15. */
+    /** RG-REF-01 à 03, RG-REF-15. */
     @Override
-    public Marque modifier(String code, String libelle) {
-        verifierLibelleLibre(Libelle.de(libelle), Code.de(code));
-        return super.modifier(code, libelle);
+    public Marque modifier(long id, String code, String libelle) {
+        verifierLibelleLibre(Libelle.de(libelle), id);
+        return super.modifier(id, code, libelle);
     }
 
     /** Marques au libellé proche du texte saisi, pour éviter un doublon (RG-REF-15). */
@@ -53,11 +52,12 @@ public class GererMarques extends GererValeursSimples<Marque> {
      * RG-REF-15 : aucune autre marque, même inactive, n'a ce libellé à la casse, aux accents et aux
      * espaces près.
      *
-     * @param marqueModifiee code de la marque modifiée, qui peut garder son libellé ; {@code null} à la création
+     * @param marqueModifiee identifiant de la marque modifiée, qui peut garder son libellé ; {@code null}
+     *                       à la création
      */
-    private void verifierLibelleLibre(Libelle libelle, Code marqueModifiee) {
+    private void verifierLibelleLibre(Libelle libelle, Long marqueModifiee) {
         repository.parLibelleNormalise(LibelleNormalise.de(libelle))
-                .filter(existante -> !existante.code().equals(marqueModifiee))
+                .filter(existante -> !existante.id().equals(marqueModifiee))
                 .ifPresent(existante -> {
                     throw new ConflitUnicite("RG-REF-15", "La marque « " + existante.libelle() + " » (code "
                             + existante.code() + ") existe déjà"

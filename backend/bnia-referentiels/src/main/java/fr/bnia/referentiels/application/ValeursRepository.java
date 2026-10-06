@@ -10,12 +10,24 @@ import java.util.Optional;
  */
 public interface ValeursRepository<T extends ValeurSimple> {
 
-    Optional<T> parCode(Code code);
+    Optional<T> parId(long id);
 
-    /** Vrai si une valeur porte ce code, sans distinction de casse (RG-REF-01). */
-    boolean existeCode(Code code);
+    /**
+     * Vrai si une autre valeur porte ce code, sans distinction de casse (RG-REF-01).
+     *
+     * @param sauf identifiant de la valeur modifiée, à ignorer ; {@code null} à la création
+     */
+    boolean existeCode(Code code, Long sauf);
 
-    void inserer(T valeur);
+    /** Enregistre une nouvelle valeur et la renvoie avec l'identifiant attribué par la base. */
+    T inserer(T valeur);
 
     void mettreAJour(T valeur);
+
+    /**
+     * Supprime la valeur (RG-REF-04).
+     *
+     * @throws fr.bnia.commun.domain.ElementUtilise si d'autres données y font référence
+     */
+    void supprimer(long id);
 }

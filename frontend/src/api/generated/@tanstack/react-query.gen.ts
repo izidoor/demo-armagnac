@@ -4,8 +4,8 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { ajouterTauxTva, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContenance, consulterInfoSysteme, consulterLabel, consulterLangue, consulterMarque, consulterPays, consulterProduitCommercialise, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContenance, creerLabel, creerLangue, creerMarque, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContenance, modifierLabel, modifierLangue, modifierMarque, modifierPays, modifierProduitCommercialise, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, retirerTauxTva } from '../sdk.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierPaysData, ModifierPaysResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RetirerTauxTvaData, RetirerTauxTvaResponse } from '../types.gen';
+import { ajouterTauxTva, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContenance, consulterInfoSysteme, consulterLabel, consulterLangue, consulterMarque, consulterPays, consulterProduitCommercialise, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContenance, creerLabel, creerLangue, creerMarque, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContenance, modifierLabel, modifierLangue, modifierMarque, modifierPays, modifierProduitCommercialise, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, retirerTauxTva, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale } from '../sdk.gen';
+import type { AjouterTauxTvaData, AjouterTauxTvaResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierPaysData, ModifierPaysResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -75,6 +75,23 @@ export const creerCentreInteretMutation = (options?: Partial<Options<CreerCentre
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerCentreInteretMutation = (options?: Partial<Options<SupprimerCentreInteretData>>): UseMutationOptions<SupprimerCentreInteretResponse, AxiosError<DefaultError>, Options<SupprimerCentreInteretData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerCentreInteretResponse, AxiosError<DefaultError>, Options<SupprimerCentreInteretData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerCentreInteret({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterCentreInteretQueryKey = (options: Options<ConsulterCentreInteretData>) => createQueryKey('consulterCentreInteret', options);
 
 /**
@@ -94,7 +111,7 @@ export const consulterCentreInteretOptions = (options: Options<ConsulterCentreIn
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierCentreInteretMutation = (options?: Partial<Options<ModifierCentreInteretData>>): UseMutationOptions<ModifierCentreInteretResponse, AxiosError<DefaultError>, Options<ModifierCentreInteretData>> => {
     const mutationOptions: UseMutationOptions<ModifierCentreInteretResponse, AxiosError<DefaultError>, Options<ModifierCentreInteretData>> = {
@@ -179,6 +196,23 @@ export const creerCircuitDistributionMutation = (options?: Partial<Options<Creer
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerCircuitDistributionMutation = (options?: Partial<Options<SupprimerCircuitDistributionData>>): UseMutationOptions<SupprimerCircuitDistributionResponse, AxiosError<DefaultError>, Options<SupprimerCircuitDistributionData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerCircuitDistributionResponse, AxiosError<DefaultError>, Options<SupprimerCircuitDistributionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerCircuitDistribution({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterCircuitDistributionQueryKey = (options: Options<ConsulterCircuitDistributionData>) => createQueryKey('consulterCircuitDistribution', options);
 
 /**
@@ -198,7 +232,7 @@ export const consulterCircuitDistributionOptions = (options: Options<ConsulterCi
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierCircuitDistributionMutation = (options?: Partial<Options<ModifierCircuitDistributionData>>): UseMutationOptions<ModifierCircuitDistributionResponse, AxiosError<DefaultError>, Options<ModifierCircuitDistributionData>> => {
     const mutationOptions: UseMutationOptions<ModifierCircuitDistributionResponse, AxiosError<DefaultError>, Options<ModifierCircuitDistributionData>> = {
@@ -283,6 +317,23 @@ export const creerClasseTvaMutation = (options?: Partial<Options<CreerClasseTvaD
     return mutationOptions;
 };
 
+/**
+ * Supprimer une classe, avec ses taux, qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerClasseTvaMutation = (options?: Partial<Options<SupprimerClasseTvaData>>): UseMutationOptions<SupprimerClasseTvaResponse, AxiosError<DefaultError>, Options<SupprimerClasseTvaData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerClasseTvaResponse, AxiosError<DefaultError>, Options<SupprimerClasseTvaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerClasseTva({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterClasseTvaQueryKey = (options: Options<ConsulterClasseTvaData>) => createQueryKey('consulterClasseTva', options);
 
 /**
@@ -302,7 +353,7 @@ export const consulterClasseTvaOptions = (options: Options<ConsulterClasseTvaDat
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierClasseTvaMutation = (options?: Partial<Options<ModifierClasseTvaData>>): UseMutationOptions<ModifierClasseTvaResponse, AxiosError<DefaultError>, Options<ModifierClasseTvaData>> => {
     const mutationOptions: UseMutationOptions<ModifierClasseTvaResponse, AxiosError<DefaultError>, Options<ModifierClasseTvaData>> = {
@@ -438,6 +489,23 @@ export const creerContenanceMutation = (options?: Partial<Options<CreerContenanc
     return mutationOptions;
 };
 
+/**
+ * Supprimer une contenance qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerContenanceMutation = (options?: Partial<Options<SupprimerContenanceData>>): UseMutationOptions<SupprimerContenanceResponse, AxiosError<DefaultError>, Options<SupprimerContenanceData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerContenanceResponse, AxiosError<DefaultError>, Options<SupprimerContenanceData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerContenance({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterContenanceQueryKey = (options: Options<ConsulterContenanceData>) => createQueryKey('consulterContenance', options);
 
 /**
@@ -457,7 +525,7 @@ export const consulterContenanceOptions = (options: Options<ConsulterContenanceD
 });
 
 /**
- * Modifier le libellé ; le volume est immuable (RG-REF-02)
+ * Modifier le volume et le libellé (RG-REF-02, RG-REF-10)
  */
 export const modifierContenanceMutation = (options?: Partial<Options<ModifierContenanceData>>): UseMutationOptions<ModifierContenanceResponse, AxiosError<DefaultError>, Options<ModifierContenanceData>> => {
     const mutationOptions: UseMutationOptions<ModifierContenanceResponse, AxiosError<DefaultError>, Options<ModifierContenanceData>> = {
@@ -542,6 +610,23 @@ export const creerLabelMutation = (options?: Partial<Options<CreerLabelData>>): 
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerLabelMutation = (options?: Partial<Options<SupprimerLabelData>>): UseMutationOptions<SupprimerLabelResponse, AxiosError<DefaultError>, Options<SupprimerLabelData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerLabelResponse, AxiosError<DefaultError>, Options<SupprimerLabelData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerLabel({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterLabelQueryKey = (options: Options<ConsulterLabelData>) => createQueryKey('consulterLabel', options);
 
 /**
@@ -561,7 +646,7 @@ export const consulterLabelOptions = (options: Options<ConsulterLabelData>) => q
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierLabelMutation = (options?: Partial<Options<ModifierLabelData>>): UseMutationOptions<ModifierLabelResponse, AxiosError<DefaultError>, Options<ModifierLabelData>> => {
     const mutationOptions: UseMutationOptions<ModifierLabelResponse, AxiosError<DefaultError>, Options<ModifierLabelData>> = {
@@ -646,6 +731,23 @@ export const creerLangueMutation = (options?: Partial<Options<CreerLangueData>>)
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerLangueMutation = (options?: Partial<Options<SupprimerLangueData>>): UseMutationOptions<SupprimerLangueResponse, AxiosError<DefaultError>, Options<SupprimerLangueData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerLangueResponse, AxiosError<DefaultError>, Options<SupprimerLangueData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerLangue({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterLangueQueryKey = (options: Options<ConsulterLangueData>) => createQueryKey('consulterLangue', options);
 
 /**
@@ -665,7 +767,7 @@ export const consulterLangueOptions = (options: Options<ConsulterLangueData>) =>
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierLangueMutation = (options?: Partial<Options<ModifierLangueData>>): UseMutationOptions<ModifierLangueResponse, AxiosError<DefaultError>, Options<ModifierLangueData>> => {
     const mutationOptions: UseMutationOptions<ModifierLangueResponse, AxiosError<DefaultError>, Options<ModifierLangueData>> = {
@@ -768,6 +870,23 @@ export const listerMarquesProchesOptions = (options: Options<ListerMarquesProche
     queryKey: listerMarquesProchesQueryKey(options)
 });
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerMarqueMutation = (options?: Partial<Options<SupprimerMarqueData>>): UseMutationOptions<SupprimerMarqueResponse, AxiosError<DefaultError>, Options<SupprimerMarqueData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerMarqueResponse, AxiosError<DefaultError>, Options<SupprimerMarqueData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerMarque({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterMarqueQueryKey = (options: Options<ConsulterMarqueData>) => createQueryKey('consulterMarque', options);
 
 /**
@@ -787,7 +906,7 @@ export const consulterMarqueOptions = (options: Options<ConsulterMarqueData>) =>
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierMarqueMutation = (options?: Partial<Options<ModifierMarqueData>>): UseMutationOptions<ModifierMarqueResponse, AxiosError<DefaultError>, Options<ModifierMarqueData>> => {
     const mutationOptions: UseMutationOptions<ModifierMarqueResponse, AxiosError<DefaultError>, Options<ModifierMarqueData>> = {
@@ -872,6 +991,23 @@ export const creerPaysMutation = (options?: Partial<Options<CreerPaysData>>): Us
     return mutationOptions;
 };
 
+/**
+ * Supprimer un pays qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerPaysMutation = (options?: Partial<Options<SupprimerPaysData>>): UseMutationOptions<SupprimerPaysResponse, AxiosError<DefaultError>, Options<SupprimerPaysData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerPaysResponse, AxiosError<DefaultError>, Options<SupprimerPaysData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerPays({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterPaysQueryKey = (options: Options<ConsulterPaysData>) => createQueryKey('consulterPays', options);
 
 /**
@@ -891,7 +1027,7 @@ export const consulterPaysOptions = (options: Options<ConsulterPaysData>) => que
 });
 
 /**
- * Modifier un pays ; le code est immuable (RG-REF-02)
+ * Modifier un pays, code compris (RG-REF-01 à 03, 05 à 09)
  */
 export const modifierPaysMutation = (options?: Partial<Options<ModifierPaysData>>): UseMutationOptions<ModifierPaysResponse, AxiosError<DefaultError>, Options<ModifierPaysData>> => {
     const mutationOptions: UseMutationOptions<ModifierPaysResponse, AxiosError<DefaultError>, Options<ModifierPaysData>> = {
@@ -976,6 +1112,23 @@ export const creerProduitCommercialiseMutation = (options?: Partial<Options<Cree
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerProduitCommercialiseMutation = (options?: Partial<Options<SupprimerProduitCommercialiseData>>): UseMutationOptions<SupprimerProduitCommercialiseResponse, AxiosError<DefaultError>, Options<SupprimerProduitCommercialiseData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerProduitCommercialiseResponse, AxiosError<DefaultError>, Options<SupprimerProduitCommercialiseData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerProduitCommercialise({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterProduitCommercialiseQueryKey = (options: Options<ConsulterProduitCommercialiseData>) => createQueryKey('consulterProduitCommercialise', options);
 
 /**
@@ -995,7 +1148,7 @@ export const consulterProduitCommercialiseOptions = (options: Options<ConsulterP
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierProduitCommercialiseMutation = (options?: Partial<Options<ModifierProduitCommercialiseData>>): UseMutationOptions<ModifierProduitCommercialiseResponse, AxiosError<DefaultError>, Options<ModifierProduitCommercialiseData>> => {
     const mutationOptions: UseMutationOptions<ModifierProduitCommercialiseResponse, AxiosError<DefaultError>, Options<ModifierProduitCommercialiseData>> = {
@@ -1080,6 +1233,23 @@ export const creerRegionMutation = (options?: Partial<Options<CreerRegionData>>)
     return mutationOptions;
 };
 
+/**
+ * Supprimer une région qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerRegionMutation = (options?: Partial<Options<SupprimerRegionData>>): UseMutationOptions<SupprimerRegionResponse, AxiosError<DefaultError>, Options<SupprimerRegionData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerRegionResponse, AxiosError<DefaultError>, Options<SupprimerRegionData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerRegion({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterRegionQueryKey = (options: Options<ConsulterRegionData>) => createQueryKey('consulterRegion', options);
 
 /**
@@ -1099,7 +1269,7 @@ export const consulterRegionOptions = (options: Options<ConsulterRegionData>) =>
 });
 
 /**
- * Modifier une région ; le code est immuable (RG-REF-02)
+ * Modifier une région, code compris (RG-REF-01 à 03)
  */
 export const modifierRegionMutation = (options?: Partial<Options<ModifierRegionData>>): UseMutationOptions<ModifierRegionResponse, AxiosError<DefaultError>, Options<ModifierRegionData>> => {
     const mutationOptions: UseMutationOptions<ModifierRegionResponse, AxiosError<DefaultError>, Options<ModifierRegionData>> = {
@@ -1184,6 +1354,23 @@ export const creerTitreMutation = (options?: Partial<Options<CreerTitreData>>): 
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerTitreMutation = (options?: Partial<Options<SupprimerTitreData>>): UseMutationOptions<SupprimerTitreResponse, AxiosError<DefaultError>, Options<SupprimerTitreData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerTitreResponse, AxiosError<DefaultError>, Options<SupprimerTitreData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerTitre({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterTitreQueryKey = (options: Options<ConsulterTitreData>) => createQueryKey('consulterTitre', options);
 
 /**
@@ -1203,7 +1390,7 @@ export const consulterTitreOptions = (options: Options<ConsulterTitreData>) => q
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierTitreMutation = (options?: Partial<Options<ModifierTitreData>>): UseMutationOptions<ModifierTitreResponse, AxiosError<DefaultError>, Options<ModifierTitreData>> => {
     const mutationOptions: UseMutationOptions<ModifierTitreResponse, AxiosError<DefaultError>, Options<ModifierTitreData>> = {
@@ -1288,6 +1475,23 @@ export const creerTypeVisiteMutation = (options?: Partial<Options<CreerTypeVisit
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerTypeVisiteMutation = (options?: Partial<Options<SupprimerTypeVisiteData>>): UseMutationOptions<SupprimerTypeVisiteResponse, AxiosError<DefaultError>, Options<SupprimerTypeVisiteData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerTypeVisiteResponse, AxiosError<DefaultError>, Options<SupprimerTypeVisiteData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerTypeVisite({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterTypeVisiteQueryKey = (options: Options<ConsulterTypeVisiteData>) => createQueryKey('consulterTypeVisite', options);
 
 /**
@@ -1307,7 +1511,7 @@ export const consulterTypeVisiteOptions = (options: Options<ConsulterTypeVisiteD
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierTypeVisiteMutation = (options?: Partial<Options<ModifierTypeVisiteData>>): UseMutationOptions<ModifierTypeVisiteResponse, AxiosError<DefaultError>, Options<ModifierTypeVisiteData>> => {
     const mutationOptions: UseMutationOptions<ModifierTypeVisiteResponse, AxiosError<DefaultError>, Options<ModifierTypeVisiteData>> = {
@@ -1392,6 +1596,23 @@ export const creerZoneCommercialeMutation = (options?: Partial<Options<CreerZone
     return mutationOptions;
 };
 
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerZoneCommercialeMutation = (options?: Partial<Options<SupprimerZoneCommercialeData>>): UseMutationOptions<SupprimerZoneCommercialeResponse, AxiosError<DefaultError>, Options<SupprimerZoneCommercialeData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerZoneCommercialeResponse, AxiosError<DefaultError>, Options<SupprimerZoneCommercialeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerZoneCommerciale({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const consulterZoneCommercialeQueryKey = (options: Options<ConsulterZoneCommercialeData>) => createQueryKey('consulterZoneCommerciale', options);
 
 /**
@@ -1411,7 +1632,7 @@ export const consulterZoneCommercialeOptions = (options: Options<ConsulterZoneCo
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierZoneCommercialeMutation = (options?: Partial<Options<ModifierZoneCommercialeData>>): UseMutationOptions<ModifierZoneCommercialeResponse, AxiosError<DefaultError>, Options<ModifierZoneCommercialeData>> => {
     const mutationOptions: UseMutationOptions<ModifierZoneCommercialeResponse, AxiosError<DefaultError>, Options<ModifierZoneCommercialeData>> = {

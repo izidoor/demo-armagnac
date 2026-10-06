@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Contenances : identifiées par leur volume, qui ne change jamais (RG-REF-02, RG-REF-10).
+ * Contenances : un volume unique (RG-REF-10), corrigeable (RG-REF-02).
  */
 @UseCase
 public class GererContenances {
@@ -28,10 +28,8 @@ public class GererContenances {
         return lecture.lister(filtre);
     }
 
-    public Contenance consulter(BigDecimal volume) {
-        Volume cle = Volume.de(volume);
-        return repository.parVolume(cle).orElseThrow(() -> new ElementIntrouvable(
-                "Contenance introuvable : " + cle.libelle() + "."));
+    public Contenance consulter(long id) {
+        return repository.parId(id).orElseThrow(() -> new ElementIntrouvable("Contenance " + id + " introuvable."));
     }
 
     /**
@@ -40,35 +38,45 @@ public class GererContenances {
      * @param libelle facultatif : vide pour le libellé dérivé du volume
      */
     public Contenance creer(BigDecimal volume, String libelle) {
-        Volume cle = Volume.de(volume);
-        if (repository.existeVolume(cle)) {
-            throw new ConflitUnicite("RG-REF-10", "La contenance " + cle.libelle() + " existe déjà.");
-        }
-        Contenance contenance = Contenance.creer(cle, libelleFacultatif(libelle));
-        repository.inserer(contenance);
-        return contenance;
+        Volume nouveau = Volume.de(volume);
+        verifierVolumeLibre(nouveau, null);
+        return repository.inserer(Contenance.creer(nouveau, libelleFacultatif(libelle)));
     }
 
-    /** Seul le libellé change (RG-REF-02). */
-    public Contenance modifier(BigDecimal volume, String libelle) {
-        Libelle nouveau = libelleFacultatif(libelle);
-        return modifierContenance(volume, contenance -> contenance.renommer(nouveau));
+    /** Le volume et le libellé se corrigent (RG-REF-02, RG-REF-10). */
+    public Contenance modifier(long id, BigDecimal volume, String libelle) {
+        Volume nouveau = Volume.de(volume);
+        Libelle nouveauLibelle = libelleFacultatif(libelle);
+        verifierVolumeLibre(nouveau, id);
+        return modifierContenance(id, contenance -> contenance.decrire(nouveau, nouveauLibelle));
     }
 
     /** RG-REF-04. */
-    public Contenance desactiver(BigDecimal volume) {
-        return modifierContenance(volume, Contenance::desactiver);
+    public Contenance desactiver(long id) {
+        return modifierContenance(id, Contenance::desactiver);
     }
 
-    public Contenance reactiver(BigDecimal volume) {
-        return modifierContenance(volume, Contenance::reactiver);
+    public Contenance reactiver(long id) {
+        return modifierContenance(id, Contenance::reactiver);
     }
 
-    private Contenance modifierContenance(BigDecimal volume, Consumer<Contenance> modification) {
-        Contenance contenance = consulter(volume);
+    /** RG-REF-04 : seulement si aucune autre donnée n'y fait référence. */
+    public void supprimer(long id) {
+        consulter(id);
+        repository.supprimer(id);
+    }
+
+    private Contenance modifierContenance(long id, Consumer<Contenance> modification) {
+        Contenance contenance = consulter(id);
         modification.accept(contenance);
         repository.mettreAJour(contenance);
         return contenance;
+    }
+
+    private void verifierVolumeLibre(Volume volume, Long sauf) {
+        if (repository.existeVolume(volume, sauf)) {
+            throw new ConflitUnicite("RG-REF-10", "La contenance " + volume.libelle() + " existe déjà.");
+        }
     }
 
     private static Libelle libelleFacultatif(String libelle) {

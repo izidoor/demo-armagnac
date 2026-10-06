@@ -5,15 +5,15 @@ package fr.bnia.referentiels.domain;
  */
 public final class ZoneCommerciale extends ValeurSimple {
 
-    private ZoneCommerciale(Code code, Libelle libelle, boolean actif) {
-        super(code, libelle, actif);
+    private ZoneCommerciale(Long id, Code code, Libelle libelle, boolean actif) {
+        super(id, code, libelle, actif);
     }
 
     public static ZoneCommerciale creer(Code code, Libelle libelle) {
-        return new ZoneCommerciale(code, libelle, true);
+        return new ZoneCommerciale(null, code, libelle, true);
     }
 
-    public static ZoneCommerciale reconstituer(Code code, Libelle libelle, boolean actif) {
-        return new ZoneCommerciale(code, libelle, actif);
+    public static ZoneCommerciale reconstituer(Long id, Code code, Libelle libelle, boolean actif) {
+        return new ZoneCommerciale(id, code, libelle, actif);
     }
 }

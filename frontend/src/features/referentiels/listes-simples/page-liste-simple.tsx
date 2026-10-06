@@ -17,11 +17,12 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { LignesEtat } from '../commun/lignes-etat'
 import { MenuActions } from '../commun/menu-actions'
 import { PageParametrage } from '../commun/page-parametrage'
+import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { FormulaireValeurSimple } from './formulaire-valeur-simple'
 import { type ConfigListeSimple } from './listes'
 
-/** Page d'une liste simple : tableau, recherche, création, modification, (dés)activation. */
+/** Page d'une liste simple : tableau, recherche, création, modification, (dés)activation, suppression. */
 export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
   const { api } = config
   const filtreValeurs = useFiltreValeurs()
@@ -36,6 +37,7 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
 
   const [edition, setEdition] = useState<ValeurSimple | 'nouvelle' | null>(null)
   const [changement, setChangement] = useState<ValeurSimple | null>(null)
+  const [suppression, setSuppression] = useState<ValeurSimple | null>(null)
   const valeurEditee =
     edition === 'nouvelle' ? undefined : (edition ?? undefined)
 
@@ -63,7 +65,7 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
           <TableBody>
             <LignesEtat requete={requete} colonnes={4} />
             {requete.data?.map((valeur) => (
-              <TableRow key={valeur.code}>
+              <TableRow key={valeur.id}>
                 <TableCell className='font-mono'>{valeur.code}</TableCell>
                 <TableCell>{valeur.libelle}</TableCell>
                 <TableCell>
@@ -74,6 +76,7 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
                     actif={valeur.actif}
                     onModifier={() => setEdition(valeur)}
                     onChangerEtat={() => setChangement(valeur)}
+                    onSupprimer={() => setSuppression(valeur)}
                   />
                 </TableCell>
               </TableRow>
@@ -93,7 +96,7 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
         valeur={valeurEditee}
         enregistrer={(saisie) =>
           valeurEditee
-            ? api.modifier(valeurEditee.code, saisie.libelle)
+            ? api.modifier(valeurEditee.id, saisie)
             : api.creer(saisie)
         }
         onSucces={rafraichir}
@@ -104,9 +107,15 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
         onFermer={() => setChangement(null)}
         changer={() =>
           changement!.actif
-            ? api.desactiver(changement!.code)
-            : api.reactiver(changement!.code)
+            ? api.desactiver(changement!.id)
+            : api.reactiver(changement!.id)
         }
+        onSucces={rafraichir}
+      />
+      <Suppression
+        valeur={suppression}
+        onFermer={() => setSuppression(null)}
+        supprimer={() => api.supprimer(suppression!.id)}
         onSucces={rafraichir}
       />
     </PageParametrage>

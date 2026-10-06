@@ -43,54 +43,61 @@ class ClasseTvaController {
         return gerer.lister(new FiltreValeurs(actif, recherche)).stream().map(ClasseTvaLigneResponse::depuis).toList();
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/{id}")
     @Operation(operationId = "consulterClasseTva", summary = "Consulter une classe et ses taux, même inactive (RG-REF-13)")
-    ClasseTvaResponse consulter(@PathVariable String code) {
-        return reponse(gerer.consulter(code));
+    ClasseTvaResponse consulter(@PathVariable long id) {
+        return reponse(gerer.consulter(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerClasseTva", summary = "Créer une classe de TVA, sans taux (RG-REF-01, RG-REF-03)")
-    ClasseTvaResponse creer(@RequestBody CreationValeurSimpleRequest requete) {
+    ClasseTvaResponse creer(@RequestBody SaisieValeurSimpleRequest requete) {
         return reponse(gerer.creer(requete.code(), requete.libelle()));
     }
 
-    @PutMapping("/{code}")
-    @Operation(operationId = "modifierClasseTva", summary = "Modifier le libellé ; le code est immuable (RG-REF-02)")
-    ClasseTvaResponse modifier(@PathVariable String code, @RequestBody ModificationValeurSimpleRequest requete) {
-        return reponse(gerer.modifier(code, requete.libelle()));
+    @PutMapping("/{id}")
+    @Operation(operationId = "modifierClasseTva", summary = "Modifier le code et le libellé (RG-REF-01 à 03)")
+    ClasseTvaResponse modifier(@PathVariable long id, @RequestBody SaisieValeurSimpleRequest requete) {
+        return reponse(gerer.modifier(id, requete.code(), requete.libelle()));
     }
 
-    @PostMapping("/{code}/desactivation")
+    @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverClasseTva", summary = "Désactiver une classe ; ses taux restent consultables (RG-REF-13)")
-    ClasseTvaResponse desactiver(@PathVariable String code) {
-        return reponse(gerer.desactiver(code));
+    ClasseTvaResponse desactiver(@PathVariable long id) {
+        return reponse(gerer.desactiver(id));
     }
 
-    @PostMapping("/{code}/reactivation")
+    @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverClasseTva", summary = "Réactiver une classe (RG-REF-04)")
-    ClasseTvaResponse reactiver(@PathVariable String code) {
-        return reponse(gerer.reactiver(code));
+    ClasseTvaResponse reactiver(@PathVariable long id) {
+        return reponse(gerer.reactiver(id));
     }
 
-    @PostMapping("/{code}/taux")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(operationId = "supprimerClasseTva", summary = "Supprimer une classe, avec ses taux, qu'aucune autre donnée n'utilise (RG-REF-04)")
+    void supprimer(@PathVariable long id) {
+        gerer.supprimer(id);
+    }
+
+    @PostMapping("/{id}/taux")
     @Operation(operationId = "ajouterTauxTva", summary = "Ajouter un taux, sans chevauchement (RG-REF-11)")
-    ClasseTvaResponse ajouterTaux(@PathVariable String code, @RequestBody SaisieTauxTvaRequest requete) {
-        return reponse(gerer.ajouterTaux(code, requete.versSaisie()));
+    ClasseTvaResponse ajouterTaux(@PathVariable long id, @RequestBody SaisieTauxTvaRequest requete) {
+        return reponse(gerer.ajouterTaux(id, requete.versSaisie()));
     }
 
-    @PutMapping("/{code}/taux/{dateDebut}")
+    @PutMapping("/{id}/taux/{dateDebut}")
     @Operation(operationId = "modifierTauxTva", summary = "Corriger un taux, désigné par sa date de début (RG-REF-11)")
-    ClasseTvaResponse modifierTaux(@PathVariable String code, @PathVariable LocalDate dateDebut,
+    ClasseTvaResponse modifierTaux(@PathVariable long id, @PathVariable LocalDate dateDebut,
             @RequestBody SaisieTauxTvaRequest requete) {
-        return reponse(gerer.modifierTaux(code, dateDebut, requete.versSaisie()));
+        return reponse(gerer.modifierTaux(id, dateDebut, requete.versSaisie()));
     }
 
-    @DeleteMapping("/{code}/taux/{dateDebut}")
+    @DeleteMapping("/{id}/taux/{dateDebut}")
     @Operation(operationId = "retirerTauxTva", summary = "Retirer un taux saisi par erreur")
-    ClasseTvaResponse retirerTaux(@PathVariable String code, @PathVariable LocalDate dateDebut) {
-        return reponse(gerer.retirerTaux(code, dateDebut));
+    ClasseTvaResponse retirerTaux(@PathVariable long id, @PathVariable LocalDate dateDebut) {
+        return reponse(gerer.retirerTaux(id, dateDebut));
     }
 
     private ClasseTvaResponse reponse(ClasseTva classe) {

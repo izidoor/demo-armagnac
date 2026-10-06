@@ -17,6 +17,7 @@ import fr.bnia.referentiels.application.GererValeursSimples;
 import fr.bnia.referentiels.application.GererZonesCommerciales;
 import fr.bnia.referentiels.application.SaisiePays;
 import fr.bnia.referentiels.application.SaisieTauxTva;
+import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.LangueCertificat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,13 +58,15 @@ public class DemoReferentiels implements ApplicationRunner {
     private final GererProduitsCommercialises produits;
     private final GererContenances contenances;
     private final GererClassesTva classesTva;
+    private final ReferentielsLecture lecture;
 
     private int crees;
 
     public DemoReferentiels(GererZonesCommerciales zones, GererPays pays, GererRegions regions, GererTitres titres,
             GererLabels labels, GererTypesVisite typesVisite, GererLangues langues,
             GererCentresInteret centresInteret, GererMarques marques, GererCircuitsDistribution circuits,
-            GererProduitsCommercialises produits, GererContenances contenances, GererClassesTva classesTva) {
+            GererProduitsCommercialises produits, GererContenances contenances, GererClassesTva classesTva,
+            ReferentielsLecture lecture) {
         this.zones = zones;
         this.pays = pays;
         this.regions = regions;
@@ -77,6 +80,7 @@ public class DemoReferentiels implements ApplicationRunner {
         this.produits = produits;
         this.contenances = contenances;
         this.classesTva = classesTva;
+        this.lecture = lecture;
     }
 
     @Override
@@ -118,12 +122,13 @@ public class DemoReferentiels implements ApplicationRunner {
 
         // Fiscalité : une classe « Normal » à 20 % depuis le 01/01/2014.
         if (creer(() -> classesTva.creer("NORMAL", "Normal"))) {
-            classesTva.ajouterTaux("NORMAL", new SaisieTauxTva(new BigDecimal("20"), LocalDate.of(2014, 1, 1), null));
+            long normal = lecture.classeTvaParCode("NORMAL").orElseThrow().id();
+            classesTva.ajouterTaux(normal, new SaisieTauxTva(new BigDecimal("20"), LocalDate.of(2014, 1, 1), null));
         }
     }
 
     /**
-     * Une trentaine de pays exportateurs, codés par leur code ISO. Langue du certificat : espagnol pour
+     * Une trentaine de pays exportateurs, codés par leur code ISO, rattachés à leur zone par son code. Langue du certificat : espagnol pour
      * l'Espagne, italien pour l'Italie, anglais sinon (§7.1).
      */
     private void paysExportateurs() {
@@ -147,8 +152,9 @@ public class DemoReferentiels implements ApplicationRunner {
                 case "IT" -> LangueCertificat.FR_IT;
                 default -> LangueCertificat.FR_EN;
             };
-            creer(() -> pays.creer(code, new SaisiePays((String) p[1], code, (String) p[2], (Boolean) p[3], langue,
-                    null, null)));
+            long zone = lecture.zoneCommercialeParCode((String) p[2]).orElseThrow().id();
+            creer(() -> pays.creer(new SaisiePays(code, (String) p[1], code, zone, (Boolean) p[3], langue, null,
+                    null)));
         }
     }
 

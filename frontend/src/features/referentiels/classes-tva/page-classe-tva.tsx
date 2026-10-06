@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Plus } from 'lucide-react'
 import {
   ajouterTauxTva,
@@ -13,6 +13,7 @@ import {
   modifierTauxTva,
   reactiverClasseTva,
   retirerTauxTva,
+  supprimerClasseTva,
   type ClasseTva,
   type TauxTva,
 } from '@/api/generated'
@@ -50,19 +51,21 @@ import { ChangementEtat } from '../commun/changement-etat'
 import { afficherErreur } from '../commun/erreur-formulaire'
 import { ErreurRacine } from '../commun/erreur-racine'
 import { PageParametrage } from '../commun/page-parametrage'
+import { Suppression } from '../commun/suppression'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
 import { formatDate, formatTaux } from './format'
 
 /**
  * Détail d'une classe de TVA : l'historique de ses taux, du plus récent au plus ancien, avec le taux
  * en vigueur mis en évidence. Les taux restent consultables si la classe est inactive (RG-REF-13).
+ * Supprimer la classe supprime ses taux ; refusé si des documents l'utilisent (RG-REF-04).
  */
-export function PageClasseTva({ code }: { code: string }) {
+export function PageClasseTva({ id }: { id: number }) {
   const queryClient = useQueryClient()
   const requete = useQuery({
-    queryKey: ['classes-tva', 'detail', code],
+    queryKey: ['classes-tva', 'detail', id],
     queryFn: () =>
-      consulterClasseTva({ path: { code }, throwOnError: true }).then(
+      consulterClasseTva({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
   })
@@ -75,12 +78,14 @@ export function PageClasseTva({ code }: { code: string }) {
     null
   )
   const [retrait, setRetrait] = useState<TauxTva | null>(null)
+  const [suppression, setSuppression] = useState(false)
+  const navigate = useNavigate()
   const classe = requete.data
 
   const retirer = useMutation({
     mutationFn: (taux: TauxTva) =>
       retirerTauxTva({
-        path: { code, dateDebut: taux.dateDebut },
+        path: { id, dateDebut: taux.dateDebut },
         throwOnError: true,
       }),
     onSuccess: () => {
@@ -99,7 +104,7 @@ export function PageClasseTva({ code }: { code: string }) {
 
   if (!classe) {
     return (
-      <PageParametrage titre='Classe de TVA' description={code}>
+      <PageParametrage titre='Classe de TVA' description={`Classe ${id}`}>
         {retour}
         <p className='text-muted-foreground'>
           {requete.isError ? 'Classe introuvable.' : 'Chargement…'}
@@ -122,10 +127,13 @@ export function PageClasseTva({ code }: { code: string }) {
       actions={
         <div className='flex gap-2'>
           <Button variant='outline' onClick={() => setRenommage(true)}>
-            Modifier le libellé
+            Modifier
           </Button>
           <Button variant='outline' onClick={() => setChangementEtat(true)}>
             {classe.actif ? 'Désactiver' : 'Réactiver'}
+          </Button>
+          <Button variant='outline' onClick={() => setSuppression(true)}>
+            Supprimer
           </Button>
           <Button onClick={() => setEditionTaux('nouveau')}>
             <Plus /> Ajouter un taux
@@ -203,11 +211,7 @@ export function PageClasseTva({ code }: { code: string }) {
         titre={`Modifier « ${classe.libelle} »`}
         valeur={classe}
         enregistrer={(saisie) =>
-          modifierClasseTva({
-            path: { code },
-            body: { libelle: saisie.libelle },
-            throwOnError: true,
-          })
+          modifierClasseTva({ path: { id }, body: saisie, throwOnError: true })
         }
         onSucces={rafraichir}
       />
@@ -216,10 +220,21 @@ export function PageClasseTva({ code }: { code: string }) {
         onFermer={() => setChangementEtat(false)}
         changer={() =>
           classe.actif
-            ? desactiverClasseTva({ path: { code }, throwOnError: true })
-            : reactiverClasseTva({ path: { code }, throwOnError: true })
+            ? desactiverClasseTva({ path: { id }, throwOnError: true })
+            : reactiverClasseTva({ path: { id }, throwOnError: true })
         }
         onSucces={rafraichir}
+      />
+      <Suppression
+        valeur={suppression ? classe : null}
+        onFermer={() => setSuppression(false)}
+        supprimer={() =>
+          supprimerClasseTva({ path: { id }, throwOnError: true })
+        }
+        onSucces={() => {
+          rafraichir()
+          navigate({ to: '/bo/parametrage/classes-tva' })
+        }}
       />
       <FormulaireTaux
         ouvert={editionTaux !== null}
@@ -315,12 +330,12 @@ function FormulaireTaux({
       }
       return taux
         ? modifierTauxTva({
-            path: { code: classe.code, dateDebut: taux.dateDebut },
+            path: { id: classe.id, dateDebut: taux.dateDebut },
             body,
             throwOnError: true,
           })
         : ajouterTauxTva({
-            path: { code: classe.code },
+            path: { id: classe.id },
             body,
             throwOnError: true,
           })

@@ -29,38 +29,39 @@ public class GererPays extends GererValeurs<Pays> {
     }
 
     /** RG-REF-01, 03, 05 à 09. */
-    public Pays creer(String code, SaisiePays saisie) {
-        Code cle = Code.de(code);
+    public Pays creer(SaisiePays saisie) {
+        Code code = Code.de(saisie.code());
         Libelle libelle = Libelle.de(saisie.libelle());
         DescriptionPays description = description(saisie);
         verifierZoneActive(description.zoneCommerciale());
         verifierCodeIsoLibre(description.codeIso(), null);
-        return enregistrerNouvelle(Pays.creer(cle, libelle, description));
+        return enregistrerNouvelle(Pays.creer(code, libelle, description));
     }
 
     /**
-     * Tout sauf le code (RG-REF-02). La zone n'est contrôlée que si elle change : un pays garde sa
-     * zone même si elle a été désactivée depuis (RG-REF-05).
+     * Tout se corrige, code compris (RG-REF-02). La zone n'est contrôlée que si elle change : un pays
+     * garde sa zone même si elle a été désactivée depuis (RG-REF-05).
      */
-    public Pays modifier(String code, SaisiePays saisie) {
+    public Pays modifier(long id, SaisiePays saisie) {
+        Code code = Code.de(saisie.code());
         Libelle libelle = Libelle.de(saisie.libelle());
         DescriptionPays description = description(saisie);
-        return modifierValeur(code, pays -> {
-            if (!pays.description().zoneCommerciale().equals(description.zoneCommerciale())) {
+        return modifierValeur(id, pays -> {
+            if (pays.description().zoneCommerciale() != description.zoneCommerciale()) {
                 verifierZoneActive(description.zoneCommerciale());
             }
-            verifierCodeIsoLibre(description.codeIso(), pays.code());
-            pays.decrire(libelle, description);
+            verifierCodeIsoLibre(description.codeIso(), id);
+            pays.decrire(code, libelle, description);
         });
     }
 
     private static DescriptionPays description(SaisiePays saisie) {
-        if (saisie.zoneCommerciale() == null || saisie.zoneCommerciale().isBlank()) {
+        if (saisie.zoneCommerciale() == null) {
             throw new RegleEnfreinte("RG-REF-05", "La zone commerciale est obligatoire.");
         }
         return new DescriptionPays(
                 CodeIso.de(saisie.codeIso()),
-                Code.de(saisie.zoneCommerciale()),
+                saisie.zoneCommerciale(),
                 saisie.membreUe(),
                 saisie.langueCertificat(),
                 saisie.niveauDetailCertificat(),
@@ -68,16 +69,16 @@ public class GererPays extends GererValeurs<Pays> {
     }
 
     /** RG-REF-05 : la zone existe et est active au moment de la saisie. */
-    private void verifierZoneActive(Code zone) {
-        boolean active = zones.parCode(zone).map(z -> z.estActif()).orElseThrow(() -> new RegleEnfreinte(
-                "RG-REF-05", "Zone commerciale inconnue : « " + zone + " »."));
-        if (!active) {
-            throw new RegleEnfreinte("RG-REF-05", "La zone commerciale « " + zone + " » est inactive.");
+    private void verifierZoneActive(long zone) {
+        var trouvee = zones.parId(zone).orElseThrow(() -> new RegleEnfreinte(
+                "RG-REF-05", "Zone commerciale inconnue : " + zone + "."));
+        if (!trouvee.estActif()) {
+            throw new RegleEnfreinte("RG-REF-05", "La zone commerciale « " + trouvee.libelle() + " » est inactive.");
         }
     }
 
     /** RG-REF-06. */
-    private void verifierCodeIsoLibre(CodeIso codeIso, Code sauf) {
+    private void verifierCodeIsoLibre(CodeIso codeIso, Long sauf) {
         if (repository.existeCodeIso(codeIso, sauf)) {
             throw new ConflitUnicite("RG-REF-06", "Le code ISO « " + codeIso + " » est déjà attribué à un autre pays.");
         }

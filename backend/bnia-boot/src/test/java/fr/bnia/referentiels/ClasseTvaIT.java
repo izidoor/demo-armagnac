@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
@@ -15,18 +14,13 @@ class ClasseTvaIT extends AbstractIT {
 
     private static final String URL = "/api/referentiels/classes-tva";
 
-    @Autowired
-    RestTestClient client;
-
     private String code;
+    private long id;
 
     @BeforeEach
     void creerUneClasse() {
         code = "T" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        client.post().uri(URL).body(Map.of("code", code, "libelle", "Classe " + code))
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody().jsonPath("$.taux.length()").isEqualTo(0).jsonPath("$.tauxEnVigueur").doesNotExist();
+        id = creer(URL, Map.of("code", code, "libelle", "Classe " + code));
     }
 
     @Test
@@ -44,13 +38,13 @@ class ClasseTvaIT extends AbstractIT {
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$[0].tauxEnVigueur").isEqualTo(20.0);
 
-        client.put().uri(URL + "/{code}/taux/{debut}", code, "2014-01-01")
+        client.put().uri(URL + "/{id}/taux/{debut}", id, "2014-01-01")
                 .body(Map.of("taux", "20", "dateDebut", "2014-01-01", "dateFin", "2015-12-31"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.taux[0].dateFin").isEqualTo("2015-12-31").jsonPath("$.tauxEnVigueur").doesNotExist();
 
-        client.delete().uri(URL + "/{code}/taux/{debut}", code, "2000-01-01")
+        client.delete().uri(URL + "/{id}/taux/{debut}", id, "2000-01-01")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.taux.length()").isEqualTo(1);
@@ -73,9 +67,9 @@ class ClasseTvaIT extends AbstractIT {
     @DisplayName("RG-REF-13 : une classe inactive garde ses taux consultables")
     void rg_ref_13_classe_inactive() {
         ajouter("5.5", "2014-01-01", null).expectStatus().isOk();
-        client.post().uri(URL + "/{code}/desactivation", code).exchange().expectStatus().isOk();
+        client.post().uri(URL + "/{id}/desactivation", id).exchange().expectStatus().isOk();
 
-        client.get().uri(URL + "/{code}", code)
+        client.get().uri(URL + "/{id}", id)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -84,8 +78,21 @@ class ClasseTvaIT extends AbstractIT {
     }
 
     @Test
+    void une_classe_nait_sans_taux_et_se_supprime_avec_ses_taux() {
+        client.get().uri(URL + "/{id}", id)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.taux.length()").isEqualTo(0).jsonPath("$.tauxEnVigueur").doesNotExist();
+        ajouter("20", "2014-01-01", null).expectStatus().isOk();
+
+        client.delete().uri(URL + "/{id}", id).exchange().expectStatus().isNoContent();
+
+        client.get().uri(URL + "/{id}", id).exchange().expectStatus().isNotFound();
+    }
+
+    @Test
     void retirer_un_taux_inconnu_renvoie_404() {
-        client.delete().uri(URL + "/{code}/taux/{debut}", code, "2014-01-01")
+        client.delete().uri(URL + "/{id}/taux/{debut}", id, "2014-01-01")
                 .exchange()
                 .expectStatus().isNotFound();
     }
@@ -95,6 +102,6 @@ class ClasseTvaIT extends AbstractIT {
         if (fin != null) {
             saisie.put("dateFin", fin);
         }
-        return client.post().uri(URL + "/{code}/taux", code).body(saisie).exchange();
+        return client.post().uri(URL + "/{id}/taux", id).body(saisie).exchange();
     }
 }

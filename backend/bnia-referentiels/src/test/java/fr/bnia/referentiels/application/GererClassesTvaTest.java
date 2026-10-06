@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.referentiels.domain.ClasseTva;
-import fr.bnia.referentiels.domain.Code;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -29,32 +28,36 @@ class GererClassesTvaTest {
     @Test
     @DisplayName("RG-REF-11 : un taux ajouté est enregistré avec sa classe ; un chevauchement est refusé")
     void rg_ref_11_ajouter_un_taux() {
-        gerer.creer("NORMAL", "Normal");
+        long id = gerer.creer("NORMAL", "Normal").id();
 
-        gerer.ajouterTaux("NORMAL", new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
+        gerer.ajouterTaux(id, new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
 
-        assertThat(classes.parCode(Code.de("NORMAL")).orElseThrow().taux()).hasSize(1);
-        assertThatThrownBy(() -> gerer.ajouterTaux("NORMAL",
+        assertThat(classes.parId(id).orElseThrow().taux()).hasSize(1);
+        assertThatThrownBy(() -> gerer.ajouterTaux(id,
                 new SaisieTauxTva(new BigDecimal("21"), LocalDate.parse("2026-01-01"), null)))
                 .isInstanceOf(RegleEnfreinte.class);
-        assertThat(classes.parCode(Code.de("NORMAL")).orElseThrow().taux()).hasSize(1);
+        assertThat(classes.parId(id).orElseThrow().taux()).hasSize(1);
     }
 
     @Test
     void modifier_puis_retirer_un_taux() {
-        gerer.creer("NORMAL", "Normal");
-        gerer.ajouterTaux("NORMAL", new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
+        long id = gerer.creer("NORMAL", "Normal").id();
+        gerer.ajouterTaux(id, new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
 
-        gerer.modifierTaux("NORMAL", LocalDate.parse("2014-01-01"),
+        gerer.modifierTaux(id, LocalDate.parse("2014-01-01"),
                 new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), LocalDate.parse("2025-12-31")));
-        assertThat(gerer.consulter("NORMAL").taux().getFirst().fin()).isEqualTo(LocalDate.parse("2025-12-31"));
+        assertThat(gerer.consulter(id).taux().getFirst().fin()).isEqualTo(LocalDate.parse("2025-12-31"));
 
-        gerer.retirerTaux("NORMAL", LocalDate.parse("2014-01-01"));
-        assertThat(gerer.consulter("NORMAL").taux()).isEmpty();
+        gerer.retirerTaux(id, LocalDate.parse("2014-01-01"));
+        assertThat(gerer.consulter(id).taux()).isEmpty();
     }
 
     private static final class ClassesEnMemoire extends ValeursEnMemoire<ClasseTva>
             implements ClasseTvaRepository, ClassesTvaLecture {
+
+        ClassesEnMemoire() {
+            super((id, c) -> ClasseTva.reconstituer(id, c.code(), c.libelle(), c.estActif(), c.taux()));
+        }
 
         @Override
         public List<ClasseTvaLigne> lister(FiltreValeurs filtre, LocalDate date) {

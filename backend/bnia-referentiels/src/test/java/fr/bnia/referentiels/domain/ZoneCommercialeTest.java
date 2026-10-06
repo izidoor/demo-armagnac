@@ -37,14 +37,21 @@ class ZoneCommercialeTest {
     }
 
     @Test
-    @DisplayName("RG-REF-02 : renommer ne change pas le code")
-    void rg_ref_02_code_immuable() {
-        var zone = ZoneCommerciale.creer(Code.de("EUR"), Libelle.de("Europe"));
+    @DisplayName("RG-REF-02 : le code et le libellé se corrigent, l'identifiant reste")
+    void rg_ref_02_code_corrigeable() {
+        var zone = ZoneCommerciale.reconstituer(7L, Code.de("EUROPE"), Libelle.de("Europe"), true);
 
+        zone.recoder(Code.de("EUR"));
         zone.renommer(Libelle.de("Europe géographique"));
 
+        assertThat(zone.id()).isEqualTo(7L);
         assertThat(zone.code()).isEqualTo(Code.de("EUR"));
         assertThat(zone.libelle()).isEqualTo(Libelle.de("Europe géographique"));
+    }
+
+    @Test
+    void une_valeur_creee_n_a_pas_encore_d_identifiant() {
+        assertThat(ZoneCommerciale.creer(Code.de("EUR"), Libelle.de("Europe")).id()).isNull();
     }
 
     @ParameterizedTest

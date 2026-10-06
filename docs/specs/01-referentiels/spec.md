@@ -38,7 +38,8 @@ Données de référence stables, administrées par le BNIA et lues par les autre
 qualification des opérateurs et des contacts, présentation commerciale, classes et taux de TVA.
 
 Le contexte ne contient aucun processus métier. Sa valeur tient dans trois choses :
-- des valeurs **fiables** : codes uniques et immuables, désactivation au lieu de suppression ;
+- des valeurs **fiables** : codes uniques et corrigeables derrière un identifiant technique stable ;
+  suppression d'une valeur inutilisée, désactivation sinon ;
 - des **règles propres** : pas de chevauchement des taux de TVA, attributs du pays pour le certificat
   export, contenance exprimée en volume ;
 - une **lecture simple** pour tous les autres contextes.
@@ -90,9 +91,12 @@ sans refonte.
 
 | Champ | Type | Règle |
 |---|---|---|
-| code | texte | Obligatoire, unique dans le référentiel, immuable (RG-REF-01, RG-REF-02) |
+| code | texte | Obligatoire, unique dans le référentiel, modifiable (RG-REF-01, RG-REF-02) |
 | libellé | texte | Obligatoire, modifiable |
 | actif | booléen | Vrai à la création ; voir RG-REF-04 |
+
+Chaque valeur, dans tous les référentiels, a aussi un identifiant technique attribué par la base : c'est
+lui que les autres contextes référencent (A-REF-1, ADR-011).
 
 Le CDC ne prévoit l'indicateur actif que sur les centres d'intérêt (C.10.8.6) et les classes de TVA
 (C.10.1.1). On le généralise à tous les référentiels (RG-REF-04, décision du 2026-10-06).
@@ -103,7 +107,7 @@ portail (RG-REF-14).
 
 | Champ | Type | Règle | Source |
 |---|---|---|---|
-| code pays | texte | Code métier du BNIA, unique, immuable | C.10.5.1 |
+| code pays | texte | Code métier du BNIA, unique, modifiable | C.10.5.1 |
 | code ISO | texte | ISO 3166-1 alpha-2, unique (H-REF-1) | C.10.5.1 |
 | libellé | texte | Obligatoire | C.10.5.1 |
 | zone commerciale | référence `ZoneCommerciale` | Obligatoire, active à la saisie ; continent géographique (H-REF-5) | C.10.5.1 |
@@ -123,7 +127,7 @@ précises que les deux du §4.8.5 : `CUMUL_DEGRE` correspond au certificat simpl
 
 | Champ | Type | Règle | Source |
 |---|---|---|---|
-| code | texte | Unique, immuable | C.10.6.1 |
+| code | texte | Unique, modifiable | C.10.6.1 |
 | libellé | texte | Obligatoire | C.10.6.1 |
 | en région délimitée | booléen | Obligatoire | C.1.1.2 p.102, décision du 2026-10-06 |
 | actif | booléen | | RG-REF-04 |
@@ -136,7 +140,7 @@ distinction devient un attribut de la région.
 
 | Champ | Type | Règle | Source |
 |---|---|---|---|
-| volume | décimal, en litres | Strictement positif, unique, immuable, 3 décimales au plus | C.10.9.4 p.131, §4.7.5 p.40 |
+| volume | décimal, en litres | Strictement positif, unique, modifiable, 3 décimales au plus | C.10.9.4 p.131, §4.7.5 p.40 |
 | libellé | texte | Facultatif ; sinon dérivé du volume (« 0,70 L ») | |
 | actif | booléen | | RG-REF-04 |
 
@@ -149,7 +153,7 @@ Le CDC la décrit comme un « texte court ». Mais §4.7.5 calcule le volume d'a
 
 | Champ | Type | Règle | Source |
 |---|---|---|---|
-| code | texte | Unique, immuable | C.10.1.1 p.127 |
+| code | texte | Unique, modifiable | C.10.1.1 p.127 |
 | libellé | texte | Obligatoire | C.10.1.1 |
 | active | booléen | | C.10.1.1 |
 | taux | liste de `TauxTva` | Voir ci-dessous | C.10.2.1 p.127 |
@@ -169,10 +173,10 @@ interdit pas, et une date sans taux applicable reçoit une réponse explicite (R
 
 | Id | Règle | Source |
 |---|---|---|
-| RG-REF-01 | Le code d'une valeur est obligatoire et unique dans son référentiel, sans distinction de casse ni d'espaces en tête et en fin. Exception : la contenance n'a pas de code, son volume l'identifie (RG-REF-10). | C.10 (« Identifiant ») |
-| RG-REF-02 | Le code (le volume pour une contenance) est immuable après création. Les autres contextes référencent une valeur par son code (A-REF-1). | H-REF-4 |
+| RG-REF-01 | Le code d'une valeur est obligatoire et unique dans son référentiel, sans distinction de casse ni d'espaces en tête et en fin, à la création comme à la modification. Exception : la contenance n'a pas de code, son volume est unique (RG-REF-10). | C.10 (« Identifiant ») |
+| RG-REF-02 | Les autres contextes référencent une valeur par son identifiant technique (A-REF-1). Le code (le volume pour une contenance) se corrige comme le libellé, et reste unique (RG-REF-01, RG-REF-10). | Décision du 2026-10-06 (ADR-011), remplace H-REF-4 |
 | RG-REF-03 | Le libellé est obligatoire. | C.10 |
-| RG-REF-04 | Aucune valeur n'est supprimée : elle est désactivée, et peut être réactivée. Une valeur inactive n'est plus proposée à la saisie, mais reste lisible et affichée là où elle est déjà utilisée. | Décision du 2026-10-06 ; C.10.8.6, C.10.1.1 |
+| RG-REF-04 | Une valeur que rien ne référence peut être supprimée. Une valeur utilisée ailleurs ne l'est pas : elle est désactivée, et peut être réactivée. Une valeur inactive n'est plus proposée à la saisie, mais reste lisible et affichée là où elle est déjà utilisée. | Décisions du 2026-10-06 (ADR-011) ; C.10.8.6, C.10.1.1 |
 | RG-REF-05 | Un pays est rattaché à une zone commerciale active au moment de la saisie. Désactiver une zone ne touche pas les pays qui y sont rattachés. | C.10.5.1 |
 | RG-REF-06 | Le code ISO d'un pays est unique et respecte le format alpha-2 (deux lettres majuscules). | H-REF-1 |
 | RG-REF-07 | Un pays porte une langue de certificat (`FR_EN`, `FR_ES`, `FR_IT`) et un niveau de détail (`CUMUL_DEGRE`, `DETAIL_COMPTE_AGE`, `DETAIL_MILLESIME`). | §4.8.4, §4.8.5 p.42, C.7.2.1 p.122-123 |
@@ -193,8 +197,9 @@ interdit pas, et une date sans taux applicable reçoit une réponse explicite (R
 |---|---|---|
 | Lister les valeurs d'un référentiel, avec un filtre actif / inactif et une recherche sur le code ou le libellé (back-office) | tous | |
 | Créer une valeur (back-office) | tous | 01, 03, 05 à 10, 15 |
-| Modifier une valeur, tout sauf le code (back-office) | tous | 02, 03, 05 à 09, 15 |
+| Modifier une valeur, code compris (back-office) | tous | 01, 02, 03, 05 à 10, 15 |
 | Désactiver, réactiver une valeur (back-office) | tous | 04, 13 |
+| Supprimer une valeur que rien n'utilise (back-office) | tous | 04 |
 | Ajouter, modifier ou retirer un taux d'une classe de TVA (back-office) | `ClasseTva` | 11 |
 | Créer une marque depuis la fiche opérateur (back-office et portail) | `Marque` | 01, 14, 15 |
 
@@ -212,6 +217,10 @@ stabilité de cet historique (C.8.3 « taux de TVA appliqué », §4.9.7 p.46).
   `RegionVue`, `ContenanceVue`, `ValeurVue`, `TauxTvaVue`) ;
 - `fr.bnia.referentiels.application.partage` : l'interface `ReferentielsLecture`,
   implémentée dans `referentiels`.
+
+Pour chaque liste, `ReferentielsLecture` lit une valeur par son identifiant (celui que les autres
+contextes stockent), par son code (imports et reprise, dont les fichiers portent des codes) et la liste
+des valeurs actives (ADR-011).
 
 Tout le reste du contexte (agrégats, cas d'usage d'écriture, adapters) est interdit aux autres contextes,
 ce que vérifie ArchUnit. La création d'une marque depuis la fiche opérateur (RG-REF-14) passe par l'écran,
@@ -232,8 +241,9 @@ qui appelle le cas d'usage de `referentiels` ; elle n'a pas besoin d'être publi
 - **Menu « Paramétrage »**, avec trois groupes : Géographie, Qualification, Présentation et
   commercialisation, plus une entrée « TVA ».
 - **Une page par référentiel** : tableau (code, libellé, attributs propres, état), recherche, filtre
-  actif / inactif, création et modification dans une fenêtre, action désactiver / réactiver.
-  Le code n'est saisissable qu'à la création.
+  actif / inactif, création et modification dans une fenêtre, actions désactiver / réactiver et
+  supprimer. Le code se corrige comme le libellé. Une suppression est refusée si la valeur est utilisée
+  ailleurs : on la désactive alors.
 - **Page Pays** : colonnes zone, membre de l'UE, code ISO, langue et niveau de détail du certificat,
   âge minimum.
 - **Page Marques** : pendant la saisie du libellé, les marques au libellé proche sont proposées
@@ -278,16 +288,18 @@ Les valeurs réelles viendront de la reprise.
 | Marques, circuits de distribution, types de produits commercialisés | **aucune vue** : les vues professionnel 2.1.5, 2.1.6 et 2.1.11 ne portent que l'identifiant de la table InteGraal | demander à AGI une vue de paramétrage par table (identifiant, code, libellé) : Q-REF-6. Produits commercialisés : on suit le CDC, une liste de types (Armagnac, Blanche, Floc…) ; les libellés libres par opérateur d'InteGraal (2.1.11) ne sont pas repris (Q-REF-9) |
 | Centres d'intérêt, zones commerciales, classes de TVA | aucune vue | saisie initiale par le BNIA |
 
+Chaque code AGI est traduit en identifiant à la reprise, par la lecture par code (ADR-011).
+
 Hors du contexte : types tiers (2.6.4) et destinataires (2.6.10) vont à `exportation`, cotisations (2.6.7)
 à `cotisation`.
 
 ## 8. Décisions d'architecture
 
-Décidées le 2026-10-06, actées par ADR-008 et ADR-009.
+Décidées le 2026-10-06, actées par ADR-008 et ADR-009 ; A-REF-1 révisée le même jour par ADR-011.
 
 | Id | Décision | Écarté | ADR |
 |---|---|---|---|
-| A-REF-1 | Un contexte référence une valeur de `referentiels` par son **code métier**, lisible et immuable (RG-REF-02). Une contenance est référencée par son volume. | Identifiant technique : illisible en base, et la reprise devrait traduire chaque code. | 008 |
+| A-REF-1 | Un contexte référence une valeur de `referentiels` par son **identifiant technique** (entier généré par la base), avec une clé étrangère. Le code, et le volume d'une contenance, se corrigent (RG-REF-02). | Référence par code métier immuable, première version de cette décision : erreurs incorrigeables, aucune suppression possible, démonstration rigide. UUID : illisible, sans gain pour une seule base. | 011 (remplace 008 sur ce point) |
 | A-REF-2 | `referentiels` publie une **partie en lecture seule** (`..referentiels.domain.partage`, `..referentiels.application.partage`), que tous les contextes peuvent importer directement. Exception réservée à ce contexte générique ; les autres ne communiquent que par ports et événements. | Port et adapter dans chaque consommateur (passe-plat pour 13 listes) ; SQL direct sur les tables d'un autre contexte (couplage caché) ; interfaces dans `commun` (le noyau perdrait sa neutralité) ; shared kernel complet (exposerait les écritures et la structure des agrégats). | 008 |
 | A-REF-3 | **Une classe par liste** simple, avec son repository, sa table et son endpoint. | Modèle générique typé par une énumération : moins de code, mais des listes qui ne peuvent pas diverger. | 008 |
 | A-REF-4 | `CompteDAge` vit dans **`commun.domain`**, avec les autres concepts transverses du glossaire qui sont des règles et non des données administrées (`Millesime`, `Campagne`, `MentionCommerciale`, `VolumeAlcoolPur`, au fil des besoins). | Le placer dans `referentiels`, qui ne contient que des données administrées par le BNIA ; une version par contexte (règle dupliquée). | 009 |
@@ -302,14 +314,15 @@ Deux zones partagées, de nature différente :
 
 ## 9. Hypothèses
 
-Statut au 2026-10-06 : toutes validées. Elles restent révisables si le BNIA dit autre chose.
+Statut au 2026-10-06 : toutes validées, sauf H-REF-4, abandonnée. Elles restent révisables si le BNIA dit
+autre chose.
 
 | Id | Hypothèse | Pourquoi |
 |---|---|---|
 | H-REF-1 | Le code ISO est l'alpha-2 de l'ISO 3166-1. | Le CDC dit « code normalisé » sans préciser. L'alpha-2 est le plus courant (douanes, Otentik probable). |
 | H-REF-2 | Valeurs par défaut du pays : `FR_EN` et `CUMUL_DEGRE`. | Le CDC cite le français associé à l'anglais, l'espagnol ou l'italien (C.7.2.1) ; l'anglais est le cas général. |
 | H-REF-3 | L'âge minimum est un compte d'âge (`00`, `0`, `1`…), pas un entier. | C.10.5.1 dit « Nombre », mais il se compare aux comptes d'âge des ventes export, où `00` et `0` sont distincts (glossaire). |
-| H-REF-4 | Le code est immuable. | Il sert de référence entre contextes et de clé de reprise. Une erreur de code se corrige en désactivant la valeur et en en créant une autre. |
+| ~~H-REF-4~~ | ~~Le code est immuable.~~ **Abandonnée le 2026-10-06** : le code se corrige, les références passent par l'identifiant technique (ADR-011). | L'erreur de saisie est courante ; il faut pouvoir revenir sur ce que l'on fait. |
 | H-REF-5 | La zone commerciale du pays est son continent géographique ; l'appartenance à l'UE est un indicateur distinct sur le pays. | Les statistiques distinguent l'UE du reste de l'Europe (§4.10 p.47), mais le pays n'a qu'une zone (C.10.5.1). Deux zones « UE » et « Europe hors UE » auraient rendu le continent non géographique. |
 
 ## 10. Questions ouvertes
@@ -350,3 +363,4 @@ Chaque RG-REF-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-06 | Sommaire ajouté en tête. |
 | 2026-10-06 | Spec validée, statut « terminée ». ADR-008 (partie publiée, référence par code, une classe par liste) et ADR-009 (noyau commun du domaine) rédigés. |
 | 2026-10-06 | Implémentation (lots 1 à 7). Choix faits pendant l'implémentation : listes simples sur une classe abstraite par couche (`ValeurSimple`, `GererValeursSimples`…), une sous-classe par liste (A-REF-3) ; `Pays`, `Region` et `ClasseTva` étendent `ValeurSimple` ; la contenance a son propre modèle, identifiée par son `Volume` (`numeric(10,3)`) ; libellé normalisé des marques stocké avec un index unique (RG-REF-15) ; marques proches : recherche « contient » sur le libellé normalisé ; non-chevauchement des taux de TVA garanti par l'agrégat seul ; `ReferentielsLecture` à méthodes typées, classes de TVA comprises ; un schéma PostgreSQL `referentiels`. Chaque RG-REF-01 à 15 a au moins un test qui porte son identifiant. |
+| 2026-10-06 | Révision (ADR-011) : référence par identifiant technique au lieu du code métier (A-REF-1) ; code et volume modifiables, toujours uniques (RG-REF-01, RG-REF-02) ; suppression d'une valeur inutilisée, désactivation sinon (RG-REF-04) ; H-REF-4 abandonnée ; `ReferentielsLecture` par identifiant et par code. Motif : l'erreur de saisie est courante, et la démonstration exige de pouvoir corriger. |

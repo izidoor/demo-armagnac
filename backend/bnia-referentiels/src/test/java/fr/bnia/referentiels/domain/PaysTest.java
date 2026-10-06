@@ -33,7 +33,7 @@ class PaysTest {
     @Test
     @DisplayName("RG-REF-07 : langue FR_EN et niveau CUMUL_DEGRE par défaut (H-REF-2)")
     void rg_ref_07_valeurs_par_defaut() {
-        var description = new DescriptionPays(CodeIso.de("US"), Code.de("AMN"), false, null, null, null);
+        var description = new DescriptionPays(CodeIso.de("US"), 2L, false, null, null, null);
 
         assertThat(description.langueCertificat()).isEqualTo(LangueCertificat.FR_EN);
         assertThat(description.niveauDetailCertificat()).isEqualTo(NiveauDetailCertificat.CUMUL_DEGRE);
@@ -43,7 +43,7 @@ class PaysTest {
     @Test
     @DisplayName("RG-REF-07 : la langue et le niveau saisis sont conservés")
     void rg_ref_07_valeurs_saisies() {
-        var description = new DescriptionPays(CodeIso.de("ES"), Code.de("EUR"), true, LangueCertificat.FR_ES,
+        var description = new DescriptionPays(CodeIso.de("ES"), 1L, true, LangueCertificat.FR_ES,
                 NiveauDetailCertificat.DETAIL_MILLESIME, Optional.empty());
 
         assertThat(description.langueCertificat()).isEqualTo(LangueCertificat.FR_ES);
@@ -53,8 +53,8 @@ class PaysTest {
     @Test
     @DisplayName("RG-REF-08 : l'appartenance à l'UE est indépendante de la zone commerciale")
     void rg_ref_08_ue_independante_de_la_zone() {
-        var norvege = new DescriptionPays(CodeIso.de("NO"), Code.de("EUR"), false, null, null, null);
-        var france = new DescriptionPays(CodeIso.de("FR"), Code.de("EUR"), true, null, null, null);
+        var norvege = new DescriptionPays(CodeIso.de("NO"), 1L, false, null, null, null);
+        var france = new DescriptionPays(CodeIso.de("FR"), 1L, true, null, null, null);
 
         assertThat(norvege.zoneCommerciale()).isEqualTo(france.zoneCommerciale());
         assertThat(norvege.membreUe()).isFalse();
@@ -80,15 +80,15 @@ class PaysTest {
     }
 
     @Test
-    @DisplayName("RG-REF-02 : décrire un pays ne change pas son code")
-    void rg_ref_02_decrire_garde_le_code() {
+    @DisplayName("RG-REF-02 : tout se corrige dans un pays, code compris")
+    void rg_ref_02_decrire_corrige_tout() {
         var pays = Pays.creer(Code.de("US"), Libelle.de("USA"),
-                new DescriptionPays(CodeIso.de("US"), Code.de("AMN"), false, null, null, null));
+                new DescriptionPays(CodeIso.de("US"), 2L, false, null, null, null));
 
-        pays.decrire(Libelle.de("États-Unis"),
-                new DescriptionPays(CodeIso.de("US"), Code.de("AMN"), false, null, null, Optional.of(CompteDAge.de(4))));
+        pays.decrire(Code.de("USA"), Libelle.de("États-Unis"),
+                new DescriptionPays(CodeIso.de("US"), 2L, false, null, null, Optional.of(CompteDAge.de(4))));
 
-        assertThat(pays.code()).isEqualTo(Code.de("US"));
+        assertThat(pays.code()).isEqualTo(Code.de("USA"));
         assertThat(pays.libelle()).isEqualTo(Libelle.de("États-Unis"));
         assertThat(pays.description().ageMinimum()).contains(CompteDAge.de(4));
     }

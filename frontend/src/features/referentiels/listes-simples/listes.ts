@@ -45,19 +45,34 @@ import {
   reactiverTitre,
   reactiverTypeVisite,
   reactiverZoneCommerciale,
+  supprimerCentreInteret,
+  supprimerCircuitDistribution,
+  supprimerLabel,
+  supprimerLangue,
+  supprimerMarque,
+  supprimerProduitCommercialise,
+  supprimerTitre,
+  supprimerTypeVisite,
+  supprimerZoneCommerciale,
+  type SaisieValeurSimple,
   type ValeurSimple,
 } from '@/api/generated'
 import { type FiltreValeurs } from '../commun/use-filtre-valeurs'
 
-/** Accès à une liste simple (code, libellé, actif), commun aux neuf listes (A-REF-3). */
+/**
+ * Accès à une liste simple (code, libellé, actif), commun aux neuf listes (A-REF-3). Les valeurs sont
+ * désignées par leur identifiant ; le code se corrige (ADR-011).
+ */
 type ApiListeSimple = {
   /** Racine des clés de cache de la liste. */
   cle: string
   lister: (filtre: FiltreValeurs) => Promise<ValeurSimple[]>
-  creer: (saisie: { code: string; libelle: string }) => Promise<ValeurSimple>
-  modifier: (code: string, libelle: string) => Promise<ValeurSimple>
-  desactiver: (code: string) => Promise<ValeurSimple>
-  reactiver: (code: string) => Promise<ValeurSimple>
+  creer: (saisie: SaisieValeurSimple) => Promise<ValeurSimple>
+  modifier: (id: number, saisie: SaisieValeurSimple) => Promise<ValeurSimple>
+  desactiver: (id: number) => Promise<ValeurSimple>
+  reactiver: (id: number) => Promise<ValeurSimple>
+  /** Échoue en 409 si la valeur est utilisée ailleurs : la désactiver (RG-REF-04). */
+  supprimer: (id: number) => Promise<unknown>
   /** Valeurs au libellé proche, proposées pendant la saisie (marques, RG-REF-15). */
   proches?: (libelle: string) => Promise<ValeurSimple[]>
 }
@@ -81,20 +96,20 @@ export const zonesCommerciales: ConfigListeSimple = {
       ),
     creer: (body) =>
       creerZoneCommerciale({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierZoneCommerciale({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverZoneCommerciale({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierZoneCommerciale({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverZoneCommerciale({ path: { code }, throwOnError: true }).then(
+    desactiver: (id) =>
+      desactiverZoneCommerciale({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
+    reactiver: (id) =>
+      reactiverZoneCommerciale({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    supprimer: (id) =>
+      supprimerZoneCommerciale({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -109,20 +124,15 @@ export const titres: ConfigListeSimple = {
       listerTitres({ query, throwOnError: true }).then((r) => r.data),
     creer: (body) =>
       creerTitre({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierTitre({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverTitre({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierTitre({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverTitre({ path: { code }, throwOnError: true }).then(
-        (r) => r.data
-      ),
+    desactiver: (id) =>
+      desactiverTitre({ path: { id }, throwOnError: true }).then((r) => r.data),
+    reactiver: (id) =>
+      reactiverTitre({ path: { id }, throwOnError: true }).then((r) => r.data),
+    supprimer: (id) => supprimerTitre({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -136,20 +146,15 @@ export const labels: ConfigListeSimple = {
       listerLabels({ query, throwOnError: true }).then((r) => r.data),
     creer: (body) =>
       creerLabel({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierLabel({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverLabel({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierLabel({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverLabel({ path: { code }, throwOnError: true }).then(
-        (r) => r.data
-      ),
+    desactiver: (id) =>
+      desactiverLabel({ path: { id }, throwOnError: true }).then((r) => r.data),
+    reactiver: (id) =>
+      reactiverLabel({ path: { id }, throwOnError: true }).then((r) => r.data),
+    supprimer: (id) => supprimerLabel({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -164,20 +169,20 @@ export const typesVisite: ConfigListeSimple = {
       listerTypesVisite({ query, throwOnError: true }).then((r) => r.data),
     creer: (body) =>
       creerTypeVisite({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierTypeVisite({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverTypeVisite({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierTypeVisite({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverTypeVisite({ path: { code }, throwOnError: true }).then(
+    desactiver: (id) =>
+      desactiverTypeVisite({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
+    reactiver: (id) =>
+      reactiverTypeVisite({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    supprimer: (id) =>
+      supprimerTypeVisite({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -191,20 +196,17 @@ export const langues: ConfigListeSimple = {
       listerLangues({ query, throwOnError: true }).then((r) => r.data),
     creer: (body) =>
       creerLangue({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierLangue({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverLangue({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierLangue({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverLangue({ path: { code }, throwOnError: true }).then(
+    desactiver: (id) =>
+      desactiverLangue({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
+    reactiver: (id) =>
+      reactiverLangue({ path: { id }, throwOnError: true }).then((r) => r.data),
+    supprimer: (id) => supprimerLangue({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -219,20 +221,20 @@ export const centresInteret: ConfigListeSimple = {
       listerCentresInteret({ query, throwOnError: true }).then((r) => r.data),
     creer: (body) =>
       creerCentreInteret({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierCentreInteret({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverCentreInteret({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierCentreInteret({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverCentreInteret({ path: { code }, throwOnError: true }).then(
+    desactiver: (id) =>
+      desactiverCentreInteret({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
+    reactiver: (id) =>
+      reactiverCentreInteret({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    supprimer: (id) =>
+      supprimerCentreInteret({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -247,20 +249,17 @@ export const marques: ConfigListeSimple = {
       listerMarques({ query, throwOnError: true }).then((r) => r.data),
     creer: (body) =>
       creerMarque({ body, throwOnError: true }).then((r) => r.data),
-    modifier: (code, libelle) =>
-      modifierMarque({
-        path: { code },
-        body: { libelle },
-        throwOnError: true,
-      }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverMarque({ path: { code }, throwOnError: true }).then(
+    modifier: (id, body) =>
+      modifierMarque({ path: { id }, body, throwOnError: true }).then(
         (r) => r.data
       ),
-    reactiver: (code) =>
-      reactiverMarque({ path: { code }, throwOnError: true }).then(
+    desactiver: (id) =>
+      desactiverMarque({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
+    reactiver: (id) =>
+      reactiverMarque({ path: { id }, throwOnError: true }).then((r) => r.data),
+    supprimer: (id) => supprimerMarque({ path: { id }, throwOnError: true }),
     proches: (libelle) =>
       listerMarquesProches({ query: { libelle }, throwOnError: true }).then(
         (r) => r.data
@@ -282,21 +281,22 @@ export const circuitsDistribution: ConfigListeSimple = {
       creerCircuitDistribution({ body, throwOnError: true }).then(
         (r) => r.data
       ),
-    modifier: (code, libelle) =>
+    modifier: (id, body) =>
       modifierCircuitDistribution({
-        path: { code },
-        body: { libelle },
+        path: { id },
+        body,
         throwOnError: true,
       }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverCircuitDistribution({
-        path: { code },
-        throwOnError: true,
-      }).then((r) => r.data),
-    reactiver: (code) =>
-      reactiverCircuitDistribution({ path: { code }, throwOnError: true }).then(
+    desactiver: (id) =>
+      desactiverCircuitDistribution({ path: { id }, throwOnError: true }).then(
         (r) => r.data
       ),
+    reactiver: (id) =>
+      reactiverCircuitDistribution({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    supprimer: (id) =>
+      supprimerCircuitDistribution({ path: { id }, throwOnError: true }),
   },
 }
 
@@ -315,21 +315,21 @@ export const produitsCommercialises: ConfigListeSimple = {
       creerProduitCommercialise({ body, throwOnError: true }).then(
         (r) => r.data
       ),
-    modifier: (code, libelle) =>
+    modifier: (id, body) =>
       modifierProduitCommercialise({
-        path: { code },
-        body: { libelle },
+        path: { id },
+        body,
         throwOnError: true,
       }).then((r) => r.data),
-    desactiver: (code) =>
-      desactiverProduitCommercialise({
-        path: { code },
-        throwOnError: true,
-      }).then((r) => r.data),
-    reactiver: (code) =>
-      reactiverProduitCommercialise({
-        path: { code },
-        throwOnError: true,
-      }).then((r) => r.data),
+    desactiver: (id) =>
+      desactiverProduitCommercialise({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    reactiver: (id) =>
+      reactiverProduitCommercialise({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    supprimer: (id) =>
+      supprimerProduitCommercialise({ path: { id }, throwOnError: true }),
   },
 }

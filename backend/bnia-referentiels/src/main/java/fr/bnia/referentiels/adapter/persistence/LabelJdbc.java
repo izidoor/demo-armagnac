@@ -19,15 +19,15 @@ class LabelJdbc extends ValeursSimplesJdbc<Label, LabelJdbc.Ligne> implements La
 
     @Override
     protected Ligne versLigne(Label valeur) {
-        return new Ligne(valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
+        return new Ligne(valeur.id(), valeur.code().valeur(), valeur.libelle().valeur(), valeur.estActif());
     }
 
     @Override
     protected Label versDomaine(Ligne ligne) {
-        return Label.reconstituer(Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
+        return Label.reconstituer(ligne.id(), Code.de(ligne.code()), Libelle.de(ligne.libelle()), ligne.actif());
     }
 
     @Table(schema = SCHEMA, name = "label")
-    record Ligne(@Id String code, String libelle, boolean actif) {
+    record Ligne(@Id Long id, String code, String libelle, boolean actif) {
     }
 }

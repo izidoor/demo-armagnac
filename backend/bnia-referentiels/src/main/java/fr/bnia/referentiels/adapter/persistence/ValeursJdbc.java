@@ -1,21 +1,21 @@
 package fr.bnia.referentiels.adapter.persistence;
 
+import fr.bnia.commun.domain.ElementUtilise;
 import fr.bnia.referentiels.application.ValeursRepository;
 import fr.bnia.referentiels.domain.Code;
 import fr.bnia.referentiels.domain.ValeurSimple;
+import java.sql.Types;
 import java.util.Optional;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
  * Écriture d'une liste de référentiel (ADR-004) : Spring Data JDBC pour l'agrégat, SQL direct pour
- * le contrôle d'unicité.
- *
- * <p>Le code est l'identifiant de la ligne : Spring Data ne peut pas deviner seul s'il s'agit d'une
- * création ou d'une mise à jour, d'où {@code insert} et {@code update} explicites.
+ * le contrôle d'unicité. L'identifiant est attribué par la base à l'insertion (ADR-011).
  *
  * @param <T> classe du domaine
- * @param <R> ligne persistée, dont l'identifiant est le code
+ * @param <R> ligne persistée
  */
 abstract class ValeursJdbc<T extends ValeurSimple, R> implements ValeursRepository<T> {
 
@@ -40,25 +40,42 @@ abstract class ValeursJdbc<T extends ValeurSimple, R> implements ValeursReposito
     protected abstract T versDomaine(R ligne);
 
     @Override
-    public Optional<T> parCode(Code code) {
-        return Optional.ofNullable(template.findById(code.valeur(), typeLigne)).map(this::versDomaine);
+    public Optional<T> parId(long id) {
+        return Optional.ofNullable(template.findById(id, typeLigne)).map(this::versDomaine);
     }
 
     @Override
-    public boolean existeCode(Code code) {
-        return jdbcClient.sql("select exists (select 1 from " + table + " where lower(code) = lower(:code))")
+    public boolean existeCode(Code code, Long sauf) {
+        return jdbcClient.sql("select exists (select 1 from " + table
+                        + " where lower(code) = lower(:code) and id is distinct from :sauf)")
                 .param("code", code.valeur())
+                .param("sauf", sauf, Types.BIGINT)
                 .query(Boolean.class)
                 .single();
     }
 
     @Override
-    public void inserer(T valeur) {
-        template.insert(versLigne(valeur));
+    public T inserer(T valeur) {
+        return versDomaine(template.insert(versLigne(valeur)));
     }
 
     @Override
     public void mettreAJour(T valeur) {
         template.update(versLigne(valeur));
+    }
+
+    @Override
+    public void supprimer(long id) {
+        try {
+            template.deleteById(id, typeLigne);
+        } catch (DataIntegrityViolationException utilisee) {
+            throw valeurUtilisee();
+        }
+    }
+
+    /** RG-REF-04 : une valeur référencée ailleurs (clé étrangère) se désactive, elle ne se supprime pas. */
+    static ElementUtilise valeurUtilisee() {
+        return new ElementUtilise("RG-REF-04",
+                "Cette valeur est utilisée par d'autres données : désactivez-la plutôt que de la supprimer.");
     }
 }

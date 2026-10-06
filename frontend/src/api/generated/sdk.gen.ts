@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerContenancesData, ListerContenancesResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierPaysData, ModifierPaysResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RetirerTauxTvaData, RetirerTauxTvaResponses } from './types.gen';
+import type { AjouterTauxTvaData, AjouterTauxTvaResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerContenancesData, ListerContenancesResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierPaysData, ModifierPaysResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -41,20 +41,25 @@ export const creerCentreInteret = <ThrowOnError extends boolean = false>(options
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerCentreInteret = <ThrowOnError extends boolean = false>(options: Options<SupprimerCentreInteretData, ThrowOnError>): RequestResult<SupprimerCentreInteretResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerCentreInteretResponses, unknown, ThrowOnError>({ url: '/api/referentiels/centres-interet/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterCentreInteret = <ThrowOnError extends boolean = false>(options: Options<ConsulterCentreInteretData, ThrowOnError>): RequestResult<ConsulterCentreInteretResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterCentreInteretResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/centres-interet/{code}',
+    url: '/api/referentiels/centres-interet/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierCentreInteret = <ThrowOnError extends boolean = false>(options: Options<ModifierCentreInteretData, ThrowOnError>): RequestResult<ModifierCentreInteretResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierCentreInteretResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/centres-interet/{code}',
+    url: '/api/referentiels/centres-interet/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -67,7 +72,7 @@ export const modifierCentreInteret = <ThrowOnError extends boolean = false>(opti
  */
 export const desactiverCentreInteret = <ThrowOnError extends boolean = false>(options: Options<DesactiverCentreInteretData, ThrowOnError>): RequestResult<DesactiverCentreInteretResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverCentreInteretResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/centres-interet/{code}/desactivation',
+    url: '/api/referentiels/centres-interet/{id}/desactivation',
     ...options
 });
 
@@ -76,7 +81,7 @@ export const desactiverCentreInteret = <ThrowOnError extends boolean = false>(op
  */
 export const reactiverCentreInteret = <ThrowOnError extends boolean = false>(options: Options<ReactiverCentreInteretData, ThrowOnError>): RequestResult<ReactiverCentreInteretResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverCentreInteretResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/centres-interet/{code}/reactivation',
+    url: '/api/referentiels/centres-interet/{id}/reactivation',
     ...options
 });
 
@@ -103,20 +108,25 @@ export const creerCircuitDistribution = <ThrowOnError extends boolean = false>(o
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerCircuitDistribution = <ThrowOnError extends boolean = false>(options: Options<SupprimerCircuitDistributionData, ThrowOnError>): RequestResult<SupprimerCircuitDistributionResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerCircuitDistributionResponses, unknown, ThrowOnError>({ url: '/api/referentiels/circuits-distribution/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterCircuitDistribution = <ThrowOnError extends boolean = false>(options: Options<ConsulterCircuitDistributionData, ThrowOnError>): RequestResult<ConsulterCircuitDistributionResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterCircuitDistributionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/circuits-distribution/{code}',
+    url: '/api/referentiels/circuits-distribution/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierCircuitDistribution = <ThrowOnError extends boolean = false>(options: Options<ModifierCircuitDistributionData, ThrowOnError>): RequestResult<ModifierCircuitDistributionResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierCircuitDistributionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/circuits-distribution/{code}',
+    url: '/api/referentiels/circuits-distribution/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -129,7 +139,7 @@ export const modifierCircuitDistribution = <ThrowOnError extends boolean = false
  */
 export const desactiverCircuitDistribution = <ThrowOnError extends boolean = false>(options: Options<DesactiverCircuitDistributionData, ThrowOnError>): RequestResult<DesactiverCircuitDistributionResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverCircuitDistributionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/circuits-distribution/{code}/desactivation',
+    url: '/api/referentiels/circuits-distribution/{id}/desactivation',
     ...options
 });
 
@@ -138,7 +148,7 @@ export const desactiverCircuitDistribution = <ThrowOnError extends boolean = fal
  */
 export const reactiverCircuitDistribution = <ThrowOnError extends boolean = false>(options: Options<ReactiverCircuitDistributionData, ThrowOnError>): RequestResult<ReactiverCircuitDistributionResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverCircuitDistributionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/circuits-distribution/{code}/reactivation',
+    url: '/api/referentiels/circuits-distribution/{id}/reactivation',
     ...options
 });
 
@@ -165,20 +175,25 @@ export const creerClasseTva = <ThrowOnError extends boolean = false>(options: Op
 });
 
 /**
+ * Supprimer une classe, avec ses taux, qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerClasseTva = <ThrowOnError extends boolean = false>(options: Options<SupprimerClasseTvaData, ThrowOnError>): RequestResult<SupprimerClasseTvaResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerClasseTvaResponses, unknown, ThrowOnError>({ url: '/api/referentiels/classes-tva/{id}', ...options });
+
+/**
  * Consulter une classe et ses taux, même inactive (RG-REF-13)
  */
 export const consulterClasseTva = <ThrowOnError extends boolean = false>(options: Options<ConsulterClasseTvaData, ThrowOnError>): RequestResult<ConsulterClasseTvaResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterClasseTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}',
+    url: '/api/referentiels/classes-tva/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierClasseTva = <ThrowOnError extends boolean = false>(options: Options<ModifierClasseTvaData, ThrowOnError>): RequestResult<ModifierClasseTvaResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierClasseTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}',
+    url: '/api/referentiels/classes-tva/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -191,7 +206,7 @@ export const modifierClasseTva = <ThrowOnError extends boolean = false>(options:
  */
 export const desactiverClasseTva = <ThrowOnError extends boolean = false>(options: Options<DesactiverClasseTvaData, ThrowOnError>): RequestResult<DesactiverClasseTvaResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverClasseTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}/desactivation',
+    url: '/api/referentiels/classes-tva/{id}/desactivation',
     ...options
 });
 
@@ -200,7 +215,7 @@ export const desactiverClasseTva = <ThrowOnError extends boolean = false>(option
  */
 export const reactiverClasseTva = <ThrowOnError extends boolean = false>(options: Options<ReactiverClasseTvaData, ThrowOnError>): RequestResult<ReactiverClasseTvaResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverClasseTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}/reactivation',
+    url: '/api/referentiels/classes-tva/{id}/reactivation',
     ...options
 });
 
@@ -209,7 +224,7 @@ export const reactiverClasseTva = <ThrowOnError extends boolean = false>(options
  */
 export const ajouterTauxTva = <ThrowOnError extends boolean = false>(options: Options<AjouterTauxTvaData, ThrowOnError>): RequestResult<AjouterTauxTvaResponses, unknown, ThrowOnError> => (options.client ?? client).post<AjouterTauxTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}/taux',
+    url: '/api/referentiels/classes-tva/{id}/taux',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -222,7 +237,7 @@ export const ajouterTauxTva = <ThrowOnError extends boolean = false>(options: Op
  */
 export const retirerTauxTva = <ThrowOnError extends boolean = false>(options: Options<RetirerTauxTvaData, ThrowOnError>): RequestResult<RetirerTauxTvaResponses, unknown, ThrowOnError> => (options.client ?? client).delete<RetirerTauxTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}/taux/{dateDebut}',
+    url: '/api/referentiels/classes-tva/{id}/taux/{dateDebut}',
     ...options
 });
 
@@ -231,7 +246,7 @@ export const retirerTauxTva = <ThrowOnError extends boolean = false>(options: Op
  */
 export const modifierTauxTva = <ThrowOnError extends boolean = false>(options: Options<ModifierTauxTvaData, ThrowOnError>): RequestResult<ModifierTauxTvaResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierTauxTvaResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/classes-tva/{code}/taux/{dateDebut}',
+    url: '/api/referentiels/classes-tva/{id}/taux/{dateDebut}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -262,20 +277,25 @@ export const creerContenance = <ThrowOnError extends boolean = false>(options: O
 });
 
 /**
+ * Supprimer une contenance qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerContenance = <ThrowOnError extends boolean = false>(options: Options<SupprimerContenanceData, ThrowOnError>): RequestResult<SupprimerContenanceResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerContenanceResponses, unknown, ThrowOnError>({ url: '/api/referentiels/contenances/{id}', ...options });
+
+/**
  * Consulter une contenance, active ou non
  */
 export const consulterContenance = <ThrowOnError extends boolean = false>(options: Options<ConsulterContenanceData, ThrowOnError>): RequestResult<ConsulterContenanceResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterContenanceResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/contenances/{volume}',
+    url: '/api/referentiels/contenances/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le volume est immuable (RG-REF-02)
+ * Modifier le volume et le libellé (RG-REF-02, RG-REF-10)
  */
 export const modifierContenance = <ThrowOnError extends boolean = false>(options: Options<ModifierContenanceData, ThrowOnError>): RequestResult<ModifierContenanceResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierContenanceResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/contenances/{volume}',
+    url: '/api/referentiels/contenances/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -288,7 +308,7 @@ export const modifierContenance = <ThrowOnError extends boolean = false>(options
  */
 export const desactiverContenance = <ThrowOnError extends boolean = false>(options: Options<DesactiverContenanceData, ThrowOnError>): RequestResult<DesactiverContenanceResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverContenanceResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/contenances/{volume}/desactivation',
+    url: '/api/referentiels/contenances/{id}/desactivation',
     ...options
 });
 
@@ -297,7 +317,7 @@ export const desactiverContenance = <ThrowOnError extends boolean = false>(optio
  */
 export const reactiverContenance = <ThrowOnError extends boolean = false>(options: Options<ReactiverContenanceData, ThrowOnError>): RequestResult<ReactiverContenanceResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverContenanceResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/contenances/{volume}/reactivation',
+    url: '/api/referentiels/contenances/{id}/reactivation',
     ...options
 });
 
@@ -324,20 +344,25 @@ export const creerLabel = <ThrowOnError extends boolean = false>(options: Option
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerLabel = <ThrowOnError extends boolean = false>(options: Options<SupprimerLabelData, ThrowOnError>): RequestResult<SupprimerLabelResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerLabelResponses, unknown, ThrowOnError>({ url: '/api/referentiels/labels/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterLabel = <ThrowOnError extends boolean = false>(options: Options<ConsulterLabelData, ThrowOnError>): RequestResult<ConsulterLabelResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterLabelResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/labels/{code}',
+    url: '/api/referentiels/labels/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierLabel = <ThrowOnError extends boolean = false>(options: Options<ModifierLabelData, ThrowOnError>): RequestResult<ModifierLabelResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierLabelResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/labels/{code}',
+    url: '/api/referentiels/labels/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -350,7 +375,7 @@ export const modifierLabel = <ThrowOnError extends boolean = false>(options: Opt
  */
 export const desactiverLabel = <ThrowOnError extends boolean = false>(options: Options<DesactiverLabelData, ThrowOnError>): RequestResult<DesactiverLabelResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverLabelResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/labels/{code}/desactivation',
+    url: '/api/referentiels/labels/{id}/desactivation',
     ...options
 });
 
@@ -359,7 +384,7 @@ export const desactiverLabel = <ThrowOnError extends boolean = false>(options: O
  */
 export const reactiverLabel = <ThrowOnError extends boolean = false>(options: Options<ReactiverLabelData, ThrowOnError>): RequestResult<ReactiverLabelResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverLabelResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/labels/{code}/reactivation',
+    url: '/api/referentiels/labels/{id}/reactivation',
     ...options
 });
 
@@ -386,20 +411,25 @@ export const creerLangue = <ThrowOnError extends boolean = false>(options: Optio
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerLangue = <ThrowOnError extends boolean = false>(options: Options<SupprimerLangueData, ThrowOnError>): RequestResult<SupprimerLangueResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerLangueResponses, unknown, ThrowOnError>({ url: '/api/referentiels/langues/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterLangue = <ThrowOnError extends boolean = false>(options: Options<ConsulterLangueData, ThrowOnError>): RequestResult<ConsulterLangueResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterLangueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/langues/{code}',
+    url: '/api/referentiels/langues/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierLangue = <ThrowOnError extends boolean = false>(options: Options<ModifierLangueData, ThrowOnError>): RequestResult<ModifierLangueResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierLangueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/langues/{code}',
+    url: '/api/referentiels/langues/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -412,7 +442,7 @@ export const modifierLangue = <ThrowOnError extends boolean = false>(options: Op
  */
 export const desactiverLangue = <ThrowOnError extends boolean = false>(options: Options<DesactiverLangueData, ThrowOnError>): RequestResult<DesactiverLangueResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverLangueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/langues/{code}/desactivation',
+    url: '/api/referentiels/langues/{id}/desactivation',
     ...options
 });
 
@@ -421,7 +451,7 @@ export const desactiverLangue = <ThrowOnError extends boolean = false>(options: 
  */
 export const reactiverLangue = <ThrowOnError extends boolean = false>(options: Options<ReactiverLangueData, ThrowOnError>): RequestResult<ReactiverLangueResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverLangueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/langues/{code}/reactivation',
+    url: '/api/referentiels/langues/{id}/reactivation',
     ...options
 });
 
@@ -457,20 +487,25 @@ export const listerMarquesProches = <ThrowOnError extends boolean = false>(optio
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerMarque = <ThrowOnError extends boolean = false>(options: Options<SupprimerMarqueData, ThrowOnError>): RequestResult<SupprimerMarqueResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerMarqueResponses, unknown, ThrowOnError>({ url: '/api/referentiels/marques/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterMarque = <ThrowOnError extends boolean = false>(options: Options<ConsulterMarqueData, ThrowOnError>): RequestResult<ConsulterMarqueResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterMarqueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/marques/{code}',
+    url: '/api/referentiels/marques/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierMarque = <ThrowOnError extends boolean = false>(options: Options<ModifierMarqueData, ThrowOnError>): RequestResult<ModifierMarqueResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierMarqueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/marques/{code}',
+    url: '/api/referentiels/marques/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -483,7 +518,7 @@ export const modifierMarque = <ThrowOnError extends boolean = false>(options: Op
  */
 export const desactiverMarque = <ThrowOnError extends boolean = false>(options: Options<DesactiverMarqueData, ThrowOnError>): RequestResult<DesactiverMarqueResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverMarqueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/marques/{code}/desactivation',
+    url: '/api/referentiels/marques/{id}/desactivation',
     ...options
 });
 
@@ -492,7 +527,7 @@ export const desactiverMarque = <ThrowOnError extends boolean = false>(options: 
  */
 export const reactiverMarque = <ThrowOnError extends boolean = false>(options: Options<ReactiverMarqueData, ThrowOnError>): RequestResult<ReactiverMarqueResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverMarqueResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/marques/{code}/reactivation',
+    url: '/api/referentiels/marques/{id}/reactivation',
     ...options
 });
 
@@ -519,20 +554,25 @@ export const creerPays = <ThrowOnError extends boolean = false>(options: Options
 });
 
 /**
+ * Supprimer un pays qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerPays = <ThrowOnError extends boolean = false>(options: Options<SupprimerPaysData, ThrowOnError>): RequestResult<SupprimerPaysResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerPaysResponses, unknown, ThrowOnError>({ url: '/api/referentiels/pays/{id}', ...options });
+
+/**
  * Consulter un pays, actif ou non
  */
 export const consulterPays = <ThrowOnError extends boolean = false>(options: Options<ConsulterPaysData, ThrowOnError>): RequestResult<ConsulterPaysResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterPaysResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/pays/{code}',
+    url: '/api/referentiels/pays/{id}',
     ...options
 });
 
 /**
- * Modifier un pays ; le code est immuable (RG-REF-02)
+ * Modifier un pays, code compris (RG-REF-01 à 03, 05 à 09)
  */
 export const modifierPays = <ThrowOnError extends boolean = false>(options: Options<ModifierPaysData, ThrowOnError>): RequestResult<ModifierPaysResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierPaysResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/pays/{code}',
+    url: '/api/referentiels/pays/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -545,7 +585,7 @@ export const modifierPays = <ThrowOnError extends boolean = false>(options: Opti
  */
 export const desactiverPays = <ThrowOnError extends boolean = false>(options: Options<DesactiverPaysData, ThrowOnError>): RequestResult<DesactiverPaysResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverPaysResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/pays/{code}/desactivation',
+    url: '/api/referentiels/pays/{id}/desactivation',
     ...options
 });
 
@@ -554,7 +594,7 @@ export const desactiverPays = <ThrowOnError extends boolean = false>(options: Op
  */
 export const reactiverPays = <ThrowOnError extends boolean = false>(options: Options<ReactiverPaysData, ThrowOnError>): RequestResult<ReactiverPaysResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverPaysResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/pays/{code}/reactivation',
+    url: '/api/referentiels/pays/{id}/reactivation',
     ...options
 });
 
@@ -581,20 +621,25 @@ export const creerProduitCommercialise = <ThrowOnError extends boolean = false>(
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerProduitCommercialise = <ThrowOnError extends boolean = false>(options: Options<SupprimerProduitCommercialiseData, ThrowOnError>): RequestResult<SupprimerProduitCommercialiseResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerProduitCommercialiseResponses, unknown, ThrowOnError>({ url: '/api/referentiels/produits-commercialises/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterProduitCommercialise = <ThrowOnError extends boolean = false>(options: Options<ConsulterProduitCommercialiseData, ThrowOnError>): RequestResult<ConsulterProduitCommercialiseResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterProduitCommercialiseResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/produits-commercialises/{code}',
+    url: '/api/referentiels/produits-commercialises/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierProduitCommercialise = <ThrowOnError extends boolean = false>(options: Options<ModifierProduitCommercialiseData, ThrowOnError>): RequestResult<ModifierProduitCommercialiseResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierProduitCommercialiseResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/produits-commercialises/{code}',
+    url: '/api/referentiels/produits-commercialises/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -607,7 +652,7 @@ export const modifierProduitCommercialise = <ThrowOnError extends boolean = fals
  */
 export const desactiverProduitCommercialise = <ThrowOnError extends boolean = false>(options: Options<DesactiverProduitCommercialiseData, ThrowOnError>): RequestResult<DesactiverProduitCommercialiseResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverProduitCommercialiseResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/produits-commercialises/{code}/desactivation',
+    url: '/api/referentiels/produits-commercialises/{id}/desactivation',
     ...options
 });
 
@@ -616,7 +661,7 @@ export const desactiverProduitCommercialise = <ThrowOnError extends boolean = fa
  */
 export const reactiverProduitCommercialise = <ThrowOnError extends boolean = false>(options: Options<ReactiverProduitCommercialiseData, ThrowOnError>): RequestResult<ReactiverProduitCommercialiseResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverProduitCommercialiseResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/produits-commercialises/{code}/reactivation',
+    url: '/api/referentiels/produits-commercialises/{id}/reactivation',
     ...options
 });
 
@@ -643,20 +688,25 @@ export const creerRegion = <ThrowOnError extends boolean = false>(options: Optio
 });
 
 /**
+ * Supprimer une région qu'aucune autre donnée n'utilise (RG-REF-04)
+ */
+export const supprimerRegion = <ThrowOnError extends boolean = false>(options: Options<SupprimerRegionData, ThrowOnError>): RequestResult<SupprimerRegionResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerRegionResponses, unknown, ThrowOnError>({ url: '/api/referentiels/regions/{id}', ...options });
+
+/**
  * Consulter une région, active ou non
  */
 export const consulterRegion = <ThrowOnError extends boolean = false>(options: Options<ConsulterRegionData, ThrowOnError>): RequestResult<ConsulterRegionResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterRegionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/regions/{code}',
+    url: '/api/referentiels/regions/{id}',
     ...options
 });
 
 /**
- * Modifier une région ; le code est immuable (RG-REF-02)
+ * Modifier une région, code compris (RG-REF-01 à 03)
  */
 export const modifierRegion = <ThrowOnError extends boolean = false>(options: Options<ModifierRegionData, ThrowOnError>): RequestResult<ModifierRegionResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierRegionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/regions/{code}',
+    url: '/api/referentiels/regions/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -669,7 +719,7 @@ export const modifierRegion = <ThrowOnError extends boolean = false>(options: Op
  */
 export const desactiverRegion = <ThrowOnError extends boolean = false>(options: Options<DesactiverRegionData, ThrowOnError>): RequestResult<DesactiverRegionResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverRegionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/regions/{code}/desactivation',
+    url: '/api/referentiels/regions/{id}/desactivation',
     ...options
 });
 
@@ -678,7 +728,7 @@ export const desactiverRegion = <ThrowOnError extends boolean = false>(options: 
  */
 export const reactiverRegion = <ThrowOnError extends boolean = false>(options: Options<ReactiverRegionData, ThrowOnError>): RequestResult<ReactiverRegionResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverRegionResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/regions/{code}/reactivation',
+    url: '/api/referentiels/regions/{id}/reactivation',
     ...options
 });
 
@@ -705,20 +755,25 @@ export const creerTitre = <ThrowOnError extends boolean = false>(options: Option
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerTitre = <ThrowOnError extends boolean = false>(options: Options<SupprimerTitreData, ThrowOnError>): RequestResult<SupprimerTitreResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerTitreResponses, unknown, ThrowOnError>({ url: '/api/referentiels/titres/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterTitre = <ThrowOnError extends boolean = false>(options: Options<ConsulterTitreData, ThrowOnError>): RequestResult<ConsulterTitreResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterTitreResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/titres/{code}',
+    url: '/api/referentiels/titres/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierTitre = <ThrowOnError extends boolean = false>(options: Options<ModifierTitreData, ThrowOnError>): RequestResult<ModifierTitreResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierTitreResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/titres/{code}',
+    url: '/api/referentiels/titres/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -731,7 +786,7 @@ export const modifierTitre = <ThrowOnError extends boolean = false>(options: Opt
  */
 export const desactiverTitre = <ThrowOnError extends boolean = false>(options: Options<DesactiverTitreData, ThrowOnError>): RequestResult<DesactiverTitreResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverTitreResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/titres/{code}/desactivation',
+    url: '/api/referentiels/titres/{id}/desactivation',
     ...options
 });
 
@@ -740,7 +795,7 @@ export const desactiverTitre = <ThrowOnError extends boolean = false>(options: O
  */
 export const reactiverTitre = <ThrowOnError extends boolean = false>(options: Options<ReactiverTitreData, ThrowOnError>): RequestResult<ReactiverTitreResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverTitreResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/titres/{code}/reactivation',
+    url: '/api/referentiels/titres/{id}/reactivation',
     ...options
 });
 
@@ -767,20 +822,25 @@ export const creerTypeVisite = <ThrowOnError extends boolean = false>(options: O
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerTypeVisite = <ThrowOnError extends boolean = false>(options: Options<SupprimerTypeVisiteData, ThrowOnError>): RequestResult<SupprimerTypeVisiteResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerTypeVisiteResponses, unknown, ThrowOnError>({ url: '/api/referentiels/types-visite/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterTypeVisite = <ThrowOnError extends boolean = false>(options: Options<ConsulterTypeVisiteData, ThrowOnError>): RequestResult<ConsulterTypeVisiteResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterTypeVisiteResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/types-visite/{code}',
+    url: '/api/referentiels/types-visite/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierTypeVisite = <ThrowOnError extends boolean = false>(options: Options<ModifierTypeVisiteData, ThrowOnError>): RequestResult<ModifierTypeVisiteResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierTypeVisiteResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/types-visite/{code}',
+    url: '/api/referentiels/types-visite/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -793,7 +853,7 @@ export const modifierTypeVisite = <ThrowOnError extends boolean = false>(options
  */
 export const desactiverTypeVisite = <ThrowOnError extends boolean = false>(options: Options<DesactiverTypeVisiteData, ThrowOnError>): RequestResult<DesactiverTypeVisiteResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverTypeVisiteResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/types-visite/{code}/desactivation',
+    url: '/api/referentiels/types-visite/{id}/desactivation',
     ...options
 });
 
@@ -802,7 +862,7 @@ export const desactiverTypeVisite = <ThrowOnError extends boolean = false>(optio
  */
 export const reactiverTypeVisite = <ThrowOnError extends boolean = false>(options: Options<ReactiverTypeVisiteData, ThrowOnError>): RequestResult<ReactiverTypeVisiteResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverTypeVisiteResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/types-visite/{code}/reactivation',
+    url: '/api/referentiels/types-visite/{id}/reactivation',
     ...options
 });
 
@@ -829,20 +889,25 @@ export const creerZoneCommerciale = <ThrowOnError extends boolean = false>(optio
 });
 
 /**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerZoneCommerciale = <ThrowOnError extends boolean = false>(options: Options<SupprimerZoneCommercialeData, ThrowOnError>): RequestResult<SupprimerZoneCommercialeResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerZoneCommercialeResponses, unknown, ThrowOnError>({ url: '/api/referentiels/zones-commerciales/{id}', ...options });
+
+/**
  * Consulter une valeur, active ou non
  */
 export const consulterZoneCommerciale = <ThrowOnError extends boolean = false>(options: Options<ConsulterZoneCommercialeData, ThrowOnError>): RequestResult<ConsulterZoneCommercialeResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterZoneCommercialeResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/zones-commerciales/{code}',
+    url: '/api/referentiels/zones-commerciales/{id}',
     ...options
 });
 
 /**
- * Modifier le libellé ; le code est immuable (RG-REF-02)
+ * Modifier le code et le libellé (RG-REF-01 à 03)
  */
 export const modifierZoneCommerciale = <ThrowOnError extends boolean = false>(options: Options<ModifierZoneCommercialeData, ThrowOnError>): RequestResult<ModifierZoneCommercialeResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierZoneCommercialeResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/zones-commerciales/{code}',
+    url: '/api/referentiels/zones-commerciales/{id}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -855,7 +920,7 @@ export const modifierZoneCommerciale = <ThrowOnError extends boolean = false>(op
  */
 export const desactiverZoneCommerciale = <ThrowOnError extends boolean = false>(options: Options<DesactiverZoneCommercialeData, ThrowOnError>): RequestResult<DesactiverZoneCommercialeResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverZoneCommercialeResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/zones-commerciales/{code}/desactivation',
+    url: '/api/referentiels/zones-commerciales/{id}/desactivation',
     ...options
 });
 
@@ -864,7 +929,7 @@ export const desactiverZoneCommerciale = <ThrowOnError extends boolean = false>(
  */
 export const reactiverZoneCommerciale = <ThrowOnError extends boolean = false>(options: Options<ReactiverZoneCommercialeData, ThrowOnError>): RequestResult<ReactiverZoneCommercialeResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverZoneCommercialeResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/referentiels/zones-commerciales/{code}/reactivation',
+    url: '/api/referentiels/zones-commerciales/{id}/reactivation',
     ...options
 });
 

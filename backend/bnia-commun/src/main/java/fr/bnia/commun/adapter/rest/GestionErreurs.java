@@ -2,6 +2,7 @@ package fr.bnia.commun.adapter.rest;
 
 import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ElementIntrouvable;
+import fr.bnia.commun.domain.ElementUtilise;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -19,6 +20,11 @@ class GestionErreurs {
     @ExceptionHandler(ConflitUnicite.class)
     ProblemDetail conflit(ConflitUnicite exception) {
         return probleme(HttpStatus.CONFLICT, "Conflit", exception);
+    }
+
+    @ExceptionHandler(ElementUtilise.class)
+    ProblemDetail utilise(ElementUtilise exception) {
+        return probleme(HttpStatus.CONFLICT, "Valeur utilisée", exception);
     }
 
     @ExceptionHandler(RegleEnfreinte.class)
