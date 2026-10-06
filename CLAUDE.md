@@ -8,7 +8,8 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - Les marqueurs `<!-- p.N -->` renvoient aux pages du PDF : les citer dans les specs.
 - Specs de travail : `docs/specs/NN-nom/spec.md`. Vocabulaire : `docs/glossaire.md`.
 - Décisions d'architecture : `docs/adr/`. Les respecter ; en cas de besoin de s'en écarter, proposer un nouvel ADR.
-- Contradiction ou ambiguïté dans le CDC : ne pas trancher, l'ajouter à `docs/questions-ouvertes.md`.
+- Contradiction ou ambiguïté dans le CDC : ne pas trancher seul. La soumettre avec des alternatives, puis
+  la consigner dans la spec du contexte concerné (hypothèses `H-xxx-n`, questions `Q-xxx-n`).
 
 ## Langue
 - Vocabulaire du domaine en français, sans accents dans les identifiants
@@ -30,7 +31,9 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - `bnia-boot` : seul module avec `@SpringBootApplication`, `application*.yml`, câblage,
   transactions, **tous les `*IT`** et les tests ArchUnit.
 - Un package par bounded context : `fr.bnia.<contexte>.<couche>`. Pas d'import direct entre contextes :
-  passer par des ports ou des événements.
+  passer par des ports ou des événements. Deux exceptions : `fr.bnia.commun.domain`, noyau de concepts
+  transverses (ADR-009), et la partie publiée en lecture de `referentiels`
+  (`fr.bnia.referentiels.*.partage`, ADR-008). Référence entre contextes par code métier.
 
 ## Persistance
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance

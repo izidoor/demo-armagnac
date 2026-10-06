@@ -12,13 +12,14 @@
 | Utilisateur BNIA | `UtilisateurBnia` | Compte interne du back-office, porteur d'un `Role`. Blocage 30 min après 3 échecs de connexion. | p.14, 17 |
 | Rôle | `Role` | Ensemble de `Droit` (module × action : Lecture, Écriture, Facturer, Générer, Gérer), composé librement par le BNIA. | p.14-17 |
 | Opérateur | `Operateur` | Producteur, négociant ou autre structure ayant une fiche dans le référentiel BNIA. Peut interagir avec le portail. | p.95 |
-| Type d'opérateur | `TypeOperateur` | `PRODUCTEUR` ou `NEGOCIANT` (plus d'éventuelles autres structures). Pilote la périodicité par défaut, les colonnes DSM saisissables, les DRM, l'assiette de cotisation et la forme du code. | p.18, 25, 28 |
+| Type d'opérateur | `TypeOperateur` | `PRODUCTEUR` ou `NEGOCIANT` (plus d'éventuelles autres structures). Pilote la périodicité par défaut, les colonnes DSM saisissables, les DRM, l'assiette de cotisation et la forme du code. Liste fermée du contexte `operateurs`, **pas** un référentiel administrable. Probablement l'ancien « type de tiers » d'InteGraal (Q-REF-1). | p.18, 25, 28, 101 |
 | Code opérateur BNIA | `CodeOperateur` | Négociant : `N` + n° de département + incrément sur 4 chiffres. Producteur : incrément sur 6 chiffres. Attribué automatiquement, unique. | p.21 |
 | Groupe opérateur | `GroupeOperateur` | Regroupe plusieurs fiches (chais) d'un même opérateur. | p.18 |
 | Contact | `Contact` | Personne rattachée à un opérateur ; peut avoir un accès portail. Porte des centres d'intérêt (comptabilité, marketing, production…). | p.20-21 |
 | Compte portail | `ComptePortail` | Identité de connexion d'un contact, unique par adresse email, rattachable à plusieurs comptes opérateur avec des droits propres à chacun. | p.60 |
 | Compte opérateur actif | `CompteOperateurActif` | Opérateur sélectionné dans la session portail ; toutes les données visibles sont filtrées dessus. | p.60-62 |
-| Destinataire | `Destinataire` | Tiers destinataire d'une vente export, rattaché à un pays. Référentiel distinct des opérateurs. | p.40-41 |
+| Destinataire | `Destinataire` | Tiers destinataire d'une vente export, rattaché à un pays, qualifié par un `TypeTiers`. Distinct des opérateurs ; vit dans le contexte `exportation`, pas dans `referentiels`. | p.40-41, 129 |
+| Type tiers | `TypeTiers` | Catégorie d'acteur d'un destinataire export (importateur, distributeur…). Liste administrable du contexte `exportation`. À ne pas confondre avec `TypeOperateur`. | p.53, 129-130 |
 
 ## 2. Produit et mesures
 
@@ -26,7 +27,7 @@
 |---|---|---|---|
 | Campagne de distillation | `Campagne` | Du 1er septembre N au 31 mars N+1. | p.94 |
 | Millésime | `Millesime` | Année de la campagne de distillation (campagne 2025/2026 → millésime 2025). | p.95, 98 |
-| Compte d'âge | `CompteDAge` | Âge commercial, incrémenté chaque 1er avril. Millésime N : `00` avant le 01/04/N+1, `0` jusqu'au 31/03/N+2, puis `1`, `2`… `00` et `0` sont deux valeurs distinctes (ce n'est donc pas un entier). Borne `20+` en DSM, sans borne en export. ⚠ | p.39, 98-99 |
+| Compte d'âge | `CompteDAge` | Concept partagé (`commun.domain`). Âge commercial, incrémenté chaque 1er avril. Millésime N : `00` avant le 01/04/N+1, `0` jusqu'au 31/03/N+2, puis `1`, `2`… `00` et `0` sont deux valeurs distinctes (ce n'est donc pas un entier). Borne `20+` en DSM, sans borne en export. ⚠ | p.39, 98-99 |
 | Assemblage | `Assemblage` | Mélange de plusieurs Armagnacs ; son compte d'âge est celui de l'eau-de-vie la plus jeune. | p.94 |
 | Mention commerciale | `MentionCommerciale` | Déduite du compte d'âge : `00` et `0` aucune ; `1` à `3` VS ou \*\*\* ; `4` à `9` VSOP ; `10`+ Hors d'Âge, Extra, Réserve. | p.99 |
 | Clé de conditionnement | `CleConditionnement` | `MB` millésime sous bois, `MV` millésime sous verre, `NB` assemblage sous bois, `NV` assemblage sous verre. | p.96 |
@@ -92,7 +93,34 @@
 | Avoir | `Avoir` | Manuel, ou sur tout ou partie d'une facture ; reprend le taux ou l'exonération de la facture d'origine. | p.46 |
 | État de règlement | `EtatReglement` | Statut de traitement/paiement restitué par Zeendoc d'après le n° de facture. Zeendoc n'est jamais la source de vérité des factures. | p.46, 83, 139 |
 
-## 8. Systèmes
+## 8. Référentiels
+
+Données administrées par le BNIA (contexte `referentiels`, spec 01). Aucune valeur n'est supprimée :
+une valeur **inactive** n'est plus proposée à la saisie mais reste affichée là où elle est utilisée.
+
+| Terme | Code | Définition | Réf. |
+|---|---|---|---|
+| Zone commerciale | `ZoneCommerciale` | Continent ou zone de rattachement d'un pays (Europe, Asie…), géographique. | p.52, 128 |
+| Pays | `Pays` | Code pays BNIA, code ISO alpha-2, libellé, zone commerciale, membre de l'UE, langue et niveau de détail du certificat export, âge minimum à l'export. | p.52, 128 |
+| Membre de l'UE | — | Indicateur du pays, distinct de sa zone : permet de distinguer l'UE du reste de l'Europe dans les statistiques. | p.47 |
+| Langue du certificat | `LangueCertificat` | `FR_EN`, `FR_ES` ou `FR_IT` : langues du texte de certification, selon le pays de destination. | p.42, 122 |
+| Niveau de détail du certificat | `NiveauDetailCertificat` | `CUMUL_DEGRE` (certificat simplifié : une ligne par degré), `DETAIL_COMPTE_AGE` ou `DETAIL_MILLESIME` (certificat détaillé), selon le pays de destination. | p.42, 123 |
+| Âge minimum à l'export | — | `CompteDAge` minimum attendu pour exporter vers un pays. Une vente plus jeune déclenche une alerte non bloquante (contexte `exportation`). | p.52, 128 |
+| Région | `Region` | Région métier de rattachement d'un opérateur, avec un indicateur « en région délimitée ». | p.52, 102, 129 |
+| Région délimitée | — | Aire de l'appellation Armagnac. Distingue les opérateurs « région Armagnac / hors région » et les flux de DSM en ou hors région délimitée. | p.24, 102 |
+| Contenance | `Contenance` | Volume reconnu d'un contenant, en litres (`BigDecimal`). Identifiée par son volume ; entre dans le calcul du volume d'alcool pur des ventes export. | p.40, 131 |
+| Classe de TVA | `ClasseTva` | Catégorie de taxe (code, libellé, active) portant un historique de taux. | p.52, 127 |
+| Taux de TVA | `TauxTva` | Taux d'une classe sur une période (début, fin facultative). Pas de chevauchement dans une classe. Figé sur les factures et avoirs qui l'appliquent. | p.52, 127 |
+| Marque | `Marque` | Marque commerciale exploitée par un opérateur (portée France ou Export sur la fiche). Créable depuis la fiche opérateur, au back-office comme au portail ; libellé unique à la casse et aux accents près. | p.19, 131 |
+| Circuit de distribution | `CircuitDistribution` | Canal de vente des marques d'un opérateur. | p.19, 131 |
+| Produit commercialisé | `ProduitCommercialise` | Type de produit proposé par un opérateur (Armagnac, Blanche, Floc…). Ne pas confondre avec le produit de facturation ni le produit boutique. | p.20, 131 |
+| Titre | `Titre` | Civilité ou forme d'appel (fiches, contacts, destinataires). | p.53, 129 |
+| Label | `Label` | Label ou distinction touristique d'un opérateur. | p.19, 130 |
+| Type de visite | `TypeVisite` | Visite ou prestation d'accueil proposée par un opérateur. | p.19, 130 |
+| Langue | `Langue` | Langue parlée à l'accueil d'un opérateur. Sans rapport avec la langue du certificat. | p.20, 130 |
+| Centre d'intérêt | `CentreInteret` | Domaine d'activité d'un contact (comptabilité, marketing, production), pour cibler les communications. | p.21, 130 |
+
+## 9. Systèmes
 
 | Système | Rôle dans la cible |
 |---|---|
