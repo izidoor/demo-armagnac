@@ -1,7 +1,9 @@
 package fr.bnia.operateurs.adapter.rest;
 
 import fr.bnia.operateurs.application.FiltreOperateurs;
+import fr.bnia.operateurs.application.GererContacts;
 import fr.bnia.operateurs.application.GererOperateurs;
+import fr.bnia.operateurs.domain.Canal;
 import fr.bnia.operateurs.domain.CodeOperateur;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
@@ -31,9 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 class OperateurController {
 
     private final GererOperateurs gerer;
+    private final GererContacts contacts;
 
-    OperateurController(GererOperateurs gerer) {
+    OperateurController(GererOperateurs gerer, GererContacts contacts) {
         this.gerer = gerer;
+        this.contacts = contacts;
     }
 
     @GetMapping
@@ -112,6 +116,13 @@ class OperateurController {
         return reponse(gerer.modifierDiffusion(id, requete.versSaisie()));
     }
 
+    @PutMapping("/{id}/designations")
+    @Operation(operationId = "designerContactsOperateur",
+            summary = "Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24)")
+    FicheOperateurResponse designer(@PathVariable long id, @RequestBody SaisieDesignationsRequest requete) {
+        return reponse(contacts.designer(id, requete.versSaisie(), Canal.BACK_OFFICE));
+    }
+
     @PostMapping("/{id}/nouveau-code")
     @Operation(operationId = "attribuerNouveauCodeOperateur", summary = "Attribuer le code proposé pour le type et le code postal actuels (RG-OPE-05)")
     FicheOperateurResponse attribuerNouveauCode(@PathVariable long id) {
@@ -119,7 +130,8 @@ class OperateurController {
     }
 
     @PostMapping("/{id}/desactivation")
-    @Operation(operationId = "desactiverOperateur", summary = "Désactiver un opérateur : consultable, plus proposé (RG-OPE-26)")
+    @Operation(operationId = "desactiverOperateur",
+            summary = "Désactiver un opérateur : consultable, plus proposé ; ses contacts perdent l'accès au portail (RG-OPE-26)")
     FicheOperateurResponse desactiver(@PathVariable long id) {
         return reponse(gerer.desactiver(id));
     }

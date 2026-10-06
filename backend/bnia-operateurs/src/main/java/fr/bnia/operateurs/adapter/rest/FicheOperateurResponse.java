@@ -61,6 +61,11 @@ public record FicheOperateurResponse(
         List<Integer> millesimesDiffusables,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean accesStatistiques,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean actif,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Triés par nom") List<ContactLigneResponse> contacts,
+        @Schema(description = "Identifiant du contact principal (RG-OPE-22)") Long contactPrincipal,
+        @Schema(description = "Identifiant du contact destinataire des factures (RG-OPE-23)") Long destinataireFacturesContact,
+        @Schema(description = "Adresse saisie du destinataire des factures (RG-OPE-23)") String destinataireFacturesEmail,
+        @Schema(description = "Adresse qui en résulte, lue par la facturation (RG-OPE-23)") String emailFacturation,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète")
         List<String> champsManquants,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Faux si le code n'a plus la forme de son type ou de son département (RG-OPE-05)")
@@ -86,7 +91,12 @@ public record FicheOperateurResponse(
                         .map(al -> new AlambicResponse(al.numeroAgrement(), al.type(), al.capacite())).toList(),
                 o.production().detenteurAlambic(), o.diffusion().niveau(),
                 o.diffusion().millesimes().stream().map(Millesime::annee).toList(), o.accesStatistiques(),
-                o.estActif(), fiche.champsManquants(), fiche.codeConforme(),
+                o.estActif(), o.contacts().stream().map(ContactLigneResponse::depuis).toList(),
+                o.contactPrincipal().orElse(null),
+                o.destinataireFactures().map(d -> d.contact()).orElse(null),
+                o.destinataireFactures().map(d -> texte(d.adresse())).orElse(null),
+                o.emailFacturation().map(e -> e.valeur()).orElse(null),
+                fiche.champsManquants(), fiche.codeConforme(),
                 fiche.codePropose().map(CodeOperateur::valeur).orElse(null),
                 fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList());
     }

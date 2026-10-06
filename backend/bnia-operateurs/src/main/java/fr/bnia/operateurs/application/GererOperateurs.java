@@ -5,6 +5,7 @@ import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.operateurs.domain.Adresse;
+import fr.bnia.operateurs.domain.Canal;
 import fr.bnia.operateurs.domain.Alambic;
 import fr.bnia.operateurs.domain.CodeOperateur;
 import fr.bnia.operateurs.domain.CoordonneesGps;
@@ -23,6 +24,7 @@ import fr.bnia.operateurs.domain.Textes;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.PaysVue;
+import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,13 +45,16 @@ public class GererOperateurs {
     private final ListingOperateurs listing;
     private final NumerotationLecture numerotation;
     private final ReferentielsLecture referentiels;
+    private final Enregistreur enregistreur;
 
     public GererOperateurs(OperateurRepository repository, ListingOperateurs listing,
-            NumerotationLecture numerotation, ReferentielsLecture referentiels) {
+            NumerotationLecture numerotation, ReferentielsLecture referentiels, JournalContacts journal,
+            PublicationEvenements publication, Clock horloge) {
         this.repository = repository;
         this.listing = listing;
         this.numerotation = numerotation;
         this.referentiels = referentiels;
+        this.enregistreur = new Enregistreur(repository, journal, publication, referentiels, horloge);
     }
 
     public List<OperateurLigne> lister(FiltreOperateurs filtre) {
@@ -108,7 +113,7 @@ public class GererOperateurs {
         verifierReferences(identite, operateur.identite());
         operateur.modifierIdentite(saisie.type(), CodeOperateur.de(saisie.code()), identite);
         verifierUnicite(operateur, id);
-        repository.mettreAJour(operateur);
+        enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
     }
 
@@ -123,7 +128,7 @@ public class GererOperateurs {
         operateur.modifierProduction(
                 new Declaratif(saisie.periodicite(), saisie.statutDeclarationStock()),
                 new Production(saisie.region(), saisie.appellations(), alambics));
-        repository.mettreAJour(operateur);
+        enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
     }
 
@@ -132,7 +137,7 @@ public class GererOperateurs {
         Operateur operateur = consulter(id);
         operateur.modifierDiffusion(DiffusionMillesimes.saisie(saisie.niveau(), saisie.millesimes()));
         operateur.modifierAccesStatistiques(saisie.accesStatistiques());
-        repository.mettreAJour(operateur);
+        enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
     }
 
@@ -145,22 +150,25 @@ public class GererOperateurs {
                         "Aucun code ne peut être proposé : un négociant a besoin d'un code postal français."));
         operateur.recoder(code);
         verifierUnicite(operateur, id);
-        repository.mettreAJour(operateur);
+        enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
     }
 
-    /** RG-OPE-26 : reste consultable, n'est plus proposé. */
+    /**
+     * RG-OPE-26 : reste consultable, n'est plus proposé ; ses contacts perdent l'accès au portail
+     * (événements « accès portail retiré »).
+     */
     public Operateur desactiver(long id) {
         Operateur operateur = consulter(id);
         operateur.desactiver();
-        repository.mettreAJour(operateur);
+        enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
     }
 
     public Operateur reactiver(long id) {
         Operateur operateur = consulter(id);
         operateur.reactiver();
-        repository.mettreAJour(operateur);
+        enregistreur.enregistrer(operateur, Canal.BACK_OFFICE);
         return operateur;
     }
 

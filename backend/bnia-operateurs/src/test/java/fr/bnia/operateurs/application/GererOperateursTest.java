@@ -18,6 +18,7 @@ import fr.bnia.referentiels.domain.partage.NiveauDetailCertificat;
 import fr.bnia.referentiels.domain.partage.PaysVue;
 import fr.bnia.referentiels.domain.partage.RegionVue;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +35,8 @@ class GererOperateursTest {
 
     private final OperateursEnMemoire memoire = new OperateursEnMemoire();
     private final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
-    private final GererOperateurs gerer = new GererOperateurs(memoire, memoire, memoire, referentiels);
+    private final GererOperateurs gerer = new GererOperateurs(memoire, memoire, memoire, referentiels,
+            new JournalEnMemoire(), new EvenementsCaptures(), Clock.systemUTC());
 
     @BeforeEach
     void referentiels() {

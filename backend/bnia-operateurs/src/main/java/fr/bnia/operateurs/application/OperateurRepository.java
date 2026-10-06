@@ -1,7 +1,9 @@
 package fr.bnia.operateurs.application;
 
 import fr.bnia.operateurs.domain.CodeOperateur;
+import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.Operateur;
+import java.util.List;
 import java.util.Optional;
 
 /** Charge et enregistre l'agrégat {@code Operateur} d'un bloc (ADR-004, ADR-012). */
@@ -23,6 +25,9 @@ public interface OperateurRepository {
 
     /** RG-OPE-04 : sans distinction de casse ; {@code sauf} exclut l'opérateur modifié. */
     boolean existeCode(CodeOperateur code, Long sauf);
+
+    /** RG-OPE-32 : les opérateurs dont un contact porte cet e-mail, à la casse près. */
+    List<Operateur> avecEmailDeContact(Email email);
 
     /** RG-OPE-07 : sans distinction de casse ; {@code sauf} exclut l'opérateur modifié. */
     boolean existeIdentifiantOdg(String identifiantOdg, Long sauf);

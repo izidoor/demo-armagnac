@@ -23,11 +23,12 @@ import java.util.function.Function;
  * Opérateurs en mémoire, pour les tests de cas d'usage. Attribue les identifiants à l'insertion, comme
  * la base ; {@link #utilises} simule les clés étrangères des autres contextes (RG-OPE-25).
  */
-class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, NumerotationLecture {
+class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, NumerotationLecture, IdentifiantsContacts {
 
     final Map<Long, Operateur> operateurs = new LinkedHashMap<>();
     final Set<Long> utilises = new HashSet<>();
     private long prochainId = 1;
+    private long prochainContact = 100;
 
     @Override
     public Optional<Operateur> parId(long id) {
@@ -37,7 +38,8 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
     @Override
     public Operateur inserer(Operateur o) {
         Operateur enregistre = Operateur.reconstituer(prochainId++, o.type(), o.code(), o.identite(), o.declaratif(),
-                o.production(), o.diffusion(), o.accesStatistiques(), o.estActif());
+                o.production(), o.diffusion(), o.accesStatistiques(), o.estActif(), o.contacts(),
+                o.contactPrincipal().orElse(null), o.destinataireFactures().orElse(null));
         operateurs.put(enregistre.id(), enregistre);
         return enregistre;
     }
@@ -53,6 +55,19 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
             throw new ElementUtilise("RG-OPE-25", "Opérateur utilisé.");
         }
         operateurs.remove(id);
+    }
+
+    @Override
+    public List<Operateur> avecEmailDeContact(fr.bnia.operateurs.domain.Email email) {
+        return operateurs.values().stream()
+                .filter(o -> o.contacts().stream().anyMatch(c -> c.identite().email() != null
+                        && c.identite().email().cle().equals(email.cle())))
+                .toList();
+    }
+
+    @Override
+    public long prochain() {
+        return prochainContact++;
     }
 
     @Override

@@ -10,6 +10,12 @@ export type Alambic = {
     type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
 };
 
+export type ChangementContact = {
+    apres?: string;
+    avant?: string;
+    champ: string;
+};
+
 /**
  * Classe de TVA avec l'historique de ses taux
  */
@@ -51,6 +57,60 @@ export type CodePropose = {
      * Absent : aucun code ne peut être proposé (négociant sans code postal français)
      */
     code?: string;
+};
+
+/**
+ * Un contact, ses droits au portail et ses désignations
+ */
+export type Contact = {
+    acces: boolean;
+    actif: boolean;
+    administrateur: boolean;
+    adresse?: string;
+    /**
+     * Identifiants des centres d'intérêt
+     */
+    centresInteret: Array<number>;
+    codePostal?: string;
+    contactPrincipal: boolean;
+    destinataireFactures: boolean;
+    email?: string;
+    /**
+     * L'e-mail est l'identifiant d'un compte : seule la personne le change (RG-OPE-32)
+     */
+    emailVerrouille: boolean;
+    fonction?: string;
+    id: number;
+    modules: Array<'DSM' | 'CONTRATS_ARMAGNAC' | 'PLURIANNUELS_ARMAGNAC' | 'PROPOSITIONS_ARMAGNAC' | 'CONTRATS_VIN' | 'PLURIANNUELS_VIN' | 'PROPOSITIONS_VIN' | 'FINS_DE_TRAVAUX' | 'BOUTIQUE' | 'FACTURES' | 'CERTIFICATS_EXPORT' | 'STATISTIQUES'>;
+    nom: string;
+    nomComplet: string;
+    observation?: string;
+    /**
+     * Identifiant du pays
+     */
+    pays?: number;
+    prenom?: string;
+    telephoneProfessionnel?: string;
+    telephoneSecondaire?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    ville?: string;
+};
+
+/**
+ * Ligne de l'onglet Contacts
+ */
+export type ContactLigne = {
+    acces: boolean;
+    actif: boolean;
+    administrateur: boolean;
+    email?: string;
+    fonction?: string;
+    id: number;
+    nomComplet: string;
+    telephone?: string;
 };
 
 export type Contenance = {
@@ -112,11 +172,31 @@ export type FicheOperateur = {
      */
     codePropose?: string;
     commentaireInterne?: string;
+    /**
+     * Identifiant du contact principal (RG-OPE-22)
+     */
+    contactPrincipal?: number;
+    /**
+     * Triés par nom
+     */
+    contacts: Array<ContactLigne>;
     cvi?: string;
+    /**
+     * Identifiant du contact destinataire des factures (RG-OPE-23)
+     */
+    destinataireFacturesContact?: number;
+    /**
+     * Adresse saisie du destinataire des factures (RG-OPE-23)
+     */
+    destinataireFacturesEmail?: string;
     /**
      * Calculé : au moins un alambic (RG-OPE-13)
      */
     detenteurAlambic: boolean;
+    /**
+     * Adresse qui en résulte, lue par la facturation (RG-OPE-23)
+     */
+    emailFacturation?: string;
     emailGeneral?: string;
     groupe?: string;
     id: number;
@@ -172,6 +252,17 @@ export type InfoSysteme = {
     application: string;
     version: string;
     versionBase: string;
+};
+
+/**
+ * Entrée du journal d'un contact (RG-OPE-34)
+ */
+export type LigneJournalContact = {
+    action: 'CREATION' | 'MODIFICATION' | 'DESACTIVATION' | 'REACTIVATION' | 'SUPPRESSION' | 'ACCES_ACCORDE' | 'ACCES_RETIRE' | 'DROITS_MODIFIES';
+    auteur: string;
+    changements: Array<ChangementContact>;
+    date: string;
+    nomContact: string;
 };
 
 /**
@@ -242,6 +333,37 @@ export type SaisieAlambic = {
 };
 
 /**
+ * Création ou modification d'un contact (C.1.9.1)
+ */
+export type SaisieContact = {
+    adresse?: string;
+    /**
+     * Identifiants des centres d'intérêt
+     */
+    centresInteret?: Array<number>;
+    codePostal?: string;
+    /**
+     * Unique dans l'opérateur (RG-OPE-28) ; non modifiable s'il est l'identifiant d'un compte (RG-OPE-32)
+     */
+    email?: string;
+    fonction?: string;
+    nom: string;
+    observation?: string;
+    /**
+     * Identifiant du pays
+     */
+    pays?: number;
+    prenom?: string;
+    telephoneProfessionnel?: string;
+    telephoneSecondaire?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    ville?: string;
+};
+
+/**
  * Création ou modification d'une contenance, volume compris
  */
 export type SaisieContenance = {
@@ -253,6 +375,24 @@ export type SaisieContenance = {
      * En litres, trois décimales au plus
      */
     volume: number;
+};
+
+/**
+ * Contact principal et destinataire des factures (RG-OPE-22, 23)
+ */
+export type SaisieDesignations = {
+    /**
+     * Identifiant d'un contact actif ; absent : aucun
+     */
+    contactPrincipal?: number;
+    /**
+     * Identifiant d'un contact actif avec un e-mail
+     */
+    destinataireFacturesContact?: number;
+    /**
+     * Adresse saisie, si le destinataire n'est pas un contact
+     */
+    destinataireFacturesEmail?: string;
 };
 
 /**
@@ -268,6 +408,24 @@ export type SaisieDiffusion = {
      */
     millesimes?: Array<number>;
     niveau: 'REFUS' | 'PARTIEL' | 'TOTAL';
+};
+
+/**
+ * Droits d'un contact au portail (C.1.9.2)
+ */
+export type SaisieDroits = {
+    /**
+     * Exige un e-mail (RG-OPE-29)
+     */
+    acces: boolean;
+    /**
+     * Exige l'accès ; donne tous les modules (RG-OPE-30)
+     */
+    administrateur: boolean;
+    /**
+     * Ignorés sans accès (RG-OPE-31)
+     */
+    modules?: Array<'DSM' | 'CONTRATS_ARMAGNAC' | 'PLURIANNUELS_ARMAGNAC' | 'PROPOSITIONS_ARMAGNAC' | 'CONTRATS_VIN' | 'PLURIANNUELS_VIN' | 'PROPOSITIONS_VIN' | 'FINS_DE_TRAVAUX' | 'BOUTIQUE' | 'FACTURES' | 'CERTIFICATS_EXPORT' | 'STATISTIQUES'>;
 };
 
 /**
@@ -613,6 +771,24 @@ export type DesactiverOperateurResponses = {
 
 export type DesactiverOperateurResponse = DesactiverOperateurResponses[keyof DesactiverOperateurResponses];
 
+export type DesignerContactsOperateurData = {
+    body: SaisieDesignations;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/designations';
+};
+
+export type DesignerContactsOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type DesignerContactsOperateurResponse = DesignerContactsOperateurResponses[keyof DesignerContactsOperateurResponses];
+
 export type ModifierDiffusionOperateurData = {
     body: SaisieDiffusion;
     path: {
@@ -702,6 +878,157 @@ export type ReactiverOperateurResponses = {
 };
 
 export type ReactiverOperateurResponse = ReactiverOperateurResponses[keyof ReactiverOperateurResponses];
+
+export type CreerContactData = {
+    body: SaisieContact;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts';
+};
+
+export type CreerContactResponses = {
+    /**
+     * Created
+     */
+    201: Contact;
+};
+
+export type CreerContactResponse = CreerContactResponses[keyof CreerContactResponses];
+
+export type SupprimerContactData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}';
+};
+
+export type SupprimerContactResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerContactResponse = SupprimerContactResponses[keyof SupprimerContactResponses];
+
+export type ConsulterContactData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}';
+};
+
+export type ConsulterContactResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ConsulterContactResponse = ConsulterContactResponses[keyof ConsulterContactResponses];
+
+export type ModifierContactData = {
+    body: SaisieContact;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}';
+};
+
+export type ModifierContactResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ModifierContactResponse = ModifierContactResponses[keyof ModifierContactResponses];
+
+export type DesactiverContactData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}/desactivation';
+};
+
+export type DesactiverContactResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type DesactiverContactResponse = DesactiverContactResponses[keyof DesactiverContactResponses];
+
+export type ConsulterJournalContactData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}/journal';
+};
+
+export type ConsulterJournalContactResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneJournalContact>;
+};
+
+export type ConsulterJournalContactResponse = ConsulterJournalContactResponses[keyof ConsulterJournalContactResponses];
+
+export type ModifierDroitsContactData = {
+    body: SaisieDroits;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}/portail';
+};
+
+export type ModifierDroitsContactResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ModifierDroitsContactResponse = ModifierDroitsContactResponses[keyof ModifierDroitsContactResponses];
+
+export type ReactiverContactData = {
+    body?: never;
+    path: {
+        operateur: number;
+        contact: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contacts/{contact}/reactivation';
+};
+
+export type ReactiverContactResponses = {
+    /**
+     * OK
+     */
+    200: Contact;
+};
+
+export type ReactiverContactResponse = ReactiverContactResponses[keyof ReactiverContactResponses];
 
 export type ListerCentresInteretData = {
     body?: never;
