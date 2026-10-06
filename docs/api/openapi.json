@@ -9,6 +9,9 @@
     "url" : "/"
   } ],
   "tags" : [ {
+    "description" : "Opérateurs : fiche, identité, code (§4.3, C.1.1)",
+    "name" : "operateurs"
+  }, {
     "description" : "Référentiel : zones commerciales, continents (C.10.4)",
     "name" : "zones-commerciales"
   }, {
@@ -55,6 +58,423 @@
     "name" : "membres-bnia"
   } ],
   "paths" : {
+    "/api/operateurs" : {
+      "get" : {
+        "operationId" : "listerOperateurs",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          }
+        }, {
+          "description" : "Contient",
+          "in" : "query",
+          "name" : "code",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Contient",
+          "in" : "query",
+          "name" : "raisonSociale",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Contient",
+          "in" : "query",
+          "name" : "nomCommercial",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Commence par",
+          "in" : "query",
+          "name" : "codePostal",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Contient",
+          "in" : "query",
+          "name" : "ville",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Absent : actifs et inactifs",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Vrai : fiches incomplètes seulement (RG-OPE-02)",
+          "in" : "query",
+          "name" : "incomplet",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/OperateurLigne"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les opérateurs, triés par raison sociale (§4.3.1)",
+        "tags" : [ "operateurs" ]
+      },
+      "post" : {
+        "operationId" : "creerOperateur",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieOperateur"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer un opérateur ; sans code saisi, le code proposé (RG-OPE-01 à 08, 20, 21, 24)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/code-propose" : {
+      "get" : {
+        "operationId" : "proposerCodeOperateur",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "type",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "codePostal",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Identifiant du pays ; absent : la France",
+          "in" : "query",
+          "name" : "pays",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CodePropose"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Code proposé pour un type et un code postal (RG-OPE-03)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/doublons" : {
+      "get" : {
+        "operationId" : "listerDoublonsOperateur",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "raisonSociale",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cvi",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "siret",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "accise",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Opérateur en cours de modification, à exclure",
+          "in" : "query",
+          "name" : "sauf",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/Doublon"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Fiches qui portent déjà la raison sociale, le CVI, le SIRET ou le n° d'accise saisis (RG-OPE-06, 08)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/groupes" : {
+      "get" : {
+        "operationId" : "listerGroupesOperateurs",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Groupes existants, proposés à la saisie (RG-OPE-09)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer un opérateur que rien ne référence (RG-OPE-25)",
+        "tags" : [ "operateurs" ]
+      },
+      "get" : {
+        "operationId" : "consulterOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter la fiche d'un opérateur, actif ou non",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver un opérateur : consultable, plus proposé (RG-OPE-26)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/identite" : {
+      "put" : {
+        "operationId" : "modifierIdentiteOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieOperateur"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier l'identité, type et code compris ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/nouveau-code" : {
+      "post" : {
+        "operationId" : "attribuerNouveauCodeOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Attribuer le code proposé pour le type et le code postal actuels (RG-OPE-05)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver un opérateur (RG-OPE-26)",
+        "tags" : [ "operateurs" ]
+      }
+    },
     "/api/referentiels/centres-interet" : {
       "get" : {
         "operationId" : "listerCentresInteret",
@@ -3163,6 +3583,16 @@
         },
         "required" : [ "actif", "code", "id", "libelle" ]
       },
+      "CodePropose" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "Absent : aucun code ne peut être proposé (négociant sans code postal français)",
+            "example" : "N320004"
+          }
+        }
+      },
       "Contenance" : {
         "type" : "object",
         "properties" : {
@@ -3191,6 +3621,152 @@
         },
         "required" : [ "actif", "id", "libelle", "volume" ]
       },
+      "Doublon" : {
+        "type" : "object",
+        "description" : "Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)",
+        "properties" : {
+          "champ" : {
+            "type" : "string",
+            "enum" : [ "RAISON_SOCIALE", "CVI", "SIRET", "ACCISE" ]
+          },
+          "operateur" : {
+            "$ref" : "#/components/schemas/OperateurResume"
+          },
+          "regle" : {
+            "type" : "string",
+            "example" : "RG-OPE-06"
+          }
+        },
+        "required" : [ "champ", "operateur", "regle" ]
+      },
+      "FicheOperateur" : {
+        "type" : "object",
+        "description" : "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)",
+        "properties" : {
+          "accise" : {
+            "type" : "string"
+          },
+          "accordDiffusionGeneral" : {
+            "type" : "boolean"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "adresseLigne1" : {
+            "type" : "string"
+          },
+          "adresseLigne2" : {
+            "type" : "string"
+          },
+          "adresseLigne3" : {
+            "type" : "string"
+          },
+          "autresDuGroupe" : {
+            "type" : "array",
+            "description" : "Autres fiches du même groupe (RG-OPE-09)",
+            "items" : {
+              "$ref" : "#/components/schemas/OperateurResume"
+            }
+          },
+          "bureauDouanes" : {
+            "type" : "string"
+          },
+          "champsManquants" : {
+            "type" : "array",
+            "description" : "Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "000012"
+          },
+          "codeConforme" : {
+            "type" : "boolean",
+            "description" : "Faux si le code n'a plus la forme de son type ou de son département (RG-OPE-05)"
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "codePropose" : {
+            "type" : "string",
+            "description" : "Si le code n'est plus conforme : le code qu'« attribuer un nouveau code » donnerait"
+          },
+          "commentaireInterne" : {
+            "type" : "string"
+          },
+          "cvi" : {
+            "type" : "string"
+          },
+          "emailGeneral" : {
+            "type" : "string"
+          },
+          "groupe" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "identifiantOdg" : {
+            "type" : "string"
+          },
+          "latitude" : {
+            "type" : "number"
+          },
+          "longitude" : {
+            "type" : "number"
+          },
+          "membreBnia" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du membre BNIA"
+          },
+          "nomCommercial" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du pays"
+          },
+          "portable" : {
+            "type" : "string"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "siret" : {
+            "type" : "string"
+          },
+          "siteCommercial" : {
+            "type" : "string"
+          },
+          "siteWeb" : {
+            "type" : "string"
+          },
+          "telephone1" : {
+            "type" : "string"
+          },
+          "telephone2" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "accordDiffusionGeneral", "actif", "autresDuGroupe", "champsManquants", "code", "codeConforme", "id", "raisonSociale", "type" ]
+      },
       "InfoSysteme" : {
         "type" : "object",
         "description" : "Identification de l'application et de la base qui la sert",
@@ -3209,6 +3785,75 @@
           }
         },
         "required" : [ "application", "version", "versionBase" ]
+      },
+      "OperateurLigne" : {
+        "type" : "object",
+        "description" : "Ligne du listing des opérateurs",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "000012"
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "emailGeneral" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "incomplet" : {
+            "type" : "boolean",
+            "description" : "Fiche incomplète (RG-OPE-02)"
+          },
+          "nomCommercial" : {
+            "type" : "string"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "telephone1" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "actif", "code", "id", "incomplet", "raisonSociale", "type" ]
+      },
+      "OperateurResume" : {
+        "type" : "object",
+        "description" : "Désignation courte d'une autre fiche",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "000007"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "raisonSociale" : {
+            "type" : "string",
+            "example" : "Domaine du Tariquet"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "actif", "code", "id", "raisonSociale" ]
       },
       "Pays" : {
         "type" : "object",
@@ -3298,6 +3943,122 @@
           }
         },
         "required" : [ "volume" ]
+      },
+      "SaisieOperateur" : {
+        "type" : "object",
+        "description" : "Création d'un opérateur, ou modification de son identité (onglet Général) ; tout se corrige, code compris",
+        "properties" : {
+          "accise" : {
+            "type" : "string",
+            "example" : "FR012345E6789"
+          },
+          "accordDiffusionGeneral" : {
+            "type" : "boolean"
+          },
+          "adresseLigne1" : {
+            "type" : "string"
+          },
+          "adresseLigne2" : {
+            "type" : "string"
+          },
+          "adresseLigne3" : {
+            "type" : "string"
+          },
+          "bureauDouanes" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Absent à la création : le code proposé (RG-OPE-03) ; obligatoire en modification",
+            "example" : "000012"
+          },
+          "codePostal" : {
+            "type" : "string",
+            "example" : "32100"
+          },
+          "commentaireInterne" : {
+            "type" : "string",
+            "description" : "Masqué au portail (RG-OPE-36)"
+          },
+          "cvi" : {
+            "type" : "string",
+            "example" : "3203200123"
+          },
+          "emailGeneral" : {
+            "type" : "string",
+            "example" : "contact@domaine-durand.fr"
+          },
+          "groupe" : {
+            "type" : "string",
+            "description" : "Comparé à la casse, aux accents et aux espaces près (RG-OPE-09)",
+            "example" : "Maison Durand"
+          },
+          "identifiantOdg" : {
+            "type" : "string",
+            "description" : "Unique (RG-OPE-07)"
+          },
+          "latitude" : {
+            "type" : "number",
+            "description" : "Degrés décimaux, avec la longitude (RG-OPE-20)",
+            "example" : 43.958
+          },
+          "longitude" : {
+            "type" : "number",
+            "description" : "Degrés décimaux, avec la latitude (RG-OPE-20)",
+            "example" : 0.372
+          },
+          "membreBnia" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du membre BNIA"
+          },
+          "nomCommercial" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du pays ; absent à la création : la France (RG-OPE-02)"
+          },
+          "portable" : {
+            "type" : "string"
+          },
+          "raisonSociale" : {
+            "type" : "string",
+            "example" : "Domaine Durand"
+          },
+          "siret" : {
+            "type" : "string",
+            "example" : "41234567800012"
+          },
+          "siteCommercial" : {
+            "type" : "string"
+          },
+          "siteWeb" : {
+            "type" : "string",
+            "example" : "https://www.domaine-durand.fr"
+          },
+          "telephone1" : {
+            "type" : "string"
+          },
+          "telephone2" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          },
+          "ville" : {
+            "type" : "string",
+            "example" : "Condom"
+          }
+        },
+        "required" : [ "accordDiffusionGeneral", "raisonSociale", "type" ]
       },
       "SaisiePays" : {
         "type" : "object",

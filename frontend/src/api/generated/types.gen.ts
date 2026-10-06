@@ -40,6 +40,13 @@ export type ClasseTvaLigne = {
     tauxEnVigueur?: number;
 };
 
+export type CodePropose = {
+    /**
+     * Absent : aucun code ne peut être proposé (négociant sans code postal français)
+     */
+    code?: string;
+};
+
 export type Contenance = {
     actif: boolean;
     id: number;
@@ -58,12 +65,113 @@ export type Contenance = {
 };
 
 /**
+ * Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)
+ */
+export type Doublon = {
+    champ: 'RAISON_SOCIALE' | 'CVI' | 'SIRET' | 'ACCISE';
+    operateur: OperateurResume;
+    regle: string;
+};
+
+/**
+ * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)
+ */
+export type FicheOperateur = {
+    accise?: string;
+    accordDiffusionGeneral: boolean;
+    actif: boolean;
+    adresseLigne1?: string;
+    adresseLigne2?: string;
+    adresseLigne3?: string;
+    /**
+     * Autres fiches du même groupe (RG-OPE-09)
+     */
+    autresDuGroupe: Array<OperateurResume>;
+    bureauDouanes?: string;
+    /**
+     * Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète
+     */
+    champsManquants: Array<string>;
+    code: string;
+    /**
+     * Faux si le code n'a plus la forme de son type ou de son département (RG-OPE-05)
+     */
+    codeConforme: boolean;
+    codePostal?: string;
+    /**
+     * Si le code n'est plus conforme : le code qu'« attribuer un nouveau code » donnerait
+     */
+    codePropose?: string;
+    commentaireInterne?: string;
+    cvi?: string;
+    emailGeneral?: string;
+    groupe?: string;
+    id: number;
+    identifiantOdg?: string;
+    latitude?: number;
+    longitude?: number;
+    /**
+     * Identifiant du membre BNIA
+     */
+    membreBnia?: number;
+    nomCommercial?: string;
+    /**
+     * Identifiant du pays
+     */
+    pays?: number;
+    portable?: string;
+    raisonSociale: string;
+    siret?: string;
+    siteCommercial?: string;
+    siteWeb?: string;
+    telephone1?: string;
+    telephone2?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    ville?: string;
+};
+
+/**
  * Identification de l'application et de la base qui la sert
  */
 export type InfoSysteme = {
     application: string;
     version: string;
     versionBase: string;
+};
+
+/**
+ * Ligne du listing des opérateurs
+ */
+export type OperateurLigne = {
+    actif: boolean;
+    code: string;
+    codePostal?: string;
+    emailGeneral?: string;
+    id: number;
+    /**
+     * Fiche incomplète (RG-OPE-02)
+     */
+    incomplet: boolean;
+    nomCommercial?: string;
+    raisonSociale: string;
+    telephone1?: string;
+    type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    ville?: string;
+};
+
+/**
+ * Désignation courte d'une autre fiche
+ */
+export type OperateurResume = {
+    actif: boolean;
+    code: string;
+    id: number;
+    raisonSociale: string;
+    ville?: string;
 };
 
 export type Pays = {
@@ -105,6 +213,67 @@ export type SaisieContenance = {
      * En litres, trois décimales au plus
      */
     volume: number;
+};
+
+/**
+ * Création d'un opérateur, ou modification de son identité (onglet Général) ; tout se corrige, code compris
+ */
+export type SaisieOperateur = {
+    accise?: string;
+    accordDiffusionGeneral: boolean;
+    adresseLigne1?: string;
+    adresseLigne2?: string;
+    adresseLigne3?: string;
+    bureauDouanes?: string;
+    /**
+     * Absent à la création : le code proposé (RG-OPE-03) ; obligatoire en modification
+     */
+    code?: string;
+    codePostal?: string;
+    /**
+     * Masqué au portail (RG-OPE-36)
+     */
+    commentaireInterne?: string;
+    cvi?: string;
+    emailGeneral?: string;
+    /**
+     * Comparé à la casse, aux accents et aux espaces près (RG-OPE-09)
+     */
+    groupe?: string;
+    /**
+     * Unique (RG-OPE-07)
+     */
+    identifiantOdg?: string;
+    /**
+     * Degrés décimaux, avec la longitude (RG-OPE-20)
+     */
+    latitude?: number;
+    /**
+     * Degrés décimaux, avec la latitude (RG-OPE-20)
+     */
+    longitude?: number;
+    /**
+     * Identifiant du membre BNIA
+     */
+    membreBnia?: number;
+    nomCommercial?: string;
+    /**
+     * Identifiant du pays ; absent à la création : la France (RG-OPE-02)
+     */
+    pays?: number;
+    portable?: string;
+    raisonSociale: string;
+    siret?: string;
+    siteCommercial?: string;
+    siteWeb?: string;
+    telephone1?: string;
+    telephone2?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    ville?: string;
 };
 
 /**
@@ -186,6 +355,242 @@ export type ValeurSimple = {
     id: number;
     libelle: string;
 };
+
+export type ListerOperateursData = {
+    body?: never;
+    path?: never;
+    query?: {
+        type?: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+        /**
+         * Contient
+         */
+        code?: string;
+        /**
+         * Contient
+         */
+        raisonSociale?: string;
+        /**
+         * Contient
+         */
+        nomCommercial?: string;
+        /**
+         * Commence par
+         */
+        codePostal?: string;
+        /**
+         * Contient
+         */
+        ville?: string;
+        /**
+         * Absent : actifs et inactifs
+         */
+        actif?: boolean;
+        /**
+         * Vrai : fiches incomplètes seulement (RG-OPE-02)
+         */
+        incomplet?: boolean;
+    };
+    url: '/api/operateurs';
+};
+
+export type ListerOperateursResponses = {
+    /**
+     * OK
+     */
+    200: Array<OperateurLigne>;
+};
+
+export type ListerOperateursResponse = ListerOperateursResponses[keyof ListerOperateursResponses];
+
+export type CreerOperateurData = {
+    body: SaisieOperateur;
+    path?: never;
+    query?: never;
+    url: '/api/operateurs';
+};
+
+export type CreerOperateurResponses = {
+    /**
+     * Created
+     */
+    201: FicheOperateur;
+};
+
+export type CreerOperateurResponse = CreerOperateurResponses[keyof CreerOperateurResponses];
+
+export type ProposerCodeOperateurData = {
+    body?: never;
+    path?: never;
+    query: {
+        type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+        codePostal?: string;
+        /**
+         * Identifiant du pays ; absent : la France
+         */
+        pays?: number;
+    };
+    url: '/api/operateurs/code-propose';
+};
+
+export type ProposerCodeOperateurResponses = {
+    /**
+     * OK
+     */
+    200: CodePropose;
+};
+
+export type ProposerCodeOperateurResponse = ProposerCodeOperateurResponses[keyof ProposerCodeOperateurResponses];
+
+export type ListerDoublonsOperateurData = {
+    body?: never;
+    path?: never;
+    query?: {
+        raisonSociale?: string;
+        cvi?: string;
+        siret?: string;
+        accise?: string;
+        /**
+         * Opérateur en cours de modification, à exclure
+         */
+        sauf?: number;
+    };
+    url: '/api/operateurs/doublons';
+};
+
+export type ListerDoublonsOperateurResponses = {
+    /**
+     * OK
+     */
+    200: Array<Doublon>;
+};
+
+export type ListerDoublonsOperateurResponse = ListerDoublonsOperateurResponses[keyof ListerDoublonsOperateurResponses];
+
+export type ListerGroupesOperateursData = {
+    body?: never;
+    path?: never;
+    query?: {
+        recherche?: string;
+    };
+    url: '/api/operateurs/groupes';
+};
+
+export type ListerGroupesOperateursResponses = {
+    /**
+     * OK
+     */
+    200: Array<string>;
+};
+
+export type ListerGroupesOperateursResponse = ListerGroupesOperateursResponses[keyof ListerGroupesOperateursResponses];
+
+export type SupprimerOperateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}';
+};
+
+export type SupprimerOperateurResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerOperateurResponse = SupprimerOperateurResponses[keyof SupprimerOperateurResponses];
+
+export type ConsulterOperateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}';
+};
+
+export type ConsulterOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ConsulterOperateurResponse = ConsulterOperateurResponses[keyof ConsulterOperateurResponses];
+
+export type DesactiverOperateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/desactivation';
+};
+
+export type DesactiverOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type DesactiverOperateurResponse = DesactiverOperateurResponses[keyof DesactiverOperateurResponses];
+
+export type ModifierIdentiteOperateurData = {
+    body: SaisieOperateur;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/identite';
+};
+
+export type ModifierIdentiteOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ModifierIdentiteOperateurResponse = ModifierIdentiteOperateurResponses[keyof ModifierIdentiteOperateurResponses];
+
+export type AttribuerNouveauCodeOperateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/nouveau-code';
+};
+
+export type AttribuerNouveauCodeOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type AttribuerNouveauCodeOperateurResponse = AttribuerNouveauCodeOperateurResponses[keyof AttribuerNouveauCodeOperateurResponses];
+
+export type ReactiverOperateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/reactivation';
+};
+
+export type ReactiverOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ReactiverOperateurResponse = ReactiverOperateurResponses[keyof ReactiverOperateurResponses];
 
 export type ListerCentresInteretData = {
     body?: never;
