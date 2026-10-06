@@ -113,3 +113,20 @@ create table referentiels.marque (
     actif             boolean not null default true
 );
 create unique index marque_code_unique on referentiels.marque (lower(code));
+
+-- Fiscalité (C.10.1-2) : une classe de TVA et l'historique de ses taux (agrégat). Le non-chevauchement
+-- des périodes est garanti par l'agrégat (RG-REF-11) ; la base garantit qu'un début n'est pas répété.
+create table referentiels.classe_tva (
+    code    text    primary key,
+    libelle text    not null,
+    actif   boolean not null default true
+);
+create unique index classe_tva_code_unique on referentiels.classe_tva (lower(code));
+
+create table referentiels.taux_tva (
+    classe_tva_code text         not null references referentiels.classe_tva (code),
+    taux            numeric(5, 2) not null check (taux between 0 and 100),
+    date_debut      date         not null,
+    date_fin        date         check (date_fin >= date_debut),
+    primary key (classe_tva_code, date_debut)
+);

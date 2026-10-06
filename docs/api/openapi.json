@@ -45,6 +45,9 @@
     "description" : "Référentiel : marques (C.10.9.1)",
     "name" : "marques"
   }, {
+    "description" : "Référentiel : classes et taux de TVA (C.10.1-2)",
+    "name" : "classes-tva"
+  }, {
     "description" : "Référentiel : titres (C.10.8.1)",
     "name" : "titres"
   } ],
@@ -411,6 +414,303 @@
         },
         "summary" : "Réactiver une valeur (RG-REF-04)",
         "tags" : [ "circuits-distribution" ]
+      }
+    },
+    "/api/referentiels/classes-tva" : {
+      "get" : {
+        "operationId" : "listerClassesTva",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ClasseTvaLigne"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les classes de TVA, avec leur taux en vigueur",
+        "tags" : [ "classes-tva" ]
+      },
+      "post" : {
+        "operationId" : "creerClasseTva",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une classe de TVA, sans taux (RG-REF-01, RG-REF-03)",
+        "tags" : [ "classes-tva" ]
+      }
+    },
+    "/api/referentiels/classes-tva/{code}" : {
+      "get" : {
+        "operationId" : "consulterClasseTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une classe et ses taux, même inactive (RG-REF-13)",
+        "tags" : [ "classes-tva" ]
+      },
+      "put" : {
+        "operationId" : "modifierClasseTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "classes-tva" ]
+      }
+    },
+    "/api/referentiels/classes-tva/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverClasseTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une classe ; ses taux restent consultables (RG-REF-13)",
+        "tags" : [ "classes-tva" ]
+      }
+    },
+    "/api/referentiels/classes-tva/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverClasseTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une classe (RG-REF-04)",
+        "tags" : [ "classes-tva" ]
+      }
+    },
+    "/api/referentiels/classes-tva/{code}/taux" : {
+      "post" : {
+        "operationId" : "ajouterTauxTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieTauxTva"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ajouter un taux, sans chevauchement (RG-REF-11)",
+        "tags" : [ "classes-tva" ]
+      }
+    },
+    "/api/referentiels/classes-tva/{code}/taux/{dateDebut}" : {
+      "delete" : {
+        "operationId" : "retirerTauxTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dateDebut",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Retirer un taux saisi par erreur",
+        "tags" : [ "classes-tva" ]
+      },
+      "put" : {
+        "operationId" : "modifierTauxTva",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dateDebut",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieTauxTva"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClasseTva"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Corriger un taux, désigné par sa date de début (RG-REF-11)",
+        "tags" : [ "classes-tva" ]
       }
     },
     "/api/referentiels/contenances" : {
@@ -2285,6 +2585,58 @@
   },
   "components" : {
     "schemas" : {
+      "ClasseTva" : {
+        "type" : "object",
+        "description" : "Classe de TVA avec l'historique de ses taux",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "NORMAL"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Normal"
+          },
+          "taux" : {
+            "type" : "array",
+            "description" : "Du plus récent au plus ancien",
+            "items" : {
+              "$ref" : "#/components/schemas/TauxTva"
+            }
+          },
+          "tauxEnVigueur" : {
+            "$ref" : "#/components/schemas/TauxTva",
+            "description" : "Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)"
+          }
+        },
+        "required" : [ "actif", "code", "libelle", "taux" ]
+      },
+      "ClasseTvaLigne" : {
+        "type" : "object",
+        "description" : "Ligne du listing des classes de TVA",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "NORMAL"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Normal"
+          },
+          "tauxEnVigueur" : {
+            "type" : "number",
+            "description" : "Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)",
+            "example" : 20.0
+          }
+        },
+        "required" : [ "actif", "code", "libelle" ]
+      },
       "Contenance" : {
         "type" : "object",
         "properties" : {
@@ -2546,6 +2898,48 @@
           }
         },
         "required" : [ "actif", "code", "enRegionDelimitee", "libelle" ]
+      },
+      "SaisieTauxTva" : {
+        "type" : "object",
+        "properties" : {
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date",
+            "example" : "2014-01-01"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Facultative : sans fin, le taux vaut pour toutes les dates postérieures"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "Pourcentage entre 0 et 100, deux décimales au plus",
+            "example" : 20
+          }
+        },
+        "required" : [ "dateDebut", "taux" ]
+      },
+      "TauxTva" : {
+        "type" : "object",
+        "properties" : {
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date",
+            "example" : "2014-01-01"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Absente : taux sans terme"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "Pourcentage",
+            "example" : 20.0
+          }
+        },
+        "required" : [ "dateDebut", "taux" ]
       },
       "ValeurSimple" : {
         "type" : "object",
