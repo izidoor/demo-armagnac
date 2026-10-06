@@ -5,6 +5,9 @@ spring:
       enabled: true
       file: ../compose.yaml
       lifecycle-management: start-only
+  flyway:
+    # Vidage autorisé en dev seulement : la base est recréée si V1 a changé (MigrationDevConfiguration).
+    clean-disabled: false
 
 logging:
   level:

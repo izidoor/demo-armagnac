@@ -3,6 +3,7 @@ package fr.bnia.architecture;
 import static com.tngtech.archunit.base.DescribedPredicate.alwaysTrue;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
@@ -15,12 +16,18 @@ import fr.bnia.commun.application.UseCase;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Règles d'architecture (ADR-002). Les packages suivent {@code fr.bnia.<contexte>.<couche>}, avec
- * pour couches {@code domain}, {@code application} et {@code adapter.<rest|persistence|integration>}.
- * {@code fr.bnia.commun} est le noyau partagé ; {@code fr.bnia.boot} le câblage.
+ * Règles d'architecture (ADR-002, ADR-010). Les couches n'étant pas des modules Maven, ces règles
+ * sont la seule garantie de la pureté du domaine et du sens des dépendances entre couches.
+ * Les packages suivent {@code fr.bnia.<contexte>.<couche>}, avec pour couches {@code domain}, {@code application} et {@code adapter.<rest|persistence|integration>}.
+ * {@code fr.bnia.commun} est le noyau partagé (ADR-009) ; {@code fr.bnia.boot} le câblage.
+ * Seule autre exception à l'isolement des contextes : la partie publiée en lecture de
+ * {@code referentiels} (ADR-008).
  */
 @AnalyzeClasses(packages = "fr.bnia", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
+
+    private static final String[] PARTIE_PUBLIEE_REFERENTIELS = {
+            "fr.bnia.referentiels.domain.partage..", "fr.bnia.referentiels.application.partage.."};
 
     @ArchTest
     static final ArchRule le_domaine_est_du_java_pur = classes()
@@ -58,7 +65,14 @@ class ArchitectureTest {
             .matching("fr.bnia.(*)..")
             .should().notDependOnEachOther()
             .ignoreDependency(alwaysTrue(), resideInAPackage("fr.bnia.commun.."))
+            .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_REFERENTIELS))
             .ignoreDependency(resideInAPackage("fr.bnia.boot.."), alwaysTrue());
+
+    @ArchTest
+    static final ArchRule les_autres_contextes_ne_lisent_que_la_partie_publiee_des_referentiels = noClasses()
+            .that().resideOutsideOfPackages("fr.bnia.referentiels..", "fr.bnia.boot..")
+            .should().dependOnClassesThat(resideInAPackage("fr.bnia.referentiels..")
+                    .and(not(resideInAnyPackage(PARTIE_PUBLIEE_REFERENTIELS))));
 
     @ArchTest
     static final ArchRule le_noyau_commun_ne_depend_d_aucun_contexte = noClasses()

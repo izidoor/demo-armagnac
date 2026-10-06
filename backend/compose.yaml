@@ -1,4 +1,5 @@
-# Base de développement (ADR-003). Recréation : ./dev-reset.sh à la racine du dépôt.
+# Base de développement (ADR-003). Recréée au démarrage si V1 a changé (ADR-005) ;
+# remise à zéro volontaire : ./dev-reset.sh à la racine du dépôt.
 services:
   postgres:
     image: postgres:18

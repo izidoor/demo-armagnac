@@ -24,24 +24,31 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - Contrat d'API : généré depuis les controllers (springdoc), exporté vers `docs/api/openapi.json`
   par `OpenApiContratIT` ; client TypeScript généré depuis ce fichier (ADR-007).
 
-## Architecture (Maven multi-modules, vérifiée par enforcer et ArchUnit)
-- `bnia-domain` : Java pur. Aucun framework ni annotation de persistance.
-- `bnia-application` : cas d'usage (`@UseCase` maison) et ports. Dépend de `domain` uniquement.
-- `bnia-adapter-rest` | `-persistence` | `-integration` : dépendent de `application`, jamais entre eux.
+## Architecture (un module Maven par contexte, couches vérifiées par ArchUnit, ADR-010)
+- `bnia-<contexte>` : un module par bounded context. Couches en packages,
+  `fr.bnia.<contexte>.{domain, application, adapter.rest, adapter.persistence, adapter.integration}` :
+  - `domain` : Java pur. Aucun framework ni annotation de persistance.
+  - `application` : cas d'usage (`@UseCase` maison) et ports. Dépend de `domain` uniquement.
+  - `adapter.*` : dépendent de `application`, jamais entre eux. Une intégration externe vit dans le
+    contexte qui en définit le port.
+- `bnia-commun` : noyau partagé (concepts transverses, `@UseCase`, socle REST).
 - `bnia-boot` : seul module avec `@SpringBootApplication`, `application*.yml`, câblage,
-  transactions, **tous les `*IT`** et les tests ArchUnit.
-- Un package par bounded context : `fr.bnia.<contexte>.<couche>`. Pas d'import direct entre contextes :
+  transactions, migration Flyway, **tous les `*IT`** et les tests ArchUnit. Dépend de tous les contextes.
+- Nouveau contexte : un pom, une entrée dans `<modules>` du pom racine, une dépendance dans `bnia-boot`,
+  un schéma dans `spring.flyway.schemas`.
+- Pas d'import direct entre contextes :
   passer par des ports ou des événements. Deux exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et la partie publiée en lecture de `referentiels`
   (`fr.bnia.referentiels.*.partage`, ADR-008). Référence entre contextes par code métier.
 
 ## Persistance
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance
-  vivent dans `bnia-adapter-persistence` et sont mappées vers le domaine (jamais d'annotation dans `domain`).
+  vivent dans `adapter.persistence` du contexte et sont mappées vers le domaine (jamais d'annotation dans `domain`).
 - Lecture (listings, statistiques, consolidations) : `JdbcClient` en SQL direct, via des ports de
   lecture définis dans `application` qui retournent des modèles de lecture, pas des agrégats.
 - **Une seule migration Flyway** : `V1__schema.sql`, modifiée sur place à chaque incrément.
-  Ne jamais créer `V2`. Après modification : `./dev-reset.sh` (recrée la base de dev).
+  Ne jamais créer `V2`. En profil `dev`, la base est recréée au démarrage si V1 a changé.
+  Un schéma PostgreSQL par contexte, à ajouter à `spring.flyway.schemas` (`application.yml`).
 - Les données de démonstration ne sont pas dans la migration (profil `demo`).
 
 ## Méthode de travail
@@ -62,4 +69,4 @@ Front, depuis `frontend/` :
 - Dev : `pnpm dev` (proxy `/api` vers `localhost:8080`)
 
 Racine :
-- Reset de la base de dev : `./dev-reset.sh`
+- Remise à zéro volontaire de la base de dev : `./dev-reset.sh` (automatique si V1 a changé)

@@ -17,7 +17,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
 /**
  * Câblage des cas d'usage (ADR-002).
  *
- * <p>Les classes {@link UseCase} de {@code bnia-application} ne portent aucune annotation Spring :
+ * <p>Les classes {@link UseCase} de la couche {@code application} des contextes ne portent aucune annotation Spring :
  * elles sont enregistrées ici par scan, et chacune de leurs méthodes publiques s'exécute dans une
  * transaction (propagation REQUIRED).
  */

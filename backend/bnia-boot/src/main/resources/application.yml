@@ -7,6 +7,9 @@ spring:
     password: ${BNIA_DB_PASSWORD:bnia}
   flyway:
     locations: classpath:db/migration
+    # Un schéma PostgreSQL par contexte, créé par Flyway avant V1 ; nécessaire aussi pour que le
+    # vidage de la base de dev (profil dev) les couvre tous. Historique dans public.
+    schemas: public,referentiels
   mvc:
     problemdetails:
       enabled: true

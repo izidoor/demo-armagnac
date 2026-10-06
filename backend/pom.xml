@@ -17,12 +17,11 @@
     <packaging>pom</packaging>
     <name>BNIA : plateforme métier</name>
 
+    <!-- Un module par bounded context, couches en packages vérifiées par ArchUnit (ADR-010). -->
     <modules>
-        <module>bnia-domain</module>
-        <module>bnia-application</module>
-        <module>bnia-adapter-rest</module>
-        <module>bnia-adapter-persistence</module>
-        <module>bnia-adapter-integration</module>
+        <module>bnia-commun</module>
+        <module>bnia-systeme</module>
+        <module>bnia-referentiels</module>
         <module>bnia-boot</module>
     </modules>
 
@@ -38,27 +37,17 @@
         <dependencies>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-domain</artifactId>
+                <artifactId>bnia-commun</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-application</artifactId>
+                <artifactId>bnia-systeme</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-adapter-rest</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fr.bnia</groupId>
-                <artifactId>bnia-adapter-persistence</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fr.bnia</groupId>
-                <artifactId>bnia-adapter-integration</artifactId>
+                <artifactId>bnia-referentiels</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -85,7 +74,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Règles communes à tous les modules ; chaque module ajoute ses interdits (ADR-002). -->
+            <!-- Règles communes à tous les modules (ADR-002, ADR-010). -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -104,6 +93,12 @@
                                     <version>[3.9,)</version>
                                 </requireMavenVersion>
                                 <dependencyConvergence/>
+                                <bannedDependencies>
+                                    <message>Seul bnia-boot assemble l'application : aucun module n'en dépend (ADR-010).</message>
+                                    <excludes>
+                                        <exclude>fr.bnia:bnia-boot</exclude>
+                                    </excludes>
+                                </bannedDependencies>
                             </rules>
                         </configuration>
                     </execution>

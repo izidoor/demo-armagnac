@@ -17,10 +17,10 @@ prennent les listes dans le code.
 ## Décision
 - **Partie publiée en lecture seule.** `referentiels` publie deux packages, et ce sont les seuls que
   les autres contextes peuvent importer :
-  - `fr.bnia.referentiels.domain.partage` (`bnia-domain`) : les types de valeur que d'autres domaines
+  - `fr.bnia.referentiels.domain.partage` : les types de valeur que d'autres domaines
     manipulent (`LangueCertificat`, `NiveauDetailCertificat`) et des vues immuables (`PaysVue`,
     `RegionVue`, `ContenanceVue`, `ValeurVue`, `TauxTvaVue`) ;
-  - `fr.bnia.referentiels.application.partage` (`bnia-application`) : l'interface
+  - `fr.bnia.referentiels.application.partage` : l'interface
     `ReferentielsLecture`, implémentée dans `referentiels`.
 
   Les agrégats, les cas d'usage d'écriture et les adapters restent internes. Une écriture venue
@@ -46,6 +46,8 @@ Options écartées :
   peuvent plus diverger.
 
 ## Conséquences
+- Depuis ADR-010, un contexte qui lit les référentiels déclare la dépendance vers le module
+  `bnia-referentiels` ; ArchUnit le limite aux packages `partage`.
 - La règle ArchUnit des contextes (`slices` de `fr.bnia.(*)..`) ignore les dépendances vers
   `fr.bnia.referentiels.domain.partage..` et `fr.bnia.referentiels.application.partage..`. Une
   nouvelle règle interdit aux autres contextes tout autre package de `referentiels`.

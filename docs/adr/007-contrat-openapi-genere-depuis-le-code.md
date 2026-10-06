@@ -10,7 +10,7 @@ les controllers. Le prototype avance vite et seul notre front consomme l'API : u
 main doublerait chaque évolution et finirait par diverger du code.
 
 ## Décision
-- Le contrat est généré depuis les controllers de `bnia-adapter-rest` par springdoc-openapi.
+- Le contrat est généré depuis les controllers (`adapter.rest` de chaque contexte, ADR-010) par springdoc-openapi.
   Les DTO portent `@Schema` (nom public, champs requis, exemples), les opérations `@Operation`
   avec un `operationId` explicite, qui donne le nom des fonctions du client.
 - `OpenApiContratIT` (dans `bnia-boot`) exporte le contrat vers `docs/api/openapi.json` à chaque

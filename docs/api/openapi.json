@@ -11,8 +11,193 @@
   "tags" : [ {
     "description" : "Sonde technique",
     "name" : "systeme"
+  }, {
+    "description" : "Référentiel : zones commerciales, continents (C.10.4)",
+    "name" : "zones-commerciales"
   } ],
   "paths" : {
+    "/api/referentiels/zones-commerciales" : {
+      "get" : {
+        "operationId" : "listerZonesCommerciales",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "zones-commerciales" ]
+      },
+      "post" : {
+        "operationId" : "creerZoneCommerciale",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "zones-commerciales" ]
+      }
+    },
+    "/api/referentiels/zones-commerciales/{code}" : {
+      "get" : {
+        "operationId" : "consulterZoneCommerciale",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "zones-commerciales" ]
+      },
+      "put" : {
+        "operationId" : "modifierZoneCommerciale",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le libellé ; le code est immuable (RG-REF-02)",
+        "tags" : [ "zones-commerciales" ]
+      }
+    },
+    "/api/referentiels/zones-commerciales/{code}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverZoneCommerciale",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "zones-commerciales" ]
+      }
+    },
+    "/api/referentiels/zones-commerciales/{code}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverZoneCommerciale",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "code",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "zones-commerciales" ]
+      }
+    },
     "/api/systeme/info" : {
       "get" : {
         "operationId" : "consulterInfoSysteme",
@@ -35,6 +220,20 @@
   },
   "components" : {
     "schemas" : {
+      "CreationValeurSimple" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "EUR"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Europe"
+          }
+        },
+        "required" : [ "code", "libelle" ]
+      },
       "InfoSysteme" : {
         "type" : "object",
         "description" : "Identification de l'application et de la base qui la sert",
@@ -53,6 +252,35 @@
           }
         },
         "required" : [ "application", "version", "versionBase" ]
+      },
+      "ModificationValeurSimple" : {
+        "type" : "object",
+        "description" : "Le code est immuable (RG-REF-02) : seul le libellé change",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "example" : "Europe"
+          }
+        },
+        "required" : [ "libelle" ]
+      },
+      "ValeurSimple" : {
+        "type" : "object",
+        "description" : "Valeur d'une liste de référentiel",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "EUR"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Europe"
+          }
+        },
+        "required" : [ "actif", "code", "libelle" ]
       }
     }
   }

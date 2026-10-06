@@ -5,7 +5,8 @@
 
 ## Périmètre
 - Reactor Maven `backend/` : `bnia-domain`, `bnia-application`, `bnia-adapter-rest`,
-  `bnia-adapter-persistence`, `bnia-adapter-integration`, `bnia-boot`.
+  `bnia-adapter-persistence`, `bnia-adapter-integration`, `bnia-boot`. Remplacé le 2026-10-06 par
+  un module par contexte (`bnia-commun`, `bnia-systeme`, `bnia-<contexte>`, `bnia-boot`, ADR-010).
 - PostgreSQL 18 : `backend/compose.yaml` en dev, Testcontainers dans les `*IT`.
 - Front `frontend/` : une SPA (base ShadcnAdmin épurée), deux espaces : `/bo` (back-office BNIA)
   et `/portail` (portail opérateur). La connexion est factice jusqu'au contexte `acces`.

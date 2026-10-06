@@ -10,7 +10,7 @@ pays, opérateur…) qui n'ont rien à voir avec les agrégats.
 
 ## Décision
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance
-  (`*Entity` ou `*Row`) vivent dans `bnia-adapter-persistence` et sont mappées vers le domaine.
+  (`*Entity` ou `*Row`) vivent dans la couche `adapter.persistence` du contexte (ADR-010) et sont mappées vers le domaine.
 - Lecture : `JdbcClient` en SQL direct. Des ports de lecture, définis dans `application`,
   retournent des modèles de lecture dédiés, jamais des agrégats.
 

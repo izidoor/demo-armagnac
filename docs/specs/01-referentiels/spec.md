@@ -207,10 +207,10 @@ stabilité de cet historique (C.8.3 « taux de TVA appliqué », §4.9.7 p.46).
 
 `referentiels` est le seul contexte que les autres lisent directement, sans port ni adapter de leur côté
 (A-REF-2). Ils n'en voient qu'une **partie publiée, en lecture seule** :
-- `fr.bnia.referentiels.domain.partage` (`bnia-domain`) : les types de valeur que les autres domaines
+- `fr.bnia.referentiels.domain.partage` : les types de valeur que les autres domaines
   manipulent, comme `LangueCertificat`, `NiveauDetailCertificat` et les vues immuables (`PaysVue`,
   `RegionVue`, `ContenanceVue`, `ValeurVue`, `TauxTvaVue`) ;
-- `fr.bnia.referentiels.application.partage` (`bnia-application`) : l'interface `ReferentielsLecture`,
+- `fr.bnia.referentiels.application.partage` : l'interface `ReferentielsLecture`,
   implémentée dans `referentiels`.
 
 Tout le reste du contexte (agrégats, cas d'usage d'écriture, adapters) est interdit aux autres contextes,

@@ -12,20 +12,26 @@
 
     <artifactId>bnia-boot</artifactId>
     <name>BNIA : boot</name>
-    <description>Point d'entrée, câblage, configuration, transactions, tests d'intégration et ArchUnit (ADR-002).</description>
+    <description>Point d'entrée : assemble les contextes. Câblage, configuration, transactions, migration Flyway, tests d'intégration et ArchUnit (ADR-002, ADR-010).</description>
 
     <dependencies>
+        <!-- Un module par contexte (ADR-010) : en ajouter un ici à chaque nouveau contexte. -->
         <dependency>
             <groupId>fr.bnia</groupId>
-            <artifactId>bnia-adapter-rest</artifactId>
+            <artifactId>bnia-systeme</artifactId>
         </dependency>
         <dependency>
             <groupId>fr.bnia</groupId>
-            <artifactId>bnia-adapter-persistence</artifactId>
+            <artifactId>bnia-referentiels</artifactId>
+        </dependency>
+        <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
-            <groupId>fr.bnia</groupId>
-            <artifactId>bnia-adapter-integration</artifactId>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

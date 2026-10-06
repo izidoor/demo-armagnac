@@ -1,6 +1,6 @@
 # ADR-002 : Structure backend Maven multi-modules, hexagonale
 
-- Statut : accepté
+- Statut : accepté ; découpage en modules remplacé par ADR-010 (un module par contexte)
 - Date : 2026-10-05
 
 ## Contexte
