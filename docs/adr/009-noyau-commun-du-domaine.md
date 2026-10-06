@@ -30,6 +30,10 @@ Options écartées :
   divergeraient.
 
 ## Conséquences
+- `commun.domain` accueille aussi les exceptions métier communes (`RegleEnfreinte`, avec l'identifiant
+  de la règle, `ConflitUnicite`, `ElementIntrouvable`), traduites en `ProblemDetail` par
+  `commun.adapter.rest` (ajout du 2026-10-06, implémentation de `referentiels`). Elles ne sont pas des
+  concepts du glossaire : ce sont les seules classes techniques admises dans ce package.
 - Deux zones partagées, de nature différente :
 
   | | `commun.domain` | `referentiels` (partie publiée) |

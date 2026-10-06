@@ -1,6 +1,6 @@
 # 01 : référentiels
 
-> Contexte `referentiels` (étape 1 de `docs/contextes.md`). Statut : **terminée** (validée le 2026-10-06).
+> Contexte `referentiels` (étape 1 de `docs/contextes.md`). Statut : **terminée** (validée le 2026-10-06), **implémentée**.
 > Références : `p.N` = page du CDC v1.1, `AGI p.N` = page de la spec de reprise AGI.
 > `H-REF-n` : hypothèse retenue, révisable. `Q-REF-n` : question ouverte, suivie dans cette spec (§10).
 
@@ -349,3 +349,4 @@ Chaque RG-REF-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-06 | Relecture : RG renumérotées (01 à 15, sans 07a) ; contenance identifiée par son volume ; indicateur UE reporté dans la lecture et les écrans ; cas d'usage, tests et reprise mis en cohérence. |
 | 2026-10-06 | Sommaire ajouté en tête. |
 | 2026-10-06 | Spec validée, statut « terminée ». ADR-008 (partie publiée, référence par code, une classe par liste) et ADR-009 (noyau commun du domaine) rédigés. |
+| 2026-10-06 | Implémentation (lots 1 à 7). Choix faits pendant l'implémentation : listes simples sur une classe abstraite par couche (`ValeurSimple`, `GererValeursSimples`…), une sous-classe par liste (A-REF-3) ; `Pays`, `Region` et `ClasseTva` étendent `ValeurSimple` ; la contenance a son propre modèle, identifiée par son `Volume` (`numeric(10,3)`) ; libellé normalisé des marques stocké avec un index unique (RG-REF-15) ; marques proches : recherche « contient » sur le libellé normalisé ; non-chevauchement des taux de TVA garanti par l'agrégat seul ; `ReferentielsLecture` à méthodes typées, classes de TVA comprises ; un schéma PostgreSQL `referentiels`. Chaque RG-REF-01 à 15 a au moins un test qui porte son identifiant. |

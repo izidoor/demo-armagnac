@@ -61,7 +61,8 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 Backend, depuis `backend/` :
 - Tests rapides : `./mvnw -q test`
 - Tout, ITs inclus (Docker requis) : `./mvnw -q verify` (réexporte aussi `docs/api/openapi.json`)
-- Dev : `./mvnw -pl bnia-boot spring-boot:run` (profil `dev`, démarre `compose.yaml` au besoin)
+- Dev : `./mvnw -pl bnia-boot spring-boot:run` (profil `dev`, démarre `compose.yaml` au besoin) ;
+  avec les données de démonstration : `-Dspring-boot.run.profiles=dev,demo`
 
 Front, depuis `frontend/` :
 - Client d'API, après `./mvnw verify` : `pnpm gen:api`
