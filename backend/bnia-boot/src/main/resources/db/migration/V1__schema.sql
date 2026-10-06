@@ -314,3 +314,84 @@ create table operateurs.journal_changement (
     apres      text,
     primary key (journal_id, rang)
 );
+
+-- Agrégat PresentationOperateur (C.1.4 à C.1.7 p.103-104, ADR-012) : même identifiant que l'opérateur,
+-- créé au premier enregistrement. Doublons interdits (RG-OPE-16, 17), aussi garantis par l'agrégat.
+create table operateurs.presentation_operateur (
+    id                     bigint  primary key references operateurs.operateur (id) on delete cascade,
+    paiement_carte         boolean not null default false,
+    degustation_gratuite   boolean not null default false,
+    lieu_de_vente          boolean not null default false,
+    accueil_groupes        boolean not null default false,
+    adhesion_oenotourisme  boolean not null default false,
+    mode_presentation      text    check (mode_presentation in ('ARMAGNAC_EXCLUSIVEMENT', 'ARMAGNAC_ET_AUTRES_PRODUITS')),
+    presentation_fr        text,
+    presentation_en        text
+);
+
+create table operateurs.presentation_marque (
+    presentation_id bigint  not null references operateurs.presentation_operateur (id) on delete cascade,
+    rang            integer not null,
+    portee          text    not null check (portee in ('FRANCE', 'EXPORT')),
+    marque_id       bigint  not null references referentiels.marque (id),
+    diffusable_web  boolean not null default false,
+    primary key (presentation_id, rang),
+    unique (presentation_id, portee, marque_id)
+);
+
+create table operateurs.presentation_circuit (
+    presentation_id          bigint  not null references operateurs.presentation_operateur (id) on delete cascade,
+    rang                     integer not null,
+    portee                   text    not null check (portee in ('FRANCE', 'EXPORT')),
+    circuit_distribution_id  bigint  not null references referentiels.circuit_distribution (id),
+    primary key (presentation_id, rang),
+    unique (presentation_id, portee, circuit_distribution_id)
+);
+
+create table operateurs.presentation_visite (
+    presentation_id bigint  not null references operateurs.presentation_operateur (id) on delete cascade,
+    rang            integer not null,
+    type_visite_id  bigint  not null references referentiels.type_visite (id),
+    commentaire     text,
+    primary key (presentation_id, rang),
+    unique (presentation_id, type_visite_id)
+);
+
+create table operateurs.presentation_label (
+    presentation_id bigint  not null references operateurs.presentation_operateur (id) on delete cascade,
+    rang            integer not null,
+    label_id        bigint  not null references referentiels.label (id),
+    commentaire     text,
+    primary key (presentation_id, rang),
+    unique (presentation_id, label_id)
+);
+
+-- Cartes acceptées, seulement avec le paiement par carte (RG-OPE-18 ; contrôle dans l'agrégat).
+create table operateurs.presentation_carte (
+    presentation_id bigint not null references operateurs.presentation_operateur (id) on delete cascade,
+    carte           text   not null check (carte in ('VISA', 'MASTERCARD', 'AMERICAN_EXPRESS')),
+    primary key (presentation_id, carte)
+);
+
+create table operateurs.presentation_langue (
+    presentation_id bigint not null references operateurs.presentation_operateur (id) on delete cascade,
+    langue_id       bigint not null references referentiels.langue (id),
+    primary key (presentation_id, langue_id)
+);
+
+create table operateurs.presentation_produit (
+    presentation_id          bigint not null references operateurs.presentation_operateur (id) on delete cascade,
+    produit_commercialise_id bigint not null references referentiels.produit_commercialise (id),
+    primary key (presentation_id, produit_commercialise_id)
+);
+
+-- Médailles et concours, semi-structurés (RG-OPE-19).
+create table operateurs.medaille_concours (
+    presentation_id bigint  not null references operateurs.presentation_operateur (id) on delete cascade,
+    rang            integer not null,
+    concours        text    not null,
+    annee           integer check (annee between 1800 and 2100),
+    distinction     text    check (distinction in ('OR', 'ARGENT', 'BRONZE', 'AUTRE')),
+    produit         text,
+    primary key (presentation_id, rang)
+);

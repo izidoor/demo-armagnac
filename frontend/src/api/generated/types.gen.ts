@@ -16,6 +16,14 @@ export type ChangementContact = {
     champ: string;
 };
 
+export type CircuitPresente = {
+    /**
+     * Identifiant du circuit de distribution
+     */
+    circuit: number;
+    portee: 'FRANCE' | 'EXPORT';
+};
+
 /**
  * Classe de TVA avec l'historique de ses taux
  */
@@ -254,6 +262,14 @@ export type InfoSysteme = {
     versionBase: string;
 };
 
+export type LabelObtenu = {
+    commentaire?: string;
+    /**
+     * Identifiant du label
+     */
+    label: number;
+};
+
 /**
  * Entrée du journal d'un contact (RG-OPE-34)
  */
@@ -263,6 +279,25 @@ export type LigneJournalContact = {
     changements: Array<ChangementContact>;
     date: string;
     nomContact: string;
+};
+
+export type MarquePresentee = {
+    diffusableWeb: boolean;
+    /**
+     * Identifiant de la marque
+     */
+    marque: number;
+    portee: 'FRANCE' | 'EXPORT';
+};
+
+export type MedailleConcours = {
+    /**
+     * Un millésime valide (RG-OPE-19)
+     */
+    annee?: number;
+    concours: string;
+    distinction?: 'OR' | 'ARGENT' | 'BRONZE' | 'AUTRE';
+    produit?: string;
 };
 
 /**
@@ -313,6 +348,49 @@ export type Pays = {
      * Identifiant de la zone commerciale
      */
     zoneCommerciale: number;
+};
+
+/**
+ * Marques, circuits, visites, labels, œnotourisme, médailles (C.1.4 à C.1.7)
+ */
+export type PresentationOperateur = {
+    accueilGroupes: boolean;
+    adhesionOenotourisme: boolean;
+    /**
+     * Vidées sans paiement par carte (RG-OPE-18)
+     */
+    cartes: Array<'VISA' | 'MASTERCARD' | 'AMERICAN_EXPRESS'>;
+    /**
+     * Un circuit au plus une fois par portée (RG-OPE-16)
+     */
+    circuits: Array<CircuitPresente>;
+    degustationGratuite: boolean;
+    /**
+     * Un label au plus une fois (RG-OPE-17)
+     */
+    labels: Array<LabelObtenu>;
+    /**
+     * Identifiants des langues parlées
+     */
+    langues: Array<number>;
+    lieuDeVente: boolean;
+    /**
+     * Une marque au plus une fois par portée (RG-OPE-16)
+     */
+    marques: Array<MarquePresentee>;
+    medailles: Array<MedailleConcours>;
+    modePresentation?: 'ARMAGNAC_EXCLUSIVEMENT' | 'ARMAGNAC_ET_AUTRES_PRODUITS';
+    paiementCarte: boolean;
+    presentationEn?: string;
+    presentationFr?: string;
+    /**
+     * Identifiants des produits commercialisés
+     */
+    produitsCommercialises: Array<number>;
+    /**
+     * Un type de visite au plus une fois (RG-OPE-17)
+     */
+    visites: Array<VisiteProposee>;
 };
 
 export type Region = {
@@ -587,6 +665,14 @@ export type ValeurSimple = {
      */
     id: number;
     libelle: string;
+};
+
+export type VisiteProposee = {
+    commentaire?: string;
+    /**
+     * Identifiant du type de visite
+     */
+    typeVisite: number;
 };
 
 export type ListerOperateursData = {
@@ -1029,6 +1115,42 @@ export type ReactiverContactResponses = {
 };
 
 export type ReactiverContactResponse = ReactiverContactResponses[keyof ReactiverContactResponses];
+
+export type ConsulterPresentationOperateurData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/presentation';
+};
+
+export type ConsulterPresentationOperateurResponses = {
+    /**
+     * OK
+     */
+    200: PresentationOperateur;
+};
+
+export type ConsulterPresentationOperateurResponse = ConsulterPresentationOperateurResponses[keyof ConsulterPresentationOperateurResponses];
+
+export type ModifierPresentationOperateurData = {
+    body: PresentationOperateur;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/presentation';
+};
+
+export type ModifierPresentationOperateurResponses = {
+    /**
+     * OK
+     */
+    200: PresentationOperateur;
+};
+
+export type ModifierPresentationOperateurResponse = ModifierPresentationOperateurResponses[keyof ModifierPresentationOperateurResponses];
 
 export type ListerCentresInteretData = {
     body?: never;

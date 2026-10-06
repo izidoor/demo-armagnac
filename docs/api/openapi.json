@@ -9,6 +9,9 @@
     "url" : "/"
   } ],
   "tags" : [ {
+    "description" : "Opérateurs : marques, circuits, visites, labels, œnotourisme, médailles",
+    "name" : "presentation"
+  }, {
     "description" : "Opérateurs : fiche, identité, code (§4.3, C.1.1)",
     "name" : "operateurs"
   }, {
@@ -892,6 +895,70 @@
         },
         "summary" : "Réactiver, sans accès (RG-OPE-33)",
         "tags" : [ "contacts" ]
+      }
+    },
+    "/api/operateurs/{operateur}/presentation" : {
+      "get" : {
+        "operationId" : "consulterPresentationOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PresentationOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter la présentation ; vide tant que rien n'est saisi",
+        "tags" : [ "presentation" ]
+      },
+      "put" : {
+        "operationId" : "modifierPresentationOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PresentationOperateur"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PresentationOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Remplacer la présentation (RG-OPE-16 à 19, 21)",
+        "tags" : [ "presentation" ]
       }
     },
     "/api/referentiels/centres-interet" : {
@@ -3966,6 +4033,21 @@
         },
         "required" : [ "champ" ]
       },
+      "CircuitPresente" : {
+        "type" : "object",
+        "properties" : {
+          "circuit" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du circuit de distribution"
+          },
+          "portee" : {
+            "type" : "string",
+            "enum" : [ "FRANCE", "EXPORT" ]
+          }
+        },
+        "required" : [ "circuit", "portee" ]
+      },
       "ClasseTva" : {
         "type" : "object",
         "description" : "Classe de TVA avec l'historique de ses taux",
@@ -4434,6 +4516,20 @@
         },
         "required" : [ "application", "version", "versionBase" ]
       },
+      "LabelObtenu" : {
+        "type" : "object",
+        "properties" : {
+          "commentaire" : {
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du label"
+          }
+        },
+        "required" : [ "label" ]
+      },
       "LigneJournalContact" : {
         "type" : "object",
         "description" : "Entrée du journal d'un contact (RG-OPE-34)",
@@ -4461,6 +4557,47 @@
           }
         },
         "required" : [ "action", "auteur", "changements", "date", "nomContact" ]
+      },
+      "MarquePresentee" : {
+        "type" : "object",
+        "properties" : {
+          "diffusableWeb" : {
+            "type" : "boolean"
+          },
+          "marque" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la marque"
+          },
+          "portee" : {
+            "type" : "string",
+            "enum" : [ "FRANCE", "EXPORT" ]
+          }
+        },
+        "required" : [ "diffusableWeb", "marque", "portee" ]
+      },
+      "MedailleConcours" : {
+        "type" : "object",
+        "properties" : {
+          "annee" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Un millésime valide (RG-OPE-19)",
+            "example" : 2024
+          },
+          "concours" : {
+            "type" : "string",
+            "example" : "Concours général agricole"
+          },
+          "distinction" : {
+            "type" : "string",
+            "enum" : [ "OR", "ARGENT", "BRONZE", "AUTRE" ]
+          },
+          "produit" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "concours" ]
       },
       "OperateurLigne" : {
         "type" : "object",
@@ -4578,6 +4715,99 @@
           }
         },
         "required" : [ "actif", "code", "codeIso", "id", "langueCertificat", "libelle", "membreUe", "niveauDetailCertificat", "zoneCommerciale" ]
+      },
+      "PresentationOperateur" : {
+        "type" : "object",
+        "description" : "Marques, circuits, visites, labels, œnotourisme, médailles (C.1.4 à C.1.7)",
+        "properties" : {
+          "accueilGroupes" : {
+            "type" : "boolean"
+          },
+          "adhesionOenotourisme" : {
+            "type" : "boolean"
+          },
+          "cartes" : {
+            "type" : "array",
+            "description" : "Vidées sans paiement par carte (RG-OPE-18)",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "VISA", "MASTERCARD", "AMERICAN_EXPRESS" ]
+            },
+            "uniqueItems" : true
+          },
+          "circuits" : {
+            "type" : "array",
+            "description" : "Un circuit au plus une fois par portée (RG-OPE-16)",
+            "items" : {
+              "$ref" : "#/components/schemas/CircuitPresente"
+            }
+          },
+          "degustationGratuite" : {
+            "type" : "boolean"
+          },
+          "labels" : {
+            "type" : "array",
+            "description" : "Un label au plus une fois (RG-OPE-17)",
+            "items" : {
+              "$ref" : "#/components/schemas/LabelObtenu"
+            }
+          },
+          "langues" : {
+            "type" : "array",
+            "description" : "Identifiants des langues parlées",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "uniqueItems" : true
+          },
+          "lieuDeVente" : {
+            "type" : "boolean"
+          },
+          "marques" : {
+            "type" : "array",
+            "description" : "Une marque au plus une fois par portée (RG-OPE-16)",
+            "items" : {
+              "$ref" : "#/components/schemas/MarquePresentee"
+            }
+          },
+          "medailles" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MedailleConcours"
+            }
+          },
+          "modePresentation" : {
+            "type" : "string",
+            "enum" : [ "ARMAGNAC_EXCLUSIVEMENT", "ARMAGNAC_ET_AUTRES_PRODUITS" ]
+          },
+          "paiementCarte" : {
+            "type" : "boolean"
+          },
+          "presentationEn" : {
+            "type" : "string"
+          },
+          "presentationFr" : {
+            "type" : "string"
+          },
+          "produitsCommercialises" : {
+            "type" : "array",
+            "description" : "Identifiants des produits commercialisés",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "uniqueItems" : true
+          },
+          "visites" : {
+            "type" : "array",
+            "description" : "Un type de visite au plus une fois (RG-OPE-17)",
+            "items" : {
+              "$ref" : "#/components/schemas/VisiteProposee"
+            }
+          }
+        },
+        "required" : [ "accueilGroupes", "adhesionOenotourisme", "cartes", "circuits", "degustationGratuite", "labels", "langues", "lieuDeVente", "marques", "medailles", "paiementCarte", "produitsCommercialises", "visites" ]
       },
       "Region" : {
         "type" : "object",
@@ -5059,6 +5289,20 @@
           }
         },
         "required" : [ "actif", "code", "id", "libelle" ]
+      },
+      "VisiteProposee" : {
+        "type" : "object",
+        "properties" : {
+          "commentaire" : {
+            "type" : "string"
+          },
+          "typeVisite" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du type de visite"
+          }
+        },
+        "required" : [ "typeVisite" ]
       }
     }
   }
