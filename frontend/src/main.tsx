@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { AxiosError } from 'axios'
 import {
+  MutationCache,
   QueryCache,
   QueryClient,
   QueryClientProvider,
@@ -36,18 +37,14 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: import.meta.env.PROD,
       staleTime: 10 * 1000, // 10s
     },
-    mutations: {
-      onError: (error) => {
-        handleServerError(error)
-
-        if (error instanceof AxiosError) {
-          if (error.response?.status === 304) {
-            toast.error('Contenu non modifié')
-          }
-        }
-      },
-    },
   },
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      // Un formulaire qui affiche lui-même l'erreur le signale par meta.erreurAffichee.
+      if (mutation.meta?.erreurAffichee) return
+      handleServerError(error)
+    },
+  }),
   queryCache: new QueryCache({
     onError: (error) => {
       if (error instanceof AxiosError) {
@@ -84,6 +81,12 @@ const router = createRouter({
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
+  }
+}
+
+declare module '@tanstack/react-query' {
+  interface Register {
+    mutationMeta: { erreurAffichee?: boolean }
   }
 }
 

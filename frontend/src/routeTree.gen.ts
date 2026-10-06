@@ -20,6 +20,20 @@ import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as BoParametrageZonesCommercialesRouteImport } from './routes/bo/parametrage/zones-commerciales'
+import { Route as BoParametrageTypesVisiteRouteImport } from './routes/bo/parametrage/types-visite'
+import { Route as BoParametrageTitresRouteImport } from './routes/bo/parametrage/titres'
+import { Route as BoParametrageRegionsRouteImport } from './routes/bo/parametrage/regions'
+import { Route as BoParametrageProduitsCommercialisesRouteImport } from './routes/bo/parametrage/produits-commercialises'
+import { Route as BoParametragePaysRouteImport } from './routes/bo/parametrage/pays'
+import { Route as BoParametrageMarquesRouteImport } from './routes/bo/parametrage/marques'
+import { Route as BoParametrageLanguesRouteImport } from './routes/bo/parametrage/langues'
+import { Route as BoParametrageLabelsRouteImport } from './routes/bo/parametrage/labels'
+import { Route as BoParametrageContenancesRouteImport } from './routes/bo/parametrage/contenances'
+import { Route as BoParametrageCircuitsDistributionRouteImport } from './routes/bo/parametrage/circuits-distribution'
+import { Route as BoParametrageCentresInteretRouteImport } from './routes/bo/parametrage/centres-interet'
+import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
+import { Route as BoParametrageClassesTvaCodeRouteImport } from './routes/bo/parametrage/classes-tva/$code'
 
 const PortailRouteRoute = PortailRouteRouteImport.update({
   id: '/portail',
@@ -76,6 +90,84 @@ const authSignInRoute = authSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoParametrageZonesCommercialesRoute =
+  BoParametrageZonesCommercialesRouteImport.update({
+    id: '/parametrage/zones-commerciales',
+    path: '/parametrage/zones-commerciales',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametrageTypesVisiteRoute =
+  BoParametrageTypesVisiteRouteImport.update({
+    id: '/parametrage/types-visite',
+    path: '/parametrage/types-visite',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametrageTitresRoute = BoParametrageTitresRouteImport.update({
+  id: '/parametrage/titres',
+  path: '/parametrage/titres',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoParametrageRegionsRoute = BoParametrageRegionsRouteImport.update({
+  id: '/parametrage/regions',
+  path: '/parametrage/regions',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoParametrageProduitsCommercialisesRoute =
+  BoParametrageProduitsCommercialisesRouteImport.update({
+    id: '/parametrage/produits-commercialises',
+    path: '/parametrage/produits-commercialises',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametragePaysRoute = BoParametragePaysRouteImport.update({
+  id: '/parametrage/pays',
+  path: '/parametrage/pays',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoParametrageMarquesRoute = BoParametrageMarquesRouteImport.update({
+  id: '/parametrage/marques',
+  path: '/parametrage/marques',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoParametrageLanguesRoute = BoParametrageLanguesRouteImport.update({
+  id: '/parametrage/langues',
+  path: '/parametrage/langues',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoParametrageLabelsRoute = BoParametrageLabelsRouteImport.update({
+  id: '/parametrage/labels',
+  path: '/parametrage/labels',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoParametrageContenancesRoute =
+  BoParametrageContenancesRouteImport.update({
+    id: '/parametrage/contenances',
+    path: '/parametrage/contenances',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametrageCircuitsDistributionRoute =
+  BoParametrageCircuitsDistributionRouteImport.update({
+    id: '/parametrage/circuits-distribution',
+    path: '/parametrage/circuits-distribution',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametrageCentresInteretRoute =
+  BoParametrageCentresInteretRouteImport.update({
+    id: '/parametrage/centres-interet',
+    path: '/parametrage/centres-interet',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametrageClassesTvaIndexRoute =
+  BoParametrageClassesTvaIndexRouteImport.update({
+    id: '/parametrage/classes-tva/',
+    path: '/parametrage/classes-tva/',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const BoParametrageClassesTvaCodeRoute =
+  BoParametrageClassesTvaCodeRouteImport.update({
+    id: '/parametrage/classes-tva/$code',
+    path: '/parametrage/classes-tva/$code',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +181,20 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
+  '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
+  '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
+  '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
+  '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
+  '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
+  '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
+  '/bo/parametrage/pays': typeof BoParametragePaysRoute
+  '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
+  '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
+  '/bo/parametrage/titres': typeof BoParametrageTitresRoute
+  '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
+  '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/bo/parametrage/classes-tva/$code': typeof BoParametrageClassesTvaCodeRoute
+  '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -100,6 +206,20 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
+  '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
+  '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
+  '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
+  '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
+  '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
+  '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
+  '/bo/parametrage/pays': typeof BoParametragePaysRoute
+  '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
+  '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
+  '/bo/parametrage/titres': typeof BoParametrageTitresRoute
+  '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
+  '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/bo/parametrage/classes-tva/$code': typeof BoParametrageClassesTvaCodeRoute
+  '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -114,6 +234,20 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503Route
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
+  '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
+  '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
+  '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
+  '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
+  '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
+  '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
+  '/bo/parametrage/pays': typeof BoParametragePaysRoute
+  '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
+  '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
+  '/bo/parametrage/titres': typeof BoParametrageTitresRoute
+  '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
+  '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/bo/parametrage/classes-tva/$code': typeof BoParametrageClassesTvaCodeRoute
+  '/bo/parametrage/classes-tva/': typeof BoParametrageClassesTvaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -129,6 +263,20 @@ export interface FileRouteTypes {
     | '/503'
     | '/bo/'
     | '/portail/'
+    | '/bo/parametrage/centres-interet'
+    | '/bo/parametrage/circuits-distribution'
+    | '/bo/parametrage/contenances'
+    | '/bo/parametrage/labels'
+    | '/bo/parametrage/langues'
+    | '/bo/parametrage/marques'
+    | '/bo/parametrage/pays'
+    | '/bo/parametrage/produits-commercialises'
+    | '/bo/parametrage/regions'
+    | '/bo/parametrage/titres'
+    | '/bo/parametrage/types-visite'
+    | '/bo/parametrage/zones-commerciales'
+    | '/bo/parametrage/classes-tva/$code'
+    | '/bo/parametrage/classes-tva'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -140,6 +288,20 @@ export interface FileRouteTypes {
     | '/503'
     | '/bo'
     | '/portail'
+    | '/bo/parametrage/centres-interet'
+    | '/bo/parametrage/circuits-distribution'
+    | '/bo/parametrage/contenances'
+    | '/bo/parametrage/labels'
+    | '/bo/parametrage/langues'
+    | '/bo/parametrage/marques'
+    | '/bo/parametrage/pays'
+    | '/bo/parametrage/produits-commercialises'
+    | '/bo/parametrage/regions'
+    | '/bo/parametrage/titres'
+    | '/bo/parametrage/types-visite'
+    | '/bo/parametrage/zones-commerciales'
+    | '/bo/parametrage/classes-tva/$code'
+    | '/bo/parametrage/classes-tva'
   id:
     | '__root__'
     | '/'
@@ -153,6 +315,20 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/bo/'
     | '/portail/'
+    | '/bo/parametrage/centres-interet'
+    | '/bo/parametrage/circuits-distribution'
+    | '/bo/parametrage/contenances'
+    | '/bo/parametrage/labels'
+    | '/bo/parametrage/langues'
+    | '/bo/parametrage/marques'
+    | '/bo/parametrage/pays'
+    | '/bo/parametrage/produits-commercialises'
+    | '/bo/parametrage/regions'
+    | '/bo/parametrage/titres'
+    | '/bo/parametrage/types-visite'
+    | '/bo/parametrage/zones-commerciales'
+    | '/bo/parametrage/classes-tva/$code'
+    | '/bo/parametrage/classes-tva/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -246,15 +422,143 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bo/parametrage/zones-commerciales': {
+      id: '/bo/parametrage/zones-commerciales'
+      path: '/parametrage/zones-commerciales'
+      fullPath: '/bo/parametrage/zones-commerciales'
+      preLoaderRoute: typeof BoParametrageZonesCommercialesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/types-visite': {
+      id: '/bo/parametrage/types-visite'
+      path: '/parametrage/types-visite'
+      fullPath: '/bo/parametrage/types-visite'
+      preLoaderRoute: typeof BoParametrageTypesVisiteRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/titres': {
+      id: '/bo/parametrage/titres'
+      path: '/parametrage/titres'
+      fullPath: '/bo/parametrage/titres'
+      preLoaderRoute: typeof BoParametrageTitresRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/regions': {
+      id: '/bo/parametrage/regions'
+      path: '/parametrage/regions'
+      fullPath: '/bo/parametrage/regions'
+      preLoaderRoute: typeof BoParametrageRegionsRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/produits-commercialises': {
+      id: '/bo/parametrage/produits-commercialises'
+      path: '/parametrage/produits-commercialises'
+      fullPath: '/bo/parametrage/produits-commercialises'
+      preLoaderRoute: typeof BoParametrageProduitsCommercialisesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/pays': {
+      id: '/bo/parametrage/pays'
+      path: '/parametrage/pays'
+      fullPath: '/bo/parametrage/pays'
+      preLoaderRoute: typeof BoParametragePaysRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/marques': {
+      id: '/bo/parametrage/marques'
+      path: '/parametrage/marques'
+      fullPath: '/bo/parametrage/marques'
+      preLoaderRoute: typeof BoParametrageMarquesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/langues': {
+      id: '/bo/parametrage/langues'
+      path: '/parametrage/langues'
+      fullPath: '/bo/parametrage/langues'
+      preLoaderRoute: typeof BoParametrageLanguesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/labels': {
+      id: '/bo/parametrage/labels'
+      path: '/parametrage/labels'
+      fullPath: '/bo/parametrage/labels'
+      preLoaderRoute: typeof BoParametrageLabelsRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/contenances': {
+      id: '/bo/parametrage/contenances'
+      path: '/parametrage/contenances'
+      fullPath: '/bo/parametrage/contenances'
+      preLoaderRoute: typeof BoParametrageContenancesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/circuits-distribution': {
+      id: '/bo/parametrage/circuits-distribution'
+      path: '/parametrage/circuits-distribution'
+      fullPath: '/bo/parametrage/circuits-distribution'
+      preLoaderRoute: typeof BoParametrageCircuitsDistributionRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/centres-interet': {
+      id: '/bo/parametrage/centres-interet'
+      path: '/parametrage/centres-interet'
+      fullPath: '/bo/parametrage/centres-interet'
+      preLoaderRoute: typeof BoParametrageCentresInteretRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/classes-tva/': {
+      id: '/bo/parametrage/classes-tva/'
+      path: '/parametrage/classes-tva'
+      fullPath: '/bo/parametrage/classes-tva'
+      preLoaderRoute: typeof BoParametrageClassesTvaIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/parametrage/classes-tva/$code': {
+      id: '/bo/parametrage/classes-tva/$code'
+      path: '/parametrage/classes-tva/$code'
+      fullPath: '/bo/parametrage/classes-tva/$code'
+      preLoaderRoute: typeof BoParametrageClassesTvaCodeRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
   }
 }
 
 interface BoRouteRouteChildren {
   BoIndexRoute: typeof BoIndexRoute
+  BoParametrageCentresInteretRoute: typeof BoParametrageCentresInteretRoute
+  BoParametrageCircuitsDistributionRoute: typeof BoParametrageCircuitsDistributionRoute
+  BoParametrageContenancesRoute: typeof BoParametrageContenancesRoute
+  BoParametrageLabelsRoute: typeof BoParametrageLabelsRoute
+  BoParametrageLanguesRoute: typeof BoParametrageLanguesRoute
+  BoParametrageMarquesRoute: typeof BoParametrageMarquesRoute
+  BoParametragePaysRoute: typeof BoParametragePaysRoute
+  BoParametrageProduitsCommercialisesRoute: typeof BoParametrageProduitsCommercialisesRoute
+  BoParametrageRegionsRoute: typeof BoParametrageRegionsRoute
+  BoParametrageTitresRoute: typeof BoParametrageTitresRoute
+  BoParametrageTypesVisiteRoute: typeof BoParametrageTypesVisiteRoute
+  BoParametrageZonesCommercialesRoute: typeof BoParametrageZonesCommercialesRoute
+  BoParametrageClassesTvaCodeRoute: typeof BoParametrageClassesTvaCodeRoute
+  BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
 }
 
 const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoIndexRoute: BoIndexRoute,
+  BoParametrageCentresInteretRoute: BoParametrageCentresInteretRoute,
+  BoParametrageCircuitsDistributionRoute:
+    BoParametrageCircuitsDistributionRoute,
+  BoParametrageContenancesRoute: BoParametrageContenancesRoute,
+  BoParametrageLabelsRoute: BoParametrageLabelsRoute,
+  BoParametrageLanguesRoute: BoParametrageLanguesRoute,
+  BoParametrageMarquesRoute: BoParametrageMarquesRoute,
+  BoParametragePaysRoute: BoParametragePaysRoute,
+  BoParametrageProduitsCommercialisesRoute:
+    BoParametrageProduitsCommercialisesRoute,
+  BoParametrageRegionsRoute: BoParametrageRegionsRoute,
+  BoParametrageTitresRoute: BoParametrageTitresRoute,
+  BoParametrageTypesVisiteRoute: BoParametrageTypesVisiteRoute,
+  BoParametrageZonesCommercialesRoute: BoParametrageZonesCommercialesRoute,
+  BoParametrageClassesTvaCodeRoute: BoParametrageClassesTvaCodeRoute,
+  BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,
 }
 
 const BoRouteRouteWithChildren =

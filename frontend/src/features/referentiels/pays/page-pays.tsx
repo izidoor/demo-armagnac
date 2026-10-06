@@ -1,0 +1,159 @@
+import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
+import {
+  creerPays,
+  desactiverPays,
+  listerPays,
+  listerZonesCommerciales,
+  modifierPays,
+  reactiverPays,
+  type Pays,
+} from '@/api/generated'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { BadgeEtat } from '../commun/badge-etat'
+import { ChangementEtat } from '../commun/changement-etat'
+import { BarreFiltre } from '../commun/filtre-valeurs'
+import { LignesEtat } from '../commun/lignes-etat'
+import { MenuActions } from '../commun/menu-actions'
+import { PageParametrage } from '../commun/page-parametrage'
+import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+import { FormulairePays, type SaisiePays } from './formulaire-pays'
+import { LANGUES_CERTIFICAT, NIVEAUX_DETAIL } from './libelles'
+
+function versRequete({ code: _code, ageMinimum, ...saisie }: SaisiePays) {
+  return { ...saisie, ageMinimum: ageMinimum || undefined }
+}
+
+export function PagePays() {
+  const filtreValeurs = useFiltreValeurs()
+  const { filtre } = filtreValeurs
+  const queryClient = useQueryClient()
+  const requete = useQuery({
+    queryKey: ['pays', filtre],
+    queryFn: () =>
+      listerPays({ query: filtre, throwOnError: true }).then((r) => r.data),
+  })
+  const zones = useQuery({
+    queryKey: ['zones-commerciales', {}],
+    queryFn: () =>
+      listerZonesCommerciales({ throwOnError: true }).then((r) => r.data),
+  })
+  const libelleZone = (code: string) =>
+    zones.data?.find((z) => z.code === code)?.libelle ?? code
+  const rafraichir = () => queryClient.invalidateQueries({ queryKey: ['pays'] })
+
+  const [edition, setEdition] = useState<Pays | 'nouveau' | null>(null)
+  const [changement, setChangement] = useState<Pays | null>(null)
+  const paysEdite = edition === 'nouveau' ? undefined : (edition ?? undefined)
+
+  return (
+    <PageParametrage
+      titre='Pays'
+      description="Zone commerciale, appartenance à l'UE, certificat export et âge minimum (C.10.5)."
+      actions={
+        <Button onClick={() => setEdition('nouveau')}>
+          <Plus /> Nouveau pays
+        </Button>
+      }
+    >
+      <BarreFiltre
+        {...filtreValeurs}
+        placeholder='Rechercher un code, un code ISO ou un libellé'
+      />
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Code</TableHead>
+              <TableHead>ISO</TableHead>
+              <TableHead>Libellé</TableHead>
+              <TableHead>Zone</TableHead>
+              <TableHead>UE</TableHead>
+              <TableHead>Certificat</TableHead>
+              <TableHead>Âge min.</TableHead>
+              <TableHead>État</TableHead>
+              <TableHead className='w-12' />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <LignesEtat requete={requete} colonnes={9} />
+            {requete.data?.map((pays) => (
+              <TableRow key={pays.code}>
+                <TableCell className='font-mono'>{pays.code}</TableCell>
+                <TableCell className='font-mono'>{pays.codeIso}</TableCell>
+                <TableCell>{pays.libelle}</TableCell>
+                <TableCell>{libelleZone(pays.zoneCommerciale)}</TableCell>
+                <TableCell>
+                  {pays.membreUe && <Badge variant='secondary'>UE</Badge>}
+                </TableCell>
+                <TableCell className='text-sm'>
+                  {LANGUES_CERTIFICAT[pays.langueCertificat]}
+                  <div className='text-muted-foreground'>
+                    {NIVEAUX_DETAIL[pays.niveauDetailCertificat]}
+                  </div>
+                </TableCell>
+                <TableCell className='font-mono'>{pays.ageMinimum}</TableCell>
+                <TableCell>
+                  <BadgeEtat actif={pays.actif} />
+                </TableCell>
+                <TableCell>
+                  <MenuActions
+                    actif={pays.actif}
+                    onModifier={() => setEdition(pays)}
+                    onChangerEtat={() => setChangement(pays)}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <FormulairePays
+        ouvert={edition !== null}
+        onOuvertChange={(ouvert) => !ouvert && setEdition(null)}
+        pays={paysEdite}
+        zones={zones.data ?? []}
+        enregistrer={(saisie) =>
+          paysEdite
+            ? modifierPays({
+                path: { code: paysEdite.code },
+                body: versRequete(saisie),
+                throwOnError: true,
+              })
+            : creerPays({
+                body: { code: saisie.code, ...versRequete(saisie) },
+                throwOnError: true,
+              })
+        }
+        onSucces={rafraichir}
+      />
+      <ChangementEtat
+        valeur={changement}
+        onFermer={() => setChangement(null)}
+        changer={() =>
+          changement!.actif
+            ? desactiverPays({
+                path: { code: changement!.code },
+                throwOnError: true,
+              })
+            : reactiverPays({
+                path: { code: changement!.code },
+                throwOnError: true,
+              })
+        }
+        onSucces={rafraichir}
+      />
+    </PageParametrage>
+  )
+}

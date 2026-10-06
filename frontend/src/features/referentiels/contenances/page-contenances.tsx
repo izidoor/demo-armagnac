@@ -1,0 +1,292 @@
+import { useEffect, useState } from 'react'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Plus } from 'lucide-react'
+import {
+  creerContenance,
+  desactiverContenance,
+  listerContenances,
+  modifierContenance,
+  reactiverContenance,
+  type Contenance,
+} from '@/api/generated'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { BadgeEtat } from '../commun/badge-etat'
+import { ChangementEtat } from '../commun/changement-etat'
+import { afficherErreur } from '../commun/erreur-formulaire'
+import { ErreurRacine } from '../commun/erreur-racine'
+import { BarreFiltre } from '../commun/filtre-valeurs'
+import { LignesEtat } from '../commun/lignes-etat'
+import { MenuActions } from '../commun/menu-actions'
+import { PageParametrage } from '../commun/page-parametrage'
+import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+
+const schema = z.object({
+  volume: z
+    .string()
+    .trim()
+    .regex(
+      /^\d+([.,]\d{1,3})?$/,
+      'Un volume en litres, trois décimales au plus (0,70).'
+    )
+    .refine((v) => Number(v.replace(',', '.')) > 0, {
+      message: 'Le volume est strictement positif.',
+    }),
+  libelle: z.string(),
+})
+
+type SaisieContenance = z.infer<typeof schema>
+
+const litres = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 3,
+})
+
+export function PageContenances() {
+  const filtreValeurs = useFiltreValeurs()
+  const { filtre } = filtreValeurs
+  const queryClient = useQueryClient()
+  const requete = useQuery({
+    queryKey: ['contenances', filtre],
+    queryFn: () =>
+      listerContenances({ query: filtre, throwOnError: true }).then(
+        (r) => r.data
+      ),
+  })
+  const rafraichir = () =>
+    queryClient.invalidateQueries({ queryKey: ['contenances'] })
+
+  const [edition, setEdition] = useState<Contenance | 'nouvelle' | null>(null)
+  const [changement, setChangement] = useState<Contenance | null>(null)
+  const contenanceEditee =
+    edition === 'nouvelle' ? undefined : (edition ?? undefined)
+
+  return (
+    <PageParametrage
+      titre='Contenances'
+      description="Volumes en litres, utilisés pour le calcul du volume d'alcool pur des ventes export (C.10.9.4, §4.7.5)."
+      actions={
+        <Button onClick={() => setEdition('nouvelle')}>
+          <Plus /> Nouvelle contenance
+        </Button>
+      }
+    >
+      <BarreFiltre
+        {...filtreValeurs}
+        placeholder='Rechercher un libellé ou un volume'
+      />
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='w-40 text-end'>Volume (L)</TableHead>
+              <TableHead>Libellé</TableHead>
+              <TableHead className='w-28'>État</TableHead>
+              <TableHead className='w-12' />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <LignesEtat requete={requete} colonnes={4} />
+            {requete.data?.map((contenance) => (
+              <TableRow key={contenance.volume}>
+                <TableCell className='text-end font-mono'>
+                  {litres.format(contenance.volume)}
+                </TableCell>
+                <TableCell>
+                  {contenance.libelle}
+                  {!contenance.libelleSaisi && (
+                    <span className='text-muted-foreground'> (dérivé)</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <BadgeEtat actif={contenance.actif} />
+                </TableCell>
+                <TableCell>
+                  <MenuActions
+                    actif={contenance.actif}
+                    onModifier={() => setEdition(contenance)}
+                    onChangerEtat={() => setChangement(contenance)}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <FormulaireContenance
+        ouvert={edition !== null}
+        onOuvertChange={(ouvert) => !ouvert && setEdition(null)}
+        contenance={contenanceEditee}
+        onSucces={rafraichir}
+      />
+      <ChangementEtat
+        valeur={changement}
+        onFermer={() => setChangement(null)}
+        changer={() => {
+          const path = { volume: changement!.volume }
+          return changement!.actif
+            ? desactiverContenance({ path, throwOnError: true })
+            : reactiverContenance({ path, throwOnError: true })
+        }}
+        onSucces={rafraichir}
+      />
+    </PageParametrage>
+  )
+}
+
+type FormulaireContenanceProps = {
+  ouvert: boolean
+  onOuvertChange: (ouvert: boolean) => void
+  contenance?: Contenance
+  onSucces: () => void
+}
+
+function FormulaireContenance({
+  ouvert,
+  onOuvertChange,
+  contenance,
+  onSucces,
+}: FormulaireContenanceProps) {
+  const form = useForm<SaisieContenance>({
+    resolver: zodResolver(schema),
+    defaultValues: { volume: '', libelle: '' },
+  })
+
+  useEffect(() => {
+    if (ouvert)
+      form.reset(
+        contenance
+          ? {
+              volume: litres.format(contenance.volume),
+              libelle: contenance.libelleSaisi ?? '',
+            }
+          : { volume: '', libelle: '' }
+      )
+  }, [ouvert, contenance, form])
+
+  const mutation = useMutation({
+    mutationFn: ({ volume, libelle }: SaisieContenance) =>
+      contenance
+        ? modifierContenance({
+            path: { volume: contenance.volume },
+            body: { libelle: libelle.trim() || undefined },
+            throwOnError: true,
+          })
+        : creerContenance({
+            body: {
+              volume: Number(volume.replace(',', '.')),
+              libelle: libelle.trim() || undefined,
+            },
+            throwOnError: true,
+          }),
+    meta: { erreurAffichee: true },
+    onSuccess: () => {
+      onSucces()
+      onOuvertChange(false)
+    },
+    onError: (error) => afficherErreur(form, error, { 'RG-REF-10': 'volume' }),
+  })
+
+  return (
+    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
+      <DialogContent className='sm:max-w-md'>
+        <DialogHeader>
+          <DialogTitle>
+            {contenance
+              ? `Modifier « ${contenance.libelle} »`
+              : 'Nouvelle contenance'}
+          </DialogTitle>
+          <DialogDescription>
+            Le volume identifie la contenance : il ne change plus après la
+            création.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            id='formulaire-contenance'
+            onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
+            className='space-y-4'
+          >
+            <ErreurRacine errors={form.formState.errors} />
+            <FormField
+              control={form.control}
+              name='volume'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Volume en litres</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={!!contenance}
+                      inputMode='decimal'
+                      placeholder='0,70'
+                      autoComplete='off'
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='libelle'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Libellé</FormLabel>
+                  <FormControl>
+                    <Input {...field} autoComplete='off' />
+                  </FormControl>
+                  <FormDescription>
+                    Facultatif : à défaut, dérivé du volume (« 0,70 L »).
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
+        <DialogFooter>
+          <Button variant='outline' onClick={() => onOuvertChange(false)}>
+            Annuler
+          </Button>
+          <Button
+            type='submit'
+            form='formulaire-contenance'
+            disabled={mutation.isPending}
+          >
+            Enregistrer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}

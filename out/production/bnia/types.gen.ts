@@ -5,6 +5,94 @@ export type ClientOptions = {
 };
 
 /**
+ * Classe de TVA avec l'historique de ses taux
+ */
+export type ClasseTva = {
+    actif: boolean;
+    code: string;
+    libelle: string;
+    /**
+     * Du plus récent au plus ancien
+     */
+    taux: Array<TauxTva>;
+    /**
+     * Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)
+     */
+    tauxEnVigueur?: TauxTva;
+};
+
+/**
+ * Ligne du listing des classes de TVA
+ */
+export type ClasseTvaLigne = {
+    actif: boolean;
+    code: string;
+    libelle: string;
+    /**
+     * Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)
+     */
+    tauxEnVigueur?: number;
+};
+
+export type Contenance = {
+    actif: boolean;
+    /**
+     * Libellé saisi, sinon dérivé du volume
+     */
+    libelle: string;
+    /**
+     * Libellé saisi ; absent si dérivé du volume
+     */
+    libelleSaisi?: string;
+    /**
+     * Volume en litres, identifiant
+     */
+    volume: number;
+};
+
+export type CreationContenance = {
+    /**
+     * Facultatif : dérivé du volume si absent
+     */
+    libelle?: string;
+    /**
+     * En litres, trois décimales au plus
+     */
+    volume: number;
+};
+
+export type CreationPays = {
+    /**
+     * Compte d'âge : 00, 0, 1, 2… ; absent si aucun
+     */
+    ageMinimum?: string;
+    code: string;
+    codeIso: string;
+    /**
+     * Absent : FR_EN (H-REF-2)
+     */
+    langueCertificat?: 'FR_EN' | 'FR_ES' | 'FR_IT';
+    libelle: string;
+    membreUe: boolean;
+    /**
+     * Absent : CUMUL_DEGRE (H-REF-2)
+     */
+    niveauDetailCertificat?: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
+    zoneCommerciale: string;
+};
+
+export type CreationRegion = {
+    code: string;
+    enRegionDelimitee: boolean;
+    libelle: string;
+};
+
+export type CreationValeurSimple = {
+    code: string;
+    libelle: string;
+};
+
+/**
  * Identification de l'application et de la base qui la sert
  */
 export type InfoSysteme = {
@@ -12,6 +100,1654 @@ export type InfoSysteme = {
     version: string;
     versionBase: string;
 };
+
+/**
+ * Le volume est immuable (RG-REF-02) : seul le libellé change
+ */
+export type ModificationContenance = {
+    /**
+     * Facultatif : dérivé du volume si absent
+     */
+    libelle?: string;
+};
+
+/**
+ * Tout sauf le code, immuable (RG-REF-02)
+ */
+export type ModificationPays = {
+    /**
+     * Compte d'âge : 00, 0, 1, 2… ; absent si aucun
+     */
+    ageMinimum?: string;
+    codeIso: string;
+    /**
+     * Absent : FR_EN (H-REF-2)
+     */
+    langueCertificat?: 'FR_EN' | 'FR_ES' | 'FR_IT';
+    libelle: string;
+    membreUe: boolean;
+    /**
+     * Absent : CUMUL_DEGRE (H-REF-2)
+     */
+    niveauDetailCertificat?: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
+    zoneCommerciale: string;
+};
+
+/**
+ * Le code est immuable (RG-REF-02)
+ */
+export type ModificationRegion = {
+    enRegionDelimitee: boolean;
+    libelle: string;
+};
+
+/**
+ * Le code est immuable (RG-REF-02) : seul le libellé change
+ */
+export type ModificationValeurSimple = {
+    libelle: string;
+};
+
+export type Pays = {
+    actif: boolean;
+    /**
+     * Compte d'âge : 00, 0, 1, 2…
+     */
+    ageMinimum?: string;
+    code: string;
+    codeIso: string;
+    langueCertificat: 'FR_EN' | 'FR_ES' | 'FR_IT';
+    libelle: string;
+    membreUe: boolean;
+    niveauDetailCertificat: 'CUMUL_DEGRE' | 'DETAIL_COMPTE_AGE' | 'DETAIL_MILLESIME';
+    /**
+     * Code de la zone commerciale
+     */
+    zoneCommerciale: string;
+};
+
+export type Region = {
+    actif: boolean;
+    code: string;
+    enRegionDelimitee: boolean;
+    libelle: string;
+};
+
+export type SaisieTauxTva = {
+    dateDebut: string;
+    /**
+     * Facultative : sans fin, le taux vaut pour toutes les dates postérieures
+     */
+    dateFin?: string;
+    /**
+     * Pourcentage entre 0 et 100, deux décimales au plus
+     */
+    taux: number;
+};
+
+export type TauxTva = {
+    dateDebut: string;
+    /**
+     * Absente : taux sans terme
+     */
+    dateFin?: string;
+    /**
+     * Pourcentage
+     */
+    taux: number;
+};
+
+/**
+ * Valeur d'une liste de référentiel
+ */
+export type ValeurSimple = {
+    actif: boolean;
+    code: string;
+    libelle: string;
+};
+
+export type ListerCentresInteretData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/centres-interet';
+};
+
+export type ListerCentresInteretResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerCentresInteretResponse = ListerCentresInteretResponses[keyof ListerCentresInteretResponses];
+
+export type CreerCentreInteretData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/centres-interet';
+};
+
+export type CreerCentreInteretResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerCentreInteretResponse = CreerCentreInteretResponses[keyof CreerCentreInteretResponses];
+
+export type ConsulterCentreInteretData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/centres-interet/{code}';
+};
+
+export type ConsulterCentreInteretResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterCentreInteretResponse = ConsulterCentreInteretResponses[keyof ConsulterCentreInteretResponses];
+
+export type ModifierCentreInteretData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/centres-interet/{code}';
+};
+
+export type ModifierCentreInteretResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierCentreInteretResponse = ModifierCentreInteretResponses[keyof ModifierCentreInteretResponses];
+
+export type DesactiverCentreInteretData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/centres-interet/{code}/desactivation';
+};
+
+export type DesactiverCentreInteretResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverCentreInteretResponse = DesactiverCentreInteretResponses[keyof DesactiverCentreInteretResponses];
+
+export type ReactiverCentreInteretData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/centres-interet/{code}/reactivation';
+};
+
+export type ReactiverCentreInteretResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverCentreInteretResponse = ReactiverCentreInteretResponses[keyof ReactiverCentreInteretResponses];
+
+export type ListerCircuitsDistributionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/circuits-distribution';
+};
+
+export type ListerCircuitsDistributionResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerCircuitsDistributionResponse = ListerCircuitsDistributionResponses[keyof ListerCircuitsDistributionResponses];
+
+export type CreerCircuitDistributionData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/circuits-distribution';
+};
+
+export type CreerCircuitDistributionResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerCircuitDistributionResponse = CreerCircuitDistributionResponses[keyof CreerCircuitDistributionResponses];
+
+export type ConsulterCircuitDistributionData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/circuits-distribution/{code}';
+};
+
+export type ConsulterCircuitDistributionResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterCircuitDistributionResponse = ConsulterCircuitDistributionResponses[keyof ConsulterCircuitDistributionResponses];
+
+export type ModifierCircuitDistributionData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/circuits-distribution/{code}';
+};
+
+export type ModifierCircuitDistributionResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierCircuitDistributionResponse = ModifierCircuitDistributionResponses[keyof ModifierCircuitDistributionResponses];
+
+export type DesactiverCircuitDistributionData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/circuits-distribution/{code}/desactivation';
+};
+
+export type DesactiverCircuitDistributionResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverCircuitDistributionResponse = DesactiverCircuitDistributionResponses[keyof DesactiverCircuitDistributionResponses];
+
+export type ReactiverCircuitDistributionData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/circuits-distribution/{code}/reactivation';
+};
+
+export type ReactiverCircuitDistributionResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverCircuitDistributionResponse = ReactiverCircuitDistributionResponses[keyof ReactiverCircuitDistributionResponses];
+
+export type ListerClassesTvaData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/classes-tva';
+};
+
+export type ListerClassesTvaResponses = {
+    /**
+     * OK
+     */
+    200: Array<ClasseTvaLigne>;
+};
+
+export type ListerClassesTvaResponse = ListerClassesTvaResponses[keyof ListerClassesTvaResponses];
+
+export type CreerClasseTvaData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/classes-tva';
+};
+
+export type CreerClasseTvaResponses = {
+    /**
+     * Created
+     */
+    201: ClasseTva;
+};
+
+export type CreerClasseTvaResponse = CreerClasseTvaResponses[keyof CreerClasseTvaResponses];
+
+export type ConsulterClasseTvaData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}';
+};
+
+export type ConsulterClasseTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type ConsulterClasseTvaResponse = ConsulterClasseTvaResponses[keyof ConsulterClasseTvaResponses];
+
+export type ModifierClasseTvaData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}';
+};
+
+export type ModifierClasseTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type ModifierClasseTvaResponse = ModifierClasseTvaResponses[keyof ModifierClasseTvaResponses];
+
+export type DesactiverClasseTvaData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}/desactivation';
+};
+
+export type DesactiverClasseTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type DesactiverClasseTvaResponse = DesactiverClasseTvaResponses[keyof DesactiverClasseTvaResponses];
+
+export type ReactiverClasseTvaData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}/reactivation';
+};
+
+export type ReactiverClasseTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type ReactiverClasseTvaResponse = ReactiverClasseTvaResponses[keyof ReactiverClasseTvaResponses];
+
+export type AjouterTauxTvaData = {
+    body: SaisieTauxTva;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}/taux';
+};
+
+export type AjouterTauxTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type AjouterTauxTvaResponse = AjouterTauxTvaResponses[keyof AjouterTauxTvaResponses];
+
+export type RetirerTauxTvaData = {
+    body?: never;
+    path: {
+        code: string;
+        dateDebut: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}/taux/{dateDebut}';
+};
+
+export type RetirerTauxTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type RetirerTauxTvaResponse = RetirerTauxTvaResponses[keyof RetirerTauxTvaResponses];
+
+export type ModifierTauxTvaData = {
+    body: SaisieTauxTva;
+    path: {
+        code: string;
+        dateDebut: string;
+    };
+    query?: never;
+    url: '/api/referentiels/classes-tva/{code}/taux/{dateDebut}';
+};
+
+export type ModifierTauxTvaResponses = {
+    /**
+     * OK
+     */
+    200: ClasseTva;
+};
+
+export type ModifierTauxTvaResponse = ModifierTauxTvaResponses[keyof ModifierTauxTvaResponses];
+
+export type ListerContenancesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le libellé saisi ou le volume
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/contenances';
+};
+
+export type ListerContenancesResponses = {
+    /**
+     * OK
+     */
+    200: Array<Contenance>;
+};
+
+export type ListerContenancesResponse = ListerContenancesResponses[keyof ListerContenancesResponses];
+
+export type CreerContenanceData = {
+    body: CreationContenance;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/contenances';
+};
+
+export type CreerContenanceResponses = {
+    /**
+     * Created
+     */
+    201: Contenance;
+};
+
+export type CreerContenanceResponse = CreerContenanceResponses[keyof CreerContenanceResponses];
+
+export type ConsulterContenanceData = {
+    body?: never;
+    path: {
+        volume: number;
+    };
+    query?: never;
+    url: '/api/referentiels/contenances/{volume}';
+};
+
+export type ConsulterContenanceResponses = {
+    /**
+     * OK
+     */
+    200: Contenance;
+};
+
+export type ConsulterContenanceResponse = ConsulterContenanceResponses[keyof ConsulterContenanceResponses];
+
+export type ModifierContenanceData = {
+    body: ModificationContenance;
+    path: {
+        volume: number;
+    };
+    query?: never;
+    url: '/api/referentiels/contenances/{volume}';
+};
+
+export type ModifierContenanceResponses = {
+    /**
+     * OK
+     */
+    200: Contenance;
+};
+
+export type ModifierContenanceResponse = ModifierContenanceResponses[keyof ModifierContenanceResponses];
+
+export type DesactiverContenanceData = {
+    body?: never;
+    path: {
+        volume: number;
+    };
+    query?: never;
+    url: '/api/referentiels/contenances/{volume}/desactivation';
+};
+
+export type DesactiverContenanceResponses = {
+    /**
+     * OK
+     */
+    200: Contenance;
+};
+
+export type DesactiverContenanceResponse = DesactiverContenanceResponses[keyof DesactiverContenanceResponses];
+
+export type ReactiverContenanceData = {
+    body?: never;
+    path: {
+        volume: number;
+    };
+    query?: never;
+    url: '/api/referentiels/contenances/{volume}/reactivation';
+};
+
+export type ReactiverContenanceResponses = {
+    /**
+     * OK
+     */
+    200: Contenance;
+};
+
+export type ReactiverContenanceResponse = ReactiverContenanceResponses[keyof ReactiverContenanceResponses];
+
+export type ListerLabelsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/labels';
+};
+
+export type ListerLabelsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerLabelsResponse = ListerLabelsResponses[keyof ListerLabelsResponses];
+
+export type CreerLabelData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/labels';
+};
+
+export type CreerLabelResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerLabelResponse = CreerLabelResponses[keyof CreerLabelResponses];
+
+export type ConsulterLabelData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/labels/{code}';
+};
+
+export type ConsulterLabelResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterLabelResponse = ConsulterLabelResponses[keyof ConsulterLabelResponses];
+
+export type ModifierLabelData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/labels/{code}';
+};
+
+export type ModifierLabelResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierLabelResponse = ModifierLabelResponses[keyof ModifierLabelResponses];
+
+export type DesactiverLabelData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/labels/{code}/desactivation';
+};
+
+export type DesactiverLabelResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverLabelResponse = DesactiverLabelResponses[keyof DesactiverLabelResponses];
+
+export type ReactiverLabelData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/labels/{code}/reactivation';
+};
+
+export type ReactiverLabelResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverLabelResponse = ReactiverLabelResponses[keyof ReactiverLabelResponses];
+
+export type ListerLanguesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/langues';
+};
+
+export type ListerLanguesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerLanguesResponse = ListerLanguesResponses[keyof ListerLanguesResponses];
+
+export type CreerLangueData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/langues';
+};
+
+export type CreerLangueResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerLangueResponse = CreerLangueResponses[keyof CreerLangueResponses];
+
+export type ConsulterLangueData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/langues/{code}';
+};
+
+export type ConsulterLangueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterLangueResponse = ConsulterLangueResponses[keyof ConsulterLangueResponses];
+
+export type ModifierLangueData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/langues/{code}';
+};
+
+export type ModifierLangueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierLangueResponse = ModifierLangueResponses[keyof ModifierLangueResponses];
+
+export type DesactiverLangueData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/langues/{code}/desactivation';
+};
+
+export type DesactiverLangueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverLangueResponse = DesactiverLangueResponses[keyof DesactiverLangueResponses];
+
+export type ReactiverLangueData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/langues/{code}/reactivation';
+};
+
+export type ReactiverLangueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverLangueResponse = ReactiverLangueResponses[keyof ReactiverLangueResponses];
+
+export type ListerMarquesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/marques';
+};
+
+export type ListerMarquesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerMarquesResponse = ListerMarquesResponses[keyof ListerMarquesResponses];
+
+export type CreerMarqueData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/marques';
+};
+
+export type CreerMarqueResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerMarqueResponse = CreerMarqueResponses[keyof CreerMarqueResponses];
+
+export type ListerMarquesProchesData = {
+    body?: never;
+    path?: never;
+    query: {
+        libelle: string;
+    };
+    url: '/api/referentiels/marques/proches';
+};
+
+export type ListerMarquesProchesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerMarquesProchesResponse = ListerMarquesProchesResponses[keyof ListerMarquesProchesResponses];
+
+export type ConsulterMarqueData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/marques/{code}';
+};
+
+export type ConsulterMarqueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterMarqueResponse = ConsulterMarqueResponses[keyof ConsulterMarqueResponses];
+
+export type ModifierMarqueData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/marques/{code}';
+};
+
+export type ModifierMarqueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierMarqueResponse = ModifierMarqueResponses[keyof ModifierMarqueResponses];
+
+export type DesactiverMarqueData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/marques/{code}/desactivation';
+};
+
+export type DesactiverMarqueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverMarqueResponse = DesactiverMarqueResponses[keyof DesactiverMarqueResponses];
+
+export type ReactiverMarqueData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/marques/{code}/reactivation';
+};
+
+export type ReactiverMarqueResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverMarqueResponse = ReactiverMarqueResponses[keyof ReactiverMarqueResponses];
+
+export type ListerPaysData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actifs et inactifs
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code, le code ISO ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/pays';
+};
+
+export type ListerPaysResponses = {
+    /**
+     * OK
+     */
+    200: Array<Pays>;
+};
+
+export type ListerPaysResponse = ListerPaysResponses[keyof ListerPaysResponses];
+
+export type CreerPaysData = {
+    body: CreationPays;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/pays';
+};
+
+export type CreerPaysResponses = {
+    /**
+     * Created
+     */
+    201: Pays;
+};
+
+export type CreerPaysResponse = CreerPaysResponses[keyof CreerPaysResponses];
+
+export type ConsulterPaysData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/pays/{code}';
+};
+
+export type ConsulterPaysResponses = {
+    /**
+     * OK
+     */
+    200: Pays;
+};
+
+export type ConsulterPaysResponse = ConsulterPaysResponses[keyof ConsulterPaysResponses];
+
+export type ModifierPaysData = {
+    body: ModificationPays;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/pays/{code}';
+};
+
+export type ModifierPaysResponses = {
+    /**
+     * OK
+     */
+    200: Pays;
+};
+
+export type ModifierPaysResponse = ModifierPaysResponses[keyof ModifierPaysResponses];
+
+export type DesactiverPaysData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/pays/{code}/desactivation';
+};
+
+export type DesactiverPaysResponses = {
+    /**
+     * OK
+     */
+    200: Pays;
+};
+
+export type DesactiverPaysResponse = DesactiverPaysResponses[keyof DesactiverPaysResponses];
+
+export type ReactiverPaysData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/pays/{code}/reactivation';
+};
+
+export type ReactiverPaysResponses = {
+    /**
+     * OK
+     */
+    200: Pays;
+};
+
+export type ReactiverPaysResponse = ReactiverPaysResponses[keyof ReactiverPaysResponses];
+
+export type ListerProduitsCommercialisesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/produits-commercialises';
+};
+
+export type ListerProduitsCommercialisesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerProduitsCommercialisesResponse = ListerProduitsCommercialisesResponses[keyof ListerProduitsCommercialisesResponses];
+
+export type CreerProduitCommercialiseData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/produits-commercialises';
+};
+
+export type CreerProduitCommercialiseResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerProduitCommercialiseResponse = CreerProduitCommercialiseResponses[keyof CreerProduitCommercialiseResponses];
+
+export type ConsulterProduitCommercialiseData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/produits-commercialises/{code}';
+};
+
+export type ConsulterProduitCommercialiseResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterProduitCommercialiseResponse = ConsulterProduitCommercialiseResponses[keyof ConsulterProduitCommercialiseResponses];
+
+export type ModifierProduitCommercialiseData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/produits-commercialises/{code}';
+};
+
+export type ModifierProduitCommercialiseResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierProduitCommercialiseResponse = ModifierProduitCommercialiseResponses[keyof ModifierProduitCommercialiseResponses];
+
+export type DesactiverProduitCommercialiseData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/produits-commercialises/{code}/desactivation';
+};
+
+export type DesactiverProduitCommercialiseResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverProduitCommercialiseResponse = DesactiverProduitCommercialiseResponses[keyof DesactiverProduitCommercialiseResponses];
+
+export type ReactiverProduitCommercialiseData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/produits-commercialises/{code}/reactivation';
+};
+
+export type ReactiverProduitCommercialiseResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverProduitCommercialiseResponse = ReactiverProduitCommercialiseResponses[keyof ReactiverProduitCommercialiseResponses];
+
+export type ListerRegionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/regions';
+};
+
+export type ListerRegionsResponses = {
+    /**
+     * OK
+     */
+    200: Array<Region>;
+};
+
+export type ListerRegionsResponse = ListerRegionsResponses[keyof ListerRegionsResponses];
+
+export type CreerRegionData = {
+    body: CreationRegion;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/regions';
+};
+
+export type CreerRegionResponses = {
+    /**
+     * Created
+     */
+    201: Region;
+};
+
+export type CreerRegionResponse = CreerRegionResponses[keyof CreerRegionResponses];
+
+export type ConsulterRegionData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/regions/{code}';
+};
+
+export type ConsulterRegionResponses = {
+    /**
+     * OK
+     */
+    200: Region;
+};
+
+export type ConsulterRegionResponse = ConsulterRegionResponses[keyof ConsulterRegionResponses];
+
+export type ModifierRegionData = {
+    body: ModificationRegion;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/regions/{code}';
+};
+
+export type ModifierRegionResponses = {
+    /**
+     * OK
+     */
+    200: Region;
+};
+
+export type ModifierRegionResponse = ModifierRegionResponses[keyof ModifierRegionResponses];
+
+export type DesactiverRegionData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/regions/{code}/desactivation';
+};
+
+export type DesactiverRegionResponses = {
+    /**
+     * OK
+     */
+    200: Region;
+};
+
+export type DesactiverRegionResponse = DesactiverRegionResponses[keyof DesactiverRegionResponses];
+
+export type ReactiverRegionData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/regions/{code}/reactivation';
+};
+
+export type ReactiverRegionResponses = {
+    /**
+     * OK
+     */
+    200: Region;
+};
+
+export type ReactiverRegionResponse = ReactiverRegionResponses[keyof ReactiverRegionResponses];
+
+export type ListerTitresData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/titres';
+};
+
+export type ListerTitresResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerTitresResponse = ListerTitresResponses[keyof ListerTitresResponses];
+
+export type CreerTitreData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/titres';
+};
+
+export type CreerTitreResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerTitreResponse = CreerTitreResponses[keyof CreerTitreResponses];
+
+export type ConsulterTitreData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/titres/{code}';
+};
+
+export type ConsulterTitreResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterTitreResponse = ConsulterTitreResponses[keyof ConsulterTitreResponses];
+
+export type ModifierTitreData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/titres/{code}';
+};
+
+export type ModifierTitreResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierTitreResponse = ModifierTitreResponses[keyof ModifierTitreResponses];
+
+export type DesactiverTitreData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/titres/{code}/desactivation';
+};
+
+export type DesactiverTitreResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverTitreResponse = DesactiverTitreResponses[keyof DesactiverTitreResponses];
+
+export type ReactiverTitreData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/titres/{code}/reactivation';
+};
+
+export type ReactiverTitreResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverTitreResponse = ReactiverTitreResponses[keyof ReactiverTitreResponses];
+
+export type ListerTypesVisiteData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/types-visite';
+};
+
+export type ListerTypesVisiteResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerTypesVisiteResponse = ListerTypesVisiteResponses[keyof ListerTypesVisiteResponses];
+
+export type CreerTypeVisiteData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/types-visite';
+};
+
+export type CreerTypeVisiteResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerTypeVisiteResponse = CreerTypeVisiteResponses[keyof CreerTypeVisiteResponses];
+
+export type ConsulterTypeVisiteData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/types-visite/{code}';
+};
+
+export type ConsulterTypeVisiteResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterTypeVisiteResponse = ConsulterTypeVisiteResponses[keyof ConsulterTypeVisiteResponses];
+
+export type ModifierTypeVisiteData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/types-visite/{code}';
+};
+
+export type ModifierTypeVisiteResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierTypeVisiteResponse = ModifierTypeVisiteResponses[keyof ModifierTypeVisiteResponses];
+
+export type DesactiverTypeVisiteData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/types-visite/{code}/desactivation';
+};
+
+export type DesactiverTypeVisiteResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverTypeVisiteResponse = DesactiverTypeVisiteResponses[keyof DesactiverTypeVisiteResponses];
+
+export type ReactiverTypeVisiteData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/types-visite/{code}/reactivation';
+};
+
+export type ReactiverTypeVisiteResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverTypeVisiteResponse = ReactiverTypeVisiteResponses[keyof ReactiverTypeVisiteResponses];
+
+export type ListerZonesCommercialesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/zones-commerciales';
+};
+
+export type ListerZonesCommercialesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerZonesCommercialesResponse = ListerZonesCommercialesResponses[keyof ListerZonesCommercialesResponses];
+
+export type CreerZoneCommercialeData = {
+    body: CreationValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/zones-commerciales';
+};
+
+export type CreerZoneCommercialeResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerZoneCommercialeResponse = CreerZoneCommercialeResponses[keyof CreerZoneCommercialeResponses];
+
+export type ConsulterZoneCommercialeData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/zones-commerciales/{code}';
+};
+
+export type ConsulterZoneCommercialeResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterZoneCommercialeResponse = ConsulterZoneCommercialeResponses[keyof ConsulterZoneCommercialeResponses];
+
+export type ModifierZoneCommercialeData = {
+    body: ModificationValeurSimple;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/zones-commerciales/{code}';
+};
+
+export type ModifierZoneCommercialeResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierZoneCommercialeResponse = ModifierZoneCommercialeResponses[keyof ModifierZoneCommercialeResponses];
+
+export type DesactiverZoneCommercialeData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/zones-commerciales/{code}/desactivation';
+};
+
+export type DesactiverZoneCommercialeResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverZoneCommercialeResponse = DesactiverZoneCommercialeResponses[keyof DesactiverZoneCommercialeResponses];
+
+export type ReactiverZoneCommercialeData = {
+    body?: never;
+    path: {
+        code: string;
+    };
+    query?: never;
+    url: '/api/referentiels/zones-commerciales/{code}/reactivation';
+};
+
+export type ReactiverZoneCommercialeResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverZoneCommercialeResponse = ReactiverZoneCommercialeResponses[keyof ReactiverZoneCommercialeResponses];
 
 export type ConsulterInfoSystemeData = {
     body?: never;
