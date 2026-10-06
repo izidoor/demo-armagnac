@@ -1,9 +1,15 @@
 package fr.bnia.operateurs.adapter.rest;
 
+import fr.bnia.commun.domain.Appellation;
+import fr.bnia.commun.domain.Millesime;
 import fr.bnia.operateurs.application.FicheOperateur;
 import fr.bnia.operateurs.domain.CodeOperateur;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
+import fr.bnia.operateurs.domain.NiveauDiffusion;
 import fr.bnia.operateurs.domain.Operateur;
+import fr.bnia.operateurs.domain.TypeAlambic;
+import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
+import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
@@ -41,6 +47,19 @@ public record FicheOperateurResponse(
         @Schema(description = "Identifiant du membre BNIA") Long membreBnia,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean accordDiffusionGeneral,
         String commentaireInterne,
+        @Schema(description = "Absente pour un opérateur AUTRE") PeriodiciteDsm periodicite,
+        @Schema(description = "Périodicité par défaut du type, suggérée à l'écran quand elle diffère (RG-OPE-10)")
+        PeriodiciteDsm periodiciteParDefaut,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) StatutDeclarationStock statutDeclarationStock,
+        @Schema(description = "Identifiant de la région") Long region,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<Appellation> appellations,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<AlambicResponse> alambics,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Calculé : au moins un alambic (RG-OPE-13)")
+        boolean detenteurAlambic,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) NiveauDiffusion niveauDiffusion,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Années, croissantes ; en accord partiel seulement")
+        List<Integer> millesimesDiffusables,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean accesStatistiques,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean actif,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète")
         List<String> champsManquants,
@@ -60,9 +79,23 @@ public record FicheOperateurResponse(
                 a.pays(), i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral()), texte(i.siteWeb()),
                 texte(i.siteCommercial()), i.gps() == null ? null : i.gps().latitude(),
                 i.gps() == null ? null : i.gps().longitude(), i.membreBnia(), i.accordDiffusionGeneral(),
-                i.commentaireInterne(), o.estActif(), fiche.champsManquants(), fiche.codeConforme(),
+                i.commentaireInterne(), o.declaratif().periodicite(),
+                PeriodiciteDsm.parDefaut(o.type()).orElse(null), o.declaratif().statut(), o.production().region(),
+                o.production().appellations().stream().sorted().toList(),
+                o.production().alambics().stream()
+                        .map(al -> new AlambicResponse(al.numeroAgrement(), al.type(), al.capacite())).toList(),
+                o.production().detenteurAlambic(), o.diffusion().niveau(),
+                o.diffusion().millesimes().stream().map(Millesime::annee).toList(), o.accesStatistiques(),
+                o.estActif(), fiche.champsManquants(), fiche.codeConforme(),
                 fiche.codePropose().map(CodeOperateur::valeur).orElse(null),
                 fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList());
+    }
+
+    @Schema(name = "Alambic")
+    public record AlambicResponse(
+            String numeroAgrement,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) TypeAlambic type,
+            BigDecimal capacite) {
     }
 
     private static String texte(Object valeur) {

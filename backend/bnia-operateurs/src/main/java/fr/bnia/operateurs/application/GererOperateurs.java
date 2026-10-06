@@ -5,13 +5,17 @@ import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.operateurs.domain.Adresse;
+import fr.bnia.operateurs.domain.Alambic;
 import fr.bnia.operateurs.domain.CodeOperateur;
 import fr.bnia.operateurs.domain.CoordonneesGps;
 import fr.bnia.operateurs.domain.Cvi;
+import fr.bnia.operateurs.domain.Declaratif;
+import fr.bnia.operateurs.domain.DiffusionMillesimes;
 import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
 import fr.bnia.operateurs.domain.NumeroAccise;
 import fr.bnia.operateurs.domain.Operateur;
+import fr.bnia.operateurs.domain.Production;
 import fr.bnia.operateurs.domain.SerieCode;
 import fr.bnia.operateurs.domain.Siret;
 import fr.bnia.operateurs.domain.SiteWeb;
@@ -104,6 +108,30 @@ public class GererOperateurs {
         verifierReferences(identite, operateur.identite());
         operateur.modifierIdentite(saisie.type(), CodeOperateur.de(saisie.code()), identite);
         verifierUnicite(operateur, id);
+        repository.mettreAJour(operateur);
+        return operateur;
+    }
+
+    /** Onglet Production (RG-OPE-01, 10 à 13, 21). */
+    public Operateur modifierProduction(long id, SaisieProduction saisie) {
+        Operateur operateur = consulter(id);
+        verifierReference("région", saisie.region(), operateur.production().region(),
+                region -> referentiels.region(region).map(v -> new Reference(v.libelle(), v.actif())));
+        List<Alambic> alambics = saisie.alambics() == null ? List.of() : saisie.alambics().stream()
+                .map(a -> new Alambic(a.numeroAgrement(), a.type(), a.capacite()))
+                .toList();
+        operateur.modifierProduction(
+                new Declaratif(saisie.periodicite(), saisie.statutDeclarationStock()),
+                new Production(saisie.region(), saisie.appellations(), alambics));
+        repository.mettreAJour(operateur);
+        return operateur;
+    }
+
+    /** Onglet Diffusion : millésimes diffusables et accès aux statistiques du portail (RG-OPE-14, 15). */
+    public Operateur modifierDiffusion(long id, SaisieDiffusion saisie) {
+        Operateur operateur = consulter(id);
+        operateur.modifierDiffusion(DiffusionMillesimes.saisie(saisie.niveau(), saisie.millesimes()));
+        operateur.modifierAccesStatistiques(saisie.accesStatistiques());
         repository.mettreAJour(operateur);
         return operateur;
     }
@@ -205,9 +233,10 @@ public class GererOperateurs {
             return;
         }
         Reference reference = lire.apply(choisi).orElseThrow(() -> new RegleEnfreinte("RG-OPE-21",
-                "Valeur inconnue pour le " + nom + " : " + choisi + "."));
+                "Valeur inconnue (" + nom + ") : " + choisi + "."));
         if (!reference.actif()) {
-            throw new RegleEnfreinte("RG-OPE-21", "Le " + nom + " « " + reference.libelle() + " » est inactif.");
+            throw new RegleEnfreinte("RG-OPE-21",
+                    "Valeur inactive (" + nom + ") : « " + reference.libelle() + " ». Choisissez une valeur active.");
         }
     }
 

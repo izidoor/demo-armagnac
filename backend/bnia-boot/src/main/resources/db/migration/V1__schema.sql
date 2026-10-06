@@ -198,10 +198,42 @@ create table operateurs.operateur (
     membre_bnia_id            bigint        references referentiels.membre_bnia (id),
     accord_diffusion_general  boolean       not null default false,
     commentaire_interne       text,
+    -- Déclaratif (RG-OPE-01, 10, 11) : pas de périodicité pour AUTRE, obligatoire sinon.
+    periodicite_dsm           text          check (periodicite_dsm in ('MENSUELLE', 'TRIMESTRIELLE', 'SEMESTRIELLE', 'ANNUELLE')),
+    statut_declaration_stock  text          not null check (statut_declaration_stock in ('OUI', 'NON', 'SOMMEIL', 'CLOTURE')),
+    region_id                 bigint        references referentiels.region (id),
+    -- Diffusion des millésimes (RG-OPE-14) et accès aux statistiques du portail (RG-OPE-15).
+    niveau_diffusion          text          not null default 'REFUS' check (niveau_diffusion in ('REFUS', 'PARTIEL', 'TOTAL')),
+    acces_statistiques        boolean       not null default false,
     actif                     boolean       not null default true,
-    check ((latitude is null) = (longitude is null))
+    check ((latitude is null) = (longitude is null)),
+    check ((type = 'AUTRE') = (periodicite_dsm is null)),
+    check (type <> 'AUTRE' or statut_declaration_stock <> 'OUI')
 );
 create unique index operateur_code_unique on operateurs.operateur (lower(code));
 create unique index operateur_identifiant_odg_unique on operateurs.operateur (lower(identifiant_odg));
 create index operateur_groupe on operateurs.operateur (groupe_normalise);
 create index operateur_raison_sociale on operateurs.operateur (raison_sociale_normalisee);
+
+-- Production (C.1.1.2, C.1.2 p.102) : appellations (RG-OPE-12) et alambics (RG-OPE-13), dans l'agrégat.
+create table operateurs.operateur_appellation (
+    operateur_id bigint not null references operateurs.operateur (id) on delete cascade,
+    appellation  text   not null check (appellation in ('ARMAGNAC', 'BAS_ARMAGNAC', 'ARMAGNAC_TENAREZE', 'HAUT_ARMAGNAC', 'BLANCHE_ARMAGNAC')),
+    primary key (operateur_id, appellation)
+);
+
+create table operateurs.alambic (
+    operateur_id    bigint         not null references operateurs.operateur (id) on delete cascade,
+    rang            integer        not null,
+    numero_agrement text,
+    type            text           not null check (type in ('ARMAGNACAIS', 'DOUBLE_CHAUFFE')),
+    capacite        numeric(10, 2) check (capacite > 0),
+    primary key (operateur_id, rang)
+);
+
+-- Millésimes diffusables, en accord partiel seulement (RG-OPE-14 ; contrôle dans l'agrégat).
+create table operateurs.millesime_diffusable (
+    operateur_id bigint  not null references operateurs.operateur (id) on delete cascade,
+    millesime    integer not null check (millesime between 1800 and 2100),
+    primary key (operateur_id, millesime)
+);

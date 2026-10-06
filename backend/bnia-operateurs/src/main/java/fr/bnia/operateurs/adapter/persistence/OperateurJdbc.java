@@ -1,31 +1,47 @@
 package fr.bnia.operateurs.adapter.persistence;
 
+import fr.bnia.commun.domain.Appellation;
 import fr.bnia.commun.domain.ElementUtilise;
+import fr.bnia.commun.domain.Millesime;
 import fr.bnia.operateurs.application.OperateurRepository;
 import fr.bnia.operateurs.domain.Adresse;
+import fr.bnia.operateurs.domain.Alambic;
 import fr.bnia.operateurs.domain.CodeOperateur;
 import fr.bnia.operateurs.domain.CoordonneesGps;
 import fr.bnia.operateurs.domain.Cvi;
+import fr.bnia.operateurs.domain.Declaratif;
+import fr.bnia.operateurs.domain.DiffusionMillesimes;
 import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
+import fr.bnia.operateurs.domain.NiveauDiffusion;
 import fr.bnia.operateurs.domain.NumeroAccise;
 import fr.bnia.operateurs.domain.Operateur;
+import fr.bnia.operateurs.domain.Production;
 import fr.bnia.operateurs.domain.Siret;
 import fr.bnia.operateurs.domain.SiteWeb;
+import fr.bnia.operateurs.domain.TypeAlambic;
+import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
+import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.math.BigDecimal;
 import java.sql.Types;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 /**
- * Agrégat {@code Operateur} en Spring Data JDBC (ADR-004, ADR-012). Les formes normalisées de la raison
+ * Agrégat {@code Operateur} en Spring Data JDBC (ADR-004, ADR-012) : appellations, alambics et
+ * millésimes diffusables sont réécrits à chaque enregistrement. Les formes normalisées de la raison
  * sociale et du groupe sont stockées pour les comparaisons en SQL (RG-OPE-08, 09).
  */
 @Repository
@@ -89,6 +105,7 @@ class OperateurJdbc implements OperateurRepository {
     private static Ligne versLigne(Operateur o) {
         IdentiteOperateur i = o.identite();
         Adresse a = i.adresse();
+        Production p = o.production();
         return new Ligne(o.id(), o.type(), o.code().valeur(), i.groupe(), i.groupeNormalise(),
                 texte(i.cvi(), Cvi::valeur), texte(i.siret(), Siret::valeur), texte(i.accise(), NumeroAccise::valeur),
                 i.bureauDouanes(), i.identifiantOdg(), i.titre(), i.raisonSociale(), i.raisonSocialeNormalisee(),
@@ -96,7 +113,13 @@ class OperateurJdbc implements OperateurRepository {
                 i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral(), Email::valeur),
                 texte(i.siteWeb(), SiteWeb::valeur), texte(i.siteCommercial(), SiteWeb::valeur),
                 i.gps() == null ? null : i.gps().latitude(), i.gps() == null ? null : i.gps().longitude(),
-                i.membreBnia(), i.accordDiffusionGeneral(), i.commentaireInterne(), o.estActif());
+                i.membreBnia(), i.accordDiffusionGeneral(), i.commentaireInterne(),
+                o.declaratif().periodicite(), o.declaratif().statut(), p.region(),
+                p.appellations().stream().map(AppellationLigne::new).collect(Collectors.toSet()),
+                p.alambics().stream().map(al -> new AlambicLigne(al.numeroAgrement(), al.type(), al.capacite())).toList(),
+                o.diffusion().niveau(),
+                o.diffusion().millesimes().stream().map(m -> new MillesimeLigne(m.annee())).collect(Collectors.toSet()),
+                o.accesStatistiques(), o.estActif());
     }
 
     private static Operateur versDomaine(Ligne l) {
@@ -121,7 +144,14 @@ class OperateurJdbc implements OperateurRepository {
                 l.membreBniaId(),
                 l.accordDiffusionGeneral(),
                 l.commentaireInterne());
-        return Operateur.reconstituer(l.id(), l.type(), CodeOperateur.de(l.code()), identite, l.actif());
+        Production production = new Production(l.regionId(),
+                l.appellations().stream().map(AppellationLigne::appellation).collect(Collectors.toSet()),
+                l.alambics().stream().map(a -> new Alambic(a.numeroAgrement(), a.type(), a.capacite())).toList());
+        DiffusionMillesimes diffusion = new DiffusionMillesimes(l.niveauDiffusion(), l.millesimesDiffusables().stream()
+                .map(m -> Millesime.de(m.millesime())).collect(Collectors.toCollection(TreeSet::new)));
+        return Operateur.reconstituer(l.id(), l.type(), CodeOperateur.de(l.code()), identite,
+                new Declaratif(l.periodiciteDsm(), l.statutDeclarationStock()), production, diffusion,
+                l.accesStatistiques(), l.actif());
     }
 
     private static <T> String texte(T valeur, Function<T, String> lire) {
@@ -161,6 +191,26 @@ class OperateurJdbc implements OperateurRepository {
             Long membreBniaId,
             boolean accordDiffusionGeneral,
             String commentaireInterne,
+            PeriodiciteDsm periodiciteDsm,
+            StatutDeclarationStock statutDeclarationStock,
+            Long regionId,
+            @MappedCollection(idColumn = "operateur_id") Set<AppellationLigne> appellations,
+            @MappedCollection(idColumn = "operateur_id", keyColumn = "rang") List<AlambicLigne> alambics,
+            NiveauDiffusion niveauDiffusion,
+            @MappedCollection(idColumn = "operateur_id") Set<MillesimeLigne> millesimesDiffusables,
+            boolean accesStatistiques,
             boolean actif) {
+    }
+
+    @Table(schema = SCHEMA, name = "operateur_appellation")
+    record AppellationLigne(Appellation appellation) {
+    }
+
+    @Table(schema = SCHEMA, name = "alambic")
+    record AlambicLigne(String numeroAgrement, TypeAlambic type, BigDecimal capacite) {
+    }
+
+    @Table(schema = SCHEMA, name = "millesime_diffusable")
+    record MillesimeLigne(int millesime) {
     }
 }

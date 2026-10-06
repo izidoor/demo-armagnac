@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -43,9 +45,11 @@ class OperateurTest {
         Operateur incomplet = Operateur.creer(TypeOperateur.PRODUCTEUR, CodeOperateur.de("000002"),
                 identite("Petit", new Adresse(" ", null, null, "", null, null)));
 
+        assertThat(complet.champsManquants()).containsExactly("région");
+        complet.modifierProduction(complet.declaratif(), new Production(7L, Set.of(), List.of()));
         assertThat(complet.champsManquants()).isEmpty();
         assertThat(incomplet.estActif()).isTrue();
-        assertThat(incomplet.champsManquants()).containsExactly("adresse", "code postal", "ville", "pays");
+        assertThat(incomplet.champsManquants()).containsExactly("adresse", "code postal", "ville", "pays", "région");
     }
 
     @Test

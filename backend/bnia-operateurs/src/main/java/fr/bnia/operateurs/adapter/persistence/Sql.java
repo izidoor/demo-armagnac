@@ -10,7 +10,8 @@ final class Sql {
      * Même liste que {@code Operateur.champsManquants()}.
      */
     static final String INCOMPLET =
-            "(o.adresse_ligne1 is null or o.code_postal is null or o.ville is null or o.pays_id is null)";
+            "(o.adresse_ligne1 is null or o.code_postal is null or o.ville is null or o.pays_id is null"
+                    + " or o.region_id is null)";
 
     private Sql() {
     }

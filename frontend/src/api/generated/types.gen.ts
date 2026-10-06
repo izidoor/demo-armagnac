@@ -4,6 +4,12 @@ export type ClientOptions = {
     baseURL: `${string}://${string}` | (string & {});
 };
 
+export type Alambic = {
+    capacite?: number;
+    numeroAgrement?: string;
+    type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
+};
+
 /**
  * Classe de TVA avec l'historique de ses taux
  */
@@ -77,12 +83,15 @@ export type Doublon = {
  * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)
  */
 export type FicheOperateur = {
+    accesStatistiques: boolean;
     accise?: string;
     accordDiffusionGeneral: boolean;
     actif: boolean;
     adresseLigne1?: string;
     adresseLigne2?: string;
     adresseLigne3?: string;
+    alambics: Array<Alambic>;
+    appellations: Array<'ARMAGNAC' | 'BAS_ARMAGNAC' | 'ARMAGNAC_TENAREZE' | 'HAUT_ARMAGNAC' | 'BLANCHE_ARMAGNAC'>;
     /**
      * Autres fiches du même groupe (RG-OPE-09)
      */
@@ -104,6 +113,10 @@ export type FicheOperateur = {
     codePropose?: string;
     commentaireInterne?: string;
     cvi?: string;
+    /**
+     * Calculé : au moins un alambic (RG-OPE-13)
+     */
+    detenteurAlambic: boolean;
     emailGeneral?: string;
     groupe?: string;
     id: number;
@@ -114,16 +127,34 @@ export type FicheOperateur = {
      * Identifiant du membre BNIA
      */
     membreBnia?: number;
+    /**
+     * Années, croissantes ; en accord partiel seulement
+     */
+    millesimesDiffusables: Array<number>;
+    niveauDiffusion: 'REFUS' | 'PARTIEL' | 'TOTAL';
     nomCommercial?: string;
     /**
      * Identifiant du pays
      */
     pays?: number;
+    /**
+     * Absente pour un opérateur AUTRE
+     */
+    periodicite?: 'MENSUELLE' | 'TRIMESTRIELLE' | 'SEMESTRIELLE' | 'ANNUELLE';
+    /**
+     * Périodicité par défaut du type, suggérée à l'écran quand elle diffère (RG-OPE-10)
+     */
+    periodiciteParDefaut?: 'MENSUELLE' | 'TRIMESTRIELLE' | 'SEMESTRIELLE' | 'ANNUELLE';
     portable?: string;
     raisonSociale: string;
+    /**
+     * Identifiant de la région
+     */
+    region?: number;
     siret?: string;
     siteCommercial?: string;
     siteWeb?: string;
+    statutDeclarationStock: 'OUI' | 'NON' | 'SOMMEIL' | 'CLOTURE';
     telephone1?: string;
     telephone2?: string;
     /**
@@ -201,6 +232,15 @@ export type Region = {
     libelle: string;
 };
 
+export type SaisieAlambic = {
+    /**
+     * Strictement positive (RG-OPE-13)
+     */
+    capacite?: number;
+    numeroAgrement?: string;
+    type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
+};
+
 /**
  * Création ou modification d'une contenance, volume compris
  */
@@ -213,6 +253,21 @@ export type SaisieContenance = {
      * En litres, trois décimales au plus
      */
     volume: number;
+};
+
+/**
+ * Onglet Diffusion : millésimes diffusables, accès aux statistiques du portail
+ */
+export type SaisieDiffusion = {
+    /**
+     * RG-OPE-15
+     */
+    accesStatistiques: boolean;
+    /**
+     * En accord partiel : au moins un, sans doublon ; ignorés sinon (RG-OPE-14)
+     */
+    millesimes?: Array<number>;
+    niveau: 'REFUS' | 'PARTIEL' | 'TOTAL';
 };
 
 /**
@@ -300,6 +355,26 @@ export type SaisiePays = {
      * Identifiant de la zone commerciale
      */
     zoneCommerciale: number;
+};
+
+/**
+ * Onglet Production : déclaratif, région, appellations, alambics
+ */
+export type SaisieProduction = {
+    alambics: Array<SaisieAlambic>;
+    appellations: Array<'ARMAGNAC' | 'BAS_ARMAGNAC' | 'ARMAGNAC_TENAREZE' | 'HAUT_ARMAGNAC' | 'BLANCHE_ARMAGNAC'>;
+    /**
+     * Absente pour un opérateur AUTRE, obligatoire sinon (RG-OPE-01, 10)
+     */
+    periodicite?: 'MENSUELLE' | 'TRIMESTRIELLE' | 'SEMESTRIELLE' | 'ANNUELLE';
+    /**
+     * Identifiant de la région
+     */
+    region?: number;
+    /**
+     * Jamais OUI pour un opérateur AUTRE (RG-OPE-11)
+     */
+    statutDeclarationStock: 'OUI' | 'NON' | 'SOMMEIL' | 'CLOTURE';
 };
 
 /**
@@ -538,6 +613,24 @@ export type DesactiverOperateurResponses = {
 
 export type DesactiverOperateurResponse = DesactiverOperateurResponses[keyof DesactiverOperateurResponses];
 
+export type ModifierDiffusionOperateurData = {
+    body: SaisieDiffusion;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/diffusion';
+};
+
+export type ModifierDiffusionOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ModifierDiffusionOperateurResponse = ModifierDiffusionOperateurResponses[keyof ModifierDiffusionOperateurResponses];
+
 export type ModifierIdentiteOperateurData = {
     body: SaisieOperateur;
     path: {
@@ -573,6 +666,24 @@ export type AttribuerNouveauCodeOperateurResponses = {
 };
 
 export type AttribuerNouveauCodeOperateurResponse = AttribuerNouveauCodeOperateurResponses[keyof AttribuerNouveauCodeOperateurResponses];
+
+export type ModifierProductionOperateurData = {
+    body: SaisieProduction;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/production';
+};
+
+export type ModifierProductionOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ModifierProductionOperateurResponse = ModifierProductionOperateurResponses[keyof ModifierProductionOperateurResponses];
 
 export type ReactiverOperateurData = {
     body?: never;

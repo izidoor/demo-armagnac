@@ -9,14 +9,18 @@ import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ElementUtilise;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.operateurs.domain.CodeOperateur;
+import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
+import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.LangueCertificat;
 import fr.bnia.referentiels.domain.partage.NiveauDetailCertificat;
 import fr.bnia.referentiels.domain.partage.PaysVue;
+import fr.bnia.referentiels.domain.partage.RegionVue;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -155,6 +159,18 @@ class GererOperateursTest {
 
         assertThat(gerer.modifierIdentite(id, avecTitre(saisie(TypeOperateur.PRODUCTEUR, "000001", "Domaine A2", "32100", FRANCE), TITRE_ACTIF))
                 .identite().raisonSociale()).isEqualTo("Domaine A2");
+    }
+
+    @Test
+    @DisplayName("RG-OPE-21 : la région choisie à l'onglet Production doit être active")
+    void rg_ope_21_region_active() {
+        long id = gerer.creer(saisie(TypeOperateur.PRODUCTEUR, "000001", "Domaine A", "32100", FRANCE)).id();
+        when(referentiels.region(5)).thenReturn(Optional.of(new RegionVue(5, "IDF", "Île-de-France", false, false)));
+        var production = new SaisieProduction(PeriodiciteDsm.ANNUELLE, StatutDeclarationStock.OUI, 5L, Set.of(), List.of());
+
+        assertThatThrownBy(() -> gerer.modifierProduction(id, production))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("Île-de-France")
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-21");
     }
 
     @Test

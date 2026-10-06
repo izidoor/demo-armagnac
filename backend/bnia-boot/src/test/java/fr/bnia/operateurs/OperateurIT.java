@@ -54,8 +54,12 @@ class OperateurIT extends AbstractIT {
                 .expectBody()
                 .jsonPath("$.pays").isEqualTo(france)
                 .jsonPath("$.actif").isEqualTo(true)
-                .jsonPath("$.champsManquants").isEmpty()
+                .jsonPath("$.champsManquants").isEqualTo(List.of("région"))
                 .jsonPath("$.codeConforme").isEqualTo(true)
+                .jsonPath("$.periodicite").isEqualTo("ANNUELLE")
+                .jsonPath("$.statutDeclarationStock").isEqualTo("OUI")
+                .jsonPath("$.niveauDiffusion").isEqualTo("REFUS")
+                .jsonPath("$.accesStatistiques").isEqualTo(false)
                 .jsonPath("$.autresDuGroupe").isEmpty();
     }
 
@@ -208,6 +212,8 @@ class OperateurIT extends AbstractIT {
         var complete = saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100");
         complete.put("ville", ville);
         long idComplete = creer(URL, complete);
+        client.put().uri(URL + "/{id}/production", idComplete).body(production("MENSUELLE", "OUI", region(), List.of()))
+                .exchange().expectStatus().isOk().expectBody().jsonPath("$.champsManquants").isEmpty();
         var incomplete = saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100");
         incomplete.put("ville", ville);
         incomplete.remove("adresseLigne1");
@@ -226,7 +232,7 @@ class OperateurIT extends AbstractIT {
                 .jsonPath("$[0].incomplet").isEqualTo(true);
         client.get().uri(URL + "/{id}", idIncomplete)
                 .exchange()
-                .expectBody().jsonPath("$.champsManquants").isEqualTo(List.of("adresse"));
+                .expectBody().jsonPath("$.champsManquants").isEqualTo(List.of("adresse", "région"));
         assertThat(idComplete).isNotEqualTo(idIncomplete);
     }
 
@@ -248,6 +254,112 @@ class OperateurIT extends AbstractIT {
 
         client.delete().uri(URL + "/{id}", id).exchange().expectStatus().isNoContent();
         client.get().uri(URL + "/{id}", id).exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    @DisplayName("RG-OPE-10 à 13 et 21 : onglet Production enregistré, contrôlé, et relu")
+    void rg_ope_10_13_production() {
+        long id = creer(URL, saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100"));
+        long region = region();
+        var alambics = List.of(Map.of("numeroAgrement", "AG-12", "type", "ARMAGNACAIS", "capacite", 12.5),
+                Map.of("type", "DOUBLE_CHAUFFE"));
+        var saisie = production("TRIMESTRIELLE", "SOMMEIL", region, alambics);
+        saisie.put("appellations", List.of("BAS_ARMAGNAC", "BLANCHE_ARMAGNAC"));
+
+        client.put().uri(URL + "/{id}/production", id).body(saisie)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.periodicite").isEqualTo("TRIMESTRIELLE")
+                .jsonPath("$.periodiciteParDefaut").isEqualTo("MENSUELLE")
+                .jsonPath("$.statutDeclarationStock").isEqualTo("SOMMEIL")
+                .jsonPath("$.region").isEqualTo(region)
+                .jsonPath("$.appellations").isEqualTo(List.of("BAS_ARMAGNAC", "BLANCHE_ARMAGNAC"))
+                .jsonPath("$.alambics[0].numeroAgrement").isEqualTo("AG-12")
+                .jsonPath("$.alambics[1].type").isEqualTo("DOUBLE_CHAUFFE")
+                .jsonPath("$.detenteurAlambic").isEqualTo(true);
+
+        client.put().uri(URL + "/{id}/production", id).body(production(null, "OUI", region, List.of()))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-OPE-10");
+        client.put().uri(URL + "/{id}/production", id)
+                .body(production("MENSUELLE", "OUI", region, List.of(Map.of("type", "ARMAGNACAIS", "capacite", -1))))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-OPE-13");
+
+        client.post().uri("/api/referentiels/regions/{id}/desactivation", region).exchange().expectStatus().isOk();
+        // La région déjà portée reste acceptée, même inactive.
+        client.put().uri(URL + "/{id}/production", id).body(production("MENSUELLE", "OUI", region, List.of()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.detenteurAlambic").isEqualTo(false);
+        long autre = creer(URL, saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100"));
+        client.put().uri(URL + "/{id}/production", autre).body(production("MENSUELLE", "OUI", region, List.of()))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-OPE-21");
+    }
+
+    @Test
+    @DisplayName("RG-OPE-01 et RG-OPE-11 : passer un négociant en AUTRE retire sa périodicité et met son statut à NON")
+    void rg_ope_01_11_passage_en_autre() {
+        String code = "T" + suffixe();
+        long id = creer(URL, saisie("NEGOCIANT", code, "Négoce " + suffixe(), "32100"));
+
+        client.put().uri(URL + "/{id}/identite", id).body(saisie("AUTRE", code, "Courtier " + suffixe(), "32100"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.periodicite").doesNotExist()
+                .jsonPath("$.statutDeclarationStock").isEqualTo("NON");
+        client.put().uri(URL + "/{id}/production", id).body(production(null, "OUI", null, List.of()))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-OPE-11");
+    }
+
+    @Test
+    @DisplayName("RG-OPE-14 et RG-OPE-15 : diffusion partielle, puis totale qui vide la liste ; accès aux statistiques")
+    void rg_ope_14_15_diffusion() {
+        long id = creer(URL, saisie("PRODUCTEUR", "T" + suffixe(), "Domaine " + suffixe(), "32100"));
+
+        client.put().uri(URL + "/{id}/diffusion", id)
+                .body(Map.of("niveau", "PARTIEL", "millesimes", List.of(2010, 2005), "accesStatistiques", true))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.millesimesDiffusables").isEqualTo(List.of(2005, 2010))
+                .jsonPath("$.accesStatistiques").isEqualTo(true);
+        client.put().uri(URL + "/{id}/diffusion", id)
+                .body(Map.of("niveau", "PARTIEL", "millesimes", List.of(), "accesStatistiques", true))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-OPE-14");
+        client.put().uri(URL + "/{id}/diffusion", id)
+                .body(Map.of("niveau", "TOTAL", "millesimes", List.of(2005), "accesStatistiques", false))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.niveauDiffusion").isEqualTo("TOTAL")
+                .jsonPath("$.millesimesDiffusables").isEmpty()
+                .jsonPath("$.accesStatistiques").isEqualTo(false);
+    }
+
+    private static Map<String, Object> production(String periodicite, String statut, Long region, List<?> alambics) {
+        Map<String, Object> saisie = new HashMap<>();
+        saisie.put("periodicite", periodicite);
+        saisie.put("statutDeclarationStock", statut);
+        saisie.put("region", region);
+        saisie.put("appellations", List.of());
+        saisie.put("alambics", alambics);
+        return saisie;
+    }
+
+    private long region() {
+        String code = "R" + suffixe();
+        return creer("/api/referentiels/regions", Map.of("code", code, "libelle", "Région " + code, "enRegionDelimitee", true));
     }
 
     private void attendre422(Map<String, Object> saisie, String regle) {

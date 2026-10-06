@@ -36,7 +36,8 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
 
     @Override
     public Operateur inserer(Operateur o) {
-        Operateur enregistre = Operateur.reconstituer(prochainId++, o.type(), o.code(), o.identite(), o.estActif());
+        Operateur enregistre = Operateur.reconstituer(prochainId++, o.type(), o.code(), o.identite(), o.declaratif(),
+                o.production(), o.diffusion(), o.accesStatistiques(), o.estActif());
         operateurs.put(enregistre.id(), enregistre);
         return enregistre;
     }

@@ -98,6 +98,20 @@ class OperateurController {
         return reponse(gerer.modifierIdentite(id, requete.versSaisie()));
     }
 
+    @PutMapping("/{id}/production")
+    @Operation(operationId = "modifierProductionOperateur",
+            summary = "Modifier le déclaratif, la région, les appellations et les alambics (RG-OPE-01, 10 à 13, 21)")
+    FicheOperateurResponse modifierProduction(@PathVariable long id, @RequestBody SaisieProductionRequest requete) {
+        return reponse(gerer.modifierProduction(id, requete.versSaisie()));
+    }
+
+    @PutMapping("/{id}/diffusion")
+    @Operation(operationId = "modifierDiffusionOperateur",
+            summary = "Modifier la diffusion des millésimes et l'accès aux statistiques du portail (RG-OPE-14, 15)")
+    FicheOperateurResponse modifierDiffusion(@PathVariable long id, @RequestBody SaisieDiffusionRequest requete) {
+        return reponse(gerer.modifierDiffusion(id, requete.versSaisie()));
+    }
+
     @PostMapping("/{id}/nouveau-code")
     @Operation(operationId = "attribuerNouveauCodeOperateur", summary = "Attribuer le code proposé pour le type et le code postal actuels (RG-OPE-05)")
     FicheOperateurResponse attribuerNouveauCode(@PathVariable long id) {

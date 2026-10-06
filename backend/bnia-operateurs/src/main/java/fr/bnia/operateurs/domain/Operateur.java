@@ -8,8 +8,8 @@ import java.util.Optional;
 
 /**
  * Opérateur : structure suivie par le BNIA (§4.3 p.18-21, C.1 p.100-105). Racine de l'agrégat
- * {@code Operateur} (ADR-012), qui portera aussi le déclaratif, la production, la diffusion et les
- * contacts.
+ * {@code Operateur} (ADR-012) : identité, déclaratif, production, diffusion des millésimes ; il portera
+ * aussi les contacts.
  */
 public final class Operateur {
 
@@ -17,34 +17,72 @@ public final class Operateur {
     private TypeOperateur type;
     private CodeOperateur code;
     private IdentiteOperateur identite;
+    private Declaratif declaratif;
+    private Production production;
+    private DiffusionMillesimes diffusion;
+    private boolean accesStatistiques;
     private boolean actif;
 
-    private Operateur(Long id, TypeOperateur type, CodeOperateur code, IdentiteOperateur identite, boolean actif) {
+    private Operateur(Long id, TypeOperateur type, CodeOperateur code, IdentiteOperateur identite,
+            Declaratif declaratif, Production production, DiffusionMillesimes diffusion, boolean accesStatistiques,
+            boolean actif) {
         this.id = id;
         this.type = exigerType(type);
         this.code = code;
         this.identite = identite;
+        declaratif.verifierPour(this.type);
+        this.declaratif = declaratif;
+        this.production = production;
+        this.diffusion = diffusion;
+        this.accesStatistiques = accesStatistiques;
         this.actif = actif;
     }
 
-    /** RG-OPE-01, RG-OPE-02 : type, code et raison sociale obligatoires ; actif à la création. */
+    /**
+     * RG-OPE-01, 02 : type, code et raison sociale obligatoires ; actif. Valeurs par défaut du type pour
+     * le déclaratif (RG-OPE-10, 11), refus de diffusion (RG-OPE-14), pas d'accès aux statistiques
+     * (RG-OPE-15).
+     */
     public static Operateur creer(TypeOperateur type, CodeOperateur code, IdentiteOperateur identite) {
-        return new Operateur(null, type, code, identite, true);
+        TypeOperateur verifie = exigerType(type);
+        return new Operateur(null, verifie, code, identite, Declaratif.parDefaut(verifie), Production.aucune(),
+                DiffusionMillesimes.refus(), false, true);
     }
 
     public static Operateur reconstituer(Long id, TypeOperateur type, CodeOperateur code, IdentiteOperateur identite,
+            Declaratif declaratif, Production production, DiffusionMillesimes diffusion, boolean accesStatistiques,
             boolean actif) {
-        return new Operateur(id, type, code, identite, actif);
+        return new Operateur(id, type, code, identite, declaratif, production, diffusion, accesStatistiques, actif);
     }
 
     /**
      * RG-OPE-05 : changer le type ou le code postal ne change pas le code ; seule une saisie explicite le
-     * change (RG-OPE-04).
+     * change (RG-OPE-04). Le déclaratif ne s'ajuste que si le nouveau type l'exige
+     * ({@link Declaratif#ajustePour}).
      */
     public void modifierIdentite(TypeOperateur nouveauType, CodeOperateur nouveauCode, IdentiteOperateur nouvelle) {
-        this.type = exigerType(nouveauType);
+        TypeOperateur verifie = exigerType(nouveauType);
+        this.declaratif = declaratif.ajustePour(type, verifie);
+        this.type = verifie;
         this.code = nouveauCode;
         this.identite = nouvelle;
+    }
+
+    /** Onglet Production : déclaratif contrôlé selon le type (RG-OPE-01, 10 à 13). */
+    public void modifierProduction(Declaratif nouveauDeclaratif, Production nouvelle) {
+        nouveauDeclaratif.verifierPour(type);
+        this.declaratif = nouveauDeclaratif;
+        this.production = nouvelle;
+    }
+
+    /** RG-OPE-14. */
+    public void modifierDiffusion(DiffusionMillesimes nouvelle) {
+        this.diffusion = nouvelle;
+    }
+
+    /** RG-OPE-15 : fixé par le BNIA. */
+    public void modifierAccesStatistiques(boolean acces) {
+        this.accesStatistiques = acces;
     }
 
     /** RG-OPE-05 : attribution d'un nouveau code, sur demande. */
@@ -80,6 +118,9 @@ public final class Operateur {
         if (adresse.pays() == null) {
             manquants.add("pays");
         }
+        if (production.region() == null) {
+            manquants.add("région");
+        }
         return manquants;
     }
 
@@ -114,6 +155,22 @@ public final class Operateur {
 
     public IdentiteOperateur identite() {
         return identite;
+    }
+
+    public Declaratif declaratif() {
+        return declaratif;
+    }
+
+    public Production production() {
+        return production;
+    }
+
+    public DiffusionMillesimes diffusion() {
+        return diffusion;
+    }
+
+    public boolean accesStatistiques() {
+        return accesStatistiques;
     }
 
     public boolean estActif() {

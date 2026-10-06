@@ -381,6 +381,44 @@
         "tags" : [ "operateurs" ]
       }
     },
+    "/api/operateurs/{id}/diffusion" : {
+      "put" : {
+        "operationId" : "modifierDiffusionOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDiffusion"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier la diffusion des millésimes et l'accès aux statistiques du portail (RG-OPE-14, 15)",
+        "tags" : [ "operateurs" ]
+      }
+    },
     "/api/operateurs/{id}/identite" : {
       "put" : {
         "operationId" : "modifierIdentiteOperateur",
@@ -444,6 +482,44 @@
           }
         },
         "summary" : "Attribuer le code proposé pour le type et le code postal actuels (RG-OPE-05)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/production" : {
+      "put" : {
+        "operationId" : "modifierProductionOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieProduction"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le déclaratif, la région, les appellations et les alambics (RG-OPE-01, 10 à 13, 21)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -3515,6 +3591,22 @@
   },
   "components" : {
     "schemas" : {
+      "Alambic" : {
+        "type" : "object",
+        "properties" : {
+          "capacite" : {
+            "type" : "number"
+          },
+          "numeroAgrement" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "ARMAGNACAIS", "DOUBLE_CHAUFFE" ]
+          }
+        },
+        "required" : [ "type" ]
+      },
       "ClasseTva" : {
         "type" : "object",
         "description" : "Classe de TVA avec l'historique de ses taux",
@@ -3643,6 +3735,9 @@
         "type" : "object",
         "description" : "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)",
         "properties" : {
+          "accesStatistiques" : {
+            "type" : "boolean"
+          },
           "accise" : {
             "type" : "string"
           },
@@ -3660,6 +3755,19 @@
           },
           "adresseLigne3" : {
             "type" : "string"
+          },
+          "alambics" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Alambic"
+            }
+          },
+          "appellations" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "ARMAGNAC", "BAS_ARMAGNAC", "ARMAGNAC_TENAREZE", "HAUT_ARMAGNAC", "BLANCHE_ARMAGNAC" ]
+            }
           },
           "autresDuGroupe" : {
             "type" : "array",
@@ -3699,6 +3807,10 @@
           "cvi" : {
             "type" : "string"
           },
+          "detenteurAlambic" : {
+            "type" : "boolean",
+            "description" : "Calculé : au moins un alambic (RG-OPE-13)"
+          },
           "emailGeneral" : {
             "type" : "string"
           },
@@ -3723,6 +3835,18 @@
             "format" : "int64",
             "description" : "Identifiant du membre BNIA"
           },
+          "millesimesDiffusables" : {
+            "type" : "array",
+            "description" : "Années, croissantes ; en accord partiel seulement",
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "niveauDiffusion" : {
+            "type" : "string",
+            "enum" : [ "REFUS", "PARTIEL", "TOTAL" ]
+          },
           "nomCommercial" : {
             "type" : "string"
           },
@@ -3731,11 +3855,26 @@
             "format" : "int64",
             "description" : "Identifiant du pays"
           },
+          "periodicite" : {
+            "type" : "string",
+            "description" : "Absente pour un opérateur AUTRE",
+            "enum" : [ "MENSUELLE", "TRIMESTRIELLE", "SEMESTRIELLE", "ANNUELLE" ]
+          },
+          "periodiciteParDefaut" : {
+            "type" : "string",
+            "description" : "Périodicité par défaut du type, suggérée à l'écran quand elle diffère (RG-OPE-10)",
+            "enum" : [ "MENSUELLE", "TRIMESTRIELLE", "SEMESTRIELLE", "ANNUELLE" ]
+          },
           "portable" : {
             "type" : "string"
           },
           "raisonSociale" : {
             "type" : "string"
+          },
+          "region" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la région"
           },
           "siret" : {
             "type" : "string"
@@ -3745,6 +3884,10 @@
           },
           "siteWeb" : {
             "type" : "string"
+          },
+          "statutDeclarationStock" : {
+            "type" : "string",
+            "enum" : [ "OUI", "NON", "SOMMEIL", "CLOTURE" ]
           },
           "telephone1" : {
             "type" : "string"
@@ -3765,7 +3908,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "accordDiffusionGeneral", "actif", "autresDuGroupe", "champsManquants", "code", "codeConforme", "id", "raisonSociale", "type" ]
+        "required" : [ "accesStatistiques", "accordDiffusionGeneral", "actif", "alambics", "appellations", "autresDuGroupe", "champsManquants", "code", "codeConforme", "detenteurAlambic", "id", "millesimesDiffusables", "niveauDiffusion", "raisonSociale", "statutDeclarationStock", "type" ]
       },
       "InfoSysteme" : {
         "type" : "object",
@@ -3928,6 +4071,23 @@
         },
         "required" : [ "actif", "code", "enRegionDelimitee", "id", "libelle" ]
       },
+      "SaisieAlambic" : {
+        "type" : "object",
+        "properties" : {
+          "capacite" : {
+            "type" : "number",
+            "description" : "Strictement positive (RG-OPE-13)"
+          },
+          "numeroAgrement" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "ARMAGNACAIS", "DOUBLE_CHAUFFE" ]
+          }
+        },
+        "required" : [ "type" ]
+      },
       "SaisieContenance" : {
         "type" : "object",
         "description" : "Création ou modification d'une contenance, volume compris",
@@ -3943,6 +4103,30 @@
           }
         },
         "required" : [ "volume" ]
+      },
+      "SaisieDiffusion" : {
+        "type" : "object",
+        "description" : "Onglet Diffusion : millésimes diffusables, accès aux statistiques du portail",
+        "properties" : {
+          "accesStatistiques" : {
+            "type" : "boolean",
+            "description" : "RG-OPE-15"
+          },
+          "millesimes" : {
+            "type" : "array",
+            "description" : "En accord partiel : au moins un, sans doublon ; ignorés sinon (RG-OPE-14)",
+            "example" : [ 2005, 2010 ],
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "niveau" : {
+            "type" : "string",
+            "enum" : [ "REFUS", "PARTIEL", "TOTAL" ]
+          }
+        },
+        "required" : [ "accesStatistiques", "niveau" ]
       },
       "SaisieOperateur" : {
         "type" : "object",
@@ -4102,6 +4286,42 @@
           }
         },
         "required" : [ "code", "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
+      },
+      "SaisieProduction" : {
+        "type" : "object",
+        "description" : "Onglet Production : déclaratif, région, appellations, alambics",
+        "properties" : {
+          "alambics" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SaisieAlambic"
+            }
+          },
+          "appellations" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "ARMAGNAC", "BAS_ARMAGNAC", "ARMAGNAC_TENAREZE", "HAUT_ARMAGNAC", "BLANCHE_ARMAGNAC" ]
+            },
+            "uniqueItems" : true
+          },
+          "periodicite" : {
+            "type" : "string",
+            "description" : "Absente pour un opérateur AUTRE, obligatoire sinon (RG-OPE-01, 10)",
+            "enum" : [ "MENSUELLE", "TRIMESTRIELLE", "SEMESTRIELLE", "ANNUELLE" ]
+          },
+          "region" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la région"
+          },
+          "statutDeclarationStock" : {
+            "type" : "string",
+            "description" : "Jamais OUI pour un opérateur AUTRE (RG-OPE-11)",
+            "enum" : [ "OUI", "NON", "SOMMEIL", "CLOTURE" ]
+          }
+        },
+        "required" : [ "alambics", "appellations", "statutDeclarationStock" ]
       },
       "SaisieRegion" : {
         "type" : "object",
