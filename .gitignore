@@ -13,6 +13,7 @@ dist/
 
 # IDE et environnement
 .idea/
+out/
 *.iml
 .vscode/
 .env*

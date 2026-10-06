@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Plus } from 'lucide-react'
+import { ChevronRight, Plus } from 'lucide-react'
 import { creerClasseTva, listerClassesTva } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,7 +18,7 @@ import { LignesEtat } from '../commun/lignes-etat'
 import { PageParametrage } from '../commun/page-parametrage'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
-import { formatTaux } from './format'
+import { formatDate, formatTaux } from './format'
 
 export function PageClassesTva() {
   const filtreValeurs = useFiltreValeurs()
@@ -37,7 +37,7 @@ export function PageClassesTva() {
   return (
     <PageParametrage
       titre='Classes de TVA'
-      description='Classes de TVA et historique de leurs taux ; les taux ne se chevauchent pas (§4.11.1, C.10.1-2).'
+      description='Classes de TVA et historique de leurs taux ; les taux ne se chevauchent pas (§4.11.1, C.10.1-2). Cliquer une classe pour ouvrir son historique.'
       actions={
         <Button onClick={() => setCreation(true)}>
           <Plus /> Nouvelle classe
@@ -52,22 +52,25 @@ export function PageClassesTva() {
               <TableHead className='w-40'>Code</TableHead>
               <TableHead>Libellé</TableHead>
               <TableHead className='text-end'>Taux en vigueur</TableHead>
+              <TableHead>En vigueur depuis</TableHead>
               <TableHead className='w-28'>État</TableHead>
+              <TableHead className='w-24' />
             </TableRow>
           </TableHeader>
           <TableBody>
-            <LignesEtat requete={requete} colonnes={4} />
+            <LignesEtat requete={requete} colonnes={6} />
             {requete.data?.map((classe) => (
-              <TableRow key={classe.id}>
-                <TableCell className='font-mono'>
-                  <Link
-                    to='/bo/parametrage/classes-tva/$id'
-                    params={{ id: String(classe.id) }}
-                    className='underline-offset-4 hover:underline'
-                  >
-                    {classe.code}
-                  </Link>
-                </TableCell>
+              <TableRow
+                key={classe.id}
+                className='cursor-pointer'
+                onClick={() =>
+                  navigate({
+                    to: '/bo/parametrage/classes-tva/$id',
+                    params: { id: String(classe.id) },
+                  })
+                }
+              >
+                <TableCell className='font-mono'>{classe.code}</TableCell>
                 <TableCell>{classe.libelle}</TableCell>
                 <TableCell className='text-end'>
                   {classe.tauxEnVigueur != null ? (
@@ -77,7 +80,22 @@ export function PageClassesTva() {
                   )}
                 </TableCell>
                 <TableCell>
+                  {classe.debutTauxEnVigueur &&
+                    formatDate(classe.debutTauxEnVigueur)}
+                </TableCell>
+                <TableCell>
                   <BadgeEtat actif={classe.actif} />
+                </TableCell>
+                <TableCell className='text-end'>
+                  <Button variant='ghost' size='sm' asChild>
+                    <Link
+                      to='/bo/parametrage/classes-tva/$id'
+                      params={{ id: String(classe.id) }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Détail <ChevronRight />
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

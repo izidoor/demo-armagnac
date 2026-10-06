@@ -36,7 +36,10 @@ class ClasseTvaIT extends AbstractIT {
         client.get().uri(u -> u.path(URL).queryParam("recherche", code).build())
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody().jsonPath("$[0].tauxEnVigueur").isEqualTo(20.0);
+                .expectBody()
+                .jsonPath("$.length()").isEqualTo(1)
+                .jsonPath("$[0].tauxEnVigueur").isEqualTo(20.0)
+                .jsonPath("$[0].debutTauxEnVigueur").isEqualTo("2014-01-01");
 
         client.put().uri(URL + "/{id}/taux/{debut}", id, "2014-01-01")
                 .body(Map.of("taux", "20", "dateDebut", "2014-01-01", "dateFin", "2015-12-31"))

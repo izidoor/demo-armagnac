@@ -37,10 +37,12 @@ class ClasseTvaJdbc extends ValeursJdbc<ClasseTva, ClasseTvaJdbc.Ligne> implemen
         Sql.Where where = Sql.where(filtre, "code", "libelle");
         var parametres = new HashMap<>(where.parametres());
         parametres.put("date", date);
-        return jdbcClient.sql("select id, code, libelle, actif, (select t.taux from " + SCHEMA + ".taux_tva t"
-                        + " where t.classe_tva_id = c.id and t.date_debut <= :date"
-                        + " and (t.date_fin is null or t.date_fin >= :date)) as taux_en_vigueur"
-                        + " from " + table + " c" + where.clause() + " order by libelle, code")
+        // Au plus un taux couvre la date (RG-REF-11) : la jointure ne multiplie pas les lignes.
+        return jdbcClient.sql("select c.id, c.code, c.libelle, c.actif, t.taux as taux_en_vigueur,"
+                        + " t.date_debut as debut_taux_en_vigueur"
+                        + " from " + table + " c left join " + SCHEMA + ".taux_tva t on t.classe_tva_id = c.id"
+                        + " and t.date_debut <= :date and (t.date_fin is null or t.date_fin >= :date)"
+                        + where.clause() + " order by c.libelle, c.code")
                 .params(parametres)
                 .query(ClasseTvaLigne.class)
                 .list();

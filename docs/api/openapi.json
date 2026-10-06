@@ -2932,6 +2932,12 @@
             "type" : "string",
             "example" : "NORMAL"
           },
+          "debutTauxEnVigueur" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date d'entrée en vigueur de ce taux ; absente s'il n'y en a pas",
+            "example" : "2014-01-01"
+          },
           "id" : {
             "type" : "integer",
             "format" : "int64",

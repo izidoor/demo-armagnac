@@ -28,6 +28,10 @@ export type ClasseTva = {
 export type ClasseTvaLigne = {
     actif: boolean;
     code: string;
+    /**
+     * Date d'entrée en vigueur de ce taux ; absente s'il n'y en a pas
+     */
+    debutTauxEnVigueur?: string;
     id: number;
     libelle: string;
     /**
