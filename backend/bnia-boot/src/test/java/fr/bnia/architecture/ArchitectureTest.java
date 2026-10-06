@@ -13,6 +13,8 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 import fr.bnia.commun.application.UseCase;
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
@@ -28,6 +30,10 @@ class ArchitectureTest {
 
     private static final String[] PARTIE_PUBLIEE_REFERENTIELS = {
             "fr.bnia.referentiels.domain.partage..", "fr.bnia.referentiels.application.partage.."};
+
+    private static String[] concat(String[] paquets, String... autres) {
+        return Stream.concat(Arrays.stream(paquets), Arrays.stream(autres)).toArray(String[]::new);
+    }
 
     @ArchTest
     static final ArchRule le_domaine_est_du_java_pur = classes()
@@ -73,6 +79,13 @@ class ArchitectureTest {
             .that().resideOutsideOfPackages("fr.bnia.referentiels..", "fr.bnia.boot..")
             .should().dependOnClassesThat(resideInAPackage("fr.bnia.referentiels..")
                     .and(not(resideInAnyPackage(PARTIE_PUBLIEE_REFERENTIELS))));
+
+    /** ADR-008 : petite, stable, en lecture seule ; ni agrégat ni cas d'usage interne n'y transparaît. */
+    @ArchTest
+    static final ArchRule la_partie_publiee_des_referentiels_ne_depend_que_d_elle_meme_et_du_noyau = classes()
+            .that().resideInAnyPackage(PARTIE_PUBLIEE_REFERENTIELS)
+            .should().onlyDependOnClassesThat()
+            .resideInAnyPackage(concat(PARTIE_PUBLIEE_REFERENTIELS, "java..", "fr.bnia.commun.domain.."));
 
     @ArchTest
     static final ArchRule le_noyau_commun_ne_depend_d_aucun_contexte = noClasses()
