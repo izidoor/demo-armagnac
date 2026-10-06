@@ -1,6 +1,7 @@
 # ADR-008 : Référentiels, partie publiée en lecture et référence par code
 
-- Statut : accepté ; la référence par code est remplacée par l'identifiant technique (ADR-011)
+- Statut : accepté ; la référence par code est remplacée par l'identifiant technique (ADR-011) ;
+  l'exception de la partie publiée est étendue à `operateurs` (ADR-012)
 - Date : 2026-10-06
 - Spec : `docs/specs/01-referentiels/spec.md` (décisions A-REF-1 à 3)
 

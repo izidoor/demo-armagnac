@@ -1,6 +1,6 @@
 # 01 : référentiels
 
-> Contexte `referentiels` (étape 1 de `docs/contextes.md`). Statut : **terminée** (validée le 2026-10-06), **implémentée**.
+> Contexte `referentiels` (étape 1 de `docs/contextes.md`). Statut : **terminée** (validée le 2026-10-06), **implémentée** ; **rouverte le 2026-10-06** pour `MembreBnia` (spec 02), à implémenter.
 > Références : `p.N` = page du CDC v1.1, `AGI p.N` = page de la spec de reprise AGI.
 > `H-REF-n` : hypothèse retenue, révisable. `Q-REF-n` : question ouverte, suivie dans cette spec (§10).
 
@@ -63,6 +63,7 @@ Usages relevés ailleurs : §4.3.2.3 (marques, p.19) · C.1.1.2 (région, p.102)
 | | Types de visite | `TypeVisite` | §4.11.4 p.53, C.10.8.4 p.130 |
 | | Langues | `Langue` | §4.11.4 p.53, C.10.8.5 p.130 |
 | | Centres d'intérêt | `CentreInteret` | §4.11.4 p.53, C.10.8.6 p.130 |
+| | Membres BNIA | `MembreBnia` | C.1.1.1 p.101, décision du 2026-10-06 (spec 02) |
 | Présentation et commercialisation | Marques | `Marque` | §4.11.5 p.53, C.10.9.1 p.131 |
 | | Circuits de distribution | `CircuitDistribution` | §4.11.5 p.53, C.10.9.2 p.131 |
 | | Produits commercialisés | `ProduitCommercialise` | §4.11.5 p.53, C.10.9.3 p.131 |
@@ -84,8 +85,9 @@ Usages relevés ailleurs : §4.3.2.3 (marques, p.19) · C.1.1.2 (région, p.102)
 
 ### 3.1 Liste de valeurs simple
 
-Neuf référentiels sur treize ont la même forme : `Titre`, `Label`, `TypeVisite`, `Langue`, `CentreInteret`,
-`Marque`, `CircuitDistribution`, `ProduitCommercialise` et `ZoneCommerciale`. Chacun est une classe à
+Dix référentiels sur quatorze ont la même forme : `Titre`, `Label`, `TypeVisite`, `Langue`, `CentreInteret`,
+`Marque`, `CircuitDistribution`, `ProduitCommercialise`, `ZoneCommerciale` et `MembreBnia` (ajouté le
+2026-10-06 : C.1.1.1 type le champ « Référentiel » sans qu'aucune liste n'existe en C.10 ; spec 02). Chacun est une classe à
 part entière, avec son repository, sa table et son endpoint (A-REF-3) : chaque liste pourra diverger
 sans refonte.
 
@@ -232,6 +234,7 @@ qui appelle le cas d'usage de `referentiels` ; elle n'a pas besoin d'être publi
 | Une valeur par son code, active ou non, pour l'affichage | tous |
 | Pays : zone commerciale, membre de l'UE, langue et niveau de détail du certificat, âge minimum | `exportation`, `statistiques` |
 | Région : indicateur de région délimitée | `operateurs` |
+| Membre BNIA | `operateurs` |
 | Contenance : volume en litres | `exportation` |
 | Taux applicable d'une classe de TVA à une date (RG-REF-12) | `cotisation`, `facturation`, `boutique` |
 
@@ -271,6 +274,7 @@ Des valeurs plausibles, présentées comme telles :
 - quelques régions, avec et sans l'indicateur de région délimitée ;
 - les contenances usuelles : 0,05, 0,20, 0,35, 0,50, 0,70, 0,75, 1,00, 1,50 et 3,00 L ;
 - une classe de TVA « Normal » à 20 % depuis le 01/01/2014.
+- quelques membres BNIA plausibles (valeurs réelles inconnues : Q-OPE-4 de la spec 02).
 
 Les valeurs réelles viendront de la reprise.
 
@@ -287,6 +291,7 @@ Les valeurs réelles viendront de la reprise.
 | Langues | 2.6.9 (p.14) | direct |
 | Marques, circuits de distribution, types de produits commercialisés | **aucune vue** : les vues professionnel 2.1.5, 2.1.6 et 2.1.11 ne portent que l'identifiant de la table InteGraal | demander à AGI une vue de paramétrage par table (identifiant, code, libellé) : Q-REF-6. Produits commercialisés : on suit le CDC, une liste de types (Armagnac, Blanche, Floc…) ; les libellés libres par opérateur d'InteGraal (2.1.11) ne sont pas repris (Q-REF-9) |
 | Centres d'intérêt, zones commerciales, classes de TVA | aucune vue | saisie initiale par le BNIA |
+| Membres BNIA | **aucune vue** : la fiche professionnel (AGI 2.1.1 p.4) la lie à « paramétrage - membres BNIA » | vue demandée à AGI (Q-REF-6) ; sens du champ demandé au BNIA (Q-OPE-4, spec 02) |
 
 Chaque code AGI est traduit en identifiant à la reprise, par la lecture par code (ADR-011).
 
@@ -337,9 +342,9 @@ bloque le prototype, qui s'appuie sur les décisions et hypothèses ci-dessus.
 | Q-REF-3 | **Au BNIA** : quelles sont les régions actuelles, et lesquelles sont « en région délimitée » ? | La reprise des régions |
 | Q-REF-4 | **Au BNIA** : les devises et les flacons d'InteGraal (AGI p.12) sont-ils abandonnés dans la cible ? Le CDC n'en parle pas. | La reprise des contrats export |
 | Q-REF-5 | **Au BNIA** : sous quelle forme la contenance est-elle stockée dans InteGraal (texte, centilitres, litres) ? | La reprise des contenances |
-| Q-REF-6 | **Demande à AGI** : quatre vues de paramétrage manquent à la spec AGI (identifiant, code, libellé) : Marques, Circuits de distribution, Types de produits commercialisés, Médailles et concours. Les vues professionnel 2.1.5, 2.1.6, 2.1.10 et 2.1.11 n'en donnent que l'identifiant. | La reprise des onglets Marques et Œnotourisme |
+| Q-REF-6 | **Demande à AGI** : cinq vues de paramétrage manquent à la spec AGI (identifiant, code, libellé) : Marques, Circuits de distribution, Types de produits commercialisés, Médailles et concours, Membres BNIA. Les vues professionnel 2.1.1, 2.1.5, 2.1.6, 2.1.10 et 2.1.11 n'en donnent que l'identifiant. | La reprise des onglets Marques et Œnotourisme, et du membre BNIA |
 | Q-REF-9 | **Au BNIA** : la cible suit le CDC (produits commercialisés = liste de types à cocher). Les libellés libres saisis par opérateur dans InteGraal (AGI 2.1.11) ne seront pas repris. Est-ce acceptable ? | La reprise |
-| Q-REF-10 | **Au BNIA** : InteGraal gère des médailles et concours rattachés aux fiches (AGI 2.1.10), absents du CDC cible. Donnée abandonnée ou oubli ? | Le périmètre de `operateurs` |
+| ~~Q-REF-10~~ | InteGraal gère des médailles et concours rattachés aux fiches (AGI 2.1.10). **Corrigée le 2026-10-06** : elles figurent bien dans le CDC cible (§4.3.2.5 p.20, C.1.7.1 p.104). **Tranché le 2026-10-06 (spec 02)** : lignes semi-structurées dans `operateurs` (concours, année, distinction, produit), sans référentiel. | |
 | ~~Q-REF-7~~ | Un opérateur peut-il créer une marque depuis le portail ? **Tranché le 2026-10-06 : oui** (RG-REF-14, RG-REF-15). À confirmer par le BNIA. | |
 | ~~Q-REF-8~~ | L'âge minimum d'un pays bloque-t-il la vente export ou le certificat ? **Tranché le 2026-10-06 : alerte non bloquante** à la saisie, à l'import et à la génération du certificat, mise en œuvre dans `exportation`. À confirmer par le BNIA. | |
 
@@ -364,3 +369,4 @@ Chaque RG-REF-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-06 | Spec validée, statut « terminée ». ADR-008 (partie publiée, référence par code, une classe par liste) et ADR-009 (noyau commun du domaine) rédigés. |
 | 2026-10-06 | Implémentation (lots 1 à 7). Choix faits pendant l'implémentation : listes simples sur une classe abstraite par couche (`ValeurSimple`, `GererValeursSimples`…), une sous-classe par liste (A-REF-3) ; `Pays`, `Region` et `ClasseTva` étendent `ValeurSimple` ; la contenance a son propre modèle, identifiée par son `Volume` (`numeric(10,3)`) ; libellé normalisé des marques stocké avec un index unique (RG-REF-15) ; marques proches : recherche « contient » sur le libellé normalisé ; non-chevauchement des taux de TVA garanti par l'agrégat seul ; `ReferentielsLecture` à méthodes typées, classes de TVA comprises ; un schéma PostgreSQL `referentiels`. Chaque RG-REF-01 à 15 a au moins un test qui porte son identifiant. |
 | 2026-10-06 | Révision (ADR-011) : référence par identifiant technique au lieu du code métier (A-REF-1) ; code et volume modifiables, toujours uniques (RG-REF-01, RG-REF-02) ; suppression d'une valeur inutilisée, désactivation sinon (RG-REF-04) ; H-REF-4 abandonnée ; `ReferentielsLecture` par identifiant et par code. Motif : l'erreur de saisie est courante, et la démonstration exige de pouvoir corriger. |
+| 2026-10-06 | Rouverte par la spec 02 : nouvelle liste simple `MembreBnia` (§2.1, §3.1, §5.2, §7.2), cinquième vue demandée à AGI (Q-REF-6), Q-REF-10 corrigée (les médailles sont dans le CDC) et tranchée. À implémenter. |

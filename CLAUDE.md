@@ -26,7 +26,7 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 
 ## Architecture (un module Maven par contexte, couches vérifiées par ArchUnit, ADR-010)
 - `bnia-<contexte>` : un module par bounded context. Couches en packages,
-  `fr.bnia.<contexte>.{domain, application, adapter.rest, adapter.persistence, adapter.integration}` :
+  `fr.bnia.<contexte>.{domain, application, adapter.rest, adapter.persistence, adapter.integration, adapter.evenement}` :
   - `domain` : Java pur. Aucun framework ni annotation de persistance.
   - `application` : cas d'usage (`@UseCase` maison) et ports. Dépend de `domain` uniquement.
   - `adapter.*` : dépendent de `application`, jamais entre eux. Une intégration externe vit dans le
@@ -37,10 +37,13 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - Nouveau contexte : un pom, une entrée dans `<modules>` du pom racine, une dépendance dans `bnia-boot`,
   un schéma dans `spring.flyway.schemas`.
 - Pas d'import direct entre contextes :
-  passer par des ports ou des événements. Deux exceptions : `fr.bnia.commun.domain`, noyau de concepts
-  transverses (ADR-009), et la partie publiée en lecture de `referentiels`
-  (`fr.bnia.referentiels.*.partage`, ADR-008). Référence entre contextes par identifiant technique,
-  avec clé étrangère (ADR-011).
+  passer par des ports ou des événements. Trois exceptions : `fr.bnia.commun.domain`, noyau de concepts
+  transverses (ADR-009), et les parties publiées en lecture de `referentiels`
+  (`fr.bnia.referentiels.*.partage`, ADR-008) et de `operateurs` (`fr.bnia.operateurs.*.partage`,
+  ADR-012). Référence entre contextes par identifiant technique, avec clé étrangère (ADR-011).
+- Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
+  par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée du contexte dont l'autre
+  dépend, jamais de cycle (ADR-013).
 
 ## Persistance
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance

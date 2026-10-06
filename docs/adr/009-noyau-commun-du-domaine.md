@@ -30,6 +30,9 @@ Options écartées :
   divergeraient.
 
 ## Conséquences
+- `Millesime` (année valide) et `Appellation` (cinq AOC) rejoignent `CompteDAge` (2026-10-06, spec 02,
+  décision A-OPE-4) : usages certains dans `operateurs`, les DSM, l'export, les contrats et les
+  statistiques.
 - `commun.domain` accueille aussi les exceptions métier communes (`RegleEnfreinte`, avec l'identifiant
   de la règle, `ConflitUnicite`, `ElementIntrouvable`), traduites en `ProblemDetail` par
   `commun.adapter.rest` (ajout du 2026-10-06, implémentation de `referentiels`). Elles ne sont pas des

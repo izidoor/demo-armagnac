@@ -12,11 +12,20 @@
 | Utilisateur BNIA | `UtilisateurBnia` | Compte interne du back-office, porteur d'un `Role`. Blocage 30 min après 3 échecs de connexion. | p.14, 17 |
 | Rôle | `Role` | Ensemble de `Droit` (module × action : Lecture, Écriture, Facturer, Générer, Gérer), composé librement par le BNIA. | p.14-17 |
 | Opérateur | `Operateur` | Producteur, négociant ou autre structure ayant une fiche dans le référentiel BNIA. Peut interagir avec le portail. | p.95 |
-| Type d'opérateur | `TypeOperateur` | `PRODUCTEUR` ou `NEGOCIANT` (plus d'éventuelles autres structures). Pilote la périodicité par défaut, les colonnes DSM saisissables, les DRM, l'assiette de cotisation et la forme du code. Liste fermée du contexte `operateurs`, **pas** un référentiel administrable. Probablement l'ancien « type de tiers » d'InteGraal (Q-REF-1). | p.18, 25, 28, 101 |
-| Code opérateur BNIA | `CodeOperateur` | Négociant : `N` + n° de département + incrément sur 4 chiffres. Producteur : incrément sur 6 chiffres. Attribué automatiquement, unique. | p.21 |
-| Groupe opérateur | `GroupeOperateur` | Regroupe plusieurs fiches (chais) d'un même opérateur. | p.18 |
-| Contact | `Contact` | Personne rattachée à un opérateur ; peut avoir un accès portail. Porte des centres d'intérêt (comptabilité, marketing, production…). | p.20-21 |
-| Compte portail | `ComptePortail` | Identité de connexion d'un contact, unique par adresse email, rattachable à plusieurs comptes opérateur avec des droits propres à chacun. | p.60 |
+| Type d'opérateur | `TypeOperateur` | `PRODUCTEUR`, `NEGOCIANT` ou `AUTRE`. Pilote la périodicité par défaut, les colonnes DSM saisissables, les DRM, l'assiette de cotisation et la forme du code. Un `AUTRE` (distillateur, courtier…) ne déclare pas : ni DSM ni périodicité. Liste fermée du contexte `operateurs`, **pas** un référentiel administrable. Probablement l'ancien « type de tiers » d'InteGraal (Q-REF-1). | p.18, 25, 28, 101 |
+| Code opérateur BNIA | `CodeOperateur` | Négociant : `N` + n° de département (tiré du code postal) + incrément sur 4 chiffres par département. Producteur et `AUTRE` : incrément sur 6 chiffres. Proposé à la création (plus grand numéro existant + 1), unique, modifiable ; non partagé avec l'ODG. Les autres contextes référencent l'opérateur par son identifiant technique. | p.21 |
+| Groupe opérateur | — | Texte qui regroupe plusieurs fiches (chais) d'un même opérateur ; deux fiches sont du même groupe si leurs textes sont égaux à la casse, aux accents et aux espaces près (H-OPE-1). | p.18, 20 |
+| Contact principal | — | Contact actif de l'opérateur désigné comme point d'entrée de la structure. | p.18, 101 |
+| Identifiant tiers ODG | — | Identifiant de l'opérateur dans l'ODG, unique s'il est renseigné ; la passerelle ODG rattache ses flux par lui, puis par CVI ou SIRET. | p.101 |
+| Destinataire des factures | — | Sur la fiche opérateur : un contact de l'opérateur ou une adresse e-mail saisie ; lu et figé par la facturation. | p.123 |
+| Fiche incomplète | — | Fiche opérateur enregistrée sans tout ce qu'il faut pour facturer ou certifier (adresse, code postal, ville, pays, région) ; signalée, jamais bloquée. | décision du 2026-10-06 |
+| Présentation de l'opérateur | `PresentationOperateur` | Marques, circuits, visites, labels, œnotourisme et médailles d'un opérateur ; agrégat distinct de la fiche, de même identifiant. Saisie sans flux vers l'annuaire public. | p.19-20, 103-104 |
+| Médaille et concours | `MedailleConcours` | Distinction obtenue par un opérateur : concours, année, distinction (or, argent, bronze, autre), produit. | p.20, 104 |
+| Fiche annuaire opérateur | — | Fiche de présentation d'un opérateur sur armagnac.fr. Hors périmètre de la plateforme. | p.6, 98 |
+| Contact | `Contact` | Fiche d'une personne **dans un opérateur** : identité, fonction, coordonnées, centres d'intérêt (comptabilité, marketing, production…). Porte ses droits au portail : accès, administrateur, modules. Une personne = un e-mail = un compte portail, avec un contact dans chaque opérateur. | p.20-21, 104-105 |
+| Administrateur | — | Contact qui a l'accès portail et tous les modules, et qui seul gère au portail le profil, les contacts et leurs droits. Le premier est désigné par le BNIA ; un opérateur n'en est jamais privé depuis le portail. | p.78-79, 105 |
+| Module portail | `ModulePortail` | Droit d'un contact sur un module du portail : DSM, contrats, pluri-annuels et propositions (Armagnac et vin), fins de travaux, boutique, factures, certificats export, statistiques. | p.78-79 |
+| Compte portail | `ComptePortail` | Identité de connexion d'une personne, unique par adresse e-mail, sans droits propres : ses opérateurs sont ceux des contacts actifs, avec accès, qui portent son e-mail ; les droits sont ceux de chaque contact. Seul « Mon compte » change son e-mail. | p.60 |
 | Compte opérateur actif | `CompteOperateurActif` | Opérateur sélectionné dans la session portail ; toutes les données visibles sont filtrées dessus. | p.60-62 |
 | Destinataire | `Destinataire` | Tiers destinataire d'une vente export, rattaché à un pays, qualifié par un `TypeTiers`. Distinct des opérateurs ; vit dans le contexte `exportation`, pas dans `referentiels`. | p.40-41, 129 |
 | Type tiers | `TypeTiers` | Catégorie d'acteur d'un destinataire export (importateur, distributeur…). Liste administrable du contexte `exportation`. À ne pas confondre avec `TypeOperateur`. | p.53, 129-130 |
@@ -26,7 +35,8 @@
 | Terme | Code | Définition | Réf. |
 |---|---|---|---|
 | Campagne de distillation | `Campagne` | Du 1er septembre N au 31 mars N+1. | p.94 |
-| Millésime | `Millesime` | Année de la campagne de distillation (campagne 2025/2026 → millésime 2025). | p.95, 98 |
+| Millésime | `Millesime` | Concept partagé (`commun.domain`). Année de la campagne de distillation (campagne 2025/2026 → millésime 2025). | p.95, 98 |
+| Appellation | `Appellation` | Concept partagé (`commun.domain`). Liste fermée des AOC : Armagnac, Bas Armagnac, Armagnac Ténarèze, Haut Armagnac, Blanche Armagnac. | p.102 |
 | Compte d'âge | `CompteDAge` | Concept partagé (`commun.domain`). Âge commercial, incrémenté chaque 1er avril. Millésime N : `00` avant le 01/04/N+1, `0` jusqu'au 31/03/N+2, puis `1`, `2`… `00` et `0` sont deux valeurs distinctes (ce n'est donc pas un entier). Borne `20+` en DSM, sans borne en export. ⚠ | p.39, 98-99 |
 | Assemblage | `Assemblage` | Mélange de plusieurs Armagnacs ; son compte d'âge est celui de l'eau-de-vie la plus jeune. | p.94 |
 | Mention commerciale | `MentionCommerciale` | Déduite du compte d'âge : `00` et `0` aucune ; `1` à `3` VS ou \*\*\* ; `4` à `9` VSOP ; `10`+ Hors d'Âge, Extra, Réserve. | p.99 |
@@ -36,12 +46,16 @@
 | Format hl.l,cl | `FormatHlLCl` | Présentation d'un volume : 129 550,3 L s'affiche `1 295.50,30`. Affichage et fichier d'import export uniquement. | p.96 |
 | TAV | `Tav` | Titre alcoométrique volumique (% vol), exprimé à 20 °C sur les certificats. | p.42, 97 |
 | Bouteille / Vrac | `TypeConditionnement` | Distinction portée par les lignes de vente export. | p.38 |
+| Alambic | `Alambic` | Appareil de distillation détenu par un opérateur : n° d'agrément, type (armagnacais ou double chauffe, H-OPE-3), capacité. L'opérateur est « détenteur d'alambic » s'il en a au moins un. | p.19, 102 |
+| Diffusion des millésimes | `DiffusionMillesimes` | Accord d'un opérateur pour l'usage de ses stocks par millésime dans les statistiques du BNIA : refus (par défaut), partiel (liste des millésimes diffusables) ou total. | p.19, 102 |
 
 ## 3. Déclarations de stocks et mouvements
 
 | Terme | Code | Définition | Réf. |
 |---|---|---|---|
 | DSM | `DeclarationStocksMouvements` | Déclaration de stocks et mouvements d'un opérateur pour une période. Format unique producteur/négociant : 5 onglets, 26 colonnes numérotées. | p.22-24 |
+| Périodicité DSM | `PeriodiciteDsm` | Mensuelle, trimestrielle, semestrielle ou annuelle, portée par la fiche opérateur (valeur courante). Annuelle par défaut pour un producteur, mensuelle pour un négociant. | p.28, 101 |
+| Statut de déclaration de stock | `StatutDeclarationStock` | `OUI`, `NON`, `SOMMEIL`, `CLOTURE`, sur la fiche opérateur. Seul `OUI` rend une DSM attendue (H-OPE-2). | p.102 |
 | Période de déclaration | `PeriodeDeclaration` | Annuelle par défaut (producteur), mensuelle (négociant) ; paramétrable mois / trimestre / semestre / année sur la fiche opérateur. Ni chevauchement, ni trou. Le portail ne remplit qu'une DSM créée au préalable par le BNIA. | p.26, 28, 64 |
 | Colonne grisée | `ColonneDsm` | Huit colonnes (2, 3, 5, 9, 11, 19, 24, 25) hors périmètre producteur : non saisissables, non importées, exclues des totaux, des contrôles et de la cotisation. | p.24-25 |
 | Ligne DSM | `LigneDsm` | Unique dans une déclaration sur (dénomination ou millésime, clé de conditionnement, compte d'âge). | p.23 |
@@ -95,8 +109,9 @@
 
 ## 8. Référentiels
 
-Données administrées par le BNIA (contexte `referentiels`, spec 01). Aucune valeur n'est supprimée :
-une valeur **inactive** n'est plus proposée à la saisie mais reste affichée là où elle est utilisée.
+Données administrées par le BNIA (contexte `referentiels`, spec 01). Une valeur inutilisée se supprime ;
+une valeur utilisée se désactive : **inactive**, elle n'est plus proposée à la saisie mais reste affichée
+là où elle est utilisée (ADR-011).
 
 | Terme | Code | Définition | Réf. |
 |---|---|---|---|
@@ -118,6 +133,7 @@ une valeur **inactive** n'est plus proposée à la saisie mais reste affichée l
 | Label | `Label` | Label ou distinction touristique d'un opérateur. | p.19, 130 |
 | Type de visite | `TypeVisite` | Visite ou prestation d'accueil proposée par un opérateur. | p.19, 130 |
 | Langue | `Langue` | Langue parlée à l'accueil d'un opérateur. Sans rapport avec la langue du certificat. | p.20, 130 |
+| Membre BNIA | `MembreBnia` | Statut ou rôle interne au BNIA associé à un opérateur ; liste administrable, sens à préciser (Q-OPE-4). | p.101 |
 | Centre d'intérêt | `CentreInteret` | Domaine d'activité d'un contact (comptabilité, marketing, production), pour cibler les communications. | p.21, 130 |
 
 ## 9. Systèmes
