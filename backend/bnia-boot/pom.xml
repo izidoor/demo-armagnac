@@ -43,6 +43,12 @@
             <artifactId>spring-boot-docker-compose</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- Redémarrage à chaud en dev ; absent du jar exécutable (optional), inactif en production. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

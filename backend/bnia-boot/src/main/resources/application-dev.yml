@@ -5,6 +5,10 @@ spring:
       enabled: true
       file: ../compose.yaml
       lifecycle-management: start-only
+  devtools:
+    # Le front est servi par Vite (pnpm dev), qui recharge lui-même la page.
+    livereload:
+      enabled: false
   flyway:
     # Vidage autorisé en dev seulement : la base est recréée si V1 a changé (MigrationDevConfiguration).
     clean-disabled: false
