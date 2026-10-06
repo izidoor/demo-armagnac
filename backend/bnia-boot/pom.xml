@@ -24,6 +24,10 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-referentiels</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-operateurs</artifactId>
+        </dependency>
         <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

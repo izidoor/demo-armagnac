@@ -123,12 +123,12 @@ class ListesSimplesIT extends AbstractIT {
         return "Z" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    /** Les neuf listes simples, par leur chemin sous {@code /api/referentiels/}. */
+    /** Les dix listes simples, par leur chemin sous {@code /api/referentiels/}. */
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {"zones-commerciales", "titres", "labels", "types-visite", "langues", "centres-interet",
-            "marques", "circuits-distribution", "produits-commercialises"})
+            "membres-bnia", "marques", "circuits-distribution", "produits-commercialises"})
     @interface ListesSimples {
     }
 }

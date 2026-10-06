@@ -4,6 +4,7 @@ import {
   creerLabel,
   creerLangue,
   creerMarque,
+  creerMembreBnia,
   creerProduitCommercialise,
   creerTitre,
   creerTypeVisite,
@@ -13,6 +14,7 @@ import {
   desactiverLabel,
   desactiverLangue,
   desactiverMarque,
+  desactiverMembreBnia,
   desactiverProduitCommercialise,
   desactiverTitre,
   desactiverTypeVisite,
@@ -23,6 +25,7 @@ import {
   listerLangues,
   listerMarques,
   listerMarquesProches,
+  listerMembresBnia,
   listerProduitsCommercialises,
   listerTitres,
   listerTypesVisite,
@@ -32,6 +35,7 @@ import {
   modifierLabel,
   modifierLangue,
   modifierMarque,
+  modifierMembreBnia,
   modifierProduitCommercialise,
   modifierTitre,
   modifierTypeVisite,
@@ -41,6 +45,7 @@ import {
   reactiverLabel,
   reactiverLangue,
   reactiverMarque,
+  reactiverMembreBnia,
   reactiverProduitCommercialise,
   reactiverTitre,
   reactiverTypeVisite,
@@ -50,6 +55,7 @@ import {
   supprimerLabel,
   supprimerLangue,
   supprimerMarque,
+  supprimerMembreBnia,
   supprimerProduitCommercialise,
   supprimerTitre,
   supprimerTypeVisite,
@@ -60,7 +66,7 @@ import {
 import { type FiltreValeurs } from '../commun/use-filtre-valeurs'
 
 /**
- * Accès à une liste simple (code, libellé, actif), commun aux neuf listes (A-REF-3). Les valeurs sont
+ * Accès à une liste simple (code, libellé, actif), commun aux dix listes (A-REF-3). Les valeurs sont
  * désignées par leur identifiant ; le code se corrige (ADR-011).
  */
 type ApiListeSimple = {
@@ -235,6 +241,34 @@ export const centresInteret: ConfigListeSimple = {
       ),
     supprimer: (id) =>
       supprimerCentreInteret({ path: { id }, throwOnError: true }),
+  },
+}
+
+export const membresBnia: ConfigListeSimple = {
+  titre: 'Membres BNIA',
+  description:
+    'Valeurs du champ « membre BNIA » de la fiche opérateur (C.1.1.1, spec 02).',
+  libelleNouveau: 'Nouveau membre BNIA',
+  api: {
+    cle: 'membres-bnia',
+    lister: (query) =>
+      listerMembresBnia({ query, throwOnError: true }).then((r) => r.data),
+    creer: (body) =>
+      creerMembreBnia({ body, throwOnError: true }).then((r) => r.data),
+    modifier: (id, body) =>
+      modifierMembreBnia({ path: { id }, body, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    desactiver: (id) =>
+      desactiverMembreBnia({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    reactiver: (id) =>
+      reactiverMembreBnia({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    supprimer: (id) =>
+      supprimerMembreBnia({ path: { id }, throwOnError: true }),
   },
 }
 

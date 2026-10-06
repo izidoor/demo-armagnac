@@ -78,6 +78,12 @@ public interface ReferentielsLecture {
 
     List<ValeurVue> centresInteretActifs();
 
+    Optional<ValeurVue> membreBnia(long id);
+
+    Optional<ValeurVue> membreBniaParCode(String code);
+
+    List<ValeurVue> membresBniaActifs();
+
     // Présentation et commercialisation
 
     Optional<ValeurVue> marque(long id);

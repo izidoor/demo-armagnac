@@ -26,6 +26,7 @@ import { Route as BoParametrageTitresRouteImport } from './routes/bo/parametrage
 import { Route as BoParametrageRegionsRouteImport } from './routes/bo/parametrage/regions'
 import { Route as BoParametrageProduitsCommercialisesRouteImport } from './routes/bo/parametrage/produits-commercialises'
 import { Route as BoParametragePaysRouteImport } from './routes/bo/parametrage/pays'
+import { Route as BoParametrageMembresBniaRouteImport } from './routes/bo/parametrage/membres-bnia'
 import { Route as BoParametrageMarquesRouteImport } from './routes/bo/parametrage/marques'
 import { Route as BoParametrageLanguesRouteImport } from './routes/bo/parametrage/langues'
 import { Route as BoParametrageLabelsRouteImport } from './routes/bo/parametrage/labels'
@@ -123,6 +124,12 @@ const BoParametragePaysRoute = BoParametragePaysRouteImport.update({
   path: '/parametrage/pays',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const BoParametrageMembresBniaRoute =
+  BoParametrageMembresBniaRouteImport.update({
+    id: '/parametrage/membres-bnia',
+    path: '/parametrage/membres-bnia',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
 const BoParametrageMarquesRoute = BoParametrageMarquesRouteImport.update({
   id: '/parametrage/marques',
   path: '/parametrage/marques',
@@ -187,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
   '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
   '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
+  '/bo/parametrage/membres-bnia': typeof BoParametrageMembresBniaRoute
   '/bo/parametrage/pays': typeof BoParametragePaysRoute
   '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
   '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
@@ -212,6 +220,7 @@ export interface FileRoutesByTo {
   '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
   '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
   '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
+  '/bo/parametrage/membres-bnia': typeof BoParametrageMembresBniaRoute
   '/bo/parametrage/pays': typeof BoParametragePaysRoute
   '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
   '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
@@ -240,6 +249,7 @@ export interface FileRoutesById {
   '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
   '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
   '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
+  '/bo/parametrage/membres-bnia': typeof BoParametrageMembresBniaRoute
   '/bo/parametrage/pays': typeof BoParametragePaysRoute
   '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
   '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
@@ -269,6 +279,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/labels'
     | '/bo/parametrage/langues'
     | '/bo/parametrage/marques'
+    | '/bo/parametrage/membres-bnia'
     | '/bo/parametrage/pays'
     | '/bo/parametrage/produits-commercialises'
     | '/bo/parametrage/regions'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/labels'
     | '/bo/parametrage/langues'
     | '/bo/parametrage/marques'
+    | '/bo/parametrage/membres-bnia'
     | '/bo/parametrage/pays'
     | '/bo/parametrage/produits-commercialises'
     | '/bo/parametrage/regions'
@@ -321,6 +333,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/labels'
     | '/bo/parametrage/langues'
     | '/bo/parametrage/marques'
+    | '/bo/parametrage/membres-bnia'
     | '/bo/parametrage/pays'
     | '/bo/parametrage/produits-commercialises'
     | '/bo/parametrage/regions'
@@ -464,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametragePaysRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/parametrage/membres-bnia': {
+      id: '/bo/parametrage/membres-bnia'
+      path: '/parametrage/membres-bnia'
+      fullPath: '/bo/parametrage/membres-bnia'
+      preLoaderRoute: typeof BoParametrageMembresBniaRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/parametrage/marques': {
       id: '/bo/parametrage/marques'
       path: '/parametrage/marques'
@@ -531,6 +551,7 @@ interface BoRouteRouteChildren {
   BoParametrageLabelsRoute: typeof BoParametrageLabelsRoute
   BoParametrageLanguesRoute: typeof BoParametrageLanguesRoute
   BoParametrageMarquesRoute: typeof BoParametrageMarquesRoute
+  BoParametrageMembresBniaRoute: typeof BoParametrageMembresBniaRoute
   BoParametragePaysRoute: typeof BoParametragePaysRoute
   BoParametrageProduitsCommercialisesRoute: typeof BoParametrageProduitsCommercialisesRoute
   BoParametrageRegionsRoute: typeof BoParametrageRegionsRoute
@@ -550,6 +571,7 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoParametrageLabelsRoute: BoParametrageLabelsRoute,
   BoParametrageLanguesRoute: BoParametrageLanguesRoute,
   BoParametrageMarquesRoute: BoParametrageMarquesRoute,
+  BoParametrageMembresBniaRoute: BoParametrageMembresBniaRoute,
   BoParametragePaysRoute: BoParametragePaysRoute,
   BoParametrageProduitsCommercialisesRoute:
     BoParametrageProduitsCommercialisesRoute,

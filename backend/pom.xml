@@ -22,6 +22,7 @@
         <module>bnia-commun</module>
         <module>bnia-systeme</module>
         <module>bnia-referentiels</module>
+        <module>bnia-operateurs</module>
         <module>bnia-boot</module>
     </modules>
 
@@ -48,6 +49,11 @@
             <dependency>
                 <groupId>fr.bnia</groupId>
                 <artifactId>bnia-referentiels</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-operateurs</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

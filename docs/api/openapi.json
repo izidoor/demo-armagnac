@@ -50,6 +50,9 @@
   }, {
     "description" : "Référentiel : titres (C.10.8.1)",
     "name" : "titres"
+  }, {
+    "description" : "Référentiel : membres BNIA (C.1.1.1, spec 02)",
+    "name" : "membres-bnia"
   } ],
   "paths" : {
     "/api/referentiels/centres-interet" : {
@@ -1633,6 +1636,211 @@
         },
         "summary" : "Réactiver une valeur (RG-REF-04)",
         "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/membres-bnia" : {
+      "get" : {
+        "operationId" : "listerMembresBnia",
+        "parameters" : [ {
+          "description" : "Absent : actives et inactives",
+          "in" : "query",
+          "name" : "actif",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché dans le code ou le libellé",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ValeurSimple"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les valeurs, triées par libellé",
+        "tags" : [ "membres-bnia" ]
+      },
+      "post" : {
+        "operationId" : "creerMembreBnia",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "membres-bnia" ]
+      }
+    },
+    "/api/referentiels/membres-bnia/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerMembreBnia",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)",
+        "tags" : [ "membres-bnia" ]
+      },
+      "get" : {
+        "operationId" : "consulterMembreBnia",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une valeur, active ou non",
+        "tags" : [ "membres-bnia" ]
+      },
+      "put" : {
+        "operationId" : "modifierMembreBnia",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier le code et le libellé (RG-REF-01 à 03)",
+        "tags" : [ "membres-bnia" ]
+      }
+    },
+    "/api/referentiels/membres-bnia/{id}/desactivation" : {
+      "post" : {
+        "operationId" : "desactiverMembreBnia",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Désactiver une valeur (RG-REF-04)",
+        "tags" : [ "membres-bnia" ]
+      }
+    },
+    "/api/referentiels/membres-bnia/{id}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverMembreBnia",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver une valeur (RG-REF-04)",
+        "tags" : [ "membres-bnia" ]
       }
     },
     "/api/referentiels/pays" : {

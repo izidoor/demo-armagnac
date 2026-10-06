@@ -51,6 +51,7 @@ export const espaceBackOffice: Espace = {
               title: "Centres d'intérêt",
               url: '/bo/parametrage/centres-interet',
             },
+            { title: 'Membres BNIA', url: '/bo/parametrage/membres-bnia' },
           ],
         },
         {

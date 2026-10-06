@@ -1,6 +1,6 @@
 # 01 : référentiels
 
-> Contexte `referentiels` (étape 1 de `docs/contextes.md`). Statut : **terminée** (validée le 2026-10-06), **implémentée** ; **rouverte le 2026-10-06** pour `MembreBnia` (spec 02), à implémenter.
+> Contexte `referentiels` (étape 1 de `docs/contextes.md`). Statut : **terminée** (validée le 2026-10-06), **implémentée** (rouverte le 2026-10-06 pour `MembreBnia`, spec 02 ; implémentée le même jour).
 > Références : `p.N` = page du CDC v1.1, `AGI p.N` = page de la spec de reprise AGI.
 > `H-REF-n` : hypothèse retenue, révisable. `Q-REF-n` : question ouverte, suivie dans cette spec (§10).
 
@@ -370,3 +370,4 @@ Chaque RG-REF-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-06 | Implémentation (lots 1 à 7). Choix faits pendant l'implémentation : listes simples sur une classe abstraite par couche (`ValeurSimple`, `GererValeursSimples`…), une sous-classe par liste (A-REF-3) ; `Pays`, `Region` et `ClasseTva` étendent `ValeurSimple` ; la contenance a son propre modèle, identifiée par son `Volume` (`numeric(10,3)`) ; libellé normalisé des marques stocké avec un index unique (RG-REF-15) ; marques proches : recherche « contient » sur le libellé normalisé ; non-chevauchement des taux de TVA garanti par l'agrégat seul ; `ReferentielsLecture` à méthodes typées, classes de TVA comprises ; un schéma PostgreSQL `referentiels`. Chaque RG-REF-01 à 15 a au moins un test qui porte son identifiant. |
 | 2026-10-06 | Révision (ADR-011) : référence par identifiant technique au lieu du code métier (A-REF-1) ; code et volume modifiables, toujours uniques (RG-REF-01, RG-REF-02) ; suppression d'une valeur inutilisée, désactivation sinon (RG-REF-04) ; H-REF-4 abandonnée ; `ReferentielsLecture` par identifiant et par code. Motif : l'erreur de saisie est courante, et la démonstration exige de pouvoir corriger. |
 | 2026-10-06 | Rouverte par la spec 02 : nouvelle liste simple `MembreBnia` (§2.1, §3.1, §5.2, §7.2), cinquième vue demandée à AGI (Q-REF-6), Q-REF-10 corrigée (les médailles sont dans le CDC) et tranchée. À implémenter. |
+| 2026-10-06 | `MembreBnia` implémenté (lot 1 de l'implémentation de `operateurs`) : liste simple sur le patron commun (A-REF-3), table `referentiels.membre_bnia`, `ReferentielsLecture` (par identifiant, par code, actifs), page « Membres BNIA » du groupe Qualification, trois valeurs fictives en démonstration (Q-OPE-4). |

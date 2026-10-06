@@ -9,6 +9,7 @@ import fr.bnia.referentiels.application.GererContenances;
 import fr.bnia.referentiels.application.GererLabels;
 import fr.bnia.referentiels.application.GererLangues;
 import fr.bnia.referentiels.application.GererMarques;
+import fr.bnia.referentiels.application.GererMembresBnia;
 import fr.bnia.referentiels.application.GererPays;
 import fr.bnia.referentiels.application.GererProduitsCommercialises;
 import fr.bnia.referentiels.application.GererRegions;
@@ -38,6 +39,7 @@ class DemoReferentielsIT extends AbstractIT {
     @Autowired GererTypesVisite typesVisite;
     @Autowired GererLangues langues;
     @Autowired GererCentresInteret centresInteret;
+    @Autowired GererMembresBnia membresBnia;
     @Autowired GererMarques marques;
     @Autowired GererCircuitsDistribution circuits;
     @Autowired GererProduitsCommercialises produits;
@@ -48,12 +50,13 @@ class DemoReferentielsIT extends AbstractIT {
     @Test
     void charge_les_referentiels_et_peut_etre_relance() {
         var demo = new DemoReferentiels(zones, pays, regions, titres, labels, typesVisite, langues, centresInteret,
-                marques, circuits, produits, contenances, classesTva, lecture);
+                membresBnia, marques, circuits, produits, contenances, classesTva, lecture);
 
         demo.run(new DefaultApplicationArguments());
         demo.run(new DefaultApplicationArguments());
 
         assertThat(lecture.zonesCommercialesActives()).extracting(v -> v.code()).contains("EUR", "OCE");
+        assertThat(lecture.membresBniaActifs()).extracting(v -> v.code()).contains("PROD", "NEGO");
         assertThat(lecture.paysActifs()).hasSizeGreaterThanOrEqualTo(30);
         assertThat(lecture.paysParCode("ES").orElseThrow().langueCertificat()).isEqualTo(LangueCertificat.FR_ES);
         assertThat(lecture.paysParCode("IT").orElseThrow().langueCertificat()).isEqualTo(LangueCertificat.FR_IT);

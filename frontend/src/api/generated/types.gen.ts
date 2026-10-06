@@ -1178,6 +1178,137 @@ export type ReactiverMarqueResponses = {
 
 export type ReactiverMarqueResponse = ReactiverMarqueResponses[keyof ReactiverMarqueResponses];
 
+export type ListerMembresBniaData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Absent : actives et inactives
+         */
+        actif?: boolean;
+        /**
+         * Texte cherché dans le code ou le libellé
+         */
+        recherche?: string;
+    };
+    url: '/api/referentiels/membres-bnia';
+};
+
+export type ListerMembresBniaResponses = {
+    /**
+     * OK
+     */
+    200: Array<ValeurSimple>;
+};
+
+export type ListerMembresBniaResponse = ListerMembresBniaResponses[keyof ListerMembresBniaResponses];
+
+export type CreerMembreBniaData = {
+    body: SaisieValeurSimple;
+    path?: never;
+    query?: never;
+    url: '/api/referentiels/membres-bnia';
+};
+
+export type CreerMembreBniaResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerMembreBniaResponse = CreerMembreBniaResponses[keyof CreerMembreBniaResponses];
+
+export type SupprimerMembreBniaData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/membres-bnia/{id}';
+};
+
+export type SupprimerMembreBniaResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerMembreBniaResponse = SupprimerMembreBniaResponses[keyof SupprimerMembreBniaResponses];
+
+export type ConsulterMembreBniaData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/membres-bnia/{id}';
+};
+
+export type ConsulterMembreBniaResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ConsulterMembreBniaResponse = ConsulterMembreBniaResponses[keyof ConsulterMembreBniaResponses];
+
+export type ModifierMembreBniaData = {
+    body: SaisieValeurSimple;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/membres-bnia/{id}';
+};
+
+export type ModifierMembreBniaResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ModifierMembreBniaResponse = ModifierMembreBniaResponses[keyof ModifierMembreBniaResponses];
+
+export type DesactiverMembreBniaData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/membres-bnia/{id}/desactivation';
+};
+
+export type DesactiverMembreBniaResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type DesactiverMembreBniaResponse = DesactiverMembreBniaResponses[keyof DesactiverMembreBniaResponses];
+
+export type ReactiverMembreBniaData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/referentiels/membres-bnia/{id}/reactivation';
+};
+
+export type ReactiverMembreBniaResponses = {
+    /**
+     * OK
+     */
+    200: ValeurSimple;
+};
+
+export type ReactiverMembreBniaResponse = ReactiverMembreBniaResponses[keyof ReactiverMembreBniaResponses];
+
 export type ListerPaysData = {
     body?: never;
     path?: never;

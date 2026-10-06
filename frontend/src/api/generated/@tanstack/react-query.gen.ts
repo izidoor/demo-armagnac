@@ -4,8 +4,8 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { ajouterTauxTva, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContenance, consulterInfoSysteme, consulterLabel, consulterLangue, consulterMarque, consulterPays, consulterProduitCommercialise, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContenance, creerLabel, creerLangue, creerMarque, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContenance, modifierLabel, modifierLangue, modifierMarque, modifierPays, modifierProduitCommercialise, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, retirerTauxTva, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale } from '../sdk.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierPaysData, ModifierPaysResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse } from '../types.gen';
+import { ajouterTauxTva, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContenance, consulterInfoSysteme, consulterLabel, consulterLangue, consulterMarque, consulterMembreBnia, consulterPays, consulterProduitCommercialise, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContenance, creerLabel, creerLangue, creerMarque, creerMembreBnia, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverMembreBnia, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerMembresBnia, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContenance, modifierLabel, modifierLangue, modifierMarque, modifierMembreBnia, modifierPays, modifierProduitCommercialise, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverMembreBnia, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, retirerTauxTva, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerMembreBnia, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale } from '../sdk.gen';
+import type { AjouterTauxTvaData, AjouterTauxTvaResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterMembreBniaData, ConsulterMembreBniaResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerMembreBniaData, CreerMembreBniaResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverMembreBniaData, DesactiverMembreBniaResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerMembresBniaData, ListerMembresBniaResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierMembreBniaData, ModifierMembreBniaResponse, ModifierPaysData, ModifierPaysResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverMembreBniaData, ReactiverMembreBniaResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerMembreBniaData, SupprimerMembreBniaResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -946,6 +946,127 @@ export const reactiverMarqueMutation = (options?: Partial<Options<ReactiverMarqu
     const mutationOptions: UseMutationOptions<ReactiverMarqueResponse, AxiosError<DefaultError>, Options<ReactiverMarqueData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await reactiverMarque({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listerMembresBniaQueryKey = (options?: Options<ListerMembresBniaData>) => createQueryKey('listerMembresBnia', options);
+
+/**
+ * Lister les valeurs, triées par libellé
+ */
+export const listerMembresBniaOptions = (options?: Options<ListerMembresBniaData>) => queryOptions<ListerMembresBniaResponse, AxiosError<DefaultError>, ListerMembresBniaResponse, ReturnType<typeof listerMembresBniaQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listerMembresBnia({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listerMembresBniaQueryKey(options)
+});
+
+/**
+ * Créer une valeur (RG-REF-01, RG-REF-03)
+ */
+export const creerMembreBniaMutation = (options?: Partial<Options<CreerMembreBniaData>>): UseMutationOptions<CreerMembreBniaResponse, AxiosError<DefaultError>, Options<CreerMembreBniaData>> => {
+    const mutationOptions: UseMutationOptions<CreerMembreBniaResponse, AxiosError<DefaultError>, Options<CreerMembreBniaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await creerMembreBnia({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)
+ */
+export const supprimerMembreBniaMutation = (options?: Partial<Options<SupprimerMembreBniaData>>): UseMutationOptions<SupprimerMembreBniaResponse, AxiosError<DefaultError>, Options<SupprimerMembreBniaData>> => {
+    const mutationOptions: UseMutationOptions<SupprimerMembreBniaResponse, AxiosError<DefaultError>, Options<SupprimerMembreBniaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await supprimerMembreBnia({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterMembreBniaQueryKey = (options: Options<ConsulterMembreBniaData>) => createQueryKey('consulterMembreBnia', options);
+
+/**
+ * Consulter une valeur, active ou non
+ */
+export const consulterMembreBniaOptions = (options: Options<ConsulterMembreBniaData>) => queryOptions<ConsulterMembreBniaResponse, AxiosError<DefaultError>, ConsulterMembreBniaResponse, ReturnType<typeof consulterMembreBniaQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterMembreBnia({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterMembreBniaQueryKey(options)
+});
+
+/**
+ * Modifier le code et le libellé (RG-REF-01 à 03)
+ */
+export const modifierMembreBniaMutation = (options?: Partial<Options<ModifierMembreBniaData>>): UseMutationOptions<ModifierMembreBniaResponse, AxiosError<DefaultError>, Options<ModifierMembreBniaData>> => {
+    const mutationOptions: UseMutationOptions<ModifierMembreBniaResponse, AxiosError<DefaultError>, Options<ModifierMembreBniaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierMembreBnia({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Désactiver une valeur (RG-REF-04)
+ */
+export const desactiverMembreBniaMutation = (options?: Partial<Options<DesactiverMembreBniaData>>): UseMutationOptions<DesactiverMembreBniaResponse, AxiosError<DefaultError>, Options<DesactiverMembreBniaData>> => {
+    const mutationOptions: UseMutationOptions<DesactiverMembreBniaResponse, AxiosError<DefaultError>, Options<DesactiverMembreBniaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await desactiverMembreBnia({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Réactiver une valeur (RG-REF-04)
+ */
+export const reactiverMembreBniaMutation = (options?: Partial<Options<ReactiverMembreBniaData>>): UseMutationOptions<ReactiverMembreBniaResponse, AxiosError<DefaultError>, Options<ReactiverMembreBniaData>> => {
+    const mutationOptions: UseMutationOptions<ReactiverMembreBniaResponse, AxiosError<DefaultError>, Options<ReactiverMembreBniaData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await reactiverMembreBnia({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

@@ -8,6 +8,7 @@ import fr.bnia.referentiels.application.GererContenances;
 import fr.bnia.referentiels.application.GererLabels;
 import fr.bnia.referentiels.application.GererLangues;
 import fr.bnia.referentiels.application.GererMarques;
+import fr.bnia.referentiels.application.GererMembresBnia;
 import fr.bnia.referentiels.application.GererPays;
 import fr.bnia.referentiels.application.GererProduitsCommercialises;
 import fr.bnia.referentiels.application.GererRegions;
@@ -53,6 +54,7 @@ public class DemoReferentiels implements ApplicationRunner {
     private final GererTypesVisite typesVisite;
     private final GererLangues langues;
     private final GererCentresInteret centresInteret;
+    private final GererMembresBnia membresBnia;
     private final GererMarques marques;
     private final GererCircuitsDistribution circuits;
     private final GererProduitsCommercialises produits;
@@ -64,7 +66,7 @@ public class DemoReferentiels implements ApplicationRunner {
 
     public DemoReferentiels(GererZonesCommerciales zones, GererPays pays, GererRegions regions, GererTitres titres,
             GererLabels labels, GererTypesVisite typesVisite, GererLangues langues,
-            GererCentresInteret centresInteret, GererMarques marques, GererCircuitsDistribution circuits,
+            GererCentresInteret centresInteret, GererMembresBnia membresBnia, GererMarques marques, GererCircuitsDistribution circuits,
             GererProduitsCommercialises produits, GererContenances contenances, GererClassesTva classesTva,
             ReferentielsLecture lecture) {
         this.zones = zones;
@@ -75,6 +77,7 @@ public class DemoReferentiels implements ApplicationRunner {
         this.typesVisite = typesVisite;
         this.langues = langues;
         this.centresInteret = centresInteret;
+        this.membresBnia = membresBnia;
         this.marques = marques;
         this.circuits = circuits;
         this.produits = produits;
@@ -109,6 +112,9 @@ public class DemoReferentiels implements ApplicationRunner {
         valeurs(langues, "FR", "Français", "EN", "Anglais", "ES", "Espagnol", "DE", "Allemand", "IT", "Italien");
         valeurs(centresInteret, "COMPTA", "Comptabilité", "MARKETING", "Marketing", "PRODUCTION", "Production",
                 "EXPORT", "Export");
+        // Membres BNIA : valeurs fictives, le sens du champ est demandé au BNIA (Q-OPE-4).
+        valeurs(membresBnia, "PROD", "Collège des producteurs", "NEGO", "Collège des négociants", "ASSOC",
+                "Membre associé");
 
         // Présentation et commercialisation : marques fictives.
         valeurs(marques, "DEMO-1", "Domaine de la Démonstration", "DEMO-2", "Château Exemple", "DEMO-3",

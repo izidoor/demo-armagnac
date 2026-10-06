@@ -46,6 +46,8 @@ class ReferentielsLectureIT extends AbstractIT {
                         ReferentielsLecture::languesActives),
                 liste("centres-interet", ReferentielsLecture::centreInteret, ReferentielsLecture::centreInteretParCode,
                         ReferentielsLecture::centresInteretActifs),
+                liste("membres-bnia", ReferentielsLecture::membreBnia, ReferentielsLecture::membreBniaParCode,
+                        ReferentielsLecture::membresBniaActifs),
                 liste("marques", ReferentielsLecture::marque, ReferentielsLecture::marqueParCode,
                         ReferentielsLecture::marquesActives),
                 liste("circuits-distribution", ReferentielsLecture::circuitDistribution,

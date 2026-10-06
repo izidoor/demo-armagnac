@@ -163,6 +163,21 @@ class JdbcReferentielsLecture implements ReferentielsLecture {
         return actives("centre_interet", VALEUR, "libelle, code", JdbcReferentielsLecture::valeur);
     }
 
+    @Override
+    public Optional<ValeurVue> membreBnia(long id) {
+        return parId("membre_bnia", VALEUR, id, JdbcReferentielsLecture::valeur);
+    }
+
+    @Override
+    public Optional<ValeurVue> membreBniaParCode(String code) {
+        return parCode("membre_bnia", VALEUR, code, JdbcReferentielsLecture::valeur);
+    }
+
+    @Override
+    public List<ValeurVue> membresBniaActifs() {
+        return actives("membre_bnia", VALEUR, "libelle, code", JdbcReferentielsLecture::valeur);
+    }
+
     // Présentation et commercialisation
 
     @Override
