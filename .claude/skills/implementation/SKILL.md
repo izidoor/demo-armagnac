@@ -22,6 +22,8 @@ Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
 - **Par lots.** Chaque lot se termine build vert, par un compte rendu, un message de commit proposé et
   un **arrêt**. Le lot suivant attend l'accord (« go lot N »).
 - **Ni commit, ni `git add`, ni `git rm`** sans demande explicite pour cette commande précise.
+- **Travailler sur la branche du contexte**, `contexte/<contexte>`, créée par la skill `specs`. Seule
+  la phase F la fusionne dans `main`, après validation explicite.
 - **Ne rien affirmer d'invérifié.** Ce qui n'a pas été exécuté (écran dans un navigateur, démarrage sur
   la base de dev de l'utilisateur) est dit tel quel dans le compte rendu.
 - **Ne pas toucher l'environnement de l'utilisateur** : pas de démarrage de l'application sur sa base
@@ -30,6 +32,9 @@ Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
 ## Phases
 
 ### A. Cadrage et plan (mode plan)
+0. Vérifier la branche (`git branch --show-current`) : se placer sur `contexte/<contexte>`
+   (`git switch contexte/<contexte>`). Si elle n'existe pas, s'arrêter et demander à l'utilisateur
+   (la créer depuis `main`, ou travailler ailleurs). Ne jamais implémenter sur `main`.
 1. Relire `CLAUDE.md`, la spec du contexte, les ADR, `docs/contextes.md` (fiche, dépendances), les
    specs et le code des contextes dont il dépend (`ReferentielsLecture` notamment), et `patrons.md`.
 2. Relever ce que la spec laisse ouvert côté implémentation (forme d'une saisie, identifiant d'un
@@ -91,6 +96,16 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
    convention a changé. Glossaire si un terme est apparu.
 4. Bilan : à faire par l'utilisateur (tour d'écran en profil `dev,demo`), questions encore ouvertes
    (au BNIA, à AGI), ce qui reste en suspens et pourquoi, ce qui est à retenir.
+
+### F. Fusion dans `main` (ultime étape)
+1. Une fois le dernier lot commité par l'utilisateur, vérifier : arbre de travail propre
+   (`git status`), branche courante `contexte/<contexte>`, liste des commits à fusionner
+   (`git log --oneline main..contexte/<contexte>`).
+2. **Demander la validation** de la fusion (outil de questions), en montrant cette liste et la
+   commande prévue. Sans « oui » explicite, s'arrêter là.
+3. Après accord seulement : `git switch main && git merge --no-ff contexte/<contexte>`. En cas de
+   conflit : `git merge --abort`, puis le signaler sans rien résoudre seul.
+4. Ne pas pousser, ne pas supprimer la branche : le proposer, sans le faire.
 
 ## Liste de contrôle d'un lot
 

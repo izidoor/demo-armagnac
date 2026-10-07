@@ -23,6 +23,9 @@ Argument : le nom du contexte, tel qu'il figure dans `docs/contextes.md` (`opera
 - **Itérer.** Spec → `contextes.md` → spec. Aucune des deux n'est figée avant l'autre.
 - **Les questions vivent dans la spec du contexte** (§ Questions ouvertes), jamais dans un fichier global.
 - **Pas de code, pas de commit, pas de `git add`.**
+- **Une branche par contexte.** Tout le travail du contexte (spec, ADR, puis implémentation) se fait
+  sur la branche `contexte/<contexte>`, créée en phase A. Elle n'est fusionnée dans `main` qu'à la fin
+  de l'implémentation (skill `implementation`, phase F).
 
 ## Phases
 
@@ -30,6 +33,9 @@ Après **chaque** phase : résumer ce qui a été écrit ou décidé, puis **s'a
 l'utilisateur.
 
 ### A. Cadrage
+0. Créer la branche du contexte et s'y placer : vérifier que l'arbre de travail est propre
+   (`git status`), puis `git switch -c contexte/<contexte> main`. Si la branche existe déjà (reprise),
+   `git switch contexte/<contexte>`. Arbre non propre : s'arrêter et le signaler.
 1. Relire `CLAUDE.md`, `docs/contextes.md` (fiche du contexte, ordre, bordures, interrogations, zones
    partagées), `docs/glossaire.md`, `docs/adr/`, et les specs déjà écrites dont le contexte dépend.
 2. Lire toutes les sources de la fiche du contexte (`docs/source/cdc/`, `docs/source/agi/`). Ne jamais
@@ -82,7 +88,8 @@ devenus faux. Signaler les numéros de page non vérifiés.
    ADR existants : titre `ADR-NNN : …`, statut, date, Contexte, Décision, Conséquences, avec les options
    écartées et leur motif. Numéro suivant dans `docs/adr/`. Proposer, puis écrire après accord.
    Mettre à jour la colonne ADR de la spec et `CLAUDE.md` si une règle d'architecture change.
-3. Proposer un message de commit. Ne pas commiter.
+3. Proposer un message de commit. Ne pas commiter. Rester sur la branche `contexte/<contexte>` : elle
+   accueille ensuite l'implémentation.
 
 ## Règles de questionnement
 
