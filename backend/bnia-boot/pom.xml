@@ -12,21 +12,21 @@
 
     <artifactId>bnia-boot</artifactId>
     <name>BNIA : boot</name>
-    <description>Point d'entrée : assemble les contextes. Câblage, configuration, transactions, migration Flyway, tests d'intégration et ArchUnit (ADR-002, ADR-010).</description>
+    <description>Point d'entrée : assemble les contextes. Câblage, configuration, transactions, migration Flyway, tests d'intégration et ArchUnit (ADR-002, ADR-014).</description>
 
     <dependencies>
-        <!-- Un module par contexte (ADR-010) : en ajouter un ici à chaque nouveau contexte. -->
+        <!-- Le module -infra de chaque contexte, qui apporte son -core (ADR-014) : en ajouter un ici à chaque nouveau contexte. -->
         <dependency>
             <groupId>fr.bnia</groupId>
-            <artifactId>bnia-systeme</artifactId>
+            <artifactId>bnia-systeme-infra</artifactId>
         </dependency>
         <dependency>
             <groupId>fr.bnia</groupId>
-            <artifactId>bnia-referentiels</artifactId>
+            <artifactId>bnia-referentiels-infra</artifactId>
         </dependency>
         <dependency>
             <groupId>fr.bnia</groupId>
-            <artifactId>bnia-operateurs</artifactId>
+            <artifactId>bnia-operateurs-infra</artifactId>
         </dependency>
         <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->
         <dependency>

@@ -18,8 +18,9 @@ import java.util.stream.Stream;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Règles d'architecture (ADR-002, ADR-010). Les couches n'étant pas des modules Maven, ces règles
- * sont la seule garantie de la pureté du domaine et du sens des dépendances entre couches.
+ * Règles d'architecture (ADR-002, ADR-014). Le module {@code -core} de chaque contexte, sans Spring, garantit
+ * à la compilation que {@code domain} et {@code application} restent en Java pur ; ces règles gardent le
+ * sens des dépendances entre couches et l'isolement des contextes.
  * Les packages suivent {@code fr.bnia.<contexte>.<couche>}, avec pour couches {@code domain}, {@code application} et
  * {@code adapter.<rest|persistence|integration|evenement>} (ADR-013 pour {@code evenement}).
  * {@code fr.bnia.commun} est le noyau partagé (ADR-009) ; {@code fr.bnia.boot} le câblage.

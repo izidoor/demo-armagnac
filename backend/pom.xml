@@ -17,7 +17,8 @@
     <packaging>pom</packaging>
     <name>BNIA : plateforme métier</name>
 
-    <!-- Un module par bounded context, couches en packages vérifiées par ArchUnit (ADR-010). -->
+    <!-- Un module parent par bounded context, avec deux sous-modules : bnia-<contexte>-core (domain,
+         application, Java pur) et bnia-<contexte>-infra (adapters) (ADR-014). -->
     <modules>
         <module>bnia-commun</module>
         <module>bnia-systeme</module>
@@ -39,22 +40,42 @@
         <dependencies>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-commun</artifactId>
+                <artifactId>bnia-commun-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-systeme</artifactId>
+                <artifactId>bnia-commun-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-referentiels</artifactId>
+                <artifactId>bnia-systeme-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fr.bnia</groupId>
-                <artifactId>bnia-operateurs</artifactId>
+                <artifactId>bnia-systeme-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-referentiels-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-referentiels-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-operateurs-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-operateurs-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -91,7 +112,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Règles communes à tous les modules (ADR-002, ADR-010). -->
+            <!-- Règles communes à tous les modules (ADR-002, ADR-014). -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -111,7 +132,7 @@
                                 </requireMavenVersion>
                                 <dependencyConvergence/>
                                 <bannedDependencies>
-                                    <message>Seul bnia-boot assemble l'application : aucun module n'en dépend (ADR-010).</message>
+                                    <message>Seul bnia-boot assemble l'application : aucun module n'en dépend (ADR-014).</message>
                                     <excludes>
                                         <exclude>fr.bnia:bnia-boot</exclude>
                                     </excludes>

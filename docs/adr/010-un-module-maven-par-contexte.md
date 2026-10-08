@@ -1,6 +1,6 @@
 # ADR-010 : Un module Maven par contexte, couches en packages
 
-- Statut : accepté
+- Statut : accepté ; découpage en modules remplacé par ADR-014 (sous-modules -core et -infra par contexte)
 - Date : 2026-10-06
 - Remplace : la structure en modules de l'ADR-002 (un module par couche)
 

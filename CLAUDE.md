@@ -24,18 +24,20 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - Contrat d'API : généré depuis les controllers (springdoc), exporté vers `docs/api/openapi.json`
   par `OpenApiContratIT` ; client TypeScript généré depuis ce fichier (ADR-007).
 
-## Architecture (un module Maven par contexte, couches vérifiées par ArchUnit, ADR-010)
-- `bnia-<contexte>` : un module par bounded context. Couches en packages,
-  `fr.bnia.<contexte>.{domain, application, adapter.rest, adapter.persistence, adapter.integration, adapter.evenement}` :
-  - `domain` : Java pur. Aucun framework ni annotation de persistance.
-  - `application` : cas d'usage (`@UseCase` maison) et ports. Dépend de `domain` uniquement.
-  - `adapter.*` : dépendent de `application`, jamais entre eux. Une intégration externe vit dans le
-    contexte qui en définit le port.
-- `bnia-commun` : noyau partagé (concepts transverses, `@UseCase`, socle REST).
+## Architecture (un module parent par contexte, sous-modules -core et -infra, ADR-014)
+- `bnia-<contexte>` : module parent (packaging `pom`) d'un bounded context, avec deux sous-modules :
+  - `bnia-<contexte>-core` : `fr.bnia.<contexte>.{domain, application}`, **Java pur** (aucune dépendance Spring) :
+    - `domain` : aucun framework ni annotation de persistance.
+    - `application` : cas d'usage (`@UseCase` maison) et ports. Dépend de `domain` uniquement.
+  - `bnia-<contexte>-infra` : `fr.bnia.<contexte>.adapter.{rest, persistence, integration, evenement}`.
+    Dépend de son `-core` et de `bnia-commun-infra`. Les adapters dépendent de `application`, jamais
+    entre eux. Une intégration externe vit dans le contexte qui en définit le port.
+- `bnia-commun` : noyau partagé. `bnia-commun-core` : concepts transverses (ADR-009), `@UseCase` ;
+  `bnia-commun-infra` : socle REST (erreurs, OpenAPI, `@Ressource`).
 - `bnia-boot` : seul module avec `@SpringBootApplication`, `application*.yml`, câblage,
-  transactions, migration Flyway, **tous les `*IT`** et les tests ArchUnit. Dépend de tous les contextes.
-- Nouveau contexte : un pom, une entrée dans `<modules>` du pom racine, une dépendance dans `bnia-boot`,
-  un schéma dans `spring.flyway.schemas`.
+  transactions, migration Flyway, **tous les `*IT`** et les tests ArchUnit. Dépend du `-infra` de chaque contexte.
+- Nouveau contexte : trois poms (parent, `-core`, `-infra`), une entrée dans `<modules>` du pom racine,
+  une dépendance de `bnia-boot` vers le `-infra`, un schéma dans `spring.flyway.schemas`.
 - Pas d'import direct entre contextes :
   passer par des ports ou des événements. Trois exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et les parties publiées en lecture de `referentiels`

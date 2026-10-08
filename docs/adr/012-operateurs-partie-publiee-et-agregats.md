@@ -61,7 +61,7 @@ Options écartées :
   des conflits entre le BNIA et le portail sur la même fiche.
 
 ## Conséquences
-- Un contexte qui lit les opérateurs déclare la dépendance vers `bnia-operateurs` et une clé étrangère
+- Un contexte qui lit les opérateurs déclare la dépendance vers `bnia-operateurs-core` (ADR-014) et une clé étrangère
   vers `operateurs.operateur`.
 - La règle ArchUnit des contextes ignore aussi `fr.bnia.operateurs.domain.partage..` et
   `fr.bnia.operateurs.application.partage..` ; une règle interdit aux autres contextes tout autre

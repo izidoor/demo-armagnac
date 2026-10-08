@@ -48,7 +48,7 @@ Options écartées :
 
 ## Conséquences
 - Depuis ADR-010, un contexte qui lit les référentiels déclare la dépendance vers le module
-  `bnia-referentiels` ; ArchUnit le limite aux packages `partage`.
+  `bnia-referentiels-core` (ADR-014) ; ArchUnit le limite aux packages `partage`.
 - La règle ArchUnit des contextes (`slices` de `fr.bnia.(*)..`) ignore les dépendances vers
   `fr.bnia.referentiels.domain.partage..` et `fr.bnia.referentiels.application.partage..`. Une
   nouvelle règle interdit aux autres contextes tout autre package de `referentiels`.

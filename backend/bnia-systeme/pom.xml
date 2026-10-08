@@ -9,29 +9,12 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>bnia-systeme</artifactId>
+    <packaging>pom</packaging>
     <name>BNIA : systeme</name>
     <description>Sonde technique : version de l'application et de la base.</description>
-    <dependencies>
-        <dependency>
-            <groupId>fr.bnia</groupId>
-            <artifactId>bnia-commun</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+    <!-- Deux modules par contexte (ADR-014) : -core en Java pur, -infra pour les adapters. -->
+    <modules>
+        <module>bnia-systeme-core</module>
+        <module>bnia-systeme-infra</module>
+    </modules>
 </project>

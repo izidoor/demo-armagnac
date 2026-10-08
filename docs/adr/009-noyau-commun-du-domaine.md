@@ -21,7 +21,7 @@ d'un pays (`referentiels`), aux lignes de DSM (`declarations`) et aux ventes exp
 - Premier occupant : `CompteDAge`, avec sa validation, son ordre et sa mention commerciale.
   Candidats, ajoutés au fil des besoins : `Millesime`, `Campagne`, `MentionCommerciale`,
   `VolumeAlcoolPur`.
-- Java pur, comme tout package `domain`. Module `bnia-commun` (ADR-010). `commun` ne dépend d'aucun contexte (règle ArchUnit existante).
+- Java pur, comme tout package `domain`. Module `bnia-commun-core` (ADR-014). `commun` ne dépend d'aucun contexte (règle ArchUnit existante).
 
 Options écartées :
 - placer ces concepts dans `referentiels` : ce contexte deviendrait propriétaire de règles qu'il

@@ -6,7 +6,7 @@ description: Implémenter un bounded context du projet BNIA à partir de sa spec
 # Implémentation d'un contexte
 
 Méthode éprouvée sur `referentiels` (spec 01, lots 1 à 7, puis révision ADR-011), qui sert d'exemple
-abouti : `backend/bnia-referentiels/`, `frontend/src/features/referentiels/`.
+abouti : `backend/bnia-referentiels/` (`-core` et `-infra`), `frontend/src/features/referentiels/`.
 Argument : le nom du contexte, tel qu'il figure dans `docs/contextes.md`.
 Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
 
