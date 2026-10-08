@@ -15,9 +15,10 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    // Le backend Spring Boot (profil dev) écoute sur 8080.
+    // Le backend Spring Boot (profil dev) écoute sur 8080 ; BNIA_API_URL vise une autre instance
+    // (lancée depuis un worktree).
     proxy: {
-      '/api': 'http://localhost:8080',
+      '/api': process.env.BNIA_API_URL ?? 'http://localhost:8080',
     },
   },
   resolve: {

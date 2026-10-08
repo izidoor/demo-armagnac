@@ -22,19 +22,25 @@ Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
 - **Par lots.** Chaque lot se termine build vert, par un compte rendu, un message de commit proposé et
   un **arrêt**. Le lot suivant attend l'accord (« go lot N »).
 - **Ni commit, ni `git add`, ni `git rm`** sans demande explicite pour cette commande précise.
-- **Travailler sur la branche du contexte**, `contexte/<contexte>`, créée par la skill `specs`. Seule
-  la phase F la fusionne dans `main`, après validation explicite.
+- **Travailler dans le worktree du contexte**, `../bnia-worktrees/<contexte>` (branche
+  `contexte/<contexte>`), créé par la skill `specs`. Le dépôt principal reste à l'utilisateur, qui y
+  travaille en parallèle : n'y rien modifier. Seule la phase F fusionne la branche dans `main`, après
+  validation explicite.
 - **Ne rien affirmer d'invérifié.** Ce qui n'a pas été exécuté (écran dans un navigateur, démarrage sur
   la base de dev de l'utilisateur) est dit tel quel dans le compte rendu.
-- **Ne pas toucher l'environnement de l'utilisateur** : pas de démarrage de l'application sur sa base
-  de dev, pas de modification de `.idea/`. Proposer la commande à lancer.
+- **Ne pas toucher l'environnement de l'utilisateur** : ni son dépôt principal, ni sa base de dev
+  (projet Compose `backend`, port 5432), ni les ports 8080 et 5173, ni `.idea/`. Lancer l'application
+  n'est permis que depuis le worktree, en instance isolée (voir « Lancer l'application »), arrêtée et
+  sa base supprimée une fois la vérification faite.
 
 ## Phases
 
 ### A. Cadrage et plan (mode plan)
-0. Vérifier la branche (`git branch --show-current`) : se placer sur `contexte/<contexte>`
-   (`git switch contexte/<contexte>`). Si elle n'existe pas, s'arrêter et demander à l'utilisateur
-   (la créer depuis `main`, ou travailler ailleurs). Ne jamais implémenter sur `main`.
+0. Entrer dans le worktree du contexte : `git worktree list`, puis l'outil `EnterWorktree` (paramètre
+   `path`, chemin absolu de `../bnia-worktrees/<contexte>`) ; vérifier `git branch --show-current`
+   (`contexte/<contexte>`). Worktree absent : s'arrêter et demander à l'utilisateur (le créer comme la
+   skill `specs`, phase A, ou travailler ailleurs). Ne jamais implémenter dans le dépôt principal.
+   Premier passage : `pnpm install` dans `frontend/` du worktree.
 1. Relire `CLAUDE.md`, la spec du contexte, les ADR, `docs/contextes.md` (fiche, dépendances), les
    specs et le code des contextes dont il dépend (`ReferentielsLecture` notamment), et `patrons.md`.
 2. Relever ce que la spec laisse ouvert côté implémentation (forme d'une saisie, identifiant d'un
@@ -78,6 +84,18 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
 - Couverture des RG : `grep -rhoE "RG-XXX-[0-9]+" backend/*/src/test | sort -u` doit lister toutes
   les RG livrées par le lot.
 
+### Lancer l'application (instance isolée)
+Seulement depuis le worktree, quand une vérification l'exige (démarrage, démo, écran). Variables
+lues par `backend/compose.yaml` et `frontend/vite.config.ts` ; sans elles, valeurs de l'utilisateur.
+- Backend, depuis `backend/` du worktree, en arrière-plan :
+  `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
+  (base propre au contexte, détectée par Spring Boot ; prêt quand `localhost:8181/v3/api-docs` répond 200).
+- Front, depuis `frontend/` du worktree : `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`.
+- Port occupé : prendre le suivant, sans arrêter le processus qui l'occupe.
+- Arrêt : tuer le processus par son PID (jamais `pkill -f` sur un motif, qui atteint aussi les
+  processus de l'utilisateur), puis `BNIA_COMPOSE_PROJECT=bnia-<contexte> docker compose -f
+  compose.yaml down -v`.
+
 ### D. Compte rendu d'un lot
 - Une phrase de résultat : ce qui est livré, build vert (nombre d'IT), rien d'indexé.
 - Ce qui est en place, par couche, avec les RG appliquées.
@@ -85,7 +103,7 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
 - **Fichiers non suivis** à inclure au commit (`git status --short | grep '^??'`) : un fichier neuf
   oublié casse le commit (incident du lot 2 : `V1__schema.sql` non commité).
 - Ce qui n'a pas été vérifié ; ce que l'utilisateur doit faire (`./dev-reset.sh` inutile : la base de
-  dev se recrée seule si V1 a changé ; recharger Maven dans IntelliJ si un pom a changé).
+  dev se recrée seule si V1 a changé ; recharger Maven dans IntelliJ si un pom a changé et que le worktree y est ouvert).
 - Message de commit proposé, puis le lot suivant en une ligne.
 
 ### E. Clôture du contexte (dernier lot)
@@ -98,14 +116,19 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
    (au BNIA, à AGI), ce qui reste en suspens et pourquoi, ce qui est à retenir.
 
 ### F. Fusion dans `main` (ultime étape)
-1. Une fois le dernier lot commité par l'utilisateur, vérifier : arbre de travail propre
-   (`git status`), branche courante `contexte/<contexte>`, liste des commits à fusionner
-   (`git log --oneline main..contexte/<contexte>`).
+La fusion se fait dans le dépôt principal (`git -C <dépôt principal>`), où `main` est extrait : un
+worktree ne peut pas extraire une branche déjà extraite ailleurs.
+1. Une fois le dernier lot commité par l'utilisateur, vérifier : worktree propre (`git status`),
+   branche courante `contexte/<contexte>`, liste des commits à fusionner
+   (`git log --oneline main..contexte/<contexte>`) ; dans le dépôt principal, branche `main` et arbre
+   propre (`git -C <dépôt principal> status`). Sinon : s'arrêter et le signaler, sans changer de branche.
 2. **Demander la validation** de la fusion (outil de questions), en montrant cette liste et la
    commande prévue. Sans « oui » explicite, s'arrêter là.
-3. Après accord seulement : `git switch main && git merge --no-ff contexte/<contexte>`. En cas de
-   conflit : `git merge --abort`, puis le signaler sans rien résoudre seul.
-4. Ne pas pousser, ne pas supprimer la branche : le proposer, sans le faire.
+3. Après accord seulement : `git -C <dépôt principal> merge --no-ff contexte/<contexte>`. En cas de
+   conflit : `git -C <dépôt principal> merge --abort`, puis le signaler sans rien résoudre seul.
+4. Sortir du worktree (outil `ExitWorktree`, `action: "keep"`). Ne pas pousser, ne supprimer ni la
+   branche ni le worktree : proposer `git worktree remove ../bnia-worktrees/<contexte>` et
+   `git branch -d contexte/<contexte>`, sans le faire.
 
 ## Liste de contrôle d'un lot
 

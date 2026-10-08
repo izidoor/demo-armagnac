@@ -1,5 +1,8 @@
 # Base de développement (ADR-003). Recréée au démarrage si V1 a changé (ADR-005) ;
 # remise à zéro volontaire : ./dev-reset.sh à la racine du dépôt.
+# Nom du projet et port surchargeables pour lancer une seconde instance depuis un worktree, avec sa
+# propre base (skill implementation) ; « backend » garde le conteneur et le volume existants.
+name: ${BNIA_COMPOSE_PROJECT:-backend}
 services:
   postgres:
     image: postgres:18
@@ -8,7 +11,7 @@ services:
       POSTGRES_USER: bnia
       POSTGRES_PASSWORD: bnia
     ports:
-      - "5432:5432"
+      - "${BNIA_DB_PORT:-5432}:5432"
     volumes:
       - bnia-pgdata:/var/lib/postgresql
 

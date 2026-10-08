@@ -75,5 +75,9 @@ Front, depuis `frontend/` :
 - Contrôles : `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`
 - Dev : `pnpm dev` (proxy `/api` vers `localhost:8080`)
 
+Seconde instance, depuis un worktree, à côté de celle de l'IDE (base, ports et proxy à part) :
+- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
+- `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`
+
 Racine :
 - Remise à zéro volontaire de la base de dev : `./dev-reset.sh` (automatique si V1 a changé)
