@@ -16,15 +16,16 @@ import org.springframework.stereotype.Component;
 
 /**
  * Personnel du BNIA de démonstration (spec 02 §7.1), en profil {@code demo}, avant les autres chargeurs qui
- * agissent en son nom : Anne Lamarque (ADMIN, invitée par l'application), Luc Dubos (AGENT), Claire
- * Sentex (OBSERVATEUR). Comptes listés dans {@code docs/demo.md}.
+ * agissent en son nom : Anne Lamarque ({@code admin@bnia.fr}, ADMIN, invitée par l'application), Luc Dubos
+ * ({@code agent@bnia.fr}, AGENT), Claire Sentex ({@code observateur@bnia.fr}, OBSERVATEUR). Comptes listés
+ * dans {@code docs/demo.md}.
  */
 @Component
 @Profile("demo")
 @Order(1)
 public class DemoPersonnelBnia implements ApplicationRunner {
 
-    static final String ANNE = "anne.lamarque@bnia.example";
+    static final String ANNE = "admin@bnia.fr";
 
     private static final Logger LOG = LoggerFactory.getLogger(DemoPersonnelBnia.class);
 
@@ -48,8 +49,8 @@ public class DemoPersonnelBnia implements ApplicationRunner {
         long bnia = lecture.operateurBnia();
         comptes.membre(null, bnia, Role.ADMIN, ANNE, "Lamarque", "Anne", "Directrice");
         Acteur anne = new Acteur(anne(lecture));
-        comptes.membre(anne, bnia, Role.AGENT, "luc.dubos@bnia.example", "Dubos", "Luc", "Chargé des opérateurs");
-        comptes.membre(anne, bnia, Role.OBSERVATEUR, "claire.sentex@bnia.example", "Sentex", "Claire",
+        comptes.membre(anne, bnia, Role.AGENT, "agent@bnia.fr", "Dubos", "Luc", "Chargé des opérateurs");
+        comptes.membre(anne, bnia, Role.OBSERVATEUR, "observateur@bnia.fr", "Sentex", "Claire",
                 "Chargée d'études");
         LOG.info("Démo : personnel du BNIA prêt (mot de passe {}, code 000000).", ComptesDemo.MOT_DE_PASSE);
     }

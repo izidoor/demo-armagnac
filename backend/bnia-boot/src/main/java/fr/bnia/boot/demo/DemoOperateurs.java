@@ -57,7 +57,7 @@ import org.springframework.stereotype.Component;
 public class DemoOperateurs implements ApplicationRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(DemoOperateurs.class);
-    private static final String EMAIL_DURAND = "jeanne.durand@maison-durand.example";
+    private static final String EMAIL_DURAND = "admin@producteur.fr";
 
     private final GererOperateurs operateurs;
     private final GererContacts contacts;
@@ -111,6 +111,7 @@ public class DemoOperateurs implements ApplicationRunner {
         producteur("000009", "Domaine du Haut-Armagnac", null, "32700", "Lectoure", "GERS", null,
                 Appellation.HAUT_ARMAGNAC);
         negociant("N320001", "Armagnacs de Gascogne", "32100", "Condom");
+        armagnacsDeGascogne();
         negociant("N320002", "Maison Larressingle", "32100", "Condom");
         negociant("N400001", "Négoce des Landes", "40000", "Mont-de-Marsan");
         distillerieLafitte();
@@ -120,9 +121,10 @@ public class DemoOperateurs implements ApplicationRunner {
     }
 
     /**
-     * Groupe « Maison Durand », deux chais (Condom et Eauze). Jeanne Durand, ADMIN des deux, opérateur
-     * actif Condom ; Sophie Martin, AGENT à Condom ; Pierre Roy, OBSERVATEUR à Eauze, suspendu ; Paul
-     * Petit, maître de chai sans compte, contact principal à Condom.
+     * Groupe « Maison Durand », deux chais (Condom et Eauze). Jeanne Durand ({@code admin@producteur.fr}),
+     * ADMIN des deux, opérateur actif Condom ; Sophie Martin ({@code agent@producteur.fr}), AGENT à Condom ;
+     * Pierre Roy ({@code observateur@producteur.fr}), OBSERVATEUR à Condom et à Eauze, suspendu à Eauze ;
+     * Paul Petit, maître de chai sans compte, contact principal à Condom.
      */
     private void maisonDurand() {
         Optional<Long> condom = creerSiAbsent(saisie(TypeOperateur.PRODUCTEUR, "000001", "Maison Durand, chai de Condom",
@@ -146,9 +148,9 @@ public class DemoOperateurs implements ApplicationRunner {
         long jeanne = comptes.membre(anne, idCondom, Role.ADMIN, EMAIL_DURAND, "Durand", "Jeanne", "Gérante");
         comptes.membre(anne, idEauze, Role.ADMIN, EMAIL_DURAND, "Durand", "Jeanne", "Gérante");
         Acteur durand = new Acteur(jeanne);
-        comptes.membre(durand, idCondom, Role.AGENT, "sophie.martin@maison-durand.example", "Martin", "Sophie",
-                "Comptable");
-        long pierre = comptes.membre(durand, idEauze, Role.OBSERVATEUR, "pierre.roy@maison-durand.example", "Roy",
+        comptes.membre(durand, idCondom, Role.AGENT, "agent@producteur.fr", "Martin", "Sophie", "Comptable");
+        comptes.membre(durand, idCondom, Role.OBSERVATEUR, "observateur@producteur.fr", "Roy", "Pierre", "Caviste");
+        long pierre = comptes.membre(durand, idEauze, Role.OBSERVATEUR, "observateur@producteur.fr", "Roy",
                 "Pierre", "Caviste");
         membres.suspendre(durand, idEauze, rattachements.de(idEauze, pierre).map(Rattachement::id).orElseThrow());
         long paul = contacts.creer(durand, idCondom, contact("M", "Petit", "Paul", "Maître de chai",
@@ -157,6 +159,19 @@ public class DemoOperateurs implements ApplicationRunner {
         long ficheJeanneEauze = rattachements.de(idEauze, jeanne).orElseThrow().fiche();
         operateurs.designer(durand, idCondom, new SaisieDesignations(paul, ficheJeanneCondom, null, null));
         operateurs.designer(durand, idEauze, new SaisieDesignations(ficheJeanneEauze, ficheJeanneEauze, null, null));
+    }
+
+    /**
+     * Armagnacs de Gascogne, négociant : Henri Castex ({@code admin@negociant.fr}, ADMIN), Julie Darrigade
+     * ({@code agent@negociant.fr}, AGENT), Thomas Barrère ({@code observateur@negociant.fr}, OBSERVATEUR).
+     * Relançable : un membre existant est laissé tel quel.
+     */
+    private void armagnacsDeGascogne() {
+        long id = lecture.operateurParCode("N320001").orElseThrow().id();
+        Acteur castex = new Acteur(comptes.membre(anne, id, Role.ADMIN, "admin@negociant.fr", "Castex", "Henri",
+                "Gérant"));
+        comptes.membre(castex, id, Role.AGENT, "agent@negociant.fr", "Darrigade", "Julie", "Responsable des achats");
+        comptes.membre(castex, id, Role.OBSERVATEUR, "observateur@negociant.fr", "Barrère", "Thomas", "Commercial");
     }
 
     /** Distillerie ambulante Lafitte : Marc Lafitte, invité comme ADMIN, n'a pas encore accepté. */

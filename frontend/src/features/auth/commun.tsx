@@ -25,14 +25,17 @@ export function MessageErreur({ erreur }: { erreur: unknown }) {
 export function CartePublique({
   titre,
   description,
+  panneau,
   children,
 }: {
   titre: string
   description?: ReactNode
+  /** Panneau sur la photo, en seconde colonne (écran de connexion). */
+  panneau?: ReactNode
   children: ReactNode
 }) {
   return (
-    <AuthLayout>
+    <AuthLayout panneau={panneau}>
       <Card className='gap-4'>
         <CardHeader>
           <CardTitle className='text-lg tracking-tight'>{titre}</CardTitle>

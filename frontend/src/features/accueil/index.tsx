@@ -3,6 +3,7 @@ import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { type Espace } from '@/components/layout/types'
+import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { InfoSystemeCard } from '@/features/systeme/info-systeme-card'
@@ -21,6 +22,7 @@ export function Accueil({ espace, children }: AccueilProps) {
         <div className='ms-auto flex items-center gap-4'>
           <ThemeSwitch />
           <ConfigDrawer />
+          <ProfileDropdown />
         </div>
       </Header>
 

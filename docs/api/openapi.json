@@ -6828,7 +6828,7 @@
         "properties" : {
           "email" : {
             "type" : "string",
-            "example" : "anne.lamarque@bnia.example"
+            "example" : "admin@bnia.fr"
           },
           "motDePasse" : {
             "type" : "string"

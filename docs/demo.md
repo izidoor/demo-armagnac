@@ -17,7 +17,7 @@ puis, depuis `frontend/`, `pnpm dev`, et ouvrir http://localhost:5173.
 
 Une seule page de connexion pour tous (RG-AUT-01), http://localhost:5173/connexion :
 
-- mot de passe de tous les comptes : `demo-bnia-2026` ;
+- mot de passe de tous les comptes : `demo-armagnac` ;
 - code de vérification : toujours `000000` en `dev` et en `demo` (propriété
   `bnia.authentification.code-fixe`) ; il part aussi par e-mail ;
 - e-mails (codes, invitations, liens de mot de passe et de changement d'e-mail) : boîte Mailpit,
@@ -30,12 +30,15 @@ opérateur. Le sélecteur sous le titre de l'espace change d'opérateur actif.
 
 | E-mail | Personne | Opérateur | Rôle | Ce qu'on y voit |
 |---|---|---|---|---|
-| `anne.lamarque@bnia.example` | Anne Lamarque | BNIA | `ADMIN` | Tout le back-office ; bloquer un utilisateur, désactiver ou supprimer un opérateur, rétrograder le dernier ADMIN d'un opérateur |
-| `luc.dubos@bnia.example` | Luc Dubos | BNIA | `AGENT` | Back-office : fiches, contacts et Paramétrage gérés ; Accès en lecture |
-| `claire.sentex@bnia.example` | Claire Sentex | BNIA | `OBSERVATEUR` | Back-office en lecture seule |
-| `jeanne.durand@maison-durand.example` | Jeanne Durand | Maison Durand, Condom (opérateur actif) et Eauze | `ADMIN` des deux | Portail : « Mon entreprise », annuaire, invitations ; passage d'un chai à l'autre |
-| `sophie.martin@maison-durand.example` | Sophie Martin | Maison Durand, Condom | `AGENT` | Portail : fiche et contacts gérés, accès en lecture |
-| `pierre.roy@maison-durand.example` | Pierre Roy | Maison Durand, Eauze | `OBSERVATEUR`, accès suspendu | Connexion refusée : aucun accès actif (RG-AUT-04) |
+| `admin@bnia.fr` | Anne Lamarque | BNIA | `ADMIN` | Tout le back-office ; bloquer un utilisateur, désactiver ou supprimer un opérateur, rétrograder le dernier ADMIN d'un opérateur |
+| `agent@bnia.fr` | Luc Dubos | BNIA | `AGENT` | Back-office : fiches, contacts et Paramétrage gérés ; Accès en lecture |
+| `observateur@bnia.fr` | Claire Sentex | BNIA | `OBSERVATEUR` | Back-office en lecture seule |
+| `admin@producteur.fr` | Jeanne Durand | Maison Durand, Condom (opérateur actif) et Eauze | `ADMIN` des deux | Portail : « Mon entreprise », annuaire, invitations ; passage d'un chai à l'autre |
+| `agent@producteur.fr` | Sophie Martin | Maison Durand, Condom | `AGENT` | Portail : fiche et contacts gérés, accès en lecture |
+| `observateur@producteur.fr` | Pierre Roy | Maison Durand, Condom ; Eauze, accès suspendu | `OBSERVATEUR` | Portail en lecture seule ; Eauze n'est pas proposé (accès suspendu) |
+| `admin@negociant.fr` | Henri Castex | Armagnacs de Gascogne (`N320001`) | `ADMIN` | Portail d'un négociant : tout, dont les accès |
+| `agent@negociant.fr` | Julie Darrigade | Armagnacs de Gascogne | `AGENT` | Portail : fiche et contacts gérés, accès en lecture |
+| `observateur@negociant.fr` | Thomas Barrère | Armagnacs de Gascogne | `OBSERVATEUR` | Portail en lecture seule |
 
 Sans compte :
 

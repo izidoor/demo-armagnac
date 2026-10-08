@@ -540,21 +540,25 @@ Des données plausibles, présentées comme telles, sur les référentiels de d�
 - des alambics des deux types, une diffusion partielle (quelques millésimes), des marques France et
   Export, des visites, labels et médailles ;
 - une fiche incomplète (sans adresse) et une fiche inactive ;
-- des personnes et des accès (décision du 2026-10-08), mot de passe `demo-bnia-2026` et code `000000`
+- des personnes et des accès (décision du 2026-10-08), mot de passe `demo-armagnac` et code `000000`
   (spec 03), listés dans `docs/demo.md` :
 
-| Opérateur | Personne | État |
-|---|---|---|
-| BNIA | Anne Lamarque | membre `ADMIN` |
-| BNIA | Luc Dubos | membre `AGENT` |
-| BNIA | Claire Sentex | membre `OBSERVATEUR` |
-| Maison Durand, Condom | Jeanne Durand | membre `ADMIN` (opérateur actif) |
-| Maison Durand, Eauze | Jeanne Durand | membre `ADMIN` |
-| Maison Durand, Condom | Sophie Martin | membre `AGENT` |
-| Maison Durand, Eauze | Pierre Roy | membre `OBSERVATEUR`, `SUSPENDU` |
-| Maison Durand, Condom | Paul Petit | contact (maître de chai), désigné contact principal |
-| Distillerie ambulante Lafitte | Marc Lafitte | invitation `EN_ATTENTE`, rôle `ADMIN` |
-| tous les autres | | aucun membre |
+| Opérateur | Personne | Identifiant | État |
+|---|---|---|---|
+| BNIA | Anne Lamarque | `admin@bnia.fr` | membre `ADMIN` |
+| BNIA | Luc Dubos | `agent@bnia.fr` | membre `AGENT` |
+| BNIA | Claire Sentex | `observateur@bnia.fr` | membre `OBSERVATEUR` |
+| Maison Durand, Condom | Jeanne Durand | `admin@producteur.fr` | membre `ADMIN` (opérateur actif) |
+| Maison Durand, Eauze | Jeanne Durand | `admin@producteur.fr` | membre `ADMIN` |
+| Maison Durand, Condom | Sophie Martin | `agent@producteur.fr` | membre `AGENT` |
+| Maison Durand, Condom | Pierre Roy | `observateur@producteur.fr` | membre `OBSERVATEUR` |
+| Maison Durand, Eauze | Pierre Roy | `observateur@producteur.fr` | membre `OBSERVATEUR`, `SUSPENDU` |
+| Armagnacs de Gascogne (`N320001`) | Henri Castex | `admin@negociant.fr` | membre `ADMIN` |
+| Armagnacs de Gascogne | Julie Darrigade | `agent@negociant.fr` | membre `AGENT` |
+| Armagnacs de Gascogne | Thomas Barrère | `observateur@negociant.fr` | membre `OBSERVATEUR` |
+| Maison Durand, Condom | Paul Petit | | contact (maître de chai), désigné contact principal |
+| Distillerie ambulante Lafitte | Marc Lafitte | | invitation `EN_ATTENTE`, rôle `ADMIN` |
+| tous les autres | | | aucun membre |
 
 ### 7.2 Reprise AGI
 
@@ -676,3 +680,4 @@ Chaque RG-OPE-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-08 | Révision validée. À réimplémenter avec la spec 03 : personnes et accès, type `BNIA`, désignations vers la fiche professionnelle, droits. |
 | 2026-10-08 | Phase H : ADR-016 (personnes et accès dans `operateurs`) rédigé ; ADR-011, 012 et 013 amendés ; `CLAUDE.md` mis à jour. |
 | 2026-10-08 | Révision implémentée, avec la spec 03. Choix faits pendant l'implémentation, sans question : **endpoints unifiés** `/api/operateurs/{id}/…` pour les deux espaces, les droits vérifiés dans les cas d'usage (ADR-016) ; l'identité complète (`PUT …/identite`), la production et l'accès aux statistiques réservés au personnel du BNIA, le reste de la fiche par `PUT …/profil` (RG-OPE-36) ; **numéro de version** porté par chaque saisie de modification, `null` pour un appel interne (démonstration), écart refusé en 409 (`ModificationConcurrente`, RG-OPE-51) ; **verrou** `for update` sur l'opérateur pour le dernier ADMIN (RG-OPE-35) ; **opérateur BNIA** inséré par `V1__schema.sql` (structurel), son premier ADMIN amorcé à l'installation par `bnia.amorce.email`, `nom`, `prenom` (invitation, si le BNIA n'a ni ADMIN ni invitation en attente) ; **contrôle du Paramétrage** par un port `ControleParametrage` de `referentiels`, implémenté dans `bnia-boot` avec `OperateursLecture` (`referentiels` ne peut dépendre de `operateurs`) ; **invitation d'un compte existant** : l'invitation retient l'utilisateur visé (`compteVise`), refusée s'il a changé d'e-mail entre-temps (RG-OPE-42) ; **expiration** des invitations à la lecture et par une tâche planifiée horaire ; **e-mails** en texte simple, envoyés après la validation de la transaction (Mailpit en dev, ports `BNIA_SMTP_PORT` et `BNIA_MAILPIT_PORT`) ; liens `/invitation?jeton=` et `/changement-email?jeton=` ; **front** : un seul jeu d'écrans, l'espace ne décidant que des liens, les actions affichées selon les droits renvoyés par l'API (`mes-droits`, `droits` de la fiche) ; fiche réduite pour l'opérateur BNIA (menu « BNIA »), annuaire et journal en onglets au back-office, menu « Annuaire » au portail ; sélecteur d'opérateur actif sous le titre de l'espace. Démonstration conforme au §7.1, comptes dans `docs/demo.md`. Chaque RG-OPE-01 à 53 a au moins un test qui porte son identifiant. |
+| 2026-10-08 | Démonstration (demande de l'utilisateur) : identifiants de connexion lisibles, un par rôle et par type d'opérateur (`admin@`, `agent@`, `observateur@` × `bnia.fr`, `producteur.fr`, `negociant.fr`) ; trois membres ajoutés au négociant Armagnacs de Gascogne ; Pierre Roy aussi observateur actif à Condom, pour que son compte se connecte (sa suspension à Eauze reste montrée). §7.1 et `docs/demo.md` mis à jour. Mot de passe de démonstration `demo-armagnac` (13 caractères, RG-AUT-07 respectée), à la place de `demo-bnia-2026`. |

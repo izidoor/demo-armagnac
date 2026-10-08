@@ -20,7 +20,7 @@ import java.util.Optional;
 final class ComptesDemo {
 
     /** Mot de passe de tous les comptes de démonstration (docs/demo.md) ; le code vaut 000000 (RG-AUT-01). */
-    static final String MOT_DE_PASSE = "demo-bnia-2026";
+    static final String MOT_DE_PASSE = "demo-armagnac";
 
     private final GererInvitations invitations;
     private final GererMotDePasse motsDePasse;

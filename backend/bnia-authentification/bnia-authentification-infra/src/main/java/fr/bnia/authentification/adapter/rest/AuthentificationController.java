@@ -100,7 +100,7 @@ class AuthentificationController {
 
     @Schema(name = "SaisieConnexion")
     record ConnexionRequest(
-            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "anne.lamarque@bnia.example") String email,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "admin@bnia.fr") String email,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String motDePasse) {
     }
 

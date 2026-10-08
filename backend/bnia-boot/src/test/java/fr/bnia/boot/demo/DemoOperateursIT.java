@@ -47,13 +47,24 @@ class DemoOperateursIT extends AbstractIT {
         OperateurVue condom = operateurs.operateurParCode("000001").orElseThrow();
         assertThat(condom.niveauDiffusion()).isEqualTo(NiveauDiffusion.PARTIEL);
         assertThat(operateurs.personnes(condom.id())).extracting(PersonneVue::nomComplet)
-                .containsExactly("Jeanne Durand", "Sophie Martin", "Paul Petit");
-        long jeanne = operateurs.utilisateurParEmail("jeanne.durand@maison-durand.example").orElseThrow();
+                .containsExactly("Jeanne Durand", "Sophie Martin", "Paul Petit", "Pierre Roy");
+        long jeanne = operateurs.utilisateurParEmail("admin@producteur.fr").orElseThrow();
         long eauze = operateurs.operateurParCode("000002").orElseThrow().id();
         assertThat(operateurs.droits(jeanne, condom.id()).local()).contains(Role.ADMIN);
         assertThat(operateurs.droits(jeanne, eauze).local()).contains(Role.ADMIN);
-        long pierre = operateurs.utilisateurParEmail("pierre.roy@maison-durand.example").orElseThrow();
-        assertThat(operateurs.etatConnexion(pierre)).isEqualTo(EtatConnexion.AUCUN_ACCES_ACTIF);
+        long pierre = operateurs.utilisateurParEmail("observateur@producteur.fr").orElseThrow();
+        assertThat(operateurs.droits(pierre, condom.id()).local()).contains(Role.OBSERVATEUR);
+        assertThat(operateurs.droits(pierre, eauze).aucunAcces()).isTrue();
+        assertThat(operateurs.etatConnexion(pierre)).isEqualTo(EtatConnexion.AUTORISE);
+        long negociant = operateurs.operateurParCode("N320001").orElseThrow().id();
+        for (var compte : Map.of("admin", Role.ADMIN, "agent", Role.AGENT, "observateur", Role.OBSERVATEUR).entrySet()) {
+            long bnia = operateurs.utilisateurParEmail(compte.getKey() + "@bnia.fr").orElseThrow();
+            assertThat(operateurs.droits(bnia, operateurs.operateurBnia()).local()).contains(compte.getValue());
+            long producteur = operateurs.utilisateurParEmail(compte.getKey() + "@producteur.fr").orElseThrow();
+            assertThat(operateurs.droits(producteur, condom.id()).local()).contains(compte.getValue());
+            long negoce = operateurs.utilisateurParEmail(compte.getKey() + "@negociant.fr").orElseThrow();
+            assertThat(operateurs.droits(negoce, negociant).local()).contains(compte.getValue());
+        }
         assertThat(operateurs.utilisateurParEmail("marc.lafitte@distillerie-lafitte.example")).isEmpty();
 
         assertThat(operateurs.operateurParCode("N400001")).isPresent();
@@ -66,7 +77,7 @@ class DemoOperateursIT extends AbstractIT {
 
         var session = anonyme();
         session.post().uri("/api/authentification/connexion")
-                .body(Map.of("email", "jeanne.durand@maison-durand.example", "motDePasse", "demo-bnia-2026"))
+                .body(Map.of("email", "admin@producteur.fr", "motDePasse", "demo-armagnac"))
                 .exchange().expectStatus().isOk();
         session.post().uri("/api/authentification/code").body(Map.of("code", "000000", "faireConfiance", false))
                 .exchange().expectStatus().isOk();

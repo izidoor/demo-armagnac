@@ -6,9 +6,15 @@ import { renvoyerCode, seConnecter, verifierCode } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp'
 import { Label } from '@/components/ui/label'
 import { PasswordInput } from '@/components/password-input'
 import { CartePublique, MessageErreur } from './commun'
+import { PanneauDemo } from './panneau-demo'
 import { useEtatSession } from './use-etat-session'
 
 /**
@@ -44,9 +50,9 @@ export function Connexion({ redirect }: { redirect?: string }) {
       r.etape === 'CONNECTE' ? entrer() : setCodeDemande(true),
   })
   const verification = useMutation({
-    mutationFn: () =>
+    mutationFn: (saisi: string) =>
       verifierCode({
-        body: { code: code.trim(), faireConfiance: confiance },
+        body: { code: saisi.trim(), faireConfiance: confiance },
         throwOnError: true,
       }),
     meta: { erreurAffichee: true },
@@ -61,7 +67,7 @@ export function Connexion({ redirect }: { redirect?: string }) {
   const soumettre = (e: FormEvent) => {
     e.preventDefault()
     if (etape === 'identifiants') identifiants.mutate()
-    else verification.mutate()
+    else verification.mutate(code)
   }
 
   if (etape === 'code') {
@@ -69,19 +75,30 @@ export function Connexion({ redirect }: { redirect?: string }) {
       <CartePublique
         titre='Code de vérification'
         description='Saisissez le code à six chiffres reçu par e-mail. Il est valable dix minutes.'
+        panneau={<PanneauDemo />}
       >
         <MessageErreur erreur={verification.error ?? renvoi.error} />
         <form onSubmit={soumettre} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='code'>Code</Label>
-            <Input
+            <InputOTP
               id='code'
+              maxLength={6}
+              pattern='^[0-9]*$'
               inputMode='numeric'
               autoComplete='one-time-code'
               autoFocus
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
+              onChange={setCode}
+              onComplete={(saisi: string) => verification.mutate(saisi)}
+              containerClassName='justify-center'
+            >
+              <InputOTPGroup>
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <InputOTPSlot key={i} index={i} className='size-11 text-lg' />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
           </div>
           <label className='flex items-center gap-2 text-sm'>
             <Checkbox
@@ -93,7 +110,7 @@ export function Connexion({ redirect }: { redirect?: string }) {
           <Button
             type='submit'
             className='w-full'
-            disabled={verification.isPending}
+            disabled={verification.isPending || code.length < 6}
           >
             Valider
           </Button>
@@ -112,10 +129,7 @@ export function Connexion({ redirect }: { redirect?: string }) {
   }
 
   return (
-    <CartePublique
-      titre='Connexion'
-      description='Une seule connexion pour tous : personnel du BNIA et membres des opérateurs.'
-    >
+    <CartePublique titre='Connexion' panneau={<PanneauDemo />}>
       <MessageErreur erreur={identifiants.error} />
       <form onSubmit={soumettre} className='space-y-4'>
         <div className='space-y-2'>

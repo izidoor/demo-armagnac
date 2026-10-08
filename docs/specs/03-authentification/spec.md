@@ -261,7 +261,7 @@ de l'espace (spec 02 RG-OPE-49). Le gabarit distingue back-office et portail ; i
 ### 7.1 Démonstration (profil `demo`)
 
 Les utilisateurs et rattachements de démonstration sont décrits dans la spec 02 (§7.1). Chacun reçoit un
-compte de mot de passe `demo-bnia-2026` ; le code vaut `000000` (RG-AUT-01). Les comptes sont listés dans
+compte de mot de passe `demo-armagnac` ; le code vaut `000000` (RG-AUT-01). Les comptes sont listés dans
 `docs/demo.md`, avec leur opérateur et leur rôle. Le journal des connexions part vide.
 
 ### 7.2 Reprise AGI
