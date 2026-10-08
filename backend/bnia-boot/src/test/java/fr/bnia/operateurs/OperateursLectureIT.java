@@ -3,9 +3,12 @@ package fr.bnia.operateurs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.bnia.operateurs.application.partage.OperateursLecture;
-import fr.bnia.operateurs.domain.partage.ContactVue;
+import fr.bnia.operateurs.domain.partage.Droits;
+import fr.bnia.operateurs.domain.partage.EtatConnexion;
+import fr.bnia.operateurs.domain.partage.Module;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
 import fr.bnia.operateurs.domain.partage.ResultatRecherche;
+import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.support.AbstractIT;
 import java.util.HashMap;
@@ -61,34 +64,59 @@ class OperateursLectureIT extends AbstractIT {
     }
 
     @Test
-    @DisplayName("RG-OPE-28 et RG-OPE-29 : contacts avec accès d'un e-mail, un par opérateur actif")
-    void rg_ope_28_29_contacts_d_un_email() {
-        String email = "jeanne." + suffixe().toLowerCase() + "@exemple.fr";
+    @DisplayName("RG-OPE-31 et 32 : droits d'un membre sur son opérateur ; le rôle tenu au BNIA vaut partout")
+    void rg_ope_31_32_droits() {
         long condom = creer(URL, saisie("T" + suffixe(), "Chai de Condom"));
         long eauze = creer(URL, saisie("T" + suffixe(), "Chai d'Eauze"));
-        long aCondom = creer(URL + "/" + condom + "/contacts", Map.of("nom", "Durand", "email", email));
-        long aEauze = creer(URL + "/" + eauze + "/contacts", Map.of("nom", "Durand", "email", email.toUpperCase()));
-        client.put().uri(URL + "/{o}/contacts/{c}/portail", condom, aCondom).body(Map.of("acces", true, "administrateur", true))
-                .exchange().expectStatus().isOk();
+        long jeanne = membre(condom, Role.AGENT, emailUnique("jeanne"));
+        long luc = membre(lecture.operateurBnia(), Role.OBSERVATEUR, emailUnique("luc"));
 
-        assertThat(lecture.contactsAvecAccesParEmail(email)).extracting(ContactVue::id).containsExactly(aCondom);
-        client.put().uri(URL + "/{o}/contacts/{c}/portail", eauze, aEauze)
-                .body(Map.of("acces", true, "administrateur", false, "modules", List.of("DSM"))).exchange().expectStatus().isOk();
-        assertThat(lecture.contactsAvecAccesParEmail(email.toUpperCase())).extracting(ContactVue::operateur)
-                .containsExactlyInAnyOrder(condom, eauze);
-        assertThat(lecture.contacts(eauze)).singleElement().satisfies(c -> assertThat(c.modules()).hasSize(1));
+        Droits droits = lecture.droits(jeanne, condom);
+        assertThat(droits.local()).contains(Role.AGENT);
+        assertThat(droits.gere(Module.CONTACTS)).isTrue();
+        assertThat(droits.gere(Module.ACCES)).isFalse();
+        assertThat(droits.lit(Module.PARAMETRAGE)).isFalse();
+        assertThat(lecture.droits(jeanne, eauze).aucunAcces()).isTrue();
+        assertThat(lecture.droits(luc, eauze).bnia()).contains(Role.OBSERVATEUR);
+        assertThat(lecture.droits(luc, eauze).lit(Module.PARAMETRAGE)).isTrue();
+        assertThat(lecture.droits(luc, eauze).gere(Module.CONTACTS)).isFalse();
     }
 
     @Test
-    @DisplayName("Notifications (C.14) : contacts actifs d'un opérateur par centre d'intérêt")
-    void contacts_par_centre_interet() {
+    @DisplayName("RG-AUT-04 : l'état de connexion suit le blocage, les suspensions et la désactivation des opérateurs")
+    void etat_connexion() {
+        long operateur = creer(URL, saisie("T" + suffixe(), "Domaine " + suffixe()));
+        long jeanne = membre(operateur, Role.AGENT, emailUnique("jeanne"));
+        assertThat(lecture.etatConnexion(jeanne)).isEqualTo(EtatConnexion.AUTORISE);
+
+        client.post().uri(URL + "/{id}/desactivation", operateur).exchange().expectStatus().isOk();
+        assertThat(lecture.etatConnexion(jeanne)).isEqualTo(EtatConnexion.AUCUN_ACCES_ACTIF);
+        client.post().uri(URL + "/{id}/reactivation", operateur).exchange().expectStatus().isOk();
+        client.post().uri("/api/utilisateurs/{id}/blocage", jeanne).body(Map.of("motif", "Essai")).exchange()
+                .expectStatus().isOk();
+        assertThat(lecture.etatConnexion(jeanne)).isEqualTo(EtatConnexion.UTILISATEUR_BLOQUE);
+        assertThat(lecture.etatConnexion(-1)).isEqualTo(EtatConnexion.INCONNU);
+        assertThat(lecture.nomUtilisateur(jeanne)).hasValueSatisfying(nom -> assertThat(nom).startsWith("Test Jeanne"));
+    }
+
+    @Test
+    @DisplayName("Notifications (C.14) : contacts et membres d'un opérateur, triés par nom, avec centres d'intérêt et rôle")
+    void personnes() {
         String code = "CI" + suffixe();
         long compta = creer("/api/referentiels/centres-interet", Map.of("code", code, "libelle", "Comptabilité " + code));
         long operateur = creer(URL, saisie("T" + suffixe(), "Domaine " + suffixe()));
-        long durand = creer(URL + "/" + operateur + "/contacts", Map.of("nom", "Durand", "centresInteret", List.of(compta)));
-        creer(URL + "/" + operateur + "/contacts", Map.of("nom", "Petit"));
+        creer(URL + "/" + operateur + "/contacts", Map.of("nom", "Petit", "prenom", "Paul", "centresInteret", List.of(compta)));
+        String email = emailUnique("durand");
+        membre(operateur, Role.ADMIN, email);
 
-        assertThat(lecture.contactsParCentreInteret(operateur, compta)).extracting(ContactVue::id).containsExactly(durand);
+        assertThat(lecture.personnes(operateur)).hasSize(2).anySatisfy(p -> {
+            assertThat(p.nomComplet()).isEqualTo("Paul Petit");
+            assertThat(p.centresInteret()).containsExactly(compta);
+            assertThat(p.role()).isEmpty();
+        }).anySatisfy(p -> {
+            assertThat(p.email()).contains(email);
+            assertThat(p.role()).contains(Role.ADMIN);
+        });
     }
 
     @Test

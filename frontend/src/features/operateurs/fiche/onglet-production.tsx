@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
-import { type Espace } from '../commun/api'
 import { ChampCases, ChampChoix, ChampTexte, Lecture } from '../commun/champs'
 import {
   APPELLATIONS,
@@ -70,14 +69,13 @@ function depuis(f: FicheOperateur): Saisie {
 
 /**
  * Onglet Production : périodicité et statut de déclaration selon le type (RG-OPE-01, 10, 11), région,
- * appellations (RG-OPE-12), alambics (RG-OPE-13). En lecture au portail (RG-OPE-36).
+ * appellations (RG-OPE-12), alambics (RG-OPE-13). Modifiable par le personnel du BNIA qui gère le module
+ * Contacts, en lecture pour les autres (RG-OPE-36).
  */
 export function OngletProduction({
-  espace,
   fiche,
   onEnregistre,
 }: {
-  espace: Espace
   fiche: FicheOperateur
   onEnregistre: () => void
 }) {
@@ -95,6 +93,7 @@ export function OngletProduction({
       modifierProductionOperateur({
         path: { id: fiche.id },
         body: {
+          version: fiche.version,
           periodicite:
             s.periodicite === AUCUN
               ? undefined
@@ -121,7 +120,7 @@ export function OngletProduction({
       }),
   })
 
-  if (espace === 'portail') {
+  if (!fiche.droits.personnelBnia || fiche.droits.contacts !== 'GESTION') {
     return (
       <Card>
         <CardContent className='grid gap-4 pt-6 md:grid-cols-3'>

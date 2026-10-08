@@ -47,8 +47,8 @@ public record IdentiteOperateur(
         commentaireInterne = Textes.facultatif(commentaireInterne);
     }
 
-    /** RG-OPE-36 : la même identité, avec les seuls champs que le portail modifie. */
-    public IdentiteOperateur avecProfil(ProfilPortail p) {
+    /** RG-OPE-36 : la même identité, avec les seuls champs qu'un opérateur modifie lui-même. */
+    public IdentiteOperateur avecProfil(ProfilOperateur p) {
         return new IdentiteOperateur(groupe, cvi, siret, accise, bureauDouanes, identifiantOdg, p.titre(), raisonSociale,
                 p.nomCommercial(), p.adresse(), p.telephone1(), p.telephone2(), p.portable(), p.emailGeneral(),
                 p.siteWeb(), p.siteCommercial(), p.gps(), membreBnia, p.accordDiffusionGeneral(), commentaireInterne);

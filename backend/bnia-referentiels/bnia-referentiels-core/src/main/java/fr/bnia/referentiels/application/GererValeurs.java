@@ -14,13 +14,15 @@ public abstract class GererValeurs<T extends ValeurSimple> {
 
     private final ValeursRepository<T> repository;
     private final String nomListe;
+    private final ControleParametrage controle;
 
     /**
      * @param nomListe nom de la liste au pluriel, pour les messages (« zones commerciales »)
      */
-    protected GererValeurs(ValeursRepository<T> repository, String nomListe) {
+    protected GererValeurs(ValeursRepository<T> repository, String nomListe, ControleParametrage controle) {
         this.repository = repository;
         this.nomListe = nomListe;
+        this.controle = controle;
     }
 
     public T consulter(long id) {
@@ -29,16 +31,19 @@ public abstract class GererValeurs<T extends ValeurSimple> {
     }
 
     /** RG-REF-04 : la valeur n'est plus proposée à la saisie, mais reste lisible. */
-    public T desactiver(long id) {
+    public T desactiver(long acteur, long id) {
+        exigerParametrage(acteur);
         return modifierValeur(id, ValeurSimple::desactiver);
     }
 
-    public T reactiver(long id) {
+    public T reactiver(long acteur, long id) {
+        exigerParametrage(acteur);
         return modifierValeur(id, ValeurSimple::reactiver);
     }
 
     /** RG-REF-04 : seulement si aucune autre donnée n'y fait référence ; sinon, la désactiver. */
-    public void supprimer(long id) {
+    public void supprimer(long acteur, long id) {
+        exigerParametrage(acteur);
         consulter(id);
         repository.supprimer(id);
     }
@@ -56,6 +61,15 @@ public abstract class GererValeurs<T extends ValeurSimple> {
         verifierCodeLibre(valeur.code(), id);
         repository.mettreAJour(valeur);
         return valeur;
+    }
+
+    /** Module Paramétrage, gestion (spec 02 RG-OPE-31) : chaque écriture le vérifie (ADR-016). */
+    protected void exigerParametrage(long acteur) {
+        controle.exigerGestion(acteur);
+    }
+
+    protected ControleParametrage controle() {
+        return controle;
     }
 
     protected String nomListe() {

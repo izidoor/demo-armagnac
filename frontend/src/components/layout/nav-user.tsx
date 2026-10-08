@@ -1,6 +1,7 @@
-import { ChevronsUpDown, LogOut } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { ChevronsUpDown, LogOut, UserRound } from 'lucide-react'
 import useDialogState from '@/hooks/use-dialog-state'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,18 +17,29 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { SignOutDialog } from '@/components/sign-out-dialog'
+import { useMoi } from '@/features/session/session'
+import { type Espace } from './types'
 
-type NavUserProps = {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}
-
-export function NavUser({ user }: NavUserProps) {
+/** L'utilisateur connecté, « Mon compte » et la déconnexion (spec 03 §6.1). */
+export function NavUser({ espace }: { espace: Espace }) {
   const { isMobile } = useSidebar()
   const [open, setOpen] = useDialogState()
+  const { moi } = useMoi()
+  const compte = espace.url === '/bo' ? '/bo/compte' : '/portail/compte'
+
+  const identite = (
+    <>
+      <Avatar className='h-8 w-8 rounded-lg'>
+        <AvatarFallback className='rounded-lg'>
+          {initiales(moi.nomComplet)}
+        </AvatarFallback>
+      </Avatar>
+      <div className='grid flex-1 text-start text-sm leading-tight'>
+        <span className='truncate font-semibold'>{moi.nomComplet}</span>
+        <span className='truncate text-xs'>{moi.email}</span>
+      </div>
+    </>
+  )
 
   return (
     <>
@@ -39,16 +51,7 @@ export function NavUser({ user }: NavUserProps) {
                 size='lg'
                 className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               >
-                <Avatar className='h-8 w-8 rounded-lg'>
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className='rounded-lg'>
-                    {initiales(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className='grid flex-1 text-start text-sm leading-tight'>
-                  <span className='truncate font-semibold'>{user.name}</span>
-                  <span className='truncate text-xs'>{user.email}</span>
-                </div>
+                {identite}
                 <ChevronsUpDown className='ms-auto size-4' />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
@@ -60,18 +63,16 @@ export function NavUser({ user }: NavUserProps) {
             >
               <DropdownMenuLabel className='p-0 font-normal'>
                 <div className='flex items-center gap-2 px-1 py-1.5 text-start text-sm'>
-                  <Avatar className='h-8 w-8 rounded-lg'>
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className='rounded-lg'>
-                      {initiales(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className='grid flex-1 text-start text-sm leading-tight'>
-                    <span className='truncate font-semibold'>{user.name}</span>
-                    <span className='truncate text-xs'>{user.email}</span>
-                  </div>
+                  {identite}
                 </div>
               </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to={compte}>
+                  <UserRound />
+                  Mon compte
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant='destructive'

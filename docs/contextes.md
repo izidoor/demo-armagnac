@@ -89,7 +89,7 @@ Le **type d'opérateur** est une liste fermée propre au contexte (`PRODUCTEUR`,
 Hors du contexte : mot de passe, double authentification, sessions, journal des connexions (`authentification`) ; dernières déclarations et historique de la fiche (assemblés par l'écran) ; export « plus d'1 hl » (`statistiques`) ; dérogations -40 % vol (en attente, Q-OPE-2) ; reprise des données (hors périmètre du prototype).
 **Agrégats :** `Operateur` (avec alambics, millésimes diffusables, appellations), `PresentationOperateur` (marques, circuits, visites, labels, œnotourisme, médailles) ; `Contact`, `FicheProfessionnelle`, `Rattachement`, `Invitation`, `Utilisateur`, un agrégat chacun, règles collectives dans les cas d'usage avec index uniques et verrou sur l'opérateur (A-OPE-6) ; journal hors agrégat.
 **Relations :** lu par presque tous à travers une **partie publiée en lecture seule** (`..operateurs.domain.partage`, `..operateurs.application.partage.OperateursLecture`), comme `referentiels` (A-OPE-1) ; fournit à tous les droits d'un utilisateur sur un opérateur, et à `authentification` l'état de connexion d'un utilisateur ; publie `UtilisateurCree`, `EmailUtilisateurModifie`, `UtilisateurSupprime`, écoutés par `authentification` dans la même transaction (A-AUT-1). Droits vérifiés dans les cas d'usage (A-OPE-7).
-**Spec :** [specs/02-operateurs](specs/02-operateurs/spec.md) (terminée, implémentée ; **révisée le 2026-10-08, à réimplémenter**)
+**Spec :** [specs/02-operateurs](specs/02-operateurs/spec.md) (terminée, implémentée ; révisée le 2026-10-08, réimplémentée)
 **Sources :** [BO 4.3](source/cdc/4-back-office-bnia/03-gestion-des-operateurs.md) · [Portail 5.13](source/cdc/5-portail-operateur/13-gestion-des-contacts.md) · [C.1](source/cdc/A-annexes/C01-gestion-des-operateurs.md) · [AGI 2.1](source/agi/2-vues-attendues-donnees-integraal/01-referentiel-des-professionnels.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
 
 ### 3. `authentification` (ex-`acces`)
@@ -97,7 +97,7 @@ Preuve d'identité, sans métier (décision du 2026-10-08) : compte de connexion
 Écarts assumés au CDC : pas de rôles composés ni de catalogue de droits (§4.2.1, §4.2.5), pas de population distincte d'utilisateurs BNIA (§4.2.2), pas de TOTP (§4.2.7).
 **Agrégats possibles :** `CompteConnexion` ; code de vérification, réinitialisation et navigateur de confiance (attachés au compte) ; journal des connexions hors agrégat.
 **Relations :** demande à `operateurs` si un utilisateur peut se connecter, à la connexion et à chaque requête ; il écoute ses événements pour créer (sans mot de passe), renommer et supprimer le compte (A-AUT-1) ; le premier mot de passe est posé par un second appel du formulaire d'acceptation (A-AUT-2). Session serveur Spring Session JDBC (A-AUT-3). Aucune clé étrangère vers `operateurs`.
-**Spec :** [specs/03-authentification](specs/03-authentification/spec.md) (terminée)
+**Spec :** [specs/03-authentification](specs/03-authentification/spec.md) (terminée, implémentée)
 **Sources :** vision (spec 02) · [BO 4.2](source/cdc/4-back-office-bnia/02-gestion-des-acces.md) · [Portail 5.1](source/cdc/5-portail-operateur/01-acces-authentification-et-gestion-du-compte.md) · [C.2](source/cdc/A-annexes/C02-gestion-des-acces-et-habilitations.md) · [C.13](source/cdc/A-annexes/C13-comptes-et-acces-operateur.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
 
 ### 4. `cotisation`

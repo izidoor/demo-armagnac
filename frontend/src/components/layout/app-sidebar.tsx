@@ -28,7 +28,7 @@ export function AppSidebar({ espace }: AppSidebarProps) {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={espace.user} />
+        <NavUser espace={espace} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

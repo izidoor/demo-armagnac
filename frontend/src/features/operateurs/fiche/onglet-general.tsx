@@ -7,7 +7,7 @@ import { Link } from '@tanstack/react-router'
 import {
   listerGroupesOperateurs,
   modifierIdentiteOperateur,
-  modifierProfilPortail,
+  modifierProfilOperateur,
   type FicheOperateur,
 } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -24,7 +24,7 @@ import {
   Lecture,
 } from '../commun/champs'
 import { AlerteDoublons } from '../commun/doublons'
-import { TYPES } from '../commun/libelles'
+import { TYPES, TYPES_CHOISIS } from '../commun/libelles'
 import { useListe } from '../commun/referentiels'
 import {
   identifiant,
@@ -39,7 +39,7 @@ import { useDoublons } from '../commun/use-doublons'
 import { Designations } from './designations'
 
 const schema = z.object({
-  type: z.enum(['PRODUCTEUR', 'NEGOCIANT', 'AUTRE']),
+  type: z.enum(['BNIA', 'PRODUCTEUR', 'NEGOCIANT', 'AUTRE']),
   code: z.string().trim().min(1, 'Le code est obligatoire.'),
   groupe: z.string(),
   cvi: z.string(),
@@ -104,9 +104,10 @@ function depuis(f: FicheOperateur): Saisie {
   }
 }
 
-/** Ce que le portail modifie (RG-OPE-36). */
-function versProfil(s: Saisie) {
+/** Ce qu'un opérateur modifie lui-même (RG-OPE-36). */
+function versProfil(s: Saisie, version: number) {
   return {
+    version,
     titre: identifiant(s.titre),
     nomCommercial: texte(s.nomCommercial),
     adresseLigne1: texte(s.adresseLigne1),
@@ -127,9 +128,9 @@ function versProfil(s: Saisie) {
   }
 }
 
-function versIdentite(s: Saisie) {
+function versIdentite(s: Saisie, version: number) {
   return {
-    ...versProfil(s),
+    ...versProfil(s, version),
     type: s.type,
     code: s.code.trim(),
     groupe: texte(s.groupe),
@@ -152,15 +153,17 @@ type OngletGeneralProps = {
 
 /**
  * Onglet Général : identité, coordonnées, membre BNIA, accord de diffusion, commentaire interne ; puis
- * contact principal et destinataire des factures. Au portail, seuls les champs de RG-OPE-36 se
- * modifient, et le commentaire interne n'apparaît pas.
+ * contact principal et destinataire des factures. Hors du personnel du BNIA, seuls les champs de
+ * RG-OPE-36 se modifient, et le commentaire interne n'apparaît pas ; sans la gestion du module
+ * Contacts, tout est en lecture.
  */
 export function OngletGeneral({
   espace,
   fiche,
   onEnregistre,
 }: OngletGeneralProps) {
-  const bo = espace === 'bo'
+  const bo = fiche.droits.personnelBnia
+  const gestion = fiche.droits.contacts === 'GESTION'
   const titres = useListe('titres')
   const pays = useListe('pays')
   const membres = useListe('membresBnia')
@@ -194,12 +197,12 @@ export function OngletGeneral({
       bo
         ? modifierIdentiteOperateur({
             path: { id: fiche.id },
-            body: versIdentite(s),
+            body: versIdentite(s, fiche.version),
             throwOnError: true,
           })
-        : modifierProfilPortail({
+        : modifierProfilOperateur({
             path: { id: fiche.id },
-            body: versProfil(s),
+            body: versProfil(s, fiche.version),
             throwOnError: true,
           }),
     meta: { erreurAffichee: true },
@@ -230,189 +233,200 @@ export function OngletGeneral({
           className='space-y-4'
         >
           <ErreurRacine errors={form.formState.errors} />
-          <Card>
-            <CardHeader>
-              <CardTitle>Identité</CardTitle>
-            </CardHeader>
-            <CardContent className='grid gap-4 md:grid-cols-3'>
-              {bo ? (
-                <ChampChoix
-                  control={c}
-                  name='type'
-                  label='Type'
-                  options={optionsListe(TYPES)}
-                  description='Changer le type ne change pas le code.'
-                />
-              ) : (
-                <Lecture label='Type' valeur={TYPES[fiche.type]} />
-              )}
-              {ouvert('Code', 'code', fiche.code)}
-              {bo ? (
-                <div className='space-y-1'>
-                  <ChampTexte
+          <fieldset disabled={!gestion} className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Identité</CardTitle>
+              </CardHeader>
+              <CardContent className='grid gap-4 md:grid-cols-3'>
+                {bo && fiche.type !== 'BNIA' ? (
+                  <ChampChoix
                     control={c}
-                    name='groupe'
-                    label='Groupe'
-                    list='groupes-operateurs'
+                    name='type'
+                    label='Type'
+                    options={optionsListe(TYPES_CHOISIS)}
+                    description='Changer le type ne change pas le code.'
                   />
-                  <datalist id='groupes-operateurs'>
-                    {groupes.data?.map((g) => (
-                      <option key={g} value={g} />
-                    ))}
-                  </datalist>
-                </div>
-              ) : (
-                <Lecture label='Groupe' valeur={fiche.groupe} />
-              )}
-              <ChampChoix
-                control={c}
-                name='titre'
-                label='Titre'
-                facultatif
-                options={optionsReference(titres.valeurs, fiche.titre)}
-              />
-              <div className='space-y-1 md:col-span-2'>
+                ) : (
+                  <Lecture label='Type' valeur={TYPES[fiche.type]} />
+                )}
+                {ouvert('Code', 'code', fiche.code)}
                 {bo ? (
-                  <>
+                  <div className='space-y-1'>
                     <ChampTexte
                       control={c}
-                      name='raisonSociale'
-                      label='Raison sociale'
+                      name='groupe'
+                      label='Groupe'
+                      list='groupes-operateurs'
                     />
-                    <AlerteDoublons
-                      doublons={doublons}
-                      champ='RAISON_SOCIALE'
-                    />
-                  </>
+                    <datalist id='groupes-operateurs'>
+                      {groupes.data?.map((g) => (
+                        <option key={g} value={g} />
+                      ))}
+                    </datalist>
+                  </div>
                 ) : (
-                  <Lecture
-                    label='Raison sociale'
-                    valeur={fiche.raisonSociale}
-                  />
+                  <Lecture label='Groupe' valeur={fiche.groupe} />
                 )}
-              </div>
-              <ChampTexte
-                control={c}
-                name='nomCommercial'
-                label='Nom commercial'
-              />
-              <div className='space-y-1'>
-                {ouvert('CVI', 'cvi', fiche.cvi)}
-                <AlerteDoublons doublons={doublons} champ='CVI' />
-              </div>
-              <div className='space-y-1'>
-                {ouvert('SIRET', 'siret', fiche.siret)}
-                <AlerteDoublons doublons={doublons} champ='SIRET' />
-              </div>
-              <div className='space-y-1'>
-                {ouvert("N° d'accise", 'accise', fiche.accise)}
-                <AlerteDoublons doublons={doublons} champ='ACCISE' />
-              </div>
-              {ouvert(
-                'Bureau des douanes',
-                'bureauDouanes',
-                fiche.bureauDouanes
-              )}
-              {ouvert(
-                'Identifiant tiers ODG',
-                'identifiantOdg',
-                fiche.identifiantOdg
-              )}
-              {bo ? (
                 <ChampChoix
                   control={c}
-                  name='membreBnia'
-                  label='Membre BNIA'
+                  name='titre'
+                  label='Titre'
                   facultatif
-                  options={optionsReference(membres.valeurs, fiche.membreBnia)}
+                  options={optionsReference(titres.valeurs, fiche.titre)}
                 />
-              ) : (
-                <Lecture
-                  label='Membre BNIA'
-                  valeur={membres.libelle(fiche.membreBnia)}
-                />
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Coordonnées</CardTitle>
-            </CardHeader>
-            <CardContent className='grid gap-4 md:grid-cols-3'>
-              <ChampTexte control={c} name='adresseLigne1' label='Adresse' />
-              <ChampTexte control={c} name='adresseLigne2' label='Complément' />
-              <ChampTexte
-                control={c}
-                name='adresseLigne3'
-                label='Complément (suite)'
-              />
-              <ChampTexte control={c} name='codePostal' label='Code postal' />
-              <ChampTexte control={c} name='ville' label='Ville' />
-              <ChampChoix
-                control={c}
-                name='pays'
-                label='Pays'
-                facultatif
-                options={optionsReference(pays.valeurs, fiche.pays)}
-              />
-              <ChampTexte control={c} name='telephone1' label='Téléphone 1' />
-              <ChampTexte control={c} name='telephone2' label='Téléphone 2' />
-              <ChampTexte control={c} name='portable' label='Portable' />
-              <ChampTexte
-                control={c}
-                name='emailGeneral'
-                label='E-mail général'
-              />
-              <ChampTexte
-                control={c}
-                name='siteWeb'
-                label='Site web'
-                placeholder='https://…'
-              />
-              <ChampTexte
-                control={c}
-                name='siteCommercial'
-                label='Site commercial'
-                placeholder='https://…'
-              />
-              <ChampTexte
-                control={c}
-                name='latitude'
-                label='Latitude'
-                placeholder='43.958'
-              />
-              <ChampTexte
-                control={c}
-                name='longitude'
-                label='Longitude'
-                placeholder='0.372'
-              />
-              <ChampInterrupteur
-                control={c}
-                name='accordDiffusionGeneral'
-                label='Accord de diffusion général'
-              />
-              {bo && (
+                <div className='space-y-1 md:col-span-2'>
+                  {bo ? (
+                    <>
+                      <ChampTexte
+                        control={c}
+                        name='raisonSociale'
+                        label='Raison sociale'
+                      />
+                      <AlerteDoublons
+                        doublons={doublons}
+                        champ='RAISON_SOCIALE'
+                      />
+                    </>
+                  ) : (
+                    <Lecture
+                      label='Raison sociale'
+                      valeur={fiche.raisonSociale}
+                    />
+                  )}
+                </div>
                 <ChampTexte
                   control={c}
-                  name='commentaireInterne'
-                  label='Commentaire interne'
-                  description='Jamais montré au portail.'
-                  multiligne
-                  className='md:col-span-3'
+                  name='nomCommercial'
+                  label='Nom commercial'
                 />
-              )}
-            </CardContent>
-          </Card>
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={mutation.isPending}>
-              Enregistrer
-            </Button>
-          </div>
+                <div className='space-y-1'>
+                  {ouvert('CVI', 'cvi', fiche.cvi)}
+                  <AlerteDoublons doublons={doublons} champ='CVI' />
+                </div>
+                <div className='space-y-1'>
+                  {ouvert('SIRET', 'siret', fiche.siret)}
+                  <AlerteDoublons doublons={doublons} champ='SIRET' />
+                </div>
+                <div className='space-y-1'>
+                  {ouvert("N° d'accise", 'accise', fiche.accise)}
+                  <AlerteDoublons doublons={doublons} champ='ACCISE' />
+                </div>
+                {ouvert(
+                  'Bureau des douanes',
+                  'bureauDouanes',
+                  fiche.bureauDouanes
+                )}
+                {ouvert(
+                  'Identifiant tiers ODG',
+                  'identifiantOdg',
+                  fiche.identifiantOdg
+                )}
+                {bo ? (
+                  <ChampChoix
+                    control={c}
+                    name='membreBnia'
+                    label='Membre BNIA'
+                    facultatif
+                    options={optionsReference(
+                      membres.valeurs,
+                      fiche.membreBnia
+                    )}
+                  />
+                ) : (
+                  <Lecture
+                    label='Membre BNIA'
+                    valeur={membres.libelle(fiche.membreBnia)}
+                  />
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Coordonnées</CardTitle>
+              </CardHeader>
+              <CardContent className='grid gap-4 md:grid-cols-3'>
+                <ChampTexte control={c} name='adresseLigne1' label='Adresse' />
+                <ChampTexte
+                  control={c}
+                  name='adresseLigne2'
+                  label='Complément'
+                />
+                <ChampTexte
+                  control={c}
+                  name='adresseLigne3'
+                  label='Complément (suite)'
+                />
+                <ChampTexte control={c} name='codePostal' label='Code postal' />
+                <ChampTexte control={c} name='ville' label='Ville' />
+                <ChampChoix
+                  control={c}
+                  name='pays'
+                  label='Pays'
+                  facultatif
+                  options={optionsReference(pays.valeurs, fiche.pays)}
+                />
+                <ChampTexte control={c} name='telephone1' label='Téléphone 1' />
+                <ChampTexte control={c} name='telephone2' label='Téléphone 2' />
+                <ChampTexte control={c} name='portable' label='Portable' />
+                <ChampTexte
+                  control={c}
+                  name='emailGeneral'
+                  label='E-mail général'
+                />
+                <ChampTexte
+                  control={c}
+                  name='siteWeb'
+                  label='Site web'
+                  placeholder='https://…'
+                />
+                <ChampTexte
+                  control={c}
+                  name='siteCommercial'
+                  label='Site commercial'
+                  placeholder='https://…'
+                />
+                <ChampTexte
+                  control={c}
+                  name='latitude'
+                  label='Latitude'
+                  placeholder='43.958'
+                />
+                <ChampTexte
+                  control={c}
+                  name='longitude'
+                  label='Longitude'
+                  placeholder='0.372'
+                />
+                <ChampInterrupteur
+                  control={c}
+                  name='accordDiffusionGeneral'
+                  label='Accord de diffusion général'
+                />
+                {bo && (
+                  <ChampTexte
+                    control={c}
+                    name='commentaireInterne'
+                    label='Commentaire interne'
+                    description='Jamais montré au portail.'
+                    multiligne
+                    className='md:col-span-3'
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </fieldset>
+          {gestion && (
+            <div className='flex justify-end'>
+              <Button type='submit' disabled={mutation.isPending}>
+                Enregistrer
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
 
-      {bo && fiche.autresDuGroupe.length > 0 && (
+      {espace === 'bo' && fiche.autresDuGroupe.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Autres fiches du groupe « {fiche.groupe} »</CardTitle>
@@ -435,8 +449,7 @@ export function OngletGeneral({
       )}
 
       <Designations
-        key={`${fiche.contactPrincipal}-${fiche.destinataireFacturesContact}-${fiche.destinataireFacturesEmail}-${fiche.contacts.length}`}
-        espace={espace}
+        key={fiche.version}
         fiche={fiche}
         onEnregistre={onEnregistre}
       />

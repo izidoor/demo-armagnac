@@ -3,29 +3,24 @@ package fr.bnia.operateurs.adapter.persistence;
 import fr.bnia.commun.domain.Appellation;
 import fr.bnia.commun.domain.ElementUtilise;
 import fr.bnia.commun.domain.Millesime;
-import fr.bnia.operateurs.application.IdentifiantsContacts;
 import fr.bnia.operateurs.application.OperateurRepository;
 import fr.bnia.operateurs.domain.Adresse;
 import fr.bnia.operateurs.domain.Alambic;
 import fr.bnia.operateurs.domain.CodeOperateur;
-import fr.bnia.operateurs.domain.Contact;
 import fr.bnia.operateurs.domain.CoordonneesGps;
 import fr.bnia.operateurs.domain.Cvi;
 import fr.bnia.operateurs.domain.Declaratif;
 import fr.bnia.operateurs.domain.DestinataireFactures;
 import fr.bnia.operateurs.domain.DiffusionMillesimes;
-import fr.bnia.operateurs.domain.DroitsPortail;
 import fr.bnia.operateurs.domain.Email;
-import fr.bnia.operateurs.domain.IdentiteContact;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
-import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.NumeroAccise;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.Production;
 import fr.bnia.operateurs.domain.Siret;
 import fr.bnia.operateurs.domain.SiteWeb;
 import fr.bnia.operateurs.domain.TypeAlambic;
-import fr.bnia.operateurs.domain.partage.ModulePortail;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
@@ -39,6 +34,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
@@ -47,13 +43,12 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Agrégat {@code Operateur} en Spring Data JDBC (ADR-004, ADR-012) : appellations, alambics et
- * millésimes diffusables, contacts sont réécrits à chaque enregistrement. Un contact est réinséré avec
- * son identifiant, attribué avant le premier enregistrement ({@link #prochain()}) ; les clés étrangères
- * vers le contact principal et le destinataire des factures sont vérifiées en fin de transaction. Les formes normalisées de la raison
- * sociale et du groupe sont stockées pour les comparaisons en SQL (RG-OPE-08, 09).
+ * millésimes diffusables sont réécrits à chaque enregistrement ; la version protège des modifications
+ * concurrentes (RG-OPE-51). Les formes normalisées de la raison sociale et du groupe sont stockées pour
+ * les comparaisons en SQL (RG-OPE-08, 09).
  */
 @Repository
-class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
+class OperateurJdbc implements OperateurRepository {
 
     static final String SCHEMA = "operateurs";
 
@@ -77,7 +72,8 @@ class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
 
     @Override
     public void mettreAJour(Operateur operateur) {
-        template.update(versLigne(operateur));
+        Versionnage.mettreAJour(template, versLigne(operateur), "La fiche de « "
+                + operateur.identite().raisonSociale() + " »");
     }
 
     @Override
@@ -91,24 +87,6 @@ class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
     }
 
     @Override
-    public List<Operateur> avecEmailDeContact(Email email) {
-        return jdbcClient.sql("select distinct operateur_id from " + SCHEMA + ".contact where lower(email) = lower(:email)"
-                        + " order by operateur_id")
-                .param("email", email.valeur())
-                .query(Long.class)
-                .list().stream()
-                .map(id -> parId(id).orElseThrow())
-                .toList();
-    }
-
-    @Override
-    public long prochain() {
-        return jdbcClient.sql("select nextval(pg_get_serial_sequence('" + SCHEMA + ".contact', 'id'))")
-                .query(Long.class)
-                .single();
-    }
-
-    @Override
     public boolean existeCode(CodeOperateur code, Long sauf) {
         return existe("code", code.valeur(), sauf);
     }
@@ -116,6 +94,23 @@ class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
     @Override
     public boolean existeIdentifiantOdg(String identifiantOdg, Long sauf) {
         return existe("identifiant_odg", identifiantOdg, sauf);
+    }
+
+    @Override
+    public void verrouiller(long id) {
+        jdbcClient.sql("select id from " + SCHEMA + ".operateur where id = :id for update").param("id", id)
+                .query(Long.class).optional();
+    }
+
+    @Override
+    public boolean estActif(long id) {
+        return jdbcClient.sql("select actif from " + SCHEMA + ".operateur where id = :id").param("id", id)
+                .query(Boolean.class).optional().orElse(false);
+    }
+
+    @Override
+    public long idBnia() {
+        return jdbcClient.sql("select id from " + SCHEMA + ".operateur where type = 'BNIA'").query(Long.class).single();
     }
 
     /** @param colonne constante, jamais une saisie utilisateur */
@@ -146,30 +141,10 @@ class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
                 o.diffusion().niveau(),
                 o.diffusion().millesimes().stream().map(m -> new MillesimeLigne(m.annee())).collect(Collectors.toSet()),
                 o.accesStatistiques(), o.estActif(),
-                o.contacts().stream().map(OperateurJdbc::versLigne).collect(Collectors.toSet()),
                 o.contactPrincipal().orElse(null),
-                o.destinataireFactures().map(DestinataireFactures::contact).orElse(null),
-                o.destinataireFactures().map(d -> texte(d.adresse(), Email::valeur)).orElse(null));
-    }
-
-    private static ContactLigne versLigne(Contact c) {
-        IdentiteContact i = c.identite();
-        DroitsPortail d = c.droits();
-        return new ContactLigne(c.id(), i.titre(), i.nom(), i.prenom(), i.fonction(),
-                i.centresInteret().stream().map(CentreInteretLigne::new).collect(Collectors.toSet()),
-                i.telephoneProfessionnel(), i.telephoneSecondaire(), texte(i.email(), Email::valeur), i.adresse(),
-                i.codePostal(), i.ville(), i.pays(), i.observation(), c.estActif(), d.acces(), d.administrateur(),
-                d.modules().stream().map(ModuleLigne::new).collect(Collectors.toSet()), c.emailVerrouille());
-    }
-
-    private static Contact versDomaine(ContactLigne l) {
-        IdentiteContact identite = new IdentiteContact(l.titreId(), l.nom(), l.prenom(), l.fonction(),
-                l.centresInteret().stream().map(CentreInteretLigne::centreInteretId).collect(Collectors.toSet()),
-                l.telephoneProfessionnel(), l.telephoneSecondaire(), l.email() == null ? null : new Email(l.email()),
-                l.adresse(), l.codePostal(), l.ville(), l.paysId(), l.observation());
-        DroitsPortail droits = new DroitsPortail(l.accesPortail(), l.administrateur(),
-                l.modules().stream().map(ModuleLigne::module).collect(Collectors.toSet()));
-        return Contact.reconstituer(l.id(), identite, droits, l.emailVerrouille(), l.actif());
+                o.destinataireFactures().map(DestinataireFactures::fiche).orElse(null),
+                o.destinataireFactures().map(d -> texte(d.adresse(), Email::valeur)).orElse(null),
+                o.id() == null ? null : o.version());
     }
 
     private static Operateur versDomaine(Ligne l) {
@@ -201,13 +176,12 @@ class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
                 .map(m -> Millesime.de(m.millesime())).collect(Collectors.toCollection(TreeSet::new)));
         return Operateur.reconstituer(l.id(), l.type(), CodeOperateur.de(l.code()), identite,
                 new Declaratif(l.periodiciteDsm(), l.statutDeclarationStock()), production, diffusion,
-                l.accesStatistiques(), l.actif(), l.contacts().stream().map(OperateurJdbc::versDomaine).toList(),
-                l.contactPrincipalId(), destinataire(l));
+                l.accesStatistiques(), l.actif(), l.contactPrincipalFicheId(), destinataire(l), l.version());
     }
 
     private static DestinataireFactures destinataire(Ligne l) {
-        if (l.destinataireFacturesContactId() != null) {
-            return DestinataireFactures.contact(l.destinataireFacturesContactId());
+        if (l.destinataireFacturesFicheId() != null) {
+            return DestinataireFactures.fiche(l.destinataireFacturesFicheId());
         }
         return l.destinataireFacturesEmail() == null ? null
                 : DestinataireFactures.adresse(new Email(l.destinataireFacturesEmail()));
@@ -259,41 +233,10 @@ class OperateurJdbc implements OperateurRepository, IdentifiantsContacts {
             @MappedCollection(idColumn = "operateur_id") Set<MillesimeLigne> millesimesDiffusables,
             boolean accesStatistiques,
             boolean actif,
-            @MappedCollection(idColumn = "operateur_id") Set<ContactLigne> contacts,
-            Long contactPrincipalId,
-            Long destinataireFacturesContactId,
-            String destinataireFacturesEmail) {
-    }
-
-    @Table(schema = SCHEMA, name = "contact")
-    record ContactLigne(
-            @Id Long id,
-            Long titreId,
-            String nom,
-            String prenom,
-            String fonction,
-            @MappedCollection(idColumn = "contact_id") Set<CentreInteretLigne> centresInteret,
-            String telephoneProfessionnel,
-            String telephoneSecondaire,
-            String email,
-            String adresse,
-            String codePostal,
-            String ville,
-            Long paysId,
-            String observation,
-            boolean actif,
-            boolean accesPortail,
-            boolean administrateur,
-            @MappedCollection(idColumn = "contact_id") Set<ModuleLigne> modules,
-            boolean emailVerrouille) {
-    }
-
-    @Table(schema = SCHEMA, name = "contact_centre_interet")
-    record CentreInteretLigne(long centreInteretId) {
-    }
-
-    @Table(schema = SCHEMA, name = "contact_module")
-    record ModuleLigne(ModulePortail module) {
+            Long contactPrincipalFicheId,
+            Long destinataireFacturesFicheId,
+            String destinataireFacturesEmail,
+            @Version Long version) {
     }
 
     @Table(schema = SCHEMA, name = "operateur_appellation")

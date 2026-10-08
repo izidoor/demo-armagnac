@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Switch } from '@/components/ui/switch'
-import { apiOperateur, type Espace } from '../commun/api'
+import { apiOperateur } from '../commun/api'
 import { Lecture } from '../commun/champs'
 import {
   NIVEAUX_DIFFUSION,
@@ -20,18 +20,17 @@ import {
 } from '../commun/libelles'
 
 /**
- * Onglet Diffusion : niveau d'accord et millésimes diffusables en accord partiel (RG-OPE-14) ; au
- * back-office, l'accès aux statistiques du portail (RG-OPE-15), en lecture au portail.
+ * Onglet Diffusion : niveau d'accord et millésimes diffusables en accord partiel (RG-OPE-14) ; pour le
+ * personnel du BNIA, l'accès aux statistiques du portail (RG-OPE-15), en lecture sinon (RG-OPE-36).
  */
 export function OngletDiffusion({
-  espace,
   fiche,
   onEnregistre,
 }: {
-  espace: Espace
   fiche: FicheOperateur
   onEnregistre: () => void
 }) {
+  const gestion = fiche.droits.contacts === 'GESTION'
   const [niveau, setNiveau] = useState<NiveauDiffusion>(fiche.niveauDiffusion)
   const [millesimes, setMillesimes] = useState<number[]>(
     fiche.millesimesDiffusables
@@ -50,10 +49,11 @@ export function OngletDiffusion({
 
   const mutation = useMutation({
     mutationFn: () =>
-      apiOperateur(espace, fiche.id).diffusion(
+      apiOperateur(fiche.id).diffusion(
         niveau,
         niveau === 'PARTIEL' ? millesimes : [],
-        statistiques
+        statistiques,
+        fiche.version
       ),
     meta: { erreurAffichee: true },
     onSuccess: () => {
@@ -139,7 +139,7 @@ export function OngletDiffusion({
             </div>
           </div>
         )}
-        {espace === 'bo' ? (
+        {fiche.droits.personnelBnia && gestion ? (
           <label className='flex items-center gap-2 text-sm'>
             <Switch checked={statistiques} onCheckedChange={setStatistiques} />
             Accès aux statistiques du portail
@@ -150,14 +150,16 @@ export function OngletDiffusion({
             valeur={fiche.accesStatistiques ? 'Oui' : 'Non'}
           />
         )}
-        <div className='flex justify-end'>
-          <Button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-          >
-            Enregistrer
-          </Button>
-        </div>
+        {gestion && (
+          <div className='flex justify-end'>
+            <Button
+              onClick={() => mutation.mutate()}
+              disabled={mutation.isPending}
+            >
+              Enregistrer
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

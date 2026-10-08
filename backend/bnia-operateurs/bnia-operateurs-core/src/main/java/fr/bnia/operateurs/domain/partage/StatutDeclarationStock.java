@@ -25,8 +25,11 @@ public enum StatutDeclarationStock {
         return libelle;
     }
 
-    /** RG-OPE-11 : {@code OUI} pour un producteur ou un négociant, {@code NON} pour {@code AUTRE}. */
+    /**
+     * RG-OPE-11 : {@code OUI} pour un producteur ou un négociant, {@code NON} pour {@code AUTRE} et
+     * {@code BNIA} (RG-OPE-01).
+     */
     public static StatutDeclarationStock parDefaut(TypeOperateur type) {
-        return type == TypeOperateur.AUTRE ? NON : OUI;
+        return type.declare() ? OUI : NON;
     }
 }

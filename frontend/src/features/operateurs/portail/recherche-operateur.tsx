@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
-  rechercherOperateursPortail,
+  rechercherOperateurs,
   type ResultatRechercheOperateur,
 } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -29,7 +29,7 @@ export function RechercheOperateur({
   const { data, isFetching } = useQuery({
     queryKey: ['recherche-operateurs', stable],
     queryFn: () =>
-      rechercherOperateursPortail({
+      rechercherOperateurs({
         query: { texte: stable },
         throwOnError: true,
       }).then((r) => r.data),

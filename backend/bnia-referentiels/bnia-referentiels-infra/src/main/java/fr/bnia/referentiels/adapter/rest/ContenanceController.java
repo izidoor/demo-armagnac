@@ -1,5 +1,6 @@
 package fr.bnia.referentiels.adapter.rest;
 
+import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.referentiels.application.FiltreValeurs;
 import fr.bnia.referentiels.application.GererContenances;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,32 +47,32 @@ class ContenanceController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerContenance", summary = "Créer une contenance (RG-REF-10)")
-    ContenanceResponse creer(@RequestBody SaisieContenanceRequest requete) {
-        return ContenanceResponse.depuis(gerer.creer(requete.volume(), requete.libelle()));
+    ContenanceResponse creer(Connecte connecte, @RequestBody SaisieContenanceRequest requete) {
+        return ContenanceResponse.depuis(gerer.creer(connecte.utilisateur(), requete.volume(), requete.libelle()));
     }
 
     @PutMapping("/{id}")
     @Operation(operationId = "modifierContenance", summary = "Modifier le volume et le libellé (RG-REF-02, RG-REF-10)")
-    ContenanceResponse modifier(@PathVariable long id, @RequestBody SaisieContenanceRequest requete) {
-        return ContenanceResponse.depuis(gerer.modifier(id, requete.volume(), requete.libelle()));
+    ContenanceResponse modifier(Connecte connecte, @PathVariable long id, @RequestBody SaisieContenanceRequest requete) {
+        return ContenanceResponse.depuis(gerer.modifier(connecte.utilisateur(), id, requete.volume(), requete.libelle()));
     }
 
     @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverContenance", summary = "Désactiver une contenance (RG-REF-04)")
-    ContenanceResponse desactiver(@PathVariable long id) {
-        return ContenanceResponse.depuis(gerer.desactiver(id));
+    ContenanceResponse desactiver(Connecte connecte, @PathVariable long id) {
+        return ContenanceResponse.depuis(gerer.desactiver(connecte.utilisateur(), id));
     }
 
     @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverContenance", summary = "Réactiver une contenance (RG-REF-04)")
-    ContenanceResponse reactiver(@PathVariable long id) {
-        return ContenanceResponse.depuis(gerer.reactiver(id));
+    ContenanceResponse reactiver(Connecte connecte, @PathVariable long id) {
+        return ContenanceResponse.depuis(gerer.reactiver(connecte.utilisateur(), id));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "supprimerContenance", summary = "Supprimer une contenance qu'aucune autre donnée n'utilise (RG-REF-04)")
-    void supprimer(@PathVariable long id) {
-        gerer.supprimer(id);
+    void supprimer(Connecte connecte, @PathVariable long id) {
+        gerer.supprimer(connecte.utilisateur(), id);
     }
 }

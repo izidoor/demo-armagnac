@@ -1,21 +1,30 @@
 package fr.bnia.operateurs.application;
 
-import fr.bnia.operateurs.domain.ActionContact;
+import fr.bnia.operateurs.domain.ActionJournal;
 import fr.bnia.operateurs.domain.Changement;
+import fr.bnia.operateurs.domain.TypeCible;
 import java.time.Instant;
 import java.util.List;
 
 /**
- * Entrée du journal d'un contact, telle qu'enregistrée (RG-OPE-34). Les valeurs des références sont des
- * libellés.
+ * Entrée du journal des personnes et des accès, telle qu'enregistrée (RG-OPE-34). Acteur et cible sont
+ * copiés : le journal survit à leur suppression. Les valeurs des références sont des libellés.
  *
- * @param auteur « BNIA », « Portail » ou « Mon compte », tant que {@code acces} n'identifie pas la personne
+ * @param acteur    identifiant de l'utilisateur, sans clé étrangère ; {@code null} pour l'application (amorçage, expiration)
+ * @param operateur {@code null} pour une action sur un utilisateur (profil, e-mail, blocage)
  */
 public record LigneJournal(
         Instant date,
-        String auteur,
-        long contact,
-        String nomContact,
-        ActionContact action,
+        Long acteur,
+        String nomActeur,
+        Long operateur,
+        ActionJournal action,
+        TypeCible cible,
+        long idCible,
+        String nomCible,
         List<Changement> changements) {
+
+    public LigneJournal {
+        changements = List.copyOf(changements);
+    }
 }

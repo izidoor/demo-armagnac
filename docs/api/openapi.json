@@ -9,11 +9,47 @@
     "url" : "/"
   } ],
   "tags" : [ {
+    "description" : "Opérateurs : invitations à accéder à l'application",
+    "name" : "invitations"
+  }, {
+    "description" : "Opérateurs : fiche, identité, code, annuaire, journal (§4.3, C.1.1)",
+    "name" : "operateurs"
+  }, {
+    "description" : "Accepter une invitation (lien de l'e-mail)",
+    "name" : "acceptation"
+  }, {
+    "description" : "Opérateurs : contacts, personnes sans compte (§4.3.4, C.1.9)",
+    "name" : "contacts"
+  }, {
+    "description" : "Connexion, double authentification, mots de passe, journal des connexions",
+    "name" : "authentification"
+  }, {
+    "description" : "Référentiel : circuits de distribution (C.10.9.2)",
+    "name" : "circuits-distribution"
+  }, {
+    "description" : "Référentiel : pays (C.10.5)",
+    "name" : "pays"
+  }, {
+    "description" : "Sonde technique",
+    "name" : "systeme"
+  }, {
+    "description" : "Back-office : utilisateurs, blocage par le BNIA",
+    "name" : "utilisateurs"
+  }, {
+    "description" : "Référentiel : régions (C.10.6)",
+    "name" : "regions"
+  }, {
+    "description" : "Référentiel : classes et taux de TVA (C.10.1-2)",
+    "name" : "classes-tva"
+  }, {
+    "description" : "Référentiel : titres (C.10.8.1)",
+    "name" : "titres"
+  }, {
+    "description" : "Opérateurs : membres (rattachements), rôles, suspensions, retraits",
+    "name" : "membres"
+  }, {
     "description" : "Opérateurs : marques, circuits, visites, labels, œnotourisme, médailles",
     "name" : "presentation"
-  }, {
-    "description" : "Opérateurs : fiche, identité, code (§4.3, C.1.1)",
-    "name" : "operateurs"
   }, {
     "description" : "Référentiel : zones commerciales, continents (C.10.4)",
     "name" : "zones-commerciales"
@@ -24,29 +60,11 @@
     "description" : "Référentiel : contenances (C.10.9.4)",
     "name" : "contenances"
   }, {
-    "description" : "Référentiel : circuits de distribution (C.10.9.2)",
-    "name" : "circuits-distribution"
-  }, {
-    "description" : "Référentiel : pays (C.10.5)",
-    "name" : "pays"
-  }, {
-    "description" : "Portail : contacts de l'opérateur (§5.13)",
-    "name" : "portail-contacts"
+    "description" : "Opérateurs : fiches professionnelles des contacts et des membres",
+    "name" : "fiches"
   }, {
     "description" : "Référentiel : types de visite (C.10.8.4)",
     "name" : "types-visite"
-  }, {
-    "description" : "Sonde technique",
-    "name" : "systeme"
-  }, {
-    "description" : "Opérateurs : contacts et droits au portail (§4.3.4, C.1.9)",
-    "name" : "contacts"
-  }, {
-    "description" : "Portail : profil de l'opérateur, recherche d'opérateurs (§5.13)",
-    "name" : "portail-operateur"
-  }, {
-    "description" : "Référentiel : régions (C.10.6)",
-    "name" : "regions"
   }, {
     "description" : "Référentiel : centres d'intérêt (C.10.8.6)",
     "name" : "centres-interet"
@@ -60,16 +78,536 @@
     "description" : "Référentiel : marques (C.10.9.1)",
     "name" : "marques"
   }, {
-    "description" : "Référentiel : classes et taux de TVA (C.10.1-2)",
-    "name" : "classes-tva"
-  }, {
-    "description" : "Référentiel : titres (C.10.8.1)",
-    "name" : "titres"
+    "description" : "Mon compte : profil, e-mail, opérateurs, opérateur actif",
+    "name" : "mon-compte"
   }, {
     "description" : "Référentiel : membres BNIA (C.1.1.1, spec 02)",
     "name" : "membres-bnia"
   } ],
   "paths" : {
+    "/api/authentification/code" : {
+      "post" : {
+        "operationId" : "verifierCode",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieCode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtapeConnexion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le code reçu par e-mail ; ouvre la session, et met le navigateur en confiance si demandé (RG-AUT-03, 05, 06)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/code/renvoi" : {
+      "post" : {
+        "operationId" : "renvoyerCode",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtapeConnexion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un nouveau code, qui invalide le précédent (RG-AUT-05)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/comptes" : {
+      "get" : {
+        "operationId" : "listerEtatsComptes",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "utilisateurs",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/EtatCompte"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Blocage temporaire et dernière connexion de ces utilisateurs ; personnel du BNIA (RG-OPE-53)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/connexion" : {
+      "post" : {
+        "operationId" : "seConnecter",
+        "parameters" : [ {
+          "in" : "cookie",
+          "name" : "BNIA_CONFIANCE",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieConnexion"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtapeConnexion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "E-mail et mot de passe ; un code part par e-mail, sauf sur un navigateur de confiance (RG-AUT-01 à 04, 06)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/deconnexion" : {
+      "post" : {
+        "operationId" : "seDeconnecter",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Fermer la session (RG-AUT-09)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/journal" : {
+      "get" : {
+        "operationId" : "listerConnexions",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "utilisateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "evenement",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "CONNEXION_REUSSIE", "ECHEC_MOT_DE_PASSE", "ECHEC_CODE", "BLOCAGE_DECLENCHE", "CONNEXION_REFUSEE", "DECONNEXION", "MOT_DE_PASSE_DEFINI", "MOT_DE_PASSE_CHANGE", "REINITIALISATION_DEMANDEE", "MOT_DE_PASSE_REINITIALISE", "NAVIGATEUR_DE_CONFIANCE" ]
+          }
+        }, {
+          "description" : "Inclus",
+          "in" : "query",
+          "name" : "du",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "Inclus",
+          "in" : "query",
+          "name" : "au",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneConnexion"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Journal des connexions, filtré ; personnel du BNIA (module Accès, lecture) (RG-AUT-12, 13)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/mes-connexions" : {
+      "get" : {
+        "operationId" : "listerMesConnexions",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneConnexion"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ses propres connexions, « Mon compte » (RG-AUT-13)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/mot-de-passe" : {
+      "put" : {
+        "operationId" : "changerMotDePasse",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieChangementMotDePasse"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Changer son mot de passe, l'actuel exigé (RG-AUT-06, 07)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/mot-de-passe-oublie" : {
+      "post" : {
+        "operationId" : "demanderReinitialisation",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieEmail"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Mot de passe oublié : un lien valable une heure part par e-mail (RG-AUT-08)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/premier-mot-de-passe" : {
+      "post" : {
+        "operationId" : "definirPremierMotDePasse",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieNouveauMotDePasse"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtapeConnexion"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Après l'acceptation d'une invitation : le mot de passe, avec le même jeton ; la session s'ouvre (RG-AUT-15)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/reinitialisation" : {
+      "post" : {
+        "operationId" : "reinitialiserMotDePasse",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieNouveauMotDePasse"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Un nouveau mot de passe, avec le lien reçu ; lève le blocage, ferme les sessions (RG-AUT-06 à 08)",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/authentification/session" : {
+      "get" : {
+        "operationId" : "consulterSession",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatSession"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "État de la session ; pose aussi le cookie du jeton CSRF, à appeler au chargement du front",
+        "tags" : [ "authentification" ]
+      }
+    },
+    "/api/changements-email/confirmation" : {
+      "post" : {
+        "operationId" : "confirmerChangementEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConfirmationEmail"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Confirmer un nouvel e-mail par le lien reçu ; l'identifiant de connexion suit (RG-OPE-48, RG-AUT-10)",
+        "tags" : [ "mon-compte" ]
+      }
+    },
+    "/api/invitations/{jeton}" : {
+      "get" : {
+        "operationId" : "consulterInvitationParJeton",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "jeton",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvitationPublique"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'opérateur, le rôle et l'identité préremplie d'une invitation acceptable (RG-OPE-42)",
+        "tags" : [ "acceptation" ]
+      }
+    },
+    "/api/invitations/{jeton}/acceptation" : {
+      "post" : {
+        "operationId" : "accepterInvitation",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "connecte",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/components/schemas/Connecte"
+          }
+        }, {
+          "in" : "path",
+          "name" : "jeton",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieAcceptation"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Acceptation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Accepter : utilisateur créé ou retrouvé (connecté), fiche, rattachement actif (RG-OPE-29, 30, 42, 49)",
+        "tags" : [ "acceptation" ]
+      }
+    },
+    "/api/moi" : {
+      "get" : {
+        "operationId" : "consulterMoi",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Moi"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'utilisateur connecté, ses rattachements et son opérateur ouvert (RG-OPE-49)",
+        "tags" : [ "mon-compte" ]
+      }
+    },
+    "/api/moi/changement-email" : {
+      "post" : {
+        "operationId" : "demanderChangementEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangementEmail"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Moi"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Demander à changer d'e-mail : un lien de confirmation part au nouvel e-mail (RG-OPE-48)",
+        "tags" : [ "mon-compte" ]
+      }
+    },
+    "/api/moi/operateur-actif" : {
+      "put" : {
+        "operationId" : "choisirOperateurActif",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OperateurActif"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Moi"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Choisir l'opérateur où travailler (RG-OPE-49)",
+        "tags" : [ "mon-compte" ]
+      }
+    },
+    "/api/moi/profil" : {
+      "put" : {
+        "operationId" : "modifierMonProfil",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieProfil"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Moi"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier son titre, son nom et son prénom (RG-OPE-27, 47, 51)",
+        "tags" : [ "mon-compte" ]
+      }
+    },
     "/api/operateurs" : {
       "get" : {
         "operationId" : "listerOperateurs",
@@ -79,7 +617,7 @@
           "required" : false,
           "schema" : {
             "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
           }
         }, {
           "description" : "Contient",
@@ -153,7 +691,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Lister les opérateurs, triés par raison sociale (§4.3.1)",
+        "summary" : "Lister les opérateurs, sauf le BNIA, triés par raison sociale (§4.3.1, RG-OPE-32, 39)",
         "tags" : [ "operateurs" ]
       },
       "post" : {
@@ -180,7 +718,7 @@
             "description" : "Created"
           }
         },
-        "summary" : "Créer un opérateur ; sans code saisi, le code proposé (RG-OPE-01 à 08, 20, 21, 24)",
+        "summary" : "Créer un opérateur ; sans code saisi, le code proposé ; premier ADMIN invité au besoin (RG-OPE-01 à 08, 20, 21, 24, 39, 40)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -193,7 +731,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
           }
         }, {
           "in" : "query",
@@ -297,7 +835,7 @@
           "required" : false,
           "schema" : {
             "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
           }
         }, {
           "in" : "query",
@@ -396,6 +934,36 @@
         "tags" : [ "operateurs" ]
       }
     },
+    "/api/operateurs/recherche" : {
+      "get" : {
+        "operationId" : "rechercherOperateurs",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "texte",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ResultatRechercheOperateur"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)",
+        "tags" : [ "operateurs" ]
+      }
+    },
     "/api/operateurs/{id}" : {
       "delete" : {
         "operationId" : "supprimerOperateur",
@@ -413,7 +981,7 @@
             "description" : "No Content"
           }
         },
-        "summary" : "Supprimer un opérateur que rien ne référence (RG-OPE-25)",
+        "summary" : "Supprimer un opérateur que rien ne référence, avec ses personnes (ADMIN BNIA, RG-OPE-25, 44)",
         "tags" : [ "operateurs" ]
       },
       "get" : {
@@ -439,7 +1007,38 @@
             "description" : "OK"
           }
         },
-        "summary" : "Consulter la fiche d'un opérateur, actif ou non",
+        "summary" : "Consulter la fiche d'un opérateur, actif ou non (RG-OPE-31, 36)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/annuaire" : {
+      "get" : {
+        "operationId" : "consulterAnnuaire",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PersonneAnnuaire"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Contacts, membres et invitations en attente de l'opérateur, en une liste (RG-OPE-52)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -467,7 +1066,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Désactiver un opérateur : consultable, plus proposé ; ses contacts perdent l'accès au portail (RG-OPE-26)",
+        "summary" : "Désactiver un opérateur (ADMIN BNIA) : consultable, plus proposé ; rattachements gelés, invitations annulées (RG-OPE-26)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -543,7 +1142,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier la diffusion des millésimes et l'accès aux statistiques du portail (RG-OPE-14, 15)",
+        "summary" : "Modifier la diffusion des millésimes ; l'accès aux statistiques par le BNIA seul (RG-OPE-14, 15, 36)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -581,7 +1180,66 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier l'identité, type et code compris ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24)",
+        "summary" : "Modifier l'identité complète, réservé au BNIA ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24, 36, 51)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/journal" : {
+      "get" : {
+        "operationId" : "consulterJournalOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneJournal"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Actions sur les personnes et les accès de l'opérateur, du plus récent au plus ancien (RG-OPE-34)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/mes-droits" : {
+      "get" : {
+        "operationId" : "consulterMesDroits",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Droits"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Droits de l'utilisateur connecté sur l'opérateur (RG-OPE-31, 32)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -647,7 +1305,45 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier le déclaratif, la région, les appellations et les alambics (RG-OPE-01, 10 à 13, 21)",
+        "summary" : "Modifier le déclaratif, la région, les appellations et les alambics, réservé au BNIA (RG-OPE-01, 10 à 13, 21, 36)",
+        "tags" : [ "operateurs" ]
+      }
+    },
+    "/api/operateurs/{id}/profil" : {
+      "put" : {
+        "operationId" : "modifierProfilOperateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieProfilOperateur"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheOperateur"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Modifier les champs qu'un opérateur modifie lui-même (RG-OPE-20, 21, 24, 36, 51)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -675,7 +1371,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Réactiver un opérateur (RG-OPE-26)",
+        "summary" : "Réactiver un opérateur (ADMIN BNIA, RG-OPE-26)",
         "tags" : [ "operateurs" ]
       }
     },
@@ -713,7 +1409,54 @@
             "description" : "Created"
           }
         },
-        "summary" : "Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)",
+        "summary" : "Déclarer un contact et sa fiche (RG-OPE-21, 27, 28, 30)",
+        "tags" : [ "contacts" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contacts/avertissements" : {
+      "get" : {
+        "operationId" : "listerAvertissementsContact",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "email",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Contact en cours de modification",
+          "in" : "query",
+          "name" : "sauf",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "E-mail saisi qui est celui d'un membre ou d'une invitation en attente : avertissements non bloquants (RG-OPE-28)",
         "tags" : [ "contacts" ]
       }
     },
@@ -742,7 +1485,7 @@
             "description" : "No Content"
           }
         },
-        "summary" : "Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)",
+        "summary" : "Supprimer un contact et sa fiche ; ses invitations en attente sont annulées (RG-OPE-22, 23, 45)",
         "tags" : [ "contacts" ]
       },
       "get" : {
@@ -776,7 +1519,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Consulter un contact, ses droits et ses désignations",
+        "summary" : "Consulter un contact, sa fiche et ses désignations",
         "tags" : [ "contacts" ]
       },
       "put" : {
@@ -802,7 +1545,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/SaisieContact"
+                "$ref" : "#/components/schemas/SaisieIdentiteContact"
               }
             }
           },
@@ -820,43 +1563,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Modifier un contact (RG-OPE-21, 27, 28, 29, 32)",
-        "tags" : [ "contacts" ]
-      }
-    },
-    "/api/operateurs/{operateur}/contacts/{contact}/desactivation" : {
-      "post" : {
-        "operationId" : "desactiverContact",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Désactiver : retire l'accès et les désignations (RG-OPE-33)",
+        "summary" : "Modifier l'identité et l'e-mail d'un contact (RG-OPE-21, 23, 27, 28, 51)",
         "tags" : [ "contacts" ]
       }
     },
@@ -887,7 +1594,7 @@
                 "schema" : {
                   "type" : "array",
                   "items" : {
-                    "$ref" : "#/components/schemas/LigneJournalContact"
+                    "$ref" : "#/components/schemas/LigneJournal"
                   }
                 }
               }
@@ -899,9 +1606,9 @@
         "tags" : [ "contacts" ]
       }
     },
-    "/api/operateurs/{operateur}/contacts/{contact}/portail" : {
-      "put" : {
-        "operationId" : "modifierDroitsContact",
+    "/api/operateurs/{operateur}/fiches/{fiche}" : {
+      "get" : {
+        "operationId" : "consulterFiche",
         "parameters" : [ {
           "in" : "path",
           "name" : "operateur",
@@ -912,7 +1619,41 @@
           }
         }, {
           "in" : "path",
-          "name" : "contact",
+          "name" : "fiche",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FicheProfessionnelle"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter une fiche professionnelle",
+        "tags" : [ "fiches" ]
+      },
+      "put" : {
+        "operationId" : "modifierFiche",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "fiche",
           "required" : true,
           "schema" : {
             "type" : "integer",
@@ -923,7 +1664,7 @@
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/SaisieDroits"
+                "$ref" : "#/components/schemas/SaisieFiche"
               }
             }
           },
@@ -934,20 +1675,58 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
+                  "$ref" : "#/components/schemas/FicheProfessionnelle"
                 }
               }
             },
             "description" : "OK"
           }
         },
-        "summary" : "Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)",
-        "tags" : [ "contacts" ]
+        "summary" : "Modifier une fiche professionnelle : la sienne, ou par le module Contacts (RG-OPE-21, 33, 46, 51)",
+        "tags" : [ "fiches" ]
       }
     },
-    "/api/operateurs/{operateur}/contacts/{contact}/reactivation" : {
+    "/api/operateurs/{operateur}/invitations" : {
       "post" : {
-        "operationId" : "reactiverContact",
+        "operationId" : "inviter",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieInvitation"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Invitation"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Inviter un contact ou une personne nouvelle ; le lien part par e-mail (RG-OPE-28, 29, 40)",
+        "tags" : [ "invitations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/invitations/{invitation}" : {
+      "get" : {
+        "operationId" : "consulterInvitation",
         "parameters" : [ {
           "in" : "path",
           "name" : "operateur",
@@ -958,7 +1737,7 @@
           }
         }, {
           "in" : "path",
-          "name" : "contact",
+          "name" : "invitation",
           "required" : true,
           "schema" : {
             "type" : "integer",
@@ -970,15 +1749,319 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
+                  "$ref" : "#/components/schemas/Invitation"
                 }
               }
             },
             "description" : "OK"
           }
         },
-        "summary" : "Réactiver, sans accès (RG-OPE-33)",
-        "tags" : [ "contacts" ]
+        "summary" : "Consulter une invitation",
+        "tags" : [ "invitations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/invitations/{invitation}/annulation" : {
+      "post" : {
+        "operationId" : "annulerInvitation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "invitation",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Invitation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Annuler une invitation en attente (RG-OPE-41)",
+        "tags" : [ "invitations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/invitations/{invitation}/relance" : {
+      "post" : {
+        "operationId" : "relancerInvitation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "invitation",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Invitation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Relancer : nouveau lien, nouvelle expiration (RG-OPE-41)",
+        "tags" : [ "invitations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/membres/{membre}" : {
+      "get" : {
+        "operationId" : "consulterMembre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "membre",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Membre"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter un membre, sa fiche et ses désignations",
+        "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/membres/{membre}/journal" : {
+      "get" : {
+        "operationId" : "consulterJournalMembre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "membre",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneJournal"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Journal d'un membre, du plus récent au plus ancien (RG-OPE-34)",
+        "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/membres/{membre}/reactivation" : {
+      "post" : {
+        "operationId" : "reactiverMembre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "membre",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Membre"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Réactiver l'accès d'un membre (RG-OPE-43)",
+        "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/membres/{membre}/retrait" : {
+      "post" : {
+        "operationId" : "retirerMembre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "membre",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Retrait"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Retirer l'accès d'un membre, en le gardant ou non comme contact ; au dernier rattachement, l'utilisateur est supprimé (RG-OPE-35, 44)",
+        "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/membres/{membre}/role" : {
+      "put" : {
+        "operationId" : "changerRoleMembre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "membre",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieRole"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Membre"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Changer le rôle d'un membre (RG-OPE-35, 43)",
+        "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/membres/{membre}/suspension" : {
+      "post" : {
+        "operationId" : "suspendreMembre",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "membre",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Membre"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Suspendre l'accès d'un membre à cet opérateur (RG-OPE-35, 43)",
+        "tags" : [ "membres" ]
       }
     },
     "/api/operateurs/{operateur}/presentation" : {
@@ -1043,561 +2126,6 @@
         },
         "summary" : "Remplacer la présentation (RG-OPE-16 à 19, 21)",
         "tags" : [ "presentation" ]
-      }
-    },
-    "/api/portail/operateur-demo" : {
-      "get" : {
-        "operationId" : "consulterOperateurDemoPortail",
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ResultatRechercheOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Opérateur ouvert au portail en attendant le contexte acces ; 404 hors profil demo",
-        "tags" : [ "portail-operateur" ]
-      }
-    },
-    "/api/portail/operateurs/recherche" : {
-      "get" : {
-        "operationId" : "rechercherOperateursPortail",
-        "parameters" : [ {
-          "in" : "query",
-          "name" : "texte",
-          "required" : true,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/ResultatRechercheOperateur"
-                  }
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)",
-        "tags" : [ "portail-operateur" ]
-      }
-    },
-    "/api/portail/operateurs/{id}/designations" : {
-      "put" : {
-        "operationId" : "designerContactsPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieDesignations"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FicheOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24, 36)",
-        "tags" : [ "portail-operateur" ]
-      }
-    },
-    "/api/portail/operateurs/{id}/diffusion" : {
-      "put" : {
-        "operationId" : "modifierDiffusionPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieDiffusionPortail"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FicheOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Modifier la diffusion des millésimes (RG-OPE-14, 36)",
-        "tags" : [ "portail-operateur" ]
-      }
-    },
-    "/api/portail/operateurs/{id}/presentation" : {
-      "get" : {
-        "operationId" : "consulterPresentationPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PresentationOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Consulter la présentation de l'opérateur",
-        "tags" : [ "portail-operateur" ]
-      },
-      "put" : {
-        "operationId" : "modifierPresentationPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/PresentationOperateur"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/PresentationOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Remplacer la présentation (RG-OPE-16 à 19, 21, 35)",
-        "tags" : [ "portail-operateur" ]
-      }
-    },
-    "/api/portail/operateurs/{id}/profil" : {
-      "get" : {
-        "operationId" : "consulterProfilPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FicheOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "« Mon entreprise » : la fiche, sans le commentaire interne (RG-OPE-35, 36)",
-        "tags" : [ "portail-operateur" ]
-      },
-      "put" : {
-        "operationId" : "modifierProfilPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieProfilPortail"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/FicheOperateur"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Modifier les champs ouverts au portail (RG-OPE-20, 21, 24, 35, 36)",
-        "tags" : [ "portail-operateur" ]
-      }
-    },
-    "/api/portail/operateurs/{operateur}/contacts" : {
-      "post" : {
-        "operationId" : "creerContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieContact"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "201" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "Created"
-          }
-        },
-        "summary" : "Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)",
-        "tags" : [ "portail-contacts" ]
-      }
-    },
-    "/api/portail/operateurs/{operateur}/contacts/{contact}" : {
-      "delete" : {
-        "operationId" : "supprimerContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "204" : {
-            "description" : "No Content"
-          }
-        },
-        "summary" : "Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)",
-        "tags" : [ "portail-contacts" ]
-      },
-      "get" : {
-        "operationId" : "consulterContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Consulter un contact, ses droits et ses désignations",
-        "tags" : [ "portail-contacts" ]
-      },
-      "put" : {
-        "operationId" : "modifierContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieContact"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Modifier un contact (RG-OPE-21, 27, 28, 29, 32)",
-        "tags" : [ "portail-contacts" ]
-      }
-    },
-    "/api/portail/operateurs/{operateur}/contacts/{contact}/desactivation" : {
-      "post" : {
-        "operationId" : "desactiverContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Désactiver : retire l'accès et les désignations (RG-OPE-33)",
-        "tags" : [ "portail-contacts" ]
-      }
-    },
-    "/api/portail/operateurs/{operateur}/contacts/{contact}/journal" : {
-      "get" : {
-        "operationId" : "consulterJournalContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/LigneJournalContact"
-                  }
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)",
-        "tags" : [ "portail-contacts" ]
-      }
-    },
-    "/api/portail/operateurs/{operateur}/contacts/{contact}/portail" : {
-      "put" : {
-        "operationId" : "modifierDroitsContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieDroits"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)",
-        "tags" : [ "portail-contacts" ]
-      }
-    },
-    "/api/portail/operateurs/{operateur}/contacts/{contact}/reactivation" : {
-      "post" : {
-        "operationId" : "reactiverContactPortail",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "contact",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Contact"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Réactiver, sans accès (RG-OPE-33)",
-        "tags" : [ "portail-contacts" ]
       }
     },
     "/api/referentiels/centres-interet" : {
@@ -3011,6 +3539,44 @@
           }
         },
         "summary" : "Créer une valeur (RG-REF-01, RG-REF-03)",
+        "tags" : [ "marques" ]
+      }
+    },
+    "/api/referentiels/marques/fiche/{operateur}" : {
+      "post" : {
+        "operationId" : "creerMarqueDepuisFiche",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieValeurSimple"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValeurSimple"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Créer une marque depuis la fiche d'un opérateur, par qui gère ses contacts (RG-REF-14, RG-REF-15)",
         "tags" : [ "marques" ]
       }
     },
@@ -4636,10 +5202,166 @@
         "summary" : "Version de l'application et de la base",
         "tags" : [ "systeme" ]
       }
+    },
+    "/api/utilisateurs" : {
+      "get" : {
+        "operationId" : "listerUtilisateurs",
+        "parameters" : [ {
+          "description" : "Contenu dans le nom, le prénom ou l'e-mail",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "statut",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "ACTIF", "BLOQUE" ]
+          }
+        }, {
+          "description" : "Un rattachement à cet opérateur",
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/UtilisateurLigne"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Lister les utilisateurs et leurs rattachements (RG-OPE-32, 53)",
+        "tags" : [ "utilisateurs" ]
+      }
+    },
+    "/api/utilisateurs/{id}" : {
+      "get" : {
+        "operationId" : "consulterUtilisateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UtilisateurLigne"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Consulter un utilisateur et ses rattachements (RG-OPE-53)",
+        "tags" : [ "utilisateurs" ]
+      }
+    },
+    "/api/utilisateurs/{id}/blocage" : {
+      "post" : {
+        "operationId" : "bloquerUtilisateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Blocage"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UtilisateurLigne"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Bloquer un utilisateur dans tous les opérateurs, avec un motif ; il est prévenu, et les ADMIN de ses opérateurs (RG-OPE-50)",
+        "tags" : [ "utilisateurs" ]
+      }
+    },
+    "/api/utilisateurs/{id}/deblocage" : {
+      "post" : {
+        "operationId" : "debloquerUtilisateur",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UtilisateurLigne"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Débloquer un utilisateur (RG-OPE-50)",
+        "tags" : [ "utilisateurs" ]
+      }
     }
   },
   "components" : {
     "schemas" : {
+      "Acceptation" : {
+        "type" : "object",
+        "properties" : {
+          "nouveauCompte" : {
+            "type" : "boolean",
+            "description" : "Vrai : le compte vient d'être créé, sans mot de passe ; le poser avec le même jeton (RG-AUT-15)"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "nouveauCompte", "operateur" ]
+      },
       "Alambic" : {
         "type" : "object",
         "properties" : {
@@ -4656,7 +5378,26 @@
         },
         "required" : [ "type" ]
       },
-      "ChangementContact" : {
+      "Blocage" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : "string",
+            "description" : "Conservé au journal, jamais envoyé (RG-OPE-50)"
+          }
+        },
+        "required" : [ "motif" ]
+      },
+      "ChangementEmail" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email" ]
+      },
+      "ChangementJournal" : {
         "type" : "object",
         "properties" : {
           "apres" : {
@@ -4765,59 +5506,49 @@
           }
         }
       },
+      "ConfirmationEmail" : {
+        "type" : "object",
+        "properties" : {
+          "jeton" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "jeton" ]
+      },
+      "Connecte" : {
+        "type" : "object",
+        "properties" : {
+          "utilisateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
       "Contact" : {
         "type" : "object",
-        "description" : "Un contact, ses droits au portail et ses désignations",
+        "description" : "Un contact, sa fiche professionnelle et ses désignations",
         "properties" : {
-          "acces" : {
-            "type" : "boolean"
-          },
-          "actif" : {
-            "type" : "boolean"
-          },
-          "administrateur" : {
-            "type" : "boolean"
-          },
-          "adresse" : {
-            "type" : "string"
-          },
-          "centresInteret" : {
-            "type" : "array",
-            "description" : "Identifiants des centres d'intérêt",
-            "items" : {
-              "type" : "integer",
-              "format" : "int64"
-            }
-          },
-          "codePostal" : {
-            "type" : "string"
-          },
           "contactPrincipal" : {
-            "type" : "boolean"
+            "type" : "boolean",
+            "description" : "Tombera à la suppression (RG-OPE-22)"
           },
           "destinataireFactures" : {
-            "type" : "boolean"
+            "type" : "boolean",
+            "description" : "Tombera à la suppression (RG-OPE-23)"
           },
           "email" : {
             "type" : "string"
           },
-          "emailVerrouille" : {
-            "type" : "boolean",
-            "description" : "L'e-mail est l'identifiant d'un compte : seule la personne le change (RG-OPE-32)"
-          },
-          "fonction" : {
-            "type" : "string"
+          "fiche" : {
+            "$ref" : "#/components/schemas/FicheProfessionnelle"
           },
           "id" : {
             "type" : "integer",
             "format" : "int64"
           },
-          "modules" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string",
-              "enum" : [ "DSM", "CONTRATS_ARMAGNAC", "PLURIANNUELS_ARMAGNAC", "PROPOSITIONS_ARMAGNAC", "CONTRATS_VIN", "PLURIANNUELS_VIN", "PROPOSITIONS_VIN", "FINS_DE_TRAVAUX", "BOUTIQUE", "FACTURES", "CERTIFICATS_EXPORT", "STATISTIQUES" ]
-            }
+          "invitationEnAttente" : {
+            "$ref" : "#/components/schemas/Invitation",
+            "description" : "Invitation en attente partie de ce contact (RG-OPE-40)"
           },
           "nom" : {
             "type" : "string"
@@ -4825,21 +5556,11 @@
           "nomComplet" : {
             "type" : "string"
           },
-          "observation" : {
-            "type" : "string"
-          },
-          "pays" : {
+          "operateur" : {
             "type" : "integer",
-            "format" : "int64",
-            "description" : "Identifiant du pays"
+            "format" : "int64"
           },
           "prenom" : {
-            "type" : "string"
-          },
-          "telephoneProfessionnel" : {
-            "type" : "string"
-          },
-          "telephoneSecondaire" : {
             "type" : "string"
           },
           "titre" : {
@@ -4847,44 +5568,13 @@
             "format" : "int64",
             "description" : "Identifiant du titre"
           },
-          "ville" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "acces", "actif", "administrateur", "centresInteret", "contactPrincipal", "destinataireFactures", "emailVerrouille", "id", "modules", "nom", "nomComplet" ]
-      },
-      "ContactLigne" : {
-        "type" : "object",
-        "description" : "Ligne de l'onglet Contacts",
-        "properties" : {
-          "acces" : {
-            "type" : "boolean"
-          },
-          "actif" : {
-            "type" : "boolean"
-          },
-          "administrateur" : {
-            "type" : "boolean"
-          },
-          "email" : {
-            "type" : "string"
-          },
-          "fonction" : {
-            "type" : "string"
-          },
-          "id" : {
+          "version" : {
             "type" : "integer",
-            "format" : "int64"
-          },
-          "nomComplet" : {
-            "type" : "string",
-            "example" : "Jeanne Durand"
-          },
-          "telephone" : {
-            "type" : "string"
+            "format" : "int64",
+            "description" : "À renvoyer avec chaque modification (RG-OPE-51)"
           }
         },
-        "required" : [ "acces", "actif", "administrateur", "id", "nomComplet" ]
+        "required" : [ "contactPrincipal", "destinataireFactures", "fiche", "id", "nom", "nomComplet", "operateur", "version" ]
       },
       "Contenance" : {
         "type" : "object",
@@ -4932,9 +5622,100 @@
         },
         "required" : [ "champ", "operateur", "regle" ]
       },
+      "Droits" : {
+        "type" : "object",
+        "description" : "Droits de l'utilisateur connecté sur un opérateur, évalués à l'appel (RG-OPE-31, 32)",
+        "properties" : {
+          "acces" : {
+            "type" : "string",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
+          "adminBnia" : {
+            "type" : "boolean",
+            "description" : "Fin d'un opérateur, blocage (RG-OPE-25, 26, 50)"
+          },
+          "contacts" : {
+            "type" : "string",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "parametrage" : {
+            "type" : "string",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
+          "personnelBnia" : {
+            "type" : "boolean",
+            "description" : "Champs réservés, listing des opérateurs (RG-OPE-32, 36)"
+          },
+          "role" : {
+            "type" : "string",
+            "description" : "Rôle de son rattachement actif dans cet opérateur",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "roleBnia" : {
+            "type" : "string",
+            "description" : "Rôle tenu dans l'opérateur BNIA, valable pour tous les opérateurs",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          }
+        },
+        "required" : [ "acces", "adminBnia", "contacts", "operateur", "parametrage", "personnelBnia" ]
+      },
+      "EtapeConnexion" : {
+        "type" : "object",
+        "properties" : {
+          "etape" : {
+            "type" : "string",
+            "enum" : [ "CODE_REQUIS", "CONNECTE" ]
+          }
+        },
+        "required" : [ "etape" ]
+      },
+      "EtatCompte" : {
+        "type" : "object",
+        "description" : "Blocage temporaire en cours et dernière connexion (RG-OPE-53)",
+        "properties" : {
+          "bloqueJusqua" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "derniereConnexion" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "motDePasseDefini" : {
+            "type" : "boolean"
+          },
+          "utilisateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "motDePasseDefini", "utilisateur" ]
+      },
+      "EtatSession" : {
+        "type" : "object",
+        "properties" : {
+          "codeAttendu" : {
+            "type" : "boolean",
+            "description" : "Mot de passe vérifié, code attendu"
+          },
+          "connecte" : {
+            "type" : "boolean"
+          },
+          "utilisateur" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "L'utilisateur connecté"
+          }
+        },
+        "required" : [ "codeAttendu", "connecte" ]
+      },
       "FicheOperateur" : {
         "type" : "object",
-        "description" : "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)",
+        "description" : "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur",
         "properties" : {
           "accesStatistiques" : {
             "type" : "boolean"
@@ -5003,35 +5784,32 @@
             "description" : "Si le code n'est plus conforme : le code qu'« attribuer un nouveau code » donnerait"
           },
           "commentaireInterne" : {
-            "type" : "string"
+            "type" : "string",
+            "description" : "Visible du seul personnel du BNIA (RG-OPE-36)"
           },
           "contactPrincipal" : {
             "type" : "integer",
             "format" : "int64",
-            "description" : "Identifiant du contact principal (RG-OPE-22)"
-          },
-          "contacts" : {
-            "type" : "array",
-            "description" : "Triés par nom",
-            "items" : {
-              "$ref" : "#/components/schemas/ContactLigne"
-            }
+            "description" : "Fiche professionnelle du contact principal (RG-OPE-22)"
           },
           "cvi" : {
             "type" : "string"
-          },
-          "destinataireFacturesContact" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "Identifiant du contact destinataire des factures (RG-OPE-23)"
           },
           "destinataireFacturesEmail" : {
             "type" : "string",
             "description" : "Adresse saisie du destinataire des factures (RG-OPE-23)"
           },
+          "destinataireFacturesFiche" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fiche professionnelle du destinataire des factures (RG-OPE-23)"
+          },
           "detenteurAlambic" : {
             "type" : "boolean",
             "description" : "Calculé : au moins un alambic (RG-OPE-13)"
+          },
+          "droits" : {
+            "$ref" : "#/components/schemas/Droits"
           },
           "emailFacturation" : {
             "type" : "string",
@@ -5083,7 +5861,7 @@
           },
           "periodicite" : {
             "type" : "string",
-            "description" : "Absente pour un opérateur AUTRE",
+            "description" : "Absente pour un opérateur AUTRE ou BNIA",
             "enum" : [ "MENSUELLE", "TRIMESTRIELLE", "SEMESTRIELLE", "ANNUELLE" ]
           },
           "periodiciteParDefaut" : {
@@ -5128,13 +5906,85 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "À renvoyer avec chaque modification (RG-OPE-51)"
           },
           "ville" : {
             "type" : "string"
           }
         },
-        "required" : [ "accesStatistiques", "accordDiffusionGeneral", "actif", "alambics", "appellations", "autresDuGroupe", "champsManquants", "code", "codeConforme", "contacts", "detenteurAlambic", "id", "millesimesDiffusables", "niveauDiffusion", "raisonSociale", "statutDeclarationStock", "type" ]
+        "required" : [ "accesStatistiques", "accordDiffusionGeneral", "actif", "alambics", "appellations", "autresDuGroupe", "champsManquants", "code", "codeConforme", "detenteurAlambic", "droits", "id", "millesimesDiffusables", "niveauDiffusion", "raisonSociale", "statutDeclarationStock", "type", "version" ]
+      },
+      "FicheProfessionnelle" : {
+        "type" : "object",
+        "description" : "Informations d'une personne dans un opérateur, propriété de l'opérateur (spec 02 §3.2.3)",
+        "properties" : {
+          "adresse" : {
+            "type" : "string"
+          },
+          "centresInteret" : {
+            "type" : "array",
+            "description" : "Identifiants des centres d'intérêt",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "fonction" : {
+            "type" : "string",
+            "example" : "Maître de chai"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modifieeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "modifieePar" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur de la dernière modification (RG-OPE-46)"
+          },
+          "observation" : {
+            "type" : "string"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pays" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du pays"
+          },
+          "telephoneProfessionnel" : {
+            "type" : "string"
+          },
+          "telephoneSecondaire" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "CONTACT", "RATTACHEMENT" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "À renvoyer avec chaque modification (RG-OPE-51)"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "centresInteret", "id", "operateur", "type", "version" ]
       },
       "InfoSysteme" : {
         "type" : "object",
@@ -5155,6 +6005,105 @@
         },
         "required" : [ "application", "version", "versionBase" ]
       },
+      "Invitation" : {
+        "type" : "object",
+        "description" : "Invitation à accéder à un opérateur (spec 02 §3.2.5) ; le jeton n'est jamais renvoyé",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "envoyeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "envoyeePar" : {
+            "type" : "string"
+          },
+          "expireLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "fiche" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fiche du contact invité ; absente pour une personne nouvelle"
+          },
+          "fonction" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string",
+            "description" : "Personne nouvelle"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Personne nouvelle"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "EN_ATTENTE", "ACCEPTEE", "ANNULEE", "EXPIREE" ]
+          },
+          "telephoneProfessionnel" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Personne nouvelle : identifiant du titre"
+          }
+        },
+        "required" : [ "email", "envoyeeLe", "envoyeePar", "expireLe", "id", "operateur", "role", "statut" ]
+      },
+      "InvitationPublique" : {
+        "type" : "object",
+        "description" : "Ce que montre le lien d'une invitation",
+        "properties" : {
+          "compteExistant" : {
+            "type" : "boolean",
+            "description" : "Vrai : la personne se connecte pour accepter"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "expireLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "nom" : {
+            "type" : "string",
+            "description" : "Prérempli"
+          },
+          "operateur" : {
+            "type" : "string"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Prérempli"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Prérempli : identifiant du titre"
+          }
+        },
+        "required" : [ "compteExistant", "email", "expireLe", "nom", "operateur", "role" ]
+      },
       "LabelObtenu" : {
         "type" : "object",
         "properties" : {
@@ -5169,33 +6118,81 @@
         },
         "required" : [ "label" ]
       },
-      "LigneJournalContact" : {
+      "LigneConnexion" : {
         "type" : "object",
-        "description" : "Entrée du journal d'un contact (RG-OPE-34)",
+        "description" : "Entrée du journal des connexions (RG-AUT-12)",
         "properties" : {
-          "action" : {
-            "type" : "string",
-            "enum" : [ "CREATION", "MODIFICATION", "DESACTIVATION", "REACTIVATION", "SUPPRESSION", "ACCES_ACCORDE", "ACCES_RETIRE", "DROITS_MODIFIES" ]
-          },
-          "auteur" : {
-            "type" : "string",
-            "example" : "BNIA"
-          },
-          "changements" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ChangementContact"
-            }
+          "adresseIp" : {
+            "type" : "string"
           },
           "date" : {
             "type" : "string",
             "format" : "date-time"
           },
-          "nomContact" : {
+          "detail" : {
             "type" : "string"
+          },
+          "evenement" : {
+            "type" : "string",
+            "enum" : [ "CONNEXION_REUSSIE", "ECHEC_MOT_DE_PASSE", "ECHEC_CODE", "BLOCAGE_DECLENCHE", "CONNEXION_REFUSEE", "DECONNEXION", "MOT_DE_PASSE_DEFINI", "MOT_DE_PASSE_CHANGE", "REINITIALISATION_DEMANDEE", "MOT_DE_PASSE_REINITIALISE", "NAVIGATEUR_DE_CONFIANCE" ]
+          },
+          "identifiantSaisi" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "navigateur" : {
+            "type" : "string"
+          },
+          "utilisateur" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         },
-        "required" : [ "action", "auteur", "changements", "date", "nomContact" ]
+        "required" : [ "date", "evenement", "identifiantSaisi", "libelle" ]
+      },
+      "LigneJournal" : {
+        "type" : "object",
+        "description" : "Action sur une personne ou un accès (RG-OPE-34)",
+        "properties" : {
+          "acteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'acteur",
+            "example" : "Anne Lamarque"
+          },
+          "action" : {
+            "type" : "string",
+            "enum" : [ "CONTACT_CREE", "CONTACT_MODIFIE", "CONTACT_SUPPRIME", "FICHE_MODIFIEE", "INVITATION_ENVOYEE", "INVITATION_RELANCEE", "INVITATION_ANNULEE", "INVITATION_EXPIREE", "INVITATION_ACCEPTEE", "ROLE_CHANGE", "ACCES_SUSPENDU", "ACCES_REACTIVE", "ACCES_RETIRE", "PROFIL_MODIFIE", "EMAIL_MODIFIE", "UTILISATEUR_BLOQUE", "UTILISATEUR_DEBLOQUE", "UTILISATEUR_SUPPRIME" ]
+          },
+          "changements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChangementJournal"
+            }
+          },
+          "cible" : {
+            "type" : "string",
+            "enum" : [ "CONTACT", "MEMBRE", "INVITATION", "UTILISATEUR" ]
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "idCible" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Invitation envoyée"
+          },
+          "nomCible" : {
+            "type" : "string",
+            "description" : "Copie du nom de la cible"
+          }
+        },
+        "required" : [ "acteur", "action", "changements", "cible", "date", "idCible", "libelle", "nomCible" ]
       },
       "MarquePresentee" : {
         "type" : "object",
@@ -5238,6 +6235,139 @@
         },
         "required" : [ "concours" ]
       },
+      "Membre" : {
+        "type" : "object",
+        "description" : "Un membre d'un opérateur : son rattachement, son identité lue chez l'utilisateur, sa fiche",
+        "properties" : {
+          "bloqueParBnia" : {
+            "type" : "boolean",
+            "description" : "Bloqué par le BNIA (RG-OPE-50)"
+          },
+          "contactPrincipal" : {
+            "type" : "boolean"
+          },
+          "depuis" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "dernierAdmin" : {
+            "type" : "boolean",
+            "description" : "Dernier ADMIN actif de l'opérateur (RG-OPE-35)"
+          },
+          "destinataireFactures" : {
+            "type" : "boolean"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "fiche" : {
+            "$ref" : "#/components/schemas/FicheProfessionnelle"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du rattachement"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "nomComplet" : {
+            "type" : "string"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "prenom" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "ACTIF", "SUSPENDU" ]
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre ; modifié par la personne seule (RG-OPE-47)"
+          },
+          "utilisateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "bloqueParBnia", "contactPrincipal", "depuis", "dernierAdmin", "destinataireFactures", "email", "fiche", "id", "nom", "nomComplet", "operateur", "prenom", "role", "statut", "utilisateur" ]
+      },
+      "Moi" : {
+        "type" : "object",
+        "description" : "L'utilisateur connecté et ses rattachements (RG-OPE-49)",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "nomComplet" : {
+            "type" : "string"
+          },
+          "nouvelEmail" : {
+            "type" : "string",
+            "description" : "Nouvel e-mail en attente de confirmation (RG-OPE-48)"
+          },
+          "nouvelEmailExpireLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Expiration du lien de confirmation"
+          },
+          "operateurOuvert" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Opérateur où l'application s'ouvre ; absent : l'utilisateur choisit (RG-OPE-49)"
+          },
+          "prenom" : {
+            "type" : "string"
+          },
+          "rattachements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RattachementUtilisateur"
+            }
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "ACTIF", "BLOQUE" ]
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "À renvoyer avec le profil (RG-OPE-51)"
+          }
+        },
+        "required" : [ "email", "id", "nom", "nomComplet", "prenom", "rattachements", "statut", "version" ]
+      },
+      "OperateurActif" : {
+        "type" : "object",
+        "properties" : {
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "operateur" ]
+      },
       "OperateurLigne" : {
         "type" : "object",
         "description" : "Ligne du listing des opérateurs",
@@ -5274,7 +6404,7 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
           },
           "ville" : {
             "type" : "string"
@@ -5354,6 +6484,88 @@
           }
         },
         "required" : [ "actif", "code", "codeIso", "id", "langueCertificat", "libelle", "membreUe", "niveauDetailCertificat", "zoneCommerciale" ]
+      },
+      "PersonneAnnuaire" : {
+        "type" : "object",
+        "description" : "Ligne de l'annuaire : contact, membre, ou personne nouvelle invitée (RG-OPE-52)",
+        "properties" : {
+          "bloqueParBnia" : {
+            "type" : "boolean",
+            "description" : "Membre bloqué par le BNIA (RG-OPE-50)"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "fiche" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fiche professionnelle ; absente pour une invitation"
+          },
+          "fonction" : {
+            "type" : "string"
+          },
+          "genre" : {
+            "type" : "string",
+            "enum" : [ "CONTACT", "MEMBRE", "INVITATION" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Contact, rattachement ou invitation, selon le genre"
+          },
+          "invitationEnAttente" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Invitation en attente (« invitation envoyée »)"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "nomComplet" : {
+            "type" : "string"
+          },
+          "prenom" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "description" : "Rôle du membre, ou rôle proposé par l'invitation",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "description" : "Membre : ACTIF ou SUSPENDU (« accès suspendu »)",
+            "enum" : [ "ACTIF", "SUSPENDU" ]
+          },
+          "telephoneProfessionnel" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          }
+        },
+        "required" : [ "bloqueParBnia", "genre", "id", "nom", "nomComplet" ]
+      },
+      "PremierAdmin" : {
+        "type" : "object",
+        "description" : "Personne invitée comme premier ADMIN de l'opérateur créé",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "example" : "marc.lafitte@exemple.fr"
+          },
+          "nom" : {
+            "type" : "string",
+            "example" : "Lafitte"
+          },
+          "prenom" : {
+            "type" : "string",
+            "example" : "Marc"
+          }
+        },
+        "required" : [ "email", "nom", "prenom" ]
       },
       "PresentationOperateur" : {
         "type" : "object",
@@ -5448,6 +6660,47 @@
         },
         "required" : [ "accueilGroupes", "adhesionOenotourisme", "cartes", "circuits", "degustationGratuite", "labels", "langues", "lieuDeVente", "marques", "medailles", "paiementCarte", "produitsCommercialises", "visites" ]
       },
+      "RattachementUtilisateur" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "operateurEnActivite" : {
+            "type" : "boolean",
+            "description" : "Faux : opérateur désactivé, rattachement gelé (RG-OPE-26)"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "ACTIF", "SUSPENDU" ]
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "BNIA : back-office ; autre : portail (RG-OPE-49)",
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          },
+          "utilisable" : {
+            "type" : "boolean",
+            "description" : "Rattachement actif dans un opérateur actif"
+          }
+        },
+        "required" : [ "code", "id", "operateur", "operateurEnActivite", "raisonSociale", "role", "statut", "type", "utilisable" ]
+      },
       "Region" : {
         "type" : "object",
         "properties" : {
@@ -5496,6 +6749,36 @@
         },
         "required" : [ "code", "id", "raisonSociale" ]
       },
+      "Retrait" : {
+        "type" : "object",
+        "description" : "Retrait de l'accès d'un membre (RG-OPE-44)",
+        "properties" : {
+          "conserverContact" : {
+            "type" : "boolean",
+            "description" : "Conserver cette personne dans les contacts"
+          }
+        },
+        "required" : [ "conserverContact" ]
+      },
+      "SaisieAcceptation" : {
+        "type" : "object",
+        "description" : "Identité confirmée par une personne nouvelle (RG-OPE-42)",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "description" : "Obligatoire pour une personne nouvelle"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Obligatoire pour une personne nouvelle"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          }
+        }
+      },
       "SaisieAlambic" : {
         "type" : "object",
         "properties" : {
@@ -5513,9 +6796,49 @@
         },
         "required" : [ "type" ]
       },
+      "SaisieChangementMotDePasse" : {
+        "type" : "object",
+        "properties" : {
+          "actuel" : {
+            "type" : "string"
+          },
+          "nouveau" : {
+            "type" : "string",
+            "description" : "Douze caractères au moins (RG-AUT-07)"
+          }
+        },
+        "required" : [ "actuel", "nouveau" ]
+      },
+      "SaisieCode" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "example" : "000000"
+          },
+          "faireConfiance" : {
+            "type" : "boolean",
+            "description" : "Faire confiance à ce navigateur 30 jours (RG-AUT-06)"
+          }
+        },
+        "required" : [ "code", "faireConfiance" ]
+      },
+      "SaisieConnexion" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "example" : "anne.lamarque@bnia.example"
+          },
+          "motDePasse" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "motDePasse" ]
+      },
       "SaisieContact" : {
         "type" : "object",
-        "description" : "Création ou modification d'un contact (C.1.9.1)",
+        "description" : "Déclaration d'un contact et de sa fiche professionnelle (vision UC-10, C.1.9.1)",
         "properties" : {
           "adresse" : {
             "type" : "string"
@@ -5534,16 +6857,16 @@
           },
           "email" : {
             "type" : "string",
-            "description" : "Unique dans l'opérateur (RG-OPE-28) ; non modifiable s'il est l'identifiant d'un compte (RG-OPE-32)",
-            "example" : "jeanne.durand@exemple.fr"
+            "description" : "Unique parmi les contacts de l'opérateur (RG-OPE-28)",
+            "example" : "paul.petit@exemple.fr"
           },
           "fonction" : {
             "type" : "string",
-            "example" : "Comptable"
+            "example" : "Maître de chai"
           },
           "nom" : {
             "type" : "string",
-            "example" : "Durand"
+            "example" : "Petit"
           },
           "observation" : {
             "type" : "string"
@@ -5555,7 +6878,7 @@
           },
           "prenom" : {
             "type" : "string",
-            "example" : "Jeanne"
+            "example" : "Paul"
           },
           "telephoneProfessionnel" : {
             "type" : "string"
@@ -5597,16 +6920,21 @@
           "contactPrincipal" : {
             "type" : "integer",
             "format" : "int64",
-            "description" : "Identifiant d'un contact actif ; absent : aucun"
-          },
-          "destinataireFacturesContact" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "Identifiant d'un contact actif avec un e-mail"
+            "description" : "Fiche professionnelle d'une personne de l'annuaire ; absent : aucun"
           },
           "destinataireFacturesEmail" : {
             "type" : "string",
-            "description" : "Adresse saisie, si le destinataire n'est pas un contact"
+            "description" : "Adresse saisie, si le destinataire n'est pas une personne de l'annuaire"
+          },
+          "destinataireFacturesFiche" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fiche professionnelle d'une personne de l'annuaire qui a un e-mail"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version de l'opérateur lue (RG-OPE-51)"
           }
         }
       },
@@ -5616,7 +6944,7 @@
         "properties" : {
           "accesStatistiques" : {
             "type" : "boolean",
-            "description" : "RG-OPE-15"
+            "description" : "RG-OPE-15 ; fixé par le BNIA : un autre rôle renvoie la valeur actuelle (RG-OPE-36)"
           },
           "millesimes" : {
             "type" : "array",
@@ -5630,52 +6958,152 @@
           "niveau" : {
             "type" : "string",
             "enum" : [ "REFUS", "PARTIEL", "TOTAL" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (RG-OPE-51)"
           }
         },
         "required" : [ "accesStatistiques", "niveau" ]
       },
-      "SaisieDiffusionPortail" : {
+      "SaisieEmail" : {
         "type" : "object",
-        "description" : "Diffusion des millésimes, au portail ; l'accès aux statistiques reste fixé par le BNIA (RG-OPE-36)",
         "properties" : {
-          "millesimes" : {
+          "email" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "email" ]
+      },
+      "SaisieFiche" : {
+        "type" : "object",
+        "description" : "Modification d'une fiche professionnelle (RG-OPE-46)",
+        "properties" : {
+          "adresse" : {
+            "type" : "string"
+          },
+          "centresInteret" : {
             "type" : "array",
-            "description" : "En accord partiel : au moins un, sans doublon (RG-OPE-14)",
+            "description" : "Identifiants des centres d'intérêt",
             "items" : {
               "type" : "integer",
-              "format" : "int32"
-            }
-          },
-          "niveau" : {
-            "type" : "string",
-            "enum" : [ "REFUS", "PARTIEL", "TOTAL" ]
-          }
-        },
-        "required" : [ "niveau" ]
-      },
-      "SaisieDroits" : {
-        "type" : "object",
-        "description" : "Droits d'un contact au portail (C.1.9.2)",
-        "properties" : {
-          "acces" : {
-            "type" : "boolean",
-            "description" : "Exige un e-mail (RG-OPE-29)"
-          },
-          "administrateur" : {
-            "type" : "boolean",
-            "description" : "Exige l'accès ; donne tous les modules (RG-OPE-30)"
-          },
-          "modules" : {
-            "type" : "array",
-            "description" : "Ignorés sans accès (RG-OPE-31)",
-            "items" : {
-              "type" : "string",
-              "enum" : [ "DSM", "CONTRATS_ARMAGNAC", "PLURIANNUELS_ARMAGNAC", "PROPOSITIONS_ARMAGNAC", "CONTRATS_VIN", "PLURIANNUELS_VIN", "PROPOSITIONS_VIN", "FINS_DE_TRAVAUX", "BOUTIQUE", "FACTURES", "CERTIFICATS_EXPORT", "STATISTIQUES" ]
+              "format" : "int64"
             },
             "uniqueItems" : true
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "fonction" : {
+            "type" : "string",
+            "example" : "Maître de chai"
+          },
+          "observation" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du pays"
+          },
+          "telephoneProfessionnel" : {
+            "type" : "string"
+          },
+          "telephoneSecondaire" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (RG-OPE-51)"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SaisieIdentiteContact" : {
+        "type" : "object",
+        "description" : "Identité et e-mail d'un contact (vision UC-11) ; sa fiche se modifie à part",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "description" : "Unique parmi les contacts de l'opérateur (RG-OPE-28)"
+          },
+          "nom" : {
+            "type" : "string",
+            "example" : "Petit"
+          },
+          "prenom" : {
+            "type" : "string",
+            "example" : "Paul"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (RG-OPE-51)"
           }
         },
-        "required" : [ "acces", "administrateur" ]
+        "required" : [ "nom" ]
+      },
+      "SaisieInvitation" : {
+        "type" : "object",
+        "description" : "Depuis un contact, ou une personne nouvelle (RG-OPE-40)",
+        "properties" : {
+          "contact" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Contact invité ; absent pour une personne nouvelle"
+          },
+          "email" : {
+            "type" : "string",
+            "example" : "marc.lafitte@exemple.fr"
+          },
+          "fonction" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string",
+            "description" : "Personne nouvelle : obligatoire"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Personne nouvelle : obligatoire"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          },
+          "telephoneProfessionnel" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Personne nouvelle : identifiant du titre"
+          }
+        },
+        "required" : [ "email", "role" ]
+      },
+      "SaisieNouveauMotDePasse" : {
+        "type" : "object",
+        "description" : "Un nouveau mot de passe, avec le jeton du lien reçu",
+        "properties" : {
+          "jeton" : {
+            "type" : "string"
+          },
+          "motDePasse" : {
+            "type" : "string",
+            "description" : "Douze caractères au moins (RG-AUT-07)"
+          }
+        },
+        "required" : [ "jeton", "motDePasse" ]
       },
       "SaisieOperateur" : {
         "type" : "object",
@@ -5711,7 +7139,7 @@
           },
           "commentaireInterne" : {
             "type" : "string",
-            "description" : "Masqué au portail (RG-OPE-36)"
+            "description" : "Visible du seul BNIA (RG-OPE-36)"
           },
           "cvi" : {
             "type" : "string",
@@ -5756,6 +7184,10 @@
           "portable" : {
             "type" : "string"
           },
+          "premierAdmin" : {
+            "$ref" : "#/components/schemas/PremierAdmin",
+            "description" : "À la création seulement : un premier ADMIN à inviter, par un ADMIN du BNIA (RG-OPE-40)"
+          },
           "raisonSociale" : {
             "type" : "string",
             "example" : "Domaine Durand"
@@ -5784,7 +7216,13 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+            "description" : "BNIA ne se choisit pas (RG-OPE-39)",
+            "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue, en modification (RG-OPE-51)"
           },
           "ville" : {
             "type" : "string",
@@ -5856,7 +7294,7 @@
           },
           "periodicite" : {
             "type" : "string",
-            "description" : "Absente pour un opérateur AUTRE, obligatoire sinon (RG-OPE-01, 10)",
+            "description" : "Absente pour un opérateur AUTRE ou BNIA, obligatoire sinon (RG-OPE-01, 10)",
             "enum" : [ "MENSUELLE", "TRIMESTRIELLE", "SEMESTRIELLE", "ANNUELLE" ]
           },
           "region" : {
@@ -5868,13 +7306,41 @@
             "type" : "string",
             "description" : "Jamais OUI pour un opérateur AUTRE (RG-OPE-11)",
             "enum" : [ "OUI", "NON", "SOMMEIL", "CLOTURE" ]
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (RG-OPE-51)"
           }
         },
         "required" : [ "alambics", "appellations", "statutDeclarationStock" ]
       },
-      "SaisieProfilPortail" : {
+      "SaisieProfil" : {
         "type" : "object",
-        "description" : "« Mon entreprise » : les seuls champs modifiables au portail (RG-OPE-36)",
+        "description" : "Titre, nom et prénom, modifiés par la personne seule (RG-OPE-47)",
+        "properties" : {
+          "nom" : {
+            "type" : "string"
+          },
+          "prenom" : {
+            "type" : "string"
+          },
+          "titre" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du titre"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (RG-OPE-51)"
+          }
+        },
+        "required" : [ "nom", "prenom" ]
+      },
+      "SaisieProfilOperateur" : {
+        "type" : "object",
+        "description" : "« Mon entreprise » : les champs qu'un opérateur modifie lui-même, par le module Contacts (RG-OPE-36)",
         "properties" : {
           "accordDiffusionGeneral" : {
             "type" : "boolean"
@@ -5928,6 +7394,11 @@
             "format" : "int64",
             "description" : "Identifiant du titre"
           },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (RG-OPE-51)"
+          },
           "ville" : {
             "type" : "string"
           }
@@ -5951,6 +7422,16 @@
           }
         },
         "required" : [ "code", "enRegionDelimitee", "libelle" ]
+      },
+      "SaisieRole" : {
+        "type" : "object",
+        "properties" : {
+          "role" : {
+            "type" : "string",
+            "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
+          }
+        },
+        "required" : [ "role" ]
       },
       "SaisieTauxTva" : {
         "type" : "object",
@@ -6008,6 +7489,36 @@
           }
         },
         "required" : [ "dateDebut", "taux" ]
+      },
+      "UtilisateurLigne" : {
+        "type" : "object",
+        "description" : "Un utilisateur et ses rattachements (RG-OPE-53)",
+        "properties" : {
+          "email" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "prenom" : {
+            "type" : "string"
+          },
+          "rattachements" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RattachementUtilisateur"
+            }
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "ACTIF", "BLOQUE" ]
+          }
+        },
+        "required" : [ "email", "id", "nom", "prenom", "rattachements", "statut" ]
       },
       "ValeurSimple" : {
         "type" : "object",

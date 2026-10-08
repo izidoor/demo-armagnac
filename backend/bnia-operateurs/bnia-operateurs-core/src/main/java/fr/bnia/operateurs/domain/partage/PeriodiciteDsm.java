@@ -23,12 +23,15 @@ public enum PeriodiciteDsm {
         return libelle;
     }
 
-    /** RG-OPE-10 : annuelle pour un producteur, mensuelle pour un négociant, rien pour {@code AUTRE}. */
+    /**
+     * RG-OPE-10 : annuelle pour un producteur, mensuelle pour un négociant, rien pour {@code AUTRE} et
+     * {@code BNIA} (RG-OPE-01).
+     */
     public static Optional<PeriodiciteDsm> parDefaut(TypeOperateur type) {
         return switch (type) {
             case PRODUCTEUR -> Optional.of(ANNUELLE);
             case NEGOCIANT -> Optional.of(MENSUELLE);
-            case AUTRE -> Optional.empty();
+            case AUTRE, BNIA -> Optional.empty();
         };
     }
 }

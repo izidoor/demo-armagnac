@@ -2,55 +2,76 @@ package fr.bnia.boot.demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import fr.bnia.operateurs.application.GererContacts;
 import fr.bnia.operateurs.application.GererOperateurs;
 import fr.bnia.operateurs.application.GererPresentation;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
-import fr.bnia.operateurs.domain.partage.ContactVue;
+import fr.bnia.operateurs.domain.partage.Acteur;
+import fr.bnia.operateurs.domain.partage.EtatConnexion;
 import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
-import fr.bnia.referentiels.application.partage.ReferentielsLecture;
+import fr.bnia.operateurs.domain.partage.PersonneVue;
+import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.support.AbstractIT;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 
 /**
- * Chargeur de démonstration des opérateurs, sur les référentiels de démonstration : relançable, et
- * conforme à la spec 02 (§7.1).
+ * Chargeurs de démonstration du personnel du BNIA et des opérateurs, sur les référentiels de
+ * démonstration : relançables, et conformes à la spec 02 (§7.1).
  */
 class DemoOperateursIT extends AbstractIT {
 
-    @Autowired GererOperateurs operateurs;
-    @Autowired GererContacts contacts;
+    @Autowired GererOperateurs gerer;
     @Autowired GererPresentation presentation;
-    @Autowired OperateursLecture lecture;
-    @Autowired ReferentielsLecture referentiels;
     @Autowired ApplicationContext contexte;
 
     @Test
-    void charge_les_operateurs_et_peut_etre_relance() {
-        var demoReferentiels = contexte.getAutowireCapableBeanFactory().createBean(DemoReferentiels.class);
-        demoReferentiels.run(new DefaultApplicationArguments());
-        var demo = new DemoOperateurs(operateurs, contacts, presentation, lecture, referentiels);
+    void charge_le_personnel_et_les_operateurs_et_peut_etre_relance() {
+        var fabrique = contexte.getAutowireCapableBeanFactory();
+        var personnel = fabrique.createBean(DemoPersonnelBnia.class);
+        var referentiels = fabrique.createBean(DemoReferentiels.class);
+        var demo = fabrique.createBean(DemoOperateurs.class);
+        for (int i = 0; i < 2; i++) {
+            personnel.run(new DefaultApplicationArguments());
+            referentiels.run(new DefaultApplicationArguments());
+            demo.run(new DefaultApplicationArguments());
+        }
 
-        demo.run(new DefaultApplicationArguments());
-        demo.run(new DefaultApplicationArguments());
+        Acteur anne = new Acteur(DemoPersonnelBnia.anne(operateurs));
+        assertThat(operateurs.droits(anne.utilisateur(), operateurs.operateurBnia()).local()).contains(Role.ADMIN);
 
-        OperateurVue condom = lecture.operateurParCode("000001").orElseThrow();
+        OperateurVue condom = operateurs.operateurParCode("000001").orElseThrow();
         assertThat(condom.niveauDiffusion()).isEqualTo(NiveauDiffusion.PARTIEL);
-        assertThat(lecture.contacts(condom.id())).extracting(ContactVue::nomComplet)
-                .containsExactly("Jeanne Durand", "Paul Petit");
-        assertThat(lecture.contactsAvecAccesParEmail("jeanne.durand@maison-durand.example"))
-                .extracting(ContactVue::operateur)
-                .containsExactlyInAnyOrder(condom.id(), lecture.operateurParCode("000002").orElseThrow().id());
-        assertThat(lecture.operateurParCode("N400001")).isPresent();
-        assertThat(lecture.operateurParCode("000010").orElseThrow().periodicite()).isEmpty();
-        assertThat(lecture.operateurParCode("000013").orElseThrow().actif()).isFalse();
-        assertThat(operateurs.fiche(lecture.operateurParCode("000012").orElseThrow().id()).champsManquants())
+        assertThat(operateurs.personnes(condom.id())).extracting(PersonneVue::nomComplet)
+                .containsExactly("Jeanne Durand", "Sophie Martin", "Paul Petit");
+        long jeanne = operateurs.utilisateurParEmail("jeanne.durand@maison-durand.example").orElseThrow();
+        long eauze = operateurs.operateurParCode("000002").orElseThrow().id();
+        assertThat(operateurs.droits(jeanne, condom.id()).local()).contains(Role.ADMIN);
+        assertThat(operateurs.droits(jeanne, eauze).local()).contains(Role.ADMIN);
+        long pierre = operateurs.utilisateurParEmail("pierre.roy@maison-durand.example").orElseThrow();
+        assertThat(operateurs.etatConnexion(pierre)).isEqualTo(EtatConnexion.AUCUN_ACCES_ACTIF);
+        assertThat(operateurs.utilisateurParEmail("marc.lafitte@distillerie-lafitte.example")).isEmpty();
+
+        assertThat(operateurs.operateurParCode("N400001")).isPresent();
+        assertThat(operateurs.operateurParCode("000010").orElseThrow().periodicite()).isEmpty();
+        assertThat(operateurs.operateurParCode("000013").orElseThrow().actif()).isFalse();
+        assertThat(gerer.fiche(anne, operateurs.operateurParCode("000012").orElseThrow().id()).champsManquants())
                 .contains("adresse", "région");
-        assertThat(operateurs.fiche(condom.id()).champsManquants()).isEmpty();
-        assertThat(presentation.consulter(condom.id()).medailles()).hasSize(2);
+        assertThat(gerer.fiche(anne, condom.id()).champsManquants()).isEmpty();
+        assertThat(presentation.consulter(anne, condom.id()).medailles()).hasSize(2);
+
+        var session = anonyme();
+        session.post().uri("/api/authentification/connexion")
+                .body(Map.of("email", "jeanne.durand@maison-durand.example", "motDePasse", "demo-bnia-2026"))
+                .exchange().expectStatus().isOk();
+        session.post().uri("/api/authentification/code").body(Map.of("code", "000000", "faireConfiance", false))
+                .exchange().expectStatus().isOk();
+        session.get().uri("/api/moi").exchange()
+                .expectBody().jsonPath("$.operateurOuvert").isEqualTo(condom.id());
+        session.get().uri("/api/utilisateurs").exchange().expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
     }
 }

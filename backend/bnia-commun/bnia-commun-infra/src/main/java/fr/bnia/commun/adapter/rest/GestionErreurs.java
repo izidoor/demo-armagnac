@@ -1,8 +1,10 @@
 package fr.bnia.commun.adapter.rest;
 
+import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.ElementUtilise;
+import fr.bnia.commun.domain.ModificationConcurrente;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -22,6 +24,16 @@ class GestionErreurs {
         return probleme(HttpStatus.CONFLICT, "Conflit", exception);
     }
 
+    @ExceptionHandler(ModificationConcurrente.class)
+    ProblemDetail concurrente(ModificationConcurrente exception) {
+        return probleme(HttpStatus.CONFLICT, "Modification concurrente", exception);
+    }
+
+    @ExceptionHandler(AccesRefuse.class)
+    ProblemDetail refuse(AccesRefuse exception) {
+        return probleme(HttpStatus.FORBIDDEN, "Accès refusé", exception);
+    }
+
     @ExceptionHandler(ElementUtilise.class)
     ProblemDetail utilise(ElementUtilise exception) {
         return probleme(HttpStatus.CONFLICT, "Valeur utilisée", exception);
@@ -30,6 +42,13 @@ class GestionErreurs {
     @ExceptionHandler(RegleEnfreinte.class)
     ProblemDetail regleEnfreinte(RegleEnfreinte exception) {
         return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Règle de gestion enfreinte", exception);
+    }
+
+    @ExceptionHandler(NonConnecte.class)
+    ProblemDetail nonConnecte(NonConnecte exception) {
+        ProblemDetail probleme = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+        probleme.setTitle("Non connecté");
+        return probleme;
     }
 
     @ExceptionHandler(ElementIntrouvable.class)

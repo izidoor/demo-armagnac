@@ -3,15 +3,15 @@ package fr.bnia.operateurs.application;
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.RegleEnfreinte;
-import fr.bnia.operateurs.domain.Canal;
 import fr.bnia.operateurs.domain.CircuitPresente;
 import fr.bnia.operateurs.domain.LabelObtenu;
 import fr.bnia.operateurs.domain.MarquePresentee;
 import fr.bnia.operateurs.domain.MedailleConcours;
 import fr.bnia.operateurs.domain.Oenotourisme;
-import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.PresentationOperateur;
 import fr.bnia.operateurs.domain.VisiteProposee;
+import fr.bnia.operateurs.domain.partage.Acteur;
+import fr.bnia.operateurs.domain.partage.Module;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
 import java.util.Collection;
@@ -22,8 +22,8 @@ import java.util.function.LongFunction;
 import java.util.stream.Collectors;
 
 /**
- * Présentation de l'opérateur (§4.3.2.3 à 4.3.2.5 p.19-20, C.1.4 à C.1.7 p.103-104), au back-office et
- * au portail. Une marque absente du référentiel se crée depuis la fiche par l'écran de
+ * Présentation de l'opérateur (§4.3.2.3 à 4.3.2.5 p.19-20, C.1.4 à C.1.7 p.103-104) : module Contacts
+ * (RG-OPE-31, 36). Une marque absente du référentiel se crée depuis la fiche par l'écran de
  * {@code referentiels} (RG-REF-14).
  */
 @UseCase
@@ -32,26 +32,29 @@ public class GererPresentation {
     private final PresentationRepository repository;
     private final OperateurRepository operateurs;
     private final ReferentielsLecture referentiels;
+    private final Habilitations habilitations;
 
     public GererPresentation(PresentationRepository repository, OperateurRepository operateurs,
-            ReferentielsLecture referentiels) {
+            ReferentielsLecture referentiels, Habilitations habilitations) {
         this.repository = repository;
         this.operateurs = operateurs;
         this.referentiels = referentiels;
+        this.habilitations = habilitations;
     }
 
-    /** Vide tant que rien n'a été saisi. */
-    public PresentationOperateur consulter(long operateur) {
-        verifierOperateur(operateur);
-        return repository.parId(operateur).orElseGet(() -> PresentationOperateur.vide(operateur));
+    /** RG-OPE-31 : tout membre la lit ; vide tant que rien n'a été saisi. */
+    public PresentationOperateur consulter(Acteur acteur, long operateur) {
+        habilitations.exigerLecture(acteur, operateur, Module.CONTACTS);
+        return presentation(operateur);
     }
 
-    /** RG-OPE-16 à 19, 21 ; au portail, l'opérateur doit être actif (RG-OPE-35). */
-    public PresentationOperateur modifier(long operateur, SaisiePresentation saisie, Canal canal) {
-        if (canal == Canal.PORTAIL && !operateurs.parId(operateur).map(Operateur::estActif).orElse(true)) {
-            throw new RegleEnfreinte("RG-OPE-35", "L'opérateur est inactif : son espace portail est fermé.");
+    /** RG-OPE-16 à 19, 21, 31, 36 : par le module Contacts ; l'opérateur BNIA n'a pas de présentation (RG-OPE-39). */
+    public PresentationOperateur modifier(Acteur acteur, long operateur, SaisiePresentation saisie) {
+        habilitations.exigerGestion(acteur, operateur, Module.CONTACTS);
+        if (operateur == operateurs.idBnia()) {
+            throw new RegleEnfreinte("RG-OPE-39", "La fiche du BNIA se réduit à l'identité et aux coordonnées.");
         }
-        PresentationOperateur presentation = consulter(operateur);
+        PresentationOperateur presentation = presentation(operateur);
         verifierReferences(saisie, presentation);
         presentation.modifier(
                 liste(saisie.marques()).stream().map(m -> new MarquePresentee(m.portee(), m.marque(), m.diffusableWeb())).toList(),
@@ -99,10 +102,11 @@ public class GererPresentation {
         }
     }
 
-    private void verifierOperateur(long operateur) {
+    private PresentationOperateur presentation(long operateur) {
         if (operateurs.parId(operateur).isEmpty()) {
             throw new ElementIntrouvable("Opérateur " + operateur + " introuvable.");
         }
+        return repository.parId(operateur).orElseGet(() -> PresentationOperateur.vide(operateur));
     }
 
     private static Set<Long> ids(Collection<Long> ids) {

@@ -26,7 +26,7 @@ import {
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
-import { TYPES, type TypeOperateur } from './commun/libelles'
+import { TYPES, TYPES_CHOISIS, type TypeOperateur } from './commun/libelles'
 import { CreationOperateur } from './creation-operateur'
 
 const TOUS = 'tous'
@@ -123,7 +123,7 @@ export function PageOperateurs() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={TOUS}>Tous les types</SelectItem>
-            {Object.entries(TYPES).map(([valeur, libelle]) => (
+            {Object.entries(TYPES_CHOISIS).map(([valeur, libelle]) => (
               <SelectItem key={valeur} value={valeur}>
                 {libelle}
               </SelectItem>

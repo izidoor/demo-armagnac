@@ -16,9 +16,10 @@ import {
 import { Form } from '@/components/ui/form'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
+import { useDroits, useMoi } from '@/features/session/session'
 import { ChampChoix, ChampTexte } from './commun/champs'
 import { AlerteDoublons } from './commun/doublons'
-import { TYPES, type TypeOperateur } from './commun/libelles'
+import { TYPES_CHOISIS, type TypeOperateur } from './commun/libelles'
 import { useListe } from './commun/referentiels'
 import {
   AUCUN,
@@ -36,6 +37,9 @@ const schema = z.object({
   pays: z.string(),
   raisonSociale: z.string().trim().min(1, 'La raison sociale est obligatoire.'),
   code: z.string(),
+  adminEmail: z.string(),
+  adminNom: z.string(),
+  adminPrenom: z.string(),
 })
 
 type Saisie = z.infer<typeof schema>
@@ -47,6 +51,9 @@ const VIDE: Saisie = {
   pays: AUCUN,
   raisonSociale: '',
   code: '',
+  adminEmail: '',
+  adminNom: '',
+  adminPrenom: '',
 }
 
 type CreationOperateurProps = {
@@ -58,7 +65,8 @@ type CreationOperateurProps = {
 /**
  * Création (spec 02, §6.1) : le type d'abord, puis le code postal ; le code proposé se remplit
  * (RG-OPE-03) et reste modifiable. Les doublons de raison sociale sont signalés sans bloquer (RG-OPE-08).
- * Le reste de la fiche se complète ensuite.
+ * Le reste de la fiche se complète ensuite. Un ADMIN du BNIA peut inviter le premier ADMIN de
+ * l'opérateur (RG-OPE-40).
  */
 export function CreationOperateur({
   ouvert,
@@ -67,6 +75,8 @@ export function CreationOperateur({
 }: CreationOperateurProps) {
   const queryClient = useQueryClient()
   const pays = useListe('pays')
+  const { actif } = useMoi()
+  const adminBnia = useDroits(actif?.operateur ?? 0)?.adminBnia ?? false
   const form = useForm<Saisie>({
     resolver: zodResolver(schema),
     defaultValues: VIDE,
@@ -114,6 +124,13 @@ export function CreationOperateur({
           ville: texte(s.ville),
           pays: identifiant(s.pays),
           accordDiffusionGeneral: false,
+          premierAdmin: s.adminEmail.trim()
+            ? {
+                email: s.adminEmail.trim(),
+                nom: s.adminNom.trim(),
+                prenom: s.adminPrenom.trim(),
+              }
+            : undefined,
         },
         throwOnError: true,
       }),
@@ -127,6 +144,7 @@ export function CreationOperateur({
       afficherErreur(form, error, {
         'RG-OPE-02': 'raisonSociale',
         'RG-OPE-04': 'code',
+        'RG-OPE-40': 'adminEmail',
       }),
   })
 
@@ -153,7 +171,7 @@ export function CreationOperateur({
               control={form.control}
               name='type'
               label='Type'
-              options={optionsListe(TYPES)}
+              options={optionsListe(TYPES_CHOISIS)}
             />
             <ChampTexte
               control={form.control}
@@ -189,6 +207,30 @@ export function CreationOperateur({
                 }
               />
             </div>
+            {adminBnia && (
+              <fieldset className='col-span-2 grid grid-cols-2 gap-4 rounded-md border p-3'>
+                <legend className='px-1 text-sm font-medium'>
+                  Inviter un premier ADMIN (facultatif)
+                </legend>
+                <ChampTexte
+                  control={form.control}
+                  name='adminPrenom'
+                  label='Prénom'
+                />
+                <ChampTexte
+                  control={form.control}
+                  name='adminNom'
+                  label='Nom'
+                />
+                <ChampTexte
+                  control={form.control}
+                  name='adminEmail'
+                  label='E-mail'
+                  className='col-span-2'
+                  description='Un lien valable 7 jours lui sera envoyé.'
+                />
+              </fieldset>
+            )}
           </form>
         </Form>
         <DialogFooter>

@@ -7,7 +7,8 @@ import fr.bnia.referentiels.domain.ZoneCommerciale;
 public class GererZonesCommerciales extends GererValeursSimples<ZoneCommerciale> {
 
     public GererZonesCommerciales(ZoneCommercialeRepository repository,
-            ValeursSimplesLecture<ZoneCommerciale> lecture) {
-        super(repository, lecture, ZoneCommerciale::creer, "zones commerciales");
+            ValeursSimplesLecture<ZoneCommerciale> lecture,
+            ControleParametrage controle) {
+        super(repository, lecture, ZoneCommerciale::creer, "zones commerciales", controle);
     }
 }

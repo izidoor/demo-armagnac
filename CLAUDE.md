@@ -79,8 +79,9 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 Backend, depuis `backend/` :
 - Tests rapides : `./mvnw -q test`
 - Tout, ITs inclus (Docker requis) : `./mvnw -q verify` (réexporte aussi `docs/api/openapi.json`)
-- Dev : `./mvnw -pl bnia-boot spring-boot:run` (profil `dev`, démarre `compose.yaml` au besoin) ;
-  avec les données de démonstration : `-Dspring-boot.run.profiles=dev,demo`
+- Dev : `./mvnw -pl bnia-boot spring-boot:run` (profil `dev`, démarre `compose.yaml` au besoin :
+  PostgreSQL et Mailpit, boîte des e-mails sur http://localhost:8025) ; avec les données de
+  démonstration : `-Dspring-boot.run.profiles=dev,demo` (comptes et code `000000` : `docs/demo.md`)
 
 Front, depuis `frontend/` :
 - Client d'API, après `./mvnw verify` : `pnpm gen:api`
@@ -88,7 +89,7 @@ Front, depuis `frontend/` :
 - Dev : `pnpm dev` (proxy `/api` vers `localhost:8080`)
 
 Seconde instance, depuis un worktree, à côté de celle de l'IDE (base, ports et proxy à part) :
-- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
+- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 BNIA_SMTP_PORT=11025 BNIA_MAILPIT_PORT=18025 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
 - `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`
 
 Racine :

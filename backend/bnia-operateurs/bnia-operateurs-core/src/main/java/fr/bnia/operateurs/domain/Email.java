@@ -6,7 +6,8 @@ import java.util.regex.Pattern;
 
 /**
  * Adresse e-mail : e-mail général de l'opérateur, adresse saisie du destinataire des factures
- * (RG-OPE-24), e-mail d'un contact (RG-OPE-28). Format contrôlé ; comparée sans distinction de casse.
+ * (RG-OPE-24), e-mail d'un contact (RG-OPE-28), d'un utilisateur (RG-OPE-29) ou d'une invitation
+ * (RG-OPE-40). Format contrôlé ; comparée sans distinction de casse.
  */
 public record Email(String valeur) {
 

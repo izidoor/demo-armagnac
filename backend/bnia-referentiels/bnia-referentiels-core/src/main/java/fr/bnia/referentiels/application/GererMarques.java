@@ -20,24 +20,36 @@ public class GererMarques extends GererValeursSimples<Marque> {
     private final MarquesProchesLecture prochesLecture;
 
     public GererMarques(MarqueRepository repository, ValeursSimplesLecture<Marque> lecture,
-            MarquesProchesLecture prochesLecture) {
-        super(repository, lecture, Marque::creer, "marques");
+            MarquesProchesLecture prochesLecture, ControleParametrage controle) {
+        super(repository, lecture, Marque::creer, "marques", controle);
         this.repository = repository;
         this.prochesLecture = prochesLecture;
     }
 
-    /** RG-REF-01, RG-REF-03, RG-REF-14, RG-REF-15. */
+    /** RG-REF-01, RG-REF-03, RG-REF-15 : au paramétrage. */
     @Override
-    public Marque creer(String code, String libelle) {
+    public Marque creer(long acteur, String code, String libelle) {
+        exigerParametrage(acteur);
         verifierLibelleLibre(Libelle.de(libelle), null);
-        return super.creer(code, libelle);
+        return nouvelle(code, libelle);
+    }
+
+    /**
+     * RG-REF-14, 15 : depuis la fiche d'un opérateur, au back-office comme au portail, avec les mêmes
+     * règles ; par qui gère les contacts de cet opérateur.
+     */
+    public Marque creerDepuisFiche(long acteur, long operateur, String code, String libelle) {
+        controle().exigerGestionFiche(acteur, operateur);
+        verifierLibelleLibre(Libelle.de(libelle), null);
+        return nouvelle(code, libelle);
     }
 
     /** RG-REF-01 à 03, RG-REF-15. */
     @Override
-    public Marque modifier(long id, String code, String libelle) {
+    public Marque modifier(long acteur, long id, String code, String libelle) {
+        exigerParametrage(acteur);
         verifierLibelleLibre(Libelle.de(libelle), id);
-        return super.modifier(id, code, libelle);
+        return super.modifier(acteur, id, code, libelle);
     }
 
     /** Marques au libellé proche du texte saisi, pour éviter un doublon (RG-REF-15). */

@@ -11,8 +11,8 @@ public class GererRegions extends GererValeurs<Region> {
 
     private final RegionsLecture lecture;
 
-    public GererRegions(RegionRepository repository, RegionsLecture lecture) {
-        super(repository, "régions");
+    public GererRegions(RegionRepository repository, RegionsLecture lecture, ControleParametrage controle) {
+        super(repository, "régions", controle);
         this.lecture = lecture;
     }
 
@@ -21,12 +21,14 @@ public class GererRegions extends GererValeurs<Region> {
     }
 
     /** RG-REF-01, RG-REF-03. */
-    public Region creer(String code, String libelle, boolean enRegionDelimitee) {
+    public Region creer(long acteur, String code, String libelle, boolean enRegionDelimitee) {
+        exigerParametrage(acteur);
         return enregistrerNouvelle(Region.creer(Code.de(code), Libelle.de(libelle), enRegionDelimitee));
     }
 
     /** RG-REF-01 à 03. */
-    public Region modifier(long id, String code, String libelle, boolean enRegionDelimitee) {
+    public Region modifier(long acteur, long id, String code, String libelle, boolean enRegionDelimitee) {
+        exigerParametrage(acteur);
         Code nouveauCode = Code.de(code);
         Libelle nouveau = Libelle.de(libelle);
         return modifierValeur(id, region -> region.decrire(nouveauCode, nouveau, enRegionDelimitee));

@@ -27,6 +27,8 @@ import org.springframework.stereotype.Repository;
 class JdbcListingOperateurs implements ListingOperateurs, NumerotationLecture {
 
     private static final String TABLE = OperateurJdbc.SCHEMA + ".operateur o";
+    /** RG-OPE-39 : l'opérateur BNIA n'apparaît pas dans le listing des opérateurs. */
+    private static final String SANS_BNIA = "o.type <> 'BNIA'";
     private static final String RESUME = "o.id, o.code, o.raison_sociale, o.ville, o.actif";
 
     private final JdbcClient jdbcClient;
@@ -37,7 +39,7 @@ class JdbcListingOperateurs implements ListingOperateurs, NumerotationLecture {
 
     @Override
     public List<OperateurLigne> lister(FiltreOperateurs filtre) {
-        List<String> conditions = new ArrayList<>();
+        List<String> conditions = new ArrayList<>(List.of(SANS_BNIA));
         Map<String, Object> parametres = new HashMap<>();
         if (filtre.type() != null) {
             conditions.add("o.type = :type");
@@ -59,7 +61,7 @@ class JdbcListingOperateurs implements ListingOperateurs, NumerotationLecture {
         if (filtre.incomplet() != null) {
             conditions.add(filtre.incomplet() ? Sql.INCOMPLET : "not " + Sql.INCOMPLET);
         }
-        String where = conditions.isEmpty() ? "" : " where " + String.join(" and ", conditions);
+        String where = " where " + String.join(" and ", conditions);
         return jdbcClient.sql("select o.id, o.type, o.code, o.raison_sociale, o.nom_commercial, o.code_postal, o.ville,"
                         + " o.telephone1, o.email_general, o.actif, " + Sql.INCOMPLET + " as incomplet from " + TABLE
                         + where + " order by o.raison_sociale, o.code")

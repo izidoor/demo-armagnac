@@ -4,8 +4,42 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanst
 import type { AxiosError } from 'axios';
 
 import { client } from '../client.gen';
-import { ajouterTauxTva, attribuerNouveauCodeOperateur, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContact, consulterContactPortail, consulterContenance, consulterInfoSysteme, consulterJournalContact, consulterJournalContactPortail, consulterLabel, consulterLangue, consulterMarque, consulterMembreBnia, consulterOperateur, consulterOperateurDemoPortail, consulterPays, consulterPresentationOperateur, consulterPresentationPortail, consulterProduitCommercialise, consulterProfilPortail, consulterRegion, consulterTitre, consulterTypeVisite, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContact, creerContactPortail, creerContenance, creerLabel, creerLangue, creerMarque, creerMembreBnia, creerOperateur, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContact, desactiverContactPortail, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverMembreBnia, desactiverOperateur, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, designerContactsOperateur, designerContactsPortail, exporterOperateurs, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerContenances, listerDoublonsOperateur, listerGroupesOperateurs, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerMembresBnia, listerOperateurs, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContact, modifierContactPortail, modifierContenance, modifierDiffusionOperateur, modifierDiffusionPortail, modifierDroitsContact, modifierDroitsContactPortail, modifierIdentiteOperateur, modifierLabel, modifierLangue, modifierMarque, modifierMembreBnia, modifierPays, modifierPresentationOperateur, modifierPresentationPortail, modifierProductionOperateur, modifierProduitCommercialise, modifierProfilPortail, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, proposerCodeOperateur, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContact, reactiverContactPortail, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverMembreBnia, reactiverOperateur, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, rechercherOperateursPortail, retirerTauxTva, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContact, supprimerContactPortail, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerMembreBnia, supprimerOperateur, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale } from '../sdk.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponse, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContactData, ConsulterContactPortailData, ConsulterContactPortailResponse, ConsulterContactResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterJournalContactData, ConsulterJournalContactPortailData, ConsulterJournalContactPortailResponse, ConsulterJournalContactResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterMembreBniaData, ConsulterMembreBniaResponse, ConsulterOperateurData, ConsulterOperateurDemoPortailData, ConsulterOperateurDemoPortailResponse, ConsulterOperateurResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponse, ConsulterPresentationPortailData, ConsulterPresentationPortailResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterProfilPortailData, ConsulterProfilPortailResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContactData, CreerContactPortailData, CreerContactPortailResponse, CreerContactResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueResponse, CreerMembreBniaData, CreerMembreBniaResponse, CreerOperateurData, CreerOperateurResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContactData, DesactiverContactPortailData, DesactiverContactPortailResponse, DesactiverContactResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverMembreBniaData, DesactiverMembreBniaResponse, DesactiverOperateurData, DesactiverOperateurResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, DesignerContactsOperateurData, DesignerContactsOperateurResponse, DesignerContactsPortailData, DesignerContactsPortailResponse, ExporterOperateursData, ExporterOperateursResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerContenancesData, ListerContenancesResponse, ListerDoublonsOperateurData, ListerDoublonsOperateurResponse, ListerGroupesOperateursData, ListerGroupesOperateursResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerMembresBniaData, ListerMembresBniaResponse, ListerOperateursData, ListerOperateursResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContactData, ModifierContactPortailData, ModifierContactPortailResponse, ModifierContactResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponse, ModifierDiffusionPortailData, ModifierDiffusionPortailResponse, ModifierDroitsContactData, ModifierDroitsContactPortailData, ModifierDroitsContactPortailResponse, ModifierDroitsContactResponse, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierMembreBniaData, ModifierMembreBniaResponse, ModifierPaysData, ModifierPaysResponse, ModifierPresentationOperateurData, ModifierPresentationOperateurResponse, ModifierPresentationPortailData, ModifierPresentationPortailResponse, ModifierProductionOperateurData, ModifierProductionOperateurResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierProfilPortailData, ModifierProfilPortailResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ProposerCodeOperateurData, ProposerCodeOperateurResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContactData, ReactiverContactPortailData, ReactiverContactPortailResponse, ReactiverContactResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverMembreBniaData, ReactiverMembreBniaResponse, ReactiverOperateurData, ReactiverOperateurResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RechercherOperateursPortailData, RechercherOperateursPortailResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContactData, SupprimerContactPortailData, SupprimerContactPortailResponse, SupprimerContactResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerMembreBniaData, SupprimerMembreBniaResponse, SupprimerOperateurData, SupprimerOperateurResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse } from '../types.gen';
+import { accepterInvitation, ajouterTauxTva, annulerInvitation, attribuerNouveauCodeOperateur, bloquerUtilisateur, changerMotDePasse, changerRoleMembre, choisirOperateurActif, confirmerChangementEmail, consulterAnnuaire, consulterCentreInteret, consulterCircuitDistribution, consulterClasseTva, consulterContact, consulterContenance, consulterFiche, consulterInfoSysteme, consulterInvitation, consulterInvitationParJeton, consulterJournalContact, consulterJournalMembre, consulterJournalOperateur, consulterLabel, consulterLangue, consulterMarque, consulterMembre, consulterMembreBnia, consulterMesDroits, consulterMoi, consulterOperateur, consulterPays, consulterPresentationOperateur, consulterProduitCommercialise, consulterRegion, consulterSession, consulterTitre, consulterTypeVisite, consulterUtilisateur, consulterZoneCommerciale, creerCentreInteret, creerCircuitDistribution, creerClasseTva, creerContact, creerContenance, creerLabel, creerLangue, creerMarque, creerMarqueDepuisFiche, creerMembreBnia, creerOperateur, creerPays, creerProduitCommercialise, creerRegion, creerTitre, creerTypeVisite, creerZoneCommerciale, debloquerUtilisateur, definirPremierMotDePasse, demanderChangementEmail, demanderReinitialisation, desactiverCentreInteret, desactiverCircuitDistribution, desactiverClasseTva, desactiverContenance, desactiverLabel, desactiverLangue, desactiverMarque, desactiverMembreBnia, desactiverOperateur, desactiverPays, desactiverProduitCommercialise, desactiverRegion, desactiverTitre, desactiverTypeVisite, desactiverZoneCommerciale, designerContactsOperateur, exporterOperateurs, inviter, listerAvertissementsContact, listerCentresInteret, listerCircuitsDistribution, listerClassesTva, listerConnexions, listerContenances, listerDoublonsOperateur, listerEtatsComptes, listerGroupesOperateurs, listerLabels, listerLangues, listerMarques, listerMarquesProches, listerMembresBnia, listerMesConnexions, listerOperateurs, listerPays, listerProduitsCommercialises, listerRegions, listerTitres, listerTypesVisite, listerUtilisateurs, listerZonesCommerciales, modifierCentreInteret, modifierCircuitDistribution, modifierClasseTva, modifierContact, modifierContenance, modifierDiffusionOperateur, modifierFiche, modifierIdentiteOperateur, modifierLabel, modifierLangue, modifierMarque, modifierMembreBnia, modifierMonProfil, modifierPays, modifierPresentationOperateur, modifierProductionOperateur, modifierProduitCommercialise, modifierProfilOperateur, modifierRegion, modifierTauxTva, modifierTitre, modifierTypeVisite, modifierZoneCommerciale, type Options, proposerCodeOperateur, reactiverCentreInteret, reactiverCircuitDistribution, reactiverClasseTva, reactiverContenance, reactiverLabel, reactiverLangue, reactiverMarque, reactiverMembre, reactiverMembreBnia, reactiverOperateur, reactiverPays, reactiverProduitCommercialise, reactiverRegion, reactiverTitre, reactiverTypeVisite, reactiverZoneCommerciale, rechercherOperateurs, reinitialiserMotDePasse, relancerInvitation, renvoyerCode, retirerMembre, retirerTauxTva, seConnecter, seDeconnecter, supprimerCentreInteret, supprimerCircuitDistribution, supprimerClasseTva, supprimerContact, supprimerContenance, supprimerLabel, supprimerLangue, supprimerMarque, supprimerMembreBnia, supprimerOperateur, supprimerPays, supprimerProduitCommercialise, supprimerRegion, supprimerTitre, supprimerTypeVisite, supprimerZoneCommerciale, suspendreMembre, verifierCode } from '../sdk.gen';
+import type { AccepterInvitationData, AccepterInvitationResponse, AjouterTauxTvaData, AjouterTauxTvaResponse, AnnulerInvitationData, AnnulerInvitationResponse, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponse, BloquerUtilisateurData, BloquerUtilisateurResponse, ChangerMotDePasseData, ChangerMotDePasseResponse, ChangerRoleMembreData, ChangerRoleMembreResponse, ChoisirOperateurActifData, ChoisirOperateurActifResponse, ConfirmerChangementEmailData, ConfirmerChangementEmailResponse, ConsulterAnnuaireData, ConsulterAnnuaireResponse, ConsulterCentreInteretData, ConsulterCentreInteretResponse, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponse, ConsulterClasseTvaData, ConsulterClasseTvaResponse, ConsulterContactData, ConsulterContactResponse, ConsulterContenanceData, ConsulterContenanceResponse, ConsulterFicheData, ConsulterFicheResponse, ConsulterInfoSystemeData, ConsulterInfoSystemeResponse, ConsulterInvitationData, ConsulterInvitationParJetonData, ConsulterInvitationParJetonResponse, ConsulterInvitationResponse, ConsulterJournalContactData, ConsulterJournalContactResponse, ConsulterJournalMembreData, ConsulterJournalMembreResponse, ConsulterJournalOperateurData, ConsulterJournalOperateurResponse, ConsulterLabelData, ConsulterLabelResponse, ConsulterLangueData, ConsulterLangueResponse, ConsulterMarqueData, ConsulterMarqueResponse, ConsulterMembreBniaData, ConsulterMembreBniaResponse, ConsulterMembreData, ConsulterMembreResponse, ConsulterMesDroitsData, ConsulterMesDroitsResponse, ConsulterMoiData, ConsulterMoiResponse, ConsulterOperateurData, ConsulterOperateurResponse, ConsulterPaysData, ConsulterPaysResponse, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponse, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponse, ConsulterRegionData, ConsulterRegionResponse, ConsulterSessionData, ConsulterSessionResponse, ConsulterTitreData, ConsulterTitreResponse, ConsulterTypeVisiteData, ConsulterTypeVisiteResponse, ConsulterUtilisateurData, ConsulterUtilisateurResponse, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponse, CreerCentreInteretData, CreerCentreInteretResponse, CreerCircuitDistributionData, CreerCircuitDistributionResponse, CreerClasseTvaData, CreerClasseTvaResponse, CreerContactData, CreerContactResponse, CreerContenanceData, CreerContenanceResponse, CreerLabelData, CreerLabelResponse, CreerLangueData, CreerLangueResponse, CreerMarqueData, CreerMarqueDepuisFicheData, CreerMarqueDepuisFicheResponse, CreerMarqueResponse, CreerMembreBniaData, CreerMembreBniaResponse, CreerOperateurData, CreerOperateurResponse, CreerPaysData, CreerPaysResponse, CreerProduitCommercialiseData, CreerProduitCommercialiseResponse, CreerRegionData, CreerRegionResponse, CreerTitreData, CreerTitreResponse, CreerTypeVisiteData, CreerTypeVisiteResponse, CreerZoneCommercialeData, CreerZoneCommercialeResponse, DebloquerUtilisateurData, DebloquerUtilisateurResponse, DefinirPremierMotDePasseData, DefinirPremierMotDePasseResponse, DemanderChangementEmailData, DemanderChangementEmailResponse, DemanderReinitialisationData, DemanderReinitialisationResponse, DesactiverCentreInteretData, DesactiverCentreInteretResponse, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponse, DesactiverClasseTvaData, DesactiverClasseTvaResponse, DesactiverContenanceData, DesactiverContenanceResponse, DesactiverLabelData, DesactiverLabelResponse, DesactiverLangueData, DesactiverLangueResponse, DesactiverMarqueData, DesactiverMarqueResponse, DesactiverMembreBniaData, DesactiverMembreBniaResponse, DesactiverOperateurData, DesactiverOperateurResponse, DesactiverPaysData, DesactiverPaysResponse, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponse, DesactiverRegionData, DesactiverRegionResponse, DesactiverTitreData, DesactiverTitreResponse, DesactiverTypeVisiteData, DesactiverTypeVisiteResponse, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponse, DesignerContactsOperateurData, DesignerContactsOperateurResponse, ExporterOperateursData, ExporterOperateursResponse, InviterData, InviterResponse, ListerAvertissementsContactData, ListerAvertissementsContactResponse, ListerCentresInteretData, ListerCentresInteretResponse, ListerCircuitsDistributionData, ListerCircuitsDistributionResponse, ListerClassesTvaData, ListerClassesTvaResponse, ListerConnexionsData, ListerConnexionsResponse, ListerContenancesData, ListerContenancesResponse, ListerDoublonsOperateurData, ListerDoublonsOperateurResponse, ListerEtatsComptesData, ListerEtatsComptesResponse, ListerGroupesOperateursData, ListerGroupesOperateursResponse, ListerLabelsData, ListerLabelsResponse, ListerLanguesData, ListerLanguesResponse, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponse, ListerMarquesResponse, ListerMembresBniaData, ListerMembresBniaResponse, ListerMesConnexionsData, ListerMesConnexionsResponse, ListerOperateursData, ListerOperateursResponse, ListerPaysData, ListerPaysResponse, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponse, ListerRegionsData, ListerRegionsResponse, ListerTitresData, ListerTitresResponse, ListerTypesVisiteData, ListerTypesVisiteResponse, ListerUtilisateursData, ListerUtilisateursResponse, ListerZonesCommercialesData, ListerZonesCommercialesResponse, ModifierCentreInteretData, ModifierCentreInteretResponse, ModifierCircuitDistributionData, ModifierCircuitDistributionResponse, ModifierClasseTvaData, ModifierClasseTvaResponse, ModifierContactData, ModifierContactResponse, ModifierContenanceData, ModifierContenanceResponse, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponse, ModifierFicheData, ModifierFicheResponse, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponse, ModifierLabelData, ModifierLabelResponse, ModifierLangueData, ModifierLangueResponse, ModifierMarqueData, ModifierMarqueResponse, ModifierMembreBniaData, ModifierMembreBniaResponse, ModifierMonProfilData, ModifierMonProfilResponse, ModifierPaysData, ModifierPaysResponse, ModifierPresentationOperateurData, ModifierPresentationOperateurResponse, ModifierProductionOperateurData, ModifierProductionOperateurResponse, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponse, ModifierProfilOperateurData, ModifierProfilOperateurResponse, ModifierRegionData, ModifierRegionResponse, ModifierTauxTvaData, ModifierTauxTvaResponse, ModifierTitreData, ModifierTitreResponse, ModifierTypeVisiteData, ModifierTypeVisiteResponse, ModifierZoneCommercialeData, ModifierZoneCommercialeResponse, ProposerCodeOperateurData, ProposerCodeOperateurResponse, ReactiverCentreInteretData, ReactiverCentreInteretResponse, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponse, ReactiverClasseTvaData, ReactiverClasseTvaResponse, ReactiverContenanceData, ReactiverContenanceResponse, ReactiverLabelData, ReactiverLabelResponse, ReactiverLangueData, ReactiverLangueResponse, ReactiverMarqueData, ReactiverMarqueResponse, ReactiverMembreBniaData, ReactiverMembreBniaResponse, ReactiverMembreData, ReactiverMembreResponse, ReactiverOperateurData, ReactiverOperateurResponse, ReactiverPaysData, ReactiverPaysResponse, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponse, ReactiverRegionData, ReactiverRegionResponse, ReactiverTitreData, ReactiverTitreResponse, ReactiverTypeVisiteData, ReactiverTypeVisiteResponse, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponse, RechercherOperateursData, RechercherOperateursResponse, ReinitialiserMotDePasseData, ReinitialiserMotDePasseResponse, RelancerInvitationData, RelancerInvitationResponse, RenvoyerCodeData, RenvoyerCodeResponse, RetirerMembreData, RetirerMembreResponse, RetirerTauxTvaData, RetirerTauxTvaResponse, SeConnecterData, SeConnecterResponse, SeDeconnecterData, SeDeconnecterResponse, SupprimerCentreInteretData, SupprimerCentreInteretResponse, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponse, SupprimerClasseTvaData, SupprimerClasseTvaResponse, SupprimerContactData, SupprimerContactResponse, SupprimerContenanceData, SupprimerContenanceResponse, SupprimerLabelData, SupprimerLabelResponse, SupprimerLangueData, SupprimerLangueResponse, SupprimerMarqueData, SupprimerMarqueResponse, SupprimerMembreBniaData, SupprimerMembreBniaResponse, SupprimerOperateurData, SupprimerOperateurResponse, SupprimerPaysData, SupprimerPaysResponse, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponse, SupprimerRegionData, SupprimerRegionResponse, SupprimerTitreData, SupprimerTitreResponse, SupprimerTypeVisiteData, SupprimerTypeVisiteResponse, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponse, SuspendreMembreData, SuspendreMembreResponse, VerifierCodeData, VerifierCodeResponse } from '../types.gen';
+
+/**
+ * Le code reçu par e-mail ; ouvre la session, et met le navigateur en confiance si demandé (RG-AUT-03, 05, 06)
+ */
+export const verifierCodeMutation = (options?: Partial<Options<VerifierCodeData>>): UseMutationOptions<VerifierCodeResponse, AxiosError<DefaultError>, Options<VerifierCodeData>> => {
+    const mutationOptions: UseMutationOptions<VerifierCodeResponse, AxiosError<DefaultError>, Options<VerifierCodeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await verifierCode({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Un nouveau code, qui invalide le précédent (RG-AUT-05)
+ */
+export const renvoyerCodeMutation = (options?: Partial<Options<RenvoyerCodeData>>): UseMutationOptions<RenvoyerCodeResponse, AxiosError<DefaultError>, Options<RenvoyerCodeData>> => {
+    const mutationOptions: UseMutationOptions<RenvoyerCodeResponse, AxiosError<DefaultError>, Options<RenvoyerCodeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await renvoyerCode({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseURL' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -40,10 +74,305 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     return [params];
 };
 
+export const listerEtatsComptesQueryKey = (options: Options<ListerEtatsComptesData>) => createQueryKey('listerEtatsComptes', options);
+
+/**
+ * Blocage temporaire et dernière connexion de ces utilisateurs ; personnel du BNIA (RG-OPE-53)
+ */
+export const listerEtatsComptesOptions = (options: Options<ListerEtatsComptesData>) => queryOptions<ListerEtatsComptesResponse, AxiosError<DefaultError>, ListerEtatsComptesResponse, ReturnType<typeof listerEtatsComptesQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listerEtatsComptes({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listerEtatsComptesQueryKey(options)
+});
+
+/**
+ * E-mail et mot de passe ; un code part par e-mail, sauf sur un navigateur de confiance (RG-AUT-01 à 04, 06)
+ */
+export const seConnecterMutation = (options?: Partial<Options<SeConnecterData>>): UseMutationOptions<SeConnecterResponse, AxiosError<DefaultError>, Options<SeConnecterData>> => {
+    const mutationOptions: UseMutationOptions<SeConnecterResponse, AxiosError<DefaultError>, Options<SeConnecterData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await seConnecter({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Fermer la session (RG-AUT-09)
+ */
+export const seDeconnecterMutation = (options?: Partial<Options<SeDeconnecterData>>): UseMutationOptions<SeDeconnecterResponse, AxiosError<DefaultError>, Options<SeDeconnecterData>> => {
+    const mutationOptions: UseMutationOptions<SeDeconnecterResponse, AxiosError<DefaultError>, Options<SeDeconnecterData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await seDeconnecter({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const listerConnexionsQueryKey = (options?: Options<ListerConnexionsData>) => createQueryKey('listerConnexions', options);
+
+/**
+ * Journal des connexions, filtré ; personnel du BNIA (module Accès, lecture) (RG-AUT-12, 13)
+ */
+export const listerConnexionsOptions = (options?: Options<ListerConnexionsData>) => queryOptions<ListerConnexionsResponse, AxiosError<DefaultError>, ListerConnexionsResponse, ReturnType<typeof listerConnexionsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listerConnexions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listerConnexionsQueryKey(options)
+});
+
+export const listerMesConnexionsQueryKey = (options?: Options<ListerMesConnexionsData>) => createQueryKey('listerMesConnexions', options);
+
+/**
+ * Ses propres connexions, « Mon compte » (RG-AUT-13)
+ */
+export const listerMesConnexionsOptions = (options?: Options<ListerMesConnexionsData>) => queryOptions<ListerMesConnexionsResponse, AxiosError<DefaultError>, ListerMesConnexionsResponse, ReturnType<typeof listerMesConnexionsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listerMesConnexions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listerMesConnexionsQueryKey(options)
+});
+
+/**
+ * Changer son mot de passe, l'actuel exigé (RG-AUT-06, 07)
+ */
+export const changerMotDePasseMutation = (options?: Partial<Options<ChangerMotDePasseData>>): UseMutationOptions<ChangerMotDePasseResponse, AxiosError<DefaultError>, Options<ChangerMotDePasseData>> => {
+    const mutationOptions: UseMutationOptions<ChangerMotDePasseResponse, AxiosError<DefaultError>, Options<ChangerMotDePasseData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await changerMotDePasse({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Mot de passe oublié : un lien valable une heure part par e-mail (RG-AUT-08)
+ */
+export const demanderReinitialisationMutation = (options?: Partial<Options<DemanderReinitialisationData>>): UseMutationOptions<DemanderReinitialisationResponse, AxiosError<DefaultError>, Options<DemanderReinitialisationData>> => {
+    const mutationOptions: UseMutationOptions<DemanderReinitialisationResponse, AxiosError<DefaultError>, Options<DemanderReinitialisationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await demanderReinitialisation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Après l'acceptation d'une invitation : le mot de passe, avec le même jeton ; la session s'ouvre (RG-AUT-15)
+ */
+export const definirPremierMotDePasseMutation = (options?: Partial<Options<DefinirPremierMotDePasseData>>): UseMutationOptions<DefinirPremierMotDePasseResponse, AxiosError<DefaultError>, Options<DefinirPremierMotDePasseData>> => {
+    const mutationOptions: UseMutationOptions<DefinirPremierMotDePasseResponse, AxiosError<DefaultError>, Options<DefinirPremierMotDePasseData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await definirPremierMotDePasse({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Un nouveau mot de passe, avec le lien reçu ; lève le blocage, ferme les sessions (RG-AUT-06 à 08)
+ */
+export const reinitialiserMotDePasseMutation = (options?: Partial<Options<ReinitialiserMotDePasseData>>): UseMutationOptions<ReinitialiserMotDePasseResponse, AxiosError<DefaultError>, Options<ReinitialiserMotDePasseData>> => {
+    const mutationOptions: UseMutationOptions<ReinitialiserMotDePasseResponse, AxiosError<DefaultError>, Options<ReinitialiserMotDePasseData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await reinitialiserMotDePasse({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterSessionQueryKey = (options?: Options<ConsulterSessionData>) => createQueryKey('consulterSession', options);
+
+/**
+ * État de la session ; pose aussi le cookie du jeton CSRF, à appeler au chargement du front
+ */
+export const consulterSessionOptions = (options?: Options<ConsulterSessionData>) => queryOptions<ConsulterSessionResponse, AxiosError<DefaultError>, ConsulterSessionResponse, ReturnType<typeof consulterSessionQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterSession({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterSessionQueryKey(options)
+});
+
+/**
+ * Confirmer un nouvel e-mail par le lien reçu ; l'identifiant de connexion suit (RG-OPE-48, RG-AUT-10)
+ */
+export const confirmerChangementEmailMutation = (options?: Partial<Options<ConfirmerChangementEmailData>>): UseMutationOptions<ConfirmerChangementEmailResponse, AxiosError<DefaultError>, Options<ConfirmerChangementEmailData>> => {
+    const mutationOptions: UseMutationOptions<ConfirmerChangementEmailResponse, AxiosError<DefaultError>, Options<ConfirmerChangementEmailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await confirmerChangementEmail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterInvitationParJetonQueryKey = (options: Options<ConsulterInvitationParJetonData>) => createQueryKey('consulterInvitationParJeton', options);
+
+/**
+ * L'opérateur, le rôle et l'identité préremplie d'une invitation acceptable (RG-OPE-42)
+ */
+export const consulterInvitationParJetonOptions = (options: Options<ConsulterInvitationParJetonData>) => queryOptions<ConsulterInvitationParJetonResponse, AxiosError<DefaultError>, ConsulterInvitationParJetonResponse, ReturnType<typeof consulterInvitationParJetonQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterInvitationParJeton({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterInvitationParJetonQueryKey(options)
+});
+
+/**
+ * Accepter : utilisateur créé ou retrouvé (connecté), fiche, rattachement actif (RG-OPE-29, 30, 42, 49)
+ */
+export const accepterInvitationMutation = (options?: Partial<Options<AccepterInvitationData>>): UseMutationOptions<AccepterInvitationResponse, AxiosError<DefaultError>, Options<AccepterInvitationData>> => {
+    const mutationOptions: UseMutationOptions<AccepterInvitationResponse, AxiosError<DefaultError>, Options<AccepterInvitationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await accepterInvitation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterMoiQueryKey = (options?: Options<ConsulterMoiData>) => createQueryKey('consulterMoi', options);
+
+/**
+ * L'utilisateur connecté, ses rattachements et son opérateur ouvert (RG-OPE-49)
+ */
+export const consulterMoiOptions = (options?: Options<ConsulterMoiData>) => queryOptions<ConsulterMoiResponse, AxiosError<DefaultError>, ConsulterMoiResponse, ReturnType<typeof consulterMoiQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterMoi({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterMoiQueryKey(options)
+});
+
+/**
+ * Demander à changer d'e-mail : un lien de confirmation part au nouvel e-mail (RG-OPE-48)
+ */
+export const demanderChangementEmailMutation = (options?: Partial<Options<DemanderChangementEmailData>>): UseMutationOptions<DemanderChangementEmailResponse, AxiosError<DefaultError>, Options<DemanderChangementEmailData>> => {
+    const mutationOptions: UseMutationOptions<DemanderChangementEmailResponse, AxiosError<DefaultError>, Options<DemanderChangementEmailData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await demanderChangementEmail({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Choisir l'opérateur où travailler (RG-OPE-49)
+ */
+export const choisirOperateurActifMutation = (options?: Partial<Options<ChoisirOperateurActifData>>): UseMutationOptions<ChoisirOperateurActifResponse, AxiosError<DefaultError>, Options<ChoisirOperateurActifData>> => {
+    const mutationOptions: UseMutationOptions<ChoisirOperateurActifResponse, AxiosError<DefaultError>, Options<ChoisirOperateurActifData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await choisirOperateurActif({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Modifier son titre, son nom et son prénom (RG-OPE-27, 47, 51)
+ */
+export const modifierMonProfilMutation = (options?: Partial<Options<ModifierMonProfilData>>): UseMutationOptions<ModifierMonProfilResponse, AxiosError<DefaultError>, Options<ModifierMonProfilData>> => {
+    const mutationOptions: UseMutationOptions<ModifierMonProfilResponse, AxiosError<DefaultError>, Options<ModifierMonProfilData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierMonProfil({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const listerOperateursQueryKey = (options?: Options<ListerOperateursData>) => createQueryKey('listerOperateurs', options);
 
 /**
- * Lister les opérateurs, triés par raison sociale (§4.3.1)
+ * Lister les opérateurs, sauf le BNIA, triés par raison sociale (§4.3.1, RG-OPE-32, 39)
  */
 export const listerOperateursOptions = (options?: Options<ListerOperateursData>) => queryOptions<ListerOperateursResponse, AxiosError<DefaultError>, ListerOperateursResponse, ReturnType<typeof listerOperateursQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
@@ -59,7 +388,7 @@ export const listerOperateursOptions = (options?: Options<ListerOperateursData>)
 });
 
 /**
- * Créer un opérateur ; sans code saisi, le code proposé (RG-OPE-01 à 08, 20, 21, 24)
+ * Créer un opérateur ; sans code saisi, le code proposé ; premier ADMIN invité au besoin (RG-OPE-01 à 08, 20, 21, 24, 39, 40)
  */
 export const creerOperateurMutation = (options?: Partial<Options<CreerOperateurData>>): UseMutationOptions<CreerOperateurResponse, AxiosError<DefaultError>, Options<CreerOperateurData>> => {
     const mutationOptions: UseMutationOptions<CreerOperateurResponse, AxiosError<DefaultError>, Options<CreerOperateurData>> = {
@@ -147,8 +476,26 @@ export const listerGroupesOperateursOptions = (options?: Options<ListerGroupesOp
     queryKey: listerGroupesOperateursQueryKey(options)
 });
 
+export const rechercherOperateursQueryKey = (options: Options<RechercherOperateursData>) => createQueryKey('rechercherOperateurs', options);
+
 /**
- * Supprimer un opérateur que rien ne référence (RG-OPE-25)
+ * Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)
+ */
+export const rechercherOperateursOptions = (options: Options<RechercherOperateursData>) => queryOptions<RechercherOperateursResponse, AxiosError<DefaultError>, RechercherOperateursResponse, ReturnType<typeof rechercherOperateursQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await rechercherOperateurs({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: rechercherOperateursQueryKey(options)
+});
+
+/**
+ * Supprimer un opérateur que rien ne référence, avec ses personnes (ADMIN BNIA, RG-OPE-25, 44)
  */
 export const supprimerOperateurMutation = (options?: Partial<Options<SupprimerOperateurData>>): UseMutationOptions<SupprimerOperateurResponse, AxiosError<DefaultError>, Options<SupprimerOperateurData>> => {
     const mutationOptions: UseMutationOptions<SupprimerOperateurResponse, AxiosError<DefaultError>, Options<SupprimerOperateurData>> = {
@@ -167,7 +514,7 @@ export const supprimerOperateurMutation = (options?: Partial<Options<SupprimerOp
 export const consulterOperateurQueryKey = (options: Options<ConsulterOperateurData>) => createQueryKey('consulterOperateur', options);
 
 /**
- * Consulter la fiche d'un opérateur, actif ou non
+ * Consulter la fiche d'un opérateur, actif ou non (RG-OPE-31, 36)
  */
 export const consulterOperateurOptions = (options: Options<ConsulterOperateurData>) => queryOptions<ConsulterOperateurResponse, AxiosError<DefaultError>, ConsulterOperateurResponse, ReturnType<typeof consulterOperateurQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
@@ -182,8 +529,26 @@ export const consulterOperateurOptions = (options: Options<ConsulterOperateurDat
     queryKey: consulterOperateurQueryKey(options)
 });
 
+export const consulterAnnuaireQueryKey = (options: Options<ConsulterAnnuaireData>) => createQueryKey('consulterAnnuaire', options);
+
 /**
- * Désactiver un opérateur : consultable, plus proposé ; ses contacts perdent l'accès au portail (RG-OPE-26)
+ * Contacts, membres et invitations en attente de l'opérateur, en une liste (RG-OPE-52)
+ */
+export const consulterAnnuaireOptions = (options: Options<ConsulterAnnuaireData>) => queryOptions<ConsulterAnnuaireResponse, AxiosError<DefaultError>, ConsulterAnnuaireResponse, ReturnType<typeof consulterAnnuaireQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterAnnuaire({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterAnnuaireQueryKey(options)
+});
+
+/**
+ * Désactiver un opérateur (ADMIN BNIA) : consultable, plus proposé ; rattachements gelés, invitations annulées (RG-OPE-26)
  */
 export const desactiverOperateurMutation = (options?: Partial<Options<DesactiverOperateurData>>): UseMutationOptions<DesactiverOperateurResponse, AxiosError<DefaultError>, Options<DesactiverOperateurData>> => {
     const mutationOptions: UseMutationOptions<DesactiverOperateurResponse, AxiosError<DefaultError>, Options<DesactiverOperateurData>> = {
@@ -217,7 +582,7 @@ export const designerContactsOperateurMutation = (options?: Partial<Options<Desi
 };
 
 /**
- * Modifier la diffusion des millésimes et l'accès aux statistiques du portail (RG-OPE-14, 15)
+ * Modifier la diffusion des millésimes ; l'accès aux statistiques par le BNIA seul (RG-OPE-14, 15, 36)
  */
 export const modifierDiffusionOperateurMutation = (options?: Partial<Options<ModifierDiffusionOperateurData>>): UseMutationOptions<ModifierDiffusionOperateurResponse, AxiosError<DefaultError>, Options<ModifierDiffusionOperateurData>> => {
     const mutationOptions: UseMutationOptions<ModifierDiffusionOperateurResponse, AxiosError<DefaultError>, Options<ModifierDiffusionOperateurData>> = {
@@ -234,7 +599,7 @@ export const modifierDiffusionOperateurMutation = (options?: Partial<Options<Mod
 };
 
 /**
- * Modifier l'identité, type et code compris ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24)
+ * Modifier l'identité complète, réservé au BNIA ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24, 36, 51)
  */
 export const modifierIdentiteOperateurMutation = (options?: Partial<Options<ModifierIdentiteOperateurData>>): UseMutationOptions<ModifierIdentiteOperateurResponse, AxiosError<DefaultError>, Options<ModifierIdentiteOperateurData>> => {
     const mutationOptions: UseMutationOptions<ModifierIdentiteOperateurResponse, AxiosError<DefaultError>, Options<ModifierIdentiteOperateurData>> = {
@@ -249,6 +614,42 @@ export const modifierIdentiteOperateurMutation = (options?: Partial<Options<Modi
     };
     return mutationOptions;
 };
+
+export const consulterJournalOperateurQueryKey = (options: Options<ConsulterJournalOperateurData>) => createQueryKey('consulterJournalOperateur', options);
+
+/**
+ * Actions sur les personnes et les accès de l'opérateur, du plus récent au plus ancien (RG-OPE-34)
+ */
+export const consulterJournalOperateurOptions = (options: Options<ConsulterJournalOperateurData>) => queryOptions<ConsulterJournalOperateurResponse, AxiosError<DefaultError>, ConsulterJournalOperateurResponse, ReturnType<typeof consulterJournalOperateurQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterJournalOperateur({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterJournalOperateurQueryKey(options)
+});
+
+export const consulterMesDroitsQueryKey = (options: Options<ConsulterMesDroitsData>) => createQueryKey('consulterMesDroits', options);
+
+/**
+ * Droits de l'utilisateur connecté sur l'opérateur (RG-OPE-31, 32)
+ */
+export const consulterMesDroitsOptions = (options: Options<ConsulterMesDroitsData>) => queryOptions<ConsulterMesDroitsResponse, AxiosError<DefaultError>, ConsulterMesDroitsResponse, ReturnType<typeof consulterMesDroitsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterMesDroits({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterMesDroitsQueryKey(options)
+});
 
 /**
  * Attribuer le code proposé pour le type et le code postal actuels (RG-OPE-05)
@@ -268,7 +669,7 @@ export const attribuerNouveauCodeOperateurMutation = (options?: Partial<Options<
 };
 
 /**
- * Modifier le déclaratif, la région, les appellations et les alambics (RG-OPE-01, 10 à 13, 21)
+ * Modifier le déclaratif, la région, les appellations et les alambics, réservé au BNIA (RG-OPE-01, 10 à 13, 21, 36)
  */
 export const modifierProductionOperateurMutation = (options?: Partial<Options<ModifierProductionOperateurData>>): UseMutationOptions<ModifierProductionOperateurResponse, AxiosError<DefaultError>, Options<ModifierProductionOperateurData>> => {
     const mutationOptions: UseMutationOptions<ModifierProductionOperateurResponse, AxiosError<DefaultError>, Options<ModifierProductionOperateurData>> = {
@@ -285,7 +686,24 @@ export const modifierProductionOperateurMutation = (options?: Partial<Options<Mo
 };
 
 /**
- * Réactiver un opérateur (RG-OPE-26)
+ * Modifier les champs qu'un opérateur modifie lui-même (RG-OPE-20, 21, 24, 36, 51)
+ */
+export const modifierProfilOperateurMutation = (options?: Partial<Options<ModifierProfilOperateurData>>): UseMutationOptions<ModifierProfilOperateurResponse, AxiosError<DefaultError>, Options<ModifierProfilOperateurData>> => {
+    const mutationOptions: UseMutationOptions<ModifierProfilOperateurResponse, AxiosError<DefaultError>, Options<ModifierProfilOperateurData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await modifierProfilOperateur({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Réactiver un opérateur (ADMIN BNIA, RG-OPE-26)
  */
 export const reactiverOperateurMutation = (options?: Partial<Options<ReactiverOperateurData>>): UseMutationOptions<ReactiverOperateurResponse, AxiosError<DefaultError>, Options<ReactiverOperateurData>> => {
     const mutationOptions: UseMutationOptions<ReactiverOperateurResponse, AxiosError<DefaultError>, Options<ReactiverOperateurData>> = {
@@ -302,7 +720,7 @@ export const reactiverOperateurMutation = (options?: Partial<Options<ReactiverOp
 };
 
 /**
- * Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)
+ * Déclarer un contact et sa fiche (RG-OPE-21, 27, 28, 30)
  */
 export const creerContactMutation = (options?: Partial<Options<CreerContactData>>): UseMutationOptions<CreerContactResponse, AxiosError<DefaultError>, Options<CreerContactData>> => {
     const mutationOptions: UseMutationOptions<CreerContactResponse, AxiosError<DefaultError>, Options<CreerContactData>> = {
@@ -318,8 +736,26 @@ export const creerContactMutation = (options?: Partial<Options<CreerContactData>
     return mutationOptions;
 };
 
+export const listerAvertissementsContactQueryKey = (options: Options<ListerAvertissementsContactData>) => createQueryKey('listerAvertissementsContact', options);
+
 /**
- * Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)
+ * E-mail saisi qui est celui d'un membre ou d'une invitation en attente : avertissements non bloquants (RG-OPE-28)
+ */
+export const listerAvertissementsContactOptions = (options: Options<ListerAvertissementsContactData>) => queryOptions<ListerAvertissementsContactResponse, AxiosError<DefaultError>, ListerAvertissementsContactResponse, ReturnType<typeof listerAvertissementsContactQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listerAvertissementsContact({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listerAvertissementsContactQueryKey(options)
+});
+
+/**
+ * Supprimer un contact et sa fiche ; ses invitations en attente sont annulées (RG-OPE-22, 23, 45)
  */
 export const supprimerContactMutation = (options?: Partial<Options<SupprimerContactData>>): UseMutationOptions<SupprimerContactResponse, AxiosError<DefaultError>, Options<SupprimerContactData>> => {
     const mutationOptions: UseMutationOptions<SupprimerContactResponse, AxiosError<DefaultError>, Options<SupprimerContactData>> = {
@@ -338,7 +774,7 @@ export const supprimerContactMutation = (options?: Partial<Options<SupprimerCont
 export const consulterContactQueryKey = (options: Options<ConsulterContactData>) => createQueryKey('consulterContact', options);
 
 /**
- * Consulter un contact, ses droits et ses désignations
+ * Consulter un contact, sa fiche et ses désignations
  */
 export const consulterContactOptions = (options: Options<ConsulterContactData>) => queryOptions<ConsulterContactResponse, AxiosError<DefaultError>, ConsulterContactResponse, ReturnType<typeof consulterContactQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
@@ -354,29 +790,12 @@ export const consulterContactOptions = (options: Options<ConsulterContactData>) 
 });
 
 /**
- * Modifier un contact (RG-OPE-21, 27, 28, 29, 32)
+ * Modifier l'identité et l'e-mail d'un contact (RG-OPE-21, 23, 27, 28, 51)
  */
 export const modifierContactMutation = (options?: Partial<Options<ModifierContactData>>): UseMutationOptions<ModifierContactResponse, AxiosError<DefaultError>, Options<ModifierContactData>> => {
     const mutationOptions: UseMutationOptions<ModifierContactResponse, AxiosError<DefaultError>, Options<ModifierContactData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await modifierContact({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Désactiver : retire l'accès et les désignations (RG-OPE-33)
- */
-export const desactiverContactMutation = (options?: Partial<Options<DesactiverContactData>>): UseMutationOptions<DesactiverContactResponse, AxiosError<DefaultError>, Options<DesactiverContactData>> => {
-    const mutationOptions: UseMutationOptions<DesactiverContactResponse, AxiosError<DefaultError>, Options<DesactiverContactData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await desactiverContact({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -405,13 +824,31 @@ export const consulterJournalContactOptions = (options: Options<ConsulterJournal
     queryKey: consulterJournalContactQueryKey(options)
 });
 
+export const consulterFicheQueryKey = (options: Options<ConsulterFicheData>) => createQueryKey('consulterFiche', options);
+
 /**
- * Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)
+ * Consulter une fiche professionnelle
  */
-export const modifierDroitsContactMutation = (options?: Partial<Options<ModifierDroitsContactData>>): UseMutationOptions<ModifierDroitsContactResponse, AxiosError<DefaultError>, Options<ModifierDroitsContactData>> => {
-    const mutationOptions: UseMutationOptions<ModifierDroitsContactResponse, AxiosError<DefaultError>, Options<ModifierDroitsContactData>> = {
+export const consulterFicheOptions = (options: Options<ConsulterFicheData>) => queryOptions<ConsulterFicheResponse, AxiosError<DefaultError>, ConsulterFicheResponse, ReturnType<typeof consulterFicheQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterFiche({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterFicheQueryKey(options)
+});
+
+/**
+ * Modifier une fiche professionnelle : la sienne, ou par le module Contacts (RG-OPE-21, 33, 46, 51)
+ */
+export const modifierFicheMutation = (options?: Partial<Options<ModifierFicheData>>): UseMutationOptions<ModifierFicheResponse, AxiosError<DefaultError>, Options<ModifierFicheData>> => {
+    const mutationOptions: UseMutationOptions<ModifierFicheResponse, AxiosError<DefaultError>, Options<ModifierFicheData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await modifierDroitsContact({
+            const { data } = await modifierFiche({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -423,12 +860,168 @@ export const modifierDroitsContactMutation = (options?: Partial<Options<Modifier
 };
 
 /**
- * Réactiver, sans accès (RG-OPE-33)
+ * Inviter un contact ou une personne nouvelle ; le lien part par e-mail (RG-OPE-28, 29, 40)
  */
-export const reactiverContactMutation = (options?: Partial<Options<ReactiverContactData>>): UseMutationOptions<ReactiverContactResponse, AxiosError<DefaultError>, Options<ReactiverContactData>> => {
-    const mutationOptions: UseMutationOptions<ReactiverContactResponse, AxiosError<DefaultError>, Options<ReactiverContactData>> = {
+export const inviterMutation = (options?: Partial<Options<InviterData>>): UseMutationOptions<InviterResponse, AxiosError<DefaultError>, Options<InviterData>> => {
+    const mutationOptions: UseMutationOptions<InviterResponse, AxiosError<DefaultError>, Options<InviterData>> = {
         mutationFn: async (fnOptions) => {
-            const { data } = await reactiverContact({
+            const { data } = await inviter({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterInvitationQueryKey = (options: Options<ConsulterInvitationData>) => createQueryKey('consulterInvitation', options);
+
+/**
+ * Consulter une invitation
+ */
+export const consulterInvitationOptions = (options: Options<ConsulterInvitationData>) => queryOptions<ConsulterInvitationResponse, AxiosError<DefaultError>, ConsulterInvitationResponse, ReturnType<typeof consulterInvitationQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterInvitation({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterInvitationQueryKey(options)
+});
+
+/**
+ * Annuler une invitation en attente (RG-OPE-41)
+ */
+export const annulerInvitationMutation = (options?: Partial<Options<AnnulerInvitationData>>): UseMutationOptions<AnnulerInvitationResponse, AxiosError<DefaultError>, Options<AnnulerInvitationData>> => {
+    const mutationOptions: UseMutationOptions<AnnulerInvitationResponse, AxiosError<DefaultError>, Options<AnnulerInvitationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await annulerInvitation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Relancer : nouveau lien, nouvelle expiration (RG-OPE-41)
+ */
+export const relancerInvitationMutation = (options?: Partial<Options<RelancerInvitationData>>): UseMutationOptions<RelancerInvitationResponse, AxiosError<DefaultError>, Options<RelancerInvitationData>> => {
+    const mutationOptions: UseMutationOptions<RelancerInvitationResponse, AxiosError<DefaultError>, Options<RelancerInvitationData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await relancerInvitation({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const consulterMembreQueryKey = (options: Options<ConsulterMembreData>) => createQueryKey('consulterMembre', options);
+
+/**
+ * Consulter un membre, sa fiche et ses désignations
+ */
+export const consulterMembreOptions = (options: Options<ConsulterMembreData>) => queryOptions<ConsulterMembreResponse, AxiosError<DefaultError>, ConsulterMembreResponse, ReturnType<typeof consulterMembreQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterMembre({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterMembreQueryKey(options)
+});
+
+export const consulterJournalMembreQueryKey = (options: Options<ConsulterJournalMembreData>) => createQueryKey('consulterJournalMembre', options);
+
+/**
+ * Journal d'un membre, du plus récent au plus ancien (RG-OPE-34)
+ */
+export const consulterJournalMembreOptions = (options: Options<ConsulterJournalMembreData>) => queryOptions<ConsulterJournalMembreResponse, AxiosError<DefaultError>, ConsulterJournalMembreResponse, ReturnType<typeof consulterJournalMembreQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterJournalMembre({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterJournalMembreQueryKey(options)
+});
+
+/**
+ * Réactiver l'accès d'un membre (RG-OPE-43)
+ */
+export const reactiverMembreMutation = (options?: Partial<Options<ReactiverMembreData>>): UseMutationOptions<ReactiverMembreResponse, AxiosError<DefaultError>, Options<ReactiverMembreData>> => {
+    const mutationOptions: UseMutationOptions<ReactiverMembreResponse, AxiosError<DefaultError>, Options<ReactiverMembreData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await reactiverMembre({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Retirer l'accès d'un membre, en le gardant ou non comme contact ; au dernier rattachement, l'utilisateur est supprimé (RG-OPE-35, 44)
+ */
+export const retirerMembreMutation = (options?: Partial<Options<RetirerMembreData>>): UseMutationOptions<RetirerMembreResponse, AxiosError<DefaultError>, Options<RetirerMembreData>> => {
+    const mutationOptions: UseMutationOptions<RetirerMembreResponse, AxiosError<DefaultError>, Options<RetirerMembreData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await retirerMembre({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Changer le rôle d'un membre (RG-OPE-35, 43)
+ */
+export const changerRoleMembreMutation = (options?: Partial<Options<ChangerRoleMembreData>>): UseMutationOptions<ChangerRoleMembreResponse, AxiosError<DefaultError>, Options<ChangerRoleMembreData>> => {
+    const mutationOptions: UseMutationOptions<ChangerRoleMembreResponse, AxiosError<DefaultError>, Options<ChangerRoleMembreData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await changerRoleMembre({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Suspendre l'accès d'un membre à cet opérateur (RG-OPE-35, 43)
+ */
+export const suspendreMembreMutation = (options?: Partial<Options<SuspendreMembreData>>): UseMutationOptions<SuspendreMembreResponse, AxiosError<DefaultError>, Options<SuspendreMembreData>> => {
+    const mutationOptions: UseMutationOptions<SuspendreMembreResponse, AxiosError<DefaultError>, Options<SuspendreMembreData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await suspendreMembre({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -464,284 +1057,6 @@ export const modifierPresentationOperateurMutation = (options?: Partial<Options<
     const mutationOptions: UseMutationOptions<ModifierPresentationOperateurResponse, AxiosError<DefaultError>, Options<ModifierPresentationOperateurData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await modifierPresentationOperateur({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const consulterOperateurDemoPortailQueryKey = (options?: Options<ConsulterOperateurDemoPortailData>) => createQueryKey('consulterOperateurDemoPortail', options);
-
-/**
- * Opérateur ouvert au portail en attendant le contexte acces ; 404 hors profil demo
- */
-export const consulterOperateurDemoPortailOptions = (options?: Options<ConsulterOperateurDemoPortailData>) => queryOptions<ConsulterOperateurDemoPortailResponse, AxiosError<DefaultError>, ConsulterOperateurDemoPortailResponse, ReturnType<typeof consulterOperateurDemoPortailQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await consulterOperateurDemoPortail({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: consulterOperateurDemoPortailQueryKey(options)
-});
-
-export const rechercherOperateursPortailQueryKey = (options: Options<RechercherOperateursPortailData>) => createQueryKey('rechercherOperateursPortail', options);
-
-/**
- * Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)
- */
-export const rechercherOperateursPortailOptions = (options: Options<RechercherOperateursPortailData>) => queryOptions<RechercherOperateursPortailResponse, AxiosError<DefaultError>, RechercherOperateursPortailResponse, ReturnType<typeof rechercherOperateursPortailQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await rechercherOperateursPortail({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: rechercherOperateursPortailQueryKey(options)
-});
-
-/**
- * Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24, 36)
- */
-export const designerContactsPortailMutation = (options?: Partial<Options<DesignerContactsPortailData>>): UseMutationOptions<DesignerContactsPortailResponse, AxiosError<DefaultError>, Options<DesignerContactsPortailData>> => {
-    const mutationOptions: UseMutationOptions<DesignerContactsPortailResponse, AxiosError<DefaultError>, Options<DesignerContactsPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await designerContactsPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Modifier la diffusion des millésimes (RG-OPE-14, 36)
- */
-export const modifierDiffusionPortailMutation = (options?: Partial<Options<ModifierDiffusionPortailData>>): UseMutationOptions<ModifierDiffusionPortailResponse, AxiosError<DefaultError>, Options<ModifierDiffusionPortailData>> => {
-    const mutationOptions: UseMutationOptions<ModifierDiffusionPortailResponse, AxiosError<DefaultError>, Options<ModifierDiffusionPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await modifierDiffusionPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const consulterPresentationPortailQueryKey = (options: Options<ConsulterPresentationPortailData>) => createQueryKey('consulterPresentationPortail', options);
-
-/**
- * Consulter la présentation de l'opérateur
- */
-export const consulterPresentationPortailOptions = (options: Options<ConsulterPresentationPortailData>) => queryOptions<ConsulterPresentationPortailResponse, AxiosError<DefaultError>, ConsulterPresentationPortailResponse, ReturnType<typeof consulterPresentationPortailQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await consulterPresentationPortail({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: consulterPresentationPortailQueryKey(options)
-});
-
-/**
- * Remplacer la présentation (RG-OPE-16 à 19, 21, 35)
- */
-export const modifierPresentationPortailMutation = (options?: Partial<Options<ModifierPresentationPortailData>>): UseMutationOptions<ModifierPresentationPortailResponse, AxiosError<DefaultError>, Options<ModifierPresentationPortailData>> => {
-    const mutationOptions: UseMutationOptions<ModifierPresentationPortailResponse, AxiosError<DefaultError>, Options<ModifierPresentationPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await modifierPresentationPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const consulterProfilPortailQueryKey = (options: Options<ConsulterProfilPortailData>) => createQueryKey('consulterProfilPortail', options);
-
-/**
- * « Mon entreprise » : la fiche, sans le commentaire interne (RG-OPE-35, 36)
- */
-export const consulterProfilPortailOptions = (options: Options<ConsulterProfilPortailData>) => queryOptions<ConsulterProfilPortailResponse, AxiosError<DefaultError>, ConsulterProfilPortailResponse, ReturnType<typeof consulterProfilPortailQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await consulterProfilPortail({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: consulterProfilPortailQueryKey(options)
-});
-
-/**
- * Modifier les champs ouverts au portail (RG-OPE-20, 21, 24, 35, 36)
- */
-export const modifierProfilPortailMutation = (options?: Partial<Options<ModifierProfilPortailData>>): UseMutationOptions<ModifierProfilPortailResponse, AxiosError<DefaultError>, Options<ModifierProfilPortailData>> => {
-    const mutationOptions: UseMutationOptions<ModifierProfilPortailResponse, AxiosError<DefaultError>, Options<ModifierProfilPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await modifierProfilPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)
- */
-export const creerContactPortailMutation = (options?: Partial<Options<CreerContactPortailData>>): UseMutationOptions<CreerContactPortailResponse, AxiosError<DefaultError>, Options<CreerContactPortailData>> => {
-    const mutationOptions: UseMutationOptions<CreerContactPortailResponse, AxiosError<DefaultError>, Options<CreerContactPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await creerContactPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)
- */
-export const supprimerContactPortailMutation = (options?: Partial<Options<SupprimerContactPortailData>>): UseMutationOptions<SupprimerContactPortailResponse, AxiosError<DefaultError>, Options<SupprimerContactPortailData>> => {
-    const mutationOptions: UseMutationOptions<SupprimerContactPortailResponse, AxiosError<DefaultError>, Options<SupprimerContactPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await supprimerContactPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const consulterContactPortailQueryKey = (options: Options<ConsulterContactPortailData>) => createQueryKey('consulterContactPortail', options);
-
-/**
- * Consulter un contact, ses droits et ses désignations
- */
-export const consulterContactPortailOptions = (options: Options<ConsulterContactPortailData>) => queryOptions<ConsulterContactPortailResponse, AxiosError<DefaultError>, ConsulterContactPortailResponse, ReturnType<typeof consulterContactPortailQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await consulterContactPortail({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: consulterContactPortailQueryKey(options)
-});
-
-/**
- * Modifier un contact (RG-OPE-21, 27, 28, 29, 32)
- */
-export const modifierContactPortailMutation = (options?: Partial<Options<ModifierContactPortailData>>): UseMutationOptions<ModifierContactPortailResponse, AxiosError<DefaultError>, Options<ModifierContactPortailData>> => {
-    const mutationOptions: UseMutationOptions<ModifierContactPortailResponse, AxiosError<DefaultError>, Options<ModifierContactPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await modifierContactPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Désactiver : retire l'accès et les désignations (RG-OPE-33)
- */
-export const desactiverContactPortailMutation = (options?: Partial<Options<DesactiverContactPortailData>>): UseMutationOptions<DesactiverContactPortailResponse, AxiosError<DefaultError>, Options<DesactiverContactPortailData>> => {
-    const mutationOptions: UseMutationOptions<DesactiverContactPortailResponse, AxiosError<DefaultError>, Options<DesactiverContactPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await desactiverContactPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-export const consulterJournalContactPortailQueryKey = (options: Options<ConsulterJournalContactPortailData>) => createQueryKey('consulterJournalContactPortail', options);
-
-/**
- * Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)
- */
-export const consulterJournalContactPortailOptions = (options: Options<ConsulterJournalContactPortailData>) => queryOptions<ConsulterJournalContactPortailResponse, AxiosError<DefaultError>, ConsulterJournalContactPortailResponse, ReturnType<typeof consulterJournalContactPortailQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-        const { data } = await consulterJournalContactPortail({
-            ...options,
-            ...queryKey[0],
-            signal,
-            throwOnError: true
-        });
-        return data;
-    },
-    queryKey: consulterJournalContactPortailQueryKey(options)
-});
-
-/**
- * Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)
- */
-export const modifierDroitsContactPortailMutation = (options?: Partial<Options<ModifierDroitsContactPortailData>>): UseMutationOptions<ModifierDroitsContactPortailResponse, AxiosError<DefaultError>, Options<ModifierDroitsContactPortailData>> => {
-    const mutationOptions: UseMutationOptions<ModifierDroitsContactPortailResponse, AxiosError<DefaultError>, Options<ModifierDroitsContactPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await modifierDroitsContactPortail({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
-
-/**
- * Réactiver, sans accès (RG-OPE-33)
- */
-export const reactiverContactPortailMutation = (options?: Partial<Options<ReactiverContactPortailData>>): UseMutationOptions<ReactiverContactPortailResponse, AxiosError<DefaultError>, Options<ReactiverContactPortailData>> => {
-    const mutationOptions: UseMutationOptions<ReactiverContactPortailResponse, AxiosError<DefaultError>, Options<ReactiverContactPortailData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await reactiverContactPortail({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -1554,6 +1869,23 @@ export const creerMarqueMutation = (options?: Partial<Options<CreerMarqueData>>)
     const mutationOptions: UseMutationOptions<CreerMarqueResponse, AxiosError<DefaultError>, Options<CreerMarqueData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await creerMarque({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Créer une marque depuis la fiche d'un opérateur, par qui gère ses contacts (RG-REF-14, RG-REF-15)
+ */
+export const creerMarqueDepuisFicheMutation = (options?: Partial<Options<CreerMarqueDepuisFicheData>>): UseMutationOptions<CreerMarqueDepuisFicheResponse, AxiosError<DefaultError>, Options<CreerMarqueDepuisFicheData>> => {
+    const mutationOptions: UseMutationOptions<CreerMarqueDepuisFicheResponse, AxiosError<DefaultError>, Options<CreerMarqueDepuisFicheData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await creerMarqueDepuisFiche({
                 ...options,
                 ...fnOptions,
                 throwOnError: true
@@ -2532,3 +2864,73 @@ export const consulterInfoSystemeOptions = (options?: Options<ConsulterInfoSyste
     },
     queryKey: consulterInfoSystemeQueryKey(options)
 });
+
+export const listerUtilisateursQueryKey = (options?: Options<ListerUtilisateursData>) => createQueryKey('listerUtilisateurs', options);
+
+/**
+ * Lister les utilisateurs et leurs rattachements (RG-OPE-32, 53)
+ */
+export const listerUtilisateursOptions = (options?: Options<ListerUtilisateursData>) => queryOptions<ListerUtilisateursResponse, AxiosError<DefaultError>, ListerUtilisateursResponse, ReturnType<typeof listerUtilisateursQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listerUtilisateurs({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listerUtilisateursQueryKey(options)
+});
+
+export const consulterUtilisateurQueryKey = (options: Options<ConsulterUtilisateurData>) => createQueryKey('consulterUtilisateur', options);
+
+/**
+ * Consulter un utilisateur et ses rattachements (RG-OPE-53)
+ */
+export const consulterUtilisateurOptions = (options: Options<ConsulterUtilisateurData>) => queryOptions<ConsulterUtilisateurResponse, AxiosError<DefaultError>, ConsulterUtilisateurResponse, ReturnType<typeof consulterUtilisateurQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await consulterUtilisateur({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: consulterUtilisateurQueryKey(options)
+});
+
+/**
+ * Bloquer un utilisateur dans tous les opérateurs, avec un motif ; il est prévenu, et les ADMIN de ses opérateurs (RG-OPE-50)
+ */
+export const bloquerUtilisateurMutation = (options?: Partial<Options<BloquerUtilisateurData>>): UseMutationOptions<BloquerUtilisateurResponse, AxiosError<DefaultError>, Options<BloquerUtilisateurData>> => {
+    const mutationOptions: UseMutationOptions<BloquerUtilisateurResponse, AxiosError<DefaultError>, Options<BloquerUtilisateurData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await bloquerUtilisateur({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Débloquer un utilisateur (RG-OPE-50)
+ */
+export const debloquerUtilisateurMutation = (options?: Partial<Options<DebloquerUtilisateurData>>): UseMutationOptions<DebloquerUtilisateurResponse, AxiosError<DefaultError>, Options<DebloquerUtilisateurData>> => {
+    const mutationOptions: UseMutationOptions<DebloquerUtilisateurResponse, AxiosError<DefaultError>, Options<DebloquerUtilisateurData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await debloquerUtilisateur({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};

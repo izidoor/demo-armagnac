@@ -88,8 +88,8 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
 Seulement depuis le worktree, quand une vérification l'exige (démarrage, démo, écran). Variables
 lues par `backend/compose.yaml` et `frontend/vite.config.ts` ; sans elles, valeurs de l'utilisateur.
 - Backend, depuis `backend/` du worktree, en arrière-plan :
-  `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
-  (base propre au contexte, détectée par Spring Boot ; prêt quand `localhost:8181/v3/api-docs` répond 200).
+  `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 BNIA_SMTP_PORT=11025 BNIA_MAILPIT_PORT=18025 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
+  (base et Mailpit propres au contexte, détectés par Spring Boot ; prêt quand `localhost:8181/v3/api-docs` répond 200).
 - Front, depuis `frontend/` du worktree : `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`.
 - Port occupé : prendre le suivant, sans arrêter le processus qui l'occupe.
 - Arrêt : tuer le processus par son PID (jamais `pkill -f` sur un motif, qui atteint aussi les

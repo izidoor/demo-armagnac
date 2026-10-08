@@ -1,142 +1,66 @@
+import { useQuery } from '@tanstack/react-query'
 import {
-  consulterContact,
-  consulterContactPortail,
-  consulterJournalContact,
-  consulterJournalContactPortail,
+  consulterAnnuaire,
   consulterOperateur,
   consulterPresentationOperateur,
-  consulterPresentationPortail,
-  consulterProfilPortail,
-  creerContact,
-  creerContactPortail,
-  desactiverContact,
-  desactiverContactPortail,
   designerContactsOperateur,
-  designerContactsPortail,
-  modifierContact,
-  modifierContactPortail,
   modifierDiffusionOperateur,
-  modifierDiffusionPortail,
-  modifierDroitsContact,
-  modifierDroitsContactPortail,
   modifierPresentationOperateur,
-  modifierPresentationPortail,
-  reactiverContact,
-  reactiverContactPortail,
-  supprimerContact,
-  supprimerContactPortail,
   type PresentationOperateur,
-  type SaisieContact,
   type SaisieDesignations,
-  type SaisieDroits,
 } from '@/api/generated'
 import { type NiveauDiffusion } from './libelles'
 
 /**
- * Où s'affiche la fiche : au back-office, le BNIA peut tout ; au portail, l'administrateur de
- * l'opérateur ne modifie que ce que RG-OPE-36 ouvre, et RG-OPE-30 protège le dernier administrateur.
+ * Où s'affiche la fiche : au back-office (opérateur actif BNIA) ou au portail (« Mon entreprise »). Les
+ * écrans sont les mêmes ; ce que l'on peut y faire vient des droits renvoyés par l'API (ADR-016),
+ * l'espace ne décide que des liens.
  */
 export type Espace = 'bo' | 'portail'
 
 /** Clés de cache d'un opérateur, invalidées ensemble après une écriture. */
 export const cleOperateur = (id: number) => ['operateur', id] as const
 
-/** Les appels de la fiche, selon l'espace : mêmes écrans, endpoints du back-office ou du portail. */
-export function apiOperateur(espace: Espace, id: number) {
-  const bo = espace === 'bo'
+/** Les appels de la fiche d'un opérateur. */
+export function apiOperateur(id: number) {
   const path = { id }
-  const contact = (c: number) => ({ operateur: id, contact: c })
   return {
     fiche: () =>
-      (bo
-        ? consulterOperateur({ path, throwOnError: true })
-        : consulterProfilPortail({ path, throwOnError: true })
-      ).then((r) => r.data),
+      consulterOperateur({ path, throwOnError: true }).then((r) => r.data),
     designer: (body: SaisieDesignations) =>
-      bo
-        ? designerContactsOperateur({ path, body, throwOnError: true })
-        : designerContactsPortail({ path, body, throwOnError: true }),
+      designerContactsOperateur({ path, body, throwOnError: true }),
     diffusion: (
       niveau: NiveauDiffusion,
       millesimes: number[],
-      accesStatistiques: boolean
+      accesStatistiques: boolean,
+      version: number
     ) =>
-      bo
-        ? modifierDiffusionOperateur({
-            path,
-            body: { niveau, millesimes, accesStatistiques },
-            throwOnError: true,
-          })
-        : modifierDiffusionPortail({
-            path,
-            body: { niveau, millesimes },
-            throwOnError: true,
-          }),
+      modifierDiffusionOperateur({
+        path,
+        body: { niveau, millesimes, accesStatistiques, version },
+        throwOnError: true,
+      }),
     presentation: () =>
-      (bo
-        ? consulterPresentationOperateur({
-            path: { operateur: id },
-            throwOnError: true,
-          })
-        : consulterPresentationPortail({ path, throwOnError: true })
-      ).then((r) => r.data),
+      consulterPresentationOperateur({
+        path: { operateur: id },
+        throwOnError: true,
+      }).then((r) => r.data),
     modifierPresentation: (body: PresentationOperateur) =>
-      bo
-        ? modifierPresentationOperateur({
-            path: { operateur: id },
-            body,
-            throwOnError: true,
-          })
-        : modifierPresentationPortail({ path, body, throwOnError: true }),
-    contact: (c: number) =>
-      (bo
-        ? consulterContact({ path: contact(c), throwOnError: true })
-        : consulterContactPortail({ path: contact(c), throwOnError: true })
-      ).then((r) => r.data),
-    journal: (c: number) =>
-      (bo
-        ? consulterJournalContact({ path: contact(c), throwOnError: true })
-        : consulterJournalContactPortail({
-            path: contact(c),
-            throwOnError: true,
-          })
-      ).then((r) => r.data),
-    creerContact: (body: SaisieContact) =>
-      (bo
-        ? creerContact({ path: { operateur: id }, body, throwOnError: true })
-        : creerContactPortail({
-            path: { operateur: id },
-            body,
-            throwOnError: true,
-          })
-      ).then((r) => r.data),
-    modifierContact: (c: number, body: SaisieContact) =>
-      bo
-        ? modifierContact({ path: contact(c), body, throwOnError: true })
-        : modifierContactPortail({
-            path: contact(c),
-            body,
-            throwOnError: true,
-          }),
-    modifierDroits: (c: number, body: SaisieDroits) =>
-      bo
-        ? modifierDroitsContact({ path: contact(c), body, throwOnError: true })
-        : modifierDroitsContactPortail({
-            path: contact(c),
-            body,
-            throwOnError: true,
-          }),
-    desactiverContact: (c: number) =>
-      bo
-        ? desactiverContact({ path: contact(c), throwOnError: true })
-        : desactiverContactPortail({ path: contact(c), throwOnError: true }),
-    reactiverContact: (c: number) =>
-      bo
-        ? reactiverContact({ path: contact(c), throwOnError: true })
-        : reactiverContactPortail({ path: contact(c), throwOnError: true }),
-    supprimerContact: (c: number) =>
-      bo
-        ? supprimerContact({ path: contact(c), throwOnError: true })
-        : supprimerContactPortail({ path: contact(c), throwOnError: true }),
+      modifierPresentationOperateur({
+        path: { operateur: id },
+        body,
+        throwOnError: true,
+      }),
   }
+}
+
+/** L'annuaire d'un opérateur : contacts, membres et personnes nouvelles invitées (RG-OPE-52). */
+export function useAnnuaire(id: number) {
+  return useQuery({
+    queryKey: [...cleOperateur(id), 'annuaire'],
+    queryFn: () =>
+      consulterAnnuaire({ path: { id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+  })
 }

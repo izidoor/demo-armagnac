@@ -7,6 +7,7 @@ import fr.bnia.operateurs.domain.NumeroAccise;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.SerieCode;
 import fr.bnia.operateurs.domain.Siret;
+import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -20,15 +21,18 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Opérateurs en mémoire, pour les tests de cas d'usage. Attribue les identifiants à l'insertion, comme
- * la base ; {@link #utilises} simule les clés étrangères des autres contextes (RG-OPE-25).
+ * Opérateurs en mémoire, pour les tests de cas d'usage. Attribue les identifiants à l'insertion et
+ * incrémente la version à chaque mise à jour, comme la base ; {@link #utilises} simule les clés
+ * étrangères des autres contextes (RG-OPE-25) ; {@link #verrous} compte les verrous pris (RG-OPE-35).
  */
-class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, NumerotationLecture, IdentifiantsContacts {
+class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, NumerotationLecture {
 
     final Map<Long, Operateur> operateurs = new LinkedHashMap<>();
     final Set<Long> utilises = new HashSet<>();
+    final List<Long> verrous = new ArrayList<>();
+    /** Appelé à la suppression d'un opérateur : la cascade de la base sur ses personnes. */
+    java.util.function.LongConsumer cascade = id -> { };
     private long prochainId = 1;
-    private long prochainContact = 100;
 
     @Override
     public Optional<Operateur> parId(long id) {
@@ -37,16 +41,14 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
 
     @Override
     public Operateur inserer(Operateur o) {
-        Operateur enregistre = Operateur.reconstituer(prochainId++, o.type(), o.code(), o.identite(), o.declaratif(),
-                o.production(), o.diffusion(), o.accesStatistiques(), o.estActif(), o.contacts(),
-                o.contactPrincipal().orElse(null), o.destinataireFactures().orElse(null));
+        Operateur enregistre = copie(o, prochainId++, 0);
         operateurs.put(enregistre.id(), enregistre);
         return enregistre;
     }
 
     @Override
-    public void mettreAJour(Operateur operateur) {
-        operateurs.put(operateur.id(), operateur);
+    public void mettreAJour(Operateur o) {
+        operateurs.put(o.id(), copie(o, o.id(), o.version() + 1));
     }
 
     @Override
@@ -55,19 +57,7 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
             throw new ElementUtilise("RG-OPE-25", "Opérateur utilisé.");
         }
         operateurs.remove(id);
-    }
-
-    @Override
-    public List<Operateur> avecEmailDeContact(fr.bnia.operateurs.domain.Email email) {
-        return operateurs.values().stream()
-                .filter(o -> o.contacts().stream().anyMatch(c -> c.identite().email() != null
-                        && c.identite().email().cle().equals(email.cle())))
-                .toList();
-    }
-
-    @Override
-    public long prochain() {
-        return prochainContact++;
+        cascade.accept(id);
     }
 
     @Override
@@ -81,8 +71,27 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
     }
 
     @Override
+    public void verrouiller(long id) {
+        verrous.add(id);
+    }
+
+    @Override
+    public boolean estActif(long id) {
+        return parId(id).map(Operateur::estActif).orElse(false);
+    }
+
+    @Override
+    public long idBnia() {
+        return operateurs.values().stream().filter(o -> o.type() == TypeOperateur.BNIA).findFirst().orElseThrow().id();
+    }
+
+    @Override
     public List<OperateurLigne> lister(FiltreOperateurs filtre) {
-        throw new UnsupportedOperationException("Listing : couvert par les tests d'intégration.");
+        return operateurs.values().stream().filter(o -> !o.estBnia())
+                .map(o -> new OperateurLigne(o.id(), o.type(), o.code().valeur(), o.identite().raisonSociale(),
+                        o.identite().nomCommercial(), o.identite().adresse().codePostal(), o.identite().adresse().ville(),
+                        o.identite().telephone1(), null, o.estActif(), !o.champsManquants().isEmpty()))
+                .toList();
     }
 
     @Override
@@ -93,7 +102,7 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
 
     @Override
     public List<String> groupes(String recherche) {
-        throw new UnsupportedOperationException("Groupes : couverts par les tests d'intégration.");
+        return operateurs.values().stream().map(o -> o.identite().groupe()).filter(Objects::nonNull).distinct().toList();
     }
 
     @Override
@@ -114,6 +123,12 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
                 .filter(code -> code.matches(serie.motif()))
                 .mapToInt(code -> Integer.parseInt(code.substring(serie.prefixe().length())))
                 .max();
+    }
+
+    private static Operateur copie(Operateur o, long id, long version) {
+        return Operateur.reconstituer(id, o.type(), o.code(), o.identite(), o.declaratif(), o.production(),
+                o.diffusion(), o.accesStatistiques(), o.estActif(), o.contactPrincipal().orElse(null),
+                o.destinataireFactures().orElse(null), version);
     }
 
     private <V> void ajouter(List<Doublon> doublons, Long sauf, V valeur, Function<Operateur, V> lire,

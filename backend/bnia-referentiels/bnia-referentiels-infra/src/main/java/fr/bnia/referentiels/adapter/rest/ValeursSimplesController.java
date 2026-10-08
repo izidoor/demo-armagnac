@@ -1,5 +1,6 @@
 package fr.bnia.referentiels.adapter.rest;
 
+import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.referentiels.application.FiltreValeurs;
 import fr.bnia.referentiels.application.GererValeursSimples;
 import fr.bnia.referentiels.domain.ValeurSimple;
@@ -48,32 +49,32 @@ abstract class ValeursSimplesController<T extends ValeurSimple> {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Créer une valeur (RG-REF-01, RG-REF-03)")
-    ValeurSimpleResponse creer(@RequestBody SaisieValeurSimpleRequest requete) {
-        return ValeurSimpleResponse.depuis(gerer.creer(requete.code(), requete.libelle()));
+    ValeurSimpleResponse creer(Connecte connecte, @RequestBody SaisieValeurSimpleRequest requete) {
+        return ValeurSimpleResponse.depuis(gerer.creer(connecte.utilisateur(), requete.code(), requete.libelle()));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Modifier le code et le libellé (RG-REF-01 à 03)")
-    ValeurSimpleResponse modifier(@PathVariable long id, @RequestBody SaisieValeurSimpleRequest requete) {
-        return ValeurSimpleResponse.depuis(gerer.modifier(id, requete.code(), requete.libelle()));
+    ValeurSimpleResponse modifier(Connecte connecte, @PathVariable long id, @RequestBody SaisieValeurSimpleRequest requete) {
+        return ValeurSimpleResponse.depuis(gerer.modifier(connecte.utilisateur(), id, requete.code(), requete.libelle()));
     }
 
     @PostMapping("/{id}/desactivation")
     @Operation(summary = "Désactiver une valeur (RG-REF-04)")
-    ValeurSimpleResponse desactiver(@PathVariable long id) {
-        return ValeurSimpleResponse.depuis(gerer.desactiver(id));
+    ValeurSimpleResponse desactiver(Connecte connecte, @PathVariable long id) {
+        return ValeurSimpleResponse.depuis(gerer.desactiver(connecte.utilisateur(), id));
     }
 
     @PostMapping("/{id}/reactivation")
     @Operation(summary = "Réactiver une valeur (RG-REF-04)")
-    ValeurSimpleResponse reactiver(@PathVariable long id) {
-        return ValeurSimpleResponse.depuis(gerer.reactiver(id));
+    ValeurSimpleResponse reactiver(Connecte connecte, @PathVariable long id) {
+        return ValeurSimpleResponse.depuis(gerer.reactiver(connecte.utilisateur(), id));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Supprimer une valeur qu'aucune autre donnée n'utilise ; sinon 409, la désactiver (RG-REF-04)")
-    void supprimer(@PathVariable long id) {
-        gerer.supprimer(id);
+    void supprimer(Connecte connecte, @PathVariable long id) {
+        gerer.supprimer(connecte.utilisateur(), id);
     }
 }
