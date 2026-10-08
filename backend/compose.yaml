@@ -1,7 +1,7 @@
 # Base de développement (ADR-003). Recréée au démarrage si V1 a changé (ADR-005) ;
 # remise à zéro volontaire : ./dev-reset.sh à la racine du dépôt.
-# Nom du projet et port surchargeables pour lancer une seconde instance depuis un worktree, avec sa
-# propre base (skill implementation) ; « backend » garde le conteneur et le volume existants.
+# Nom du projet et ports surchargeables pour lancer une seconde instance depuis un worktree, avec sa
+# propre base et son Mailpit (skill implementation) ; « backend » garde le conteneur et le volume existants.
 name: ${BNIA_COMPOSE_PROJECT:-backend}
 services:
   postgres:
@@ -14,6 +14,12 @@ services:
       - "${BNIA_DB_PORT:-5432}:5432"
     volumes:
       - bnia-pgdata:/var/lib/postgresql
+  # E-mails de dev et de démo (H-AUT-3) : SMTP sur 1025, boîte de lecture sur http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "${BNIA_SMTP_PORT:-1025}:1025"
+      - "${BNIA_MAILPIT_PORT:-8025}:8025"
 
 volumes:
   bnia-pgdata:

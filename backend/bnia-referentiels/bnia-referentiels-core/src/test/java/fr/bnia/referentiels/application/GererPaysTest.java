@@ -18,23 +18,23 @@ class GererPaysTest {
 
     private final ZonesEnMemoire zones = new ZonesEnMemoire();
     private final PaysEnMemoire pays = new PaysEnMemoire();
-    private final GererPays gerer = new GererPays(pays, pays, zones);
-    private final GererZonesCommerciales gererZones = new GererZonesCommerciales(zones, zones);
+    private final GererPays gerer = new GererPays(pays, pays, zones, Parametrage.AUTORISE);
+    private final GererZonesCommerciales gererZones = new GererZonesCommerciales(zones, zones, Parametrage.AUTORISE);
     private long europe;
     private long ameriqueNord;
     private long ancienne;
 
     @BeforeEach
     void zones() {
-        europe = gererZones.creer("EUR", "Europe").id();
-        ameriqueNord = gererZones.creer("AMN", "Amérique du Nord").id();
-        ancienne = gererZones.creer("OLD", "Ancienne zone").id();
-        gererZones.desactiver(ancienne);
+        europe = gererZones.creer(Parametrage.ACTEUR, "EUR", "Europe").id();
+        ameriqueNord = gererZones.creer(Parametrage.ACTEUR, "AMN", "Amérique du Nord").id();
+        ancienne = gererZones.creer(Parametrage.ACTEUR, "OLD", "Ancienne zone").id();
+        gererZones.desactiver(Parametrage.ACTEUR, ancienne);
     }
 
     @Test
     void creer_un_pays_avec_ses_valeurs_par_defaut() {
-        var cree = gerer.creer(saisie("US", "US", ameriqueNord));
+        var cree = gerer.creer(Parametrage.ACTEUR, saisie("US", "US", ameriqueNord));
 
         assertThat(cree.id()).isNotNull();
         assertThat(cree.estActif()).isTrue();
@@ -44,9 +44,9 @@ class GererPaysTest {
     @Test
     @DisplayName("RG-REF-01 : le code d'un pays est unique")
     void rg_ref_01_code_unique() {
-        gerer.creer(saisie("US", "US", ameriqueNord));
+        gerer.creer(Parametrage.ACTEUR, saisie("US", "US", ameriqueNord));
 
-        assertThatThrownBy(() -> gerer.creer(saisie("us", "UM", ameriqueNord)))
+        assertThatThrownBy(() -> gerer.creer(Parametrage.ACTEUR, saisie("us", "UM", ameriqueNord)))
                 .isInstanceOf(ConflitUnicite.class)
                 .extracting(e -> ((ConflitUnicite) e).regle().orElseThrow()).isEqualTo("RG-REF-01");
     }
@@ -54,21 +54,21 @@ class GererPaysTest {
     @Test
     @DisplayName("RG-REF-02 : le code d'un pays se corrige")
     void rg_ref_02_code_corrige() {
-        long id = gerer.creer(saisie("USA", "US", ameriqueNord)).id();
+        long id = gerer.creer(Parametrage.ACTEUR, saisie("USA", "US", ameriqueNord)).id();
 
-        assertThat(gerer.modifier(id, saisie("US", "US", ameriqueNord)).code().valeur()).isEqualTo("US");
+        assertThat(gerer.modifier(Parametrage.ACTEUR, id, saisie("US", "US", ameriqueNord)).code().valeur()).isEqualTo("US");
     }
 
     @Test
     @DisplayName("RG-REF-05 : la zone commerciale doit exister et être active à la création")
     void rg_ref_05_zone_inactive_refusee() {
-        assertThatThrownBy(() -> gerer.creer(saisie("XX", "XX", ancienne)))
+        assertThatThrownBy(() -> gerer.creer(Parametrage.ACTEUR, saisie("XX", "XX", ancienne)))
                 .isInstanceOf(RegleEnfreinte.class)
                 .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-REF-05");
-        assertThatThrownBy(() -> gerer.creer(saisie("XX", "XX", 999L)))
+        assertThatThrownBy(() -> gerer.creer(Parametrage.ACTEUR, saisie("XX", "XX", 999L)))
                 .isInstanceOf(RegleEnfreinte.class)
                 .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-REF-05");
-        assertThatThrownBy(() -> gerer.creer(saisie("XX", "XX", null)))
+        assertThatThrownBy(() -> gerer.creer(Parametrage.ACTEUR, saisie("XX", "XX", null)))
                 .isInstanceOf(RegleEnfreinte.class)
                 .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-REF-05");
     }
@@ -76,10 +76,10 @@ class GererPaysTest {
     @Test
     @DisplayName("RG-REF-05 : désactiver une zone ne touche pas ses pays, qui restent modifiables")
     void rg_ref_05_desactiver_une_zone_ne_touche_pas_ses_pays() {
-        long france = gerer.creer(saisie("FR", "FR", europe)).id();
-        gererZones.desactiver(europe);
+        long france = gerer.creer(Parametrage.ACTEUR, saisie("FR", "FR", europe)).id();
+        gererZones.desactiver(Parametrage.ACTEUR, europe);
 
-        var modifie = gerer.modifier(france,
+        var modifie = gerer.modifier(Parametrage.ACTEUR, france,
                 new SaisiePays("FR", "France métropolitaine", "FR", europe, true, null, null, null));
 
         assertThat(modifie.description().zoneCommerciale()).isEqualTo(europe);
@@ -89,20 +89,20 @@ class GererPaysTest {
     @Test
     @DisplayName("RG-REF-05 : changer de zone exige une zone active")
     void rg_ref_05_changer_vers_une_zone_inactive() {
-        long france = gerer.creer(saisie("FR", "FR", europe)).id();
+        long france = gerer.creer(Parametrage.ACTEUR, saisie("FR", "FR", europe)).id();
 
-        assertThatThrownBy(() -> gerer.modifier(france, saisie("FR", "FR", ancienne))).isInstanceOf(RegleEnfreinte.class);
+        assertThatThrownBy(() -> gerer.modifier(Parametrage.ACTEUR, france, saisie("FR", "FR", ancienne))).isInstanceOf(RegleEnfreinte.class);
     }
 
     @Test
     @DisplayName("RG-REF-06 : le code ISO est unique, sauf pour le pays lui-même")
     void rg_ref_06_code_iso_unique() {
-        long us = gerer.creer(saisie("US", "US", ameriqueNord)).id();
+        long us = gerer.creer(Parametrage.ACTEUR, saisie("US", "US", ameriqueNord)).id();
 
-        assertThatThrownBy(() -> gerer.creer(saisie("USA", "us", ameriqueNord)))
+        assertThatThrownBy(() -> gerer.creer(Parametrage.ACTEUR, saisie("USA", "us", ameriqueNord)))
                 .isInstanceOf(ConflitUnicite.class)
                 .extracting(e -> ((ConflitUnicite) e).regle().orElseThrow()).isEqualTo("RG-REF-06");
-        assertThat(gerer.modifier(us, saisie("US", "US", ameriqueNord)).id()).isEqualTo(us);
+        assertThat(gerer.modifier(Parametrage.ACTEUR, us, saisie("US", "US", ameriqueNord)).id()).isEqualTo(us);
     }
 
     private static SaisiePays saisie(String code, String codeIso, Long zone) {

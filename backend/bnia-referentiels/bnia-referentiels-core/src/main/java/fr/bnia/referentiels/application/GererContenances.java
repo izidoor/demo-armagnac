@@ -18,10 +18,12 @@ public class GererContenances {
 
     private final ContenanceRepository repository;
     private final ContenancesLecture lecture;
+    private final ControleParametrage controle;
 
-    public GererContenances(ContenanceRepository repository, ContenancesLecture lecture) {
+    public GererContenances(ContenanceRepository repository, ContenancesLecture lecture, ControleParametrage controle) {
         this.repository = repository;
         this.lecture = lecture;
+        this.controle = controle;
     }
 
     public List<ContenanceLigne> lister(FiltreValeurs filtre) {
@@ -37,14 +39,16 @@ public class GererContenances {
      *
      * @param libelle facultatif : vide pour le libellé dérivé du volume
      */
-    public Contenance creer(BigDecimal volume, String libelle) {
+    public Contenance creer(long acteur, BigDecimal volume, String libelle) {
+        controle.exigerGestion(acteur);
         Volume nouveau = Volume.de(volume);
         verifierVolumeLibre(nouveau, null);
         return repository.inserer(Contenance.creer(nouveau, libelleFacultatif(libelle)));
     }
 
     /** Le volume et le libellé se corrigent (RG-REF-02, RG-REF-10). */
-    public Contenance modifier(long id, BigDecimal volume, String libelle) {
+    public Contenance modifier(long acteur, long id, BigDecimal volume, String libelle) {
+        controle.exigerGestion(acteur);
         Volume nouveau = Volume.de(volume);
         Libelle nouveauLibelle = libelleFacultatif(libelle);
         verifierVolumeLibre(nouveau, id);
@@ -52,16 +56,19 @@ public class GererContenances {
     }
 
     /** RG-REF-04. */
-    public Contenance desactiver(long id) {
+    public Contenance desactiver(long acteur, long id) {
+        controle.exigerGestion(acteur);
         return modifierContenance(id, Contenance::desactiver);
     }
 
-    public Contenance reactiver(long id) {
+    public Contenance reactiver(long acteur, long id) {
+        controle.exigerGestion(acteur);
         return modifierContenance(id, Contenance::reactiver);
     }
 
     /** RG-REF-04 : seulement si aucune autre donnée n'y fait référence. */
-    public void supprimer(long id) {
+    public void supprimer(long acteur, long id) {
+        controle.exigerGestion(acteur);
         consulter(id);
         repository.supprimer(id);
     }

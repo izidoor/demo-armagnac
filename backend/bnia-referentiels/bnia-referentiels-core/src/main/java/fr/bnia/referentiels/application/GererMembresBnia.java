@@ -6,7 +6,8 @@ import fr.bnia.referentiels.domain.MembreBnia;
 @UseCase
 public class GererMembresBnia extends GererValeursSimples<MembreBnia> {
 
-    public GererMembresBnia(MembreBniaRepository repository, ValeursSimplesLecture<MembreBnia> lecture) {
-        super(repository, lecture, MembreBnia::creer, "membres BNIA");
+    public GererMembresBnia(MembreBniaRepository repository, ValeursSimplesLecture<MembreBnia> lecture,
+            ControleParametrage controle) {
+        super(repository, lecture, MembreBnia::creer, "membres BNIA", controle);
     }
 }

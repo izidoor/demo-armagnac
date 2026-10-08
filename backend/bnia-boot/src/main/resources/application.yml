@@ -9,13 +9,54 @@ spring:
     locations: classpath:db/migration
     # Un schéma PostgreSQL par contexte, créé par Flyway avant V1 ; nécessaire aussi pour que le
     # vidage de la base de dev (profil dev) les couvre tous. Historique dans public.
-    schemas: public,referentiels,operateurs
+    schemas: public,referentiels,operateurs,authentification
   mvc:
     problemdetails:
       enabled: true
   docker:
     compose:
       enabled: false
+  # Session serveur en base (A-AUT-3), tables créées par V1 dans le schéma authentification.
+  session:
+    timeout: ${bnia.authentification.inactivite-session}
+    jdbc:
+      table-name: authentification.spring_session
+      initialize-schema: never
+
+server:
+  servlet:
+    session:
+      # RG-AUT-09 : la session se ferme après 2 heures d'inactivité.
+      timeout: ${bnia.authentification.inactivite-session}
+      cookie:
+        http-only: true
+        same-site: lax
+
+bnia:
+  # Adresse du front, pour les liens des e-mails (invitation, changement d'e-mail, réinitialisation).
+  url-publique: ${BNIA_URL_PUBLIQUE:http://localhost:5173}
+  courriels:
+    expediteur: ${BNIA_COURRIELS_EXPEDITEUR:plateforme@bnia.example}
+  # Premier ADMIN du BNIA d'une installation neuve (AmorcageBnia) ; vide : rien à amorcer.
+  amorce:
+    email: ${BNIA_AMORCE_EMAIL:}
+    nom: ${BNIA_AMORCE_NOM:}
+    prenom: ${BNIA_AMORCE_PRENOM:}
+  # Durées fixes, non modifiables à l'écran (décision du 2026-10-08).
+  operateurs:
+    validite-invitation: 7d
+    validite-changement-email: 24h
+    delai-premier-mot-de-passe: 1h
+  authentification:
+    validite-code: 10m
+    validite-lien: 1h
+    validite-confiance: 30d
+    echecs-avant-blocage: 3
+    duree-blocage: 30m
+    longueur-mot-de-passe: 12
+    inactivite-session: 2h
+    # RG-AUT-01 : vide en production (code tiré au hasard) ; 000000 en dev et en démo.
+    code-fixe: ""
 
 springdoc:
   api-docs:

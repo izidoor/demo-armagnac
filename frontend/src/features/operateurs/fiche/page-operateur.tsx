@@ -18,7 +18,8 @@ import { BadgeEtat } from '@/components/metier/badge-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { apiOperateur, cleOperateur, type Espace } from '../commun/api'
 import { TYPES } from '../commun/libelles'
-import { OngletContacts } from './onglet-contacts'
+import { OngletAnnuaire } from '../personnes/annuaire'
+import { OngletJournal } from '../personnes/journal'
 import { OngletDiffusion } from './onglet-diffusion'
 import { OngletGeneral } from './onglet-general'
 import { OngletProduction } from './onglet-production'
@@ -32,19 +33,28 @@ import { usePresentation } from './use-presentation'
 type Action = 'desactiver' | 'reactiver' | 'supprimer'
 
 /**
- * Fiche opérateur par onglets (spec 02, §6.1) ; au portail, « Mon entreprise » (§6.2), dans les mêmes
- * onglets, sans le commentaire interne ni les actions du BNIA ; les contacts y ont leur propre page.
+ * Fiche opérateur par onglets (spec 02, §6.1), ouverte sans changer d'opérateur actif ; au portail,
+ * « Mon entreprise » (§6.2), dans les mêmes onglets, l'annuaire ayant son propre menu. Pour l'opérateur
+ * BNIA, une fiche réduite : identité, coordonnées et annuaire (RG-OPE-39). Ce que l'on peut faire suit
+ * les droits renvoyés avec la fiche (RG-OPE-31, 32, 36).
  */
-export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
+export function PageOperateur({
+  espace,
+  id,
+  onglet = 'general',
+}: {
+  espace: Espace
+  id: number
+  onglet?: string
+}) {
   const bo = espace === 'bo'
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const api = apiOperateur(espace, id)
   const requete = useQuery({
-    queryKey: [...cleOperateur(id), espace],
-    queryFn: api.fiche,
+    queryKey: [...cleOperateur(id), 'fiche'],
+    queryFn: apiOperateur(id).fiche,
   })
-  const presentation = usePresentation(espace, id)
+  const presentation = usePresentation(id)
   const [action, setAction] = useState<Action | null>(null)
   const rafraichir = () => {
     queryClient.invalidateQueries({ queryKey: cleOperateur(id) })
@@ -92,7 +102,9 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
     )
   }
 
-  const avecContacts = fiche.contacts.filter((c) => c.acces).length
+  const bnia = fiche.type === 'BNIA'
+  const droits = fiche.droits
+  const avecAnnuaire = bo
   return (
     <PageMetier
       titre={
@@ -100,7 +112,7 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
       }
       description={
         <span className='flex flex-wrap items-center gap-2'>
-          {bo && (
+          {bo && !bnia && (
             <Button
               variant='link'
               className='h-auto p-0'
@@ -116,7 +128,8 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
         </span>
       }
       actions={
-        bo && (
+        droits.adminBnia &&
+        !bnia && (
           <div className='flex gap-2'>
             <Button
               variant='outline'
@@ -137,7 +150,7 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
       }
     >
       <div className='mb-4 space-y-2'>
-        {fiche.champsManquants.length > 0 && (
+        {!bnia && fiche.champsManquants.length > 0 && (
           <Alert>
             <TriangleAlert />
             <AlertTitle>Fiche incomplète</AlertTitle>
@@ -147,14 +160,14 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
             </AlertDescription>
           </Alert>
         )}
-        {bo && !fiche.codeConforme && (
+        {droits.personnelBnia && !fiche.codeConforme && (
           <Alert>
             <TriangleAlert />
             <AlertTitle>Code non conforme</AlertTitle>
             <AlertDescription className='flex flex-wrap items-center gap-2'>
               Le code {fiche.code} n'a plus la forme de son type ou de son
               département.
-              {fiche.codePropose && (
+              {fiche.codePropose && droits.contacts === 'GESTION' && (
                 <Button
                   size='sm'
                   variant='outline'
@@ -167,18 +180,27 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
           </Alert>
         )}
       </div>
-      <Tabs defaultValue='general'>
+      <Tabs defaultValue={onglet}>
         <TabsList className='flex-wrap'>
-          <TabsTrigger value='general'>Général</TabsTrigger>
-          <TabsTrigger value='production'>Production</TabsTrigger>
-          <TabsTrigger value='diffusion'>Diffusion et statistiques</TabsTrigger>
-          <TabsTrigger value='marques'>Marques</TabsTrigger>
-          <TabsTrigger value='visites'>Visites et labels</TabsTrigger>
-          <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
-          {bo && (
-            <TabsTrigger value='contacts'>
-              Contacts ({fiche.contacts.length})
-            </TabsTrigger>
+          <TabsTrigger value='general'>
+            {bnia ? 'Fiche' : 'Général'}
+          </TabsTrigger>
+          {!bnia && (
+            <>
+              <TabsTrigger value='production'>Production</TabsTrigger>
+              <TabsTrigger value='diffusion'>
+                Diffusion et statistiques
+              </TabsTrigger>
+              <TabsTrigger value='marques'>Marques</TabsTrigger>
+              <TabsTrigger value='visites'>Visites et labels</TabsTrigger>
+              <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
+            </>
+          )}
+          {avecAnnuaire && (
+            <>
+              <TabsTrigger value='annuaire'>Annuaire</TabsTrigger>
+              <TabsTrigger value='journal'>Journal</TabsTrigger>
+            </>
           )}
         </TabsList>
         <TabsContent value='general'>
@@ -188,37 +210,42 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
             onEnregistre={enregistre(rafraichir)}
           />
         </TabsContent>
-        <TabsContent value='production'>
-          <OngletProduction
-            espace={espace}
-            fiche={fiche}
-            onEnregistre={enregistre(rafraichir)}
-          />
-        </TabsContent>
-        <TabsContent value='diffusion'>
-          <OngletDiffusion
-            key={`${fiche.niveauDiffusion}-${fiche.millesimesDiffusables.join()}-${fiche.accesStatistiques}`}
-            espace={espace}
-            fiche={fiche}
-            onEnregistre={enregistre(rafraichir)}
-          />
-        </TabsContent>
-        <TabsContent value='marques'>
-          <SectionMarques presentation={presentation} />
-        </TabsContent>
-        <TabsContent value='visites'>
-          <SectionVisitesLabels presentation={presentation} />
-        </TabsContent>
-        <TabsContent value='oenotourisme'>
-          <SectionOenotourisme presentation={presentation} />
-        </TabsContent>
-        <TabsContent value='contacts'>
-          <OngletContacts
-            espace={espace}
-            fiche={fiche}
-            onEnregistre={rafraichir}
-          />
-        </TabsContent>
+        {!bnia && (
+          <>
+            <TabsContent value='production'>
+              <OngletProduction
+                fiche={fiche}
+                onEnregistre={enregistre(rafraichir)}
+              />
+            </TabsContent>
+            <TabsContent value='diffusion'>
+              <OngletDiffusion
+                key={`${fiche.version}`}
+                fiche={fiche}
+                onEnregistre={enregistre(rafraichir)}
+              />
+            </TabsContent>
+            <TabsContent value='marques'>
+              <SectionMarques presentation={presentation} />
+            </TabsContent>
+            <TabsContent value='visites'>
+              <SectionVisitesLabels presentation={presentation} />
+            </TabsContent>
+            <TabsContent value='oenotourisme'>
+              <SectionOenotourisme presentation={presentation} />
+            </TabsContent>
+          </>
+        )}
+        {avecAnnuaire && (
+          <>
+            <TabsContent value='annuaire'>
+              <OngletAnnuaire espace={espace} operateur={id} droits={droits} />
+            </TabsContent>
+            <TabsContent value='journal'>
+              <OngletJournal operateur={id} />
+            </TabsContent>
+          </>
+        )}
       </Tabs>
       <ConfirmDialog
         open={action !== null}
@@ -232,10 +259,10 @@ export function PageOperateur({ espace, id }: { espace: Espace; id: number }) {
         }
         desc={
           action === 'supprimer'
-            ? `${fiche.raisonSociale} sera supprimé avec ses contacts et sa présentation. Si d'autres données le référencent, la suppression sera refusée : désactivez-le plutôt.`
+            ? `${fiche.raisonSociale} sera supprimé avec sa présentation, ses contacts, ses fiches professionnelles, ses rattachements et ses invitations ; un membre qui n'a pas d'autre opérateur perd son compte. Si d'autres données le référencent, la suppression sera refusée : désactivez-le plutôt.`
             : action === 'desactiver'
-              ? `${fiche.raisonSociale} restera consultable, mais ne sera plus proposé.${avecContacts > 0 ? ` ${avecContacts} contact(s) perdront l'accès au portail.` : ''}`
-              : `${fiche.raisonSociale} sera de nouveau proposé. L'accès au portail se réaccorde contact par contact.`
+              ? `${fiche.raisonSociale} restera consultable, mais ne sera plus proposé. Ses membres n'y auront plus accès (leurs rattachements sont gelés) et ses invitations en attente seront annulées.`
+              : `${fiche.raisonSociale} sera de nouveau proposé, et ses membres retrouveront leur accès.`
         }
         confirmText={
           action === 'supprimer'

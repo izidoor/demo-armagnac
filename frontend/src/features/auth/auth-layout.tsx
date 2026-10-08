@@ -1,18 +1,62 @@
+import { type ReactNode } from 'react'
+import chai from '@/assets/chai.jpg'
 import { Logo } from '@/assets/logo'
 
 type AuthLayoutProps = {
-  children: React.ReactNode
+  children: ReactNode
+  /** Contenu de la colonne de droite, sur la photo ; absent : une seule colonne centrée. */
+  panneau?: ReactNode
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+function Formulaire({ children }: { children: ReactNode }) {
   return (
-    <div className='container grid h-svh max-w-none items-center justify-center'>
-      <div className='mx-auto flex w-full flex-col justify-center space-y-2 py-8 sm:w-[480px] sm:p-8'>
-        <div className='mb-4 flex items-center justify-center'>
-          <Logo className='me-2' />
-          <h1 className='text-xl font-medium'>BNIA</h1>
+    <div className='mx-auto flex w-full flex-col justify-center space-y-2 py-8 sm:w-[480px] sm:p-8'>
+      <div className='mb-4 flex flex-col items-center gap-3'>
+        <h1 className='text-center text-xl leading-tight font-medium'>
+          Bureau National
+          <br />
+          Interprofessionnel de l'Armagnac
+        </h1>
+        <Logo />
+      </div>
+      {children}
+    </div>
+  )
+}
+
+/** Gabarit des écrans publics ; sur deux colonnes, la photo d'un chai et un panneau en surimpression. */
+export function AuthLayout({ children, panneau }: AuthLayoutProps) {
+  if (!panneau) {
+    return (
+      <div className='container grid h-svh max-w-none items-center justify-center'>
+        <Formulaire>{children}</Formulaire>
+      </div>
+    )
+  }
+  return (
+    <div className='grid min-h-svh lg:grid-cols-2'>
+      <div className='flex items-center justify-center px-4'>
+        <Formulaire>{children}</Formulaire>
+      </div>
+      <div className='relative hidden lg:block'>
+        <img
+          src={chai}
+          alt='Fûts dans un chai'
+          className='absolute inset-0 h-full w-full object-cover'
+        />
+        <div className='absolute inset-0 flex items-center justify-center p-10'>
+          <div className='w-full max-w-lg rounded-lg bg-white/85 p-6 text-sm text-neutral-900 shadow-lg backdrop-blur-sm'>
+            {panneau}
+          </div>
         </div>
-        {children}
+        <a
+          href='https://unsplash.com/photos/t6RoUiXuhso'
+          target='_blank'
+          rel='noreferrer'
+          className='absolute right-3 bottom-2 text-xs text-white/80 hover:underline'
+        >
+          Photo : Javier Balseiro, Unsplash
+        </a>
       </div>
     </div>
   )

@@ -12,12 +12,13 @@ import java.util.Set;
 
 @Schema(name = "SaisieProduction", description = "Onglet Production : déclaratif, région, appellations, alambics")
 public record SaisieProductionRequest(
-        @Schema(description = "Absente pour un opérateur AUTRE, obligatoire sinon (RG-OPE-01, 10)") PeriodiciteDsm periodicite,
+        @Schema(description = "Absente pour un opérateur AUTRE ou BNIA, obligatoire sinon (RG-OPE-01, 10)") PeriodiciteDsm periodicite,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Jamais OUI pour un opérateur AUTRE (RG-OPE-11)")
         StatutDeclarationStock statutDeclarationStock,
         @Schema(description = "Identifiant de la région") Long region,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Set<Appellation> appellations,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<Alambic> alambics) {
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<Alambic> alambics,
+        @Schema(description = "Version lue (RG-OPE-51)") Long version) {
 
     @Schema(name = "SaisieAlambic")
     public record Alambic(
@@ -29,6 +30,7 @@ public record SaisieProductionRequest(
     SaisieProduction versSaisie() {
         return new SaisieProduction(periodicite, statutDeclarationStock, region, appellations,
                 alambics == null ? List.of() : alambics.stream()
-                        .map(a -> new SaisieProduction.Alambic(a.numeroAgrement(), a.type(), a.capacite())).toList());
+                        .map(a -> new SaisieProduction.Alambic(a.numeroAgrement(), a.type(), a.capacite())).toList(),
+                version);
     }
 }

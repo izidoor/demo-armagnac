@@ -4,25 +4,25 @@ import fr.bnia.operateurs.application.SaisieContact;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Set;
 
-@Schema(name = "SaisieContact", description = "Création ou modification d'un contact (C.1.9.1)")
+@Schema(name = "SaisieContact", description = "Déclaration d'un contact et de sa fiche professionnelle (vision UC-10, C.1.9.1)")
 public record SaisieContactRequest(
         @Schema(description = "Identifiant du titre") Long titre,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Durand") String nom,
-        @Schema(example = "Jeanne") String prenom,
-        @Schema(example = "Comptable") String fonction,
-        @Schema(description = "Identifiants des centres d'intérêt") Set<Long> centresInteret,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Petit") String nom,
+        @Schema(example = "Paul") String prenom,
+        @Schema(description = "Unique parmi les contacts de l'opérateur (RG-OPE-28)", example = "paul.petit@exemple.fr")
+        String email,
+        @Schema(example = "Maître de chai") String fonction,
         String telephoneProfessionnel,
         String telephoneSecondaire,
-        @Schema(description = "Unique dans l'opérateur (RG-OPE-28) ; non modifiable s'il est l'identifiant d'un compte (RG-OPE-32)",
-                example = "jeanne.durand@exemple.fr") String email,
         String adresse,
         String codePostal,
         String ville,
         @Schema(description = "Identifiant du pays") Long pays,
+        @Schema(description = "Identifiants des centres d'intérêt") Set<Long> centresInteret,
         String observation) {
 
     SaisieContact versSaisie() {
-        return new SaisieContact(titre, nom, prenom, fonction, centresInteret, telephoneProfessionnel,
-                telephoneSecondaire, email, adresse, codePostal, ville, pays, observation);
+        return new SaisieContact(titre, nom, prenom, email, fonction, telephoneProfessionnel, telephoneSecondaire,
+                adresse, codePostal, ville, pays, centresInteret, observation);
     }
 }

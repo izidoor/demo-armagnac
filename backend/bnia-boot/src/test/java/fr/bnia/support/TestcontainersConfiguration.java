@@ -7,7 +7,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * PostgreSQL de test (ADR-003). Le conteneur est un singleton : partagé par toutes les classes de
- * test, il démarre une fois par exécution de Failsafe.
+ * test, il démarre une fois par exécution de Failsafe. Les e-mails sont retenus, pas envoyés.
  */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
@@ -18,5 +18,10 @@ public class TestcontainersConfiguration {
     @ServiceConnection
     PostgreSQLContainer postgres() {
         return POSTGRES;
+    }
+
+    @Bean
+    CourrielsCaptures courriels() {
+        return new CourrielsCaptures();
     }
 }

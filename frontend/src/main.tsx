@@ -9,7 +9,6 @@ import {
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { useAuthStore } from '@/stores/auth-store'
 import { handleServerError } from '@/lib/handle-server-error'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
@@ -46,13 +45,15 @@ const queryClient = new QueryClient({
     },
   }),
   queryCache: new QueryCache({
-    onError: (error) => {
+    onError: (error, query) => {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) {
-          toast.error('Session expirée')
-          useAuthStore.getState().auth.reset()
-          const redirect = `${router.history.location.href}`
-          router.navigate({ to: '/sign-in', search: { redirect } })
+        // Sans session, la garde des routes renvoie déjà à la connexion, sans message.
+        if (error.response?.status === 401 && query.queryKey[0] !== 'moi') {
+          // Session fermée : déconnexion, inactivité, blocage ou accès retiré (RG-AUT-09).
+          toast.error('Session expirée : reconnectez-vous.')
+          const redirect = router.history.location.href
+          queryClient.clear()
+          router.navigate({ to: '/connexion', search: { redirect } })
         }
         if (error.response?.status === 500) {
           toast.error('Erreur interne du serveur')

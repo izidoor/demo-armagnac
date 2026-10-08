@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AjouterTauxTvaData, AjouterTauxTvaResponses, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContactData, ConsulterContactPortailData, ConsulterContactPortailResponses, ConsulterContactResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterJournalContactData, ConsulterJournalContactPortailData, ConsulterJournalContactPortailResponses, ConsulterJournalContactResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterMembreBniaData, ConsulterMembreBniaResponses, ConsulterOperateurData, ConsulterOperateurDemoPortailData, ConsulterOperateurDemoPortailResponses, ConsulterOperateurResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponses, ConsulterPresentationPortailData, ConsulterPresentationPortailResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterProfilPortailData, ConsulterProfilPortailResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContactData, CreerContactPortailData, CreerContactPortailResponses, CreerContactResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueResponses, CreerMembreBniaData, CreerMembreBniaResponses, CreerOperateurData, CreerOperateurResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContactData, DesactiverContactPortailData, DesactiverContactPortailResponses, DesactiverContactResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverMembreBniaData, DesactiverMembreBniaResponses, DesactiverOperateurData, DesactiverOperateurResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, DesignerContactsOperateurData, DesignerContactsOperateurResponses, DesignerContactsPortailData, DesignerContactsPortailResponses, ExporterOperateursData, ExporterOperateursResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerContenancesData, ListerContenancesResponses, ListerDoublonsOperateurData, ListerDoublonsOperateurResponses, ListerGroupesOperateursData, ListerGroupesOperateursResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerMembresBniaData, ListerMembresBniaResponses, ListerOperateursData, ListerOperateursResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContactData, ModifierContactPortailData, ModifierContactPortailResponses, ModifierContactResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponses, ModifierDiffusionPortailData, ModifierDiffusionPortailResponses, ModifierDroitsContactData, ModifierDroitsContactPortailData, ModifierDroitsContactPortailResponses, ModifierDroitsContactResponses, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierMembreBniaData, ModifierMembreBniaResponses, ModifierPaysData, ModifierPaysResponses, ModifierPresentationOperateurData, ModifierPresentationOperateurResponses, ModifierPresentationPortailData, ModifierPresentationPortailResponses, ModifierProductionOperateurData, ModifierProductionOperateurResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierProfilPortailData, ModifierProfilPortailResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ProposerCodeOperateurData, ProposerCodeOperateurResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContactData, ReactiverContactPortailData, ReactiverContactPortailResponses, ReactiverContactResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverMembreBniaData, ReactiverMembreBniaResponses, ReactiverOperateurData, ReactiverOperateurResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RechercherOperateursPortailData, RechercherOperateursPortailResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContactData, SupprimerContactPortailData, SupprimerContactPortailResponses, SupprimerContactResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerMembreBniaData, SupprimerMembreBniaResponses, SupprimerOperateurData, SupprimerOperateurResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses } from './types.gen';
+import type { AccepterInvitationData, AccepterInvitationResponses, AjouterTauxTvaData, AjouterTauxTvaResponses, AnnulerInvitationData, AnnulerInvitationResponses, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponses, BloquerUtilisateurData, BloquerUtilisateurResponses, ChangerMotDePasseData, ChangerMotDePasseResponses, ChangerRoleMembreData, ChangerRoleMembreResponses, ChoisirOperateurActifData, ChoisirOperateurActifResponses, ConfirmerChangementEmailData, ConfirmerChangementEmailResponses, ConsulterAnnuaireData, ConsulterAnnuaireResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContactData, ConsulterContactResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterFicheData, ConsulterFicheResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterInvitationData, ConsulterInvitationParJetonData, ConsulterInvitationParJetonResponses, ConsulterInvitationResponses, ConsulterJournalContactData, ConsulterJournalContactResponses, ConsulterJournalMembreData, ConsulterJournalMembreResponses, ConsulterJournalOperateurData, ConsulterJournalOperateurResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterMembreBniaData, ConsulterMembreBniaResponses, ConsulterMembreData, ConsulterMembreResponses, ConsulterMesDroitsData, ConsulterMesDroitsResponses, ConsulterMoiData, ConsulterMoiResponses, ConsulterOperateurData, ConsulterOperateurResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterSessionData, ConsulterSessionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterUtilisateurData, ConsulterUtilisateurResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContactData, CreerContactResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueDepuisFicheData, CreerMarqueDepuisFicheResponses, CreerMarqueResponses, CreerMembreBniaData, CreerMembreBniaResponses, CreerOperateurData, CreerOperateurResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DebloquerUtilisateurData, DebloquerUtilisateurResponses, DefinirPremierMotDePasseData, DefinirPremierMotDePasseResponses, DemanderChangementEmailData, DemanderChangementEmailResponses, DemanderReinitialisationData, DemanderReinitialisationResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverMembreBniaData, DesactiverMembreBniaResponses, DesactiverOperateurData, DesactiverOperateurResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, DesignerContactsOperateurData, DesignerContactsOperateurResponses, ExporterOperateursData, ExporterOperateursResponses, InviterData, InviterResponses, ListerAvertissementsContactData, ListerAvertissementsContactResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerConnexionsData, ListerConnexionsResponses, ListerContenancesData, ListerContenancesResponses, ListerDoublonsOperateurData, ListerDoublonsOperateurResponses, ListerEtatsComptesData, ListerEtatsComptesResponses, ListerGroupesOperateursData, ListerGroupesOperateursResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerMembresBniaData, ListerMembresBniaResponses, ListerMesConnexionsData, ListerMesConnexionsResponses, ListerOperateursData, ListerOperateursResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerUtilisateursData, ListerUtilisateursResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContactData, ModifierContactResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponses, ModifierFicheData, ModifierFicheResponses, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierMembreBniaData, ModifierMembreBniaResponses, ModifierMonProfilData, ModifierMonProfilResponses, ModifierPaysData, ModifierPaysResponses, ModifierPresentationOperateurData, ModifierPresentationOperateurResponses, ModifierProductionOperateurData, ModifierProductionOperateurResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierProfilOperateurData, ModifierProfilOperateurResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ProposerCodeOperateurData, ProposerCodeOperateurResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverMembreBniaData, ReactiverMembreBniaResponses, ReactiverMembreData, ReactiverMembreResponses, ReactiverOperateurData, ReactiverOperateurResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RechercherOperateursData, RechercherOperateursResponses, ReinitialiserMotDePasseData, ReinitialiserMotDePasseResponses, RelancerInvitationData, RelancerInvitationResponses, RenvoyerCodeData, RenvoyerCodeResponses, RetirerMembreData, RetirerMembreResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SeConnecterData, SeConnecterResponses, SeDeconnecterData, SeDeconnecterResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContactData, SupprimerContactResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerMembreBniaData, SupprimerMembreBniaResponses, SupprimerOperateurData, SupprimerOperateurResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses, SuspendreMembreData, SuspendreMembreResponses, VerifierCodeData, VerifierCodeResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -19,7 +19,214 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 /**
- * Lister les opérateurs, triés par raison sociale (§4.3.1)
+ * Le code reçu par e-mail ; ouvre la session, et met le navigateur en confiance si demandé (RG-AUT-03, 05, 06)
+ */
+export const verifierCode = <ThrowOnError extends boolean = false>(options: Options<VerifierCodeData, ThrowOnError>): RequestResult<VerifierCodeResponses, unknown, ThrowOnError> => (options.client ?? client).post<VerifierCodeResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/code',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Un nouveau code, qui invalide le précédent (RG-AUT-05)
+ */
+export const renvoyerCode = <ThrowOnError extends boolean = false>(options?: Options<RenvoyerCodeData, ThrowOnError>): RequestResult<RenvoyerCodeResponses, unknown, ThrowOnError> => (options?.client ?? client).post<RenvoyerCodeResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/code/renvoi',
+    ...options
+});
+
+/**
+ * Blocage temporaire et dernière connexion de ces utilisateurs ; personnel du BNIA (RG-OPE-53)
+ */
+export const listerEtatsComptes = <ThrowOnError extends boolean = false>(options: Options<ListerEtatsComptesData, ThrowOnError>): RequestResult<ListerEtatsComptesResponses, unknown, ThrowOnError> => (options.client ?? client).get<ListerEtatsComptesResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/comptes',
+    ...options
+});
+
+/**
+ * E-mail et mot de passe ; un code part par e-mail, sauf sur un navigateur de confiance (RG-AUT-01 à 04, 06)
+ */
+export const seConnecter = <ThrowOnError extends boolean = false>(options: Options<SeConnecterData, ThrowOnError>): RequestResult<SeConnecterResponses, unknown, ThrowOnError> => (options.client ?? client).post<SeConnecterResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/connexion',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Fermer la session (RG-AUT-09)
+ */
+export const seDeconnecter = <ThrowOnError extends boolean = false>(options?: Options<SeDeconnecterData, ThrowOnError>): RequestResult<SeDeconnecterResponses, unknown, ThrowOnError> => (options?.client ?? client).post<SeDeconnecterResponses, unknown, ThrowOnError>({ url: '/api/authentification/deconnexion', ...options });
+
+/**
+ * Journal des connexions, filtré ; personnel du BNIA (module Accès, lecture) (RG-AUT-12, 13)
+ */
+export const listerConnexions = <ThrowOnError extends boolean = false>(options?: Options<ListerConnexionsData, ThrowOnError>): RequestResult<ListerConnexionsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListerConnexionsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/journal',
+    ...options
+});
+
+/**
+ * Ses propres connexions, « Mon compte » (RG-AUT-13)
+ */
+export const listerMesConnexions = <ThrowOnError extends boolean = false>(options?: Options<ListerMesConnexionsData, ThrowOnError>): RequestResult<ListerMesConnexionsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListerMesConnexionsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/mes-connexions',
+    ...options
+});
+
+/**
+ * Changer son mot de passe, l'actuel exigé (RG-AUT-06, 07)
+ */
+export const changerMotDePasse = <ThrowOnError extends boolean = false>(options: Options<ChangerMotDePasseData, ThrowOnError>): RequestResult<ChangerMotDePasseResponses, unknown, ThrowOnError> => (options.client ?? client).put<ChangerMotDePasseResponses, unknown, ThrowOnError>({
+    url: '/api/authentification/mot-de-passe',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Mot de passe oublié : un lien valable une heure part par e-mail (RG-AUT-08)
+ */
+export const demanderReinitialisation = <ThrowOnError extends boolean = false>(options: Options<DemanderReinitialisationData, ThrowOnError>): RequestResult<DemanderReinitialisationResponses, unknown, ThrowOnError> => (options.client ?? client).post<DemanderReinitialisationResponses, unknown, ThrowOnError>({
+    url: '/api/authentification/mot-de-passe-oublie',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Après l'acceptation d'une invitation : le mot de passe, avec le même jeton ; la session s'ouvre (RG-AUT-15)
+ */
+export const definirPremierMotDePasse = <ThrowOnError extends boolean = false>(options: Options<DefinirPremierMotDePasseData, ThrowOnError>): RequestResult<DefinirPremierMotDePasseResponses, unknown, ThrowOnError> => (options.client ?? client).post<DefinirPremierMotDePasseResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/premier-mot-de-passe',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Un nouveau mot de passe, avec le lien reçu ; lève le blocage, ferme les sessions (RG-AUT-06 à 08)
+ */
+export const reinitialiserMotDePasse = <ThrowOnError extends boolean = false>(options: Options<ReinitialiserMotDePasseData, ThrowOnError>): RequestResult<ReinitialiserMotDePasseResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReinitialiserMotDePasseResponses, unknown, ThrowOnError>({
+    url: '/api/authentification/reinitialisation',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * État de la session ; pose aussi le cookie du jeton CSRF, à appeler au chargement du front
+ */
+export const consulterSession = <ThrowOnError extends boolean = false>(options?: Options<ConsulterSessionData, ThrowOnError>): RequestResult<ConsulterSessionResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ConsulterSessionResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/authentification/session',
+    ...options
+});
+
+/**
+ * Confirmer un nouvel e-mail par le lien reçu ; l'identifiant de connexion suit (RG-OPE-48, RG-AUT-10)
+ */
+export const confirmerChangementEmail = <ThrowOnError extends boolean = false>(options: Options<ConfirmerChangementEmailData, ThrowOnError>): RequestResult<ConfirmerChangementEmailResponses, unknown, ThrowOnError> => (options.client ?? client).post<ConfirmerChangementEmailResponses, unknown, ThrowOnError>({
+    url: '/api/changements-email/confirmation',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * L'opérateur, le rôle et l'identité préremplie d'une invitation acceptable (RG-OPE-42)
+ */
+export const consulterInvitationParJeton = <ThrowOnError extends boolean = false>(options: Options<ConsulterInvitationParJetonData, ThrowOnError>): RequestResult<ConsulterInvitationParJetonResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterInvitationParJetonResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/invitations/{jeton}',
+    ...options
+});
+
+/**
+ * Accepter : utilisateur créé ou retrouvé (connecté), fiche, rattachement actif (RG-OPE-29, 30, 42, 49)
+ */
+export const accepterInvitation = <ThrowOnError extends boolean = false>(options: Options<AccepterInvitationData, ThrowOnError>): RequestResult<AccepterInvitationResponses, unknown, ThrowOnError> => (options.client ?? client).post<AccepterInvitationResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/invitations/{jeton}/acceptation',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * L'utilisateur connecté, ses rattachements et son opérateur ouvert (RG-OPE-49)
+ */
+export const consulterMoi = <ThrowOnError extends boolean = false>(options?: Options<ConsulterMoiData, ThrowOnError>): RequestResult<ConsulterMoiResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ConsulterMoiResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/moi',
+    ...options
+});
+
+/**
+ * Demander à changer d'e-mail : un lien de confirmation part au nouvel e-mail (RG-OPE-48)
+ */
+export const demanderChangementEmail = <ThrowOnError extends boolean = false>(options: Options<DemanderChangementEmailData, ThrowOnError>): RequestResult<DemanderChangementEmailResponses, unknown, ThrowOnError> => (options.client ?? client).post<DemanderChangementEmailResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/moi/changement-email',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Choisir l'opérateur où travailler (RG-OPE-49)
+ */
+export const choisirOperateurActif = <ThrowOnError extends boolean = false>(options: Options<ChoisirOperateurActifData, ThrowOnError>): RequestResult<ChoisirOperateurActifResponses, unknown, ThrowOnError> => (options.client ?? client).put<ChoisirOperateurActifResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/moi/operateur-actif',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Modifier son titre, son nom et son prénom (RG-OPE-27, 47, 51)
+ */
+export const modifierMonProfil = <ThrowOnError extends boolean = false>(options: Options<ModifierMonProfilData, ThrowOnError>): RequestResult<ModifierMonProfilResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierMonProfilResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/moi/profil',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Lister les opérateurs, sauf le BNIA, triés par raison sociale (§4.3.1, RG-OPE-32, 39)
  */
 export const listerOperateurs = <ThrowOnError extends boolean = false>(options?: Options<ListerOperateursData, ThrowOnError>): RequestResult<ListerOperateursResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListerOperateursResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -28,7 +235,7 @@ export const listerOperateurs = <ThrowOnError extends boolean = false>(options?:
 });
 
 /**
- * Créer un opérateur ; sans code saisi, le code proposé (RG-OPE-01 à 08, 20, 21, 24)
+ * Créer un opérateur ; sans code saisi, le code proposé ; premier ADMIN invité au besoin (RG-OPE-01 à 08, 20, 21, 24, 39, 40)
  */
 export const creerOperateur = <ThrowOnError extends boolean = false>(options: Options<CreerOperateurData, ThrowOnError>): RequestResult<CreerOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).post<CreerOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -77,12 +284,21 @@ export const listerGroupesOperateurs = <ThrowOnError extends boolean = false>(op
 });
 
 /**
- * Supprimer un opérateur que rien ne référence (RG-OPE-25)
+ * Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)
+ */
+export const rechercherOperateurs = <ThrowOnError extends boolean = false>(options: Options<RechercherOperateursData, ThrowOnError>): RequestResult<RechercherOperateursResponses, unknown, ThrowOnError> => (options.client ?? client).get<RechercherOperateursResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/recherche',
+    ...options
+});
+
+/**
+ * Supprimer un opérateur que rien ne référence, avec ses personnes (ADMIN BNIA, RG-OPE-25, 44)
  */
 export const supprimerOperateur = <ThrowOnError extends boolean = false>(options: Options<SupprimerOperateurData, ThrowOnError>): RequestResult<SupprimerOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerOperateurResponses, unknown, ThrowOnError>({ url: '/api/operateurs/{id}', ...options });
 
 /**
- * Consulter la fiche d'un opérateur, actif ou non
+ * Consulter la fiche d'un opérateur, actif ou non (RG-OPE-31, 36)
  */
 export const consulterOperateur = <ThrowOnError extends boolean = false>(options: Options<ConsulterOperateurData, ThrowOnError>): RequestResult<ConsulterOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -91,7 +307,16 @@ export const consulterOperateur = <ThrowOnError extends boolean = false>(options
 });
 
 /**
- * Désactiver un opérateur : consultable, plus proposé ; ses contacts perdent l'accès au portail (RG-OPE-26)
+ * Contacts, membres et invitations en attente de l'opérateur, en une liste (RG-OPE-52)
+ */
+export const consulterAnnuaire = <ThrowOnError extends boolean = false>(options: Options<ConsulterAnnuaireData, ThrowOnError>): RequestResult<ConsulterAnnuaireResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterAnnuaireResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{id}/annuaire',
+    ...options
+});
+
+/**
+ * Désactiver un opérateur (ADMIN BNIA) : consultable, plus proposé ; rattachements gelés, invitations annulées (RG-OPE-26)
  */
 export const desactiverOperateur = <ThrowOnError extends boolean = false>(options: Options<DesactiverOperateurData, ThrowOnError>): RequestResult<DesactiverOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -113,7 +338,7 @@ export const designerContactsOperateur = <ThrowOnError extends boolean = false>(
 });
 
 /**
- * Modifier la diffusion des millésimes et l'accès aux statistiques du portail (RG-OPE-14, 15)
+ * Modifier la diffusion des millésimes ; l'accès aux statistiques par le BNIA seul (RG-OPE-14, 15, 36)
  */
 export const modifierDiffusionOperateur = <ThrowOnError extends boolean = false>(options: Options<ModifierDiffusionOperateurData, ThrowOnError>): RequestResult<ModifierDiffusionOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierDiffusionOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -126,7 +351,7 @@ export const modifierDiffusionOperateur = <ThrowOnError extends boolean = false>
 });
 
 /**
- * Modifier l'identité, type et code compris ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24)
+ * Modifier l'identité complète, réservé au BNIA ; le code ne change pas seul (RG-OPE-01 à 09, 20, 21, 24, 36, 51)
  */
 export const modifierIdentiteOperateur = <ThrowOnError extends boolean = false>(options: Options<ModifierIdentiteOperateurData, ThrowOnError>): RequestResult<ModifierIdentiteOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierIdentiteOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -139,6 +364,24 @@ export const modifierIdentiteOperateur = <ThrowOnError extends boolean = false>(
 });
 
 /**
+ * Actions sur les personnes et les accès de l'opérateur, du plus récent au plus ancien (RG-OPE-34)
+ */
+export const consulterJournalOperateur = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalOperateurData, ThrowOnError>): RequestResult<ConsulterJournalOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalOperateurResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{id}/journal',
+    ...options
+});
+
+/**
+ * Droits de l'utilisateur connecté sur l'opérateur (RG-OPE-31, 32)
+ */
+export const consulterMesDroits = <ThrowOnError extends boolean = false>(options: Options<ConsulterMesDroitsData, ThrowOnError>): RequestResult<ConsulterMesDroitsResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterMesDroitsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{id}/mes-droits',
+    ...options
+});
+
+/**
  * Attribuer le code proposé pour le type et le code postal actuels (RG-OPE-05)
  */
 export const attribuerNouveauCodeOperateur = <ThrowOnError extends boolean = false>(options: Options<AttribuerNouveauCodeOperateurData, ThrowOnError>): RequestResult<AttribuerNouveauCodeOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).post<AttribuerNouveauCodeOperateurResponses, unknown, ThrowOnError>({
@@ -148,7 +391,7 @@ export const attribuerNouveauCodeOperateur = <ThrowOnError extends boolean = fal
 });
 
 /**
- * Modifier le déclaratif, la région, les appellations et les alambics (RG-OPE-01, 10 à 13, 21)
+ * Modifier le déclaratif, la région, les appellations et les alambics, réservé au BNIA (RG-OPE-01, 10 à 13, 21, 36)
  */
 export const modifierProductionOperateur = <ThrowOnError extends boolean = false>(options: Options<ModifierProductionOperateurData, ThrowOnError>): RequestResult<ModifierProductionOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierProductionOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -161,7 +404,20 @@ export const modifierProductionOperateur = <ThrowOnError extends boolean = false
 });
 
 /**
- * Réactiver un opérateur (RG-OPE-26)
+ * Modifier les champs qu'un opérateur modifie lui-même (RG-OPE-20, 21, 24, 36, 51)
+ */
+export const modifierProfilOperateur = <ThrowOnError extends boolean = false>(options: Options<ModifierProfilOperateurData, ThrowOnError>): RequestResult<ModifierProfilOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierProfilOperateurResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{id}/profil',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Réactiver un opérateur (ADMIN BNIA, RG-OPE-26)
  */
 export const reactiverOperateur = <ThrowOnError extends boolean = false>(options: Options<ReactiverOperateurData, ThrowOnError>): RequestResult<ReactiverOperateurResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverOperateurResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -170,7 +426,7 @@ export const reactiverOperateur = <ThrowOnError extends boolean = false>(options
 });
 
 /**
- * Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)
+ * Déclarer un contact et sa fiche (RG-OPE-21, 27, 28, 30)
  */
 export const creerContact = <ThrowOnError extends boolean = false>(options: Options<CreerContactData, ThrowOnError>): RequestResult<CreerContactResponses, unknown, ThrowOnError> => (options.client ?? client).post<CreerContactResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -183,12 +439,21 @@ export const creerContact = <ThrowOnError extends boolean = false>(options: Opti
 });
 
 /**
- * Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)
+ * E-mail saisi qui est celui d'un membre ou d'une invitation en attente : avertissements non bloquants (RG-OPE-28)
+ */
+export const listerAvertissementsContact = <ThrowOnError extends boolean = false>(options: Options<ListerAvertissementsContactData, ThrowOnError>): RequestResult<ListerAvertissementsContactResponses, unknown, ThrowOnError> => (options.client ?? client).get<ListerAvertissementsContactResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/contacts/avertissements',
+    ...options
+});
+
+/**
+ * Supprimer un contact et sa fiche ; ses invitations en attente sont annulées (RG-OPE-22, 23, 45)
  */
 export const supprimerContact = <ThrowOnError extends boolean = false>(options: Options<SupprimerContactData, ThrowOnError>): RequestResult<SupprimerContactResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerContactResponses, unknown, ThrowOnError>({ url: '/api/operateurs/{operateur}/contacts/{contact}', ...options });
 
 /**
- * Consulter un contact, ses droits et ses désignations
+ * Consulter un contact, sa fiche et ses désignations
  */
 export const consulterContact = <ThrowOnError extends boolean = false>(options: Options<ConsulterContactData, ThrowOnError>): RequestResult<ConsulterContactResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterContactResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -197,7 +462,7 @@ export const consulterContact = <ThrowOnError extends boolean = false>(options: 
 });
 
 /**
- * Modifier un contact (RG-OPE-21, 27, 28, 29, 32)
+ * Modifier l'identité et l'e-mail d'un contact (RG-OPE-21, 23, 27, 28, 51)
  */
 export const modifierContact = <ThrowOnError extends boolean = false>(options: Options<ModifierContactData, ThrowOnError>): RequestResult<ModifierContactResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierContactResponses, unknown, ThrowOnError>({
     responseType: 'json',
@@ -210,15 +475,6 @@ export const modifierContact = <ThrowOnError extends boolean = false>(options: O
 });
 
 /**
- * Désactiver : retire l'accès et les désignations (RG-OPE-33)
- */
-export const desactiverContact = <ThrowOnError extends boolean = false>(options: Options<DesactiverContactData, ThrowOnError>): RequestResult<DesactiverContactResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverContactResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/operateurs/{operateur}/contacts/{contact}/desactivation',
-    ...options
-});
-
-/**
  * Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)
  */
 export const consulterJournalContact = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalContactData, ThrowOnError>): RequestResult<ConsulterJournalContactResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalContactResponses, unknown, ThrowOnError>({
@@ -228,11 +484,20 @@ export const consulterJournalContact = <ThrowOnError extends boolean = false>(op
 });
 
 /**
- * Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)
+ * Consulter une fiche professionnelle
  */
-export const modifierDroitsContact = <ThrowOnError extends boolean = false>(options: Options<ModifierDroitsContactData, ThrowOnError>): RequestResult<ModifierDroitsContactResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierDroitsContactResponses, unknown, ThrowOnError>({
+export const consulterFiche = <ThrowOnError extends boolean = false>(options: Options<ConsulterFicheData, ThrowOnError>): RequestResult<ConsulterFicheResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterFicheResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/operateurs/{operateur}/contacts/{contact}/portail',
+    url: '/api/operateurs/{operateur}/fiches/{fiche}',
+    ...options
+});
+
+/**
+ * Modifier une fiche professionnelle : la sienne, ou par le module Contacts (RG-OPE-21, 33, 46, 51)
+ */
+export const modifierFiche = <ThrowOnError extends boolean = false>(options: Options<ModifierFicheData, ThrowOnError>): RequestResult<ModifierFicheResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierFicheResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/fiches/{fiche}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -241,11 +506,103 @@ export const modifierDroitsContact = <ThrowOnError extends boolean = false>(opti
 });
 
 /**
- * Réactiver, sans accès (RG-OPE-33)
+ * Inviter un contact ou une personne nouvelle ; le lien part par e-mail (RG-OPE-28, 29, 40)
  */
-export const reactiverContact = <ThrowOnError extends boolean = false>(options: Options<ReactiverContactData, ThrowOnError>): RequestResult<ReactiverContactResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverContactResponses, unknown, ThrowOnError>({
+export const inviter = <ThrowOnError extends boolean = false>(options: Options<InviterData, ThrowOnError>): RequestResult<InviterResponses, unknown, ThrowOnError> => (options.client ?? client).post<InviterResponses, unknown, ThrowOnError>({
     responseType: 'json',
-    url: '/api/operateurs/{operateur}/contacts/{contact}/reactivation',
+    url: '/api/operateurs/{operateur}/invitations',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Consulter une invitation
+ */
+export const consulterInvitation = <ThrowOnError extends boolean = false>(options: Options<ConsulterInvitationData, ThrowOnError>): RequestResult<ConsulterInvitationResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterInvitationResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/invitations/{invitation}',
+    ...options
+});
+
+/**
+ * Annuler une invitation en attente (RG-OPE-41)
+ */
+export const annulerInvitation = <ThrowOnError extends boolean = false>(options: Options<AnnulerInvitationData, ThrowOnError>): RequestResult<AnnulerInvitationResponses, unknown, ThrowOnError> => (options.client ?? client).post<AnnulerInvitationResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/invitations/{invitation}/annulation',
+    ...options
+});
+
+/**
+ * Relancer : nouveau lien, nouvelle expiration (RG-OPE-41)
+ */
+export const relancerInvitation = <ThrowOnError extends boolean = false>(options: Options<RelancerInvitationData, ThrowOnError>): RequestResult<RelancerInvitationResponses, unknown, ThrowOnError> => (options.client ?? client).post<RelancerInvitationResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/invitations/{invitation}/relance',
+    ...options
+});
+
+/**
+ * Consulter un membre, sa fiche et ses désignations
+ */
+export const consulterMembre = <ThrowOnError extends boolean = false>(options: Options<ConsulterMembreData, ThrowOnError>): RequestResult<ConsulterMembreResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterMembreResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/membres/{membre}',
+    ...options
+});
+
+/**
+ * Journal d'un membre, du plus récent au plus ancien (RG-OPE-34)
+ */
+export const consulterJournalMembre = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalMembreData, ThrowOnError>): RequestResult<ConsulterJournalMembreResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalMembreResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/membres/{membre}/journal',
+    ...options
+});
+
+/**
+ * Réactiver l'accès d'un membre (RG-OPE-43)
+ */
+export const reactiverMembre = <ThrowOnError extends boolean = false>(options: Options<ReactiverMembreData, ThrowOnError>): RequestResult<ReactiverMembreResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverMembreResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/membres/{membre}/reactivation',
+    ...options
+});
+
+/**
+ * Retirer l'accès d'un membre, en le gardant ou non comme contact ; au dernier rattachement, l'utilisateur est supprimé (RG-OPE-35, 44)
+ */
+export const retirerMembre = <ThrowOnError extends boolean = false>(options: Options<RetirerMembreData, ThrowOnError>): RequestResult<RetirerMembreResponses, unknown, ThrowOnError> => (options.client ?? client).post<RetirerMembreResponses, unknown, ThrowOnError>({
+    url: '/api/operateurs/{operateur}/membres/{membre}/retrait',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Changer le rôle d'un membre (RG-OPE-35, 43)
+ */
+export const changerRoleMembre = <ThrowOnError extends boolean = false>(options: Options<ChangerRoleMembreData, ThrowOnError>): RequestResult<ChangerRoleMembreResponses, unknown, ThrowOnError> => (options.client ?? client).put<ChangerRoleMembreResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/membres/{membre}/role',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Suspendre l'accès d'un membre à cet opérateur (RG-OPE-35, 43)
+ */
+export const suspendreMembre = <ThrowOnError extends boolean = false>(options: Options<SuspendreMembreData, ThrowOnError>): RequestResult<SuspendreMembreResponses, unknown, ThrowOnError> => (options.client ?? client).post<SuspendreMembreResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/membres/{membre}/suspension',
     ...options
 });
 
@@ -269,174 +626,6 @@ export const modifierPresentationOperateur = <ThrowOnError extends boolean = fal
         'Content-Type': 'application/json',
         ...options.headers
     }
-});
-
-/**
- * Opérateur ouvert au portail en attendant le contexte acces ; 404 hors profil demo
- */
-export const consulterOperateurDemoPortail = <ThrowOnError extends boolean = false>(options?: Options<ConsulterOperateurDemoPortailData, ThrowOnError>): RequestResult<ConsulterOperateurDemoPortailResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ConsulterOperateurDemoPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateur-demo',
-    ...options
-});
-
-/**
- * Rechercher un autre opérateur : actifs, trois caractères au moins, vingt résultats au plus (RG-OPE-37)
- */
-export const rechercherOperateursPortail = <ThrowOnError extends boolean = false>(options: Options<RechercherOperateursPortailData, ThrowOnError>): RequestResult<RechercherOperateursPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<RechercherOperateursPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/recherche',
-    ...options
-});
-
-/**
- * Désigner le contact principal et le destinataire des factures (RG-OPE-22, 23, 24, 36)
- */
-export const designerContactsPortail = <ThrowOnError extends boolean = false>(options: Options<DesignerContactsPortailData, ThrowOnError>): RequestResult<DesignerContactsPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<DesignerContactsPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{id}/designations',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Modifier la diffusion des millésimes (RG-OPE-14, 36)
- */
-export const modifierDiffusionPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierDiffusionPortailData, ThrowOnError>): RequestResult<ModifierDiffusionPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierDiffusionPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{id}/diffusion',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Consulter la présentation de l'opérateur
- */
-export const consulterPresentationPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterPresentationPortailData, ThrowOnError>): RequestResult<ConsulterPresentationPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterPresentationPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{id}/presentation',
-    ...options
-});
-
-/**
- * Remplacer la présentation (RG-OPE-16 à 19, 21, 35)
- */
-export const modifierPresentationPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierPresentationPortailData, ThrowOnError>): RequestResult<ModifierPresentationPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierPresentationPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{id}/presentation',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * « Mon entreprise » : la fiche, sans le commentaire interne (RG-OPE-35, 36)
- */
-export const consulterProfilPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterProfilPortailData, ThrowOnError>): RequestResult<ConsulterProfilPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterProfilPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{id}/profil',
-    ...options
-});
-
-/**
- * Modifier les champs ouverts au portail (RG-OPE-20, 21, 24, 35, 36)
- */
-export const modifierProfilPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierProfilPortailData, ThrowOnError>): RequestResult<ModifierProfilPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierProfilPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{id}/profil',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Créer un contact, actif, sans accès (RG-OPE-21, 27, 28)
- */
-export const creerContactPortail = <ThrowOnError extends boolean = false>(options: Options<CreerContactPortailData, ThrowOnError>): RequestResult<CreerContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).post<CreerContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Supprimer : comme la désactivation ; le journal reste (RG-OPE-33, 34)
- */
-export const supprimerContactPortail = <ThrowOnError extends boolean = false>(options: Options<SupprimerContactPortailData, ThrowOnError>): RequestResult<SupprimerContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerContactPortailResponses, unknown, ThrowOnError>({ url: '/api/portail/operateurs/{operateur}/contacts/{contact}', ...options });
-
-/**
- * Consulter un contact, ses droits et ses désignations
- */
-export const consulterContactPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterContactPortailData, ThrowOnError>): RequestResult<ConsulterContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}',
-    ...options
-});
-
-/**
- * Modifier un contact (RG-OPE-21, 27, 28, 29, 32)
- */
-export const modifierContactPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierContactPortailData, ThrowOnError>): RequestResult<ModifierContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Désactiver : retire l'accès et les désignations (RG-OPE-33)
- */
-export const desactiverContactPortail = <ThrowOnError extends boolean = false>(options: Options<DesactiverContactPortailData, ThrowOnError>): RequestResult<DesactiverContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).post<DesactiverContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/desactivation',
-    ...options
-});
-
-/**
- * Journal d'un contact, du plus récent au plus ancien (RG-OPE-34)
- */
-export const consulterJournalContactPortail = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalContactPortailData, ThrowOnError>): RequestResult<ConsulterJournalContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/journal',
-    ...options
-});
-
-/**
- * Accès au portail, rôle d'administrateur, modules (RG-OPE-29 à 31)
- */
-export const modifierDroitsContactPortail = <ThrowOnError extends boolean = false>(options: Options<ModifierDroitsContactPortailData, ThrowOnError>): RequestResult<ModifierDroitsContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierDroitsContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/portail',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Réactiver, sans accès (RG-OPE-33)
- */
-export const reactiverContactPortail = <ThrowOnError extends boolean = false>(options: Options<ReactiverContactPortailData, ThrowOnError>): RequestResult<ReactiverContactPortailResponses, unknown, ThrowOnError> => (options.client ?? client).post<ReactiverContactPortailResponses, unknown, ThrowOnError>({
-    responseType: 'json',
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/reactivation',
-    ...options
 });
 
 /**
@@ -891,6 +1080,19 @@ export const listerMarques = <ThrowOnError extends boolean = false>(options?: Op
 export const creerMarque = <ThrowOnError extends boolean = false>(options: Options<CreerMarqueData, ThrowOnError>): RequestResult<CreerMarqueResponses, unknown, ThrowOnError> => (options.client ?? client).post<CreerMarqueResponses, unknown, ThrowOnError>({
     responseType: 'json',
     url: '/api/referentiels/marques',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Créer une marque depuis la fiche d'un opérateur, par qui gère ses contacts (RG-REF-14, RG-REF-15)
+ */
+export const creerMarqueDepuisFiche = <ThrowOnError extends boolean = false>(options: Options<CreerMarqueDepuisFicheData, ThrowOnError>): RequestResult<CreerMarqueDepuisFicheResponses, unknown, ThrowOnError> => (options.client ?? client).post<CreerMarqueDepuisFicheResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/referentiels/marques/fiche/{operateur}',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -1427,5 +1629,45 @@ export const reactiverZoneCommerciale = <ThrowOnError extends boolean = false>(o
 export const consulterInfoSysteme = <ThrowOnError extends boolean = false>(options?: Options<ConsulterInfoSystemeData, ThrowOnError>): RequestResult<ConsulterInfoSystemeResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ConsulterInfoSystemeResponses, unknown, ThrowOnError>({
     responseType: 'json',
     url: '/api/systeme/info',
+    ...options
+});
+
+/**
+ * Lister les utilisateurs et leurs rattachements (RG-OPE-32, 53)
+ */
+export const listerUtilisateurs = <ThrowOnError extends boolean = false>(options?: Options<ListerUtilisateursData, ThrowOnError>): RequestResult<ListerUtilisateursResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListerUtilisateursResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/utilisateurs',
+    ...options
+});
+
+/**
+ * Consulter un utilisateur et ses rattachements (RG-OPE-53)
+ */
+export const consulterUtilisateur = <ThrowOnError extends boolean = false>(options: Options<ConsulterUtilisateurData, ThrowOnError>): RequestResult<ConsulterUtilisateurResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterUtilisateurResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/utilisateurs/{id}',
+    ...options
+});
+
+/**
+ * Bloquer un utilisateur dans tous les opérateurs, avec un motif ; il est prévenu, et les ADMIN de ses opérateurs (RG-OPE-50)
+ */
+export const bloquerUtilisateur = <ThrowOnError extends boolean = false>(options: Options<BloquerUtilisateurData, ThrowOnError>): RequestResult<BloquerUtilisateurResponses, unknown, ThrowOnError> => (options.client ?? client).post<BloquerUtilisateurResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/utilisateurs/{id}/blocage',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Débloquer un utilisateur (RG-OPE-50)
+ */
+export const debloquerUtilisateur = <ThrowOnError extends boolean = false>(options: Options<DebloquerUtilisateurData, ThrowOnError>): RequestResult<DebloquerUtilisateurResponses, unknown, ThrowOnError> => (options.client ?? client).post<DebloquerUtilisateurResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/utilisateurs/{id}/deblocage',
     ...options
 });

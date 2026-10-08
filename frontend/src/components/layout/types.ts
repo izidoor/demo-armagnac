@@ -1,11 +1,5 @@
 import { type LinkProps } from '@tanstack/react-router'
 
-type User = {
-  name: string
-  email: string
-  avatar: string
-}
-
 type BaseNavItem = {
   title: string
   badge?: string
@@ -34,7 +28,6 @@ type Espace = {
   nom: string
   description: string
   url: LinkProps['to']
-  user: User
   navGroups: NavGroup[]
 }
 

@@ -15,15 +15,22 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortailIndexRouteImport } from './routes/portail/index'
 import { Route as BoIndexRouteImport } from './routes/bo/index'
 import { Route as PortailEntrepriseRouteImport } from './routes/portail/entreprise'
+import { Route as PortailCompteRouteImport } from './routes/portail/compte'
+import { Route as BoCompteRouteImport } from './routes/bo/compte'
+import { Route as BoBniaRouteImport } from './routes/bo/bnia'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
-import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
-import { Route as PortailContactsIndexRouteImport } from './routes/portail/contacts/index'
+import { Route as authReinitialisationRouteImport } from './routes/(auth)/reinitialisation'
+import { Route as authMotDePasseOublieRouteImport } from './routes/(auth)/mot-de-passe-oublie'
+import { Route as authInvitationRouteImport } from './routes/(auth)/invitation'
+import { Route as authConnexionRouteImport } from './routes/(auth)/connexion'
+import { Route as authChoixOperateurRouteImport } from './routes/(auth)/choix-operateur'
+import { Route as authChangementEmailRouteImport } from './routes/(auth)/changement-email'
+import { Route as PortailAnnuaireIndexRouteImport } from './routes/portail/annuaire/index'
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
-import { Route as PortailContactsContactRouteImport } from './routes/portail/contacts/$contact'
 import { Route as BoParametrageZonesCommercialesRouteImport } from './routes/bo/parametrage/zones-commerciales'
 import { Route as BoParametrageTypesVisiteRouteImport } from './routes/bo/parametrage/types-visite'
 import { Route as BoParametrageTitresRouteImport } from './routes/bo/parametrage/titres'
@@ -37,10 +44,14 @@ import { Route as BoParametrageLabelsRouteImport } from './routes/bo/parametrage
 import { Route as BoParametrageContenancesRouteImport } from './routes/bo/parametrage/contenances'
 import { Route as BoParametrageCircuitsDistributionRouteImport } from './routes/bo/parametrage/circuits-distribution'
 import { Route as BoParametrageCentresInteretRouteImport } from './routes/bo/parametrage/centres-interet'
+import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
 import { Route as BoOperateursIdIndexRouteImport } from './routes/bo/operateurs/$id/index'
+import { Route as BoAccesUtilisateursIndexRouteImport } from './routes/bo/acces/utilisateurs/index'
+import { Route as PortailAnnuaireGenrePersonneRouteImport } from './routes/portail/annuaire/$genre/$personne'
 import { Route as BoParametrageClassesTvaIdRouteImport } from './routes/bo/parametrage/classes-tva/$id'
-import { Route as BoOperateursIdContactsContactRouteImport } from './routes/bo/operateurs/$id/contacts/$contact'
+import { Route as BoAccesUtilisateursIdRouteImport } from './routes/bo/acces/utilisateurs/$id'
+import { Route as BoOperateursIdPersonnesGenrePersonneRouteImport } from './routes/bo/operateurs/$id/personnes/$genre/$personne'
 
 const PortailRouteRoute = PortailRouteRouteImport.update({
   id: '/portail',
@@ -72,6 +83,21 @@ const PortailEntrepriseRoute = PortailEntrepriseRouteImport.update({
   path: '/entreprise',
   getParentRoute: () => PortailRouteRoute,
 } as any)
+const PortailCompteRoute = PortailCompteRouteImport.update({
+  id: '/compte',
+  path: '/compte',
+  getParentRoute: () => PortailRouteRoute,
+} as any)
+const BoCompteRoute = BoCompteRouteImport.update({
+  id: '/compte',
+  path: '/compte',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoBniaRoute = BoBniaRouteImport.update({
+  id: '/bnia',
+  path: '/bnia',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
   path: '/503',
@@ -97,25 +123,45 @@ const errors401Route = errors401RouteImport.update({
   path: '/401',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authSignInRoute = authSignInRouteImport.update({
-  id: '/(auth)/sign-in',
-  path: '/sign-in',
+const authReinitialisationRoute = authReinitialisationRouteImport.update({
+  id: '/(auth)/reinitialisation',
+  path: '/reinitialisation',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PortailContactsIndexRoute = PortailContactsIndexRouteImport.update({
-  id: '/contacts/',
-  path: '/contacts/',
+const authMotDePasseOublieRoute = authMotDePasseOublieRouteImport.update({
+  id: '/(auth)/mot-de-passe-oublie',
+  path: '/mot-de-passe-oublie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authInvitationRoute = authInvitationRouteImport.update({
+  id: '/(auth)/invitation',
+  path: '/invitation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authConnexionRoute = authConnexionRouteImport.update({
+  id: '/(auth)/connexion',
+  path: '/connexion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authChoixOperateurRoute = authChoixOperateurRouteImport.update({
+  id: '/(auth)/choix-operateur',
+  path: '/choix-operateur',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authChangementEmailRoute = authChangementEmailRouteImport.update({
+  id: '/(auth)/changement-email',
+  path: '/changement-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortailAnnuaireIndexRoute = PortailAnnuaireIndexRouteImport.update({
+  id: '/annuaire/',
+  path: '/annuaire/',
   getParentRoute: () => PortailRouteRoute,
 } as any)
 const BoOperateursIndexRoute = BoOperateursIndexRouteImport.update({
   id: '/operateurs/',
   path: '/operateurs/',
   getParentRoute: () => BoRouteRoute,
-} as any)
-const PortailContactsContactRoute = PortailContactsContactRouteImport.update({
-  id: '/contacts/$contact',
-  path: '/contacts/$contact',
-  getParentRoute: () => PortailRouteRoute,
 } as any)
 const BoParametrageZonesCommercialesRoute =
   BoParametrageZonesCommercialesRouteImport.update({
@@ -189,6 +235,11 @@ const BoParametrageCentresInteretRoute =
     path: '/parametrage/centres-interet',
     getParentRoute: () => BoRouteRoute,
   } as any)
+const BoAccesConnexionsRoute = BoAccesConnexionsRouteImport.update({
+  id: '/acces/connexions',
+  path: '/acces/connexions',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoParametrageClassesTvaIndexRoute =
   BoParametrageClassesTvaIndexRouteImport.update({
     id: '/parametrage/classes-tva/',
@@ -200,16 +251,33 @@ const BoOperateursIdIndexRoute = BoOperateursIdIndexRouteImport.update({
   path: '/operateurs/$id/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const BoAccesUtilisateursIndexRoute =
+  BoAccesUtilisateursIndexRouteImport.update({
+    id: '/acces/utilisateurs/',
+    path: '/acces/utilisateurs/',
+    getParentRoute: () => BoRouteRoute,
+  } as any)
+const PortailAnnuaireGenrePersonneRoute =
+  PortailAnnuaireGenrePersonneRouteImport.update({
+    id: '/annuaire/$genre/$personne',
+    path: '/annuaire/$genre/$personne',
+    getParentRoute: () => PortailRouteRoute,
+  } as any)
 const BoParametrageClassesTvaIdRoute =
   BoParametrageClassesTvaIdRouteImport.update({
     id: '/parametrage/classes-tva/$id',
     path: '/parametrage/classes-tva/$id',
     getParentRoute: () => BoRouteRoute,
   } as any)
-const BoOperateursIdContactsContactRoute =
-  BoOperateursIdContactsContactRouteImport.update({
-    id: '/operateurs/$id/contacts/$contact',
-    path: '/operateurs/$id/contacts/$contact',
+const BoAccesUtilisateursIdRoute = BoAccesUtilisateursIdRouteImport.update({
+  id: '/acces/utilisateurs/$id',
+  path: '/acces/utilisateurs/$id',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoOperateursIdPersonnesGenrePersonneRoute =
+  BoOperateursIdPersonnesGenrePersonneRouteImport.update({
+    id: '/operateurs/$id/personnes/$genre/$personne',
+    path: '/operateurs/$id/personnes/$genre/$personne',
     getParentRoute: () => BoRouteRoute,
   } as any)
 
@@ -217,15 +285,24 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bo': typeof BoRouteRouteWithChildren
   '/portail': typeof PortailRouteRouteWithChildren
-  '/sign-in': typeof authSignInRoute
+  '/changement-email': typeof authChangementEmailRoute
+  '/choix-operateur': typeof authChoixOperateurRoute
+  '/connexion': typeof authConnexionRoute
+  '/invitation': typeof authInvitationRoute
+  '/mot-de-passe-oublie': typeof authMotDePasseOublieRoute
+  '/reinitialisation': typeof authReinitialisationRoute
   '/401': typeof errors401Route
   '/403': typeof errors403Route
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/bo/bnia': typeof BoBniaRoute
+  '/bo/compte': typeof BoCompteRoute
+  '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
+  '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
   '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
   '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
@@ -239,25 +316,36 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
-  '/portail/contacts/$contact': typeof PortailContactsContactRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
-  '/portail/contacts': typeof PortailContactsIndexRoute
+  '/portail/annuaire': typeof PortailAnnuaireIndexRoute
+  '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
+  '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
+  '/bo/acces/utilisateurs': typeof BoAccesUtilisateursIndexRoute
   '/bo/operateurs/$id': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
-  '/bo/operateurs/$id/contacts/$contact': typeof BoOperateursIdContactsContactRoute
+  '/bo/operateurs/$id/personnes/$genre/$personne': typeof BoOperateursIdPersonnesGenrePersonneRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/sign-in': typeof authSignInRoute
+  '/changement-email': typeof authChangementEmailRoute
+  '/choix-operateur': typeof authChoixOperateurRoute
+  '/connexion': typeof authConnexionRoute
+  '/invitation': typeof authInvitationRoute
+  '/mot-de-passe-oublie': typeof authMotDePasseOublieRoute
+  '/reinitialisation': typeof authReinitialisationRoute
   '/401': typeof errors401Route
   '/403': typeof errors403Route
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/bo/bnia': typeof BoBniaRoute
+  '/bo/compte': typeof BoCompteRoute
+  '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
+  '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
   '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
   '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
@@ -271,28 +359,39 @@ export interface FileRoutesByTo {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
-  '/portail/contacts/$contact': typeof PortailContactsContactRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
-  '/portail/contacts': typeof PortailContactsIndexRoute
+  '/portail/annuaire': typeof PortailAnnuaireIndexRoute
+  '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
+  '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
+  '/bo/acces/utilisateurs': typeof BoAccesUtilisateursIndexRoute
   '/bo/operateurs/$id': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
-  '/bo/operateurs/$id/contacts/$contact': typeof BoOperateursIdContactsContactRoute
+  '/bo/operateurs/$id/personnes/$genre/$personne': typeof BoOperateursIdPersonnesGenrePersonneRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bo': typeof BoRouteRouteWithChildren
   '/portail': typeof PortailRouteRouteWithChildren
-  '/(auth)/sign-in': typeof authSignInRoute
+  '/(auth)/changement-email': typeof authChangementEmailRoute
+  '/(auth)/choix-operateur': typeof authChoixOperateurRoute
+  '/(auth)/connexion': typeof authConnexionRoute
+  '/(auth)/invitation': typeof authInvitationRoute
+  '/(auth)/mot-de-passe-oublie': typeof authMotDePasseOublieRoute
+  '/(auth)/reinitialisation': typeof authReinitialisationRoute
   '/(errors)/401': typeof errors401Route
   '/(errors)/403': typeof errors403Route
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/bo/bnia': typeof BoBniaRoute
+  '/bo/compte': typeof BoCompteRoute
+  '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
+  '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
   '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
   '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
@@ -306,13 +405,15 @@ export interface FileRoutesById {
   '/bo/parametrage/titres': typeof BoParametrageTitresRoute
   '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
   '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
-  '/portail/contacts/$contact': typeof PortailContactsContactRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
-  '/portail/contacts/': typeof PortailContactsIndexRoute
+  '/portail/annuaire/': typeof PortailAnnuaireIndexRoute
+  '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
+  '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
+  '/bo/acces/utilisateurs/': typeof BoAccesUtilisateursIndexRoute
   '/bo/operateurs/$id/': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva/': typeof BoParametrageClassesTvaIndexRoute
-  '/bo/operateurs/$id/contacts/$contact': typeof BoOperateursIdContactsContactRoute
+  '/bo/operateurs/$id/personnes/$genre/$personne': typeof BoOperateursIdPersonnesGenrePersonneRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -320,15 +421,24 @@ export interface FileRouteTypes {
     | '/'
     | '/bo'
     | '/portail'
-    | '/sign-in'
+    | '/changement-email'
+    | '/choix-operateur'
+    | '/connexion'
+    | '/invitation'
+    | '/mot-de-passe-oublie'
+    | '/reinitialisation'
     | '/401'
     | '/403'
     | '/404'
     | '/500'
     | '/503'
+    | '/bo/bnia'
+    | '/bo/compte'
+    | '/portail/compte'
     | '/portail/entreprise'
     | '/bo/'
     | '/portail/'
+    | '/bo/acces/connexions'
     | '/bo/parametrage/centres-interet'
     | '/bo/parametrage/circuits-distribution'
     | '/bo/parametrage/contenances'
@@ -342,25 +452,36 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
-    | '/portail/contacts/$contact'
     | '/bo/operateurs'
-    | '/portail/contacts'
+    | '/portail/annuaire'
+    | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
+    | '/portail/annuaire/$genre/$personne'
+    | '/bo/acces/utilisateurs'
     | '/bo/operateurs/$id'
     | '/bo/parametrage/classes-tva'
-    | '/bo/operateurs/$id/contacts/$contact'
+    | '/bo/operateurs/$id/personnes/$genre/$personne'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/sign-in'
+    | '/changement-email'
+    | '/choix-operateur'
+    | '/connexion'
+    | '/invitation'
+    | '/mot-de-passe-oublie'
+    | '/reinitialisation'
     | '/401'
     | '/403'
     | '/404'
     | '/500'
     | '/503'
+    | '/bo/bnia'
+    | '/bo/compte'
+    | '/portail/compte'
     | '/portail/entreprise'
     | '/bo'
     | '/portail'
+    | '/bo/acces/connexions'
     | '/bo/parametrage/centres-interet'
     | '/bo/parametrage/circuits-distribution'
     | '/bo/parametrage/contenances'
@@ -374,27 +495,38 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
-    | '/portail/contacts/$contact'
     | '/bo/operateurs'
-    | '/portail/contacts'
+    | '/portail/annuaire'
+    | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
+    | '/portail/annuaire/$genre/$personne'
+    | '/bo/acces/utilisateurs'
     | '/bo/operateurs/$id'
     | '/bo/parametrage/classes-tva'
-    | '/bo/operateurs/$id/contacts/$contact'
+    | '/bo/operateurs/$id/personnes/$genre/$personne'
   id:
     | '__root__'
     | '/'
     | '/bo'
     | '/portail'
-    | '/(auth)/sign-in'
+    | '/(auth)/changement-email'
+    | '/(auth)/choix-operateur'
+    | '/(auth)/connexion'
+    | '/(auth)/invitation'
+    | '/(auth)/mot-de-passe-oublie'
+    | '/(auth)/reinitialisation'
     | '/(errors)/401'
     | '/(errors)/403'
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/bo/bnia'
+    | '/bo/compte'
+    | '/portail/compte'
     | '/portail/entreprise'
     | '/bo/'
     | '/portail/'
+    | '/bo/acces/connexions'
     | '/bo/parametrage/centres-interet'
     | '/bo/parametrage/circuits-distribution'
     | '/bo/parametrage/contenances'
@@ -408,20 +540,27 @@ export interface FileRouteTypes {
     | '/bo/parametrage/titres'
     | '/bo/parametrage/types-visite'
     | '/bo/parametrage/zones-commerciales'
-    | '/portail/contacts/$contact'
     | '/bo/operateurs/'
-    | '/portail/contacts/'
+    | '/portail/annuaire/'
+    | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
+    | '/portail/annuaire/$genre/$personne'
+    | '/bo/acces/utilisateurs/'
     | '/bo/operateurs/$id/'
     | '/bo/parametrage/classes-tva/'
-    | '/bo/operateurs/$id/contacts/$contact'
+    | '/bo/operateurs/$id/personnes/$genre/$personne'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoRouteRoute: typeof BoRouteRouteWithChildren
   PortailRouteRoute: typeof PortailRouteRouteWithChildren
-  authSignInRoute: typeof authSignInRoute
+  authChangementEmailRoute: typeof authChangementEmailRoute
+  authChoixOperateurRoute: typeof authChoixOperateurRoute
+  authConnexionRoute: typeof authConnexionRoute
+  authInvitationRoute: typeof authInvitationRoute
+  authMotDePasseOublieRoute: typeof authMotDePasseOublieRoute
+  authReinitialisationRoute: typeof authReinitialisationRoute
   errors401Route: typeof errors401Route
   errors403Route: typeof errors403Route
   errors404Route: typeof errors404Route
@@ -473,6 +612,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortailEntrepriseRouteImport
       parentRoute: typeof PortailRouteRoute
     }
+    '/portail/compte': {
+      id: '/portail/compte'
+      path: '/compte'
+      fullPath: '/portail/compte'
+      preLoaderRoute: typeof PortailCompteRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
+    '/bo/compte': {
+      id: '/bo/compte'
+      path: '/compte'
+      fullPath: '/bo/compte'
+      preLoaderRoute: typeof BoCompteRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/bnia': {
+      id: '/bo/bnia'
+      path: '/bnia'
+      fullPath: '/bo/bnia'
+      preLoaderRoute: typeof BoBniaRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/(errors)/503': {
       id: '/(errors)/503'
       path: '/503'
@@ -508,18 +668,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof errors401RouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)/sign-in': {
-      id: '/(auth)/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof authSignInRouteImport
+    '/(auth)/reinitialisation': {
+      id: '/(auth)/reinitialisation'
+      path: '/reinitialisation'
+      fullPath: '/reinitialisation'
+      preLoaderRoute: typeof authReinitialisationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/portail/contacts/': {
-      id: '/portail/contacts/'
-      path: '/contacts'
-      fullPath: '/portail/contacts'
-      preLoaderRoute: typeof PortailContactsIndexRouteImport
+    '/(auth)/mot-de-passe-oublie': {
+      id: '/(auth)/mot-de-passe-oublie'
+      path: '/mot-de-passe-oublie'
+      fullPath: '/mot-de-passe-oublie'
+      preLoaderRoute: typeof authMotDePasseOublieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/invitation': {
+      id: '/(auth)/invitation'
+      path: '/invitation'
+      fullPath: '/invitation'
+      preLoaderRoute: typeof authInvitationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/connexion': {
+      id: '/(auth)/connexion'
+      path: '/connexion'
+      fullPath: '/connexion'
+      preLoaderRoute: typeof authConnexionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/choix-operateur': {
+      id: '/(auth)/choix-operateur'
+      path: '/choix-operateur'
+      fullPath: '/choix-operateur'
+      preLoaderRoute: typeof authChoixOperateurRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/changement-email': {
+      id: '/(auth)/changement-email'
+      path: '/changement-email'
+      fullPath: '/changement-email'
+      preLoaderRoute: typeof authChangementEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portail/annuaire/': {
+      id: '/portail/annuaire/'
+      path: '/annuaire'
+      fullPath: '/portail/annuaire'
+      preLoaderRoute: typeof PortailAnnuaireIndexRouteImport
       parentRoute: typeof PortailRouteRoute
     }
     '/bo/operateurs/': {
@@ -528,13 +723,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/bo/operateurs'
       preLoaderRoute: typeof BoOperateursIndexRouteImport
       parentRoute: typeof BoRouteRoute
-    }
-    '/portail/contacts/$contact': {
-      id: '/portail/contacts/$contact'
-      path: '/contacts/$contact'
-      fullPath: '/portail/contacts/$contact'
-      preLoaderRoute: typeof PortailContactsContactRouteImport
-      parentRoute: typeof PortailRouteRoute
     }
     '/bo/parametrage/zones-commerciales': {
       id: '/bo/parametrage/zones-commerciales'
@@ -627,6 +815,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageCentresInteretRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/acces/connexions': {
+      id: '/bo/acces/connexions'
+      path: '/acces/connexions'
+      fullPath: '/bo/acces/connexions'
+      preLoaderRoute: typeof BoAccesConnexionsRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/parametrage/classes-tva/': {
       id: '/bo/parametrage/classes-tva/'
       path: '/parametrage/classes-tva'
@@ -641,6 +836,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoOperateursIdIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/acces/utilisateurs/': {
+      id: '/bo/acces/utilisateurs/'
+      path: '/acces/utilisateurs'
+      fullPath: '/bo/acces/utilisateurs'
+      preLoaderRoute: typeof BoAccesUtilisateursIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/portail/annuaire/$genre/$personne': {
+      id: '/portail/annuaire/$genre/$personne'
+      path: '/annuaire/$genre/$personne'
+      fullPath: '/portail/annuaire/$genre/$personne'
+      preLoaderRoute: typeof PortailAnnuaireGenrePersonneRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
     '/bo/parametrage/classes-tva/$id': {
       id: '/bo/parametrage/classes-tva/$id'
       path: '/parametrage/classes-tva/$id'
@@ -648,18 +857,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageClassesTvaIdRouteImport
       parentRoute: typeof BoRouteRoute
     }
-    '/bo/operateurs/$id/contacts/$contact': {
-      id: '/bo/operateurs/$id/contacts/$contact'
-      path: '/operateurs/$id/contacts/$contact'
-      fullPath: '/bo/operateurs/$id/contacts/$contact'
-      preLoaderRoute: typeof BoOperateursIdContactsContactRouteImport
+    '/bo/acces/utilisateurs/$id': {
+      id: '/bo/acces/utilisateurs/$id'
+      path: '/acces/utilisateurs/$id'
+      fullPath: '/bo/acces/utilisateurs/$id'
+      preLoaderRoute: typeof BoAccesUtilisateursIdRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/operateurs/$id/personnes/$genre/$personne': {
+      id: '/bo/operateurs/$id/personnes/$genre/$personne'
+      path: '/operateurs/$id/personnes/$genre/$personne'
+      fullPath: '/bo/operateurs/$id/personnes/$genre/$personne'
+      preLoaderRoute: typeof BoOperateursIdPersonnesGenrePersonneRouteImport
       parentRoute: typeof BoRouteRoute
     }
   }
 }
 
 interface BoRouteRouteChildren {
+  BoBniaRoute: typeof BoBniaRoute
+  BoCompteRoute: typeof BoCompteRoute
   BoIndexRoute: typeof BoIndexRoute
+  BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
   BoParametrageCentresInteretRoute: typeof BoParametrageCentresInteretRoute
   BoParametrageCircuitsDistributionRoute: typeof BoParametrageCircuitsDistributionRoute
   BoParametrageContenancesRoute: typeof BoParametrageContenancesRoute
@@ -674,14 +893,19 @@ interface BoRouteRouteChildren {
   BoParametrageTypesVisiteRoute: typeof BoParametrageTypesVisiteRoute
   BoParametrageZonesCommercialesRoute: typeof BoParametrageZonesCommercialesRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
+  BoAccesUtilisateursIdRoute: typeof BoAccesUtilisateursIdRoute
   BoParametrageClassesTvaIdRoute: typeof BoParametrageClassesTvaIdRoute
+  BoAccesUtilisateursIndexRoute: typeof BoAccesUtilisateursIndexRoute
   BoOperateursIdIndexRoute: typeof BoOperateursIdIndexRoute
   BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
-  BoOperateursIdContactsContactRoute: typeof BoOperateursIdContactsContactRoute
+  BoOperateursIdPersonnesGenrePersonneRoute: typeof BoOperateursIdPersonnesGenrePersonneRoute
 }
 
 const BoRouteRouteChildren: BoRouteRouteChildren = {
+  BoBniaRoute: BoBniaRoute,
+  BoCompteRoute: BoCompteRoute,
   BoIndexRoute: BoIndexRoute,
+  BoAccesConnexionsRoute: BoAccesConnexionsRoute,
   BoParametrageCentresInteretRoute: BoParametrageCentresInteretRoute,
   BoParametrageCircuitsDistributionRoute:
     BoParametrageCircuitsDistributionRoute,
@@ -698,27 +922,32 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoParametrageTypesVisiteRoute: BoParametrageTypesVisiteRoute,
   BoParametrageZonesCommercialesRoute: BoParametrageZonesCommercialesRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
+  BoAccesUtilisateursIdRoute: BoAccesUtilisateursIdRoute,
   BoParametrageClassesTvaIdRoute: BoParametrageClassesTvaIdRoute,
+  BoAccesUtilisateursIndexRoute: BoAccesUtilisateursIndexRoute,
   BoOperateursIdIndexRoute: BoOperateursIdIndexRoute,
   BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,
-  BoOperateursIdContactsContactRoute: BoOperateursIdContactsContactRoute,
+  BoOperateursIdPersonnesGenrePersonneRoute:
+    BoOperateursIdPersonnesGenrePersonneRoute,
 }
 
 const BoRouteRouteWithChildren =
   BoRouteRoute._addFileChildren(BoRouteRouteChildren)
 
 interface PortailRouteRouteChildren {
+  PortailCompteRoute: typeof PortailCompteRoute
   PortailEntrepriseRoute: typeof PortailEntrepriseRoute
   PortailIndexRoute: typeof PortailIndexRoute
-  PortailContactsContactRoute: typeof PortailContactsContactRoute
-  PortailContactsIndexRoute: typeof PortailContactsIndexRoute
+  PortailAnnuaireIndexRoute: typeof PortailAnnuaireIndexRoute
+  PortailAnnuaireGenrePersonneRoute: typeof PortailAnnuaireGenrePersonneRoute
 }
 
 const PortailRouteRouteChildren: PortailRouteRouteChildren = {
+  PortailCompteRoute: PortailCompteRoute,
   PortailEntrepriseRoute: PortailEntrepriseRoute,
   PortailIndexRoute: PortailIndexRoute,
-  PortailContactsContactRoute: PortailContactsContactRoute,
-  PortailContactsIndexRoute: PortailContactsIndexRoute,
+  PortailAnnuaireIndexRoute: PortailAnnuaireIndexRoute,
+  PortailAnnuaireGenrePersonneRoute: PortailAnnuaireGenrePersonneRoute,
 }
 
 const PortailRouteRouteWithChildren = PortailRouteRoute._addFileChildren(
@@ -729,7 +958,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoRouteRoute: BoRouteRouteWithChildren,
   PortailRouteRoute: PortailRouteRouteWithChildren,
-  authSignInRoute: authSignInRoute,
+  authChangementEmailRoute: authChangementEmailRoute,
+  authChoixOperateurRoute: authChoixOperateurRoute,
+  authConnexionRoute: authConnexionRoute,
+  authInvitationRoute: authInvitationRoute,
+  authMotDePasseOublieRoute: authMotDePasseOublieRoute,
+  authReinitialisationRoute: authReinitialisationRoute,
   errors401Route: errors401Route,
   errors403Route: errors403Route,
   errors404Route: errors404Route,

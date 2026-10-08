@@ -4,10 +4,11 @@ import fr.bnia.commun.domain.Appellation;
 import fr.bnia.commun.domain.Millesime;
 import fr.bnia.operateurs.application.FicheOperateur;
 import fr.bnia.operateurs.domain.CodeOperateur;
+import fr.bnia.operateurs.domain.DestinataireFactures;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
-import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.TypeAlambic;
+import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
-@Schema(name = "FicheOperateur", description = "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)")
+@Schema(name = "FicheOperateur", description = "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur")
 public record FicheOperateurResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long id,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) TypeOperateur type,
@@ -46,8 +47,8 @@ public record FicheOperateurResponse(
         BigDecimal longitude,
         @Schema(description = "Identifiant du membre BNIA") Long membreBnia,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean accordDiffusionGeneral,
-        String commentaireInterne,
-        @Schema(description = "Absente pour un opérateur AUTRE") PeriodiciteDsm periodicite,
+        @Schema(description = "Visible du seul personnel du BNIA (RG-OPE-36)") String commentaireInterne,
+        @Schema(description = "Absente pour un opérateur AUTRE ou BNIA") PeriodiciteDsm periodicite,
         @Schema(description = "Périodicité par défaut du type, suggérée à l'écran quand elle diffère (RG-OPE-10)")
         PeriodiciteDsm periodiciteParDefaut,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) StatutDeclarationStock statutDeclarationStock,
@@ -61,9 +62,8 @@ public record FicheOperateurResponse(
         List<Integer> millesimesDiffusables,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean accesStatistiques,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean actif,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Triés par nom") List<ContactLigneResponse> contacts,
-        @Schema(description = "Identifiant du contact principal (RG-OPE-22)") Long contactPrincipal,
-        @Schema(description = "Identifiant du contact destinataire des factures (RG-OPE-23)") Long destinataireFacturesContact,
+        @Schema(description = "Fiche professionnelle du contact principal (RG-OPE-22)") Long contactPrincipal,
+        @Schema(description = "Fiche professionnelle du destinataire des factures (RG-OPE-23)") Long destinataireFacturesFiche,
         @Schema(description = "Adresse saisie du destinataire des factures (RG-OPE-23)") String destinataireFacturesEmail,
         @Schema(description = "Adresse qui en résulte, lue par la facturation (RG-OPE-23)") String emailFacturation,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète")
@@ -72,21 +72,17 @@ public record FicheOperateurResponse(
         boolean codeConforme,
         @Schema(description = "Si le code n'est plus conforme : le code qu'« attribuer un nouveau code » donnerait") String codePropose,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Autres fiches du même groupe (RG-OPE-09)")
-        List<OperateurResumeResponse> autresDuGroupe) {
-
-    static FicheOperateurResponse depuis(FicheOperateur fiche) {
-        return depuis(fiche, false);
-    }
+        List<OperateurResumeResponse> autresDuGroupe,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "À renvoyer avec chaque modification (RG-OPE-51)")
+        long version,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) DroitsResponse droits) {
 
     /**
-     * RG-OPE-36 : au portail, le commentaire interne est masqué ; les signalements propres au BNIA (code
-     * proposé, autres fiches du groupe) ne sont pas montrés.
+     * RG-OPE-36 : hors du personnel du BNIA, le commentaire interne est masqué, et les signalements propres
+     * au BNIA (code proposé, autres fiches du groupe) ne sont pas montrés.
      */
-    static FicheOperateurResponse pourPortail(FicheOperateur fiche) {
-        return depuis(fiche, true);
-    }
-
-    private static FicheOperateurResponse depuis(FicheOperateur fiche, boolean portail) {
+    static FicheOperateurResponse depuis(FicheOperateur fiche) {
+        boolean bnia = fiche.droits().personnelBnia();
         Operateur o = fiche.operateur();
         IdentiteOperateur i = o.identite();
         var a = i.adresse();
@@ -96,21 +92,21 @@ public record FicheOperateurResponse(
                 a.pays(), i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral()), texte(i.siteWeb()),
                 texte(i.siteCommercial()), i.gps() == null ? null : i.gps().latitude(),
                 i.gps() == null ? null : i.gps().longitude(), i.membreBnia(), i.accordDiffusionGeneral(),
-                portail ? null : i.commentaireInterne(), o.declaratif().periodicite(),
+                bnia ? i.commentaireInterne() : null, o.declaratif().periodicite(),
                 PeriodiciteDsm.parDefaut(o.type()).orElse(null), o.declaratif().statut(), o.production().region(),
                 o.production().appellations().stream().sorted().toList(),
                 o.production().alambics().stream()
                         .map(al -> new AlambicResponse(al.numeroAgrement(), al.type(), al.capacite())).toList(),
                 o.production().detenteurAlambic(), o.diffusion().niveau(),
                 o.diffusion().millesimes().stream().map(Millesime::annee).toList(), o.accesStatistiques(),
-                o.estActif(), o.contacts().stream().map(ContactLigneResponse::depuis).toList(),
-                o.contactPrincipal().orElse(null),
-                o.destinataireFactures().map(d -> d.contact()).orElse(null),
+                o.estActif(), o.contactPrincipal().orElse(null),
+                o.destinataireFactures().map(DestinataireFactures::fiche).orElse(null),
                 o.destinataireFactures().map(d -> texte(d.adresse())).orElse(null),
-                o.emailFacturation().map(e -> e.valeur()).orElse(null),
+                fiche.emailFacturation().orElse(null),
                 fiche.champsManquants(), fiche.codeConforme(),
-                portail ? null : fiche.codePropose().map(CodeOperateur::valeur).orElse(null),
-                portail ? List.of() : fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList());
+                bnia ? fiche.codePropose().map(CodeOperateur::valeur).orElse(null) : null,
+                bnia ? fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList() : List.of(),
+                o.version(), DroitsResponse.depuis(fiche.droits()));
     }
 
     @Schema(name = "Alambic")

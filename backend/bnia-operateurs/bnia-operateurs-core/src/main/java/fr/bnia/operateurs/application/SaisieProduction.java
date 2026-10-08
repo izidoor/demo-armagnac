@@ -12,13 +12,15 @@ import java.util.Set;
  * Saisie de l'onglet Production : déclaratif, région, appellations, alambics.
  *
  * @param region identifiant de la région, ou {@code null}
+ * @param version version lue par l'écran (RG-OPE-51)
  */
 public record SaisieProduction(
         PeriodiciteDsm periodicite,
         StatutDeclarationStock statutDeclarationStock,
         Long region,
         Set<Appellation> appellations,
-        List<Alambic> alambics) {
+        List<Alambic> alambics,
+        Long version) {
 
     public record Alambic(String numeroAgrement, TypeAlambic type, BigDecimal capacite) {
     }

@@ -6,7 +6,8 @@ import fr.bnia.referentiels.domain.Langue;
 @UseCase
 public class GererLangues extends GererValeursSimples<Langue> {
 
-    public GererLangues(LangueRepository repository, ValeursSimplesLecture<Langue> lecture) {
-        super(repository, lecture, Langue::creer, "langues");
+    public GererLangues(LangueRepository repository, ValeursSimplesLecture<Langue> lecture,
+            ControleParametrage controle) {
+        super(repository, lecture, Langue::creer, "langues", controle);
     }
 }

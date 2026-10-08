@@ -18,7 +18,7 @@ class GererClassesTvaTest {
 
     private final ClassesEnMemoire classes = new ClassesEnMemoire();
     private final GererClassesTva gerer = new GererClassesTva(classes, classes,
-            Clock.fixed(Instant.parse("2026-10-06T10:00:00Z"), ZoneOffset.UTC));
+            Clock.fixed(Instant.parse("2026-10-06T10:00:00Z"), ZoneOffset.UTC), Parametrage.AUTORISE);
 
     @Test
     void la_date_du_jour_vient_de_l_horloge() {
@@ -28,12 +28,12 @@ class GererClassesTvaTest {
     @Test
     @DisplayName("RG-REF-11 : un taux ajouté est enregistré avec sa classe ; un chevauchement est refusé")
     void rg_ref_11_ajouter_un_taux() {
-        long id = gerer.creer("NORMAL", "Normal").id();
+        long id = gerer.creer(Parametrage.ACTEUR, "NORMAL", "Normal").id();
 
-        gerer.ajouterTaux(id, new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
+        gerer.ajouterTaux(Parametrage.ACTEUR, id, new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
 
         assertThat(classes.parId(id).orElseThrow().taux()).hasSize(1);
-        assertThatThrownBy(() -> gerer.ajouterTaux(id,
+        assertThatThrownBy(() -> gerer.ajouterTaux(Parametrage.ACTEUR, id,
                 new SaisieTauxTva(new BigDecimal("21"), LocalDate.parse("2026-01-01"), null)))
                 .isInstanceOf(RegleEnfreinte.class);
         assertThat(classes.parId(id).orElseThrow().taux()).hasSize(1);
@@ -41,14 +41,14 @@ class GererClassesTvaTest {
 
     @Test
     void modifier_puis_retirer_un_taux() {
-        long id = gerer.creer("NORMAL", "Normal").id();
-        gerer.ajouterTaux(id, new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
+        long id = gerer.creer(Parametrage.ACTEUR, "NORMAL", "Normal").id();
+        gerer.ajouterTaux(Parametrage.ACTEUR, id, new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), null));
 
-        gerer.modifierTaux(id, LocalDate.parse("2014-01-01"),
+        gerer.modifierTaux(Parametrage.ACTEUR, id, LocalDate.parse("2014-01-01"),
                 new SaisieTauxTva(new BigDecimal("20"), LocalDate.parse("2014-01-01"), LocalDate.parse("2025-12-31")));
         assertThat(gerer.consulter(id).taux().getFirst().fin()).isEqualTo(LocalDate.parse("2025-12-31"));
 
-        gerer.retirerTaux(id, LocalDate.parse("2014-01-01"));
+        gerer.retirerTaux(Parametrage.ACTEUR, id, LocalDate.parse("2014-01-01"));
         assertThat(gerer.consulter(id).taux()).isEmpty();
     }
 

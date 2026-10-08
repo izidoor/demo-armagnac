@@ -18,8 +18,9 @@ public class GererClassesTva extends GererValeurs<ClasseTva> {
     private final ClassesTvaLecture lecture;
     private final Clock horloge;
 
-    public GererClassesTva(ClasseTvaRepository repository, ClassesTvaLecture lecture, Clock horloge) {
-        super(repository, "classes de TVA");
+    public GererClassesTva(ClasseTvaRepository repository, ClassesTvaLecture lecture, Clock horloge,
+            ControleParametrage controle) {
+        super(repository, "classes de TVA", controle);
         this.lecture = lecture;
         this.horloge = horloge;
     }
@@ -34,12 +35,14 @@ public class GererClassesTva extends GererValeurs<ClasseTva> {
     }
 
     /** RG-REF-01, RG-REF-03. Une classe naît sans taux. */
-    public ClasseTva creer(String code, String libelle) {
+    public ClasseTva creer(long acteur, String code, String libelle) {
+        exigerParametrage(acteur);
         return enregistrerNouvelle(ClasseTva.creer(Code.de(code), Libelle.de(libelle)));
     }
 
     /** RG-REF-01 à 03. */
-    public ClasseTva modifier(long id, String code, String libelle) {
+    public ClasseTva modifier(long acteur, long id, String code, String libelle) {
+        exigerParametrage(acteur);
         Code nouveauCode = Code.de(code);
         Libelle nouveau = Libelle.de(libelle);
         return modifierValeur(id, classe -> {
@@ -49,19 +52,22 @@ public class GererClassesTva extends GererValeurs<ClasseTva> {
     }
 
     /** RG-REF-11. */
-    public ClasseTva ajouterTaux(long id, SaisieTauxTva saisie) {
+    public ClasseTva ajouterTaux(long acteur, long id, SaisieTauxTva saisie) {
+        exigerParametrage(acteur);
         TauxTva taux = taux(saisie);
         return modifierValeur(id, classe -> classe.ajouterTaux(taux));
     }
 
     /** RG-REF-11. Le taux est désigné par sa date de début actuelle. */
-    public ClasseTva modifierTaux(long id, LocalDate debutActuel, SaisieTauxTva saisie) {
+    public ClasseTva modifierTaux(long acteur, long id, LocalDate debutActuel, SaisieTauxTva saisie) {
+        exigerParametrage(acteur);
         TauxTva taux = taux(saisie);
         return modifierValeur(id, classe -> classe.modifierTaux(debutActuel, taux));
     }
 
     /** Correction d'une erreur de saisie dans l'historique (spec 01, §5.1). */
-    public ClasseTva retirerTaux(long id, LocalDate debut) {
+    public ClasseTva retirerTaux(long acteur, long id, LocalDate debut) {
+        exigerParametrage(acteur);
         return modifierValeur(id, classe -> classe.retirerTaux(debut));
     }
 

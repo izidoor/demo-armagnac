@@ -1,6 +1,6 @@
 # ADR-011 : Référentiels, identifiant technique et code modifiable
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-08 (auteur d'une action, identifiants `bigint` confirmés)
 - Date : 2026-10-06
 - Remplace : la « référence par code métier » de l'ADR-008 (décision A-REF-1 de la spec 01)
 - Spec : `docs/specs/01-referentiels/spec.md` (A-REF-1, RG-REF-02, RG-REF-04)
@@ -47,3 +47,17 @@ Options écartées :
   pas.
 - Chaque contexte consommateur déclare une clé étrangère vers la table du référentiel qu'il utilise :
   c'est elle qui protège une valeur utilisée contre la suppression.
+
+## Amendement du 2026-10-08 (spec 03, spec 02 révisée)
+- **Identifiants `bigint` confirmés** pour tous les objets, y compris les personnes et les accès de
+  `operateurs` et le compte de connexion de `authentification` (A-AUT-4, A-OPE-9). Le principe
+  « identifiants UUID » de la vision du 2026-10-08 n'est pas suivi : l'e-mail n'étant jamais un
+  identifiant, son objet est atteint ; l'UUID reste écarté pour les mêmes raisons qu'en 2026-10-06.
+- **Exception : l'auteur d'une action.** Un utilisateur est supprimé quand il perd son dernier
+  rattachement (ADR-016). Un contexte qui enregistre l'auteur d'une action (DSM « saisie par », contrat
+  « validé par », suivi export « créé par »…) stocke donc son identifiant **sans clé étrangère**, avec une
+  copie de son nom à l'instant de l'action (A-OPE-8). Les journaux font de même.
+- **Exception : `authentification`.** Le compte de connexion référence l'utilisateur sans clé étrangère ;
+  la cohérence passe par les événements de `operateurs` (ADR-015).
+- Écartés : ne jamais supprimer un utilisateur (comptes dormants, écart à la vision) ; bloquer la
+  suppression d'un utilisateur auteur d'une action (deux comportements selon l'historique).

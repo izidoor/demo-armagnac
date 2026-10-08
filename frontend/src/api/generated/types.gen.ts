@@ -4,13 +4,32 @@ export type ClientOptions = {
     baseURL: `${string}://${string}` | (string & {});
 };
 
+export type Acceptation = {
+    /**
+     * Vrai : le compte vient d'être créé, sans mot de passe ; le poser avec le même jeton (RG-AUT-15)
+     */
+    nouveauCompte: boolean;
+    operateur: number;
+};
+
 export type Alambic = {
     capacite?: number;
     numeroAgrement?: string;
     type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
 };
 
-export type ChangementContact = {
+export type Blocage = {
+    /**
+     * Conservé au journal, jamais envoyé (RG-OPE-50)
+     */
+    motif: string;
+};
+
+export type ChangementEmail = {
+    email: string;
+};
+
+export type ChangementJournal = {
     apres?: string;
     avant?: string;
     champ: string;
@@ -67,58 +86,45 @@ export type CodePropose = {
     code?: string;
 };
 
+export type ConfirmationEmail = {
+    jeton: string;
+};
+
+export type Connecte = {
+    utilisateur?: number;
+};
+
 /**
- * Un contact, ses droits au portail et ses désignations
+ * Un contact, sa fiche professionnelle et ses désignations
  */
 export type Contact = {
-    acces: boolean;
-    actif: boolean;
-    administrateur: boolean;
-    adresse?: string;
     /**
-     * Identifiants des centres d'intérêt
+     * Tombera à la suppression (RG-OPE-22)
      */
-    centresInteret: Array<number>;
-    codePostal?: string;
     contactPrincipal: boolean;
+    /**
+     * Tombera à la suppression (RG-OPE-23)
+     */
     destinataireFactures: boolean;
     email?: string;
-    /**
-     * L'e-mail est l'identifiant d'un compte : seule la personne le change (RG-OPE-32)
-     */
-    emailVerrouille: boolean;
-    fonction?: string;
+    fiche: FicheProfessionnelle;
     id: number;
-    modules: Array<'DSM' | 'CONTRATS_ARMAGNAC' | 'PLURIANNUELS_ARMAGNAC' | 'PROPOSITIONS_ARMAGNAC' | 'CONTRATS_VIN' | 'PLURIANNUELS_VIN' | 'PROPOSITIONS_VIN' | 'FINS_DE_TRAVAUX' | 'BOUTIQUE' | 'FACTURES' | 'CERTIFICATS_EXPORT' | 'STATISTIQUES'>;
+    /**
+     * Invitation en attente partie de ce contact (RG-OPE-40)
+     */
+    invitationEnAttente?: Invitation;
     nom: string;
     nomComplet: string;
-    observation?: string;
-    /**
-     * Identifiant du pays
-     */
-    pays?: number;
+    operateur: number;
     prenom?: string;
-    telephoneProfessionnel?: string;
-    telephoneSecondaire?: string;
     /**
      * Identifiant du titre
      */
     titre?: number;
-    ville?: string;
-};
-
-/**
- * Ligne de l'onglet Contacts
- */
-export type ContactLigne = {
-    acces: boolean;
-    actif: boolean;
-    administrateur: boolean;
-    email?: string;
-    fonction?: string;
-    id: number;
-    nomComplet: string;
-    telephone?: string;
+    /**
+     * À renvoyer avec chaque modification (RG-OPE-51)
+     */
+    version: number;
 };
 
 export type Contenance = {
@@ -148,7 +154,59 @@ export type Doublon = {
 };
 
 /**
- * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09)
+ * Droits de l'utilisateur connecté sur un opérateur, évalués à l'appel (RG-OPE-31, 32)
+ */
+export type Droits = {
+    acces: 'AUCUN' | 'LECTURE' | 'GESTION';
+    /**
+     * Fin d'un opérateur, blocage (RG-OPE-25, 26, 50)
+     */
+    adminBnia: boolean;
+    contacts: 'AUCUN' | 'LECTURE' | 'GESTION';
+    operateur: number;
+    parametrage: 'AUCUN' | 'LECTURE' | 'GESTION';
+    /**
+     * Champs réservés, listing des opérateurs (RG-OPE-32, 36)
+     */
+    personnelBnia: boolean;
+    /**
+     * Rôle de son rattachement actif dans cet opérateur
+     */
+    role?: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    /**
+     * Rôle tenu dans l'opérateur BNIA, valable pour tous les opérateurs
+     */
+    roleBnia?: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+};
+
+export type EtapeConnexion = {
+    etape: 'CODE_REQUIS' | 'CONNECTE';
+};
+
+/**
+ * Blocage temporaire en cours et dernière connexion (RG-OPE-53)
+ */
+export type EtatCompte = {
+    bloqueJusqua?: string;
+    derniereConnexion?: string;
+    motDePasseDefini: boolean;
+    utilisateur: number;
+};
+
+export type EtatSession = {
+    /**
+     * Mot de passe vérifié, code attendu
+     */
+    codeAttendu: boolean;
+    connecte: boolean;
+    /**
+     * L'utilisateur connecté
+     */
+    utilisateur?: number;
+};
+
+/**
+ * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur
  */
 export type FicheOperateur = {
     accesStatistiques: boolean;
@@ -179,28 +237,28 @@ export type FicheOperateur = {
      * Si le code n'est plus conforme : le code qu'« attribuer un nouveau code » donnerait
      */
     codePropose?: string;
+    /**
+     * Visible du seul personnel du BNIA (RG-OPE-36)
+     */
     commentaireInterne?: string;
     /**
-     * Identifiant du contact principal (RG-OPE-22)
+     * Fiche professionnelle du contact principal (RG-OPE-22)
      */
     contactPrincipal?: number;
-    /**
-     * Triés par nom
-     */
-    contacts: Array<ContactLigne>;
     cvi?: string;
-    /**
-     * Identifiant du contact destinataire des factures (RG-OPE-23)
-     */
-    destinataireFacturesContact?: number;
     /**
      * Adresse saisie du destinataire des factures (RG-OPE-23)
      */
     destinataireFacturesEmail?: string;
     /**
+     * Fiche professionnelle du destinataire des factures (RG-OPE-23)
+     */
+    destinataireFacturesFiche?: number;
+    /**
      * Calculé : au moins un alambic (RG-OPE-13)
      */
     detenteurAlambic: boolean;
+    droits: Droits;
     /**
      * Adresse qui en résulte, lue par la facturation (RG-OPE-23)
      */
@@ -226,7 +284,7 @@ export type FicheOperateur = {
      */
     pays?: number;
     /**
-     * Absente pour un opérateur AUTRE
+     * Absente pour un opérateur AUTRE ou BNIA
      */
     periodicite?: 'MENSUELLE' | 'TRIMESTRIELLE' | 'SEMESTRIELLE' | 'ANNUELLE';
     /**
@@ -249,7 +307,44 @@ export type FicheOperateur = {
      * Identifiant du titre
      */
     titre?: number;
-    type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    /**
+     * À renvoyer avec chaque modification (RG-OPE-51)
+     */
+    version: number;
+    ville?: string;
+};
+
+/**
+ * Informations d'une personne dans un opérateur, propriété de l'opérateur (spec 02 §3.2.3)
+ */
+export type FicheProfessionnelle = {
+    adresse?: string;
+    /**
+     * Identifiants des centres d'intérêt
+     */
+    centresInteret: Array<number>;
+    codePostal?: string;
+    fonction?: string;
+    id: number;
+    modifieeLe?: string;
+    /**
+     * Copie du nom de l'auteur de la dernière modification (RG-OPE-46)
+     */
+    modifieePar?: string;
+    observation?: string;
+    operateur: number;
+    /**
+     * Identifiant du pays
+     */
+    pays?: number;
+    telephoneProfessionnel?: string;
+    telephoneSecondaire?: string;
+    type: 'CONTACT' | 'RATTACHEMENT';
+    /**
+     * À renvoyer avec chaque modification (RG-OPE-51)
+     */
+    version: number;
     ville?: string;
 };
 
@@ -262,6 +357,64 @@ export type InfoSysteme = {
     versionBase: string;
 };
 
+/**
+ * Invitation à accéder à un opérateur (spec 02 §3.2.5) ; le jeton n'est jamais renvoyé
+ */
+export type Invitation = {
+    email: string;
+    envoyeeLe: string;
+    envoyeePar: string;
+    expireLe: string;
+    /**
+     * Fiche du contact invité ; absente pour une personne nouvelle
+     */
+    fiche?: number;
+    fonction?: string;
+    id: number;
+    /**
+     * Personne nouvelle
+     */
+    nom?: string;
+    operateur: number;
+    /**
+     * Personne nouvelle
+     */
+    prenom?: string;
+    role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    statut: 'EN_ATTENTE' | 'ACCEPTEE' | 'ANNULEE' | 'EXPIREE';
+    telephoneProfessionnel?: string;
+    /**
+     * Personne nouvelle : identifiant du titre
+     */
+    titre?: number;
+};
+
+/**
+ * Ce que montre le lien d'une invitation
+ */
+export type InvitationPublique = {
+    /**
+     * Vrai : la personne se connecte pour accepter
+     */
+    compteExistant: boolean;
+    email: string;
+    expireLe: string;
+    /**
+     * Prérempli
+     */
+    nom: string;
+    operateur: string;
+    /**
+     * Prérempli
+     */
+    prenom?: string;
+    role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    /**
+     * Prérempli : identifiant du titre
+     */
+    titre?: number;
+};
+
 export type LabelObtenu = {
     commentaire?: string;
     /**
@@ -271,14 +424,37 @@ export type LabelObtenu = {
 };
 
 /**
- * Entrée du journal d'un contact (RG-OPE-34)
+ * Entrée du journal des connexions (RG-AUT-12)
  */
-export type LigneJournalContact = {
-    action: 'CREATION' | 'MODIFICATION' | 'DESACTIVATION' | 'REACTIVATION' | 'SUPPRESSION' | 'ACCES_ACCORDE' | 'ACCES_RETIRE' | 'DROITS_MODIFIES';
-    auteur: string;
-    changements: Array<ChangementContact>;
+export type LigneConnexion = {
+    adresseIp?: string;
     date: string;
-    nomContact: string;
+    detail?: string;
+    evenement: 'CONNEXION_REUSSIE' | 'ECHEC_MOT_DE_PASSE' | 'ECHEC_CODE' | 'BLOCAGE_DECLENCHE' | 'CONNEXION_REFUSEE' | 'DECONNEXION' | 'MOT_DE_PASSE_DEFINI' | 'MOT_DE_PASSE_CHANGE' | 'REINITIALISATION_DEMANDEE' | 'MOT_DE_PASSE_REINITIALISE' | 'NAVIGATEUR_DE_CONFIANCE';
+    identifiantSaisi: string;
+    libelle: string;
+    navigateur?: string;
+    utilisateur?: number;
+};
+
+/**
+ * Action sur une personne ou un accès (RG-OPE-34)
+ */
+export type LigneJournal = {
+    /**
+     * Copie du nom de l'acteur
+     */
+    acteur: string;
+    action: 'CONTACT_CREE' | 'CONTACT_MODIFIE' | 'CONTACT_SUPPRIME' | 'FICHE_MODIFIEE' | 'INVITATION_ENVOYEE' | 'INVITATION_RELANCEE' | 'INVITATION_ANNULEE' | 'INVITATION_EXPIREE' | 'INVITATION_ACCEPTEE' | 'ROLE_CHANGE' | 'ACCES_SUSPENDU' | 'ACCES_REACTIVE' | 'ACCES_RETIRE' | 'PROFIL_MODIFIE' | 'EMAIL_MODIFIE' | 'UTILISATEUR_BLOQUE' | 'UTILISATEUR_DEBLOQUE' | 'UTILISATEUR_SUPPRIME';
+    changements: Array<ChangementJournal>;
+    cible: 'CONTACT' | 'MEMBRE' | 'INVITATION' | 'UTILISATEUR';
+    date: string;
+    idCible: number;
+    libelle: string;
+    /**
+     * Copie du nom de la cible
+     */
+    nomCible: string;
 };
 
 export type MarquePresentee = {
@@ -301,6 +477,77 @@ export type MedailleConcours = {
 };
 
 /**
+ * Un membre d'un opérateur : son rattachement, son identité lue chez l'utilisateur, sa fiche
+ */
+export type Membre = {
+    /**
+     * Bloqué par le BNIA (RG-OPE-50)
+     */
+    bloqueParBnia: boolean;
+    contactPrincipal: boolean;
+    depuis: string;
+    /**
+     * Dernier ADMIN actif de l'opérateur (RG-OPE-35)
+     */
+    dernierAdmin: boolean;
+    destinataireFactures: boolean;
+    email: string;
+    fiche: FicheProfessionnelle;
+    /**
+     * Identifiant du rattachement
+     */
+    id: number;
+    nom: string;
+    nomComplet: string;
+    operateur: number;
+    prenom: string;
+    role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    statut: 'ACTIF' | 'SUSPENDU';
+    /**
+     * Identifiant du titre ; modifié par la personne seule (RG-OPE-47)
+     */
+    titre?: number;
+    utilisateur: number;
+};
+
+/**
+ * L'utilisateur connecté et ses rattachements (RG-OPE-49)
+ */
+export type Moi = {
+    email: string;
+    id: number;
+    nom: string;
+    nomComplet: string;
+    /**
+     * Nouvel e-mail en attente de confirmation (RG-OPE-48)
+     */
+    nouvelEmail?: string;
+    /**
+     * Expiration du lien de confirmation
+     */
+    nouvelEmailExpireLe?: string;
+    /**
+     * Opérateur où l'application s'ouvre ; absent : l'utilisateur choisit (RG-OPE-49)
+     */
+    operateurOuvert?: number;
+    prenom: string;
+    rattachements: Array<RattachementUtilisateur>;
+    statut: 'ACTIF' | 'BLOQUE';
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    /**
+     * À renvoyer avec le profil (RG-OPE-51)
+     */
+    version: number;
+};
+
+export type OperateurActif = {
+    operateur: number;
+};
+
+/**
  * Ligne du listing des opérateurs
  */
 export type OperateurLigne = {
@@ -316,7 +563,7 @@ export type OperateurLigne = {
     nomCommercial?: string;
     raisonSociale: string;
     telephone1?: string;
-    type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
     ville?: string;
 };
 
@@ -348,6 +595,56 @@ export type Pays = {
      * Identifiant de la zone commerciale
      */
     zoneCommerciale: number;
+};
+
+/**
+ * Ligne de l'annuaire : contact, membre, ou personne nouvelle invitée (RG-OPE-52)
+ */
+export type PersonneAnnuaire = {
+    /**
+     * Membre bloqué par le BNIA (RG-OPE-50)
+     */
+    bloqueParBnia: boolean;
+    email?: string;
+    /**
+     * Fiche professionnelle ; absente pour une invitation
+     */
+    fiche?: number;
+    fonction?: string;
+    genre: 'CONTACT' | 'MEMBRE' | 'INVITATION';
+    /**
+     * Contact, rattachement ou invitation, selon le genre
+     */
+    id: number;
+    /**
+     * Invitation en attente (« invitation envoyée »)
+     */
+    invitationEnAttente?: number;
+    nom: string;
+    nomComplet: string;
+    prenom?: string;
+    /**
+     * Rôle du membre, ou rôle proposé par l'invitation
+     */
+    role?: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    /**
+     * Membre : ACTIF ou SUSPENDU (« accès suspendu »)
+     */
+    statut?: 'ACTIF' | 'SUSPENDU';
+    telephoneProfessionnel?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+};
+
+/**
+ * Personne invitée comme premier ADMIN de l'opérateur créé
+ */
+export type PremierAdmin = {
+    email: string;
+    nom: string;
+    prenom: string;
 };
 
 /**
@@ -393,6 +690,27 @@ export type PresentationOperateur = {
     visites: Array<VisiteProposee>;
 };
 
+export type RattachementUtilisateur = {
+    code: string;
+    id: number;
+    operateur: number;
+    /**
+     * Faux : opérateur désactivé, rattachement gelé (RG-OPE-26)
+     */
+    operateurEnActivite: boolean;
+    raisonSociale: string;
+    role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    statut: 'ACTIF' | 'SUSPENDU';
+    /**
+     * BNIA : back-office ; autre : portail (RG-OPE-49)
+     */
+    type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    /**
+     * Rattachement actif dans un opérateur actif
+     */
+    utilisable: boolean;
+};
+
 export type Region = {
     actif: boolean;
     code: string;
@@ -412,6 +730,34 @@ export type ResultatRechercheOperateur = {
     ville?: string;
 };
 
+/**
+ * Retrait de l'accès d'un membre (RG-OPE-44)
+ */
+export type Retrait = {
+    /**
+     * Conserver cette personne dans les contacts
+     */
+    conserverContact: boolean;
+};
+
+/**
+ * Identité confirmée par une personne nouvelle (RG-OPE-42)
+ */
+export type SaisieAcceptation = {
+    /**
+     * Obligatoire pour une personne nouvelle
+     */
+    nom?: string;
+    /**
+     * Obligatoire pour une personne nouvelle
+     */
+    prenom?: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+};
+
 export type SaisieAlambic = {
     /**
      * Strictement positive (RG-OPE-13)
@@ -421,8 +767,29 @@ export type SaisieAlambic = {
     type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
 };
 
+export type SaisieChangementMotDePasse = {
+    actuel: string;
+    /**
+     * Douze caractères au moins (RG-AUT-07)
+     */
+    nouveau: string;
+};
+
+export type SaisieCode = {
+    code: string;
+    /**
+     * Faire confiance à ce navigateur 30 jours (RG-AUT-06)
+     */
+    faireConfiance: boolean;
+};
+
+export type SaisieConnexion = {
+    email: string;
+    motDePasse: string;
+};
+
 /**
- * Création ou modification d'un contact (C.1.9.1)
+ * Déclaration d'un contact et de sa fiche professionnelle (vision UC-10, C.1.9.1)
  */
 export type SaisieContact = {
     adresse?: string;
@@ -432,7 +799,7 @@ export type SaisieContact = {
     centresInteret?: Array<number>;
     codePostal?: string;
     /**
-     * Unique dans l'opérateur (RG-OPE-28) ; non modifiable s'il est l'identifiant d'un compte (RG-OPE-32)
+     * Unique parmi les contacts de l'opérateur (RG-OPE-28)
      */
     email?: string;
     fonction?: string;
@@ -471,17 +838,21 @@ export type SaisieContenance = {
  */
 export type SaisieDesignations = {
     /**
-     * Identifiant d'un contact actif ; absent : aucun
+     * Fiche professionnelle d'une personne de l'annuaire ; absent : aucun
      */
     contactPrincipal?: number;
     /**
-     * Identifiant d'un contact actif avec un e-mail
-     */
-    destinataireFacturesContact?: number;
-    /**
-     * Adresse saisie, si le destinataire n'est pas un contact
+     * Adresse saisie, si le destinataire n'est pas une personne de l'annuaire
      */
     destinataireFacturesEmail?: string;
+    /**
+     * Fiche professionnelle d'une personne de l'annuaire qui a un e-mail
+     */
+    destinataireFacturesFiche?: number;
+    /**
+     * Version de l'opérateur lue (RG-OPE-51)
+     */
+    version?: number;
 };
 
 /**
@@ -489,7 +860,7 @@ export type SaisieDesignations = {
  */
 export type SaisieDiffusion = {
     /**
-     * RG-OPE-15
+     * RG-OPE-15 ; fixé par le BNIA : un autre rôle renvoie la valeur actuelle (RG-OPE-36)
      */
     accesStatistiques: boolean;
     /**
@@ -497,35 +868,96 @@ export type SaisieDiffusion = {
      */
     millesimes?: Array<number>;
     niveau: 'REFUS' | 'PARTIEL' | 'TOTAL';
+    /**
+     * Version lue (RG-OPE-51)
+     */
+    version?: number;
+};
+
+export type SaisieEmail = {
+    email: string;
 };
 
 /**
- * Diffusion des millésimes, au portail ; l'accès aux statistiques reste fixé par le BNIA (RG-OPE-36)
+ * Modification d'une fiche professionnelle (RG-OPE-46)
  */
-export type SaisieDiffusionPortail = {
+export type SaisieFiche = {
+    adresse?: string;
     /**
-     * En accord partiel : au moins un, sans doublon (RG-OPE-14)
+     * Identifiants des centres d'intérêt
      */
-    millesimes?: Array<number>;
-    niveau: 'REFUS' | 'PARTIEL' | 'TOTAL';
+    centresInteret?: Array<number>;
+    codePostal?: string;
+    fonction?: string;
+    observation?: string;
+    /**
+     * Identifiant du pays
+     */
+    pays?: number;
+    telephoneProfessionnel?: string;
+    telephoneSecondaire?: string;
+    /**
+     * Version lue (RG-OPE-51)
+     */
+    version?: number;
+    ville?: string;
 };
 
 /**
- * Droits d'un contact au portail (C.1.9.2)
+ * Identité et e-mail d'un contact (vision UC-11) ; sa fiche se modifie à part
  */
-export type SaisieDroits = {
+export type SaisieIdentiteContact = {
     /**
-     * Exige un e-mail (RG-OPE-29)
+     * Unique parmi les contacts de l'opérateur (RG-OPE-28)
      */
-    acces: boolean;
+    email?: string;
+    nom: string;
+    prenom?: string;
     /**
-     * Exige l'accès ; donne tous les modules (RG-OPE-30)
+     * Identifiant du titre
      */
-    administrateur: boolean;
+    titre?: number;
     /**
-     * Ignorés sans accès (RG-OPE-31)
+     * Version lue (RG-OPE-51)
      */
-    modules?: Array<'DSM' | 'CONTRATS_ARMAGNAC' | 'PLURIANNUELS_ARMAGNAC' | 'PROPOSITIONS_ARMAGNAC' | 'CONTRATS_VIN' | 'PLURIANNUELS_VIN' | 'PROPOSITIONS_VIN' | 'FINS_DE_TRAVAUX' | 'BOUTIQUE' | 'FACTURES' | 'CERTIFICATS_EXPORT' | 'STATISTIQUES'>;
+    version?: number;
+};
+
+/**
+ * Depuis un contact, ou une personne nouvelle (RG-OPE-40)
+ */
+export type SaisieInvitation = {
+    /**
+     * Contact invité ; absent pour une personne nouvelle
+     */
+    contact?: number;
+    email: string;
+    fonction?: string;
+    /**
+     * Personne nouvelle : obligatoire
+     */
+    nom?: string;
+    /**
+     * Personne nouvelle : obligatoire
+     */
+    prenom?: string;
+    role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+    telephoneProfessionnel?: string;
+    /**
+     * Personne nouvelle : identifiant du titre
+     */
+    titre?: number;
+};
+
+/**
+ * Un nouveau mot de passe, avec le jeton du lien reçu
+ */
+export type SaisieNouveauMotDePasse = {
+    jeton: string;
+    /**
+     * Douze caractères au moins (RG-AUT-07)
+     */
+    motDePasse: string;
 };
 
 /**
@@ -544,7 +976,7 @@ export type SaisieOperateur = {
     code?: string;
     codePostal?: string;
     /**
-     * Masqué au portail (RG-OPE-36)
+     * Visible du seul BNIA (RG-OPE-36)
      */
     commentaireInterne?: string;
     cvi?: string;
@@ -575,6 +1007,10 @@ export type SaisieOperateur = {
      */
     pays?: number;
     portable?: string;
+    /**
+     * À la création seulement : un premier ADMIN à inviter, par un ADMIN du BNIA (RG-OPE-40)
+     */
+    premierAdmin?: PremierAdmin;
     raisonSociale: string;
     siret?: string;
     siteCommercial?: string;
@@ -585,7 +1021,14 @@ export type SaisieOperateur = {
      * Identifiant du titre
      */
     titre?: number;
-    type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    /**
+     * BNIA ne se choisit pas (RG-OPE-39)
+     */
+    type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+    /**
+     * Version lue, en modification (RG-OPE-51)
+     */
+    version?: number;
     ville?: string;
 };
 
@@ -622,7 +1065,7 @@ export type SaisieProduction = {
     alambics: Array<SaisieAlambic>;
     appellations: Array<'ARMAGNAC' | 'BAS_ARMAGNAC' | 'ARMAGNAC_TENAREZE' | 'HAUT_ARMAGNAC' | 'BLANCHE_ARMAGNAC'>;
     /**
-     * Absente pour un opérateur AUTRE, obligatoire sinon (RG-OPE-01, 10)
+     * Absente pour un opérateur AUTRE ou BNIA, obligatoire sinon (RG-OPE-01, 10)
      */
     periodicite?: 'MENSUELLE' | 'TRIMESTRIELLE' | 'SEMESTRIELLE' | 'ANNUELLE';
     /**
@@ -633,12 +1076,32 @@ export type SaisieProduction = {
      * Jamais OUI pour un opérateur AUTRE (RG-OPE-11)
      */
     statutDeclarationStock: 'OUI' | 'NON' | 'SOMMEIL' | 'CLOTURE';
+    /**
+     * Version lue (RG-OPE-51)
+     */
+    version?: number;
 };
 
 /**
- * « Mon entreprise » : les seuls champs modifiables au portail (RG-OPE-36)
+ * Titre, nom et prénom, modifiés par la personne seule (RG-OPE-47)
  */
-export type SaisieProfilPortail = {
+export type SaisieProfil = {
+    nom: string;
+    prenom: string;
+    /**
+     * Identifiant du titre
+     */
+    titre?: number;
+    /**
+     * Version lue (RG-OPE-51)
+     */
+    version?: number;
+};
+
+/**
+ * « Mon entreprise » : les champs qu'un opérateur modifie lui-même, par le module Contacts (RG-OPE-36)
+ */
+export type SaisieProfilOperateur = {
     accordDiffusionGeneral: boolean;
     adresseLigne1?: string;
     adresseLigne2?: string;
@@ -661,6 +1124,10 @@ export type SaisieProfilPortail = {
      * Identifiant du titre
      */
     titre?: number;
+    /**
+     * Version lue (RG-OPE-51)
+     */
+    version?: number;
     ville?: string;
 };
 
@@ -671,6 +1138,10 @@ export type SaisieRegion = {
     code: string;
     enRegionDelimitee: boolean;
     libelle: string;
+};
+
+export type SaisieRole = {
+    role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
 };
 
 export type SaisieTauxTva = {
@@ -706,6 +1177,18 @@ export type TauxTva = {
 };
 
 /**
+ * Un utilisateur et ses rattachements (RG-OPE-53)
+ */
+export type UtilisateurLigne = {
+    email: string;
+    id: number;
+    nom: string;
+    prenom: string;
+    rattachements: Array<RattachementUtilisateur>;
+    statut: 'ACTIF' | 'BLOQUE';
+};
+
+/**
  * Valeur d'une liste de référentiel
  */
 export type ValeurSimple = {
@@ -726,11 +1209,334 @@ export type VisiteProposee = {
     typeVisite: number;
 };
 
+export type VerifierCodeData = {
+    body: SaisieCode;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/code';
+};
+
+export type VerifierCodeResponses = {
+    /**
+     * OK
+     */
+    200: EtapeConnexion;
+};
+
+export type VerifierCodeResponse = VerifierCodeResponses[keyof VerifierCodeResponses];
+
+export type RenvoyerCodeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/code/renvoi';
+};
+
+export type RenvoyerCodeResponses = {
+    /**
+     * OK
+     */
+    200: EtapeConnexion;
+};
+
+export type RenvoyerCodeResponse = RenvoyerCodeResponses[keyof RenvoyerCodeResponses];
+
+export type ListerEtatsComptesData = {
+    body?: never;
+    path?: never;
+    query: {
+        utilisateurs: Array<number>;
+    };
+    url: '/api/authentification/comptes';
+};
+
+export type ListerEtatsComptesResponses = {
+    /**
+     * OK
+     */
+    200: Array<EtatCompte>;
+};
+
+export type ListerEtatsComptesResponse = ListerEtatsComptesResponses[keyof ListerEtatsComptesResponses];
+
+export type SeConnecterData = {
+    body: SaisieConnexion;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/connexion';
+};
+
+export type SeConnecterResponses = {
+    /**
+     * OK
+     */
+    200: EtapeConnexion;
+};
+
+export type SeConnecterResponse = SeConnecterResponses[keyof SeConnecterResponses];
+
+export type SeDeconnecterData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/deconnexion';
+};
+
+export type SeDeconnecterResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SeDeconnecterResponse = SeDeconnecterResponses[keyof SeDeconnecterResponses];
+
+export type ListerConnexionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        utilisateur?: number;
+        evenement?: 'CONNEXION_REUSSIE' | 'ECHEC_MOT_DE_PASSE' | 'ECHEC_CODE' | 'BLOCAGE_DECLENCHE' | 'CONNEXION_REFUSEE' | 'DECONNEXION' | 'MOT_DE_PASSE_DEFINI' | 'MOT_DE_PASSE_CHANGE' | 'REINITIALISATION_DEMANDEE' | 'MOT_DE_PASSE_REINITIALISE' | 'NAVIGATEUR_DE_CONFIANCE';
+        /**
+         * Inclus
+         */
+        du?: string;
+        /**
+         * Inclus
+         */
+        au?: string;
+    };
+    url: '/api/authentification/journal';
+};
+
+export type ListerConnexionsResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneConnexion>;
+};
+
+export type ListerConnexionsResponse = ListerConnexionsResponses[keyof ListerConnexionsResponses];
+
+export type ListerMesConnexionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/mes-connexions';
+};
+
+export type ListerMesConnexionsResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneConnexion>;
+};
+
+export type ListerMesConnexionsResponse = ListerMesConnexionsResponses[keyof ListerMesConnexionsResponses];
+
+export type ChangerMotDePasseData = {
+    body: SaisieChangementMotDePasse;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/mot-de-passe';
+};
+
+export type ChangerMotDePasseResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type ChangerMotDePasseResponse = ChangerMotDePasseResponses[keyof ChangerMotDePasseResponses];
+
+export type DemanderReinitialisationData = {
+    body: SaisieEmail;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/mot-de-passe-oublie';
+};
+
+export type DemanderReinitialisationResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DemanderReinitialisationResponse = DemanderReinitialisationResponses[keyof DemanderReinitialisationResponses];
+
+export type DefinirPremierMotDePasseData = {
+    body: SaisieNouveauMotDePasse;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/premier-mot-de-passe';
+};
+
+export type DefinirPremierMotDePasseResponses = {
+    /**
+     * OK
+     */
+    200: EtapeConnexion;
+};
+
+export type DefinirPremierMotDePasseResponse = DefinirPremierMotDePasseResponses[keyof DefinirPremierMotDePasseResponses];
+
+export type ReinitialiserMotDePasseData = {
+    body: SaisieNouveauMotDePasse;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/reinitialisation';
+};
+
+export type ReinitialiserMotDePasseResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type ReinitialiserMotDePasseResponse = ReinitialiserMotDePasseResponses[keyof ReinitialiserMotDePasseResponses];
+
+export type ConsulterSessionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/session';
+};
+
+export type ConsulterSessionResponses = {
+    /**
+     * OK
+     */
+    200: EtatSession;
+};
+
+export type ConsulterSessionResponse = ConsulterSessionResponses[keyof ConsulterSessionResponses];
+
+export type ConfirmerChangementEmailData = {
+    body: ConfirmationEmail;
+    path?: never;
+    query?: never;
+    url: '/api/changements-email/confirmation';
+};
+
+export type ConfirmerChangementEmailResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type ConfirmerChangementEmailResponse = ConfirmerChangementEmailResponses[keyof ConfirmerChangementEmailResponses];
+
+export type ConsulterInvitationParJetonData = {
+    body?: never;
+    path: {
+        jeton: string;
+    };
+    query?: never;
+    url: '/api/invitations/{jeton}';
+};
+
+export type ConsulterInvitationParJetonResponses = {
+    /**
+     * OK
+     */
+    200: InvitationPublique;
+};
+
+export type ConsulterInvitationParJetonResponse = ConsulterInvitationParJetonResponses[keyof ConsulterInvitationParJetonResponses];
+
+export type AccepterInvitationData = {
+    body: SaisieAcceptation;
+    path: {
+        jeton: string;
+    };
+    query?: {
+        connecte?: Connecte;
+    };
+    url: '/api/invitations/{jeton}/acceptation';
+};
+
+export type AccepterInvitationResponses = {
+    /**
+     * OK
+     */
+    200: Acceptation;
+};
+
+export type AccepterInvitationResponse = AccepterInvitationResponses[keyof AccepterInvitationResponses];
+
+export type ConsulterMoiData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/moi';
+};
+
+export type ConsulterMoiResponses = {
+    /**
+     * OK
+     */
+    200: Moi;
+};
+
+export type ConsulterMoiResponse = ConsulterMoiResponses[keyof ConsulterMoiResponses];
+
+export type DemanderChangementEmailData = {
+    body: ChangementEmail;
+    path?: never;
+    query?: never;
+    url: '/api/moi/changement-email';
+};
+
+export type DemanderChangementEmailResponses = {
+    /**
+     * OK
+     */
+    200: Moi;
+};
+
+export type DemanderChangementEmailResponse = DemanderChangementEmailResponses[keyof DemanderChangementEmailResponses];
+
+export type ChoisirOperateurActifData = {
+    body: OperateurActif;
+    path?: never;
+    query?: never;
+    url: '/api/moi/operateur-actif';
+};
+
+export type ChoisirOperateurActifResponses = {
+    /**
+     * OK
+     */
+    200: Moi;
+};
+
+export type ChoisirOperateurActifResponse = ChoisirOperateurActifResponses[keyof ChoisirOperateurActifResponses];
+
+export type ModifierMonProfilData = {
+    body: SaisieProfil;
+    path?: never;
+    query?: never;
+    url: '/api/moi/profil';
+};
+
+export type ModifierMonProfilResponses = {
+    /**
+     * OK
+     */
+    200: Moi;
+};
+
+export type ModifierMonProfilResponse = ModifierMonProfilResponses[keyof ModifierMonProfilResponses];
+
 export type ListerOperateursData = {
     body?: never;
     path?: never;
     query?: {
-        type?: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+        type?: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
         /**
          * Contient
          */
@@ -792,7 +1598,7 @@ export type ProposerCodeOperateurData = {
     body?: never;
     path?: never;
     query: {
-        type: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+        type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
         codePostal?: string;
         /**
          * Identifiant du pays ; absent : la France
@@ -840,7 +1646,7 @@ export type ExporterOperateursData = {
     body?: never;
     path?: never;
     query?: {
-        type?: 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
+        type?: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
         code?: string;
         raisonSociale?: string;
         nomCommercial?: string;
@@ -879,6 +1685,24 @@ export type ListerGroupesOperateursResponses = {
 
 export type ListerGroupesOperateursResponse = ListerGroupesOperateursResponses[keyof ListerGroupesOperateursResponses];
 
+export type RechercherOperateursData = {
+    body?: never;
+    path?: never;
+    query: {
+        texte: string;
+    };
+    url: '/api/operateurs/recherche';
+};
+
+export type RechercherOperateursResponses = {
+    /**
+     * OK
+     */
+    200: Array<ResultatRechercheOperateur>;
+};
+
+export type RechercherOperateursResponse = RechercherOperateursResponses[keyof RechercherOperateursResponses];
+
 export type SupprimerOperateurData = {
     body?: never;
     path: {
@@ -914,6 +1738,24 @@ export type ConsulterOperateurResponses = {
 };
 
 export type ConsulterOperateurResponse = ConsulterOperateurResponses[keyof ConsulterOperateurResponses];
+
+export type ConsulterAnnuaireData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/annuaire';
+};
+
+export type ConsulterAnnuaireResponses = {
+    /**
+     * OK
+     */
+    200: Array<PersonneAnnuaire>;
+};
+
+export type ConsulterAnnuaireResponse = ConsulterAnnuaireResponses[keyof ConsulterAnnuaireResponses];
 
 export type DesactiverOperateurData = {
     body?: never;
@@ -987,6 +1829,42 @@ export type ModifierIdentiteOperateurResponses = {
 
 export type ModifierIdentiteOperateurResponse = ModifierIdentiteOperateurResponses[keyof ModifierIdentiteOperateurResponses];
 
+export type ConsulterJournalOperateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/journal';
+};
+
+export type ConsulterJournalOperateurResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneJournal>;
+};
+
+export type ConsulterJournalOperateurResponse = ConsulterJournalOperateurResponses[keyof ConsulterJournalOperateurResponses];
+
+export type ConsulterMesDroitsData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/mes-droits';
+};
+
+export type ConsulterMesDroitsResponses = {
+    /**
+     * OK
+     */
+    200: Droits;
+};
+
+export type ConsulterMesDroitsResponse = ConsulterMesDroitsResponses[keyof ConsulterMesDroitsResponses];
+
 export type AttribuerNouveauCodeOperateurData = {
     body?: never;
     path: {
@@ -1023,6 +1901,24 @@ export type ModifierProductionOperateurResponses = {
 
 export type ModifierProductionOperateurResponse = ModifierProductionOperateurResponses[keyof ModifierProductionOperateurResponses];
 
+export type ModifierProfilOperateurData = {
+    body: SaisieProfilOperateur;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{id}/profil';
+};
+
+export type ModifierProfilOperateurResponses = {
+    /**
+     * OK
+     */
+    200: FicheOperateur;
+};
+
+export type ModifierProfilOperateurResponse = ModifierProfilOperateurResponses[keyof ModifierProfilOperateurResponses];
+
 export type ReactiverOperateurData = {
     body?: never;
     path: {
@@ -1058,6 +1954,30 @@ export type CreerContactResponses = {
 };
 
 export type CreerContactResponse = CreerContactResponses[keyof CreerContactResponses];
+
+export type ListerAvertissementsContactData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query: {
+        email: string;
+        /**
+         * Contact en cours de modification
+         */
+        sauf?: number;
+    };
+    url: '/api/operateurs/{operateur}/contacts/avertissements';
+};
+
+export type ListerAvertissementsContactResponses = {
+    /**
+     * OK
+     */
+    200: Array<string>;
+};
+
+export type ListerAvertissementsContactResponse = ListerAvertissementsContactResponses[keyof ListerAvertissementsContactResponses];
 
 export type SupprimerContactData = {
     body?: never;
@@ -1098,7 +2018,7 @@ export type ConsulterContactResponses = {
 export type ConsulterContactResponse = ConsulterContactResponses[keyof ConsulterContactResponses];
 
 export type ModifierContactData = {
-    body: SaisieContact;
+    body: SaisieIdentiteContact;
     path: {
         operateur: number;
         contact: number;
@@ -1116,25 +2036,6 @@ export type ModifierContactResponses = {
 
 export type ModifierContactResponse = ModifierContactResponses[keyof ModifierContactResponses];
 
-export type DesactiverContactData = {
-    body?: never;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/contacts/{contact}/desactivation';
-};
-
-export type DesactiverContactResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type DesactiverContactResponse = DesactiverContactResponses[keyof DesactiverContactResponses];
-
 export type ConsulterJournalContactData = {
     body?: never;
     path: {
@@ -1149,48 +2050,237 @@ export type ConsulterJournalContactResponses = {
     /**
      * OK
      */
-    200: Array<LigneJournalContact>;
+    200: Array<LigneJournal>;
 };
 
 export type ConsulterJournalContactResponse = ConsulterJournalContactResponses[keyof ConsulterJournalContactResponses];
 
-export type ModifierDroitsContactData = {
-    body: SaisieDroits;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/contacts/{contact}/portail';
-};
-
-export type ModifierDroitsContactResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type ModifierDroitsContactResponse = ModifierDroitsContactResponses[keyof ModifierDroitsContactResponses];
-
-export type ReactiverContactData = {
+export type ConsulterFicheData = {
     body?: never;
     path: {
         operateur: number;
-        contact: number;
+        fiche: number;
     };
     query?: never;
-    url: '/api/operateurs/{operateur}/contacts/{contact}/reactivation';
+    url: '/api/operateurs/{operateur}/fiches/{fiche}';
 };
 
-export type ReactiverContactResponses = {
+export type ConsulterFicheResponses = {
     /**
      * OK
      */
-    200: Contact;
+    200: FicheProfessionnelle;
 };
 
-export type ReactiverContactResponse = ReactiverContactResponses[keyof ReactiverContactResponses];
+export type ConsulterFicheResponse = ConsulterFicheResponses[keyof ConsulterFicheResponses];
+
+export type ModifierFicheData = {
+    body: SaisieFiche;
+    path: {
+        operateur: number;
+        fiche: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/fiches/{fiche}';
+};
+
+export type ModifierFicheResponses = {
+    /**
+     * OK
+     */
+    200: FicheProfessionnelle;
+};
+
+export type ModifierFicheResponse = ModifierFicheResponses[keyof ModifierFicheResponses];
+
+export type InviterData = {
+    body: SaisieInvitation;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/invitations';
+};
+
+export type InviterResponses = {
+    /**
+     * Created
+     */
+    201: Invitation;
+};
+
+export type InviterResponse = InviterResponses[keyof InviterResponses];
+
+export type ConsulterInvitationData = {
+    body?: never;
+    path: {
+        operateur: number;
+        invitation: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/invitations/{invitation}';
+};
+
+export type ConsulterInvitationResponses = {
+    /**
+     * OK
+     */
+    200: Invitation;
+};
+
+export type ConsulterInvitationResponse = ConsulterInvitationResponses[keyof ConsulterInvitationResponses];
+
+export type AnnulerInvitationData = {
+    body?: never;
+    path: {
+        operateur: number;
+        invitation: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/invitations/{invitation}/annulation';
+};
+
+export type AnnulerInvitationResponses = {
+    /**
+     * OK
+     */
+    200: Invitation;
+};
+
+export type AnnulerInvitationResponse = AnnulerInvitationResponses[keyof AnnulerInvitationResponses];
+
+export type RelancerInvitationData = {
+    body?: never;
+    path: {
+        operateur: number;
+        invitation: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/invitations/{invitation}/relance';
+};
+
+export type RelancerInvitationResponses = {
+    /**
+     * OK
+     */
+    200: Invitation;
+};
+
+export type RelancerInvitationResponse = RelancerInvitationResponses[keyof RelancerInvitationResponses];
+
+export type ConsulterMembreData = {
+    body?: never;
+    path: {
+        operateur: number;
+        membre: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/membres/{membre}';
+};
+
+export type ConsulterMembreResponses = {
+    /**
+     * OK
+     */
+    200: Membre;
+};
+
+export type ConsulterMembreResponse = ConsulterMembreResponses[keyof ConsulterMembreResponses];
+
+export type ConsulterJournalMembreData = {
+    body?: never;
+    path: {
+        operateur: number;
+        membre: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/membres/{membre}/journal';
+};
+
+export type ConsulterJournalMembreResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneJournal>;
+};
+
+export type ConsulterJournalMembreResponse = ConsulterJournalMembreResponses[keyof ConsulterJournalMembreResponses];
+
+export type ReactiverMembreData = {
+    body?: never;
+    path: {
+        operateur: number;
+        membre: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/membres/{membre}/reactivation';
+};
+
+export type ReactiverMembreResponses = {
+    /**
+     * OK
+     */
+    200: Membre;
+};
+
+export type ReactiverMembreResponse = ReactiverMembreResponses[keyof ReactiverMembreResponses];
+
+export type RetirerMembreData = {
+    body: Retrait;
+    path: {
+        operateur: number;
+        membre: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/membres/{membre}/retrait';
+};
+
+export type RetirerMembreResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type RetirerMembreResponse = RetirerMembreResponses[keyof RetirerMembreResponses];
+
+export type ChangerRoleMembreData = {
+    body: SaisieRole;
+    path: {
+        operateur: number;
+        membre: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/membres/{membre}/role';
+};
+
+export type ChangerRoleMembreResponses = {
+    /**
+     * OK
+     */
+    200: Membre;
+};
+
+export type ChangerRoleMembreResponse = ChangerRoleMembreResponses[keyof ChangerRoleMembreResponses];
+
+export type SuspendreMembreData = {
+    body?: never;
+    path: {
+        operateur: number;
+        membre: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/membres/{membre}/suspension';
+};
+
+export type SuspendreMembreResponses = {
+    /**
+     * OK
+     */
+    200: Membre;
+};
+
+export type SuspendreMembreResponse = SuspendreMembreResponses[keyof SuspendreMembreResponses];
 
 export type ConsulterPresentationOperateurData = {
     body?: never;
@@ -1227,299 +2317,6 @@ export type ModifierPresentationOperateurResponses = {
 };
 
 export type ModifierPresentationOperateurResponse = ModifierPresentationOperateurResponses[keyof ModifierPresentationOperateurResponses];
-
-export type ConsulterOperateurDemoPortailData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/portail/operateur-demo';
-};
-
-export type ConsulterOperateurDemoPortailResponses = {
-    /**
-     * OK
-     */
-    200: ResultatRechercheOperateur;
-};
-
-export type ConsulterOperateurDemoPortailResponse = ConsulterOperateurDemoPortailResponses[keyof ConsulterOperateurDemoPortailResponses];
-
-export type RechercherOperateursPortailData = {
-    body?: never;
-    path?: never;
-    query: {
-        texte: string;
-    };
-    url: '/api/portail/operateurs/recherche';
-};
-
-export type RechercherOperateursPortailResponses = {
-    /**
-     * OK
-     */
-    200: Array<ResultatRechercheOperateur>;
-};
-
-export type RechercherOperateursPortailResponse = RechercherOperateursPortailResponses[keyof RechercherOperateursPortailResponses];
-
-export type DesignerContactsPortailData = {
-    body: SaisieDesignations;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{id}/designations';
-};
-
-export type DesignerContactsPortailResponses = {
-    /**
-     * OK
-     */
-    200: FicheOperateur;
-};
-
-export type DesignerContactsPortailResponse = DesignerContactsPortailResponses[keyof DesignerContactsPortailResponses];
-
-export type ModifierDiffusionPortailData = {
-    body: SaisieDiffusionPortail;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{id}/diffusion';
-};
-
-export type ModifierDiffusionPortailResponses = {
-    /**
-     * OK
-     */
-    200: FicheOperateur;
-};
-
-export type ModifierDiffusionPortailResponse = ModifierDiffusionPortailResponses[keyof ModifierDiffusionPortailResponses];
-
-export type ConsulterPresentationPortailData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{id}/presentation';
-};
-
-export type ConsulterPresentationPortailResponses = {
-    /**
-     * OK
-     */
-    200: PresentationOperateur;
-};
-
-export type ConsulterPresentationPortailResponse = ConsulterPresentationPortailResponses[keyof ConsulterPresentationPortailResponses];
-
-export type ModifierPresentationPortailData = {
-    body: PresentationOperateur;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{id}/presentation';
-};
-
-export type ModifierPresentationPortailResponses = {
-    /**
-     * OK
-     */
-    200: PresentationOperateur;
-};
-
-export type ModifierPresentationPortailResponse = ModifierPresentationPortailResponses[keyof ModifierPresentationPortailResponses];
-
-export type ConsulterProfilPortailData = {
-    body?: never;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{id}/profil';
-};
-
-export type ConsulterProfilPortailResponses = {
-    /**
-     * OK
-     */
-    200: FicheOperateur;
-};
-
-export type ConsulterProfilPortailResponse = ConsulterProfilPortailResponses[keyof ConsulterProfilPortailResponses];
-
-export type ModifierProfilPortailData = {
-    body: SaisieProfilPortail;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{id}/profil';
-};
-
-export type ModifierProfilPortailResponses = {
-    /**
-     * OK
-     */
-    200: FicheOperateur;
-};
-
-export type ModifierProfilPortailResponse = ModifierProfilPortailResponses[keyof ModifierProfilPortailResponses];
-
-export type CreerContactPortailData = {
-    body: SaisieContact;
-    path: {
-        operateur: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts';
-};
-
-export type CreerContactPortailResponses = {
-    /**
-     * Created
-     */
-    201: Contact;
-};
-
-export type CreerContactPortailResponse = CreerContactPortailResponses[keyof CreerContactPortailResponses];
-
-export type SupprimerContactPortailData = {
-    body?: never;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}';
-};
-
-export type SupprimerContactPortailResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type SupprimerContactPortailResponse = SupprimerContactPortailResponses[keyof SupprimerContactPortailResponses];
-
-export type ConsulterContactPortailData = {
-    body?: never;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}';
-};
-
-export type ConsulterContactPortailResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type ConsulterContactPortailResponse = ConsulterContactPortailResponses[keyof ConsulterContactPortailResponses];
-
-export type ModifierContactPortailData = {
-    body: SaisieContact;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}';
-};
-
-export type ModifierContactPortailResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type ModifierContactPortailResponse = ModifierContactPortailResponses[keyof ModifierContactPortailResponses];
-
-export type DesactiverContactPortailData = {
-    body?: never;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/desactivation';
-};
-
-export type DesactiverContactPortailResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type DesactiverContactPortailResponse = DesactiverContactPortailResponses[keyof DesactiverContactPortailResponses];
-
-export type ConsulterJournalContactPortailData = {
-    body?: never;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/journal';
-};
-
-export type ConsulterJournalContactPortailResponses = {
-    /**
-     * OK
-     */
-    200: Array<LigneJournalContact>;
-};
-
-export type ConsulterJournalContactPortailResponse = ConsulterJournalContactPortailResponses[keyof ConsulterJournalContactPortailResponses];
-
-export type ModifierDroitsContactPortailData = {
-    body: SaisieDroits;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/portail';
-};
-
-export type ModifierDroitsContactPortailResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type ModifierDroitsContactPortailResponse = ModifierDroitsContactPortailResponses[keyof ModifierDroitsContactPortailResponses];
-
-export type ReactiverContactPortailData = {
-    body?: never;
-    path: {
-        operateur: number;
-        contact: number;
-    };
-    query?: never;
-    url: '/api/portail/operateurs/{operateur}/contacts/{contact}/reactivation';
-};
-
-export type ReactiverContactPortailResponses = {
-    /**
-     * OK
-     */
-    200: Contact;
-};
-
-export type ReactiverContactPortailResponse = ReactiverContactPortailResponses[keyof ReactiverContactPortailResponses];
 
 export type ListerCentresInteretData = {
     body?: never;
@@ -2403,6 +3200,24 @@ export type CreerMarqueResponses = {
 };
 
 export type CreerMarqueResponse = CreerMarqueResponses[keyof CreerMarqueResponses];
+
+export type CreerMarqueDepuisFicheData = {
+    body: SaisieValeurSimple;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/referentiels/marques/fiche/{operateur}';
+};
+
+export type CreerMarqueDepuisFicheResponses = {
+    /**
+     * Created
+     */
+    201: ValeurSimple;
+};
+
+export type CreerMarqueDepuisFicheResponse = CreerMarqueDepuisFicheResponses[keyof CreerMarqueDepuisFicheResponses];
 
 export type ListerMarquesProchesData = {
     body?: never;
@@ -3444,3 +4259,83 @@ export type ConsulterInfoSystemeResponses = {
 };
 
 export type ConsulterInfoSystemeResponse = ConsulterInfoSystemeResponses[keyof ConsulterInfoSystemeResponses];
+
+export type ListerUtilisateursData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Contenu dans le nom, le prénom ou l'e-mail
+         */
+        recherche?: string;
+        statut?: 'ACTIF' | 'BLOQUE';
+        /**
+         * Un rattachement à cet opérateur
+         */
+        operateur?: number;
+    };
+    url: '/api/utilisateurs';
+};
+
+export type ListerUtilisateursResponses = {
+    /**
+     * OK
+     */
+    200: Array<UtilisateurLigne>;
+};
+
+export type ListerUtilisateursResponse = ListerUtilisateursResponses[keyof ListerUtilisateursResponses];
+
+export type ConsulterUtilisateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/utilisateurs/{id}';
+};
+
+export type ConsulterUtilisateurResponses = {
+    /**
+     * OK
+     */
+    200: UtilisateurLigne;
+};
+
+export type ConsulterUtilisateurResponse = ConsulterUtilisateurResponses[keyof ConsulterUtilisateurResponses];
+
+export type BloquerUtilisateurData = {
+    body: Blocage;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/utilisateurs/{id}/blocage';
+};
+
+export type BloquerUtilisateurResponses = {
+    /**
+     * OK
+     */
+    200: UtilisateurLigne;
+};
+
+export type BloquerUtilisateurResponse = BloquerUtilisateurResponses[keyof BloquerUtilisateurResponses];
+
+export type DebloquerUtilisateurData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/utilisateurs/{id}/deblocage';
+};
+
+export type DebloquerUtilisateurResponses = {
+    /**
+     * OK
+     */
+    200: UtilisateurLigne;
+};
+
+export type DebloquerUtilisateurResponse = DebloquerUtilisateurResponses[keyof DebloquerUtilisateurResponses];

@@ -1,6 +1,6 @@
 # ADR-012 : Opérateurs, partie publiée en lecture et agrégats
 
-- Statut : accepté
+- Statut : accepté ; agrégats et partie publiée amendés le 2026-10-08 (ADR-016)
 - Date : 2026-10-06
 - Étend : l'exception de l'ADR-008 (partie publiée en lecture), réservée jusqu'ici à `referentiels`
 - Spec : `docs/specs/02-operateurs/spec.md` (décisions A-OPE-1 et A-OPE-3)
@@ -72,3 +72,19 @@ Options écartées :
 - Modifier un contact réenregistre l'agrégat `Operateur`, contacts compris : acceptable pour quelques
   contacts par opérateur.
 - Une troisième exception devrait faire l'objet d'un nouvel ADR, avec le même critère.
+
+## Amendement du 2026-10-08 (ADR-016, spec 02 révisée)
+- **Agrégats.** Les contacts sortent de l'agrégat `Operateur`. Contact, fiche professionnelle,
+  rattachement, invitation et utilisateur sont chacun leur propre agrégat (ADR-016) ; `Operateur` et
+  `PresentationOperateur` restent. Le journal des contacts devient un journal des actions sur les
+  personnes et les accès. L'option écartée « contact en agrégat séparé » est donc retenue, avec ses
+  règles collectives dans les cas d'usage, appuyées par des index uniques et un verrou sur l'opérateur.
+- **Partie publiée.** `ContactVue` et `ModulePortail` disparaissent, ainsi que les quatre événements
+  échangés avec `acces`. Elle gagne : les droits d'un utilisateur sur un opérateur et l'acteur
+  (lus par tous les contextes), « l'utilisateur peut-il se connecter ? », l'utilisateur d'un e-mail et
+  d'une invitation acceptée (lus par `authentification`), le nom d'un utilisateur (copie de l'auteur
+  d'une action), et les événements `UtilisateurCree`, `EmailUtilisateurModifie`, `UtilisateurSupprime`
+  (ADR-015). Le contenu exact est fixé à l'implémentation.
+- **`acces` devient `authentification`** (ADR-015) : il dépend de `operateurs`, jamais l'inverse.
+- **L'opérateur BNIA** (type `BNIA`, unique) n'apparaît pas dans les lectures destinées aux DSM et aux
+  statistiques (RG-OPE-39).

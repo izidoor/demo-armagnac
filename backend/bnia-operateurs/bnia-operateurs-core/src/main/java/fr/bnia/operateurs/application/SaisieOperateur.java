@@ -9,6 +9,7 @@ import java.math.BigDecimal;
  *
  * @param code {@code null} ou vide à la création : le code proposé est attribué (RG-OPE-03)
  * @param pays {@code null} à la création : la France (RG-OPE-02)
+ * @param version version lue par l'écran, {@code null} à la création (RG-OPE-51)
  */
 public record SaisieOperateur(
         TypeOperateur type,
@@ -38,5 +39,6 @@ public record SaisieOperateur(
         BigDecimal longitude,
         Long membreBnia,
         boolean accordDiffusionGeneral,
-        String commentaireInterne) {
+        String commentaireInterne,
+        Long version) {
 }

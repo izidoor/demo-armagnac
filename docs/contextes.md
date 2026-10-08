@@ -24,7 +24,7 @@ Statut : **A** = démarrable sans aucune réponse ; **B** = noyau démarrable, b
 |---|---|---|---|---|---|---|
 | 1 | `referentiels` | Générique | A | : | : | Valeurs initiales réelles (reprise AGI) |
 | 2 | `operateurs` | Support | A | 1 | : | Dérogations -40 % vol (Q-OPE-2) ; valeurs réelles des types tiers (Q-REF-1) |
-| 3 | `acces` | Générique | A | 2 (lecture des contacts, événements d'accès) | : | Fournisseur d'e-mail (non précisé) |
+| 3 | `authentification` (ex-`acces`) | Générique | A | 2 (« l'utilisateur peut-il se connecter ? ») | : | Fournisseur d'e-mail (SMTP ; Mailpit en dev) |
 | 4 | `cotisation` | Cœur | A | 1 | 5, 7 | Valeurs réelles des taux |
 | 5 | `contratsarmagnac` | Cœur | A (contrat achat seul) | 2 | 4, 7 | Pluri-annuels et propositions : arbitrage BNIA |
 | 6 | `declarations` | Cœur | B | 2, 4, 5 | 7 | Import Excel exact, signature, format XML/JSON |
@@ -66,6 +66,7 @@ Chaque bordure est suivie à part, avec l'étape où elle devient nécessaire. *
 | Vues AGI | tous | 2 puis chaque étape | Accès AGI, types de données | Champs de la spec AGI |
 | Vues AGI manquantes (marques, circuits, produits commercialisés, médailles, membres BNIA) | `referentiels`, `operateurs` | Reprise | AGI (Q-REF-6, Q-OPE-4) | Identifiants InteGraal non traduits |
 | Dérogations Armagnac -40 % vol | `operateurs` | 2 (reprise) | Réponse du BNIA (Q-OPE-2) | Non construites |
+| Fournisseur d'e-mail (invitations, codes de connexion, réinitialisations, changements d'e-mail) | `operateurs`, `authentification` | 3 | Choix du fournisseur par le BNIA | SMTP ; Mailpit en dev |
 | Volumétrie, hébergement | transverse | Avant tout déploiement | BNIA | Hypothèses documentées |
 
 Priorité de relance : annexe E et niveau de signature d'abord (étape 6, la plus proche), puis Otentik, Zeendoc, ODG. Les volumes (nombre de DSM par an) conditionnent le chiffrage de la signature.
@@ -84,18 +85,20 @@ Hors du contexte : taux de cotisation (`cotisation`), destinataires export et ty
 ### 2. `operateurs`
 Référentiel des producteurs, négociants et autres structures : identité, codification automatique, identifiants administratifs (CVI, SIRET, accise, identifiant ODG), périodicité et statut déclaratifs, production (région, appellations, alambics), diffusion des millésimes, autorisation statistique, présentation (marques, visites, labels, œnotourisme, médailles) ; contacts de chaque structure, avec leurs droits au portail.
 Le **type d'opérateur** est une liste fermée propre au contexte (`PRODUCTEUR`, `NEGOCIANT`, `AUTRE`) : il pilote la forme du code, la périodicité, les colonnes de DSM et l'assiette de cotisation (C.1.1.1). Un `AUTRE` ne déclare pas. Les « types tiers » d'InteGraal en sont probablement l'ancien nom (Q-REF-1). Le code se corrige et n'est pas partagé avec l'ODG, qui rattache ses flux par l'identifiant ODG, puis par CVI ou SIRET. Un opérateur se supprime s'il n'est pas référencé, se désactive sinon. Une marque peut être créée dans `referentiels` depuis la fiche, au back-office comme au portail (§4.3.2.3). La région de l'opérateur donne la distinction « région Armagnac / hors région » (C.1.1.2).
-Le **contact** appartient à un opérateur et porte ses droits au portail : accès, administrateur, modules. Une personne = un e-mail = un compte portail (dans `acces`), avec un contact dans chaque opérateur (décision du 2026-10-06, écart à C.13.2). Les modifications des contacts sont journalisées ; accorder ou retirer un accès publie un événement vers `acces`. Le portail offre une recherche restreinte des autres opérateurs (autre partie d'un contrat). Les données de présentation sont saisies sans flux vers l'annuaire public, hors périmètre (§1.4).
-Hors du contexte : compte portail (`acces`), dernières déclarations et historique de la fiche (assemblés par l'écran), export « plus d'1 hl » (`statistiques`), dérogations -40 % vol (en attente, Q-OPE-2).
-**Agrégats :** `Operateur` (avec alambics, millésimes diffusables, appellations et ses **contacts**), `PresentationOperateur` (marques, circuits, visites, labels, œnotourisme, médailles) ; journal des contacts hors agrégat (A-OPE-3).
-**Relations :** lu par presque tous à travers une **partie publiée en lecture seule** (`..operateurs.domain.partage`, `..operateurs.application.partage.OperateursLecture`), comme `referentiels` (A-OPE-1) ; événements Spring synchrones avec `acces`, types définis dans `operateurs.domain.partage` (A-OPE-2).
-**Spec :** [specs/02-operateurs](specs/02-operateurs/spec.md) (terminée, **implémentée**)
+**Personnes et accès** (révision du 2026-10-08, vision `specs/02-operateurs/Spécification fonctionnelle gestion des opérateurs, contacts et accès.md`) : dans un opérateur, une personne est soit un **contact** (sans compte), soit un **membre** : un **utilisateur** (identité dont il est propriétaire, e-mail unique) **rattaché** à l'opérateur avec un rôle fixe, `OBSERVATEUR`, `AGENT` ou `ADMIN`. Ses informations professionnelles sont dans une **fiche professionnelle** de l'opérateur, qui le suit de contact à membre. On devient membre en acceptant une **invitation**, qui prouve l'e-mail. Trois modules : Contacts (avec la fiche de l'opérateur), Accès, Paramétrage. Le **BNIA est un opérateur** de type `BNIA` ; un rôle tenu chez lui vaut pour tous les opérateurs. Les droits sont évalués à chaque requête. Un journal trace toutes les actions sur les personnes et les accès. Le portail offre une recherche restreinte des autres opérateurs (autre partie d'un contrat). Les données de présentation sont saisies sans flux vers l'annuaire public, hors périmètre (§1.4).
+Hors du contexte : mot de passe, double authentification, sessions, journal des connexions (`authentification`) ; dernières déclarations et historique de la fiche (assemblés par l'écran) ; export « plus d'1 hl » (`statistiques`) ; dérogations -40 % vol (en attente, Q-OPE-2) ; reprise des données (hors périmètre du prototype).
+**Agrégats :** `Operateur` (avec alambics, millésimes diffusables, appellations), `PresentationOperateur` (marques, circuits, visites, labels, œnotourisme, médailles) ; `Contact`, `FicheProfessionnelle`, `Rattachement`, `Invitation`, `Utilisateur`, un agrégat chacun, règles collectives dans les cas d'usage avec index uniques et verrou sur l'opérateur (A-OPE-6) ; journal hors agrégat.
+**Relations :** lu par presque tous à travers une **partie publiée en lecture seule** (`..operateurs.domain.partage`, `..operateurs.application.partage.OperateursLecture`), comme `referentiels` (A-OPE-1) ; fournit à tous les droits d'un utilisateur sur un opérateur, et à `authentification` l'état de connexion d'un utilisateur ; publie `UtilisateurCree`, `EmailUtilisateurModifie`, `UtilisateurSupprime`, écoutés par `authentification` dans la même transaction (A-AUT-1). Droits vérifiés dans les cas d'usage (A-OPE-7).
+**Spec :** [specs/02-operateurs](specs/02-operateurs/spec.md) (terminée, implémentée ; révisée le 2026-10-08, réimplémentée)
 **Sources :** [BO 4.3](source/cdc/4-back-office-bnia/03-gestion-des-operateurs.md) · [Portail 5.13](source/cdc/5-portail-operateur/13-gestion-des-contacts.md) · [C.1](source/cdc/A-annexes/C01-gestion-des-operateurs.md) · [AGI 2.1](source/agi/2-vues-attendues-donnees-integraal/01-referentiel-des-professionnels.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
 
-### 3. `acces`
-Authentification et habilitations : utilisateurs BNIA, rôles composés à partir d'un catalogue de droits (module × action), comptes portail, double authentification, blocage temporaire, journal des accès.
-Le compte portail ne porte ni rattachements ni droits (décision du 2026-10-06, spec 02) : il trouve les opérateurs accessibles par les contacts actifs, avec accès, de même e-mail, dont les droits sont dans `operateurs`. Il écoute « accès portail accordé / retiré » (création du compte, e-mail d'activation) et publie « compte créé » et « identifiant modifié » (« Mon compte », seul endroit où l'e-mail d'un compte change).
-**Agrégats possibles :** `UtilisateurBnia`, `Role`, `ComptePortail` (sans rattachements), événements du journal d'accès.
-**Sources :** [BO 4.2](source/cdc/4-back-office-bnia/02-gestion-des-acces.md) · [Portail 5.1](source/cdc/5-portail-operateur/01-acces-authentification-et-gestion-du-compte.md) · [C.2](source/cdc/A-annexes/C02-gestion-des-acces-et-habilitations.md) · [C.13](source/cdc/A-annexes/C13-comptes-et-acces-operateur.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
+### 3. `authentification` (ex-`acces`)
+Preuve d'identité, sans métier (décision du 2026-10-08) : compte de connexion (identifiant = e-mail de l'utilisateur, mot de passe haché), double authentification par code e-mail pour tous (`000000` en dev et démo), navigateur de confiance 30 jours, mot de passe oublié, blocage de 30 min après 3 échecs, session, journal des connexions. Ni nom, ni droit, ni opérateur : utilisateurs, rattachements, rôles et invitations sont dans `operateurs`. Spring Security seul ; remplaçable (Keycloak…) sans toucher au métier.
+Écarts assumés au CDC : pas de rôles composés ni de catalogue de droits (§4.2.1, §4.2.5), pas de population distincte d'utilisateurs BNIA (§4.2.2), pas de TOTP (§4.2.7).
+**Agrégats possibles :** `CompteConnexion` ; code de vérification, réinitialisation et navigateur de confiance (attachés au compte) ; journal des connexions hors agrégat.
+**Relations :** demande à `operateurs` si un utilisateur peut se connecter, à la connexion et à chaque requête ; il écoute ses événements pour créer (sans mot de passe), renommer et supprimer le compte (A-AUT-1) ; le premier mot de passe est posé par un second appel du formulaire d'acceptation (A-AUT-2). Session serveur Spring Session JDBC (A-AUT-3). Aucune clé étrangère vers `operateurs`.
+**Spec :** [specs/03-authentification](specs/03-authentification/spec.md) (terminée, implémentée)
+**Sources :** vision (spec 02) · [BO 4.2](source/cdc/4-back-office-bnia/02-gestion-des-acces.md) · [Portail 5.1](source/cdc/5-portail-operateur/01-acces-authentification-et-gestion-du-compte.md) · [C.2](source/cdc/A-annexes/C02-gestion-des-acces-et-habilitations.md) · [C.13](source/cdc/A-annexes/C13-comptes-et-acces-operateur.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
 
 ### 4. `cotisation`
 Dit combien un volume déclaré doit de cotisation : paramètres datés (CVO en €/hlAP, fin de travaux en €/hl de vin distillé, pourcentage exonéré de TVA), définition de l'assiette par type d'opérateur et par colonne de DSM, calcul.
@@ -104,27 +107,27 @@ Dit combien un volume déclaré doit de cotisation : paramètres datés (CVO en 
 
 ### 5. `contratsarmagnac`
 Achats et ventes d'Armagnac entre opérateurs : saisie par le BNIA ou un opérateur, validation par l'acheteur, le vendeur et le BNIA, notion de contrat « exécuté » (couvre les volumes déclarés en DSM). Inclut les pluri-annuels et propositions d'engagement Armagnac, dont le maintien est en arbitrage au BNIA.
-Au portail, l'autre partie d'un contrat se désigne par la recherche restreinte de `operateurs` (code, raison sociale, nom commercial, ville ; spec 02).
+Au portail, l'autre partie d'un contrat se désigne par la recherche restreinte de `operateurs` (code, raison sociale, nom commercial, ville ; spec 02). Validateur BNIA : identifiant de l'utilisateur et copie de son nom (§3).
 **Agrégats possibles :** `ContratAchatArmagnac` ; `PluriAnnuelArmagnac`, `PropositionEngagementArmagnac` (si maintenus).
 **Sources :** [BO 4.5 §4.5.1, 4.5.3, 4.5.4](source/cdc/4-back-office-bnia/05-contrats-d-achat-a-la-propriete.md) · [Portail 5.5](source/cdc/5-portail-operateur/05-contrats-armagnac.md) · [C.4](source/cdc/A-annexes/C04-contrats-d-achat-a-la-propriete.md) · [AGI 3 §3.1-3.3](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md) · [AGI 2.4](source/agi/2-vues-attendues-donnees-integraal/04-contrats-france.md) (rôle à clarifier)
 
 ### 6. `declarations`
 Déclarations de stocks et mouvements : génération par le BNIA pour une période, saisie (5 onglets, 26 colonnes, colonnes grisées pour les producteurs), import Excel, justificatifs, DRM des producteurs, contrôles de cohérence bloquants, validation et signature, passage à la facturation.
-Lit dans `operateurs` le type, la périodicité courante et le statut de déclaration de stock : seul `OUI` rend une DSM attendue (H-OPE-2, à confirmer, Q-OPE-7). Les incohérences de périodicité sont signalées à la génération (§4.4.2).
+Lit dans `operateurs` le type, la périodicité courante et le statut de déclaration de stock : seul `OUI` rend une DSM attendue (H-OPE-2, à confirmer, Q-OPE-7). Les incohérences de périodicité sont signalées à la génération (§4.4.2). Auteurs (« saisie par », « déposée par ») : identifiant de l'utilisateur et copie de son nom (§3).
 **Agrégats possibles :** `DeclarationStocksMouvements` (lignes, justificatifs, DRM attendues) ; la signature est peut-être un objet de ce même agrégat.
 **Sources :** [BO 4.4](source/cdc/4-back-office-bnia/04-declarations-des-stocks-et-mouvements.md) · [Portail 5.4](source/cdc/5-portail-operateur/04-declarations-de-stocks-et-mouvements.md) · [C.3](source/cdc/A-annexes/C03-declarations-de-stocks-et-mouvements.md) · [Annexe E](source/cdc/A-annexes/E-exemples-de-fichiers.md) · [AGI 2.2](source/agi/2-vues-attendues-donnees-integraal/02-declarations-de-stocks-et-mouvements.md)
 
 ### 7. `exportation`
 Suivi des sorties export (saisie ou import Excel contrôlé) et certification de l'âge : demande depuis le portail, traitement par le BNIA, certificat PDF multilingue (simplifié ou détaillé selon le pays), raccordement CEV / Otentik. Les justificatifs d'une demande (facture, DRM, DAE) sont des pièces déposées avec la demande. Le pays (`referentiels`) donne la langue et le niveau de détail du certificat, ainsi que l'âge minimum autorisé (alerte non bloquante à la saisie, à l'import et au certificat : décision du 2026-10-06) ; la contenance (`referentiels`) entre dans le calcul du volume d'alcool pur.
 Le contexte porte aussi les **destinataires export** (C.10.7) et leur qualification par **type tiers** (C.10.8.2), retirés de `referentiels` : tiers avec adresse et pays, fournis par l'opérateur dans sa demande et créés à l'import.
-Le vendeur est retrouvé par son code opérateur à l'import ; la raison sociale et l'adresse de l'expéditeur sont lues dans `operateurs` et figées sur le certificat.
+Le vendeur est retrouvé par son code opérateur à l'import ; la raison sociale et l'adresse de l'expéditeur sont lues dans `operateurs` et figées sur le certificat. Créateur d'un suivi, agent traitant : identifiant de l'utilisateur et copie de son nom (§3).
 **Agrégats possibles :** `SuiviSortieExport` (lignes), `DemandeCertificat`, `CertificatExport`, `Destinataire`.
 **Sources :** [BO 4.7](source/cdc/4-back-office-bnia/07-suivi-des-sorties-export.md) · [BO 4.8](source/cdc/4-back-office-bnia/08-certification-export.md) · [Portail 5.7](source/cdc/5-portail-operateur/07-ventes-export.md) · [Portail 5.8](source/cdc/5-portail-operateur/08-certificats-export.md) · [C.6](source/cdc/A-annexes/C06-suivi-des-sorties-export.md) · [C.7](source/cdc/A-annexes/C07-certification-export.md) · [C.10.7](source/cdc/A-annexes/C10-parametrage-et-administration-generale.md) · [Annexe E](source/cdc/A-annexes/E-exemples-de-fichiers.md) · [AGI 2.5](source/agi/2-vues-attendues-donnees-integraal/05-contrats-export.md) · [AGI 2.6.10](source/agi/2-vues-attendues-donnees-integraal/06-parametrage.md)
 
 ### 8. `facturation`
 Émission, diffusion et suivi des factures et avoirs : factures de cotisation (DSM, fin de travaux), factures de commande boutique, factures manuelles, avoirs, PDF, dépôt dans Zeendoc et retour d'état de règlement.
 Le taux de TVA vient de `referentiels` et il est figé sur la facture et l'avoir. Les produits de la facturation manuelle sont décrits ici par le CDC (§4.9.2, C.8.2) mais placés dans `boutique` (décision du 2026-10-06, à raffiner : voir §5).
-L'adresse et le destinataire des factures (un contact ou une adresse saisie) sont lus dans `operateurs` et figés sur la facture (C.8.1.1, spec 02).
+L'adresse et le destinataire des factures (une personne de l'annuaire de l'opérateur ou une adresse saisie) sont lus dans `operateurs` et figés sur la facture (C.8.1.1, spec 02).
 **Agrégats possibles :** `Facture`, `Avoir` ; l'état de transmission à Zeendoc est un état de la facture.
 **Sources :** [BO 4.9](source/cdc/4-back-office-bnia/09-facturation-et-cotisations.md) · [Portail 5.10](source/cdc/5-portail-operateur/10-factures-et-paiements.md) · [Passerelles 6 §6.2](source/cdc/6-passerelles-et-interfaces/01-passerelles-et-interfaces.md) · [C.8](source/cdc/A-annexes/C08-facturation-et-cotisations.md) · [Annexe D](source/cdc/A-annexes/D-cartographie-des-interfaces-et-flux.md) · [AGI 2.3](source/agi/2-vues-attendues-donnees-integraal/03-factures.md)
 
@@ -141,7 +144,7 @@ Contrats d'achat de vin de distillation reçus de l'ODG, consultés en lecture s
 
 ### 11. `notifications`
 Centre de notifications du portail, messages aux contacts, relances, règles de destinataires.
-Cible les contacts de `operateurs` par centre d'intérêt et par accès au portail (C.14).
+Cible les personnes de `operateurs` (contacts et membres) par centre d'intérêt et par rôle (C.14).
 **Agrégats possibles :** `Notification`, règles de destinataires.
 **Sources :** [Portail 5.12](source/cdc/5-portail-operateur/12-notifications-et-relances.md) · [C.14](source/cdc/A-annexes/C14-notifications-et-relances.md)
 
@@ -168,13 +171,16 @@ Contenus diffusés dans le portail : actualités et catégories, ressources docu
 - **Zones partagées** (décidé le 2026-10-06 avec la spec `referentiels`, [ADR-008](adr/008-referentiels-partie-publiee-en-lecture.md) et [ADR-009](adr/009-noyau-commun-du-domaine.md)) :
   - **`commun.domain`** : concepts et règles transverses du glossaire, pas des données : `CompteDAge` d'abord, puis `Millesime`, `Campagne`, `MentionCommerciale`, `VolumeAlcoolPur` au fil des besoins. Import libre. `Millesime` et `Appellation` y entrent avec `operateurs` (A-OPE-4 de la spec 02).
   - **`referentiels`, partie publiée** : lecture seule des données administrées (vues, énumérations, `ReferentielsLecture`). Exception à l'isolement des contextes, étendue le 2026-10-06 à **`operateurs`** (`OperateursLecture`, ADR-012) ; les autres ne communiquent que par ports et événements.
-  - **Événements entre contextes** : Spring `ApplicationEvent`, synchrones, écoutés dans la transaction de l'émetteur ; types définis dans la partie publiée du contexte dont l'autre dépend, pour éviter tout cycle ; adapters dans `adapter.evenement` (ADR-013).
+  - **Événements entre contextes** : Spring `ApplicationEvent`, synchrones, écoutés dans la transaction de l'émetteur ; types définis dans la partie publiée du contexte dont l'autre dépend, pour éviter tout cycle ; adapters dans `adapter.evenement` (ADR-013). Ceux de `operateurs` avec `acces` n'ont plus d'objet (2026-10-08).
+- **Droits** (décidé le 2026-10-08, spec 02 §3.2.7) : rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN`, portés par le rattachement d'un utilisateur à un opérateur et lus dans `operateurs` à chaque requête ; un rôle de l'opérateur BNIA vaut pour tous les opérateurs. Chaque nouveau contexte ajoute un module, c'est-à-dire une colonne au tableau rôles × modules, que sa spec déclare (lecture et gestion par rôle).
+- **Auteur d'une action** (décidé le 2026-10-08) : un utilisateur est supprimé avec son dernier rattachement ; un contexte qui enregistre un auteur stocke son identifiant **sans clé étrangère** et une copie de son nom à l'instant de l'action. Exception à ADR-011 (A-OPE-8 de la spec 02).
+- **Espaces** : une seule connexion ; l'opérateur actif décide de l'espace, back-office (opérateur BNIA) ou portail (autre opérateur).
   - **Référence entre contextes** : par identifiant technique, avec clé étrangère ; le code d'une valeur se corrige ([ADR-011](adr/011-referentiels-identifiant-technique-et-code-modifiable.md), qui remplace la référence par code métier du 2026-10-06).
 - **Passerelles** : [CDC 6](source/cdc/6-passerelles-et-interfaces/01-passerelles-et-interfaces.md) et [annexe D](source/cdc/A-annexes/D-cartographie-des-interfaces-et-flux.md). ODG, Zeendoc, Otentik et signature sont vus comme des adapters derrière des ports, dans le contexte qui les utilise.
 
 ## 4. Ébauche de context map
 
-À lire comme une hypothèse de départ. `operateurs` et `referentiels` sont consultés par presque tous (non dessinés), et `notifications` comme `statistiques` écoutent ou lisent les autres. Lectures principales de `referentiels` : `operateurs` (régions, titres, langues, marques…), `exportation` (pays, contenances), `cotisation`, `facturation` et `boutique` (taux de TVA à une date). Ces lectures passent par la partie publiée de `referentiels`, sans port côté consommateur. Seule écriture venue d'ailleurs : la création d'une marque depuis la fiche opérateur, par l'écran. `operateurs` est lu par presque tous, par sa partie publiée en lecture seule (A-OPE-1). `operateurs` et `acces` échangent des événements (accès accordé ou retiré ; compte créé, identifiant modifié).
+À lire comme une hypothèse de départ. `operateurs` et `referentiels` sont consultés par presque tous (non dessinés), et `notifications` comme `statistiques` écoutent ou lisent les autres. Lectures principales de `referentiels` : `operateurs` (régions, titres, langues, marques…), `exportation` (pays, contenances), `cotisation`, `facturation` et `boutique` (taux de TVA à une date). Ces lectures passent par la partie publiée de `referentiels`, sans port côté consommateur. Seule écriture venue d'ailleurs : la création d'une marque depuis la fiche opérateur, par l'écran. `operateurs` est lu par presque tous, par sa partie publiée en lecture seule (A-OPE-1), et fournit à tous les droits d'un utilisateur. `authentification` demande à `operateurs` si un utilisateur peut se connecter ; son compte est créé, renommé et supprimé par les événements de `operateurs` (A-AUT-1), sans dépendance inverse.
 
 ```mermaid
 flowchart LR
@@ -184,9 +190,9 @@ flowchart LR
   SIG["Signature"]
 
   OPE[operateurs]
-  ACC[acces]
-  OPE -.->|"AccesPortailAccorde / Retire"| ACC
-  ACC -.->|"CompteCree / IdentifiantModifie"| OPE
+  AUT[authentification]
+  AUT -->|"peut se connecter ?"| OPE
+  OPE -.->|"UtilisateurCree / EmailUtilisateurModifie / UtilisateurSupprime"| AUT
 
   subgraph Coeur
     DEC[declarations]
@@ -248,3 +254,6 @@ flowchart LR
 | 2026-10-06 | `operateurs` | ADR-012 (partie publiée de `operateurs`, agrégats) et ADR-013 (événements entre contextes) ; ADR-008 et ADR-009 amendés ; CLAUDE.md mis à jour. |
 | 2026-10-06 | `operateurs` | Contexte implémenté (lots 1 à 9) : `MembreBnia` dans `referentiels` ; `Millesime` et `Appellation` dans `commun.domain` ; agrégats `Operateur` (identité, déclaratif, production, diffusion, contacts et droits au portail) et `PresentationOperateur` ; journal des contacts ; événements publiés et écoutés (ADR-013), sans consommateur tant que `acces` n'existe pas ; partie publiée `OperateursLecture` ; export Excel ; écrans du back-office (menu Opérateurs) et du portail (« Mon entreprise », « Contacts », recherche d'opérateur) sur un opérateur de démonstration ; données de démonstration. Prochaine étape : spec de `acces`. |
 | 2026-10-08 | : | ADR-014 : chaque contexte devient un module parent `bnia-<contexte>` avec deux sous-modules, `bnia-<contexte>-core` (`domain`, `application`, Java pur garanti à la compilation) et `bnia-<contexte>-infra` (adapters). Idem pour `bnia-commun` et `bnia-systeme`. |
+| 2026-10-08 | `authentification`, `operateurs` | Spec 03 commencée d'après la vision du 2026-10-08 (phases A à C). `acces` remplacé par `authentification`, preuve d'identité sans métier (double authentification par e-mail pour tous, Spring Security seul). Personnes et accès dans `operateurs` (spec 02 en révision) : contact ou membre, utilisateur, fiche professionnelle, rattachement, invitation ; rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN` et modules ; BNIA opérateur de type `BNIA`, ses rôles valant partout ; l'opérateur actif décide de l'espace. Fiches `operateurs`, `authentification`, `declarations`, `contratsarmagnac`, `exportation`, `facturation`, `notifications` ; éléments transverses (droits, auteur d'une action, espaces) ; context map ; bordure e-mail. Reprise des données hors périmètre du prototype. |
+| 2026-10-08 | `authentification`, `operateurs` | Spec 03 terminée (phases D à G : architecture A-AUT-1 à 4 et A-OPE-6 à 9 ; hypothèses et questions tranchées ; glossaire). Révision de la spec 02 validée, à réimplémenter. Prochaine étape : ADR, puis implémentation conjointe de `authentification` et de la révision de `operateurs`. |
+| 2026-10-08 | `authentification`, `operateurs` | ADR-015 (authentification, contexte d'infrastructure) et ADR-016 (personnes et accès dans `operateurs`) ; ADR-011, 012 et 013 amendés ; `CLAUDE.md` mis à jour. Prochaine étape : implémentation (skill `implementation`) de `authentification` et de la révision de `operateurs`, dans ce worktree. |

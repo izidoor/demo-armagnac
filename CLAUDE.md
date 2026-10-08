@@ -42,10 +42,22 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
   passer par des ports ou des événements. Trois exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et les parties publiées en lecture de `referentiels`
   (`fr.bnia.referentiels.*.partage`, ADR-008) et de `operateurs` (`fr.bnia.operateurs.*.partage`,
-  ADR-012). Référence entre contextes par identifiant technique, avec clé étrangère (ADR-011).
+  ADR-012). Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
+  Exceptions sans clé étrangère : l'auteur d'une action (identifiant de l'utilisateur et copie de son nom,
+  l'utilisateur pouvant être supprimé) et le compte de connexion de `authentification` (ADR-011 amendé).
 - Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
   par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée du contexte dont l'autre
-  dépend, jamais de cycle (ADR-013).
+  dépend, jamais de cycle (ADR-013). Jamais de secret (mot de passe) dans un événement.
+- Personnes et droits (ADR-016) : dans `operateurs`. Rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN`, un par
+  rattachement ; modules lus ou gérés par rôle ; le BNIA est un opérateur (type `BNIA`) dont les rôles
+  valent pour tous les opérateurs. **Les droits se vérifient dans les cas d'usage** : le controller passe
+  l'`Acteur`, le cas d'usage obtient ses `Droits` sur l'opérateur concerné, et chaque cas d'usage a un
+  test de refus. **Chaque nouveau contexte déclare son module** dans le tableau rôles × modules (spec 02
+  §3.2.7).
+- `authentification` (ADR-015) : preuve d'identité, sans métier ni droit ; dépend de `operateurs` (partie
+  publiée, événements `UtilisateurCree`, `EmailUtilisateurModifie`, `UtilisateurSupprime`). Session
+  serveur Spring Session JDBC ; une seule connexion pour tous, l'opérateur actif décide de l'espace
+  (back-office pour l'opérateur BNIA, portail sinon).
 
 ## Persistance
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance
@@ -67,8 +79,9 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 Backend, depuis `backend/` :
 - Tests rapides : `./mvnw -q test`
 - Tout, ITs inclus (Docker requis) : `./mvnw -q verify` (réexporte aussi `docs/api/openapi.json`)
-- Dev : `./mvnw -pl bnia-boot spring-boot:run` (profil `dev`, démarre `compose.yaml` au besoin) ;
-  avec les données de démonstration : `-Dspring-boot.run.profiles=dev,demo`
+- Dev : `./mvnw -pl bnia-boot spring-boot:run` (profil `dev`, démarre `compose.yaml` au besoin :
+  PostgreSQL et Mailpit, boîte des e-mails sur http://localhost:8025) ; avec les données de
+  démonstration : `-Dspring-boot.run.profiles=dev,demo` (comptes et code `000000` : `docs/demo.md`)
 
 Front, depuis `frontend/` :
 - Client d'API, après `./mvnw verify` : `pnpm gen:api`
@@ -76,7 +89,7 @@ Front, depuis `frontend/` :
 - Dev : `pnpm dev` (proxy `/api` vers `localhost:8080`)
 
 Seconde instance, depuis un worktree, à côté de celle de l'IDE (base, ports et proxy à part) :
-- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
+- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 BNIA_SMTP_PORT=11025 BNIA_MAILPIT_PORT=18025 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
 - `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`
 
 Racine :

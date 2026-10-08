@@ -1,140 +1,93 @@
 package fr.bnia.operateurs.domain;
 
-import fr.bnia.operateurs.domain.partage.ModulePortail;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
- * Contact d'un opérateur (§4.3.4 p.20-21, C.1.9 p.104-105) : une personne à qui s'adresser, qui porte
- * ses droits au portail. Entité de l'agrégat {@code Operateur} (ADR-012), modifiée seulement à travers
- * lui. L'identifiant est attribué avant l'enregistrement, et reste stable (décision du 2026-10-06).
+ * Contact d'un opérateur (§4.3.4 p.20-21, C.1.9 p.104-105, vision §2.2) : une personne sans compte, dont
+ * l'identité appartient à l'opérateur. Racine de son agrégat (A-OPE-6). Ses informations
+ * professionnelles sont dans sa fiche (RG-OPE-30). Il n'a pas d'état actif : on le supprime (RG-OPE-45).
  */
 public final class Contact {
 
-    private final long id;
-    private IdentiteContact identite;
-    private DroitsPortail droits;
-    private boolean emailVerrouille;
-    private boolean actif;
+    private final Long id;
+    private final long operateur;
+    private IdentitePersonne identite;
+    private Email email;
+    private final long fiche;
+    private final long version;
 
-    private Contact(long id, IdentiteContact identite, DroitsPortail droits, boolean emailVerrouille, boolean actif) {
+    private Contact(Long id, long operateur, IdentitePersonne identite, Email email, long fiche, long version) {
         this.id = id;
+        this.operateur = operateur;
         this.identite = identite;
-        this.droits = droits;
-        this.emailVerrouille = emailVerrouille;
-        this.actif = actif;
+        this.email = email;
+        this.fiche = fiche;
+        this.version = version;
     }
 
-    /** RG-OPE-33 : actif à la création, sans accès au portail (RG-OPE-29). */
-    static Contact creer(long id, IdentiteContact identite) {
-        return new Contact(id, identite, DroitsPortail.aucun(), false, true);
+    /** RG-OPE-27, 28, 30 : nom obligatoire, e-mail facultatif ; sa fiche est créée avant lui. */
+    public static Contact creer(long operateur, IdentitePersonne identite, Email email, long fiche) {
+        return new Contact(null, operateur, identite, email, fiche, 0);
     }
 
-    public static Contact reconstituer(long id, IdentiteContact identite, DroitsPortail droits, boolean emailVerrouille,
-            boolean actif) {
-        return new Contact(id, identite, droits, emailVerrouille, actif);
+    public static Contact reconstituer(Long id, long operateur, IdentitePersonne identite, Email email, long fiche,
+            long version) {
+        return new Contact(id, operateur, identite, email, fiche, version);
     }
 
-    void identifier(IdentiteContact nouvelle) {
+    /**
+     * RG-OPE-27, 28, 51 : identité et e-mail, sur la version lue ; renvoie les champs changés (RG-OPE-34).
+     */
+    public List<Changement> modifier(IdentitePersonne nouvelle, Email nouvelEmail, Long versionLue) {
+        Versions.verifier(versionLue, version, "La fiche de " + identite.nomComplet());
+        List<Changement> changements = new ArrayList<>(Changement.identite(identite, nouvelle));
+        Changement.comparer(changements, ChampJournal.EMAIL, texte(email), texte(nouvelEmail));
         this.identite = nouvelle;
-    }
-
-    void attribuer(DroitsPortail nouveaux) {
-        this.droits = nouveaux;
-    }
-
-    void verrouillerEmail() {
-        this.emailVerrouille = true;
-    }
-
-    void desactiver() {
-        this.actif = false;
-    }
-
-    void reactiver() {
-        this.actif = true;
-    }
-
-    /** Administrateur actif : compte pour RG-OPE-30. */
-    public boolean estAdministrateurActif() {
-        return actif && droits.administrateur();
-    }
-
-    boolean aEmail(Email email) {
-        return identite.email() != null && identite.email().cle().equals(email.cle());
-    }
-
-    /** RG-OPE-34 : les champs d'identité qui diffèrent, avec leurs valeurs avant et après. */
-    static List<Changement> changements(IdentiteContact avant, IdentiteContact apres) {
-        List<Changement> changements = new ArrayList<>();
-        comparer(changements, ChampContact.TITRE, avant, apres, i -> texte(i.titre()));
-        comparer(changements, ChampContact.NOM, avant, apres, IdentiteContact::nom);
-        comparer(changements, ChampContact.PRENOM, avant, apres, IdentiteContact::prenom);
-        comparer(changements, ChampContact.FONCTION, avant, apres, IdentiteContact::fonction);
-        comparer(changements, ChampContact.CENTRES_INTERET, avant, apres, i -> liste(i.centresInteret()));
-        comparer(changements, ChampContact.TELEPHONE_PROFESSIONNEL, avant, apres, IdentiteContact::telephoneProfessionnel);
-        comparer(changements, ChampContact.TELEPHONE_SECONDAIRE, avant, apres, IdentiteContact::telephoneSecondaire);
-        comparer(changements, ChampContact.EMAIL, avant, apres, i -> texte(i.email()));
-        comparer(changements, ChampContact.ADRESSE, avant, apres, IdentiteContact::adresse);
-        comparer(changements, ChampContact.CODE_POSTAL, avant, apres, IdentiteContact::codePostal);
-        comparer(changements, ChampContact.VILLE, avant, apres, IdentiteContact::ville);
-        comparer(changements, ChampContact.PAYS, avant, apres, i -> texte(i.pays()));
-        comparer(changements, ChampContact.OBSERVATION, avant, apres, IdentiteContact::observation);
+        this.email = nouvelEmail;
         return changements;
     }
 
-    /** RG-OPE-34 : rôle et modules qui diffèrent. */
-    static List<Changement> changements(DroitsPortail avant, DroitsPortail apres) {
-        List<Changement> changements = new ArrayList<>();
-        comparer(changements, ChampContact.ADMINISTRATEUR, avant, apres, d -> d.administrateur() ? "oui" : "non");
-        comparer(changements, ChampContact.MODULES, avant, apres,
-                d -> d.modules().stream().sorted().map(ModulePortail::libelle).collect(Collectors.joining(", ")));
-        return changements;
-    }
-
-    private static <T> void comparer(List<Changement> changements, ChampContact champ, T avant, T apres,
-            Function<T, String> valeur) {
-        String a = vide(valeur.apply(avant));
-        String b = vide(valeur.apply(apres));
-        if (!Objects.equals(a, b)) {
-            changements.add(new Changement(champ, a, b));
+    /** RG-OPE-40 : l'invitation partie d'un contact met son e-mail à jour s'il diffère. */
+    public boolean mettreAJourEmail(Email nouvel) {
+        if (email != null && email.cle().equals(nouvel.cle())) {
+            return false;
         }
+        this.email = nouvel;
+        return true;
     }
 
-    private static String vide(String texte) {
-        return texte == null || texte.isEmpty() ? null : texte;
+    public boolean aEmail(Email autre) {
+        return email != null && autre != null && Objects.equals(email.cle(), autre.cle());
     }
 
-    private static String texte(Object valeur) {
-        return valeur == null ? null : valeur.toString();
+    private static String texte(Email email) {
+        return email == null ? null : email.valeur();
     }
 
-    private static String liste(Collection<Long> ids) {
-        return ids.stream().sorted().map(String::valueOf).collect(Collectors.joining(","));
-    }
-
-    public long id() {
+    public Long id() {
         return id;
     }
 
-    public IdentiteContact identite() {
+    public long operateur() {
+        return operateur;
+    }
+
+    public IdentitePersonne identite() {
         return identite;
     }
 
-    public DroitsPortail droits() {
-        return droits;
+    /** {@code null} si inconnu. */
+    public Email email() {
+        return email;
     }
 
-    /** RG-OPE-32 : l'e-mail est l'identifiant d'un compte portail. */
-    public boolean emailVerrouille() {
-        return emailVerrouille;
+    public long fiche() {
+        return fiche;
     }
 
-    public boolean estActif() {
-        return actif;
+    public long version() {
+        return version;
     }
 }

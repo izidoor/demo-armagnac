@@ -1,6 +1,6 @@
 # ADR-013 : Événements entre contextes
 
-- Statut : accepté
+- Statut : accepté ; exemple `operateurs` / `acces` remplacé le 2026-10-08 (ADR-015)
 - Date : 2026-10-06
 - Spec : `docs/specs/02-operateurs/spec.md` (décision A-OPE-2)
 
@@ -53,3 +53,12 @@ Options écartées :
   passe. Les tests du contexte émetteur vérifient la publication, ceux du consommateur sa réaction.
 - Passer plus tard à une file ou à l'asynchrone ne touche que les adapters `adapter.evenement` : ni le
   domaine ni les cas d'usage ne changent.
+
+## Amendement du 2026-10-08 (ADR-015, ADR-016)
+Le contexte `acces` est remplacé par `authentification`, et les droits ne sont plus sur le contact : les
+quatre événements `AccesPortailAccorde`, `AccesPortailRetire`, `CompteCree` et
+`IdentifiantCompteModifie` disparaissent. `operateurs` publie désormais `UtilisateurCree`,
+`EmailUtilisateurModifie` et `UtilisateurSupprime`, toujours dans `fr.bnia.operateurs.domain.partage`,
+écoutés par `authentification` dans la même transaction. Le mécanisme est inchangé : transport Spring
+synchrone, publication par un port, écouteurs dans `adapter.evenement`, effets externes (e-mails) après
+validation. Une précision : une donnée secrète (mot de passe) ne voyage jamais dans un événement.

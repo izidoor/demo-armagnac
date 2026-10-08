@@ -15,52 +15,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { apiOperateur, type Espace } from '../commun/api'
+import { apiOperateur, useAnnuaire } from '../commun/api'
 import { AUCUN } from '../commun/saisie'
 
-type Mode = 'contact' | 'adresse' | 'aucun'
+type Mode = 'personne' | 'adresse' | 'aucun'
 
 /**
- * Contact principal (RG-OPE-22) et destinataire des factures (RG-OPE-23) : un contact actif, avec
- * e-mail pour les factures, ou une adresse saisie (bascule « un contact » / « une adresse »). Le parent
- * le remonte (clé) quand la fiche change.
+ * Contact principal (RG-OPE-22) et destinataire des factures (RG-OPE-23) : une personne de l'annuaire
+ * (contact ou membre, par sa fiche professionnelle), avec e-mail pour les factures, ou une adresse saisie
+ * (bascule « une personne de l'annuaire » / « une adresse »). Le parent le remonte (clé) quand la fiche
+ * change. En lecture seule sans la gestion du module Contacts.
  */
 export function Designations({
-  espace,
   fiche,
   onEnregistre,
 }: {
-  espace: Espace
   fiche: FicheOperateur
   onEnregistre: () => void
 }) {
+  const modifiable = fiche.droits.contacts === 'GESTION'
   const [principal, setPrincipal] = useState(
     fiche.contactPrincipal ? String(fiche.contactPrincipal) : AUCUN
   )
   const [mode, setMode] = useState<Mode>(
-    fiche.destinataireFacturesContact
-      ? 'contact'
+    fiche.destinataireFacturesFiche
+      ? 'personne'
       : fiche.destinataireFacturesEmail
         ? 'adresse'
         : 'aucun'
   )
-  const [contact, setContact] = useState(
-    fiche.destinataireFacturesContact
-      ? String(fiche.destinataireFacturesContact)
+  const [destinataire, setDestinataire] = useState(
+    fiche.destinataireFacturesFiche
+      ? String(fiche.destinataireFacturesFiche)
       : AUCUN
   )
   const [adresse, setAdresse] = useState(fiche.destinataireFacturesEmail ?? '')
   const [erreur, setErreur] = useState<string | null>(null)
 
-  const actifs = fiche.contacts.filter((c) => c.actif)
-  const avecEmail = actifs.filter((c) => c.email)
+  const annuaire = useAnnuaire(fiche.id)
+  const personnes = (annuaire.data ?? []).filter((p) => p.fiche != null)
+  const avecEmail = personnes.filter((p) => p.email)
 
   const mutation = useMutation({
     mutationFn: () =>
-      apiOperateur(espace, fiche.id).designer({
+      apiOperateur(fiche.id).designer({
+        version: fiche.version,
         contactPrincipal: principal === AUCUN ? undefined : Number(principal),
-        destinataireFacturesContact:
-          mode === 'contact' && contact !== AUCUN ? Number(contact) : undefined,
+        destinataireFacturesFiche:
+          mode === 'personne' && destinataire !== AUCUN
+            ? Number(destinataire)
+            : undefined,
         destinataireFacturesEmail:
           mode === 'adresse' && adresse.trim() ? adresse.trim() : undefined,
       }),
@@ -88,15 +92,19 @@ export function Designations({
         )}
         <div className='space-y-2'>
           <Label>Contact principal</Label>
-          <Select value={principal} onValueChange={setPrincipal}>
+          <Select
+            value={principal}
+            onValueChange={setPrincipal}
+            disabled={!modifiable}
+          >
             <SelectTrigger className='w-full'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={AUCUN}>—</SelectItem>
-              {actifs.map((c) => (
-                <SelectItem key={c.id} value={String(c.id)}>
-                  {c.nomComplet}
+              {personnes.map((p) => (
+                <SelectItem key={p.fiche} value={String(p.fiche)}>
+                  {p.nomComplet}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -107,11 +115,12 @@ export function Designations({
           <RadioGroup
             value={mode}
             onValueChange={(v) => setMode(v as Mode)}
-            className='flex gap-4'
+            className='flex flex-wrap gap-4'
+            disabled={!modifiable}
           >
             {(
               [
-                ['contact', 'Un contact'],
+                ['personne', "Une personne de l'annuaire"],
                 ['adresse', 'Une adresse'],
                 ['aucun', 'Aucun'],
               ] as const
@@ -121,16 +130,20 @@ export function Designations({
               </label>
             ))}
           </RadioGroup>
-          {mode === 'contact' && (
-            <Select value={contact} onValueChange={setContact}>
+          {mode === 'personne' && (
+            <Select
+              value={destinataire}
+              onValueChange={setDestinataire}
+              disabled={!modifiable}
+            >
               <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Contact actif avec e-mail' />
+                <SelectValue placeholder='Personne avec e-mail' />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={AUCUN}>—</SelectItem>
-                {avecEmail.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>
-                    {c.nomComplet} ({c.email})
+                {avecEmail.map((p) => (
+                  <SelectItem key={p.fiche} value={String(p.fiche)}>
+                    {p.nomComplet} ({p.email})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -140,6 +153,7 @@ export function Designations({
             <Input
               value={adresse}
               onChange={(e) => setAdresse(e.target.value)}
+              disabled={!modifiable}
               placeholder='compta@exemple.fr'
             />
           )}
@@ -149,14 +163,16 @@ export function Designations({
             </p>
           )}
         </div>
-        <div className='flex justify-end md:col-span-2'>
-          <Button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-          >
-            Enregistrer les désignations
-          </Button>
-        </div>
+        {modifiable && (
+          <div className='flex justify-end md:col-span-2'>
+            <Button
+              onClick={() => mutation.mutate()}
+              disabled={mutation.isPending}
+            >
+              Enregistrer les désignations
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

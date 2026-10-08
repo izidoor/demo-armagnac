@@ -2,20 +2,7 @@ package fr.bnia.boot.demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import fr.bnia.referentiels.application.GererCentresInteret;
-import fr.bnia.referentiels.application.GererCircuitsDistribution;
 import fr.bnia.referentiels.application.GererClassesTva;
-import fr.bnia.referentiels.application.GererContenances;
-import fr.bnia.referentiels.application.GererLabels;
-import fr.bnia.referentiels.application.GererLangues;
-import fr.bnia.referentiels.application.GererMarques;
-import fr.bnia.referentiels.application.GererMembresBnia;
-import fr.bnia.referentiels.application.GererPays;
-import fr.bnia.referentiels.application.GererProduitsCommercialises;
-import fr.bnia.referentiels.application.GererRegions;
-import fr.bnia.referentiels.application.GererTitres;
-import fr.bnia.referentiels.application.GererTypesVisite;
-import fr.bnia.referentiels.application.GererZonesCommerciales;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.LangueCertificat;
 import fr.bnia.support.AbstractIT;
@@ -24,33 +11,24 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.DefaultApplicationArguments;
+import org.springframework.context.ApplicationContext;
 
 /**
- * Le chargeur de démo passe par les cas d'usage et peut être relancé sans erreur. Il est construit à la
- * main : le profil {@code demo} n'est pas actif dans les IT.
+ * Le chargeur de démo passe par les cas d'usage, au nom d'Anne Lamarque (ADMIN du BNIA, créée par
+ * {@link DemoPersonnelBnia}), et peut être relancé sans erreur. Il est construit à la main : le profil
+ * {@code demo} n'est pas actif dans les IT.
  */
 class DemoReferentielsIT extends AbstractIT {
 
-    @Autowired GererZonesCommerciales zones;
-    @Autowired GererPays pays;
-    @Autowired GererRegions regions;
-    @Autowired GererTitres titres;
-    @Autowired GererLabels labels;
-    @Autowired GererTypesVisite typesVisite;
-    @Autowired GererLangues langues;
-    @Autowired GererCentresInteret centresInteret;
-    @Autowired GererMembresBnia membresBnia;
-    @Autowired GererMarques marques;
-    @Autowired GererCircuitsDistribution circuits;
-    @Autowired GererProduitsCommercialises produits;
-    @Autowired GererContenances contenances;
     @Autowired GererClassesTva classesTva;
     @Autowired ReferentielsLecture lecture;
+    @Autowired ApplicationContext contexte;
 
     @Test
     void charge_les_referentiels_et_peut_etre_relance() {
-        var demo = new DemoReferentiels(zones, pays, regions, titres, labels, typesVisite, langues, centresInteret,
-                membresBnia, marques, circuits, produits, contenances, classesTva, lecture);
+        var fabrique = contexte.getAutowireCapableBeanFactory();
+        fabrique.createBean(DemoPersonnelBnia.class).run(new DefaultApplicationArguments());
+        var demo = fabrique.createBean(DemoReferentiels.class);
 
         demo.run(new DefaultApplicationArguments());
         demo.run(new DefaultApplicationArguments());

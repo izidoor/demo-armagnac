@@ -1,4 +1,4 @@
-# Profil de développement : PostgreSQL de backend/compose.yaml, démarré au besoin (ADR-003).
+# Profil de développement : PostgreSQL et Mailpit de backend/compose.yaml, démarrés au besoin (ADR-003).
 spring:
   docker:
     compose:
@@ -12,6 +12,15 @@ spring:
   flyway:
     # Vidage autorisé en dev seulement : la base est recréée si V1 a changé (MigrationDevConfiguration).
     clean-disabled: false
+  # E-mails captés par Mailpit (H-AUT-3) : http://localhost:8025 (BNIA_MAILPIT_PORT pour une seconde instance).
+  mail:
+    host: localhost
+    port: ${BNIA_SMTP_PORT:1025}
+
+bnia:
+  authentification:
+    # RG-AUT-01 : en dev, le code de connexion vaut toujours 000000.
+    code-fixe: "000000"
 
 logging:
   level:

@@ -18,14 +18,14 @@ import org.junit.jupiter.api.Test;
 class GererContenancesTest {
 
     private final ContenancesEnMemoire contenances = new ContenancesEnMemoire();
-    private final GererContenances gerer = new GererContenances(contenances, contenances);
+    private final GererContenances gerer = new GererContenances(contenances, contenances, Parametrage.AUTORISE);
 
     @Test
     @DisplayName("RG-REF-10 : le volume est unique, quelle que soit son écriture")
     void rg_ref_10_volume_unique() {
-        gerer.creer(new BigDecimal("0.7"), null);
+        gerer.creer(Parametrage.ACTEUR, new BigDecimal("0.7"), null);
 
-        assertThatThrownBy(() -> gerer.creer(new BigDecimal("0.700"), "Autre"))
+        assertThatThrownBy(() -> gerer.creer(Parametrage.ACTEUR, new BigDecimal("0.700"), "Autre"))
                 .isInstanceOf(ConflitUnicite.class)
                 .hasMessage("La contenance 0,70 L existe déjà.")
                 .extracting(e -> ((ConflitUnicite) e).regle().orElseThrow()).isEqualTo("RG-REF-10");
@@ -34,26 +34,26 @@ class GererContenancesTest {
     @Test
     @DisplayName("RG-REF-02 : le volume se corrige, toujours unique (RG-REF-10)")
     void rg_ref_02_le_volume_se_corrige() {
-        long erreur = gerer.creer(new BigDecimal("0.07"), "Bouteille").id();
-        gerer.creer(new BigDecimal("1.5"), null);
+        long erreur = gerer.creer(Parametrage.ACTEUR, new BigDecimal("0.07"), "Bouteille").id();
+        gerer.creer(Parametrage.ACTEUR, new BigDecimal("1.5"), null);
 
-        var corrigee = gerer.modifier(erreur, new BigDecimal("0.70"), " ");
+        var corrigee = gerer.modifier(Parametrage.ACTEUR, erreur, new BigDecimal("0.70"), " ");
 
         assertThat(corrigee.id()).isEqualTo(erreur);
         assertThat(corrigee.volume()).isEqualTo(Volume.de("0.7"));
         assertThat(corrigee.libelle()).isEqualTo("0,70 L");
-        assertThatThrownBy(() -> gerer.modifier(erreur, new BigDecimal("1.500"), null)).isInstanceOf(ConflitUnicite.class);
+        assertThatThrownBy(() -> gerer.modifier(Parametrage.ACTEUR, erreur, new BigDecimal("1.500"), null)).isInstanceOf(ConflitUnicite.class);
     }
 
     @Test
     @DisplayName("RG-REF-04 : une contenance désactivée reste consultable ; une contenance inutilisée se supprime")
     void rg_ref_04_desactiver_et_supprimer() {
-        long id = gerer.creer(new BigDecimal("1.5"), null).id();
+        long id = gerer.creer(Parametrage.ACTEUR, new BigDecimal("1.5"), null).id();
 
-        gerer.desactiver(id);
+        gerer.desactiver(Parametrage.ACTEUR, id);
         assertThat(gerer.consulter(id).estActif()).isFalse();
 
-        gerer.supprimer(id);
+        gerer.supprimer(Parametrage.ACTEUR, id);
         assertThatThrownBy(() -> gerer.consulter(id)).isInstanceOf(ElementIntrouvable.class);
     }
 

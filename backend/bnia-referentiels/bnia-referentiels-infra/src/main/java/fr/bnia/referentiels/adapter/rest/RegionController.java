@@ -1,5 +1,6 @@
 package fr.bnia.referentiels.adapter.rest;
 
+import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.referentiels.application.FiltreValeurs;
 import fr.bnia.referentiels.application.GererRegions;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,33 +47,33 @@ class RegionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerRegion", summary = "Créer une région (RG-REF-01, RG-REF-03)")
-    RegionResponse creer(@RequestBody SaisieRegionRequest requete) {
-        return RegionResponse.depuis(gerer.creer(requete.code(), requete.libelle(), requete.enRegionDelimitee()));
+    RegionResponse creer(Connecte connecte, @RequestBody SaisieRegionRequest requete) {
+        return RegionResponse.depuis(gerer.creer(connecte.utilisateur(), requete.code(), requete.libelle(), requete.enRegionDelimitee()));
     }
 
     @PutMapping("/{id}")
     @Operation(operationId = "modifierRegion", summary = "Modifier une région, code compris (RG-REF-01 à 03)")
-    RegionResponse modifier(@PathVariable long id, @RequestBody SaisieRegionRequest requete) {
+    RegionResponse modifier(Connecte connecte, @PathVariable long id, @RequestBody SaisieRegionRequest requete) {
         return RegionResponse.depuis(
-                gerer.modifier(id, requete.code(), requete.libelle(), requete.enRegionDelimitee()));
+                gerer.modifier(connecte.utilisateur(), id, requete.code(), requete.libelle(), requete.enRegionDelimitee()));
     }
 
     @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverRegion", summary = "Désactiver une région (RG-REF-04)")
-    RegionResponse desactiver(@PathVariable long id) {
-        return RegionResponse.depuis(gerer.desactiver(id));
+    RegionResponse desactiver(Connecte connecte, @PathVariable long id) {
+        return RegionResponse.depuis(gerer.desactiver(connecte.utilisateur(), id));
     }
 
     @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverRegion", summary = "Réactiver une région (RG-REF-04)")
-    RegionResponse reactiver(@PathVariable long id) {
-        return RegionResponse.depuis(gerer.reactiver(id));
+    RegionResponse reactiver(Connecte connecte, @PathVariable long id) {
+        return RegionResponse.depuis(gerer.reactiver(connecte.utilisateur(), id));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "supprimerRegion", summary = "Supprimer une région qu'aucune autre donnée n'utilise (RG-REF-04)")
-    void supprimer(@PathVariable long id) {
-        gerer.supprimer(id);
+    void supprimer(Connecte connecte, @PathVariable long id) {
+        gerer.supprimer(connecte.utilisateur(), id);
     }
 }

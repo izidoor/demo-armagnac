@@ -1,28 +1,33 @@
 package fr.bnia.boot.demo;
 
+import fr.bnia.authentification.application.GererMotDePasse;
+import fr.bnia.commun.domain.Appellation;
 import fr.bnia.operateurs.application.GererContacts;
+import fr.bnia.operateurs.application.GererInvitations;
+import fr.bnia.operateurs.application.GererMembres;
 import fr.bnia.operateurs.application.GererOperateurs;
 import fr.bnia.operateurs.application.GererPresentation;
+import fr.bnia.operateurs.application.RattachementRepository;
 import fr.bnia.operateurs.application.SaisieContact;
 import fr.bnia.operateurs.application.SaisieDesignations;
 import fr.bnia.operateurs.application.SaisieDiffusion;
-import fr.bnia.operateurs.application.SaisieDroits;
+import fr.bnia.operateurs.application.SaisieInvitation;
 import fr.bnia.operateurs.application.SaisieOperateur;
 import fr.bnia.operateurs.application.SaisiePresentation;
 import fr.bnia.operateurs.application.SaisieProduction;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.CarteBancaire;
-import fr.bnia.operateurs.domain.Canal;
 import fr.bnia.operateurs.domain.Distinction;
 import fr.bnia.operateurs.domain.ModePresentation;
 import fr.bnia.operateurs.domain.Portee;
+import fr.bnia.operateurs.domain.Rattachement;
 import fr.bnia.operateurs.domain.TypeAlambic;
-import fr.bnia.operateurs.domain.partage.ModulePortail;
+import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.NiveauDiffusion;
 import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
+import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
-import fr.bnia.commun.domain.Appellation;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
 import java.math.BigDecimal;
@@ -38,41 +43,53 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Données de démonstration des opérateurs (spec 02, §7.1), en profil {@code demo} seulement, après
- * celles des référentiels : une quinzaine de fiches plausibles du Gers, des Landes et du
- * Lot-et-Garonne, présentées comme telles. Les valeurs réelles viendront de la reprise AGI.
+ * Données de démonstration des opérateurs (spec 02, §7.1), en profil {@code demo} seulement, après le
+ * personnel du BNIA et les référentiels : une quinzaine de fiches plausibles du Gers, des Landes et du
+ * Lot-et-Garonne, présentées comme telles, et les personnes et accès de la Maison Durand et de la
+ * Distillerie Lafitte (comptes dans {@code docs/demo.md}).
  *
- * <p>Tout passe par les cas d'usage. Une fiche dont le code existe déjà n'est pas recréée : le chargeur
- * est relançable.
+ * <p>Tout passe par les cas d'usage, au nom d'Anne Lamarque, ADMIN du BNIA. Une fiche dont le code existe
+ * déjà n'est pas recréée : le chargeur est relançable.
  */
 @Component
 @Profile("demo")
-@Order(2)
+@Order(3)
 public class DemoOperateurs implements ApplicationRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(DemoOperateurs.class);
-    private static final String EMAIL_DURAND = "jeanne.durand@maison-durand.example";
+    private static final String EMAIL_DURAND = "admin@producteur.fr";
 
     private final GererOperateurs operateurs;
     private final GererContacts contacts;
     private final GererPresentation presentation;
+    private final GererInvitations invitations;
+    private final GererMembres membres;
+    private final RattachementRepository rattachements;
     private final OperateursLecture lecture;
     private final ReferentielsLecture referentiels;
+    private final ComptesDemo comptes;
 
     private int crees;
+    private Acteur anne;
 
     public DemoOperateurs(GererOperateurs operateurs, GererContacts contacts, GererPresentation presentation,
-            OperateursLecture lecture, ReferentielsLecture referentiels) {
+            GererInvitations invitations, GererMembres membres, GererMotDePasse motsDePasse,
+            RattachementRepository rattachements, OperateursLecture lecture, ReferentielsLecture referentiels) {
         this.operateurs = operateurs;
         this.contacts = contacts;
         this.presentation = presentation;
+        this.invitations = invitations;
+        this.membres = membres;
+        this.rattachements = rattachements;
         this.lecture = lecture;
         this.referentiels = referentiels;
+        this.comptes = new ComptesDemo(invitations, motsDePasse, rattachements, lecture);
     }
 
     @Override
     public void run(ApplicationArguments arguments) {
         crees = 0;
+        anne = new Acteur(DemoPersonnelBnia.anne(lecture));
         charger();
         LOG.info("Démo : {} opérateurs créés.", crees);
     }
@@ -94,17 +111,20 @@ public class DemoOperateurs implements ApplicationRunner {
         producteur("000009", "Domaine du Haut-Armagnac", null, "32700", "Lectoure", "GERS", null,
                 Appellation.HAUT_ARMAGNAC);
         negociant("N320001", "Armagnacs de Gascogne", "32100", "Condom");
+        armagnacsDeGascogne();
         negociant("N320002", "Maison Larressingle", "32100", "Condom");
         negociant("N400001", "Négoce des Landes", "40000", "Mont-de-Marsan");
-        autre("000010", "Distillerie ambulante Lafitte", "Distillateur", "32250", "Montréal");
+        distillerieLafitte();
         autre("000011", "Courtage Sud-Ouest", "Courtier", "47600", "Nérac");
         incomplete();
         inactive();
     }
 
     /**
-     * Groupe « Maison Durand », deux chais (Condom et Eauze) : Mme Durand, administratrice à Condom et
-     * contact DSM et factures à Eauze, avec le même e-mail ; M. Petit, maître de chai sans accès.
+     * Groupe « Maison Durand », deux chais (Condom et Eauze). Jeanne Durand ({@code admin@producteur.fr}),
+     * ADMIN des deux, opérateur actif Condom ; Sophie Martin ({@code agent@producteur.fr}), AGENT à Condom ;
+     * Pierre Roy ({@code observateur@producteur.fr}), OBSERVATEUR à Condom et à Eauze, suspendu à Eauze ;
+     * Paul Petit, maître de chai sans compte, contact principal à Condom.
      */
     private void maisonDurand() {
         Optional<Long> condom = creerSiAbsent(saisie(TypeOperateur.PRODUCTEUR, "000001", "Maison Durand, chai de Condom",
@@ -112,25 +132,58 @@ public class DemoOperateurs implements ApplicationRunner {
         condom.ifPresent(id -> {
             production(id, PeriodiciteDsm.ANNUELLE, "GERS", List.of(alambic("A-32-0142", TypeAlambic.ARMAGNACAIS, "25")),
                     Appellation.ARMAGNAC, Appellation.BAS_ARMAGNAC, Appellation.ARMAGNAC_TENAREZE);
-            operateurs.modifierDiffusion(id, new SaisieDiffusion(NiveauDiffusion.PARTIEL, List.of(1995, 2005, 2010), true));
-            long durand = contacts.creer(id, contact("MME", "Durand", "Jeanne", "Gérante", EMAIL_DURAND, "COMPTA"),
-                    Canal.BACK_OFFICE).id();
-            contacts.modifierDroits(id, durand, new SaisieDroits(true, true, Set.of()), Canal.BACK_OFFICE);
-            contacts.creer(id, contact("M", "Petit", "Paul", "Maître de chai", null, "PRODUCTION"), Canal.BACK_OFFICE);
-            contacts.designer(id, new SaisieDesignations(durand, durand, null), Canal.BACK_OFFICE);
-            presentation.modifier(id, presentationComplete(), Canal.BACK_OFFICE);
+            operateurs.modifierDiffusion(anne, id, new SaisieDiffusion(NiveauDiffusion.PARTIEL, List.of(1995, 2005, 2010),
+                    true, null));
+            presentation.modifier(anne, id, presentationComplete());
         });
         Optional<Long> eauze = creerSiAbsent(saisie(TypeOperateur.PRODUCTEUR, "000002", "Maison Durand, chai d'Eauze",
                 null, "Maison Durand", "3 avenue de Nogaro", "32800", "Eauze", "05 62 09 00 02"));
-        eauze.ifPresent(id -> {
-            production(id, PeriodiciteDsm.TRIMESTRIELLE, "GERS",
-                    List.of(alambic(null, TypeAlambic.DOUBLE_CHAUFFE, "12.5")), Appellation.BAS_ARMAGNAC);
-            long durand = contacts.creer(id, contact("MME", "Durand", "Jeanne", "Comptable", EMAIL_DURAND, "COMPTA"),
-                    Canal.BACK_OFFICE).id();
-            contacts.modifierDroits(id, durand,
-                    new SaisieDroits(true, false, Set.of(ModulePortail.DSM, ModulePortail.FACTURES)), Canal.BACK_OFFICE);
-            contacts.designer(id, new SaisieDesignations(durand, durand, null), Canal.BACK_OFFICE);
-        });
+        eauze.ifPresent(id -> production(id, PeriodiciteDsm.TRIMESTRIELLE, "GERS",
+                List.of(alambic(null, TypeAlambic.DOUBLE_CHAUFFE, "12.5")), Appellation.BAS_ARMAGNAC));
+        if (condom.isEmpty() || eauze.isEmpty()) {
+            return;
+        }
+        long idCondom = condom.get();
+        long idEauze = eauze.get();
+        long jeanne = comptes.membre(anne, idCondom, Role.ADMIN, EMAIL_DURAND, "Durand", "Jeanne", "Gérante");
+        comptes.membre(anne, idEauze, Role.ADMIN, EMAIL_DURAND, "Durand", "Jeanne", "Gérante");
+        Acteur durand = new Acteur(jeanne);
+        comptes.membre(durand, idCondom, Role.AGENT, "agent@producteur.fr", "Martin", "Sophie", "Comptable");
+        comptes.membre(durand, idCondom, Role.OBSERVATEUR, "observateur@producteur.fr", "Roy", "Pierre", "Caviste");
+        long pierre = comptes.membre(durand, idEauze, Role.OBSERVATEUR, "observateur@producteur.fr", "Roy",
+                "Pierre", "Caviste");
+        membres.suspendre(durand, idEauze, rattachements.de(idEauze, pierre).map(Rattachement::id).orElseThrow());
+        long paul = contacts.creer(durand, idCondom, contact("M", "Petit", "Paul", "Maître de chai",
+                "paul.petit@maison-durand.example", "PRODUCTION")).fiche();
+        long ficheJeanneCondom = rattachements.de(idCondom, jeanne).orElseThrow().fiche();
+        long ficheJeanneEauze = rattachements.de(idEauze, jeanne).orElseThrow().fiche();
+        operateurs.designer(durand, idCondom, new SaisieDesignations(paul, ficheJeanneCondom, null, null));
+        operateurs.designer(durand, idEauze, new SaisieDesignations(ficheJeanneEauze, ficheJeanneEauze, null, null));
+    }
+
+    /**
+     * Armagnacs de Gascogne, négociant : Henri Castex ({@code admin@negociant.fr}, ADMIN), Julie Darrigade
+     * ({@code agent@negociant.fr}, AGENT), Thomas Barrère ({@code observateur@negociant.fr}, OBSERVATEUR).
+     * Relançable : un membre existant est laissé tel quel.
+     */
+    private void armagnacsDeGascogne() {
+        long id = lecture.operateurParCode("N320001").orElseThrow().id();
+        Acteur castex = new Acteur(comptes.membre(anne, id, Role.ADMIN, "admin@negociant.fr", "Castex", "Henri",
+                "Gérant"));
+        comptes.membre(castex, id, Role.AGENT, "agent@negociant.fr", "Darrigade", "Julie", "Responsable des achats");
+        comptes.membre(castex, id, Role.OBSERVATEUR, "observateur@negociant.fr", "Barrère", "Thomas", "Commercial");
+    }
+
+    /** Distillerie ambulante Lafitte : Marc Lafitte, invité comme ADMIN, n'a pas encore accepté. */
+    private void distillerieLafitte() {
+        creerSiAbsent(saisie(TypeOperateur.AUTRE, "000010", "Distillerie ambulante Lafitte", null, null,
+                "1 place de la Mairie", "32250", "Montréal", null))
+                .ifPresent(id -> {
+                    production(id, null, "GERS", List.of());
+                    invitations.inviter(anne, id, new SaisieInvitation(null, "marc.lafitte@distillerie-lafitte.example",
+                            Role.ADMIN, referentiels.titreParCode("M").map(ValeurVue::id).orElse(null), "Lafitte",
+                            "Marc", "Distillateur", "06 12 34 56 78"));
+                });
     }
 
     private void producteur(String code, String raisonSociale, String nomCommercial, String codePostal, String ville,
@@ -140,8 +193,8 @@ public class DemoOperateurs implements ApplicationRunner {
                 .ifPresent(id -> {
                     production(id, PeriodiciteDsm.ANNUELLE, region,
                             alambic == null ? List.of() : List.of(alambic(null, alambic, "20")), appellation);
-                    contacts.creer(id, contact("M", "Responsable", null, "Chef d'exploitation",
-                            "contact@" + code + ".example", "PRODUCTION"), Canal.BACK_OFFICE);
+                    contacts.creer(anne, id, contact("M", "Responsable", null, "Chef d'exploitation",
+                            "contact@" + code + ".example", "PRODUCTION"));
                 });
     }
 
@@ -151,7 +204,8 @@ public class DemoOperateurs implements ApplicationRunner {
                 .ifPresent(id -> {
                     production(id, PeriodiciteDsm.MENSUELLE, codePostal.startsWith("40") ? "LANDES" : "GERS", List.of(),
                             Appellation.ARMAGNAC, Appellation.BLANCHE_ARMAGNAC);
-                    operateurs.modifierDiffusion(id, new SaisieDiffusion(NiveauDiffusion.TOTAL, List.of(), false));
+                    operateurs.modifierDiffusion(anne, id, new SaisieDiffusion(NiveauDiffusion.TOTAL, List.of(), false,
+                            null));
                 });
     }
 
@@ -160,7 +214,7 @@ public class DemoOperateurs implements ApplicationRunner {
                 codePostal, ville, null))
                 .ifPresent(id -> {
                     production(id, null, codePostal.startsWith("47") ? "LOT-ET-GARONNE" : "GERS", List.of());
-                    contacts.creer(id, contact("M", "Lafitte", "Henri", fonction, null, null), Canal.BACK_OFFICE);
+                    contacts.creer(anne, id, contact("M", "Lafitte", "Henri", fonction, null, null));
                 });
     }
 
@@ -176,7 +230,7 @@ public class DemoOperateurs implements ApplicationRunner {
                 "Route des thermes", "32150", "Cazaubon", null))
                 .ifPresent(id -> {
                     production(id, PeriodiciteDsm.ANNUELLE, "GERS", List.of(), Appellation.BAS_ARMAGNAC);
-                    operateurs.desactiver(id);
+                    operateurs.desactiver(anne, id);
                 });
     }
 
@@ -207,8 +261,8 @@ public class DemoOperateurs implements ApplicationRunner {
     private void production(long id, PeriodiciteDsm periodicite, String region, List<SaisieProduction.Alambic> alambics,
             Appellation... appellations) {
         StatutDeclarationStock statut = periodicite == null ? StatutDeclarationStock.NON : StatutDeclarationStock.OUI;
-        operateurs.modifierProduction(id, new SaisieProduction(periodicite, statut,
-                referentiels.regionParCode(region).map(r -> r.id()).orElse(null), Set.of(appellations), alambics));
+        operateurs.modifierProduction(anne, id, new SaisieProduction(periodicite, statut,
+                referentiels.regionParCode(region).map(r -> r.id()).orElse(null), Set.of(appellations), alambics, null));
     }
 
     private static SaisieProduction.Alambic alambic(String agrement, TypeAlambic type, String capacite) {
@@ -223,15 +277,15 @@ public class DemoOperateurs implements ApplicationRunner {
                 nomCommercial, adresse, null, null, codePostal, ville, france, telephone, null, null, email, null,
                 null, null, null, referentiels.membreBniaParCode(type == TypeOperateur.NEGOCIANT ? "NEGO" : "PROD")
                         .map(ValeurVue::id).orElse(null),
-                type != TypeOperateur.AUTRE, null);
+                type != TypeOperateur.AUTRE, null, null);
     }
 
     private SaisieContact contact(String titre, String nom, String prenom, String fonction, String email,
             String centreInteret) {
         Set<Long> centres = centreInteret == null ? Set.of()
                 : referentiels.centreInteretParCode(centreInteret).map(c -> Set.of(c.id())).orElse(Set.of());
-        return new SaisieContact(referentiels.titreParCode(titre).map(ValeurVue::id).orElse(null), nom, prenom,
-                fonction, centres, null, null, email, null, null, null, null, null);
+        return new SaisieContact(referentiels.titreParCode(titre).map(ValeurVue::id).orElse(null), nom, prenom, email,
+                fonction, null, null, null, null, null, null, centres, null);
     }
 
     private static long valeur(Optional<ValeurVue> valeur) {
@@ -244,6 +298,6 @@ public class DemoOperateurs implements ApplicationRunner {
             return Optional.empty();
         }
         crees++;
-        return Optional.of(operateurs.creer(saisie).id());
+        return Optional.of(operateurs.creer(anne, saisie, null).id());
     }
 }

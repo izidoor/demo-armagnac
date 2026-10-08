@@ -28,6 +28,10 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-operateurs-infra</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-authentification-infra</artifactId>
+        </dependency>
         <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

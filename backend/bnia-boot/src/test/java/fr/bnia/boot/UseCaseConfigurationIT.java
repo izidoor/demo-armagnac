@@ -31,7 +31,7 @@ class UseCaseConfigurationIT extends AbstractIT {
 
     @Test
     void les_methodes_heritees_d_un_cas_d_usage_sont_transactionnelles() throws NoSuchMethodException {
-        var creer = GererValeursSimples.class.getMethod("creer", String.class, String.class);
+        var creer = GererValeursSimples.class.getMethod("creer", long.class, String.class, String.class);
 
         assertThat(Arrays.stream(((Advised) casDUsageHerite).getAdvisors()))
                 .filteredOn(advisor -> advisor.getAdvice() instanceof TransactionInterceptor)

@@ -18,6 +18,7 @@ import fr.bnia.referentiels.application.GererValeursSimples;
 import fr.bnia.referentiels.application.GererZonesCommerciales;
 import fr.bnia.referentiels.application.SaisiePays;
 import fr.bnia.referentiels.application.SaisieTauxTva;
+import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.LangueCertificat;
 import java.math.BigDecimal;
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Profile("demo")
-@Order(1)
+@Order(2)
 public class DemoReferentiels implements ApplicationRunner {
 
     private static final Logger LOG = LoggerFactory.getLogger(DemoReferentiels.class);
@@ -61,14 +62,17 @@ public class DemoReferentiels implements ApplicationRunner {
     private final GererContenances contenances;
     private final GererClassesTva classesTva;
     private final ReferentielsLecture lecture;
+    private final OperateursLecture operateurs;
 
     private int crees;
+    /** Anne Lamarque, ADMIN du BNIA de démonstration : le Paramétrage lui est ouvert (ADR-016). */
+    private long acteur;
 
     public DemoReferentiels(GererZonesCommerciales zones, GererPays pays, GererRegions regions, GererTitres titres,
             GererLabels labels, GererTypesVisite typesVisite, GererLangues langues,
             GererCentresInteret centresInteret, GererMembresBnia membresBnia, GererMarques marques, GererCircuitsDistribution circuits,
             GererProduitsCommercialises produits, GererContenances contenances, GererClassesTva classesTva,
-            ReferentielsLecture lecture) {
+            ReferentielsLecture lecture, OperateursLecture operateurs) {
         this.zones = zones;
         this.pays = pays;
         this.regions = regions;
@@ -84,11 +88,13 @@ public class DemoReferentiels implements ApplicationRunner {
         this.contenances = contenances;
         this.classesTva = classesTva;
         this.lecture = lecture;
+        this.operateurs = operateurs;
     }
 
     @Override
     public void run(ApplicationArguments arguments) {
         crees = 0;
+        acteur = DemoPersonnelBnia.anne(operateurs);
         charger();
         LOG.info("Démo : {} valeurs de référentiels créées.", crees);
     }
@@ -98,11 +104,11 @@ public class DemoReferentiels implements ApplicationRunner {
         valeurs(zones, "EUR", "Europe", "AMN", "Amérique du Nord", "AMS", "Amérique du Sud", "ASI", "Asie",
                 "AFR", "Afrique", "OCE", "Océanie");
         paysExportateurs();
-        creer(() -> regions.creer("GERS", "Gers", true));
-        creer(() -> regions.creer("LANDES", "Landes", true));
-        creer(() -> regions.creer("LOT-ET-GARONNE", "Lot-et-Garonne", true));
-        creer(() -> regions.creer("GIRONDE", "Gironde", false));
-        creer(() -> regions.creer("IDF", "Île-de-France", false));
+        creer(() -> regions.creer(acteur, "GERS", "Gers", true));
+        creer(() -> regions.creer(acteur, "LANDES", "Landes", true));
+        creer(() -> regions.creer(acteur, "LOT-ET-GARONNE", "Lot-et-Garonne", true));
+        creer(() -> regions.creer(acteur, "GIRONDE", "Gironde", false));
+        creer(() -> regions.creer(acteur, "IDF", "Île-de-France", false));
 
         // Qualification.
         valeurs(titres, "M", "Monsieur", "MME", "Madame", "ME", "Maître", "DR", "Docteur");
@@ -123,13 +129,13 @@ public class DemoReferentiels implements ApplicationRunner {
                 "Cafés, hôtels, restaurants", "EXPORT", "Export");
         valeurs(produits, "ARMAGNAC", "Armagnac", "BLANCHE", "Blanche Armagnac", "FLOC", "Floc de Gascogne");
         for (String volume : List.of("0.05", "0.20", "0.35", "0.50", "0.70", "0.75", "1.00", "1.50", "3.00")) {
-            creer(() -> contenances.creer(new BigDecimal(volume), null));
+            creer(() -> contenances.creer(acteur, new BigDecimal(volume), null));
         }
 
         // Fiscalité : une classe « Normal » à 20 % depuis le 01/01/2014.
-        if (creer(() -> classesTva.creer("NORMAL", "Normal"))) {
+        if (creer(() -> classesTva.creer(acteur, "NORMAL", "Normal"))) {
             long normal = lecture.classeTvaParCode("NORMAL").orElseThrow().id();
-            classesTva.ajouterTaux(normal, new SaisieTauxTva(new BigDecimal("20"), LocalDate.of(2014, 1, 1), null));
+            classesTva.ajouterTaux(acteur, normal, new SaisieTauxTva(new BigDecimal("20"), LocalDate.of(2014, 1, 1), null));
         }
     }
 
@@ -161,7 +167,7 @@ public class DemoReferentiels implements ApplicationRunner {
                 default -> LangueCertificat.FR_EN;
             };
             long zone = lecture.zoneCommercialeParCode((String) p[2]).orElseThrow().id();
-            creer(() -> pays.creer(new SaisiePays(code, (String) p[1], code, zone, (Boolean) p[3], langue, null,
+            creer(() -> pays.creer(acteur, new SaisiePays(code, (String) p[1], code, zone, (Boolean) p[3], langue, null,
                     null)));
         }
     }
@@ -171,7 +177,7 @@ public class DemoReferentiels implements ApplicationRunner {
         for (int i = 0; i < codesEtLibelles.length; i += 2) {
             String code = codesEtLibelles[i];
             String libelle = codesEtLibelles[i + 1];
-            creer(() -> liste.creer(code, libelle));
+            creer(() -> liste.creer(acteur, code, libelle));
         }
     }
 

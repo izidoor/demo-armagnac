@@ -24,7 +24,7 @@ public record SerieCode(String prefixe, int largeur) {
 
     /**
      * La série d'un opérateur, ou rien si aucun code ne peut être proposé : négociant sans code postal
-     * français.
+     * français, opérateur BNIA (RG-OPE-39).
      *
      * @param enFrance vrai si le pays de l'adresse est la France
      */
@@ -35,6 +35,7 @@ public record SerieCode(String prefixe, int largeur) {
         return switch (type) {
             case PRODUCTEUR, AUTRE -> Optional.of(new SerieCode("", 6));
             case NEGOCIANT -> enFrance ? departement(codePostal).map(d -> new SerieCode("N" + d, 4)) : Optional.empty();
+            case BNIA -> Optional.empty();
         };
     }
 

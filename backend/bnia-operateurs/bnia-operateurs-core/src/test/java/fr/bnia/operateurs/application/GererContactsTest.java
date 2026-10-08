@@ -2,138 +2,119 @@ package fr.bnia.operateurs.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import fr.bnia.commun.domain.AccesRefuse;
+import fr.bnia.commun.domain.ConflitUnicite;
+import fr.bnia.commun.domain.ModificationConcurrente;
 import fr.bnia.commun.domain.RegleEnfreinte;
-import fr.bnia.operateurs.domain.ActionContact;
-import fr.bnia.operateurs.domain.Canal;
+import fr.bnia.operateurs.domain.ActionJournal;
+import fr.bnia.operateurs.domain.ChampJournal;
 import fr.bnia.operateurs.domain.Changement;
-import fr.bnia.operateurs.domain.ChampContact;
-import fr.bnia.operateurs.domain.partage.AccesPortailAccorde;
-import fr.bnia.operateurs.domain.partage.ModulePortail;
-import fr.bnia.operateurs.domain.partage.TypeOperateur;
-import fr.bnia.operateurs.application.partage.OperateursLecture;
-import fr.bnia.referentiels.application.partage.ReferentielsLecture;
-import fr.bnia.referentiels.domain.partage.ValeurVue;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Optional;
+import fr.bnia.operateurs.domain.Contact;
+import fr.bnia.operateurs.domain.StatutInvitation;
+import fr.bnia.operateurs.domain.TypeFiche;
+import fr.bnia.operateurs.domain.partage.Acteur;
+import fr.bnia.operateurs.domain.partage.Role;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class GererContactsTest {
 
-    private static final Instant MAINTENANT = Instant.parse("2026-10-06T09:30:00Z");
-    private static final long COMPTA = 1;
-    private static final long ANCIEN = 2;
+    private final Memoire memoire = new Memoire();
+    private final GererContacts gerer = memoire.gererContacts();
+    private final long durand = memoire.operateur("000001", "Maison Durand");
+    private final Acteur jeanne = memoire.membre(durand, Role.ADMIN, "Jeanne", "Durand");
+    private final Acteur sophie = memoire.membre(durand, Role.AGENT, "Sophie", "Martin");
+    private final Acteur pierre = memoire.membre(durand, Role.OBSERVATEUR, "Pierre", "Roy");
 
-    private final OperateursEnMemoire memoire = new OperateursEnMemoire();
-    private final JournalEnMemoire journal = new JournalEnMemoire();
-    private final EvenementsCaptures evenements = new EvenementsCaptures();
-    private final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
-    private final Clock horloge = Clock.fixed(MAINTENANT, ZoneOffset.UTC);
-    private final GererOperateurs operateurs = new GererOperateurs(memoire, memoire, memoire, referentiels,
-            mock(OperateursLecture.class), journal, evenements, horloge);
-    private final GererContacts gerer = new GererContacts(memoire, memoire, journal, evenements, referentiels, horloge);
-
-    private long condom;
-    private long eauze;
-
-    @BeforeEach
-    void maisonDurand() {
-        when(referentiels.centreInteret(COMPTA)).thenReturn(Optional.of(new ValeurVue(COMPTA, "COMPTA", "Comptabilité", true)));
-        when(referentiels.centreInteret(ANCIEN)).thenReturn(Optional.of(new ValeurVue(ANCIEN, "OLD", "Ancien", false)));
-        condom = operateurs.creer(GererOperateursTest.saisie(TypeOperateur.PRODUCTEUR, "000012", "Chai de Condom", "32100", null)).id();
-        eauze = operateurs.creer(GererOperateursTest.saisie(TypeOperateur.PRODUCTEUR, "000013", "Chai d'Eauze", "32800", null)).id();
-    }
-
-    private static SaisieContact durand(String email, Set<Long> centres) {
-        return new SaisieContact(null, "Durand", "Jeanne", "Comptable", centres, null, null, email, null, null, null,
-                null, null);
+    private static SaisieContact saisie(String prenom, String nom, String email) {
+        return new SaisieContact(Memoire.TITRE, nom, prenom, email, "Maître de chai", "05 62 00 00 01", null, null, null,
+                null, null, Set.of(), null);
     }
 
     @Test
-    @DisplayName("RG-OPE-21 : un centre d'intérêt choisi doit être actif")
-    void rg_ope_21_centre_interet_actif() {
-        assertThatThrownBy(() -> gerer.creer(condom, durand(null, Set.of(ANCIEN)), Canal.BACK_OFFICE))
-                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("Ancien")
-                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-21");
+    @DisplayName("RG-OPE-27, 30 et 34 : un contact déclaré a sa fiche professionnelle, et l'action est journalisée")
+    void rg_ope_30_contact_et_sa_fiche() {
+        Contact contact = gerer.creer(sophie, durand, saisie("Paul", "Petit", null));
+
+        FicheContact fiche = gerer.consulter(pierre, durand, contact.id());
+        assertThat(fiche.fiche().type()).isEqualTo(TypeFiche.CONTACT);
+        assertThat(fiche.fiche().coordonnees().fonction()).isEqualTo("Maître de chai");
+        assertThat(fiche.fiche().modifieePar()).isEqualTo("Sophie Martin");
+        assertThat(memoire.journal.derniere()).satisfies(l -> {
+            assertThat(l.action()).isEqualTo(ActionJournal.CONTACT_CREE);
+            assertThat(l.nomActeur()).isEqualTo("Sophie Martin");
+            assertThat(l.nomCible()).isEqualTo("Paul Petit");
+            assertThat(l.operateur()).isEqualTo(durand);
+        });
+        assertThatThrownBy(() -> gerer.creer(sophie, durand, saisie("Paul", " ", null)))
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-27");
     }
 
     @Test
-    @DisplayName("RG-OPE-29 : accorder l'accès publie « accès portail accordé »")
-    void rg_ope_29_evenement_publie() {
-        long contact = gerer.creer(condom, durand("jeanne.durand@exemple.fr", Set.of()), Canal.BACK_OFFICE).id();
+    @DisplayName("RG-OPE-31 : un OBSERVATEUR lit les contacts mais n'en déclare pas ; un autre opérateur ne les voit pas")
+    void rg_ope_31_refus() {
+        Contact contact = gerer.creer(jeanne, durand, saisie("Paul", "Petit", null));
+        Acteur autre = memoire.membre(memoire.operateur("000002", "Domaine B"), Role.ADMIN, "Marc", "Lafitte");
 
-        gerer.modifierDroits(condom, contact, new SaisieDroits(true, true, Set.of()), Canal.BACK_OFFICE);
-
-        assertThat(evenements.publies).containsExactly(new AccesPortailAccorde(condom, contact, "jeanne.durand@exemple.fr"));
-        assertThat(gerer.consulter(condom, contact).contact().droits().modules()).hasSize(ModulePortail.values().length);
+        assertThatThrownBy(() -> gerer.creer(pierre, durand, saisie("Léa", "Roux", null)))
+                .isInstanceOf(AccesRefuse.class).hasMessageContaining("Contacts");
+        assertThatThrownBy(() -> gerer.supprimer(pierre, durand, contact.id())).isInstanceOf(AccesRefuse.class);
+        assertThatThrownBy(() -> gerer.consulter(autre, durand, contact.id())).isInstanceOf(AccesRefuse.class);
     }
 
     @Test
-    @DisplayName("RG-OPE-34 : journal daté, signé, avec les libellés des référentiels")
-    void rg_ope_34_journal() {
-        long contact = gerer.creer(condom, durand(null, Set.of()), Canal.BACK_OFFICE).id();
-        gerer.modifier(condom, contact, durand(null, Set.of(COMPTA)), Canal.PORTAIL);
-        gerer.supprimer(condom, contact, Canal.BACK_OFFICE);
+    @DisplayName("RG-OPE-28 : l'e-mail est unique parmi les contacts de l'opérateur ; celui d'un membre ou d'une invitation avertit")
+    void rg_ope_28_unicite_et_avertissements() {
+        long autre = memoire.operateur("000002", "Domaine B");
+        Acteur marc = memoire.membre(autre, Role.ADMIN, "Marc", "Lafitte");
+        gerer.creer(sophie, durand, saisie("Paul", "Petit", "paul@durand.fr"));
 
-        List<LigneJournal> lignes = gerer.journal(condom, contact);
-
-        assertThat(lignes).extracting(LigneJournal::action)
-                .containsExactlyInAnyOrder(ActionContact.CREATION, ActionContact.MODIFICATION, ActionContact.SUPPRESSION);
-        assertThat(lignes).allMatch(l -> l.date().equals(MAINTENANT) && l.nomContact().equals("Jeanne Durand"));
-        LigneJournal modification = lignes.stream().filter(l -> l.action() == ActionContact.MODIFICATION).findFirst().orElseThrow();
-        assertThat(modification.auteur()).isEqualTo("Portail");
-        assertThat(modification.changements()).containsExactly(new Changement(ChampContact.CENTRES_INTERET, null, "Comptabilité"));
+        assertThatThrownBy(() -> gerer.creer(sophie, durand, saisie("Paul", "Petit bis", "PAUL@durand.fr")))
+                .isInstanceOf(ConflitUnicite.class).hasMessageContaining("PAUL@durand.fr");
+        assertThat(gerer.creer(marc, autre, saisie("Paul", "Petit", "paul@durand.fr")).id())
+                .as("deux opérateurs, deux contacts indépendants").isNotNull();
+        assertThat(gerer.avertissements(sophie, durand, "jeanne.durand@exemple.fr", null))
+                .singleElement().asString().contains("Jeanne Durand, membre de cet opérateur");
+        memoire.gererInvitations().inviter(jeanne, durand, SaisieInvitation.personne("lea@roux.fr", Role.AGENT, "Roux", "Léa"));
+        assertThat(gerer.avertissements(sophie, durand, "lea@roux.fr", null)).singleElement().asString()
+                .contains("invitation en attente");
+        assertThat(gerer.avertissements(sophie, durand, "lea@", null)).as("saisie en cours").isEmpty();
     }
 
     @Test
-    @DisplayName("RG-OPE-32 : « compte créé » verrouille l'e-mail dans tous les opérateurs ; « identifiant modifié » le reporte")
-    void rg_ope_32_evenements_de_acces() {
-        long aCondom = gerer.creer(condom, durand("jeanne.durand@exemple.fr", Set.of()), Canal.BACK_OFFICE).id();
-        long aEauze = gerer.creer(eauze, durand("Jeanne.Durand@exemple.fr", Set.of()), Canal.BACK_OFFICE).id();
+    @DisplayName("RG-OPE-34 et RG-OPE-51 : modifier un contact journalise chaque champ changé, sur la version lue")
+    void rg_ope_34_modification() {
+        Contact contact = gerer.creer(sophie, durand, saisie("Paul", "Petit", null));
 
-        gerer.verrouillerEmail("jeanne.durand@exemple.fr");
+        gerer.modifier(sophie, durand, contact.id(), new SaisieIdentiteContact(Memoire.TITRE, "Petit", "Paul",
+                "paul@durand.fr", 0L));
 
-        assertThat(gerer.consulter(condom, aCondom).contact().emailVerrouille()).isTrue();
-        assertThat(gerer.consulter(eauze, aEauze).contact().emailVerrouille()).isTrue();
-        assertThatThrownBy(() -> gerer.modifier(condom, aCondom, durand("autre@exemple.fr", Set.of()), Canal.BACK_OFFICE))
-                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-32");
-
-        gerer.reporterIdentifiant("jeanne.durand@exemple.fr", "jeanne@durand.fr");
-
-        assertThat(gerer.consulter(eauze, aEauze).contact().identite().email().valeur()).isEqualTo("jeanne@durand.fr");
-        assertThat(gerer.journal(eauze, aEauze)).anyMatch(l -> l.auteur().equals("Mon compte"));
+        assertThat(memoire.journal.derniere().changements())
+                .containsExactly(new Changement(ChampJournal.EMAIL, null, "paul@durand.fr"));
+        assertThatThrownBy(() -> gerer.modifier(sophie, durand, contact.id(), new SaisieIdentiteContact(null, "Petit",
+                "Paul", null, 0L))).isInstanceOf(ModificationConcurrente.class);
     }
 
     @Test
-    @DisplayName("RG-OPE-35 : au portail, les contacts d'un opérateur inactif ne se gèrent plus")
-    void rg_ope_35_operateur_inactif() {
-        operateurs.desactiver(condom);
+    @DisplayName("RG-OPE-22, 23 et 45 : supprimer un contact annule ses invitations en attente et fait tomber ses désignations")
+    void rg_ope_45_suppression() {
+        Contact contact = gerer.creer(sophie, durand, saisie("Paul", "Petit", "paul@durand.fr"));
+        long fiche = contact.fiche();
+        memoire.gererOperateurs().designer(sophie, durand, new SaisieDesignations(fiche, fiche, null, null));
+        memoire.gererInvitations().inviter(jeanne, durand, new SaisieInvitation(contact.id(), "paul@durand.fr",
+                Role.AGENT, null, null, null, null, null));
+        assertThatThrownBy(() -> gerer.modifier(sophie, durand, contact.id(), new SaisieIdentiteContact(null, "Petit",
+                "Paul", " ", null))).as("RG-OPE-23 : l'e-mail du destinataire est requis").hasMessageContaining("factures");
 
-        assertThatThrownBy(() -> gerer.creer(condom, durand(null, Set.of()), Canal.PORTAIL))
-                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-35");
-        assertThat(gerer.creer(condom, durand(null, Set.of()), Canal.BACK_OFFICE).estActif()).isTrue();
-    }
+        gerer.supprimer(sophie, durand, contact.id());
 
-    @Test
-    @DisplayName("RG-OPE-23 : un destinataire des factures est soit un contact, soit une adresse")
-    void rg_ope_23_designations() {
-        long contact = gerer.creer(condom, durand("jeanne.durand@exemple.fr", Set.of()), Canal.BACK_OFFICE).id();
-
-        assertThatThrownBy(() -> gerer.designer(condom, new SaisieDesignations(null, contact, "compta@exemple.fr"), Canal.BACK_OFFICE))
-                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-23");
-        assertThatThrownBy(() -> gerer.designer(condom, new SaisieDesignations(null, null, "compta@"), Canal.BACK_OFFICE))
-                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-24");
-
-        var designe = gerer.designer(condom, new SaisieDesignations(contact, contact, null), Canal.BACK_OFFICE);
-        assertThat(designe.emailFacturation().orElseThrow().valeur()).isEqualTo("jeanne.durand@exemple.fr");
-        assertThat(gerer.consulter(condom, contact).contactPrincipal()).isTrue();
+        assertThat(memoire.contacts.parId(contact.id())).isEmpty();
+        assertThat(memoire.fiches.parId(fiche)).isEmpty();
+        assertThat(memoire.invitations.tous()).extracting(i -> i.statut()).containsExactly(StatutInvitation.ANNULEE);
+        assertThat(memoire.operateurs.parId(durand).orElseThrow().contactPrincipal()).isEmpty();
+        assertThat(memoire.operateurs.parId(durand).orElseThrow().destinataireFactures()).isEmpty();
+        assertThat(memoire.journal.derniere().action()).isEqualTo(ActionJournal.CONTACT_SUPPRIME);
     }
 }

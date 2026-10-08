@@ -17,8 +17,9 @@ public class GererPays extends GererValeurs<Pays> {
     private final PaysLecture lecture;
     private final ZoneCommercialeRepository zones;
 
-    public GererPays(PaysRepository repository, PaysLecture lecture, ZoneCommercialeRepository zones) {
-        super(repository, "pays");
+    public GererPays(PaysRepository repository, PaysLecture lecture, ZoneCommercialeRepository zones,
+            ControleParametrage controle) {
+        super(repository, "pays", controle);
         this.repository = repository;
         this.lecture = lecture;
         this.zones = zones;
@@ -29,7 +30,8 @@ public class GererPays extends GererValeurs<Pays> {
     }
 
     /** RG-REF-01, 03, 05 à 09. */
-    public Pays creer(SaisiePays saisie) {
+    public Pays creer(long acteur, SaisiePays saisie) {
+        exigerParametrage(acteur);
         Code code = Code.de(saisie.code());
         Libelle libelle = Libelle.de(saisie.libelle());
         DescriptionPays description = description(saisie);
@@ -42,7 +44,8 @@ public class GererPays extends GererValeurs<Pays> {
      * Tout se corrige, code compris (RG-REF-02). La zone n'est contrôlée que si elle change : un pays
      * garde sa zone même si elle a été désactivée depuis (RG-REF-05).
      */
-    public Pays modifier(long id, SaisiePays saisie) {
+    public Pays modifier(long acteur, long id, SaisiePays saisie) {
+        exigerParametrage(acteur);
         Code code = Code.de(saisie.code());
         Libelle libelle = Libelle.de(saisie.libelle());
         DescriptionPays description = description(saisie);

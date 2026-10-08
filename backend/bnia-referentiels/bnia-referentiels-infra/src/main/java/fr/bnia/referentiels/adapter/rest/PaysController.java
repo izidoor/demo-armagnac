@@ -1,5 +1,6 @@
 package fr.bnia.referentiels.adapter.rest;
 
+import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.referentiels.application.FiltreValeurs;
 import fr.bnia.referentiels.application.GererPays;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,32 +47,32 @@ class PaysController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "creerPays", summary = "Créer un pays (RG-REF-01, 03, 05 à 09)")
-    PaysResponse creer(@RequestBody SaisiePaysRequest requete) {
-        return PaysResponse.depuis(gerer.creer(requete.versSaisie()));
+    PaysResponse creer(Connecte connecte, @RequestBody SaisiePaysRequest requete) {
+        return PaysResponse.depuis(gerer.creer(connecte.utilisateur(), requete.versSaisie()));
     }
 
     @PutMapping("/{id}")
     @Operation(operationId = "modifierPays", summary = "Modifier un pays, code compris (RG-REF-01 à 03, 05 à 09)")
-    PaysResponse modifier(@PathVariable long id, @RequestBody SaisiePaysRequest requete) {
-        return PaysResponse.depuis(gerer.modifier(id, requete.versSaisie()));
+    PaysResponse modifier(Connecte connecte, @PathVariable long id, @RequestBody SaisiePaysRequest requete) {
+        return PaysResponse.depuis(gerer.modifier(connecte.utilisateur(), id, requete.versSaisie()));
     }
 
     @PostMapping("/{id}/desactivation")
     @Operation(operationId = "desactiverPays", summary = "Désactiver un pays (RG-REF-04)")
-    PaysResponse desactiver(@PathVariable long id) {
-        return PaysResponse.depuis(gerer.desactiver(id));
+    PaysResponse desactiver(Connecte connecte, @PathVariable long id) {
+        return PaysResponse.depuis(gerer.desactiver(connecte.utilisateur(), id));
     }
 
     @PostMapping("/{id}/reactivation")
     @Operation(operationId = "reactiverPays", summary = "Réactiver un pays (RG-REF-04)")
-    PaysResponse reactiver(@PathVariable long id) {
-        return PaysResponse.depuis(gerer.reactiver(id));
+    PaysResponse reactiver(Connecte connecte, @PathVariable long id) {
+        return PaysResponse.depuis(gerer.reactiver(connecte.utilisateur(), id));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "supprimerPays", summary = "Supprimer un pays qu'aucune autre donnée n'utilise (RG-REF-04)")
-    void supprimer(@PathVariable long id) {
-        gerer.supprimer(id);
+    void supprimer(Connecte connecte, @PathVariable long id) {
+        gerer.supprimer(connecte.utilisateur(), id);
     }
 }

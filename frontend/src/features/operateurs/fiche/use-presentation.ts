@@ -2,16 +2,16 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type PresentationOperateur } from '@/api/generated'
 import { lireProbleme } from '@/lib/probleme'
-import { apiOperateur, type Espace } from '../commun/api'
+import { apiOperateur } from '../commun/api'
 
 /**
  * État partagé des trois onglets de présentation (Marques, Visites et labels, Œnotourisme) : un seul
  * agrégat, enregistré d'un bloc (ADR-012). Le brouillon n'existe qu'entre la première modification et
  * l'enregistrement.
  */
-export function usePresentation(espace: Espace, id: number) {
+export function usePresentation(id: number) {
   const queryClient = useQueryClient()
-  const api = apiOperateur(espace, id)
+  const api = apiOperateur(id)
   const cle = ['presentation', id]
   const requete = useQuery({ queryKey: cle, queryFn: api.presentation })
   const [brouillon, setBrouillon] = useState<PresentationOperateur | null>(null)

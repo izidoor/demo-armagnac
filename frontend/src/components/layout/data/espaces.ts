@@ -1,37 +1,53 @@
 import {
-  ArrowLeftRight,
   Building2,
+  Contact,
   Globe,
+  History,
+  Landmark,
   LayoutDashboard,
   Percent,
   Tags,
+  UserCog,
   Users,
 } from 'lucide-react'
 import { type Espace } from '../types'
 
+/**
+ * Back-office : l'opérateur actif est le BNIA (RG-OPE-49). Tous ses rôles lisent ces menus (spec 02
+ * §3.2.7) ; les actions suivent les droits, vérifiés par le serveur.
+ */
 export const espaceBackOffice: Espace = {
   nom: 'Back-office BNIA',
   description: 'Gestion interne',
   url: '/bo',
-  user: {
-    name: 'Agent BNIA',
-    email: 'agent@armagnac.fr',
-    avatar: '',
-  },
   navGroups: [
     {
       title: 'Général',
       items: [{ title: 'Accueil', url: '/bo', icon: LayoutDashboard }],
     },
     {
-      // Opérateurs (spec 02, §6.1). Droit « Gestion des opérateurs : Lecture, Écriture » appliqué avec
-      // le contexte acces ; d'ici là, tout utilisateur du back-office administre.
+      // Spec 02, §6.1.
       title: 'Opérateurs',
-      items: [{ title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 }],
+      items: [
+        { title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 },
+        { title: 'BNIA', url: '/bo/bnia', icon: Landmark },
+      ],
     },
     {
-      // Référentiels (spec 01, §6.1). Droits « Référentiels métier : Gérer » et « Taux de TVA :
-      // Gérer » appliqués avec le contexte acces ; d'ici là, tout utilisateur du back-office administre.
+      // Spec 02, §6.1 et spec 03, §6.2 : module Accès.
+      title: 'Accès',
+      items: [
+        { title: 'Utilisateurs', url: '/bo/acces/utilisateurs', icon: UserCog },
+        {
+          title: 'Journal des connexions',
+          url: '/bo/acces/connexions',
+          icon: History,
+        },
+      ],
+    },
+    {
+      // Référentiels (spec 01, §6.1), module Paramétrage : lu par tout le personnel du BNIA, géré par
+      // ses agents et administrateurs.
       title: 'Paramétrage',
       items: [
         {
@@ -80,31 +96,21 @@ export const espaceBackOffice: Espace = {
         { title: 'TVA', url: '/bo/parametrage/classes-tva', icon: Percent },
       ],
     },
-    {
-      title: 'Espaces',
-      items: [
-        { title: 'Portail opérateur', url: '/portail', icon: ArrowLeftRight },
-      ],
-    },
   ],
 }
 
+/** Portail : l'opérateur actif est un autre opérateur (RG-OPE-49) ; tout membre lit ces menus. */
 export const espacePortail: Espace = {
   nom: 'Portail opérateur',
   description: 'Espace des opérateurs',
   url: '/portail',
-  user: {
-    name: 'Opérateur',
-    email: 'operateur@example.fr',
-    avatar: '',
-  },
   navGroups: [
     {
       title: 'Général',
       items: [{ title: 'Accueil', url: '/portail', icon: LayoutDashboard }],
     },
     {
-      // Spec 02, §6.2 : l'opérateur de démonstration tant que le contexte acces n'existe pas.
+      // Spec 02, §6.2.
       title: 'Mon entreprise',
       items: [
         {
@@ -112,12 +118,8 @@ export const espacePortail: Espace = {
           url: '/portail/entreprise',
           icon: Building2,
         },
-        { title: 'Contacts', url: '/portail/contacts', icon: Users },
+        { title: 'Annuaire', url: '/portail/annuaire', icon: Contact },
       ],
-    },
-    {
-      title: 'Espaces',
-      items: [{ title: 'Back-office BNIA', url: '/bo', icon: ArrowLeftRight }],
     },
   ],
 }

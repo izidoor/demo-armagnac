@@ -10,7 +10,7 @@
     </parent>
     <artifactId>bnia-operateurs-infra</artifactId>
     <name>BNIA : operateurs, infra</name>
-    <description>Contexte operateurs : adapters REST, persistance, événements, export Excel.</description>
+    <description>Contexte operateurs : adapters REST, persistance, événements, e-mails, export Excel.</description>
     <dependencies>
         <dependency>
             <groupId>fr.bnia</groupId>
@@ -31,6 +31,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <!-- E-mails : invitations, changement d'e-mail, blocage (RG-OPE-40, 48, 50) ; SMTP, Mailpit en dev (H-AUT-3). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
         <!-- Export Excel du listing (RG-OPE-38), sans Apache POI (décision du 2026-10-06). -->
         <dependency>

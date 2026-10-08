@@ -9,7 +9,7 @@ import fr.bnia.operateurs.domain.partage.TypeOperateur;
  * Paramètres déclaratifs d'un opérateur (C.1.1.1 p.101, C.1.1.2 p.102) : périodicité DSM et statut de
  * déclaration de stock, contrôlés selon le type (RG-OPE-01, 10, 11).
  *
- * @param periodicite {@code null} pour un opérateur {@code AUTRE}
+ * @param periodicite {@code null} pour un opérateur qui ne déclare pas ({@code AUTRE}, {@code BNIA})
  */
 public record Declaratif(PeriodiciteDsm periodicite, StatutDeclarationStock statut) {
 
@@ -23,12 +23,14 @@ public record Declaratif(PeriodiciteDsm periodicite, StatutDeclarationStock stat
         if (statut == null) {
             throw new RegleEnfreinte("RG-OPE-11", "Le statut de déclaration de stock est obligatoire.");
         }
-        if (type == TypeOperateur.AUTRE) {
+        if (!type.declare()) {
             if (periodicite != null) {
-                throw new RegleEnfreinte("RG-OPE-01", "Un opérateur « Autre » ne déclare pas : il n'a pas de périodicité DSM.");
+                throw new RegleEnfreinte("RG-OPE-01",
+                        "Un opérateur « " + type.libelle() + " » ne déclare pas : il n'a pas de périodicité DSM.");
             }
             if (statut == StatutDeclarationStock.OUI) {
-                throw new RegleEnfreinte("RG-OPE-11", "Un opérateur « Autre » ne peut pas avoir le statut de déclaration « Oui ».");
+                throw new RegleEnfreinte("RG-OPE-11",
+                        "Un opérateur « " + type.libelle() + " » ne peut pas avoir le statut de déclaration « Oui ».");
             }
         } else if (periodicite == null) {
             throw new RegleEnfreinte("RG-OPE-10", "La périodicité DSM est obligatoire pour un " + type.libelle().toLowerCase() + ".");
@@ -39,12 +41,12 @@ public record Declaratif(PeriodiciteDsm periodicite, StatutDeclarationStock stat
      * Changement de type (décision du 2026-10-06, lot 3) : rien ne change, sauf ce que le nouveau type
      * interdit. Vers {@code AUTRE} : plus de périodicité, et {@code OUI} devient {@code NON}. Depuis
      * {@code AUTRE} : valeurs par défaut du nouveau type. Entre producteur et négociant : inchangé
-     * (RG-OPE-10), l'écran suggère la valeur par défaut.
+     * (RG-OPE-10), l'écran suggère la valeur par défaut. Le type {@code BNIA} ne change jamais (RG-OPE-39).
      */
     Declaratif ajustePour(TypeOperateur ancien, TypeOperateur nouveau) {
-        if (nouveau == TypeOperateur.AUTRE) {
+        if (!nouveau.declare()) {
             return new Declaratif(null, statut == StatutDeclarationStock.OUI ? StatutDeclarationStock.NON : statut);
         }
-        return ancien == TypeOperateur.AUTRE ? parDefaut(nouveau) : this;
+        return ancien.declare() ? this : parDefaut(nouveau);
     }
 }
