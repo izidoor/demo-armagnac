@@ -42,10 +42,22 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
   passer par des ports ou des événements. Trois exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et les parties publiées en lecture de `referentiels`
   (`fr.bnia.referentiels.*.partage`, ADR-008) et de `operateurs` (`fr.bnia.operateurs.*.partage`,
-  ADR-012). Référence entre contextes par identifiant technique, avec clé étrangère (ADR-011).
+  ADR-012). Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
+  Exceptions sans clé étrangère : l'auteur d'une action (identifiant de l'utilisateur et copie de son nom,
+  l'utilisateur pouvant être supprimé) et le compte de connexion de `authentification` (ADR-011 amendé).
 - Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
   par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée du contexte dont l'autre
-  dépend, jamais de cycle (ADR-013).
+  dépend, jamais de cycle (ADR-013). Jamais de secret (mot de passe) dans un événement.
+- Personnes et droits (ADR-016) : dans `operateurs`. Rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN`, un par
+  rattachement ; modules lus ou gérés par rôle ; le BNIA est un opérateur (type `BNIA`) dont les rôles
+  valent pour tous les opérateurs. **Les droits se vérifient dans les cas d'usage** : le controller passe
+  l'`Acteur`, le cas d'usage obtient ses `Droits` sur l'opérateur concerné, et chaque cas d'usage a un
+  test de refus. **Chaque nouveau contexte déclare son module** dans le tableau rôles × modules (spec 02
+  §3.2.7).
+- `authentification` (ADR-015) : preuve d'identité, sans métier ni droit ; dépend de `operateurs` (partie
+  publiée, événements `UtilisateurCree`, `EmailUtilisateurModifie`, `UtilisateurSupprime`). Session
+  serveur Spring Session JDBC ; une seule connexion pour tous, l'opérateur actif décide de l'espace
+  (back-office pour l'opérateur BNIA, portail sinon).
 
 ## Persistance
 - Écriture : Spring Data JDBC, un repository par racine d'agrégat. Les classes de persistance
