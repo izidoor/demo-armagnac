@@ -10,7 +10,60 @@ import {
   UserCog,
   Users,
 } from 'lucide-react'
-import { type Espace } from '../types'
+import { type Espace, type NavGroup } from '../types'
+
+/**
+ * Référentiels (spec 01, §6.1), module Paramétrage : lu par tout le personnel du BNIA, géré par ses agents
+ * et administrateurs. Hors de la barre latérale : rubriques de la page Paramétrage, ouverte par la roue
+ * crantée de l'en-tête. Quatre sections, chacune enchaînant ses référentiels ; chaque référentiel mène à
+ * sa section, pour la recherche.
+ */
+const GEOGRAPHIE = '/bo/parametrage/geographie'
+const QUALIFICATION = '/bo/parametrage/qualification'
+const COMMERCIALISATION = '/bo/parametrage/commercialisation'
+const TVA = '/bo/parametrage/classes-tva'
+
+export const parametrage: NavGroup = {
+  title: 'Paramétrage',
+  items: [
+    {
+      title: 'Codes géographiques',
+      icon: Globe,
+      items: [
+        { title: 'Zones commerciales', url: GEOGRAPHIE },
+        { title: 'Pays', url: GEOGRAPHIE },
+        { title: 'Régions', url: GEOGRAPHIE },
+      ],
+    },
+    {
+      title: 'Qualification',
+      icon: Users,
+      items: [
+        { title: 'Titres', url: QUALIFICATION },
+        { title: 'Membres BNIA', url: QUALIFICATION },
+        { title: "Centres d'intérêt", url: QUALIFICATION },
+        { title: 'Langues', url: QUALIFICATION },
+        { title: 'Types de visite', url: QUALIFICATION },
+        { title: 'Labels', url: QUALIFICATION },
+      ],
+    },
+    {
+      title: 'Commercialisation',
+      icon: Tags,
+      items: [
+        { title: 'Produits commercialisés', url: COMMERCIALISATION },
+        { title: 'Contenances', url: COMMERCIALISATION },
+        { title: 'Circuits de distribution', url: COMMERCIALISATION },
+        { title: 'Marques', url: COMMERCIALISATION },
+      ],
+    },
+    {
+      title: 'TVA',
+      icon: Percent,
+      items: [{ title: 'Classes de TVA', url: TVA }],
+    },
+  ],
+}
 
 /**
  * Back-office : l'opérateur actif est le BNIA (RG-OPE-49). Tous ses rôles lisent ces menus (spec 02
@@ -20,6 +73,7 @@ export const espaceBackOffice: Espace = {
   nom: 'Back-office BNIA',
   description: 'Gestion interne',
   url: '/bo',
+  autresPages: [parametrage],
   navGroups: [
     {
       title: 'Général',
@@ -29,8 +83,8 @@ export const espaceBackOffice: Espace = {
       // Spec 02, §6.1.
       title: 'Opérateurs',
       items: [
-        { title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 },
         { title: 'BNIA', url: '/bo/bnia', icon: Landmark },
+        { title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 },
       ],
     },
     {
@@ -43,57 +97,6 @@ export const espaceBackOffice: Espace = {
           url: '/bo/acces/connexions',
           icon: History,
         },
-      ],
-    },
-    {
-      // Référentiels (spec 01, §6.1), module Paramétrage : lu par tout le personnel du BNIA, géré par
-      // ses agents et administrateurs.
-      title: 'Paramétrage',
-      items: [
-        {
-          title: 'Géographie',
-          icon: Globe,
-          items: [
-            {
-              title: 'Zones commerciales',
-              url: '/bo/parametrage/zones-commerciales',
-            },
-            { title: 'Pays', url: '/bo/parametrage/pays' },
-            { title: 'Régions', url: '/bo/parametrage/regions' },
-          ],
-        },
-        {
-          title: 'Qualification',
-          icon: Users,
-          items: [
-            { title: 'Titres', url: '/bo/parametrage/titres' },
-            { title: 'Labels', url: '/bo/parametrage/labels' },
-            { title: 'Types de visite', url: '/bo/parametrage/types-visite' },
-            { title: 'Langues', url: '/bo/parametrage/langues' },
-            {
-              title: "Centres d'intérêt",
-              url: '/bo/parametrage/centres-interet',
-            },
-            { title: 'Membres BNIA', url: '/bo/parametrage/membres-bnia' },
-          ],
-        },
-        {
-          title: 'Présentation et commercialisation',
-          icon: Tags,
-          items: [
-            { title: 'Marques', url: '/bo/parametrage/marques' },
-            {
-              title: 'Circuits de distribution',
-              url: '/bo/parametrage/circuits-distribution',
-            },
-            {
-              title: 'Produits commercialisés',
-              url: '/bo/parametrage/produits-commercialises',
-            },
-            { title: 'Contenances', url: '/bo/parametrage/contenances' },
-          ],
-        },
-        { title: 'TVA', url: '/bo/parametrage/classes-tva', icon: Percent },
       ],
     },
   ],

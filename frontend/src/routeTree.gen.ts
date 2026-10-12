@@ -29,21 +29,13 @@ import { Route as authInvitationRouteImport } from './routes/(auth)/invitation'
 import { Route as authConnexionRouteImport } from './routes/(auth)/connexion'
 import { Route as authChoixOperateurRouteImport } from './routes/(auth)/choix-operateur'
 import { Route as authChangementEmailRouteImport } from './routes/(auth)/changement-email'
+import { Route as BoParametrageRouteRouteImport } from './routes/bo/parametrage/route'
 import { Route as PortailAnnuaireIndexRouteImport } from './routes/portail/annuaire/index'
+import { Route as BoParametrageIndexRouteImport } from './routes/bo/parametrage/index'
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
-import { Route as BoParametrageZonesCommercialesRouteImport } from './routes/bo/parametrage/zones-commerciales'
-import { Route as BoParametrageTypesVisiteRouteImport } from './routes/bo/parametrage/types-visite'
-import { Route as BoParametrageTitresRouteImport } from './routes/bo/parametrage/titres'
-import { Route as BoParametrageRegionsRouteImport } from './routes/bo/parametrage/regions'
-import { Route as BoParametrageProduitsCommercialisesRouteImport } from './routes/bo/parametrage/produits-commercialises'
-import { Route as BoParametragePaysRouteImport } from './routes/bo/parametrage/pays'
-import { Route as BoParametrageMembresBniaRouteImport } from './routes/bo/parametrage/membres-bnia'
-import { Route as BoParametrageMarquesRouteImport } from './routes/bo/parametrage/marques'
-import { Route as BoParametrageLanguesRouteImport } from './routes/bo/parametrage/langues'
-import { Route as BoParametrageLabelsRouteImport } from './routes/bo/parametrage/labels'
-import { Route as BoParametrageContenancesRouteImport } from './routes/bo/parametrage/contenances'
-import { Route as BoParametrageCircuitsDistributionRouteImport } from './routes/bo/parametrage/circuits-distribution'
-import { Route as BoParametrageCentresInteretRouteImport } from './routes/bo/parametrage/centres-interet'
+import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
+import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
+import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
 import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
 import { Route as BoOperateursIdIndexRouteImport } from './routes/bo/operateurs/$id/index'
@@ -153,87 +145,42 @@ const authChangementEmailRoute = authChangementEmailRouteImport.update({
   path: '/changement-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoParametrageRouteRoute = BoParametrageRouteRouteImport.update({
+  id: '/parametrage',
+  path: '/parametrage',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const PortailAnnuaireIndexRoute = PortailAnnuaireIndexRouteImport.update({
   id: '/annuaire/',
   path: '/annuaire/',
   getParentRoute: () => PortailRouteRoute,
+} as any)
+const BoParametrageIndexRoute = BoParametrageIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BoParametrageRouteRoute,
 } as any)
 const BoOperateursIndexRoute = BoOperateursIndexRouteImport.update({
   id: '/operateurs/',
   path: '/operateurs/',
   getParentRoute: () => BoRouteRoute,
 } as any)
-const BoParametrageZonesCommercialesRoute =
-  BoParametrageZonesCommercialesRouteImport.update({
-    id: '/parametrage/zones-commerciales',
-    path: '/parametrage/zones-commerciales',
-    getParentRoute: () => BoRouteRoute,
+const BoParametrageQualificationRoute =
+  BoParametrageQualificationRouteImport.update({
+    id: '/qualification',
+    path: '/qualification',
+    getParentRoute: () => BoParametrageRouteRoute,
   } as any)
-const BoParametrageTypesVisiteRoute =
-  BoParametrageTypesVisiteRouteImport.update({
-    id: '/parametrage/types-visite',
-    path: '/parametrage/types-visite',
-    getParentRoute: () => BoRouteRoute,
-  } as any)
-const BoParametrageTitresRoute = BoParametrageTitresRouteImport.update({
-  id: '/parametrage/titres',
-  path: '/parametrage/titres',
-  getParentRoute: () => BoRouteRoute,
+const BoParametrageGeographieRoute = BoParametrageGeographieRouteImport.update({
+  id: '/geographie',
+  path: '/geographie',
+  getParentRoute: () => BoParametrageRouteRoute,
 } as any)
-const BoParametrageRegionsRoute = BoParametrageRegionsRouteImport.update({
-  id: '/parametrage/regions',
-  path: '/parametrage/regions',
-  getParentRoute: () => BoRouteRoute,
-} as any)
-const BoParametrageProduitsCommercialisesRoute =
-  BoParametrageProduitsCommercialisesRouteImport.update({
-    id: '/parametrage/produits-commercialises',
-    path: '/parametrage/produits-commercialises',
-    getParentRoute: () => BoRouteRoute,
-  } as any)
-const BoParametragePaysRoute = BoParametragePaysRouteImport.update({
-  id: '/parametrage/pays',
-  path: '/parametrage/pays',
-  getParentRoute: () => BoRouteRoute,
-} as any)
-const BoParametrageMembresBniaRoute =
-  BoParametrageMembresBniaRouteImport.update({
-    id: '/parametrage/membres-bnia',
-    path: '/parametrage/membres-bnia',
-    getParentRoute: () => BoRouteRoute,
-  } as any)
-const BoParametrageMarquesRoute = BoParametrageMarquesRouteImport.update({
-  id: '/parametrage/marques',
-  path: '/parametrage/marques',
-  getParentRoute: () => BoRouteRoute,
-} as any)
-const BoParametrageLanguesRoute = BoParametrageLanguesRouteImport.update({
-  id: '/parametrage/langues',
-  path: '/parametrage/langues',
-  getParentRoute: () => BoRouteRoute,
-} as any)
-const BoParametrageLabelsRoute = BoParametrageLabelsRouteImport.update({
-  id: '/parametrage/labels',
-  path: '/parametrage/labels',
-  getParentRoute: () => BoRouteRoute,
-} as any)
-const BoParametrageContenancesRoute =
-  BoParametrageContenancesRouteImport.update({
-    id: '/parametrage/contenances',
-    path: '/parametrage/contenances',
-    getParentRoute: () => BoRouteRoute,
-  } as any)
-const BoParametrageCircuitsDistributionRoute =
-  BoParametrageCircuitsDistributionRouteImport.update({
-    id: '/parametrage/circuits-distribution',
-    path: '/parametrage/circuits-distribution',
-    getParentRoute: () => BoRouteRoute,
-  } as any)
-const BoParametrageCentresInteretRoute =
-  BoParametrageCentresInteretRouteImport.update({
-    id: '/parametrage/centres-interet',
-    path: '/parametrage/centres-interet',
-    getParentRoute: () => BoRouteRoute,
+const BoParametrageCommercialisationRoute =
+  BoParametrageCommercialisationRouteImport.update({
+    id: '/commercialisation',
+    path: '/commercialisation',
+    getParentRoute: () => BoParametrageRouteRoute,
   } as any)
 const BoAccesConnexionsRoute = BoAccesConnexionsRouteImport.update({
   id: '/acces/connexions',
@@ -242,9 +189,9 @@ const BoAccesConnexionsRoute = BoAccesConnexionsRouteImport.update({
 } as any)
 const BoParametrageClassesTvaIndexRoute =
   BoParametrageClassesTvaIndexRouteImport.update({
-    id: '/parametrage/classes-tva/',
-    path: '/parametrage/classes-tva/',
-    getParentRoute: () => BoRouteRoute,
+    id: '/classes-tva/',
+    path: '/classes-tva/',
+    getParentRoute: () => BoParametrageRouteRoute,
   } as any)
 const BoOperateursIdIndexRoute = BoOperateursIdIndexRouteImport.update({
   id: '/operateurs/$id/',
@@ -265,9 +212,9 @@ const PortailAnnuaireGenrePersonneRoute =
   } as any)
 const BoParametrageClassesTvaIdRoute =
   BoParametrageClassesTvaIdRouteImport.update({
-    id: '/parametrage/classes-tva/$id',
-    path: '/parametrage/classes-tva/$id',
-    getParentRoute: () => BoRouteRoute,
+    id: '/classes-tva/$id',
+    path: '/classes-tva/$id',
+    getParentRoute: () => BoParametrageRouteRoute,
   } as any)
 const BoAccesUtilisateursIdRoute = BoAccesUtilisateursIdRouteImport.update({
   id: '/acces/utilisateurs/$id',
@@ -285,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bo': typeof BoRouteRouteWithChildren
   '/portail': typeof PortailRouteRouteWithChildren
+  '/bo/parametrage': typeof BoParametrageRouteRouteWithChildren
   '/changement-email': typeof authChangementEmailRoute
   '/choix-operateur': typeof authChoixOperateurRoute
   '/connexion': typeof authConnexionRoute
@@ -303,20 +251,11 @@ export interface FileRoutesByFullPath {
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
-  '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
-  '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
-  '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
-  '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
-  '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
-  '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
-  '/bo/parametrage/membres-bnia': typeof BoParametrageMembresBniaRoute
-  '/bo/parametrage/pays': typeof BoParametragePaysRoute
-  '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
-  '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
-  '/bo/parametrage/titres': typeof BoParametrageTitresRoute
-  '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
-  '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
+  '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
+  '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
@@ -346,20 +285,11 @@ export interface FileRoutesByTo {
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
-  '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
-  '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
-  '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
-  '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
-  '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
-  '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
-  '/bo/parametrage/membres-bnia': typeof BoParametrageMembresBniaRoute
-  '/bo/parametrage/pays': typeof BoParametragePaysRoute
-  '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
-  '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
-  '/bo/parametrage/titres': typeof BoParametrageTitresRoute
-  '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
-  '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
+  '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
+  '/bo/parametrage': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
@@ -374,6 +304,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bo': typeof BoRouteRouteWithChildren
   '/portail': typeof PortailRouteRouteWithChildren
+  '/bo/parametrage': typeof BoParametrageRouteRouteWithChildren
   '/(auth)/changement-email': typeof authChangementEmailRoute
   '/(auth)/choix-operateur': typeof authChoixOperateurRoute
   '/(auth)/connexion': typeof authConnexionRoute
@@ -392,20 +323,11 @@ export interface FileRoutesById {
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
-  '/bo/parametrage/centres-interet': typeof BoParametrageCentresInteretRoute
-  '/bo/parametrage/circuits-distribution': typeof BoParametrageCircuitsDistributionRoute
-  '/bo/parametrage/contenances': typeof BoParametrageContenancesRoute
-  '/bo/parametrage/labels': typeof BoParametrageLabelsRoute
-  '/bo/parametrage/langues': typeof BoParametrageLanguesRoute
-  '/bo/parametrage/marques': typeof BoParametrageMarquesRoute
-  '/bo/parametrage/membres-bnia': typeof BoParametrageMembresBniaRoute
-  '/bo/parametrage/pays': typeof BoParametragePaysRoute
-  '/bo/parametrage/produits-commercialises': typeof BoParametrageProduitsCommercialisesRoute
-  '/bo/parametrage/regions': typeof BoParametrageRegionsRoute
-  '/bo/parametrage/titres': typeof BoParametrageTitresRoute
-  '/bo/parametrage/types-visite': typeof BoParametrageTypesVisiteRoute
-  '/bo/parametrage/zones-commerciales': typeof BoParametrageZonesCommercialesRoute
+  '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
+  '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
+  '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire/': typeof PortailAnnuaireIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
@@ -421,6 +343,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bo'
     | '/portail'
+    | '/bo/parametrage'
     | '/changement-email'
     | '/choix-operateur'
     | '/connexion'
@@ -439,20 +362,11 @@ export interface FileRouteTypes {
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
-    | '/bo/parametrage/centres-interet'
-    | '/bo/parametrage/circuits-distribution'
-    | '/bo/parametrage/contenances'
-    | '/bo/parametrage/labels'
-    | '/bo/parametrage/langues'
-    | '/bo/parametrage/marques'
-    | '/bo/parametrage/membres-bnia'
-    | '/bo/parametrage/pays'
-    | '/bo/parametrage/produits-commercialises'
-    | '/bo/parametrage/regions'
-    | '/bo/parametrage/titres'
-    | '/bo/parametrage/types-visite'
-    | '/bo/parametrage/zones-commerciales'
+    | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/geographie'
+    | '/bo/parametrage/qualification'
     | '/bo/operateurs'
+    | '/bo/parametrage/'
     | '/portail/annuaire'
     | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
@@ -482,20 +396,11 @@ export interface FileRouteTypes {
     | '/bo'
     | '/portail'
     | '/bo/acces/connexions'
-    | '/bo/parametrage/centres-interet'
-    | '/bo/parametrage/circuits-distribution'
-    | '/bo/parametrage/contenances'
-    | '/bo/parametrage/labels'
-    | '/bo/parametrage/langues'
-    | '/bo/parametrage/marques'
-    | '/bo/parametrage/membres-bnia'
-    | '/bo/parametrage/pays'
-    | '/bo/parametrage/produits-commercialises'
-    | '/bo/parametrage/regions'
-    | '/bo/parametrage/titres'
-    | '/bo/parametrage/types-visite'
-    | '/bo/parametrage/zones-commerciales'
+    | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/geographie'
+    | '/bo/parametrage/qualification'
     | '/bo/operateurs'
+    | '/bo/parametrage'
     | '/portail/annuaire'
     | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
@@ -509,6 +414,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bo'
     | '/portail'
+    | '/bo/parametrage'
     | '/(auth)/changement-email'
     | '/(auth)/choix-operateur'
     | '/(auth)/connexion'
@@ -527,20 +433,11 @@ export interface FileRouteTypes {
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
-    | '/bo/parametrage/centres-interet'
-    | '/bo/parametrage/circuits-distribution'
-    | '/bo/parametrage/contenances'
-    | '/bo/parametrage/labels'
-    | '/bo/parametrage/langues'
-    | '/bo/parametrage/marques'
-    | '/bo/parametrage/membres-bnia'
-    | '/bo/parametrage/pays'
-    | '/bo/parametrage/produits-commercialises'
-    | '/bo/parametrage/regions'
-    | '/bo/parametrage/titres'
-    | '/bo/parametrage/types-visite'
-    | '/bo/parametrage/zones-commerciales'
+    | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/geographie'
+    | '/bo/parametrage/qualification'
     | '/bo/operateurs/'
+    | '/bo/parametrage/'
     | '/portail/annuaire/'
     | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
@@ -710,12 +607,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authChangementEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bo/parametrage': {
+      id: '/bo/parametrage'
+      path: '/parametrage'
+      fullPath: '/bo/parametrage'
+      preLoaderRoute: typeof BoParametrageRouteRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/portail/annuaire/': {
       id: '/portail/annuaire/'
       path: '/annuaire'
       fullPath: '/portail/annuaire'
       preLoaderRoute: typeof PortailAnnuaireIndexRouteImport
       parentRoute: typeof PortailRouteRoute
+    }
+    '/bo/parametrage/': {
+      id: '/bo/parametrage/'
+      path: '/'
+      fullPath: '/bo/parametrage/'
+      preLoaderRoute: typeof BoParametrageIndexRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
     }
     '/bo/operateurs/': {
       id: '/bo/operateurs/'
@@ -724,96 +635,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoOperateursIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
-    '/bo/parametrage/zones-commerciales': {
-      id: '/bo/parametrage/zones-commerciales'
-      path: '/parametrage/zones-commerciales'
-      fullPath: '/bo/parametrage/zones-commerciales'
-      preLoaderRoute: typeof BoParametrageZonesCommercialesRouteImport
-      parentRoute: typeof BoRouteRoute
+    '/bo/parametrage/qualification': {
+      id: '/bo/parametrage/qualification'
+      path: '/qualification'
+      fullPath: '/bo/parametrage/qualification'
+      preLoaderRoute: typeof BoParametrageQualificationRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
     }
-    '/bo/parametrage/types-visite': {
-      id: '/bo/parametrage/types-visite'
-      path: '/parametrage/types-visite'
-      fullPath: '/bo/parametrage/types-visite'
-      preLoaderRoute: typeof BoParametrageTypesVisiteRouteImport
-      parentRoute: typeof BoRouteRoute
+    '/bo/parametrage/geographie': {
+      id: '/bo/parametrage/geographie'
+      path: '/geographie'
+      fullPath: '/bo/parametrage/geographie'
+      preLoaderRoute: typeof BoParametrageGeographieRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
     }
-    '/bo/parametrage/titres': {
-      id: '/bo/parametrage/titres'
-      path: '/parametrage/titres'
-      fullPath: '/bo/parametrage/titres'
-      preLoaderRoute: typeof BoParametrageTitresRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/regions': {
-      id: '/bo/parametrage/regions'
-      path: '/parametrage/regions'
-      fullPath: '/bo/parametrage/regions'
-      preLoaderRoute: typeof BoParametrageRegionsRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/produits-commercialises': {
-      id: '/bo/parametrage/produits-commercialises'
-      path: '/parametrage/produits-commercialises'
-      fullPath: '/bo/parametrage/produits-commercialises'
-      preLoaderRoute: typeof BoParametrageProduitsCommercialisesRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/pays': {
-      id: '/bo/parametrage/pays'
-      path: '/parametrage/pays'
-      fullPath: '/bo/parametrage/pays'
-      preLoaderRoute: typeof BoParametragePaysRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/membres-bnia': {
-      id: '/bo/parametrage/membres-bnia'
-      path: '/parametrage/membres-bnia'
-      fullPath: '/bo/parametrage/membres-bnia'
-      preLoaderRoute: typeof BoParametrageMembresBniaRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/marques': {
-      id: '/bo/parametrage/marques'
-      path: '/parametrage/marques'
-      fullPath: '/bo/parametrage/marques'
-      preLoaderRoute: typeof BoParametrageMarquesRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/langues': {
-      id: '/bo/parametrage/langues'
-      path: '/parametrage/langues'
-      fullPath: '/bo/parametrage/langues'
-      preLoaderRoute: typeof BoParametrageLanguesRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/labels': {
-      id: '/bo/parametrage/labels'
-      path: '/parametrage/labels'
-      fullPath: '/bo/parametrage/labels'
-      preLoaderRoute: typeof BoParametrageLabelsRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/contenances': {
-      id: '/bo/parametrage/contenances'
-      path: '/parametrage/contenances'
-      fullPath: '/bo/parametrage/contenances'
-      preLoaderRoute: typeof BoParametrageContenancesRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/circuits-distribution': {
-      id: '/bo/parametrage/circuits-distribution'
-      path: '/parametrage/circuits-distribution'
-      fullPath: '/bo/parametrage/circuits-distribution'
-      preLoaderRoute: typeof BoParametrageCircuitsDistributionRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/parametrage/centres-interet': {
-      id: '/bo/parametrage/centres-interet'
-      path: '/parametrage/centres-interet'
-      fullPath: '/bo/parametrage/centres-interet'
-      preLoaderRoute: typeof BoParametrageCentresInteretRouteImport
-      parentRoute: typeof BoRouteRoute
+    '/bo/parametrage/commercialisation': {
+      id: '/bo/parametrage/commercialisation'
+      path: '/commercialisation'
+      fullPath: '/bo/parametrage/commercialisation'
+      preLoaderRoute: typeof BoParametrageCommercialisationRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
     }
     '/bo/acces/connexions': {
       id: '/bo/acces/connexions'
@@ -824,10 +665,10 @@ declare module '@tanstack/react-router' {
     }
     '/bo/parametrage/classes-tva/': {
       id: '/bo/parametrage/classes-tva/'
-      path: '/parametrage/classes-tva'
+      path: '/classes-tva'
       fullPath: '/bo/parametrage/classes-tva'
       preLoaderRoute: typeof BoParametrageClassesTvaIndexRouteImport
-      parentRoute: typeof BoRouteRoute
+      parentRoute: typeof BoParametrageRouteRoute
     }
     '/bo/operateurs/$id/': {
       id: '/bo/operateurs/$id/'
@@ -852,10 +693,10 @@ declare module '@tanstack/react-router' {
     }
     '/bo/parametrage/classes-tva/$id': {
       id: '/bo/parametrage/classes-tva/$id'
-      path: '/parametrage/classes-tva/$id'
+      path: '/classes-tva/$id'
       fullPath: '/bo/parametrage/classes-tva/$id'
       preLoaderRoute: typeof BoParametrageClassesTvaIdRouteImport
-      parentRoute: typeof BoRouteRoute
+      parentRoute: typeof BoParametrageRouteRoute
     }
     '/bo/acces/utilisateurs/$id': {
       id: '/bo/acces/utilisateurs/$id'
@@ -874,59 +715,50 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BoParametrageRouteRouteChildren {
+  BoParametrageCommercialisationRoute: typeof BoParametrageCommercialisationRoute
+  BoParametrageGeographieRoute: typeof BoParametrageGeographieRoute
+  BoParametrageQualificationRoute: typeof BoParametrageQualificationRoute
+  BoParametrageIndexRoute: typeof BoParametrageIndexRoute
+  BoParametrageClassesTvaIdRoute: typeof BoParametrageClassesTvaIdRoute
+  BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
+}
+
+const BoParametrageRouteRouteChildren: BoParametrageRouteRouteChildren = {
+  BoParametrageCommercialisationRoute: BoParametrageCommercialisationRoute,
+  BoParametrageGeographieRoute: BoParametrageGeographieRoute,
+  BoParametrageQualificationRoute: BoParametrageQualificationRoute,
+  BoParametrageIndexRoute: BoParametrageIndexRoute,
+  BoParametrageClassesTvaIdRoute: BoParametrageClassesTvaIdRoute,
+  BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,
+}
+
+const BoParametrageRouteRouteWithChildren =
+  BoParametrageRouteRoute._addFileChildren(BoParametrageRouteRouteChildren)
+
 interface BoRouteRouteChildren {
+  BoParametrageRouteRoute: typeof BoParametrageRouteRouteWithChildren
   BoBniaRoute: typeof BoBniaRoute
   BoCompteRoute: typeof BoCompteRoute
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
-  BoParametrageCentresInteretRoute: typeof BoParametrageCentresInteretRoute
-  BoParametrageCircuitsDistributionRoute: typeof BoParametrageCircuitsDistributionRoute
-  BoParametrageContenancesRoute: typeof BoParametrageContenancesRoute
-  BoParametrageLabelsRoute: typeof BoParametrageLabelsRoute
-  BoParametrageLanguesRoute: typeof BoParametrageLanguesRoute
-  BoParametrageMarquesRoute: typeof BoParametrageMarquesRoute
-  BoParametrageMembresBniaRoute: typeof BoParametrageMembresBniaRoute
-  BoParametragePaysRoute: typeof BoParametragePaysRoute
-  BoParametrageProduitsCommercialisesRoute: typeof BoParametrageProduitsCommercialisesRoute
-  BoParametrageRegionsRoute: typeof BoParametrageRegionsRoute
-  BoParametrageTitresRoute: typeof BoParametrageTitresRoute
-  BoParametrageTypesVisiteRoute: typeof BoParametrageTypesVisiteRoute
-  BoParametrageZonesCommercialesRoute: typeof BoParametrageZonesCommercialesRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
   BoAccesUtilisateursIdRoute: typeof BoAccesUtilisateursIdRoute
-  BoParametrageClassesTvaIdRoute: typeof BoParametrageClassesTvaIdRoute
   BoAccesUtilisateursIndexRoute: typeof BoAccesUtilisateursIndexRoute
   BoOperateursIdIndexRoute: typeof BoOperateursIdIndexRoute
-  BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
   BoOperateursIdPersonnesGenrePersonneRoute: typeof BoOperateursIdPersonnesGenrePersonneRoute
 }
 
 const BoRouteRouteChildren: BoRouteRouteChildren = {
+  BoParametrageRouteRoute: BoParametrageRouteRouteWithChildren,
   BoBniaRoute: BoBniaRoute,
   BoCompteRoute: BoCompteRoute,
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
-  BoParametrageCentresInteretRoute: BoParametrageCentresInteretRoute,
-  BoParametrageCircuitsDistributionRoute:
-    BoParametrageCircuitsDistributionRoute,
-  BoParametrageContenancesRoute: BoParametrageContenancesRoute,
-  BoParametrageLabelsRoute: BoParametrageLabelsRoute,
-  BoParametrageLanguesRoute: BoParametrageLanguesRoute,
-  BoParametrageMarquesRoute: BoParametrageMarquesRoute,
-  BoParametrageMembresBniaRoute: BoParametrageMembresBniaRoute,
-  BoParametragePaysRoute: BoParametragePaysRoute,
-  BoParametrageProduitsCommercialisesRoute:
-    BoParametrageProduitsCommercialisesRoute,
-  BoParametrageRegionsRoute: BoParametrageRegionsRoute,
-  BoParametrageTitresRoute: BoParametrageTitresRoute,
-  BoParametrageTypesVisiteRoute: BoParametrageTypesVisiteRoute,
-  BoParametrageZonesCommercialesRoute: BoParametrageZonesCommercialesRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
   BoAccesUtilisateursIdRoute: BoAccesUtilisateursIdRoute,
-  BoParametrageClassesTvaIdRoute: BoParametrageClassesTvaIdRoute,
   BoAccesUtilisateursIndexRoute: BoAccesUtilisateursIndexRoute,
   BoOperateursIdIndexRoute: BoOperateursIdIndexRoute,
-  BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,
   BoOperateursIdPersonnesGenrePersonneRoute:
     BoOperateursIdPersonnesGenrePersonneRoute,
 }

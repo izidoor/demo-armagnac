@@ -234,12 +234,11 @@ class OperateurIT extends AbstractIT {
         incomplete.remove("adresseLigne1");
         long idIncomplete = creer(URL, incomplete);
 
-        client.get().uri(u -> u.path(URL).queryParam("ville", ville.toLowerCase()).queryParam("type", "NEGOCIANT")
-                        .queryParam("codePostal", "32").build())
+        client.get().uri(u -> u.path(URL).queryParam("recherche", ville.toLowerCase()).queryParam("type", "NEGOCIANT").build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.length()").isEqualTo(2);
-        client.get().uri(u -> u.path(URL).queryParam("ville", ville).queryParam("incomplet", true).build())
+        client.get().uri(u -> u.path(URL).queryParam("recherche", ville).queryParam("incomplet", true).build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -252,6 +251,22 @@ class OperateurIT extends AbstractIT {
     }
 
     @Test
+    @DisplayName("Listing : une seule recherche dans le code, la raison sociale, le nom commercial, le code postal et la ville")
+    void listing_recherche_unique() {
+        String marque = suffixe();
+        var saisie = saisie("NEGOCIANT", "T" + marque, "Négoce " + suffixe(), "32100");
+        saisie.put("nomCommercial", "Enseigne " + marque);
+        long id = creer(URL, saisie);
+
+        for (String recherche : List.of("t" + marque, "enseigne " + marque.toLowerCase())) {
+            client.get().uri(u -> u.path(URL).queryParam("recherche", recherche).build())
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody().jsonPath("$[*].id").isEqualTo(List.of((int) id));
+        }
+    }
+
+    @Test
     @DisplayName("RG-OPE-25 et RG-OPE-26 : désactiver, réactiver, puis supprimer un opérateur que rien ne référence")
     void rg_ope_25_26_cycle_de_vie() {
         String ville = "Ville" + suffixe();
@@ -261,7 +276,7 @@ class OperateurIT extends AbstractIT {
 
         client.post().uri(URL + "/{id}/desactivation", id).exchange()
                 .expectStatus().isOk().expectBody().jsonPath("$.actif").isEqualTo(false);
-        client.get().uri(u -> u.path(URL).queryParam("ville", ville).queryParam("actif", true).build())
+        client.get().uri(u -> u.path(URL).queryParam("recherche", ville).queryParam("actif", true).build())
                 .exchange()
                 .expectBody().jsonPath("$.length()").isEqualTo(0);
         client.post().uri(URL + "/{id}/reactivation", id).exchange()

@@ -407,7 +407,7 @@ journalise (RG-OPE-34) et envoie ses e-mails après la validation de la transact
 
 | Cas d'usage | Objets | RG |
 |---|---|---|
-| Lister et rechercher les opérateurs : filtres type, code, raison sociale, nom commercial, code postal, ville (§4.3.1 p.18), actif, incomplet ; export Excel (opérateur BNIA) | `Operateur` | 02, 32, 38, 39 |
+| Lister et rechercher les opérateurs : type ; une seule recherche dans le code, la raison sociale, le nom commercial, le code postal et la ville (§4.3.1 p.18, décision du 2026-10-12) ; actif, incomplet ; export Excel (opérateur BNIA) | `Operateur` | 02, 32, 38, 39 |
 | Proposer un code pour un type et un code postal | `Operateur` | 03 |
 | Créer un opérateur, en invitant éventuellement un premier ADMIN (opérateur BNIA) | `Operateur`, `Invitation` | 01 à 12, 14, 15, 20, 21, 24, 32, 39, 40 |
 | Modifier l'identité, le déclaratif, la production | `Operateur` | 01 à 13, 20, 21, 24, 36, 51 |
@@ -472,8 +472,9 @@ deux espaces. Les entrées de menu et les actions s'affichent selon les droits (
 ### 6.1 Back-office (opérateur actif : BNIA)
 
 - **Menu « Opérateurs »** (tous rôles BNIA) : listing de tous les opérateurs sauf l'opérateur BNIA
-  (RG-OPE-39) ; filtres du §4.3.1 (type, code, raison sociale, nom commercial, code postal, ville), plus
-  actif / inactif et « fiche incomplète » ; colonnes type, code, raison sociale, nom commercial, code
+  (RG-OPE-39) ; filtre type et un seul champ de recherche, trouvé dans le code, la raison sociale, le nom
+  commercial, le code postal ou la ville (les cinq filtres texte du §4.3.1 p.18 réunis, décision du
+  2026-10-12), plus actif / inactif et « fiche incomplète » ; colonnes type, code, raison sociale, nom commercial, code
   postal, ville, téléphone 1, e-mail général ; ouverture directe de la fiche ; création (Contacts,
   gestion) ; export Excel (RG-OPE-38).
 - **Création** : type d'abord, puis code postal ; le code proposé se remplit (RG-OPE-03) et reste
@@ -681,3 +682,4 @@ Chaque RG-OPE-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-08 | Phase H : ADR-016 (personnes et accès dans `operateurs`) rédigé ; ADR-011, 012 et 013 amendés ; `CLAUDE.md` mis à jour. |
 | 2026-10-08 | Révision implémentée, avec la spec 03. Choix faits pendant l'implémentation, sans question : **endpoints unifiés** `/api/operateurs/{id}/…` pour les deux espaces, les droits vérifiés dans les cas d'usage (ADR-016) ; l'identité complète (`PUT …/identite`), la production et l'accès aux statistiques réservés au personnel du BNIA, le reste de la fiche par `PUT …/profil` (RG-OPE-36) ; **numéro de version** porté par chaque saisie de modification, `null` pour un appel interne (démonstration), écart refusé en 409 (`ModificationConcurrente`, RG-OPE-51) ; **verrou** `for update` sur l'opérateur pour le dernier ADMIN (RG-OPE-35) ; **opérateur BNIA** inséré par `V1__schema.sql` (structurel), son premier ADMIN amorcé à l'installation par `bnia.amorce.email`, `nom`, `prenom` (invitation, si le BNIA n'a ni ADMIN ni invitation en attente) ; **contrôle du Paramétrage** par un port `ControleParametrage` de `referentiels`, implémenté dans `bnia-boot` avec `OperateursLecture` (`referentiels` ne peut dépendre de `operateurs`) ; **invitation d'un compte existant** : l'invitation retient l'utilisateur visé (`compteVise`), refusée s'il a changé d'e-mail entre-temps (RG-OPE-42) ; **expiration** des invitations à la lecture et par une tâche planifiée horaire ; **e-mails** en texte simple, envoyés après la validation de la transaction (Mailpit en dev, ports `BNIA_SMTP_PORT` et `BNIA_MAILPIT_PORT`) ; liens `/invitation?jeton=` et `/changement-email?jeton=` ; **front** : un seul jeu d'écrans, l'espace ne décidant que des liens, les actions affichées selon les droits renvoyés par l'API (`mes-droits`, `droits` de la fiche) ; fiche réduite pour l'opérateur BNIA (menu « BNIA »), annuaire et journal en onglets au back-office, menu « Annuaire » au portail ; sélecteur d'opérateur actif sous le titre de l'espace. Démonstration conforme au §7.1, comptes dans `docs/demo.md`. Chaque RG-OPE-01 à 53 a au moins un test qui porte son identifiant. |
 | 2026-10-08 | Démonstration (demande de l'utilisateur) : identifiants de connexion lisibles, un par rôle et par type d'opérateur (`admin@`, `agent@`, `observateur@` × `bnia.fr`, `producteur.fr`, `negociant.fr`) ; trois membres ajoutés au négociant Armagnacs de Gascogne ; Pierre Roy aussi observateur actif à Condom, pour que son compte se connecte (sa suspension à Eauze reste montrée). §7.1 et `docs/demo.md` mis à jour. Mot de passe de démonstration `demo-armagnac` (13 caractères, RG-AUT-07 respectée), à la place de `demo-bnia-2026`. |
+| 2026-10-12 | Listing du back-office (demande de l'utilisateur) : les filtres code, raison sociale, nom commercial, code postal et ville (§4.3.1 p.18) réunis en un seul champ de recherche (paramètre `recherche`, « contient », sans distinction de casse, une colonne suffit), pour l'écran comme pour l'export Excel. Le code postal se cherche désormais n'importe où dans la valeur, et plus seulement par son début. |

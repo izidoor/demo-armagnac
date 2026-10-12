@@ -19,7 +19,9 @@ export function AuthenticatedLayout({
 }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
   return (
-    <SearchProvider navGroups={espace.navGroups}>
+    <SearchProvider
+      navGroups={[...espace.navGroups, ...(espace.autresPages ?? [])]}
+    >
       <LayoutProvider>
         <SidebarProvider defaultOpen={defaultOpen}>
           <SkipToMain />

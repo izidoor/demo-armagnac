@@ -111,7 +111,7 @@ public class DemoReferentiels implements ApplicationRunner {
         creer(() -> regions.creer(acteur, "IDF", "Île-de-France", false));
 
         // Qualification.
-        valeurs(titres, "M", "Monsieur", "MME", "Madame", "ME", "Maître", "DR", "Docteur");
+        valeurs(titres, "M", "Monsieur", "MME", "Madame");
         valeurs(labels, "AB", "Agriculture biologique", "HVE", "Haute valeur environnementale", "VD",
                 "Vignobles & Découvertes");
         valeurs(typesVisite, "CHAI", "Visite de chai", "DEGUST", "Dégustation", "DISTIL", "Visite de la distillerie");

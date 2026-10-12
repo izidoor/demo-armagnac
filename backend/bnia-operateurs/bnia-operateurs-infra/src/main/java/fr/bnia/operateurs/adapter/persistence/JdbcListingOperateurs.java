@@ -45,14 +45,12 @@ class JdbcListingOperateurs implements ListingOperateurs, NumerotationLecture {
             conditions.add("o.type = :type");
             parametres.put("type", filtre.type().name());
         }
-        contient(conditions, parametres, "o.code", "code", filtre.code());
-        contient(conditions, parametres, "o.raison_sociale", "raisonSociale", filtre.raisonSociale());
-        contient(conditions, parametres, "o.nom_commercial", "nomCommercial", filtre.nomCommercial());
-        contient(conditions, parametres, "o.ville", "ville", filtre.ville());
-        String codePostal = Textes.facultatif(filtre.codePostal());
-        if (codePostal != null) {
-            conditions.add("o.code_postal like :codePostal escape '\\'");
-            parametres.put("codePostal", Sql.motifCommencePar(codePostal));
+        String recherche = Textes.facultatif(filtre.recherche());
+        if (recherche != null) {
+            conditions.add("(o.code ilike :recherche escape '\\' or o.raison_sociale ilike :recherche escape '\\'"
+                    + " or o.nom_commercial ilike :recherche escape '\\' or o.code_postal ilike :recherche escape '\\'"
+                    + " or o.ville ilike :recherche escape '\\')");
+            parametres.put("recherche", Sql.motifContient(recherche));
         }
         if (filtre.actif() != null) {
             conditions.add("o.actif = :actif");
@@ -134,15 +132,5 @@ class JdbcListingOperateurs implements ListingOperateurs, NumerotationLecture {
     private static OperateurResume resume(ResultSet rs) throws SQLException {
         return new OperateurResume(rs.getLong("id"), rs.getString("code"), rs.getString("raison_sociale"),
                 rs.getString("ville"), rs.getBoolean("actif"));
-    }
-
-    /** @param colonne constante, jamais une saisie utilisateur */
-    private static void contient(List<String> conditions, Map<String, Object> parametres, String colonne,
-            String parametre, String texte) {
-        String valeur = Textes.facultatif(texte);
-        if (valeur != null) {
-            conditions.add(colonne + " ilike :" + parametre + " escape '\\'");
-            parametres.put(parametre, Sql.motifContient(valeur));
-        }
     }
 }

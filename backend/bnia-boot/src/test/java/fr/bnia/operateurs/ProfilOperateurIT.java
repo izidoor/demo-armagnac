@@ -144,7 +144,7 @@ class ProfilOperateurIT extends AbstractIT {
     @Test
     @DisplayName("RG-OPE-38 : le listing filtré s'exporte au format Excel, avec ses colonnes")
     void rg_ope_38_export_excel() throws IOException {
-        byte[] fichier = client.get().uri(u -> u.path(OPERATEURS + "/export.xlsx").queryParam("raisonSociale", raisonSociale).build())
+        byte[] fichier = client.get().uri(u -> u.path(OPERATEURS + "/export.xlsx").queryParam("recherche", raisonSociale).build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().valueMatches("Content-Disposition", "attachment; filename=\"operateurs-\\d{4}-\\d{2}-\\d{2}\\.xlsx\"")

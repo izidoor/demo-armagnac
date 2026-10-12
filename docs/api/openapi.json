@@ -620,41 +620,9 @@
             "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
           }
         }, {
-          "description" : "Contient",
+          "description" : "Contenu dans le code, la raison sociale, le nom commercial, le code postal ou la ville",
           "in" : "query",
-          "name" : "code",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Contient",
-          "in" : "query",
-          "name" : "raisonSociale",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Contient",
-          "in" : "query",
-          "name" : "nomCommercial",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Commence par",
-          "in" : "query",
-          "name" : "codePostal",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "description" : "Contient",
-          "in" : "query",
-          "name" : "ville",
+          "name" : "recherche",
           "required" : false,
           "schema" : {
             "type" : "string"
@@ -839,35 +807,7 @@
           }
         }, {
           "in" : "query",
-          "name" : "code",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "in" : "query",
-          "name" : "raisonSociale",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "in" : "query",
-          "name" : "nomCommercial",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "in" : "query",
-          "name" : "codePostal",
-          "required" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "in" : "query",
-          "name" : "ville",
+          "name" : "recherche",
           "required" : false,
           "schema" : {
             "type" : "string"

@@ -21,11 +21,6 @@ final class Sql {
         return "%" + echapper(texte) + "%";
     }
 
-    /** Motif {@code like} « commence par ». */
-    static String motifCommencePar(String texte) {
-        return echapper(texte) + "%";
-    }
-
     private static String echapper(String texte) {
         return texte.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }

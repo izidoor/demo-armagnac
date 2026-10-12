@@ -24,6 +24,8 @@ import {
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
+import { Pagination } from '@/components/metier/pagination'
+import { usePagination } from '@/components/metier/use-pagination'
 import { ChangementEtat } from '../commun/changement-etat'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
@@ -49,6 +51,7 @@ export function PagePays() {
     queryFn: () =>
       listerPays({ query: filtre, throwOnError: true }).then((r) => r.data),
   })
+  const { lignes, pagination } = usePagination(requete.data)
   const zones = useQuery({
     queryKey: ['zones-commerciales', {}],
     queryFn: () =>
@@ -94,7 +97,7 @@ export function PagePays() {
           </TableHeader>
           <TableBody>
             <LignesEtat requete={requete} colonnes={9} />
-            {requete.data?.map((pays) => (
+            {lignes?.map((pays) => (
               <TableRow key={pays.id}>
                 <TableCell className='font-mono'>{pays.code}</TableCell>
                 <TableCell className='font-mono'>{pays.codeIso}</TableCell>
@@ -126,6 +129,7 @@ export function PagePays() {
           </TableBody>
         </Table>
       </div>
+      <Pagination {...pagination} />
 
       <FormulairePays
         ouvert={edition !== null}

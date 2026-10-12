@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { Download, Plus } from 'lucide-react'
+import { Download, EllipsisVertical, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { exporterOperateurs, listerOperateurs } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -31,37 +31,19 @@ import { CreationOperateur } from './creation-operateur'
 
 const TOUS = 'tous'
 
-type Champs = {
-  code: string
-  raisonSociale: string
-  nomCommercial: string
-  codePostal: string
-  ville: string
-}
-
-/** Listing du back-office (§4.3.1 p.18, spec 02 §6.1) : filtres, ouverture de la fiche, export Excel (RG-OPE-38). */
+/** Listing du back-office (§4.3.1 p.18, spec 02 §6.1) : recherche unique et filtres, ouverture de la fiche, export Excel (RG-OPE-38). */
 export function PageOperateurs() {
   const navigate = useNavigate()
-  const [champs, setChamps] = useState<Champs>({
-    code: '',
-    raisonSociale: '',
-    nomCommercial: '',
-    codePostal: '',
-    ville: '',
-  })
+  const [recherche, setRecherche] = useState('')
   const [type, setType] = useState<string>(TOUS)
   const [etat, setEtat] = useState('actifs')
   const [completude, setCompletude] = useState(TOUS)
   const [creation, setCreation] = useState(false)
-  const stables = useDebounce(champs)
+  const rechercheStable = useDebounce(recherche)
 
   const filtre = {
     type: type === TOUS ? undefined : (type as TypeOperateur),
-    code: stables.code.trim() || undefined,
-    raisonSociale: stables.raisonSociale.trim() || undefined,
-    nomCommercial: stables.nomCommercial.trim() || undefined,
-    codePostal: stables.codePostal.trim() || undefined,
-    ville: stables.ville.trim() || undefined,
+    recherche: rechercheStable.trim() || undefined,
     actif: etat === TOUS ? undefined : etat === 'actifs',
     incomplet: completude === TOUS ? undefined : completude === 'incompletes',
   }
@@ -92,14 +74,6 @@ export function PageOperateurs() {
 
   const ouvrir = (id: number) =>
     navigate({ to: '/bo/operateurs/$id', params: { id: String(id) } })
-  const champ = (nom: keyof Champs, placeholder: string, largeur = 'w-40') => (
-    <Input
-      placeholder={placeholder}
-      value={champs[nom]}
-      onChange={(e) => setChamps({ ...champs, [nom]: e.target.value })}
-      className={`h-9 ${largeur}`}
-    />
-  )
 
   return (
     <PageMetier
@@ -130,11 +104,12 @@ export function PageOperateurs() {
             ))}
           </SelectContent>
         </Select>
-        {champ('code', 'Code', 'w-28')}
-        {champ('raisonSociale', 'Raison sociale', 'w-48')}
-        {champ('nomCommercial', 'Nom commercial', 'w-44')}
-        {champ('codePostal', 'Code postal', 'w-28')}
-        {champ('ville', 'Ville')}
+        <Input
+          placeholder='Code, raison sociale, nom commercial, code postal, ville'
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+          className='h-9 w-96'
+        />
         <Select value={etat} onValueChange={setEtat}>
           <SelectTrigger className='h-9 w-32'>
             <SelectValue />
@@ -160,16 +135,16 @@ export function PageOperateurs() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Type</TableHead>
               <TableHead>Code</TableHead>
               <TableHead>Raison sociale</TableHead>
               <TableHead>Nom commercial</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Code postal</TableHead>
               <TableHead>Ville</TableHead>
               <TableHead>Téléphone</TableHead>
               <TableHead>E-mail</TableHead>
               <TableHead>État</TableHead>
-              <TableHead className='w-20' />
+              <TableHead className='w-12' />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -180,7 +155,6 @@ export function PageOperateurs() {
                 className='cursor-pointer'
                 onClick={() => ouvrir(o.id)}
               >
-                <TableCell>{TYPES[o.type]}</TableCell>
                 <TableCell className='font-mono'>{o.code}</TableCell>
                 <TableCell>
                   {o.raisonSociale}
@@ -191,6 +165,9 @@ export function PageOperateurs() {
                   )}
                 </TableCell>
                 <TableCell>{o.nomCommercial}</TableCell>
+                <TableCell>
+                  <Badge variant='secondary'>{TYPES[o.type]}</Badge>
+                </TableCell>
                 <TableCell>{o.codePostal}</TableCell>
                 <TableCell>{o.ville}</TableCell>
                 <TableCell>{o.telephone1}</TableCell>
@@ -201,13 +178,16 @@ export function PageOperateurs() {
                 <TableCell>
                   <Button
                     variant='ghost'
-                    size='sm'
+                    size='icon'
+                    className='size-8'
+                    aria-label='Ouvrir la fiche'
+                    title='Ouvrir la fiche'
                     onClick={(e) => {
                       e.stopPropagation()
                       ouvrir(o.id)
                     }}
                   >
-                    Fiche
+                    <EllipsisVertical />
                   </Button>
                 </TableCell>
               </TableRow>

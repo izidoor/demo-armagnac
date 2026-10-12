@@ -1538,25 +1538,9 @@ export type ListerOperateursData = {
     query?: {
         type?: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
         /**
-         * Contient
+         * Contenu dans le code, la raison sociale, le nom commercial, le code postal ou la ville
          */
-        code?: string;
-        /**
-         * Contient
-         */
-        raisonSociale?: string;
-        /**
-         * Contient
-         */
-        nomCommercial?: string;
-        /**
-         * Commence par
-         */
-        codePostal?: string;
-        /**
-         * Contient
-         */
-        ville?: string;
+        recherche?: string;
         /**
          * Absent : actifs et inactifs
          */
@@ -1647,11 +1631,7 @@ export type ExporterOperateursData = {
     path?: never;
     query?: {
         type?: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
-        code?: string;
-        raisonSociale?: string;
-        nomCommercial?: string;
-        codePostal?: string;
-        ville?: string;
+        recherche?: string;
         actif?: boolean;
         incomplet?: boolean;
     };

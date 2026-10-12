@@ -60,14 +60,11 @@ class OperateurController {
             summary = "Lister les opérateurs, sauf le BNIA, triés par raison sociale (§4.3.1, RG-OPE-32, 39)")
     List<OperateurLigneResponse> lister(Connecte connecte,
             @RequestParam(required = false) TypeOperateur type,
-            @Parameter(description = "Contient") @RequestParam(required = false) String code,
-            @Parameter(description = "Contient") @RequestParam(required = false) String raisonSociale,
-            @Parameter(description = "Contient") @RequestParam(required = false) String nomCommercial,
-            @Parameter(description = "Commence par") @RequestParam(required = false) String codePostal,
-            @Parameter(description = "Contient") @RequestParam(required = false) String ville,
+            @Parameter(description = "Contenu dans le code, la raison sociale, le nom commercial, le code postal ou la ville")
+            @RequestParam(required = false) String recherche,
             @Parameter(description = "Absent : actifs et inactifs") @RequestParam(required = false) Boolean actif,
             @Parameter(description = "Vrai : fiches incomplètes seulement (RG-OPE-02)") @RequestParam(required = false) Boolean incomplet) {
-        var filtre = new FiltreOperateurs(type, code, raisonSociale, nomCommercial, codePostal, ville, actif, incomplet);
+        var filtre = new FiltreOperateurs(type, recherche, actif, incomplet);
         return gerer.lister(Acteurs.de(connecte), filtre).stream().map(OperateurLigneResponse::depuis).toList();
     }
 
@@ -78,14 +75,10 @@ class OperateurController {
                     schema = @Schema(type = "string", format = "binary"))))
     ResponseEntity<byte[]> exporter(Connecte connecte,
             @RequestParam(required = false) TypeOperateur type,
-            @RequestParam(required = false) String code,
-            @RequestParam(required = false) String raisonSociale,
-            @RequestParam(required = false) String nomCommercial,
-            @RequestParam(required = false) String codePostal,
-            @RequestParam(required = false) String ville,
+            @RequestParam(required = false) String recherche,
             @RequestParam(required = false) Boolean actif,
             @RequestParam(required = false) Boolean incomplet) {
-        var filtre = new FiltreOperateurs(type, code, raisonSociale, nomCommercial, codePostal, ville, actif, incomplet);
+        var filtre = new FiltreOperateurs(type, recherche, actif, incomplet);
         String fichier = "operateurs-" + LocalDate.now(horloge) + ".xlsx";
         return ResponseEntity.ok()
                 .contentType(XLSX)

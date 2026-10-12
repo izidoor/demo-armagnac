@@ -29,6 +29,8 @@ type Espace = {
   description: string
   url: LinkProps['to']
   navGroups: NavGroup[]
+  /** Pages hors de la barre latérale, proposées par la recherche. */
+  autresPages?: NavGroup[]
 }
 
 export type { Espace, NavGroup, NavItem, NavCollapsible, NavLink }
