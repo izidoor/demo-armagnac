@@ -1,10 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { Fragment, useState, type FormEvent, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Building2, History, KeyRound, UserRound } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   changerMotDePasse,
-  choisirOperateurActif,
   consulterMembre,
   demanderChangementEmail,
   listerMesConnexions,
@@ -15,7 +14,6 @@ import { lireProbleme } from '@/lib/probleme'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -25,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import {
   Table,
   TableBody,
@@ -33,8 +32,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PageMetier } from '@/components/metier/page-metier'
+import {
+  PageSections,
+  type SectionPage,
+} from '@/components/layout/page-sections'
 import { PasswordInput } from '@/components/password-input'
 import {
   ChampNouveauMotDePasse,
@@ -48,11 +49,12 @@ import { useListe } from '@/features/operateurs/commun/referentiels'
 import { AUCUN } from '@/features/operateurs/commun/saisie'
 import { FormulaireFiche } from '@/features/operateurs/personnes/formulaires'
 import {
-  espaceDe,
   requeteMoi,
   useMoi,
   type Rattachement,
 } from '@/features/session/session'
+import { useChoisirOperateur } from '@/features/session/use-choisir-operateur'
+import { Affichage } from './affichage'
 
 const dateHeure = new Intl.DateTimeFormat('fr-FR', {
   dateStyle: 'short',
@@ -60,49 +62,80 @@ const dateHeure = new Intl.DateTimeFormat('fr-FR', {
 })
 
 /**
- * « Mon compte » (spec 02 §6.3, spec 03 §6.1) : profil, e-mail, opérateurs et opérateur actif, fiche
- * professionnelle dans chaque opérateur, mot de passe, connexions. Ouvert à tout utilisateur connecté
- * (RG-OPE-33).
+ * « Mon compte » (spec 02 §6.3, spec 03 §6.1), mis en page comme le Paramétrage : profil, e-mail,
+ * opérateurs et opérateur actif, fiche professionnelle dans chaque opérateur, mot de passe, connexions.
+ * Ouvert à tout utilisateur connecté (RG-OPE-33).
  */
+const sections: SectionPage[] = [
+  {
+    cle: 'profil',
+    titre: 'Profil',
+    icon: UserRound,
+    description:
+      "Votre nom, tel que les autres utilisateurs le voient, et l'affichage de l'application.",
+  },
+  {
+    cle: 'compte',
+    titre: 'Mon compte',
+    icon: KeyRound,
+    description:
+      "L'e-mail et le mot de passe avec lesquels vous vous connectez.",
+  },
+  {
+    cle: 'operateurs',
+    titre: 'Mes opérateurs',
+    icon: Building2,
+    description:
+      "Vos rattachements, l'opérateur sur lequel vous travaillez, et votre fiche professionnelle dans chacun.",
+  },
+  {
+    cle: 'connexions',
+    titre: 'Mes connexions',
+    icon: History,
+    description:
+      'Le journal de votre compte : connexions, échecs, déconnexions et changements de mot de passe.',
+  },
+]
+
 export function PageCompte() {
+  const [active, setActive] = useState('profil')
   return (
-    <PageMetier
+    <PageSections
       titre='Mon compte'
       description='Vos informations, vos opérateurs et votre sécurité.'
+      sections={sections}
+      active={active}
+      onChoisir={setActive}
     >
-      <Tabs defaultValue='profil'>
-        <TabsList className='flex-wrap'>
-          <TabsTrigger value='profil'>Profil et e-mail</TabsTrigger>
-          <TabsTrigger value='operateurs'>Mes opérateurs</TabsTrigger>
-          <TabsTrigger value='securite'>Mot de passe</TabsTrigger>
-          <TabsTrigger value='connexions'>Mes connexions</TabsTrigger>
-        </TabsList>
-        <TabsContent value='profil' className='space-y-4'>
+      {active === 'profil' && (
+        <>
           <Profil />
+          <Separator className='my-8' />
+          <Section titre='Affichage'>
+            <Affichage />
+          </Section>
+        </>
+      )}
+      {active === 'compte' && (
+        <>
           <Email />
-        </TabsContent>
-        <TabsContent value='operateurs' className='space-y-4'>
-          <MesOperateurs />
-        </TabsContent>
-        <TabsContent value='securite'>
+          <Separator className='my-8' />
           <MotDePasse />
-        </TabsContent>
-        <TabsContent value='connexions'>
-          <MesConnexions />
-        </TabsContent>
-      </Tabs>
-    </PageMetier>
+        </>
+      )}
+      {active === 'operateurs' && <MesOperateurs />}
+      {active === 'connexions' && <MesConnexions />}
+    </PageSections>
   )
 }
 
-function Section({ titre, children }: { titre: string; children: ReactNode }) {
+/** Une sous-section, titrée ou non, sous l'en-tête de la section. */
+function Section({ titre, children }: { titre?: string; children: ReactNode }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{titre}</CardTitle>
-      </CardHeader>
-      <CardContent className='space-y-4'>{children}</CardContent>
-    </Card>
+    <section className='space-y-4'>
+      {titre && <h4 className='text-base font-semibold'>{titre}</h4>}
+      {children}
+    </section>
   )
 }
 
@@ -213,7 +246,7 @@ function Email() {
     demande.mutate()
   }
   return (
-    <Section titre='E-mail'>
+    <Section titre='E-mail de connexion'>
       <p className='text-sm'>
         Votre e-mail, <strong>{moi.email}</strong>, est aussi votre identifiant
         de connexion.
@@ -250,25 +283,10 @@ function Email() {
 /** Rattachements, rôle, statut ; opérateur actif ; fiche professionnelle dans chacun (RG-OPE-33, 49). */
 function MesOperateurs() {
   const { moi, actif } = useMoi()
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
-  const choix = useMutation({
-    mutationFn: (operateur: number) =>
-      choisirOperateurActif({ body: { operateur }, throwOnError: true }),
-    onSuccess: async (r) => {
-      queryClient.clear()
-      queryClient.setQueryData(requeteMoi.queryKey, r.data)
-      const nouveau = r.data.rattachements.find(
-        (x) => x.operateur === r.data.operateurOuvert
-      )
-      await navigate({
-        to: nouveau && espaceDe(nouveau) === 'bo' ? '/bo' : '/portail',
-      })
-    },
-  })
+  const choix = useChoisirOperateur()
   return (
     <>
-      <Section titre='Mes opérateurs'>
+      <Section>
         <div className='rounded-md border'>
           <Table>
             <TableHeader>
@@ -316,7 +334,10 @@ function MesOperateurs() {
       {moi.rattachements
         .filter((r) => r.statut === 'ACTIF' && r.operateurEnActivite)
         .map((r) => (
-          <MaFiche key={r.id} rattachement={r} />
+          <Fragment key={r.id}>
+            <Separator className='my-8' />
+            <MaFiche rattachement={r} />
+          </Fragment>
         ))}
     </>
   )
@@ -413,7 +434,7 @@ function MesConnexions() {
       listerMesConnexions({ throwOnError: true }).then((r) => r.data),
   })
   return (
-    <Section titre='Mes connexions'>
+    <Section>
       <div className='rounded-md border'>
         <Table>
           <TableHeader>

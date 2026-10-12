@@ -1,5 +1,6 @@
 import { useLocation } from '@tanstack/react-router'
 import { parametrage } from '@/components/layout/data/espaces'
+import { type SectionPage } from '@/components/layout/page-sections'
 
 /** En-tête de chaque section, par adresse (familles de la spec 01 §2.1). */
 const descriptions: Record<string, string> = {
@@ -14,10 +15,11 @@ const descriptions: Record<string, string> = {
 }
 
 /** Une entrée par section ; tous les référentiels d'une section mènent à la même page. */
-export const sections = parametrage.items.map((item) => {
+export const sections: SectionPage[] = parametrage.items.map((item) => {
   const url = String(item.items?.[0]?.url ?? item.url)
   return {
-    title: item.title,
+    cle: url,
+    titre: item.title,
     icon: item.icon,
     url,
     description: descriptions[url],
@@ -26,5 +28,5 @@ export const sections = parametrage.items.map((item) => {
 
 export function useSectionActive() {
   const { pathname } = useLocation()
-  return sections.find((s) => pathname.startsWith(s.url))
+  return sections.find((s) => pathname.startsWith(s.cle))
 }

@@ -1,22 +1,12 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { Check, ChevronsUpDown, Menu, X } from 'lucide-react'
-import { choisirOperateurActif } from '@/api/generated'
+import { Link } from '@tanstack/react-router'
+import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { espaceDe, requeteMoi, useMoi } from '@/features/session/session'
 import { Button } from '../ui/button'
 import { type Espace } from './types'
 
@@ -24,30 +14,9 @@ type AppTitleProps = {
   espace: Espace
 }
 
-/**
- * Titre de l'espace et sélecteur de l'opérateur actif (RG-OPE-49, spec 02 §6) : changer d'opérateur
- * ouvre l'espace qui lui correspond, back-office pour le BNIA, portail sinon.
- */
+/** Titre de l'espace et bouton du menu ; l'opérateur actif se choisit dans l'en-tête (`SelecteurOperateur`). */
 export function AppTitle({ espace }: AppTitleProps) {
   const { setOpenMobile } = useSidebar()
-  const { moi, actif } = useMoi()
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
-  const choix = useMutation({
-    mutationFn: (operateur: number) =>
-      choisirOperateurActif({ body: { operateur }, throwOnError: true }),
-    onSuccess: async (r) => {
-      queryClient.clear()
-      queryClient.setQueryData(requeteMoi.queryKey, r.data)
-      const nouveau = r.data.rattachements.find(
-        (x) => x.operateur === r.data.operateurOuvert
-      )
-      await navigate({
-        to: nouveau && espaceDe(nouveau) === 'bo' ? '/bo' : '/portail',
-      })
-    },
-  })
-  const utilisables = moi.rattachements.filter((r) => r.utilisable)
 
   return (
     <SidebarMenu>
@@ -69,44 +38,6 @@ export function AppTitle({ espace }: AppTitleProps) {
             <ToggleSidebar />
           </div>
         </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton className='border' disabled={choix.isPending}>
-              <span className='truncate text-xs'>
-                {actif?.raisonSociale ?? 'Choisir un opérateur'}
-              </span>
-              {utilisables.length > 1 && (
-                <ChevronsUpDown className='ms-auto size-4' />
-              )}
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          {utilisables.length > 1 && (
-            <DropdownMenuContent className='min-w-64' align='start'>
-              <DropdownMenuLabel className='text-muted-foreground text-xs'>
-                Opérateur actif
-              </DropdownMenuLabel>
-              {utilisables.map((r) => (
-                <DropdownMenuItem
-                  key={r.id}
-                  onClick={() =>
-                    r.operateur !== actif?.operateur &&
-                    choix.mutate(r.operateur)
-                  }
-                >
-                  <span className='grid flex-1 leading-tight'>
-                    <span>{r.raisonSociale}</span>
-                    <span className='text-muted-foreground text-xs'>
-                      {r.type === 'BNIA' ? 'Back-office' : 'Portail'}
-                    </span>
-                  </span>
-                  {r.operateur === actif?.operateur && <Check />}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          )}
-        </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
   )

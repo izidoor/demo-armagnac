@@ -11,6 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { SignOutDialog } from '@/components/sign-out-dialog'
 import { espaceDe, useMoi } from '@/features/session/session'
 
@@ -24,16 +29,21 @@ export function ProfileDropdown() {
   return (
     <>
       <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='rounded-full'
-            aria-label='Mon profil'
-          >
-            <CircleUserRound className='size-6' />
-          </Button>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='scale-95 rounded-full'
+                aria-label='Mon profil'
+              >
+                <CircleUserRound className='size-[1.2rem]' />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Mon profil</TooltipContent>
+        </Tooltip>
         <DropdownMenuContent className='w-64' align='end' forceMount>
           <DropdownMenuLabel className='font-normal'>
             <div className='flex flex-col gap-1.5'>

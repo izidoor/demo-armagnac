@@ -89,7 +89,7 @@ export const espaceBackOffice: Espace = {
     },
     {
       // Spec 02, §6.1 et spec 03, §6.2 : module Accès.
-      title: 'Accès',
+      title: 'Accès Portail',
       items: [
         { title: 'Utilisateurs', url: '/bo/acces/utilisateurs', icon: UserCog },
         {
