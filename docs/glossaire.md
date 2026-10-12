@@ -113,7 +113,7 @@
 
 | Terme | Code | Définition | Réf. |
 |---|---|---|---|
-| Cotisation (CVO) | `Cotisation` | Cotisation volontaire obligatoire, calculée sur l'assiette selon un barème par type d'opérateur et par colonne. ⚠ CVE | p.27-28, 96 |
+| Cotisation (CVO) | `Cotisation` | Cotisation volontaire obligatoire, calculée sur l'assiette selon un barème par type d'opérateur et par colonne. Synonyme : `CVE`, interchangeable dans le CDC (décision du 2026-10-12). | p.27-28, 96 |
 | Assiette de cotisation | `AssietteCotisation` | DSM négociant : col. 14, 17-19, 21, 22-25. DSM producteur : col. 16, 17-18, 21, 22-23. ⚠ | p.44-45 |
 | Barème | `BaremeCotisation` | Taux de cotisation et pourcentage d'exonération de TVA, avec périodes de validité sans chevauchement. | p.16, 45 |
 | Facture | `Facture` | Types : cotisation DSM, cotisation fin de travaux, manuelle ou provisionnelle, commande boutique. PDF conservé par la plateforme. | p.16, 44 |

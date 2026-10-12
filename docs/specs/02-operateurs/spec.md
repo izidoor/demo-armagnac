@@ -448,8 +448,8 @@ Presque tous les contextes lisent un opérateur. Ils le font par une **partie pu
 | Un opérateur par identifiant : code, raison sociale, nom commercial, type, actif | tous |
 | Un opérateur par code (imports Excel) | `declarations`, `exportation` |
 | Un opérateur par identifiant ODG, puis par CVI ou SIRET | `distillation`, `contratsvin` (passerelle ODG) |
-| Type, périodicité, statut de déclaration ; opérateurs à `OUI` (sans l'opérateur BNIA, RG-OPE-39) | `declarations` (génération, relances, colonnes grisées) |
-| Type | `cotisation` (assiette), `statistiques` |
+| Type, périodicité, statut de déclaration ; opérateurs à `OUI` (sans l'opérateur BNIA, RG-OPE-39) | `declarations` (génération, relances, colonnes grisées, assiette de cotisation) |
+| Type | `statistiques` |
 | Adresse, pays, e-mail résolu du destinataire des factures | `facturation` (figés sur la facture), `boutique` |
 | Raison sociale et adresse de l'expéditeur | `exportation` (certificat, figées) |
 | Région (et « en région délimitée » via `referentiels`), appellations, diffusion des millésimes, accès aux statistiques | `statistiques` |
