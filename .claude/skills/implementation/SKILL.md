@@ -23,7 +23,7 @@ Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
   un **arrêt**. Le lot suivant attend l'accord (« go lot N »).
 - **Ni commit, ni `git add`, ni `git rm`** sans demande explicite pour cette commande précise.
 - **Travailler dans le worktree du contexte**, `../bnia-worktrees/<contexte>` (branche
-  `contexte/<contexte>`), créé par la skill `specs`. Le dépôt principal reste à l'utilisateur, qui y
+  `contexte/<contexte>`), créé par la skill `analyse` (ou `specs`). Le dépôt principal reste à l'utilisateur, qui y
   travaille en parallèle : n'y rien modifier. Seule la phase F fusionne la branche dans `main`, après
   validation explicite.
 - **Ne rien affirmer d'invérifié.** Ce qui n'a pas été exécuté (écran dans un navigateur, démarrage sur

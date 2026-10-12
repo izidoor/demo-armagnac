@@ -7,6 +7,8 @@ description: Rédiger la spec d'un bounded context du projet BNIA (docs/specs/NN
 
 Méthode éprouvée sur `docs/specs/01-referentiels/spec.md`, qui sert d'exemple abouti.
 Argument : le nom du contexte, tel qu'il figure dans `docs/contextes.md` (`operateurs`, `cotisation`…).
+Précédée de la skill `analyse`, dont le brouillon `docs/specs/NN-<contexte>/analyse.md` fait foi pour
+la spec (voir « Conclusions de l'analyse »).
 
 ## Principes
 
@@ -23,9 +25,17 @@ Argument : le nom du contexte, tel qu'il figure dans `docs/contextes.md` (`opera
 - **Itérer.** Spec → `contextes.md` → spec. Aucune des deux n'est figée avant l'autre.
 - **Les questions vivent dans la spec du contexte** (§ Questions ouvertes), jamais dans un fichier global.
 - **Pas de code, pas de commit, pas de `git add`.**
-- **Un worktree par contexte.** Tout le travail du contexte (spec, ADR, puis implémentation) se fait
-  dans le worktree `../bnia-worktrees/<contexte>` (chemin relatif à la racine du dépôt principal), sur
-  la branche `contexte/<contexte>`, créés en phase A. Le dépôt principal reste à l'utilisateur, qui y
+- **Conclusions de l'analyse.** Ce que l'analyse a validé (cadrage, frontières, cas d'usage
+  `UC-<CTX>-n`, objets et invariants, flux entre contextes, amendements au CDC, révisions de
+  l'existant) est acquis : la spec le
+  détaille, elle ne le remet pas en question. Ces points y citent « analyse du <date> » comme source. Un
+  désaccord découvert en cours de spec (source mal lue, cas oublié) est soumis à l'utilisateur, puis
+  reporté dans `analyse.md` avec sa date ; le doc publié n'est pas republié pour autant.
+  Chaque révision de l'existant retenue (rôles, ADR, spec ou code d'un autre contexte) est planifiée
+  dans la spec : révision de la spec concernée, nouvel ADR ou ADR révisé en phase H.
+- **Un worktree par contexte.** Tout le travail du contexte (analyse, spec, ADR, puis implémentation) se
+  fait dans le worktree `../bnia-worktrees/<contexte>` (chemin relatif à la racine du dépôt principal),
+  sur la branche `contexte/<contexte>`, créés par la skill `analyse` (à défaut, en phase A). Le dépôt principal reste à l'utilisateur, qui y
   travaille en parallèle dans son IDE : n'y rien modifier, n'y changer ni de branche ni d'état. La
   branche n'est fusionnée dans `main` qu'à la fin de l'implémentation (skill `implementation`, phase F).
 
@@ -43,8 +53,10 @@ l'utilisateur.
 
    Entrer avec l'outil `EnterWorktree` (paramètre `path`, chemin absolu du worktree), puis vérifier
    `git branch --show-current`.
-1. Relire `CLAUDE.md`, `docs/contextes.md` (fiche du contexte, ordre, bordures, interrogations, zones
-   partagées), `docs/glossaire.md`, `docs/adr/`, et les specs déjà écrites dont le contexte dépend.
+1. Lire `docs/specs/NN-<contexte>/analyse.md`. Absente ou non terminée : le signaler et proposer de
+   lancer d'abord la skill `analyse`. Puis relire `CLAUDE.md`, `docs/contextes.md` (fiche du contexte,
+   ordre, bordures, interrogations, zones partagées), `docs/glossaire.md`, `docs/adr/`, et les specs
+   déjà écrites dont le contexte dépend.
 2. Lire toutes les sources de la fiche du contexte (`docs/source/cdc/`, `docs/source/agi/`). Ne jamais
    lire les PDF.
 3. **Recherche transverse des usages**, la phase la plus productive : chercher chaque concept du
@@ -54,17 +66,20 @@ l'utilisateur.
    contradictions (BO contre annexe C), les attributs implicites (un champ « texte » qui sert à un
    calcul), les objets décrits ailleurs (un « référentiel produits » en facturation), les manques de la
    spec AGI (liaison sans vue).
-5. Contester la fiche de `contextes.md` : ce qui devrait en sortir, ce qui devrait y entrer.
+5. Contester la fiche de `contextes.md` : ce qui devrait en sortir, ce qui devrait y entrer. Partir du
+   cadrage et des frontières validés par l'analyse ; ne relever que ce qu'elle n'a pas couvert.
 
 ### B. Périmètre
-Questions sur ce qui entre ou sort du contexte, avec le contexte de destination envisagé. Puis créer la
+Questions sur ce qui entre ou sort du contexte, avec le contexte de destination envisagé, au-delà des
+frontières déjà fixées par l'analyse. Puis créer la
 spec à partir de `gabarit-spec.md` (même dossier), avec son sommaire en tête (`python3 tools/sommaire.py <spec>`), et remplir l'objet et le périmètre, y compris le
 tableau « hors du contexte » avec ses motifs.
 
 ### C. Modèle et règles
 Questions sur les attributs, les types, les invariants, les cas implicites (suppression, unicité,
 valeurs par défaut, historique). Puis rédiger le modèle, les règles `RG-<CTX>-nn`, les cas d'usage,
-les écrans et les données (démo, reprise AGI vue par vue).
+les écrans et les données (démo, reprise AGI vue par vue). Le modèle part des objets et invariants de
+l'analyse ; les cas d'usage reprennent ses `UC-<CTX>-n` (mêmes numéros), complétés des cas secondaires.
 
 ### D. Impact sur `contextes.md`
 Lister ce que la spec change : fiche du contexte, fiches des autres contextes (objets déplacés,
