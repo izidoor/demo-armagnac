@@ -74,7 +74,7 @@ Usages relevés ailleurs : §4.3.2.3 (marques, p.19) · C.1.1.2 (région, p.102)
 
 | Élément décrit dans le paramétrage du CDC | Contexte retenu | Motif |
 |---|---|---|
-| Taux de cotisation et d'exonération (§4.11.2, C.10.3) | `cotisation` | Paramètres de calcul, pas des valeurs de référence. Déjà prévu dans `contextes.md`. |
+| Taux de cotisation et d'exonération (§4.11.2, C.10.3) | `declarations` (`CVO`), `distillation` (fin de travaux) | Paramètres de calcul, pas des valeurs de référence. Contexte `cotisation` supprimé le 2026-10-12 (`contextes.md`). |
 | Destinataires export (C.10.7) | `exportation` | Tiers avec adresse et pays, seul l'export s'en sert ; un objet avec un cycle de vie, pas une liste de valeurs. |
 | Types tiers (§4.11.4, C.10.8.2) | `exportation` | Dans le CDC cible, la liste ne qualifie que le destinataire export (C.10.7.1). Dans InteGraal, c'était le type de la fiche professionnel (AGI 2.1.1) : voir Q-REF-1. |
 | Produits pour la facturation manuelle (§4.11.5) | `boutique`, **à raffiner** | Le CDC les décrit pourtant en facturation : « Référentiel produits » (§4.9.2 p.44) et « Produit de facturation » (C.8.2.1 : référence, libellé, taux de TVA, actif), distinct du produit boutique (C.12.2). Suivi dans `contextes.md` §5. |
@@ -206,8 +206,8 @@ interdit pas, et une date sans taux applicable reçoit une réponse explicite (R
 | Créer une marque depuis la fiche opérateur (back-office et portail) | `Marque` | 01, 14, 15 |
 
 Retirer un taux de TVA n'est pas une suppression de valeur de référentiel. C'est la correction d'une
-erreur de saisie dans l'historique d'une classe. Les contextes qui calculent un montant (`cotisation`,
-`facturation`) **figent** le taux appliqué sur leur propre document ; ils ne dépendent donc pas de la
+erreur de saisie dans l'historique d'une classe. Les contextes qui appliquent la TVA (`facturation`,
+`boutique`) **figent** le taux appliqué sur leur propre document ; ils ne dépendent donc pas de la
 stabilité de cet historique (C.8.3 « taux de TVA appliqué », §4.9.7 p.46).
 
 ### 5.2 Lecture par les autres contextes : la partie publiée
@@ -236,7 +236,7 @@ qui appelle le cas d'usage de `referentiels` ; elle n'a pas besoin d'être publi
 | Région : indicateur de région délimitée | `operateurs` |
 | Membre BNIA | `operateurs` |
 | Contenance : volume en litres | `exportation` |
-| Taux applicable d'une classe de TVA à une date (RG-REF-12) | `cotisation`, `facturation`, `boutique` |
+| Taux applicable d'une classe de TVA à une date (RG-REF-12) | `facturation`, `boutique` |
 
 ## 6. Écrans
 
@@ -298,7 +298,7 @@ Les valeurs réelles viendront de la reprise.
 Chaque code AGI est traduit en identifiant à la reprise, par la lecture par code (ADR-011).
 
 Hors du contexte : types tiers (2.6.4) et destinataires (2.6.10) vont à `exportation`, cotisations (2.6.7)
-à `cotisation`.
+à `declarations`.
 
 ## 8. Décisions d'architecture
 

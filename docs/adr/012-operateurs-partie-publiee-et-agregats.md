@@ -11,7 +11,7 @@ ADR-002 interdit tout import Java d'un contexte à l'autre : ils communiquent pa
 d'éviter des dizaines de ports et d'adapters de passe-plat.
 
 `operateurs` est dans la même situation. Une dizaine de contextes lisent un opérateur ou ses contacts :
-`declarations` (type, périodicité, statut déclaratif), `cotisation`, `facturation` (adresse,
+`declarations` (type, périodicité, statut déclaratif, assiette de cotisation), `facturation` (adresse,
 destinataire des factures), `exportation` (opérateur par code, expéditeur du certificat), `distillation`
 et `contratsvin` (rattachement des flux ODG par identifiant ODG, CVI ou SIRET), `acces` (contacts d'un
 e-mail et leurs droits), `notifications`, `statistiques`, `contratsarmagnac` (recherche restreinte au

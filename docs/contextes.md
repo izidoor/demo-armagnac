@@ -25,12 +25,12 @@ Statut : **A** = démarrable sans aucune réponse ; **B** = noyau démarrable, b
 | 1 | `referentiels` | Générique | A | : | : | Valeurs initiales réelles (reprise AGI) |
 | 2 | `operateurs` | Support | A | 1 | : | Dérogations -40 % vol (Q-OPE-2) ; valeurs réelles des types tiers (Q-REF-1) |
 | 3 | `authentification` (ex-`acces`) | Générique | A | 2 (« l'utilisateur peut-il se connecter ? ») | : | Fournisseur d'e-mail (SMTP ; Mailpit en dev) |
-| 4 | `cotisation` | Cœur | A | 1 | 5, 7 | Valeurs réelles des taux |
-| 5 | `contratsarmagnac` | Cœur | A (contrat achat seul) | 2 | 4, 7 | Pluri-annuels et propositions : arbitrage BNIA |
-| 6 | `declarations` | Cœur | B | 2, 4, 5 | 7 | Import Excel exact, signature, format XML/JSON |
-| 7 | `exportation` | Cœur | B | 1, 2 | 4, 5, 6 | Otentik, mise en page des certificats, matrice ventes export |
-| 8 | `facturation` | Support | B | 2, 4, 6 | : | Zeendoc (API, états) |
-| 9 | `distillation` | Support | B | 2, 4, 8 | 10 | Transport ODG (TimeTonic) |
+| 4 | ~~`cotisation`~~ | : | : | : | : | Supprimé le 2026-10-12, réparti entre 6, 8 et 9 (voir §2) |
+| 5 | `contratsarmagnac` | Cœur | A (contrat achat seul) | 2 | 7 | Pluri-annuels et propositions : arbitrage BNIA |
+| 6 | `declarations` | Cœur | B | 2, 5 | 7 | Import Excel exact, signature, format XML/JSON |
+| 7 | `exportation` | Cœur | B | 1, 2 | 5, 6 | Otentik, mise en page des certificats, matrice ventes export |
+| 8 | `facturation` | Support | B | 2, 6 | : | Zeendoc (API, états) |
+| 9 | `distillation` | Support | B | 2, 8 | 10 | Transport ODG (TimeTonic) |
 | 10 | `contratsvin` | Support | B | 2, passerelle ODG de 9 | 9 | Transport ODG ; pluri-annuels et propositions vin en arbitrage |
 | 11 | `notifications` | Générique | A | événements de 5 à 10 | 12, 13, 14 | Canal e-mail |
 | 12 | `statistiques` | Support | A | données de 5 à 8 | 11, 13, 14 | : |
@@ -62,7 +62,7 @@ Chaque bordure est suivie à part, avec l'étape où elle devient nécessaire. *
 | Mise en page des factures | `facturation` | 8 | Libre : un nouveau modèle est demandé (§4.9.8) | Gabarit libre |
 | ODG | `distillation`, `contratsvin` | 9, 10 | TimeTonic ou intégrateur : canal, format, date | Endpoint d'ingestion interne, adapter simulé |
 | Pluri-annuels et propositions | `contratsarmagnac`, `contratsvin` | 5, 10 | Arbitrage BNIA | Exclus |
-| Taux réels de cotisation | `cotisation` | 4 | Factures exemples ou BNIA | Paramètres de démonstration |
+| Taux réels de cotisation | `declarations`, `distillation` | 6, 9 | Factures exemples ou BNIA | Paramètres de démonstration |
 | Vues AGI | tous | 2 puis chaque étape | Accès AGI, types de données | Champs de la spec AGI |
 | Vues AGI manquantes (marques, circuits, produits commercialisés, médailles, membres BNIA) | `referentiels`, `operateurs` | Reprise | AGI (Q-REF-6, Q-OPE-4) | Identifiants InteGraal non traduits |
 | Dérogations Armagnac -40 % vol | `operateurs` | 2 (reprise) | Réponse du BNIA (Q-OPE-2) | Non construites |
@@ -76,7 +76,7 @@ Priorité de relance : annexe E et niveau de signature d'abord (étape 6, la plu
 ### 1. `referentiels`
 Données de référence stables, administrées par le BNIA, lues par les autres contextes : géographie (zones commerciales, pays, régions), qualification (titres, labels, types de visite, langues, centres d'intérêt), présentation et commercialisation (marques, circuits de distribution, produits commercialisés, contenances), classes et taux de TVA, membres BNIA (ajout du 2026-10-06, spec 02). Une valeur inutilisée se supprime, une valeur utilisée se désactive (ADR-011).
 Le **pays** porte sa zone commerciale (continent), un indicateur « membre de l'UE », la langue (`FR_EN`, `FR_ES`, `FR_IT`) et le niveau de détail (`CUMUL_DEGRE`, `DETAIL_COMPTE_AGE`, `DETAIL_MILLESIME`) du certificat export, et l'âge minimum à l'export. La **région** porte un indicateur « en région délimitée ». La **contenance** est un volume en litres.
-Hors du contexte : taux de cotisation (`cotisation`), destinataires export et types tiers (`exportation`), produits de la facturation manuelle (`boutique`, à raffiner), type d'opérateur (`operateurs`).
+Hors du contexte : taux de cotisation (`declarations` et `distillation`), destinataires export et types tiers (`exportation`), produits de la facturation manuelle (`boutique`, à raffiner), type d'opérateur (`operateurs`).
 **Agrégats possibles :** `ClasseTva` avec ses `TauxTva` (sans chevauchement de périodes) ; une classe par liste de valeurs.
 **Relations :** seul contexte lu directement par tous les autres, à travers une **partie publiée en lecture seule** (`..referentiels.domain.partage`, `..referentiels.application.partage`) ; référence par identifiant technique ; le code se corrige (ADR-011).
 **Spec :** [specs/01-referentiels](specs/01-referentiels/spec.md) (terminée, implémentée ; rouverte le 2026-10-06 pour `MembreBnia`, à implémenter)
@@ -100,10 +100,8 @@ Preuve d'identité, sans métier (décision du 2026-10-08) : compte de connexion
 **Spec :** [specs/03-authentification](specs/03-authentification/spec.md) (terminée, implémentée)
 **Sources :** vision (spec 02) · [BO 4.2](source/cdc/4-back-office-bnia/02-gestion-des-acces.md) · [Portail 5.1](source/cdc/5-portail-operateur/01-acces-authentification-et-gestion-du-compte.md) · [C.2](source/cdc/A-annexes/C02-gestion-des-acces-et-habilitations.md) · [C.13](source/cdc/A-annexes/C13-comptes-et-acces-operateur.md) · [AGI 3 §3.8](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
 
-### 4. `cotisation`
-Dit combien un volume déclaré doit de cotisation : paramètres datés (CVO en €/hlAP, fin de travaux en €/hl de vin distillé, pourcentage exonéré de TVA), définition de l'assiette par type d'opérateur et par colonne de DSM, calcul.
-**Agrégats possibles :** `ParametreCotisation` (historique de valeurs), règles d'assiette ; le décompte calculé est un objet-valeur.
-**Sources :** [BO 4.4 §4.4.9](source/cdc/4-back-office-bnia/04-declarations-des-stocks-et-mouvements.md) · [BO 4.9 §4.9.3-4.9.4](source/cdc/4-back-office-bnia/09-facturation-et-cotisations.md) · [BO 4.11 §4.11.2](source/cdc/4-back-office-bnia/11-parametrage-et-administration-generale.md) · [C.10 §C.10.3](source/cdc/A-annexes/C10-parametrage-et-administration-generale.md) · [AGI 2.6 §2.6.7](source/agi/2-vues-attendues-donnees-integraal/06-parametrage.md)
+### 4. ~~`cotisation`~~
+Supprimé le 2026-10-12 (analyse du contexte, option B) : une fois l'affichage et la facturation de la cotisation rendus à leurs contextes, il ne restait qu'une table de paramètres et un calcul. Chaque élément va à son propriétaire naturel : l'assiette et le montant `CVO` à `declarations`, le montant fin de travaux à `distillation`, l'application de la TVA à `facturation`. Le CDC n'en fait pas un module à part (§4.4.9, §4.6.2, §4.9). `CVE` et `CVO` sont synonymes, interchangeables dans le CDC (décision du 2026-10-12).
 
 ### 5. `contratsarmagnac`
 Achats et ventes d'Armagnac entre opérateurs : saisie par le BNIA ou un opérateur, validation par l'acheteur, le vendeur et le BNIA, notion de contrat « exécuté » (couvre les volumes déclarés en DSM). Inclut les pluri-annuels et propositions d'engagement Armagnac, dont le maintien est en arbitrage au BNIA.
@@ -114,6 +112,7 @@ Au portail, l'autre partie d'un contrat se désigne par la recherche restreinte 
 ### 6. `declarations`
 Déclarations de stocks et mouvements : génération par le BNIA pour une période, saisie (5 onglets, 26 colonnes, colonnes grisées pour les producteurs), import Excel, justificatifs, DRM des producteurs, contrôles de cohérence bloquants, validation et signature, passage à la facturation.
 Lit dans `operateurs` le type, la périodicité courante et le statut de déclaration de stock : seul `OUI` rend une DSM attendue (H-OPE-2, à confirmer, Q-OPE-7). Les incohérences de périodicité sont signalées à la génération (§4.4.2). Auteurs (« saisie par », « déposée par ») : identifiant de l'utilisateur et copie de son nom (§3).
+Porte aussi la **cotisation sur DSM** (reprise de `cotisation`, décision du 2026-10-12) : l'assiette (colonnes soumises selon le type d'opérateur, §4.4.9, §4.9.3, AGI 2.6.7), le montant `CVO` en €/hlAP et son pourcentage exonéré de TVA, datés et sans effet sur les calculs déjà produits (§4.11.2, C.10.3), et le calcul du total de cotisation de la DSM.
 **Agrégats possibles :** `DeclarationStocksMouvements` (lignes, justificatifs, DRM attendues) ; la signature est peut-être un objet de ce même agrégat.
 **Sources :** [BO 4.4](source/cdc/4-back-office-bnia/04-declarations-des-stocks-et-mouvements.md) · [Portail 5.4](source/cdc/5-portail-operateur/04-declarations-de-stocks-et-mouvements.md) · [C.3](source/cdc/A-annexes/C03-declarations-de-stocks-et-mouvements.md) · [Annexe E](source/cdc/A-annexes/E-exemples-de-fichiers.md) · [AGI 2.2](source/agi/2-vues-attendues-donnees-integraal/02-declarations-de-stocks-et-mouvements.md)
 
@@ -126,13 +125,14 @@ Le vendeur est retrouvé par son code opérateur à l'import ; la raison sociale
 
 ### 8. `facturation`
 Émission, diffusion et suivi des factures et avoirs : factures de cotisation (DSM, fin de travaux), factures de commande boutique, factures manuelles, avoirs, PDF, dépôt dans Zeendoc et retour d'état de règlement.
-Le taux de TVA vient de `referentiels` et il est figé sur la facture et l'avoir. Les produits de la facturation manuelle sont décrits ici par le CDC (§4.9.2, C.8.2) mais placés dans `boutique` (décision du 2026-10-06, à raffiner : voir §5).
+Le taux de TVA vient de `referentiels` et il est figé sur la facture et l'avoir. Une facture de cotisation reçoit de `declarations` ou de `distillation` le montant, le taux et le pourcentage exonéré, et applique la TVA (§4.9.3-4.9.4, §4.9.7 pour l'avoir). Les produits de la facturation manuelle sont décrits ici par le CDC (§4.9.2, C.8.2) mais placés dans `boutique` (décision du 2026-10-06, à raffiner : voir §5).
 L'adresse et le destinataire des factures (une personne de l'annuaire de l'opérateur ou une adresse saisie) sont lus dans `operateurs` et figés sur la facture (C.8.1.1, spec 02).
 **Agrégats possibles :** `Facture`, `Avoir` ; l'état de transmission à Zeendoc est un état de la facture.
 **Sources :** [BO 4.9](source/cdc/4-back-office-bnia/09-facturation-et-cotisations.md) · [Portail 5.10](source/cdc/5-portail-operateur/10-factures-et-paiements.md) · [Passerelles 6 §6.2](source/cdc/6-passerelles-et-interfaces/01-passerelles-et-interfaces.md) · [C.8](source/cdc/A-annexes/C08-facturation-et-cotisations.md) · [Annexe D](source/cdc/A-annexes/D-cartographie-des-interfaces-et-flux.md) · [AGI 2.3](source/agi/2-vues-attendues-donnees-integraal/03-factures.md)
 
 ### 9. `distillation`
 Fins de travaux de distillation reçues de l'ODG, sans doublon en cas de retransmission, non modifiables côté BNIA et portail, rendues facturables. Porte la première passerelle ODG.
+Porte aussi la **cotisation sur fin de travaux** (reprise de `cotisation`, décision du 2026-10-12) : montant en €/hl de vin distillé et pourcentage exonéré de TVA, datés (§4.11.2, C.10.3), et calcul de la cotisation de la déclaration (§4.6.2, §4.9.4).
 La passerelle rattache chaque flux à une fiche par l'identifiant tiers ODG, puis par CVI ou SIRET, lus dans `operateurs` (le code BNIA n'est pas partagé avec l'ODG, spec 02).
 **Agrégats possibles :** `DeclarationFinTravaux`.
 **Sources :** [BO 4.6](source/cdc/4-back-office-bnia/06-declarations-de-fin-de-travaux-de-distillation.md) · [Passerelles 6 §6.1](source/cdc/6-passerelles-et-interfaces/01-passerelles-et-interfaces.md) · [C.5](source/cdc/A-annexes/C05-declarations-de-fin-de-travaux-de-distillation.md) · [AGI 3 §3.7](source/agi/3-vues-attendues-donnees-pro-armagnac-fr/01-vues-attendues-donnees-pro-armagnac-fr.md)
@@ -180,7 +180,7 @@ Contenus diffusés dans le portail : actualités et catégories, ressources docu
 
 ## 4. Ébauche de context map
 
-À lire comme une hypothèse de départ. `operateurs` et `referentiels` sont consultés par presque tous (non dessinés), et `notifications` comme `statistiques` écoutent ou lisent les autres. Lectures principales de `referentiels` : `operateurs` (régions, titres, langues, marques…), `exportation` (pays, contenances), `cotisation`, `facturation` et `boutique` (taux de TVA à une date). Ces lectures passent par la partie publiée de `referentiels`, sans port côté consommateur. Seule écriture venue d'ailleurs : la création d'une marque depuis la fiche opérateur, par l'écran. `operateurs` est lu par presque tous, par sa partie publiée en lecture seule (A-OPE-1), et fournit à tous les droits d'un utilisateur. `authentification` demande à `operateurs` si un utilisateur peut se connecter ; son compte est créé, renommé et supprimé par les événements de `operateurs` (A-AUT-1), sans dépendance inverse.
+À lire comme une hypothèse de départ. `operateurs` et `referentiels` sont consultés par presque tous (non dessinés), et `notifications` comme `statistiques` écoutent ou lisent les autres. Lectures principales de `referentiels` : `operateurs` (régions, titres, langues, marques…), `exportation` (pays, contenances), `facturation` et `boutique` (taux de TVA à une date). Ces lectures passent par la partie publiée de `referentiels`, sans port côté consommateur. Seule écriture venue d'ailleurs : la création d'une marque depuis la fiche opérateur, par l'écran. `operateurs` est lu par presque tous, par sa partie publiée en lecture seule (A-OPE-1), et fournit à tous les droits d'un utilisateur. `authentification` demande à `operateurs` si un utilisateur peut se connecter ; son compte est créé, renommé et supprimé par les événements de `operateurs` (A-AUT-1), sans dépendance inverse.
 
 ```mermaid
 flowchart LR
@@ -196,7 +196,6 @@ flowchart LR
 
   subgraph Coeur
     DEC[declarations]
-    COT[cotisation]
     EXP[exportation]
     CAR[contratsarmagnac]
   end
@@ -210,8 +209,6 @@ flowchart LR
   ODG --> CVI
   ODG --> DIS
   CAR -->|"contrat execute ?"| DEC
-  COT -->|"calcul"| DEC
-  COT -->|"calcul"| FAC
   DEC -.->|"DsmValidee"| FAC
   DIS -.->|"FinTravauxRecue"| FAC
   FAC -.->|"FactureEmise"| DEC
@@ -229,7 +226,7 @@ flowchart LR
 - **Type tiers et type d'opérateur** : la liste « types tiers » est probablement l'ancien type de la fiche professionnel d'InteGraal (AGI 2.1.1). Le type d'opérateur est tranché (`PRODUCTEUR`, `NEGOCIANT`, `AUTRE`, spec 02) ; seule sa reprise reste suspendue à Q-REF-1. *(reprise, étape 7)*
 - ~~**Lecture d'un opérateur par les autres contextes**~~ : tranché le 2026-10-06, partie publiée en lecture seule comme `referentiels` (A-OPE-1 de la spec 02).
 - **Statut de déclaration de stock** : sens de « sommeil » et « clôturé », effet sur la génération et sur la règle « pas de trou » entre deux DSM (§4.4.2). *(étape 6)* Q-OPE-7
-- **Taux de cotisation** : le CDC cible décrit un montant unique par type de cotisation, l'ancien système avait des taux par colonne. *(étape 4)*
+- **Taux de cotisation** : le CDC cible décrit un montant unique par type de cotisation, l'ancien système avait des taux par colonne. *(étape 6, `declarations`)*
 - **Pays** : la cible porte une langue et un niveau de détail de certificat, et un âge minimum (spec `referentiels`). Restent inexpliqués les champs CA et CA1 à CA5 de la vue AGI, sans doute les modèles de certificat autorisés. *(reprise)* Q-REF-2
 - **Pluri-annuels et propositions d'engagement** : maintien en arbitrage au BNIA. *(étapes 5 et 10)*
 - **États de la DSM** : deux versions dans le CDC (§4.4.2 et C.3.1.1). *(étape 6)* **(nous)**
@@ -257,3 +254,4 @@ flowchart LR
 | 2026-10-08 | `authentification`, `operateurs` | Spec 03 commencée d'après la vision du 2026-10-08 (phases A à C). `acces` remplacé par `authentification`, preuve d'identité sans métier (double authentification par e-mail pour tous, Spring Security seul). Personnes et accès dans `operateurs` (spec 02 en révision) : contact ou membre, utilisateur, fiche professionnelle, rattachement, invitation ; rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN` et modules ; BNIA opérateur de type `BNIA`, ses rôles valant partout ; l'opérateur actif décide de l'espace. Fiches `operateurs`, `authentification`, `declarations`, `contratsarmagnac`, `exportation`, `facturation`, `notifications` ; éléments transverses (droits, auteur d'une action, espaces) ; context map ; bordure e-mail. Reprise des données hors périmètre du prototype. |
 | 2026-10-08 | `authentification`, `operateurs` | Spec 03 terminée (phases D à G : architecture A-AUT-1 à 4 et A-OPE-6 à 9 ; hypothèses et questions tranchées ; glossaire). Révision de la spec 02 validée, à réimplémenter. Prochaine étape : ADR, puis implémentation conjointe de `authentification` et de la révision de `operateurs`. |
 | 2026-10-08 | `authentification`, `operateurs` | ADR-015 (authentification, contexte d'infrastructure) et ADR-016 (personnes et accès dans `operateurs`) ; ADR-011, 012 et 013 amendés ; `CLAUDE.md` mis à jour. Prochaine étape : implémentation (skill `implementation`) de `authentification` et de la révision de `operateurs`, dans ce worktree. |
+| 2026-10-12 | `cotisation` | Analyse du contexte : `cotisation` supprimé (option B). Assiette et montant `CVO` à `declarations`, montant fin de travaux à `distillation`, application de la TVA à `facturation`. Dépendances vers 4 retirées. `CVE` et `CVO` synonymes. |
