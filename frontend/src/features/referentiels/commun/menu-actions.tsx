@@ -7,6 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useGestionParametrage } from './use-gestion-parametrage'
 
 type MenuActionsProps = {
   actif: boolean
@@ -15,13 +16,18 @@ type MenuActionsProps = {
   onSupprimer: () => void
 }
 
-/** Actions d'une ligne : modifier, désactiver ou réactiver, supprimer si rien ne l'utilise (RG-REF-04). */
+/**
+ * Actions d'une ligne : modifier, désactiver ou réactiver, supprimer si rien ne l'utilise (RG-REF-04) ;
+ * absentes sans la gestion du module Paramétrage (RG-OPE-31).
+ */
 export function MenuActions({
   actif,
   onModifier,
   onChangerEtat,
   onSupprimer,
 }: MenuActionsProps) {
+  const gestion = useGestionParametrage()
+  if (!gestion) return null
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>

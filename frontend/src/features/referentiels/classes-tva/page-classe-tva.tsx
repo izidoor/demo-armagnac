@@ -52,6 +52,7 @@ import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
 import { Suppression } from '../commun/suppression'
+import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
 import { formatDate, formatTaux } from './format'
 
@@ -62,6 +63,7 @@ import { formatDate, formatTaux } from './format'
  */
 export function PageClasseTva({ id }: { id: number }) {
   const queryClient = useQueryClient()
+  const gestion = useGestionParametrage()
   const requete = useQuery({
     queryKey: ['classes-tva', 'detail', id],
     queryFn: () =>
@@ -125,20 +127,22 @@ export function PageClasseTva({ id }: { id: number }) {
         </span>
       }
       actions={
-        <div className='flex gap-2'>
-          <Button variant='outline' onClick={() => setRenommage(true)}>
-            Modifier
-          </Button>
-          <Button variant='outline' onClick={() => setChangementEtat(true)}>
-            {classe.actif ? 'Désactiver' : 'Réactiver'}
-          </Button>
-          <Button variant='outline' onClick={() => setSuppression(true)}>
-            Supprimer
-          </Button>
-          <Button onClick={() => setEditionTaux('nouveau')}>
-            <Plus /> Ajouter un taux
-          </Button>
-        </div>
+        gestion && (
+          <div className='flex gap-2'>
+            <Button variant='outline' onClick={() => setRenommage(true)}>
+              Modifier
+            </Button>
+            <Button variant='outline' onClick={() => setChangementEtat(true)}>
+              {classe.actif ? 'Désactiver' : 'Réactiver'}
+            </Button>
+            <Button variant='outline' onClick={() => setSuppression(true)}>
+              Supprimer
+            </Button>
+            <Button onClick={() => setEditionTaux('nouveau')}>
+              <Plus /> Ajouter un taux
+            </Button>
+          </div>
+        )
       }
     >
       {retour}
@@ -184,20 +188,24 @@ export function PageClasseTva({ id }: { id: number }) {
                   {taux.dateDebut === enVigueur && <Badge>En vigueur</Badge>}
                 </TableCell>
                 <TableCell className='text-end'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => setEditionTaux(taux)}
-                  >
-                    Modifier
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => setRetrait(taux)}
-                  >
-                    Retirer
-                  </Button>
+                  {gestion && (
+                    <>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => setEditionTaux(taux)}
+                      >
+                        Modifier
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => setRetrait(taux)}
+                      >
+                        Retirer
+                      </Button>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

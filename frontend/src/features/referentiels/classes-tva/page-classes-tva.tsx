@@ -17,6 +17,7 @@ import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
 import { formatDate, formatTaux } from './format'
 
@@ -24,6 +25,7 @@ export function PageClassesTva() {
   const filtreValeurs = useFiltreValeurs()
   const { filtre } = filtreValeurs
   const queryClient = useQueryClient()
+  const gestion = useGestionParametrage()
   const navigate = useNavigate()
   const requete = useQuery({
     queryKey: ['classes-tva', filtre],
@@ -39,9 +41,11 @@ export function PageClassesTva() {
       titre='Classes de TVA'
       description='Classes de TVA et historique de leurs taux ; les taux ne se chevauchent pas (§4.11.1, C.10.1-2). Cliquer une classe pour ouvrir son historique.'
       actions={
-        <Button onClick={() => setCreation(true)}>
-          <Plus /> Nouvelle classe
-        </Button>
+        gestion && (
+          <Button onClick={() => setCreation(true)}>
+            <Plus /> Nouvelle classe
+          </Button>
+        )
       }
     >
       <BarreFiltre {...filtreValeurs} />

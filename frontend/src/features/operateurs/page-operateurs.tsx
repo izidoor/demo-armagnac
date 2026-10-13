@@ -26,6 +26,7 @@ import {
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
+import { useDroits, useMoi } from '@/features/session/session'
 import { TYPES, TYPES_CHOISIS, type TypeOperateur } from './commun/libelles'
 import { CreationOperateur } from './creation-operateur'
 
@@ -39,6 +40,10 @@ export function PageOperateurs() {
   const [etat, setEtat] = useState('actifs')
   const [completude, setCompletude] = useState(TOUS)
   const [creation, setCreation] = useState(false)
+  const { actif } = useMoi()
+  // RG-OPE-32 : créer un opérateur demande la gestion du module Contacts dans l'opérateur BNIA (l'actif).
+  const creationPermise =
+    useDroits(actif?.operateur ?? 0)?.contacts === 'GESTION'
   const rechercheStable = useDebounce(recherche)
 
   const filtre = {
@@ -84,9 +89,11 @@ export function PageOperateurs() {
           <Button variant='outline' onClick={exporter}>
             <Download /> Exporter
           </Button>
-          <Button onClick={() => setCreation(true)}>
-            <Plus /> Nouvel opérateur
-          </Button>
+          {creationPermise && (
+            <Button onClick={() => setCreation(true)}>
+              <Plus /> Nouvel opérateur
+            </Button>
+          )}
         </div>
       }
     >

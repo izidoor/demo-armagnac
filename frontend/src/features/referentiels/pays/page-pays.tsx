@@ -31,6 +31,7 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 import { FormulairePays, type SaisiePays } from './formulaire-pays'
 import { LANGUES_CERTIFICAT, NIVEAUX_DETAIL } from './libelles'
 
@@ -46,6 +47,7 @@ export function PagePays() {
   const filtreValeurs = useFiltreValeurs()
   const { filtre } = filtreValeurs
   const queryClient = useQueryClient()
+  const gestion = useGestionParametrage()
   const requete = useQuery({
     queryKey: ['pays', filtre],
     queryFn: () =>
@@ -71,9 +73,11 @@ export function PagePays() {
       titre='Pays'
       description="Zone commerciale, appartenance à l'UE, certificat export et âge minimum (C.10.5)."
       actions={
-        <Button onClick={() => setEdition('nouveau')}>
-          <Plus /> Nouveau pays
-        </Button>
+        gestion && (
+          <Button onClick={() => setEdition('nouveau')}>
+            <Plus /> Nouveau pays
+          </Button>
+        )
       }
     >
       <BarreFiltre

@@ -50,6 +50,7 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 
 const schema = z.object({
   volume: z
@@ -76,6 +77,7 @@ export function PageContenances() {
   const filtreValeurs = useFiltreValeurs()
   const { filtre } = filtreValeurs
   const queryClient = useQueryClient()
+  const gestion = useGestionParametrage()
   const requete = useQuery({
     queryKey: ['contenances', filtre],
     queryFn: () =>
@@ -97,9 +99,11 @@ export function PageContenances() {
       titre='Contenances'
       description="Volumes en litres, utilisés pour le calcul du volume d'alcool pur des ventes export (C.10.9.4, §4.7.5)."
       actions={
-        <Button onClick={() => setEdition('nouvelle')}>
-          <Plus /> Nouvelle contenance
-        </Button>
+        gestion && (
+          <Button onClick={() => setEdition('nouvelle')}>
+            <Plus /> Nouvelle contenance
+          </Button>
+        )
       }
     >
       <BarreFiltre

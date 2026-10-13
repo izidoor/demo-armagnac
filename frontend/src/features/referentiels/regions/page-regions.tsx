@@ -50,6 +50,7 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 
 const schema = z.object({
   code: z.string().trim().min(1, 'Le code est obligatoire.'),
@@ -63,6 +64,7 @@ export function PageRegions() {
   const filtreValeurs = useFiltreValeurs()
   const { filtre } = filtreValeurs
   const queryClient = useQueryClient()
+  const gestion = useGestionParametrage()
   const requete = useQuery({
     queryKey: ['regions', filtre],
     queryFn: () =>
@@ -82,9 +84,11 @@ export function PageRegions() {
       titre='Régions'
       description="Régions de rattachement des opérateurs ; l'indicateur distingue la région délimitée de l'Armagnac (C.10.6, C.1.1.2)."
       actions={
-        <Button onClick={() => setEdition('nouvelle')}>
-          <Plus /> Nouvelle région
-        </Button>
+        gestion && (
+          <Button onClick={() => setEdition('nouvelle')}>
+            <Plus /> Nouvelle région
+          </Button>
+        )
       }
     >
       <BarreFiltre {...filtreValeurs} />

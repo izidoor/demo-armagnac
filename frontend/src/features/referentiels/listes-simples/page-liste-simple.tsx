@@ -19,6 +19,7 @@ import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
+import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 import { FormulaireValeurSimple } from './formulaire-valeur-simple'
 import { type ConfigListeSimple } from './listes'
 
@@ -28,6 +29,7 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
   const filtreValeurs = useFiltreValeurs()
   const { filtre } = filtreValeurs
   const queryClient = useQueryClient()
+  const gestion = useGestionParametrage()
   const requete = useQuery({
     queryKey: [api.cle, filtre],
     queryFn: () => api.lister(filtre),
@@ -46,9 +48,11 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
       titre={config.titre}
       description={config.description}
       actions={
-        <Button onClick={() => setEdition('nouvelle')}>
-          <Plus /> {config.libelleNouveau}
-        </Button>
+        gestion && (
+          <Button onClick={() => setEdition('nouvelle')}>
+            <Plus /> {config.libelleNouveau}
+          </Button>
+        )
       }
     >
       <BarreFiltre {...filtreValeurs} />
