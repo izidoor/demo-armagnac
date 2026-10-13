@@ -6,6 +6,7 @@ import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -152,14 +153,57 @@ public final class DeclarationStocksMouvements {
 
     /**
      * RG-DEC-20 : le BNIA valide une DSM en instruction, ou dès ses compléments reçus, sans la reprendre en
-     * instruction ; elle est alors figée. Pièces manquantes : lot 3.
+     * instruction ; elle est alors figée. RG-DEC-29 : pas tant qu'il manque une pièce.
+     *
+     * @param manques les pièces manquantes ({@link ControlePieces#manques})
      */
-    public void valider(Auteur par, Instant le, Long versionLue) {
+    public void valider(Auteur par, Instant le, Long versionLue, List<Manque> manques) {
         exigerEtat(EtatDsm.EN_INSTRUCTION, EtatDsm.COMPLEMENTS_RECUS, "validée");
         Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        if (!manques.isEmpty()) {
+            int nombre = manques.size();
+            throw new RegleEnfreinte("RG-DEC-29", "La DSM de " + periode.libelle() + " ne peut pas être validée : "
+                    + (nombre == 1 ? "une pièce manque. " : nombre + " pièces manquent, dont : ")
+                    + manques.getFirst().message());
+        }
         this.etat = EtatDsm.VALIDEE;
         this.valideeLe = Objects.requireNonNull(le, "le");
         this.valideePar = Objects.requireNonNull(par, "par");
+    }
+
+    /** RG-DEC-27 : une DSM producteur attend une DRM par mois de sa période ; une DSM négociant, aucune. */
+    public List<YearMonth> moisAttendus() {
+        if (type != TypeDeclarant.PRODUCTEUR) {
+            return List.of();
+        }
+        List<YearMonth> mois = new ArrayList<>();
+        for (YearMonth m = YearMonth.from(periode.debut()); !m.isAfter(YearMonth.from(periode.fin())); m = m.plusMonths(1)) {
+            mois.add(m);
+        }
+        return List.copyOf(mois);
+    }
+
+    /** RG-DEC-27 : une DRM porte sur un mois de la période d'une DSM producteur. */
+    public void exigerMoisDrm(YearMonth mois) {
+        if (type != TypeDeclarant.PRODUCTEUR) {
+            throw new RegleEnfreinte("RG-DEC-27", "Une DSM de négociant n'a pas de DRM.");
+        }
+        if (!moisAttendus().contains(mois)) {
+            throw new RegleEnfreinte("RG-DEC-27", "Le mois " + mois + " n'est pas dans la période de la DSM ("
+                    + periode.libelle() + ").");
+        }
+    }
+
+    /**
+     * RG-DEC-28 : l'opérateur dépose et supprime pièces et DRM quand la DSM est chez lui ({@code BROUILLON},
+     * {@code COMPLEMENTS_DEMANDES}) ; le BNIA dans tout état sauf {@code VALIDEE}.
+     */
+    public void exigerPiecesModifiables(Cote cote) {
+        boolean permis = cote == Cote.BNIA ? etat != EtatDsm.VALIDEE : etat.modifiable();
+        if (!permis) {
+            throw new RegleEnfreinte("RG-DEC-28", "La DSM de " + periode.libelle() + " est « "
+                    + etat.libelle(cote).toLowerCase() + " » : ses pièces ne se déposent ni ne se suppriment plus.");
+        }
     }
 
     /** RG-DEC-20 : la transition part de l'un de ces états ; aucune ne sort de {@code VALIDEE}. */

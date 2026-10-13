@@ -100,7 +100,12 @@ export function PageDsmBnia() {
         : enCours.filter((d) => etat === TOUS || d.etat === etat)
   const enCoursVue = vue === 'en-cours'
   const queryClient = useQueryClient()
-  // RG-DEC-20 : la prise en instruction se fait aussi depuis le listing, sans ouvrir la DSM.
+  const ouvrir = (operateurId: number, id: number) =>
+    navigate({
+      to: '/bo/operateurs/$id/dsm/$dsm',
+      params: { id: String(operateurId), dsm: String(id) },
+    })
+  // RG-DEC-20 : la prise en instruction se fait aussi depuis le listing ; la DSM prise en charge s'ouvre ensuite.
   const priseEnInstruction = useMutation({
     mutationFn: (d: DsmListee) =>
       prendreDsmEnInstruction({
@@ -111,16 +116,12 @@ export function PageDsmBnia() {
     meta: { erreurAffichee: true },
     onSuccess: (_, d) => {
       toast.success(
-        `DSM de ${d.periode.libelle} de ${d.raisonSociale} prise en instruction.`
+        `DSM de ${d.periode.libelle} de ${d.raisonSociale} prise en charge.`
       )
       queryClient.invalidateQueries({ queryKey: ['declarations'] })
+      ouvrir(d.operateur, d.id)
     },
   })
-  const ouvrir = (operateurId: number, id: number) =>
-    navigate({
-      to: '/bo/operateurs/$id/dsm/$dsm',
-      params: { id: String(operateurId), dsm: String(id) },
-    })
 
   return (
     <PageMetier
@@ -296,7 +297,7 @@ export function PageDsmBnia() {
                             priseEnInstruction.mutate(d)
                           }}
                         >
-                          Prendre en instruction
+                          Prendre en charge
                         </Button>
                       )}
                     </TableCell>

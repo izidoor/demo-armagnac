@@ -478,7 +478,7 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
     instruction, compléments demandés ; filtre d'état, « tous » par défaut), *Validées*, *Facturées*
     (rempli au lot 4) ; filtres opérateur (recherche par code ou raison sociale), type de déclarant,
     période ; colonnes opérateur, type, période, état, puis, en cours, modifiée le (dernière action au
-    journal) et « Prendre en instruction » sur une DSM à prendre en charge, ailleurs envoyée le et validée
+    journal) et « Prendre en charge » sur une DSM à prendre en charge, qui la passe en instruction puis l'ouvre, ailleurs envoyée le et validée
     le ; ouverture de la DSM, dont le retour ramène au listing (lot 2). Puis « à facturer » dans les validées, total HT (lot 4) ; échéance, « en retard »,
     « absente » (lot 7) : une période absente apparaît comme une ligne sans DSM.
   - *Stocks déclarés* (UC-DEC-1) : par opérateur et par ligne (clé, millésime ou dénomination, compte
@@ -519,11 +519,16 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
   *Mouvements en sortie*, celui de la colonne 10 dont elle date les pertes (H-DEC-12). Bouton
   « Enregistrer ».
 - **Panneau des anomalies et des manques** : chaque anomalie (lot 1) et chaque pièce manquante (lot 3)
-  avec son niveau et son écart ; un clic ouvre l'onglet et la ligne concernés (§4.4.7 p.27).
-- **Onglet *Pièces*** (lot 3) : justificatifs, groupés par type de mouvement, avec leur rattachement
-  (DSM ou ligne) ; dépôt (type de mouvement, type de pièce, ligne facultative, référence DAE/DAI, PDF),
-  téléchargement, suppression ; pour un producteur, les mois de la période avec l'état de leur DRM
-  (déposée ou attendue), dépôt, téléchargement, suppression.
+  avec son niveau et son écart ; un clic ouvre l'onglet et la ligne concernés, ou l'onglet *Pièces*
+  pour un manque (§4.4.7 p.27). Les manques sont recalculés avec la vue provisoire.
+- **Onglet *Pièces*** (lot 3), après les cinq du format unique, avec le nombre de manques : justificatifs,
+  groupés par type de mouvement (avec ses colonnes et ses types de pièce, « pièce attendue » s'il en
+  manque une), avec leur rattachement (DSM, ligne, ou « ligne supprimée » : comme un commentaire, la
+  pièce d'une ligne ajoutée puis supprimée passe sur la DSM avec le libellé de la ligne) ; dépôt (type
+  de mouvement, type de pièce filtré selon lui, ligne facultative, référence DAE/DAI, PDF), ouverture
+  du PDF dans un nouvel onglet, suppression confirmée ; pour un producteur, les mois de la période avec
+  l'état de leur DRM (déposée ou attendue), dépôt, ouverture, suppression. Une pièce déposée ne change
+  pas la version de la DSM.
 - **Section *Commentaires*** (lot 2), sous le classeur et hors des onglets (elle ne fait pas partie de
   la saisie, décision du 2026-10-13) : le fil, du plus ancien au plus récent ; un commentaire peut viser
   une ligne (lien vers elle) ; « interne » à cocher côté BNIA, signalé par un badge ; « modifié »
@@ -540,13 +545,14 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
 | État | Opérateur (gestion) | BNIA (gestion) |
 |---|---|---|
 | `BROUILLON` | enregistrer, importer (lot 6), déposer des pièces (lot 3), envoyer (lot 2), supprimer | supprimer |
-| `ENVOYEE` | — | prendre en instruction |
+| `ENVOYEE` | — | prendre en charge (la DSM passe en instruction) |
 | `EN_INSTRUCTION` | — | demander des compléments (motif obligatoire), valider |
 | `COMPLEMENTS_DEMANDES` | enregistrer, importer, déposer des pièces, renvoyer | — |
 | `COMPLEMENTS_RECUS` | — | demander des compléments, valider |
 | tous | commenter, éditer en PDF (lot 5) et Excel (lot 6) | commenter, éditer, déposer des pièces sauf `VALIDEE` (lot 3) |
 
-  L'envoi et la validation désactivés montrent leur motif (anomalies, manques). Les lecteurs
+  L'envoi et la validation désactivés montrent leur motif (anomalies, manques). La confirmation d'envoi
+  signale les manques, qui ne bloquent pas l'envoi (H-DEC-13). Les lecteurs
   (`OBSERVATEUR`) voient tout sans action, sauf éditer.
 
 ## 7. Données
@@ -718,3 +724,5 @@ Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsa
 | 2026-10-13 | Implémentation, lot 2 : décisions en séance. Commentaires dans une **section sous le classeur**, pas dans un onglet (§6.3) ; ceux d'une ligne ajoutée puis supprimée **passent sur la DSM** avec le libellé de la ligne ; **« Envoyer » enregistre puis envoie**, après confirmation, désactivé avec son motif tant qu'il reste une anomalie ; démonstration des négociants au **mois courant** (§7.1). Choix d'implémentation : commentaires enregistrés à part de la DSM (les écrire ne change pas sa version) ; actions permises calculées par le serveur selon l'état et le côté, montrées telles quelles par l'écran ; chaque transition envoie la version lue (409 sinon) ; listing du BNIA en onglets *En cours*, *Validées*, *Facturées* (revue de l'utilisateur, au lieu du filtre par défaut « envoyées »), filtré par opérateur (recherche de `operateurs`), type, mois contenu dans la période et états ; un compte ADMIN de démonstration pour Maison Larressingle et Négoce des Landes. |
 | 2026-10-13 | Implémentation, lot 2, revue de l'utilisateur : nouvel état `COMPLEMENTS_RECUS` au renvoi après compléments (auparavant `ENVOYEE`), d'où le BNIA demande de nouveau des compléments ou valide, sans reprise en instruction ; libellés d'état selon le côté, fournis par le serveur : `ENVOYEE` « Envoyée » / « À prendre en charge », `COMPLEMENTS_RECUS` « Compléments envoyés » / « Compléments reçus » (RG-DEC-20, 40, H-DEC-6, 19, §3.2, §6.3). |
 | 2026-10-13 | Implémentation, lot 2, revue de l'utilisateur : dans l'onglet *En cours* du listing du BNIA, « modifiée le » (date de la dernière entrée du journal de la DSM, aucune colonne ajoutée) remplace « envoyée le », et « Prendre en instruction » remplace « validée le », sur les DSM à prendre en charge et pour qui gère le module au BNIA (§6.1). |
+| 2026-10-13 | Implémentation, lot 3 : choix d'implémentation. Pièces (justificatifs, DRM) enregistrées **à part de la DSM**, comme les commentaires : un dépôt ne change pas sa version. Le `DocumentDepose` (clé, nom, type, taille) est copié dans `justificatif` et `drm`, avec clé étrangère vers `documents.document` (ADR-011, 018) ; le stockage vérifie 10 Mo et la signature `%PDF` (`DocumentRefuse`, 422), `spring.servlet.multipart` est réglé à 10 Mo. Justificatif d'une ligne ajoutée puis supprimée : passe sur la DSM avec le libellé de la ligne. Dépôt en `multipart/form-data` ; PDF servi `inline`, ouvert dans un nouvel onglet, lisible par tout lecteur de la DSM, observateur compris. Manques calculés dans la vue de la DSM (deux lectures, jamais une par ligne) ; « Valider » désactivé avec son motif ; la confirmation d'envoi les signale. Démonstration : douze DRM et un DAE sur la DSM validée de la Maison Durand, Condom ; aucune pièce sur Gascogne et Larressingle, dont les manques bloquent la validation (§6.3, §7.1). |
+| 2026-10-13 | Revue de l'utilisateur : le bouton « Prendre en instruction » devient « Prendre en charge », au listing du BNIA comme sur l'écran de la DSM, en écho à l'état « À prendre en charge » ; l'état atteint reste « En instruction ». Depuis le listing, il ouvre ensuite la DSM prise en charge (§6.1, §6.3). |

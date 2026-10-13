@@ -72,6 +72,20 @@ final class Autorisations {
      * @return le côté de l'auteur
      */
     Cote exigerCommentaire(Acteur acteur, long operateur) {
+        return exigerCote(acteur, operateur, "commenter les");
+    }
+
+    /**
+     * RG-DEC-01, 28 : déposer ou supprimer une pièce, comme l'opérateur ou comme le BNIA ; l'état permis
+     * dépend du côté.
+     *
+     * @return le côté de l'acteur
+     */
+    Cote exigerPieces(Acteur acteur, long operateur) {
+        return exigerCote(acteur, operateur, "déposer ou supprimer les pièces des");
+    }
+
+    private Cote exigerCote(Acteur acteur, long operateur, String verbe) {
         OperateurVue vue = exigerLecture(acteur, operateur);
         Droits droits = droits(acteur, operateur);
         if (droits.local().map(r -> r.gere(Module.DECLARATIONS)).orElse(false)) {
@@ -80,7 +94,7 @@ final class Autorisations {
         if (droits.bnia().map(r -> r.gere(Module.DECLARATIONS)).orElse(false)) {
             return Cote.BNIA;
         }
-        throw new AccesRefuse("RG-DEC-01", "Votre rôle ne permet pas de commenter les déclarations de "
+        throw new AccesRefuse("RG-DEC-01", "Votre rôle ne permet pas de " + verbe + " déclarations de "
                 + vue.raisonSociale() + ".");
     }
 

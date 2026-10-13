@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.ModificationConcurrente;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -36,7 +37,7 @@ class CycleDsmTest {
             "envoyer", d -> d.envoyer(MAINTENANT, null),
             "prendre en instruction", d -> d.prendreEnInstruction(null),
             "demander des compléments", d -> d.demanderComplements(null),
-            "valider", d -> d.valider(BNIA, MAINTENANT, null));
+            "valider", d -> d.valider(BNIA, MAINTENANT, null, List.of()));
 
     private static final Map<String, Set<EtatDsm>> DEPARTS = Map.of(
             "envoyer", EnumSet.of(EtatDsm.BROUILLON, EtatDsm.COMPLEMENTS_DEMANDES),
@@ -59,7 +60,7 @@ class CycleDsmTest {
         assertThat(dsm.etat()).isEqualTo(EtatDsm.COMPLEMENTS_RECUS);
         assertThat(dsm.envoyeeLe()).isEqualTo(MAINTENANT.plusSeconds(60));
         refuse("RG-DEC-20", () -> dsm.prendreEnInstruction(null));
-        dsm.valider(BNIA, MAINTENANT.plusSeconds(120), null);
+        dsm.valider(BNIA, MAINTENANT.plusSeconds(120), null, List.of());
         assertThat(dsm.etat()).isEqualTo(EtatDsm.VALIDEE);
         assertThat(dsm.valideePar()).isEqualTo(BNIA);
         assertThat(dsm.valideeLe()).isEqualTo(MAINTENANT.plusSeconds(120));

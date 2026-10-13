@@ -4,9 +4,12 @@ import {
   consulterDsm,
   consulterJournalDeclarations,
   consulterJournalDsm,
+  consulterPiecesDsm,
   consulterPointDeDepart,
   consulterSituationDsm,
   demanderComplementsDsm,
+  deposerDrm,
+  deposerJustificatifDsm,
   ecrireCommentaireDsm,
   enregistrerDsm,
   envoyerDsm,
@@ -19,9 +22,12 @@ import {
   modifierPointDeDepart,
   prendreDsmEnInstruction,
   supprimerCommentaireDsm,
+  supprimerDrm,
   supprimerDsm,
+  supprimerJustificatifDsm,
   validerDsm,
   type SaisieCommentaireDsm,
+  type DeposerJustificatifDsmData,
   type SaisieDsm,
   type SaisiePointDeDepart,
 } from '@/api/generated'
@@ -125,6 +131,39 @@ export function apiDeclarations(operateur: number) {
         path: { operateur, dsm, id },
         throwOnError: true,
       }),
+    pieces: (dsm: number) =>
+      consulterPiecesDsm({ path: { operateur, dsm }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    deposerJustificatif: (
+      dsm: number,
+      fichier: File,
+      query: DeposerJustificatifDsmData['query']
+    ) =>
+      deposerJustificatifDsm({
+        path: { operateur, dsm },
+        body: { fichier },
+        query,
+        throwOnError: true,
+      }).then((r) => r.data),
+    supprimerJustificatif: (dsm: number, id: number) =>
+      supprimerJustificatifDsm({
+        path: { operateur, dsm, id },
+        throwOnError: true,
+      }),
+    deposerDrm: (dsm: number, mois: string, fichier: File) =>
+      deposerDrm({
+        path: { operateur, dsm, mois },
+        body: { fichier },
+        throwOnError: true,
+      }),
+    supprimerDrm: (dsm: number, mois: string) =>
+      supprimerDrm({ path: { operateur, dsm, mois }, throwOnError: true }),
+    /** Le PDF s'ouvre dans un nouvel onglet du navigateur, avec la session en cours. */
+    urlJustificatif: (dsm: number, id: number) =>
+      `/api/operateurs/${operateur}/dsm/${dsm}/justificatifs/${id}/document`,
+    urlDrm: (dsm: number, mois: string) =>
+      `/api/operateurs/${operateur}/dsm/${dsm}/drm/${mois}/document`,
     journalDsm: (id: number) =>
       consulterJournalDsm({ path: { operateur, id }, throwOnError: true }).then(
         (r) => r.data
@@ -159,5 +198,13 @@ export function useJournalDeclarations(operateur: number) {
   return useQuery({
     queryKey: [...cleDeclarations(operateur), 'journal'],
     queryFn: apiDeclarations(operateur).journal,
+  })
+}
+
+/** Les pièces d'une DSM : justificatifs, mois de DRM, manques (spec 05 §6.3). */
+export function usePiecesDsm(operateur: number, dsm: number) {
+  return useQuery({
+    queryKey: [...cleDeclarations(operateur), 'dsm', dsm, 'pieces'],
+    queryFn: () => apiDeclarations(operateur).pieces(dsm),
   })
 }

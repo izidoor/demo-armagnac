@@ -2,7 +2,9 @@ package fr.bnia.boot.demo;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.CommenterDsm;
+import fr.bnia.declarations.application.FichierDepose;
 import fr.bnia.declarations.application.GererDsm;
+import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.application.VueDsm;
 import fr.bnia.declarations.domain.CleConditionnement;
@@ -13,11 +15,17 @@ import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.SaisieDsm;
 import fr.bnia.declarations.domain.SaisieLigneDsm;
 import fr.bnia.declarations.domain.SaisieLigneStock;
+import fr.bnia.declarations.domain.TypeMouvement;
+import fr.bnia.declarations.domain.TypePiece;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -31,7 +39,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Données de démonstration des déclarations (spec 05, §7.1, lots 1 et 2), en profil {@code demo} seulement,
+ * Données de démonstration des déclarations (spec 05, §7.1, lots 1 à 3), en profil {@code demo} seulement,
  * après les opérateurs. Les dates sont calculées depuis la date du jour (décision du 2026-10-13) :
  * <ul>
  * <li>les trois négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier
@@ -41,10 +49,11 @@ import org.springframework.stereotype.Component;
  * facture d'exemple), un commentaire de l'opérateur et un commentaire interne du BNIA ;</li>
  * <li>Maison Larressingle ({@code N320002}) : en compléments demandés, motif « DAE manquants pour
  * l'export » ;</li>
+ * <li>aucun justificatif sur ces deux DSM : leurs manques bloquent la validation (RG-DEC-29) ;</li>
  * <li>Négoce des Landes ({@code N400001}) : en brouillon, avec une anomalie (Σ6 ≠ Σ12) ;</li>
  * </ul></li>
  * <li>Maison Durand, Condom ({@code 000001}, producteur) : point de départ au 1er avril de l'an dernier, DSM
- * de cette année-là validée ; la suivante, à initier, montre le vieillissement et la fusion à {@code 20+} ;</li>
+ * de cette année-là validée, avec ses douze DRM et le DAE de son export ; la suivante, à initier, montre le vieillissement et la fusion à {@code 20+} ;</li>
  * <li>Maison Durand, Eauze ({@code 000002}) : pas de point de départ, le BNIA le fixe en démonstration.</li>
  * </ul>
  *
@@ -62,15 +71,17 @@ public class DemoDeclarations implements ApplicationRunner {
     private final GererPointDeDepart points;
     private final GererDsm dsms;
     private final CommenterDsm commentaires;
+    private final GererPieces pieces;
     private final OperateursLecture lecture;
     private final Clock horloge;
     private Acteur anne;
 
-    public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, CommenterDsm commentaires,
+    public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, CommenterDsm commentaires, GererPieces pieces,
             OperateursLecture lecture, Clock horloge) {
         this.points = points;
         this.dsms = dsms;
         this.commentaires = commentaires;
+        this.pieces = pieces;
         this.lecture = lecture;
         this.horloge = horloge;
     }
@@ -193,10 +204,25 @@ public class DemoDeclarations implements ApplicationRunner {
                 2, Map.of(ColonneDsm.C10, "3.20"),
                 4, Map.of(ColonneDsm.C17, "95.40"),
                 5, Map.of(ColonneDsm.C04, "600.00"))).dsm();
+        // Lot 3 : ses douze DRM et le DAE de l'export (ligne 2), sans quoi la validation est refusée (RG-DEC-29).
+        for (YearMonth mois : dsm.moisAttendus()) {
+            pieces.deposerDrm(jeanne, id, dsm.id(), mois, pdf("drm-" + mois + ".pdf"));
+        }
+        pieces.deposerJustificatif(jeanne, id, dsm.id(), dsm.lignes().get(1).id(), TypeMouvement.VENTE_EXPORT,
+                TypePiece.DAE, "26FRA0000000123456", pdf("dae-export.pdf"));
         dsms.envoyer(jeanne, id, dsm.id(), null);
         dsms.prendreEnInstruction(anne, id, dsm.id(), null);
         dsms.valider(anne, id, dsm.id(), null);
         LOG.info("Démo : DSM {} de la Maison Durand, Condom, validée.", dsm.periode().libelle());
+    }
+
+    /** Le PDF de démonstration, sous ce nom (spec 05 §7.1 : un même document pour toutes les pièces). */
+    private static FichierDepose pdf(String nom) {
+        try (InputStream flux = DemoDeclarations.class.getResourceAsStream("/demo/piece-demonstration.pdf")) {
+            return new FichierDepose(nom, flux.readAllBytes());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /** Initie la DSM de l'opérateur et l'enregistre avec ces mouvements, par rang de ligne. */

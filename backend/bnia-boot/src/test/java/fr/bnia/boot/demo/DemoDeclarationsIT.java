@@ -6,12 +6,16 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.CommenterDsm;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.application.GererDsm;
+import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.Commentaire;
 import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.LigneDsm;
+import fr.bnia.declarations.domain.Manque;
 import fr.bnia.declarations.domain.TypeAnomalie;
+import fr.bnia.declarations.domain.TypeMouvement;
+import fr.bnia.declarations.domain.TypePiece;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.support.AbstractIT;
 import java.time.LocalDate;
@@ -23,7 +27,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Chargeur de démonstration des déclarations (spec 05, §7.1, lots 1 et 2), après le personnel, les
+ * Chargeur de démonstration des déclarations (spec 05, §7.1, lots 1 à 3), après le personnel, les
  * référentiels et les opérateurs : relançable, et conforme à la spec.
  */
 class DemoDeclarationsIT extends AbstractIT {
@@ -31,6 +35,7 @@ class DemoDeclarationsIT extends AbstractIT {
     @Autowired GererPointDeDepart points;
     @Autowired GererDsm dsms;
     @Autowired CommenterDsm commentaires;
+    @Autowired GererPieces pieces;
     @Autowired ApplicationContext contexte;
 
     private Acteur anne;
@@ -75,6 +80,8 @@ class DemoDeclarationsIT extends AbstractIT {
         assertThat(somme(lignes, ColonneDsm.C22, ColonneDsm.C23, ColonneDsm.C24)).isEqualTo("2254.15");
         assertThat(commentaires.lister(anne, gascogne, envoyee.dsm().id())).extracting(Commentaire::interne)
                 .containsExactly(false, true);
+        assertThat(envoyee.manques()).extracting(Manque::typeMouvement)
+                .containsExactly(TypeMouvement.VENTE_NEGOCE, TypeMouvement.VENTE_EXPORT);
 
         long larressingle = id("N320002");
         DsmLigne complements = seule("N320002", EtatDsm.COMPLEMENTS_DEMANDES, mois);
@@ -87,7 +94,12 @@ class DemoDeclarationsIT extends AbstractIT {
 
         LocalDate aujourdhui = LocalDate.now();
         int annee = aujourdhui.getMonthValue() >= 4 ? aujourdhui.getYear() : aujourdhui.getYear() - 1;
-        seule("000001", EtatDsm.VALIDEE, LocalDate.of(annee - 1, 4, 1));
+        DsmLigne validee = seule("000001", EtatDsm.VALIDEE, LocalDate.of(annee - 1, 4, 1));
+        var piecesCondom = pieces.pieces(anne, id("000001"), validee.id());
+        assertThat(piecesCondom.mois()).hasSize(12).allSatisfy(m -> assertThat(m.drm()).isPresent());
+        assertThat(piecesCondom.justificatifs()).singleElement()
+                .satisfies(j -> assertThat(j.typePiece()).isEqualTo(TypePiece.DAE));
+        assertThat(piecesCondom.manques()).isEmpty();
         assertThat(dsms.situation(anne, id("000001")).initiable()).as("la DSM suivante est à initier").isTrue();
 
         assertThat(points.consulter(anne, id("000002"))).isEmpty();

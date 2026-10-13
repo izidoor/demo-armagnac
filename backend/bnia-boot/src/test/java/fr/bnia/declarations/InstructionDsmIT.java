@@ -90,7 +90,8 @@ class InstructionDsmIT extends AbstractIT {
     void rg_dec_20_cycle_complet() {
         Map<?, ?> dsm = negociantAvecDsm();
         Object id = id(dsm);
-        assertThat(dsm.get("actions")).isEqualTo(List.of("ENREGISTRER", "ENVOYER", "SUPPRIMER", "COMMENTER"));
+        assertThat(dsm.get("actions")).isEqualTo(List.of("ENREGISTRER", "ENVOYER", "SUPPRIMER", "COMMENTER",
+                "DEPOSER_PIECES"));
 
         Map<?, ?> envoyee = transition(agent, id, "envoi", Map.of("version", 0));
         assertThat(envoyee.get("etat")).isEqualTo("ENVOYEE");
@@ -102,7 +103,7 @@ class InstructionDsmIT extends AbstractIT {
                 .expectBody().jsonPath("$.regle").isEqualTo("RG-DEC-21");
         client.get().uri(dsms + "/{id}", id).exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$.actions").isEqualTo(List.of("PRENDRE_EN_INSTRUCTION", "COMMENTER",
-                        "COMMENTER_INTERNE"));
+                        "COMMENTER_INTERNE", "DEPOSER_PIECES"));
 
         transition(client, id, "prise-en-instruction", Map.of("version", 1));
         client.post().uri(dsms + "/{id}/complements", id).body(Map.of("motif", " ", "version", 2)).exchange()

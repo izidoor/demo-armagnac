@@ -235,6 +235,22 @@ export type Contenance = {
 };
 
 /**
+ * Fichier déposé (ADR-018)
+ */
+export type DocumentDsm = {
+    deposeLe: string;
+    /**
+     * Copie du nom de qui l'a déposé
+     */
+    deposePar: string;
+    nom: string;
+    /**
+     * Octets
+     */
+    taille: number;
+};
+
+/**
  * Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)
  */
 export type Doublon = {
@@ -280,7 +296,7 @@ export type Dsm = {
     /**
      * Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)
      */
-    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE'>;
+    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE' | 'DEPOSER_PIECES'>;
     anomalies: Array<AnomalieDsm>;
     codeOperateur: string;
     colonnes: Array<ColonneDsm>;
@@ -296,6 +312,10 @@ export type Dsm = {
      */
     libelleEtat: string;
     lignes: Array<LigneDsm>;
+    /**
+     * Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)
+     */
+    manques: Array<ManqueDsm>;
     operateur: number;
     periode: PeriodeDeclaration;
     raisonSociale: string;
@@ -620,6 +640,29 @@ export type InvitationPublique = {
     titre?: number;
 };
 
+/**
+ * Justificatif d'une DSM (spec 05 §3.2.2)
+ */
+export type JustificatifDsm = {
+    document: DocumentDsm;
+    id: number;
+    libelleTypePiece: string;
+    /**
+     * Ligne visée ; vide pour la DSM
+     */
+    ligne?: number;
+    /**
+     * Libellé de la ligne visée, supprimée depuis ; la pièce porte alors sur la DSM
+     */
+    ligneSupprimee?: string;
+    /**
+     * Référence DAE/DAI
+     */
+    reference?: string;
+    typeMouvement: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
+    typePiece: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
 export type LabelObtenu = {
     commentaire?: string;
     /**
@@ -712,6 +755,27 @@ export type LigneStockInitial = {
     volume: number;
 };
 
+/**
+ * Pièce manquante, au niveau de la DSM (RG-DEC-29)
+ */
+export type ManqueDsm = {
+    message: string;
+    /**
+     * Mois sans DRM
+     */
+    mois?: string;
+    niveau: 'DSM' | 'ONGLET' | 'LIGNE';
+    /**
+     * Litres du type de mouvement en cause
+     */
+    total?: number;
+    type: 'JUSTIFICATIF' | 'DRM';
+    /**
+     * Type de mouvement sans justificatif
+     */
+    typeMouvement?: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
+};
+
 export type MarquePresentee = {
     diffusableWeb: boolean;
     /**
@@ -796,6 +860,18 @@ export type Moi = {
      * À renvoyer avec le profil (RG-OPE-51)
      */
     version: number;
+};
+
+/**
+ * Un mois de la période d'un producteur et sa DRM (RG-DEC-27)
+ */
+export type MoisDrm = {
+    /**
+     * Vide : DRM attendue
+     */
+    drm?: DocumentDsm;
+    libelle: string;
+    mois: string;
 };
 
 export type OperateurActif = {
@@ -900,6 +976,30 @@ export type PersonneAnnuaire = {
      * Identifiant du titre
      */
     titre?: number;
+};
+
+export type PieceCompatible = {
+    libelle: string;
+    type: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
+/**
+ * Pièces d'une DSM : justificatifs, mois de DRM, manques (spec 05 §6.3, onglet « Pièces »)
+ */
+export type PiecesDsm = {
+    /**
+     * Dans l'ordre de dépôt
+     */
+    justificatifs: Array<JustificatifDsm>;
+    manques: Array<ManqueDsm>;
+    /**
+     * Pour un producteur, les mois de la période et leur DRM ; vide pour un négociant (RG-DEC-27)
+     */
+    mois: Array<MoisDrm>;
+    /**
+     * Les types de mouvement, leurs colonnes et les types de pièce compatibles (RG-DEC-26)
+     */
+    typesMouvement: Array<TypeMouvementDsm>;
 };
 
 /**
@@ -1582,6 +1682,16 @@ export type TransitionDsm = {
      * Version lue (verrou optimiste)
      */
     version?: number;
+};
+
+/**
+ * Type de mouvement qui appelle un justificatif (H-DEC-13)
+ */
+export type TypeMouvementDsm = {
+    colonnes: Array<number>;
+    libelle: string;
+    pieces: Array<PieceCompatible>;
+    type: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
 };
 
 /**
@@ -2637,6 +2747,153 @@ export type ModifierCommentaireDsmResponses = {
 };
 
 export type ModifierCommentaireDsmResponse = ModifierCommentaireDsmResponses[keyof ModifierCommentaireDsmResponses];
+
+export type SupprimerDrmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        mois: string;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}';
+};
+
+export type SupprimerDrmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerDrmResponse = SupprimerDrmResponses[keyof SupprimerDrmResponses];
+
+export type DeposerDrmData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+        dsm: number;
+        mois: string;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}';
+};
+
+export type DeposerDrmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeposerDrmResponse = DeposerDrmResponses[keyof DeposerDrmResponses];
+
+export type TelechargerDrmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        mois: string;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}/document';
+};
+
+export type TelechargerDrmResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerDrmResponse = TelechargerDrmResponses[keyof TelechargerDrmResponses];
+
+export type DeposerJustificatifDsmData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query: {
+        typeMouvement: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
+        typePiece: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+        ligne?: number;
+        reference?: string;
+    };
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/justificatifs';
+};
+
+export type DeposerJustificatifDsmResponses = {
+    /**
+     * Created
+     */
+    201: JustificatifDsm;
+};
+
+export type DeposerJustificatifDsmResponse = DeposerJustificatifDsmResponses[keyof DeposerJustificatifDsmResponses];
+
+export type SupprimerJustificatifDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/justificatifs/{id}';
+};
+
+export type SupprimerJustificatifDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerJustificatifDsmResponse = SupprimerJustificatifDsmResponses[keyof SupprimerJustificatifDsmResponses];
+
+export type TelechargerJustificatifDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/justificatifs/{id}/document';
+};
+
+export type TelechargerJustificatifDsmResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerJustificatifDsmResponse = TelechargerJustificatifDsmResponses[keyof TelechargerJustificatifDsmResponses];
+
+export type ConsulterPiecesDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/pieces';
+};
+
+export type ConsulterPiecesDsmResponses = {
+    /**
+     * OK
+     */
+    200: PiecesDsm;
+};
+
+export type ConsulterPiecesDsmResponse = ConsulterPiecesDsmResponses[keyof ConsulterPiecesDsmResponses];
 
 export type SupprimerDsmData = {
     body?: never;

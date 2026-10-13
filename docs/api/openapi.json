@@ -1928,6 +1928,337 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}" : {
+      "delete" : {
+        "operationId" : "supprimerDrm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "mois",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprime la DRM d'un mois et son fichier (RG-DEC-28)",
+        "tags" : [ "declarations" ]
+      },
+      "put" : {
+        "operationId" : "deposerDrm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "mois",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Dépose la DRM PDF d'un mois de la période ; refusé si le mois en a déjà une (RG-DEC-27, 28)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}/document" : {
+      "get" : {
+        "operationId" : "telechargerDrm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "mois",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF de la DRM d'un mois, à ouvrir dans le navigateur",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/justificatifs" : {
+      "post" : {
+        "operationId" : "deposerJustificatifDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "typeMouvement",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "ACHAT", "REINTEGRATION", "AUTRES_FABRICATIONS", "VENTE_NEGOCE", "VENTE_EXPORT" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "typePiece",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "DAE", "AVOIR", "DECLARATION_FABRICATION_DOUANES" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "ligne",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "reference",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JustificatifDsm"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Dépose un justificatif PDF, sur la DSM ou une de ses lignes (RG-DEC-26, 28)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/justificatifs/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerJustificatifDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprime un justificatif et son fichier (RG-DEC-28)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/justificatifs/{id}/document" : {
+      "get" : {
+        "operationId" : "telechargerJustificatifDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF d'un justificatif, à ouvrir dans le navigateur",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/pieces" : {
+      "get" : {
+        "operationId" : "consulterPiecesDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PiecesDsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Justificatifs, mois de DRM et manques de la DSM (RG-DEC-01, 26, 27, 29)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/operateurs/{operateur}/dsm/{id}" : {
       "delete" : {
         "operationId" : "supprimerDsm",
@@ -6549,6 +6880,29 @@
         },
         "required" : [ "actif", "id", "libelle", "volume" ]
       },
+      "DocumentDsm" : {
+        "type" : "object",
+        "description" : "Fichier déposé (ADR-018)",
+        "properties" : {
+          "deposeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "deposePar" : {
+            "type" : "string",
+            "description" : "Copie du nom de qui l'a déposé"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Octets"
+          }
+        },
+        "required" : [ "deposeLe", "deposePar", "nom", "taille" ]
+      },
       "Doublon" : {
         "type" : "object",
         "description" : "Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)",
@@ -6622,7 +6976,7 @@
             "description" : "Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)",
             "items" : {
               "type" : "string",
-              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "COMMENTER", "COMMENTER_INTERNE" ]
+              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "COMMENTER", "COMMENTER_INTERNE", "DEPOSER_PIECES" ]
             }
           },
           "anomalies" : {
@@ -6669,6 +7023,13 @@
               "$ref" : "#/components/schemas/LigneDsm"
             }
           },
+          "manques" : {
+            "type" : "array",
+            "description" : "Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)",
+            "items" : {
+              "$ref" : "#/components/schemas/ManqueDsm"
+            }
+          },
           "operateur" : {
             "type" : "integer",
             "format" : "int64"
@@ -6703,7 +7064,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "etat", "id", "libelleEtat", "lignes", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
+        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
       },
       "DsmListee" : {
         "type" : "object",
@@ -7278,6 +7639,44 @@
         },
         "required" : [ "compteExistant", "email", "expireLe", "nom", "operateur", "role" ]
       },
+      "JustificatifDsm" : {
+        "type" : "object",
+        "description" : "Justificatif d'une DSM (spec 05 §3.2.2)",
+        "properties" : {
+          "document" : {
+            "$ref" : "#/components/schemas/DocumentDsm"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelleTypePiece" : {
+            "type" : "string"
+          },
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Ligne visée ; vide pour la DSM"
+          },
+          "ligneSupprimee" : {
+            "type" : "string",
+            "description" : "Libellé de la ligne visée, supprimée depuis ; la pièce porte alors sur la DSM"
+          },
+          "reference" : {
+            "type" : "string",
+            "description" : "Référence DAE/DAI"
+          },
+          "typeMouvement" : {
+            "type" : "string",
+            "enum" : [ "ACHAT", "REINTEGRATION", "AUTRES_FABRICATIONS", "VENTE_NEGOCE", "VENTE_EXPORT" ]
+          },
+          "typePiece" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "DAE", "AVOIR", "DECLARATION_FABRICATION_DOUANES" ]
+          }
+        },
+        "required" : [ "document", "id", "libelleTypePiece", "typeMouvement", "typePiece" ]
+      },
       "LabelObtenu" : {
         "type" : "object",
         "properties" : {
@@ -7443,6 +7842,38 @@
         },
         "required" : [ "cle", "compte", "volume" ]
       },
+      "ManqueDsm" : {
+        "type" : "object",
+        "description" : "Pièce manquante, au niveau de la DSM (RG-DEC-29)",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "mois" : {
+            "type" : "string",
+            "description" : "Mois sans DRM",
+            "example" : "2025-11"
+          },
+          "niveau" : {
+            "type" : "string",
+            "enum" : [ "DSM", "ONGLET", "LIGNE" ]
+          },
+          "total" : {
+            "type" : "number",
+            "description" : "Litres du type de mouvement en cause"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "JUSTIFICATIF", "DRM" ]
+          },
+          "typeMouvement" : {
+            "type" : "string",
+            "description" : "Type de mouvement sans justificatif",
+            "enum" : [ "ACHAT", "REINTEGRATION", "AUTRES_FABRICATIONS", "VENTE_NEGOCE", "VENTE_EXPORT" ]
+          }
+        },
+        "required" : [ "message", "niveau", "type" ]
+      },
       "MarquePresentee" : {
         "type" : "object",
         "properties" : {
@@ -7606,6 +8037,25 @@
           }
         },
         "required" : [ "email", "id", "nom", "nomComplet", "prenom", "rattachements", "statut", "version" ]
+      },
+      "MoisDrm" : {
+        "type" : "object",
+        "description" : "Un mois de la période d'un producteur et sa DRM (RG-DEC-27)",
+        "properties" : {
+          "drm" : {
+            "$ref" : "#/components/schemas/DocumentDsm",
+            "description" : "Vide : DRM attendue"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "novembre 2025"
+          },
+          "mois" : {
+            "type" : "string",
+            "example" : "2025-11"
+          }
+        },
+        "required" : [ "libelle", "mois" ]
       },
       "OperateurActif" : {
         "type" : "object",
@@ -7815,6 +8265,53 @@
           }
         },
         "required" : [ "bloqueParBnia", "genre", "id", "nom", "nomComplet" ]
+      },
+      "PieceCompatible" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "DAE", "AVOIR", "DECLARATION_FABRICATION_DOUANES" ]
+          }
+        },
+        "required" : [ "libelle", "type" ]
+      },
+      "PiecesDsm" : {
+        "type" : "object",
+        "description" : "Pièces d'une DSM : justificatifs, mois de DRM, manques (spec 05 §6.3, onglet « Pièces »)",
+        "properties" : {
+          "justificatifs" : {
+            "type" : "array",
+            "description" : "Dans l'ordre de dépôt",
+            "items" : {
+              "$ref" : "#/components/schemas/JustificatifDsm"
+            }
+          },
+          "manques" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ManqueDsm"
+            }
+          },
+          "mois" : {
+            "type" : "array",
+            "description" : "Pour un producteur, les mois de la période et leur DRM ; vide pour un négociant (RG-DEC-27)",
+            "items" : {
+              "$ref" : "#/components/schemas/MoisDrm"
+            }
+          },
+          "typesMouvement" : {
+            "type" : "array",
+            "description" : "Les types de mouvement, leurs colonnes et les types de pièce compatibles (RG-DEC-26)",
+            "items" : {
+              "$ref" : "#/components/schemas/TypeMouvementDsm"
+            }
+          }
+        },
+        "required" : [ "justificatifs", "manques", "mois", "typesMouvement" ]
       },
       "PointDeDepart" : {
         "type" : "object",
@@ -8962,6 +9459,33 @@
             "description" : "Version lue (verrou optimiste)"
           }
         }
+      },
+      "TypeMouvementDsm" : {
+        "type" : "object",
+        "description" : "Type de mouvement qui appelle un justificatif (H-DEC-13)",
+        "properties" : {
+          "colonnes" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "pieces" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PieceCompatible"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "ACHAT", "REINTEGRATION", "AUTRES_FABRICATIONS", "VENTE_NEGOCE", "VENTE_EXPORT" ]
+          }
+        },
+        "required" : [ "colonnes", "libelle", "pieces", "type" ]
       },
       "UtilisateurLigne" : {
         "type" : "object",

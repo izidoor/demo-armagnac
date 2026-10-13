@@ -10,12 +10,14 @@ import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.LigneDsm;
+import fr.bnia.declarations.domain.Manque;
 import fr.bnia.declarations.domain.NiveauAnomalie;
 import fr.bnia.declarations.domain.OngletDsm;
 import fr.bnia.declarations.domain.OrigineLigne;
 import fr.bnia.declarations.domain.SensColonne;
 import fr.bnia.declarations.domain.TypeAnomalie;
 import fr.bnia.declarations.domain.TypeDeclarant;
+import fr.bnia.declarations.domain.TypeMouvement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -52,6 +54,9 @@ public record DsmResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Total de chaque colonne, 26 valeurs (RG-DEC-17)")
         List<BigDecimal> totaux,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<AnomalieResponse> anomalies,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)")
+        List<ManqueResponse> manques,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long version) {
 
     @Schema(name = "ColonneDsm", description = "Une des 26 colonnes du format unique (spec 05 §3.1)")
@@ -94,6 +99,16 @@ public record DsmResponse(
             @Schema(description = "Litres en cause") BigDecimal ecart) {
     }
 
+    @Schema(name = "ManqueDsm", description = "Pièce manquante, au niveau de la DSM (RG-DEC-29)")
+    public record ManqueResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Manque.TypeManque type,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) NiveauAnomalie niveau,
+            @Schema(description = "Type de mouvement sans justificatif") TypeMouvement typeMouvement,
+            @Schema(description = "Mois sans DRM", example = "2025-11") String mois,
+            @Schema(description = "Litres du type de mouvement en cause") BigDecimal total,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String message) {
+    }
+
     static DsmResponse depuis(VueDsm vue) {
         DeclarationStocksMouvements dsm = vue.dsm();
         List<ColonneResponse> colonnes = Arrays.stream(ColonneDsm.values())
@@ -105,7 +120,8 @@ public record DsmResponse(
                 dsm.envoyeeLe(), dsm.valideeLe(), dsm.valideePar() == null ? null : dsm.valideePar().nom(),
                 vue.actions().stream().sorted().toList(), colonnes,
                 dsm.lignes().stream().map(DsmResponse::ligne).toList(), volumes(dsm::total),
-                vue.anomalies().stream().map(DsmResponse::anomalie).toList(), dsm.version());
+                vue.anomalies().stream().map(DsmResponse::anomalie).toList(),
+                vue.manques().stream().map(DsmResponse::manque).toList(), dsm.version());
     }
 
     private static LigneResponse ligne(LigneDsm ligne) {
@@ -117,6 +133,11 @@ public record DsmResponse(
 
     private static List<BigDecimal> volumes(Function<ColonneDsm, VolumeAlcoolPur> volume) {
         return Arrays.stream(ColonneDsm.values()).map(c -> volume.apply(c).litres()).toList();
+    }
+
+    static ManqueResponse manque(Manque m) {
+        return new ManqueResponse(m.type(), m.niveau(), m.typeMouvement(), m.mois() == null ? null : m.mois().toString(),
+                m.total() == null ? null : m.total().litres(), m.message());
     }
 
     private static AnomalieResponse anomalie(Anomalie a) {

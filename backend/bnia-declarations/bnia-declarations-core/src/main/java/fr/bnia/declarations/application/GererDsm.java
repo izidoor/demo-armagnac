@@ -1,16 +1,20 @@
 package fr.bnia.declarations.application;
 
+import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
-import fr.bnia.declarations.domain.CalendrierDeclaratif;
 import fr.bnia.declarations.domain.CalendrierDeclaratif.Situation;
+import fr.bnia.declarations.domain.CalendrierDeclaratif;
 import fr.bnia.declarations.domain.Commentaire;
+import fr.bnia.declarations.domain.ControlePieces;
 import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.EtatDsm;
+import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.LigneStockInitial;
+import fr.bnia.declarations.domain.Manque;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
 import fr.bnia.declarations.domain.SaisieDsm;
@@ -28,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * DSM d'un opérateur (analyse UC-DEC-4, 6, 8, 9, spec 05 §5.1) : l'opérateur l'initie pour la période
@@ -42,18 +47,23 @@ public class GererDsm {
     private final DsmLecture lecture;
     private final JournalDeclarations journal;
     private final Commentaires commentaires;
+    private final Pieces pieces;
+    private final StockageDocuments stockage;
     private final PublicationEvenements evenements;
     private final Autorisations autorisations;
     private final Journaliste journaliste;
 
     public GererDsm(DsmRepository dsms, PointDeDepartRepository points, DsmLecture lecture,
-            JournalDeclarations journal, Commentaires commentaires, PublicationEvenements evenements,
+            JournalDeclarations journal, Commentaires commentaires, Pieces pieces, StockageDocuments stockage,
+            PublicationEvenements evenements,
             OperateursLecture operateurs, Clock horloge) {
         this.dsms = dsms;
         this.points = points;
         this.lecture = lecture;
         this.journal = journal;
         this.commentaires = commentaires;
+        this.pieces = pieces;
+        this.stockage = stockage;
         this.evenements = evenements;
         this.autorisations = new Autorisations(operateurs);
         this.journaliste = new Journaliste(journal, operateurs, horloge);
@@ -115,7 +125,7 @@ public class GererDsm {
 
     /**
      * RG-DEC-01, 10 à 13, 15 à 19, 21, 23 : l'opérateur enregistre sa saisie ; les anomalies ne l'empêchent pas.
-     * Les commentaires d'une ligne supprimée passent sur la DSM (décision du 2026-10-13).
+     * Les commentaires et les justificatifs d'une ligne supprimée passent sur la DSM (décision du 2026-10-13).
      */
     public VueDsm enregistrer(Acteur acteur, long operateur, long id, SaisieDsm saisie, Long version) {
         OperateurVue vue = autorisations.exigerOperateur(acteur, operateur);
@@ -131,6 +141,13 @@ public class GererDsm {
                 if (supprimee != null) {
                     commentaire.detacher(supprimee.identite().libelle());
                     commentaires.mettreAJour(commentaire);
+                }
+            }
+            for (Justificatif justificatif : pieces.justificatifsDe(id)) {
+                LigneDsm supprimee = justificatif.ligne() == null ? null : avant.get(justificatif.ligne());
+                if (supprimee != null) {
+                    justificatif.detacher(supprimee.identite().libelle());
+                    pieces.mettreAJour(justificatif);
                 }
             }
         }
@@ -177,11 +194,11 @@ public class GererDsm {
         return vue(acteur, renvoyee, vue);
     }
 
-    /** RG-DEC-01, 20, 23 : le BNIA valide une DSM en instruction ; elle est figée. */
+    /** RG-DEC-01, 20, 23, 29 : le BNIA valide une DSM en instruction, sans pièce manquante ; elle est figée. */
     public VueDsm valider(Acteur acteur, long operateur, long id, Long version) {
         OperateurVue vue = autorisations.exigerBnia(acteur, operateur);
         DeclarationStocksMouvements dsm = dsm(operateur, id);
-        dsm.valider(journaliste.auteur(acteur), journaliste.maintenant(), version);
+        dsm.valider(journaliste.auteur(acteur), journaliste.maintenant(), version, manques(dsm));
         DeclarationStocksMouvements validee = dsms.mettreAJour(dsm);
         journaliste.noter(acteur, validee, ActionJournalDeclarations.DSM_VALIDEE, null);
         evenements.publier(new DsmValidee(id, operateur, validee.periode().debut(), validee.periode().fin()));
@@ -189,8 +206,9 @@ public class GererDsm {
     }
 
     /**
-     * RG-DEC-01, 22, 23 : seul un brouillon se supprime, par l'opérateur ou par le BNIA, avec ses commentaires
-     * et son journal ; une entrée « brouillon supprimé » reste au journal de l'opérateur.
+     * RG-DEC-01, 22, 23 : seul un brouillon se supprime, par l'opérateur ou par le BNIA, avec ses commentaires,
+     * ses pièces et leurs documents, et son journal ; une entrée « brouillon supprimé » reste au journal de
+     * l'opérateur.
      */
     public void supprimer(Acteur acteur, long operateur, long id) {
         autorisations.exigerGestion(acteur, operateur);
@@ -198,7 +216,11 @@ public class GererDsm {
         dsm.exigerSupprimable();
         journal.supprimerDeLaDsm(id);
         commentaires.supprimerDeLaDsm(id);
+        List<Long> documents = Stream.concat(
+                pieces.justificatifsDe(id).stream().map(j -> j.document().cle()),
+                pieces.drmsDe(id).stream().map(d -> d.document().cle())).toList();
         dsms.supprimer(id);
+        stockage.supprimer(documents);
         journaliste.noter(acteur, dsm, ActionJournalDeclarations.BROUILLON_SUPPRIME, null);
     }
 
@@ -234,7 +256,15 @@ public class GererDsm {
     }
 
     private VueDsm vue(Acteur acteur, DeclarationStocksMouvements dsm, OperateurVue operateur) {
-        return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()));
+        return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm));
+    }
+
+    /** RG-DEC-29 : pièces lues en deux requêtes, jamais une par ligne. */
+    private List<Manque> manques(DeclarationStocksMouvements dsm) {
+        if (dsm.id() == null) {
+            return List.of();
+        }
+        return ControlePieces.manques(dsm, pieces.justificatifsDe(dsm.id()), pieces.drmsDe(dsm.id()));
     }
 
     private DeclarationStocksMouvements dsm(long operateur, long id) {

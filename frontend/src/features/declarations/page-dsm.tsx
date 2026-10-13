@@ -11,12 +11,14 @@ import {
   Building2,
   CircleCheck,
   CircleHelp,
+  FileWarning,
   History,
+  Paperclip,
   Send,
   TriangleAlert,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { type AnomalieDsm, type Dsm } from '@/api/generated'
+import { type AnomalieDsm, type Dsm, type ManqueDsm } from '@/api/generated'
 import { lireProbleme } from '@/lib/probleme'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -41,7 +43,12 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { OngletsClasseur } from '@/components/metier/onglets-classeur'
 import { PageMetier } from '@/components/metier/page-metier'
 import { AideDsm } from './aide-dsm'
-import { apiDeclarations, cleDeclarations, type Espace } from './api'
+import {
+  apiDeclarations,
+  cleDeclarations,
+  type Espace,
+  usePiecesDsm,
+} from './api'
 import {
   type Brouillon,
   brouillonDe,
@@ -61,13 +68,14 @@ import {
   TYPES_DECLARANT,
   VARIANTE_ETAT,
 } from './libelles'
+import { OngletPieces } from './pieces'
 
 /**
  * Écran d'une DSM, commun au back-office et au portail (spec 05 §6.3) : en-tête, cinq onglets du format
- * unique en classeur, panneau des anomalies, commentaires sous le classeur ; l'historique, hors du
- * formulaire, dans un panneau latéral. Les actions viennent du serveur, selon l'état et le côté de
- * l'utilisateur (RG-DEC-01, 20 à 22, 24) : l'opérateur saisit et envoie tant que la DSM est chez lui ; le
- * BNIA l'instruit ; l'un ou l'autre supprime un brouillon.
+ * unique et l'onglet des pièces en classeur, panneau des anomalies et des manques, commentaires sous le
+ * classeur ; l'historique, hors du formulaire, dans un panneau latéral. Les actions viennent du serveur,
+ * selon l'état et le côté de l'utilisateur (RG-DEC-01, 20 à 22, 24, 28) : l'opérateur saisit et envoie tant
+ * que la DSM est chez lui ; le BNIA l'instruit ; l'un ou l'autre supprime un brouillon et dépose des pièces.
  */
 export function PageDsm({
   espace,
@@ -99,6 +107,9 @@ export function PageDsm({
     <EditeurDsm key={`${dsm.id}-${dsm.version}`} espace={espace} dsm={dsm} />
   )
 }
+
+/** L'onglet des pièces, après les cinq du format unique (spec 05 §6.3). */
+const PIECES = 'PIECES'
 
 /** Les transitions qui demandent une confirmation (RG-DEC-20). */
 type Transition = 'envoi' | 'instruction' | 'complements' | 'validation'
@@ -158,6 +169,7 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
     }
     return compte
   }, [commentaires.data])
+  const pieces = usePiecesDsm(operateur, dsm.id)
   const historique = useQuery({
     queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'journal'],
     queryFn: () => api.journalDsm(dsm.id),
@@ -170,6 +182,8 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
     [brouillon, dsm.colonnes]
   )
   const anomalies = vue.anomalies
+  // RG-DEC-29 : les pièces manquantes bloquent la validation, pas l'envoi.
+  const manques = vue.manques
   const comptes = brouillon.lignes.map(
     (l, i) => (l.cle === 'MB' ? vue.lignes[i]?.compte : undefined) ?? l.compte
   )
@@ -248,7 +262,7 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
       toast.success(
         {
           envoi: `DSM de ${dsm.periode.libelle} envoyée au BNIA.`,
-          instruction: `DSM de ${dsm.periode.libelle} prise en instruction.`,
+          instruction: `DSM de ${dsm.periode.libelle} prise en charge.`,
           complements: `Compléments demandés à ${dsm.raisonSociale}.`,
           validation: `DSM de ${dsm.periode.libelle} validée.`,
         }[t]
@@ -261,6 +275,10 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
     },
   })
   const renvoi = dsm.etat === 'COMPLEMENTS_DEMANDES'
+  const motifValidationImpossible =
+    manques.length > 0
+      ? `${manques.length === 1 ? 'Une pièce manque' : `${manques.length} pièces manquent`} : déposez-les dans l'onglet Pièces.`
+      : null
   const motifEnvoiImpossible =
     anomalies.length > 0
       ? "Corrigez les anomalies avant l'envoi."
@@ -392,7 +410,7 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
           )}
           {permis('PRENDRE_EN_INSTRUCTION') && (
             <Button onClick={() => setTransition('instruction')}>
-              Prendre en instruction
+              Prendre en charge
             </Button>
           )}
           {permis('DEMANDER_COMPLEMENTS') && (
@@ -404,7 +422,21 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
             </Button>
           )}
           {permis('VALIDER') && (
-            <Button onClick={() => setTransition('validation')}>Valider</Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={motifValidationImpossible ? 0 : undefined}>
+                  <Button
+                    onClick={() => setTransition('validation')}
+                    disabled={motifValidationImpossible != null}
+                  >
+                    Valider
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {motifValidationImpossible && (
+                <TooltipContent>{motifValidationImpossible}</TooltipContent>
+              )}
+            </Tooltip>
           )}
           {permis('SUPPRIMER') && (
             <Button variant='destructive' onClick={() => setSuppression(true)}>
@@ -433,19 +465,37 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
             </AlertDescription>
           </Alert>
         )}
-        <PanneauAnomalies anomalies={anomalies} onMontrer={montrer} />
+        <PanneauAnomalies
+          anomalies={anomalies}
+          manques={manques}
+          onMontrer={montrer}
+          onMontrerPieces={() => setOnglet(PIECES)}
+        />
       </div>
       <OngletsClasseur
         value={onglet}
         onValueChange={setOnglet}
-        onglets={ONGLETS.map((o) => ({
-          valeur: o.onglet,
-          libelle: (
-            <>
-              <o.icone /> {o.libelle}
-            </>
-          ),
-        }))}
+        onglets={[
+          ...ONGLETS.map((o) => ({
+            valeur: o.onglet as string,
+            libelle: (
+              <>
+                <o.icone /> {o.libelle}
+              </>
+            ),
+          })),
+          {
+            valeur: PIECES,
+            libelle: (
+              <>
+                <Paperclip /> Pièces
+                {manques.length > 0 && (
+                  <Badge variant='destructive'>{manques.length}</Badge>
+                )}
+              </>
+            ),
+          },
+        ]}
       >
         {ONGLETS.map((o) => (
           <TabsContent key={o.onglet} value={o.onglet} className='space-y-4'>
@@ -483,6 +533,21 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
             />
           </TabsContent>
         ))}
+        <TabsContent value={PIECES} className='space-y-4'>
+          <div className='mb-8 space-y-1.5 border-b pt-2 pb-4'>
+            <h2 className='text-xl font-semibold'>Pièces</h2>
+            <p className='text-muted-foreground text-sm'>
+              Les justificatifs des mouvements et, pour un producteur, ses DRM :
+              attendus avant la validation par le BNIA.
+            </p>
+          </div>
+          <OngletPieces
+            dsm={dsm}
+            pieces={pieces.data}
+            peutDeposer={permis('DEPOSER_PIECES')}
+            onChange={rafraichir}
+          />
+        </TabsContent>
       </OngletsClasseur>
       <SectionCommentaires
         dsm={dsm}
@@ -550,7 +615,7 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
         open={transition === 'envoi'}
         onOpenChange={(open) => !open && setTransition(null)}
         title={renvoi ? 'Renvoyer la DSM' : 'Envoyer la DSM'}
-        desc={`${modifie ? 'Vos modifications seront enregistrées, puis la' : 'La'} DSM de ${dsm.periode.libelle} sera ${renvoi ? 'renvoyée' : 'envoyée'} au BNIA. Vous ne pourrez plus la modifier, sauf s'il vous demande des compléments.`}
+        desc={`${modifie ? 'Vos modifications seront enregistrées, puis la' : 'La'} DSM de ${dsm.periode.libelle} sera ${renvoi ? 'renvoyée' : 'envoyée'} au BNIA. Vous ne pourrez plus la modifier, sauf s'il vous demande des compléments.${manques.length > 0 ? ` ${manques.length === 1 ? 'Une pièce manque' : `${manques.length} pièces manquent`} : le BNIA ne pourra la valider qu'après leur dépôt.` : ''}`}
         confirmText={renvoi ? 'Renvoyer' : 'Envoyer'}
         cancelBtnText='Annuler'
         isLoading={changementEtat.isPending}
@@ -559,9 +624,9 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
       <ConfirmDialog
         open={transition === 'instruction'}
         onOpenChange={(open) => !open && setTransition(null)}
-        title='Prendre en instruction'
+        title='Prendre en charge'
         desc={`La DSM de ${dsm.periode.libelle} de ${dsm.raisonSociale} passe en instruction : vous pourrez ensuite demander des compléments ou la valider.`}
-        confirmText='Prendre en instruction'
+        confirmText='Prendre en charge'
         cancelBtnText='Annuler'
         isLoading={changementEtat.isPending}
         handleConfirm={() => changementEtat.mutate('instruction')}
@@ -633,25 +698,74 @@ function ChampDateDia({
   )
 }
 
-/** Les anomalies de calcul (RG-DEC-18), bloquantes à l'envoi ; un clic mène à l'onglet et à la ligne. */
+/**
+ * Les anomalies de calcul (RG-DEC-18), bloquantes à l'envoi, et les pièces manquantes (RG-DEC-29),
+ * bloquantes à la validation ; un clic mène à l'onglet et à la ligne, ou à l'onglet des pièces.
+ */
 function PanneauAnomalies({
+  anomalies,
+  manques,
+  onMontrer,
+  onMontrerPieces,
+}: {
+  anomalies: AnomalieDsm[]
+  manques: ManqueDsm[]
+  onMontrer: (a: AnomalieDsm) => void
+  onMontrerPieces: () => void
+}) {
+  if (anomalies.length === 0 && manques.length === 0) {
+    return (
+      <Alert>
+        <CircleCheck />
+        <AlertTitle>Aucune anomalie ni pièce manquante</AlertTitle>
+        <AlertDescription>
+          Les contrôles de cohérence sont respectés et les pièces attendues sont
+          déposées.
+        </AlertDescription>
+      </Alert>
+    )
+  }
+  return (
+    <>
+      {anomalies.length > 0 && (
+        <ListeAnomalies anomalies={anomalies} onMontrer={onMontrer} />
+      )}
+      {manques.length > 0 && (
+        <Alert>
+          <FileWarning />
+          <AlertTitle>
+            {manques.length === 1
+              ? '1 pièce manquante, attendue avant la validation'
+              : `${manques.length} pièces manquantes, attendues avant la validation`}
+          </AlertTitle>
+          <AlertDescription>
+            <ul className='mt-1 space-y-1'>
+              {manques.map((m, i) => (
+                <li key={i}>
+                  <button
+                    type='button'
+                    className='text-left underline-offset-2 hover:underline'
+                    onClick={onMontrerPieces}
+                  >
+                    {m.message}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+    </>
+  )
+}
+
+function ListeAnomalies({
   anomalies,
   onMontrer,
 }: {
   anomalies: AnomalieDsm[]
   onMontrer: (a: AnomalieDsm) => void
 }) {
-  if (anomalies.length === 0) {
-    return (
-      <Alert>
-        <CircleCheck />
-        <AlertTitle>Aucune anomalie</AlertTitle>
-        <AlertDescription>
-          Les contrôles de cohérence sont respectés.
-        </AlertDescription>
-      </Alert>
-    )
-  }
   return (
     <Alert variant='destructive'>
       <TriangleAlert />

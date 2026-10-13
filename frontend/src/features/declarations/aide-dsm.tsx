@@ -221,6 +221,29 @@ export function AideDsm({
             </p>
           </Section>
 
+          <Section titre='Pièces et DRM'>
+            <p>
+              L'onglet Pièces reçoit les justificatifs en PDF (10 Mo au plus) :
+              dès qu'un type de mouvement a un total non nul, au moins une pièce
+              de ce type est attendue — facture ou DAE pour les achats et les
+              ventes négoce ou export, avoir ou DAE pour les réintégrations,
+              déclaration de fabrication douanes pour les autres fabrications.
+              Le Floc de Gascogne (colonne 15) n'en appelle pas. Une pièce porte
+              sur la DSM ou sur une de ses lignes.
+            </p>
+            <p>
+              Un producteur dépose aussi une DRM par mois de la période. Pour
+              remplacer une pièce ou une DRM, supprimez-la puis déposez la
+              nouvelle.
+            </p>
+            <p>
+              Vous déposez et supprimez tant que la DSM est chez vous
+              (brouillon, compléments demandés) ; le BNIA le peut aussi pendant
+              l'instruction. Une pièce manquante n'empêche pas l'envoi, mais le
+              BNIA ne peut valider la DSM qu'une fois toutes les pièces
+              déposées.
+            </p>
+          </Section>
           <Section titre='Commentaires'>
             <p>
               Sous le classeur, le fil des échanges avec le BNIA, dans tous les

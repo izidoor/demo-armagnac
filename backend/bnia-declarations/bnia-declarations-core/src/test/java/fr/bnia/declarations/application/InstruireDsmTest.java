@@ -27,6 +27,8 @@ import fr.bnia.declarations.domain.OrigineLigne;
 import fr.bnia.declarations.domain.SaisieDsm;
 import fr.bnia.declarations.domain.SaisieLigneDsm;
 import fr.bnia.declarations.domain.TypeDeclarant;
+import fr.bnia.declarations.domain.TypeMouvement;
+import fr.bnia.declarations.domain.TypePiece;
 import fr.bnia.declarations.domain.partage.ComplementsDemandes;
 import fr.bnia.declarations.domain.partage.DsmEnvoyee;
 import fr.bnia.declarations.domain.partage.DsmValidee;
@@ -150,14 +152,16 @@ class InstruireDsmTest {
     @DisplayName("RG-DEC-01 : les actions de la vue suivent l'état et le côté")
     void rg_dec_01_actions() {
         assertThat(cas.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).actions()).containsExactlyInAnyOrder(
-                ActionDsm.ENREGISTRER, ActionDsm.ENVOYER, ActionDsm.SUPPRIMER, ActionDsm.COMMENTER);
+                ActionDsm.ENREGISTRER, ActionDsm.ENVOYER, ActionDsm.SUPPRIMER, ActionDsm.COMMENTER,
+                ActionDsm.DEPOSER_PIECES);
         assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT, id).actions()).containsExactlyInAnyOrder(
-                ActionDsm.SUPPRIMER, ActionDsm.COMMENTER, ActionDsm.COMMENTER_INTERNE);
+                ActionDsm.SUPPRIMER, ActionDsm.COMMENTER, ActionDsm.COMMENTER_INTERNE, ActionDsm.DEPOSER_PIECES);
         assertThat(cas.consulter(OBSERVATEUR_NEGOCIANT, NEGOCIANT, id).actions()).isEmpty();
         cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, null);
         assertThat(cas.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).actions()).containsExactly(ActionDsm.COMMENTER);
         assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT, id).actions()).containsExactlyInAnyOrder(
-                ActionDsm.PRENDRE_EN_INSTRUCTION, ActionDsm.COMMENTER, ActionDsm.COMMENTER_INTERNE);
+                ActionDsm.PRENDRE_EN_INSTRUCTION, ActionDsm.COMMENTER, ActionDsm.COMMENTER_INTERNE,
+                ActionDsm.DEPOSER_PIECES);
         cas.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, id, null);
         assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT, id).actions()).contains(ActionDsm.DEMANDER_COMPLEMENTS,
                 ActionDsm.VALIDER);
@@ -173,6 +177,8 @@ class InstruireDsmTest {
                 telle(juin.lignes().get(1), Map.of(ColonneDsm.C22, VolumeAlcoolPur.litres("40.25"))))), null);
         cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, null);
         cas.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, id, null);
+        monde.gererPieces().deposerJustificatif(AGENT_BNIA, NEGOCIANT, id, null, TypeMouvement.VENTE_EXPORT,
+                TypePiece.DAE, null, new FichierDepose("dae.pdf", new byte[] {1}));
         cas.valider(AGENT_BNIA, NEGOCIANT, id, null);
 
         VueDsm juillet = cas.initier(AGENT_NEGOCIANT, NEGOCIANT);
