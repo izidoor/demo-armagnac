@@ -173,15 +173,24 @@ function PageContact({ espace, operateur, id, droits }: PropsPersonne) {
             <Badge variant='secondary'>Destinataire des factures</Badge>
           )}
           {c.invitationEnAttente && (
-            <Badge variant='secondary'>Invitation envoyée</Badge>
+            <Badge variant='secondary'>
+              Invitation envoyée ({ROLES[c.invitationEnAttente.role]}), expire
+              le {dateHeure.format(new Date(c.invitationEnAttente.expireLe))}
+            </Badge>
           )}
         </span>
       }
       actions={
         <div className='flex gap-2'>
-          {droits.acces === 'GESTION' && !c.invitationEnAttente && (
-            <Button onClick={() => setInvitation(true)}>Inviter</Button>
-          )}
+          {droits.acces === 'GESTION' &&
+            (c.invitationEnAttente ? (
+              <ActionsInvitation
+                operateur={operateur}
+                invitation={c.invitationEnAttente.id}
+              />
+            ) : (
+              <Button onClick={() => setInvitation(true)}>Inviter</Button>
+            ))}
           {gestion && (
             <Button variant='destructive' onClick={() => setSuppression(true)}>
               Supprimer
@@ -471,7 +480,6 @@ function descriptionAction(action: ActionMembre | null, m: Membre) {
 
 /** Une invitation : état, relance, annulation (RG-OPE-41). */
 function PageInvitation({ espace, operateur, id, droits }: PropsPersonne) {
-  const rafraichir = useRafraichir(operateur)
   const queryClient = useQueryClient()
   const cle = [...cleOperateur(operateur), 'invitation', id]
   const invitation = useQuery({
@@ -481,26 +489,6 @@ function PageInvitation({ espace, operateur, id, droits }: PropsPersonne) {
         path: { operateur, invitation: id },
         throwOnError: true,
       }).then((r) => r.data),
-  })
-  const action = useMutation({
-    mutationFn: (a: 'relancer' | 'annuler') =>
-      (a === 'relancer'
-        ? relancerInvitation({
-            path: { operateur, invitation: id },
-            throwOnError: true,
-          })
-        : annulerInvitation({
-            path: { operateur, invitation: id },
-            throwOnError: true,
-          })
-      ).then((r) => r.data),
-    onSuccess: (i: Invitation, a) => {
-      queryClient.setQueryData(cle, i)
-      toast.success(
-        a === 'relancer' ? 'Invitation relancée.' : 'Invitation annulée.'
-      )
-      rafraichir()
-    },
   })
   const i = invitation.data
   if (!i) return <Chargement />
@@ -518,22 +506,11 @@ function PageInvitation({ espace, operateur, id, droits }: PropsPersonne) {
       actions={
         droits.acces === 'GESTION' &&
         enAttente && (
-          <div className='flex gap-2'>
-            <Button
-              variant='outline'
-              disabled={action.isPending}
-              onClick={() => action.mutate('relancer')}
-            >
-              Relancer
-            </Button>
-            <Button
-              variant='destructive'
-              disabled={action.isPending}
-              onClick={() => action.mutate('annuler')}
-            >
-              Annuler l'invitation
-            </Button>
-          </div>
+          <ActionsInvitation
+            operateur={operateur}
+            invitation={id}
+            onSucces={(i) => queryClient.setQueryData(cle, i)}
+          />
         )
       }
     >
@@ -557,5 +534,59 @@ function PageInvitation({ espace, operateur, id, droits }: PropsPersonne) {
         </div>
       </Section>
     </PageMetier>
+  )
+}
+
+/**
+ * RG-OPE-41 : relancer (nouveau lien, nouvelle expiration, nouvel e-mail) ou annuler une invitation en
+ * attente ; le contact dont elle part reste inchangé. Depuis la page de l'invitation ou la fiche du contact.
+ */
+function ActionsInvitation({
+  operateur,
+  invitation,
+  onSucces,
+}: {
+  operateur: number
+  invitation: number
+  onSucces?: (invitation: Invitation) => void
+}) {
+  const rafraichir = useRafraichir(operateur)
+  const action = useMutation({
+    mutationFn: (a: 'relancer' | 'annuler') =>
+      (a === 'relancer'
+        ? relancerInvitation({
+            path: { operateur, invitation },
+            throwOnError: true,
+          })
+        : annulerInvitation({
+            path: { operateur, invitation },
+            throwOnError: true,
+          })
+      ).then((r) => r.data),
+    onSuccess: (i: Invitation, a) => {
+      onSucces?.(i)
+      toast.success(
+        a === 'relancer' ? 'Invitation relancée.' : 'Invitation annulée.'
+      )
+      rafraichir()
+    },
+  })
+  return (
+    <div className='flex gap-2'>
+      <Button
+        variant='outline'
+        disabled={action.isPending}
+        onClick={() => action.mutate('relancer')}
+      >
+        Relancer l'invitation
+      </Button>
+      <Button
+        variant='destructive'
+        disabled={action.isPending}
+        onClick={() => action.mutate('annuler')}
+      >
+        Annuler l'invitation
+      </Button>
+    </div>
   )
 }
