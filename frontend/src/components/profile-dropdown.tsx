@@ -17,9 +17,13 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { SignOutDialog } from '@/components/sign-out-dialog'
+import { ROLES } from '@/features/operateurs/commun/libelles'
 import { espaceDe, useMoi } from '@/features/session/session'
 
-/** Menu du profil, en haut à droite : l'utilisateur connecté, « Mon compte », la déconnexion (spec 03 §6.1). */
+/**
+ * Menu du profil, en haut à droite : l'utilisateur connecté, son opérateur actif et son rôle dans celui-ci,
+ * « Mon compte », la déconnexion (spec 03 §6.1).
+ */
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()
   const { moi, actif } = useMoi()
@@ -56,6 +60,11 @@ export function ProfileDropdown() {
               {actif && (
                 <p className='text-muted-foreground text-xs leading-none'>
                   {actif.raisonSociale}
+                </p>
+              )}
+              {actif && (
+                <p className='text-muted-foreground text-xs leading-none'>
+                  Rôle : {ROLES[actif.role]}
                 </p>
               )}
             </div>
