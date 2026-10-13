@@ -137,6 +137,41 @@ class GererInvitationsTest {
     }
 
     @Test
+    @DisplayName("RG-OPE-29 et RG-OPE-40 : une personne nouvelle à l'e-mail d'un contact est invitée depuis ce contact")
+    void rg_ope_40_personne_nouvelle_a_l_email_d_un_contact() {
+        Contact paul = memoire.contact(durand, "Paul", "Petit", "paul@durand.fr");
+
+        Invitation.Emise emise = gerer.inviter(jeanne, durand, SaisieInvitation.personne("PAUL@durand.fr",
+                Role.OBSERVATEUR, "Petit2", "Paul2"));
+
+        assertThat(emise.invitation().fiche()).contains(paul.fiche());
+        assertThat(emise.invitation().personne()).as("l'identité saisie est ignorée").isEmpty();
+        assertThat(gerer.consulterParJeton(emise.jeton()).prenom()).isEqualTo("Paul");
+        assertThatThrownBy(() -> gerer.inviter(jeanne, durand, new SaisieInvitation(paul.id(), "paul@durand.fr",
+                Role.AGENT, null, null, null, null, null))).hasMessageContaining("relancez-la");
+
+        Acceptation acceptation = gerer.accepter(emise.jeton(), Optional.empty(), new SaisieAcceptation(null, "Petit",
+                "Paul"));
+
+        assertThat(memoire.contacts.parId(paul.id())).as("une seule personne dans l'opérateur").isEmpty();
+        assertThat(memoire.rattachements.parId(acceptation.rattachement()).orElseThrow().fiche()).isEqualTo(paul.fiche());
+    }
+
+    @Test
+    @DisplayName("RG-OPE-29 et RG-OPE-42 : un contact déclaré pendant l'attente avec l'e-mail de l'invitation devient le membre")
+    void rg_ope_42_contact_declare_pendant_l_attente() {
+        Invitation.Emise emise = inviterMarc();
+        Contact marc = memoire.contact(durand, "Marc", "Lafitte", "marc@lafitte.fr");
+
+        Acceptation acceptation = gerer.accepter(emise.jeton(), Optional.empty(), MARC);
+
+        assertThat(memoire.contacts.parId(marc.id())).isEmpty();
+        Rattachement rattachement = memoire.rattachements.parId(acceptation.rattachement()).orElseThrow();
+        assertThat(rattachement.fiche()).isEqualTo(marc.fiche());
+        assertThat(memoire.fiches.parId(marc.fiche()).orElseThrow().type()).isEqualTo(TypeFiche.RATTACHEMENT);
+    }
+
+    @Test
     @DisplayName("RG-OPE-42 : un compte existant se connecte pour accepter, garde son identité, et n'accepte pas deux fois")
     void rg_ope_42_utilisateur_existant() {
         long eauze = memoire.operateur("000002", "Maison Durand, Eauze");

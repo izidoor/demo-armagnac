@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { inviter, type Contact } from '@/api/generated'
+import { inviter, type Contact, type PersonneAnnuaire } from '@/api/generated'
 import { lireProbleme } from '@/lib/probleme'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -24,17 +24,20 @@ import { cles, ROLES, ROLES_DESCRIPTION, type Role } from '../commun/libelles'
 
 /**
  * Inviter (module Accès, gestion) un contact de l'opérateur, ou une personne nouvelle, avec un e-mail et
- * un rôle (RG-OPE-40). Le lien part par e-mail, valable 7 jours.
+ * un rôle (RG-OPE-40). Le lien part par e-mail, valable 7 jours. Une personne nouvelle dont l'e-mail est
+ * celui d'un contact de l'annuaire est invitée depuis ce contact (RG-OPE-29).
  */
 export function DialogueInvitation({
   operateur,
   contact,
+  personnes = [],
   open,
   onOpenChange,
   onInvite,
 }: {
   operateur: number
   contact?: Contact
+  personnes?: PersonneAnnuaire[]
   open: boolean
   onOpenChange: (open: boolean) => void
   onInvite: () => void
@@ -46,12 +49,20 @@ export function DialogueInvitation({
   const [fonction, setFonction] = useState('')
   const [telephone, setTelephone] = useState('')
 
+  const cle = email.trim().toLowerCase()
+  const contactDeLEmail = contact
+    ? undefined
+    : personnes.find(
+        (p) => p.genre === 'CONTACT' && cle && p.email?.toLowerCase() === cle
+      )
+  const contactInvite = contact?.id ?? contactDeLEmail?.id
+
   const invitation = useMutation({
     mutationFn: () =>
       inviter({
         path: { operateur },
-        body: contact
-          ? { contact: contact.id, email: email.trim(), role }
+        body: contactInvite
+          ? { contact: contactInvite, email: email.trim(), role }
           : {
               email: email.trim(),
               role,
@@ -95,7 +106,17 @@ export function DialogueInvitation({
               </AlertDescription>
             </Alert>
           )}
-          {!contact && (
+          <Champ libelle='E-mail' valeur={email} onChange={setEmail} />
+          {contactDeLEmail && (
+            <Alert>
+              <AlertDescription>
+                Cet e-mail est celui du contact {contactDeLEmail.nomComplet} :
+                l'invitation part de ce contact, dont la fiche professionnelle
+                est conservée.
+              </AlertDescription>
+            </Alert>
+          )}
+          {!contact && !contactDeLEmail && (
             <div className='grid gap-4 sm:grid-cols-2'>
               <Champ libelle='Prénom' valeur={prenom} onChange={setPrenom} />
               <Champ libelle='Nom' valeur={nom} onChange={setNom} />
@@ -111,7 +132,6 @@ export function DialogueInvitation({
               />
             </div>
           )}
-          <Champ libelle='E-mail' valeur={email} onChange={setEmail} />
           <div className='space-y-2'>
             <Label>Rôle</Label>
             <Select value={role} onValueChange={(v) => setRole(v as Role)}>

@@ -150,6 +150,7 @@ export function OngletAnnuaire({
       {invitation && (
         <DialogueInvitation
           operateur={operateur}
+          personnes={personnes}
           open={invitation}
           onOpenChange={setInvitation}
           onInvite={rafraichir}

@@ -284,6 +284,11 @@ final class Memoire {
         }
 
         @Override
+        public Optional<Contact> parEmail(long operateur, Email email) {
+            return lignes.values().stream().filter(c -> c.operateur() == operateur && c.aEmail(email)).findFirst();
+        }
+
+        @Override
         public boolean existeEmail(long operateur, Email email, Long sauf) {
             return lignes.values().stream().anyMatch(c -> c.operateur() == operateur && c.aEmail(email)
                     && !c.id().equals(sauf));

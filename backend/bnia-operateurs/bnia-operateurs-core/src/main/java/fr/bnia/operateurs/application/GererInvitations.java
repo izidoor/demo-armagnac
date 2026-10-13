@@ -77,9 +77,10 @@ public class GererInvitations {
     }
 
     /**
-     * RG-OPE-28, 29, 34, 40 : depuis un contact ou une personne nouvelle ; refusée si une invitation est
-     * déjà en attente pour ce contact ou cet e-mail, ou si l'e-mail est celui d'un membre. L'e-mail part
-     * après la validation de la transaction.
+     * RG-OPE-28, 29, 34, 40 : depuis un contact ou une personne nouvelle ; une personne nouvelle dont
+     * l'e-mail est celui d'un contact de l'opérateur est invitée depuis ce contact (l'identité saisie est
+     * ignorée). Refusée si une invitation est déjà en attente pour ce contact ou cet e-mail, ou si l'e-mail
+     * est celui d'un membre. L'e-mail part après la validation de la transaction.
      *
      * @return l'invitation et son jeton en clair (jamais renvoyé par l'API : il part par e-mail)
      */
@@ -101,8 +102,10 @@ public class GererInvitations {
         Long fiche = null;
         IdentitePersonne personne = null;
         String nom;
-        if (saisie.contact() != null) {
-            Contact contact = personnes.contact(operateur, saisie.contact());
+        Long idContact = saisie.contact() != null ? saisie.contact()
+                : contacts.parEmail(operateur, email).map(Contact::id).orElse(null);
+        if (idContact != null) {
+            Contact contact = personnes.contact(operateur, idContact);
             nom = contact.identite().nomComplet();
             if (invitations.enAttentePourFiche(contact.fiche()).isPresent()) {
                 throw new ConflitUnicite("RG-OPE-40", "Une invitation est déjà en attente pour " + nom
@@ -183,7 +186,8 @@ public class GererInvitations {
     /**
      * RG-OPE-29, 30, 34, 42, 49 : en une transaction, trouver ou créer l'utilisateur ({@code authentification}
      * crée alors son compte, sans mot de passe), refuser s'il est déjà membre, reprendre la fiche du contact
-     * invité (le contact est supprimé) ou en créer une, créer le rattachement {@code ACTIF}, passer
+     * invité, ou à défaut du contact de l'opérateur qui a l'e-mail de l'invitation (le contact est supprimé),
+     * ou en créer une, créer le rattachement {@code ACTIF}, passer
      * l'invitation à {@code ACCEPTEE}.
      *
      * @param connecte l'utilisateur connecté, exigé si l'e-mail de l'invitation est déjà celui d'un compte
@@ -235,10 +239,16 @@ public class GererInvitations {
                 .flatMap(i -> i.accepteeRecemmentPar(journaliste.maintenant(), parametres.delaiPremierMotDePasse()));
     }
 
-    /** RG-OPE-30 : la fiche du contact invité change de porteur (le contact est supprimé), ou une fiche est créée. */
+    /**
+     * RG-OPE-29, 30, 42 : la fiche du contact invité, ou à défaut du contact de l'opérateur qui a l'e-mail de
+     * l'invitation (déclaré pendant l'attente), change de porteur (le contact est supprimé) ; sinon une fiche
+     * est créée.
+     */
     private long ficheDuMembre(Invitation invitation, Utilisateur utilisateur) {
-        if (invitation.fiche().isPresent()) {
-            long id = invitation.fiche().get();
+        Optional<Long> ficheDuContact = invitation.fiche().or(() -> contacts.parEmail(invitation.operateur(),
+                invitation.email()).map(Contact::fiche));
+        if (ficheDuContact.isPresent()) {
+            long id = ficheDuContact.get();
             contacts.parFiche(id).ifPresent(contact -> contacts.supprimer(contact.id()));
             FicheProfessionnelle fiche = fiches.parId(id).orElseThrow(() -> new ElementIntrouvable(
                     "La fiche du contact invité n'existe plus : demandez une nouvelle invitation."));

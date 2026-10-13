@@ -39,6 +39,15 @@ class ContactJdbc implements ContactRepository {
     }
 
     @Override
+    public Optional<Contact> parEmail(long operateur, Email email) {
+        return jdbcClient.sql("select id from " + SCHEMA + ".contact where operateur_id = :operateur"
+                        + " and lower(email) = lower(:email)")
+                .param("operateur", operateur)
+                .param("email", email.valeur())
+                .query(Long.class).optional().flatMap(this::parId);
+    }
+
+    @Override
     public Contact inserer(Contact contact) {
         return versDomaine(template.insert(versLigne(contact)));
     }
