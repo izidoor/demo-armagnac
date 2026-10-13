@@ -2,11 +2,16 @@ package fr.bnia.declarations.application;
 
 import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.ModificationConcurrente;
+import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.domain.CalendrierDeclaratif.DsmPassee;
+import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.LigneDsm;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +23,11 @@ final class DsmEnMemoire implements DsmRepository, DsmLecture {
 
     private final AtomicLong sequence = new AtomicLong(100);
     private final Map<Long, DeclarationStocksMouvements> dsms = new LinkedHashMap<>();
+    private final FacturesEnMemoire factures;
+
+    DsmEnMemoire(FacturesEnMemoire factures) {
+        this.factures = factures;
+    }
 
     @Override
     public DeclarationStocksMouvements inserer(DeclarationStocksMouvements dsm) {
@@ -88,8 +98,7 @@ final class DsmEnMemoire implements DsmRepository, DsmLecture {
     @Override
     public List<DsmLigne> deLOperateur(long operateur) {
         return dsms.values().stream().filter(d -> d.operateur() == operateur)
-                .map(d -> new DsmLigne(d.id(), d.operateur(), d.type(), d.periode(), d.etat(), d.envoyeeLe(),
-                        d.valideeLe(), null))
+                .map(d -> ligne(d))
                 .toList()
                 .reversed();
     }
@@ -102,9 +111,21 @@ final class DsmEnMemoire implements DsmRepository, DsmLecture {
                 .filter(d -> filtre.etats().isEmpty() || filtre.etats().contains(d.etat()))
                 .filter(d -> filtre.mois().map(m -> !m.atDay(1).isBefore(d.periode().debut())
                         && !m.atDay(1).isAfter(d.periode().fin())).orElse(true))
-                .map(d -> new DsmLigne(d.id(), d.operateur(), d.type(), d.periode(), d.etat(), d.envoyeeLe(),
-                        d.valideeLe(), null))
+                .map(d -> ligne(d))
                 .toList();
+    }
+
+    /** Comme l'adapter : les totaux de l'assiette et le HT facturé. */
+    private DsmLigne ligne(DeclarationStocksMouvements d) {
+        Map<ColonneDsm, VolumeAlcoolPur> assiette = new EnumMap<>(ColonneDsm.class);
+        Arrays.stream(ColonneDsm.values()).filter(c -> c.ligneCotisation().isPresent())
+                .forEach(c -> assiette.put(c, d.total(c)));
+        List<FactureDsm> documents = factures.deLaDsm(d.id());
+        Optional<BigDecimal> htFacture = documents.stream().anyMatch(f -> f.type() == FactureDsm.Type.FACTURE)
+                ? Optional.of(documents.stream().map(FactureDsm::htSigne).reduce(BigDecimal.ZERO, BigDecimal::add))
+                : Optional.empty();
+        return new DsmLigne(d.id(), d.operateur(), d.type(), d.periode(), d.etat(), d.envoyeeLe(), d.valideeLe(), null,
+                assiette, htFacture);
     }
 
     @Override

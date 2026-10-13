@@ -164,6 +164,8 @@ export function apiDeclarations(operateur: number) {
       `/api/operateurs/${operateur}/dsm/${dsm}/justificatifs/${id}/document`,
     urlDrm: (dsm: number, mois: string) =>
       `/api/operateurs/${operateur}/dsm/${dsm}/drm/${mois}/document`,
+    /** RG-DEC-35 : le PDF de la DSM, ouvert dans un nouvel onglet ; l'édition est inscrite au journal. */
+    urlPdf: (dsm: number) => `/api/operateurs/${operateur}/dsm/${dsm}/pdf`,
     journalDsm: (id: number) =>
       consulterJournalDsm({ path: { operateur, id }, throwOnError: true }).then(
         (r) => r.data

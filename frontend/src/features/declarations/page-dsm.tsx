@@ -11,9 +11,11 @@ import {
   Building2,
   CircleCheck,
   CircleHelp,
+  FileDown,
   FileWarning,
   History,
   Paperclip,
+  Receipt,
   Send,
   TriangleAlert,
 } from 'lucide-react'
@@ -58,8 +60,9 @@ import {
 } from './brouillon'
 import { ListeDenominations } from './champs-identite'
 import { SectionCommentaires } from './commentaires'
+import { OngletCotisation } from './cotisation'
 import { DialogueLigne } from './dialogue-ligne'
-import { formatDateHeure } from './format'
+import { formatDateHeure, formatEuros } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
 import { TableJournalDeclarations } from './journal'
 import {
@@ -72,8 +75,9 @@ import { OngletPieces } from './pieces'
 
 /**
  * Écran d'une DSM, commun au back-office et au portail (spec 05 §6.3) : en-tête, cinq onglets du format
- * unique et l'onglet des pièces en classeur, panneau des anomalies et des manques, commentaires sous le
- * classeur ; l'historique, hors du formulaire, dans un panneau latéral. Les actions viennent du serveur,
+ * unique, les onglets des pièces et de la cotisation en classeur, panneau des anomalies et des manques,
+ * commentaires sous le classeur ; l'historique, hors du formulaire, dans un panneau latéral ; le PDF dans un
+ * nouvel onglet du navigateur. Les actions viennent du serveur,
  * selon l'état et le côté de l'utilisateur (RG-DEC-01, 20 à 22, 24, 28) : l'opérateur saisit et envoie tant
  * que la DSM est chez lui ; le BNIA l'instruit ; l'un ou l'autre supprime un brouillon et dépose des pièces.
  */
@@ -110,6 +114,9 @@ export function PageDsm({
 
 /** L'onglet des pièces, après les cinq du format unique (spec 05 §6.3). */
 const PIECES = 'PIECES'
+
+/** L'onglet de la cotisation, après celui des pièces (spec 05 §6.3, lot 4). */
+const COTISATION = 'COTISATION'
 
 /** Les transitions qui demandent une confirmation (RG-DEC-20). */
 type Transition = 'envoi' | 'instruction' | 'complements' | 'validation'
@@ -221,6 +228,17 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
     if (peutRevenir) router.history.back()
     else if (espace === 'bo') ficheOperateur()
     else navigate({ to: '/portail/declarations' })
+  }
+  // RG-DEC-35 : le PDF de la DSM enregistrée, pour tout lecteur ; l'édition entre au journal.
+  const editerPdf = () => {
+    window.open(api.urlPdf(dsm.id), '_blank', 'noopener')
+    setTimeout(
+      () =>
+        queryClient.invalidateQueries({
+          queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'journal'],
+        }),
+      1500
+    )
   }
   const effacement = useMutation({
     mutationFn: () => api.supprimer(dsm.id),
@@ -365,6 +383,12 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
               Validée le {formatDateHeure(dsm.valideeLe)} par {dsm.valideePar}
             </span>
           )}
+          {vue.cotisation.totalHt != null && (
+            <span>
+              Total HT {formatEuros(vue.cotisation.totalHt)}
+              {vue.cotisation.statut === 'FACTUREE' && ' (facturé)'}
+            </span>
+          )}
           {modifie && (
             <Badge variant='outline'>Modifications non enregistrées</Badge>
           )}
@@ -378,6 +402,18 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
           <Button variant='outline' onClick={() => setHistoriqueOuvert(true)}>
             <History className='size-4' /> Historique
           </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant='outline' onClick={editerPdf}>
+                <FileDown className='size-4' /> PDF
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {modifie
+                ? 'Le PDF de la DSM enregistrée, sans les modifications en cours.'
+                : 'Le PDF de la DSM, dans un nouvel onglet.'}
+            </TooltipContent>
+          </Tooltip>
           {saisissable && (
             <Button
               onClick={() => enregistrement.mutate()}
@@ -495,6 +531,14 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
               </>
             ),
           },
+          {
+            valeur: COTISATION,
+            libelle: (
+              <>
+                <Receipt /> Cotisation
+              </>
+            ),
+          },
         ]}
       >
         {ONGLETS.map((o) => (
@@ -547,6 +591,16 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
             peutDeposer={permis('DEPOSER_PIECES')}
             onChange={rafraichir}
           />
+        </TabsContent>
+        <TabsContent value={COTISATION} className='space-y-4'>
+          <div className='mb-8 space-y-1.5 border-b pt-2 pb-4'>
+            <h2 className='text-xl font-semibold'>Cotisation</h2>
+            <p className='text-muted-foreground text-sm'>
+              La cotisation CVO sur les sorties de l'assiette (colonnes 14, 16 à
+              19, 21 à 25), au taux en vigueur à la fin de la période.
+            </p>
+          </div>
+          <OngletCotisation dsm={vue} />
         </TabsContent>
       </OngletsClasseur>
       <SectionCommentaires

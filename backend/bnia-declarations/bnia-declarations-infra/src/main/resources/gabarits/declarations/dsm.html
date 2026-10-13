@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!--
+  PDF d'une DSM (spec 05, RG-DEC-35, ADR-020) : le format unique, un onglet par page, puis la cotisation.
+  XHTML bien formé (OpenHTMLtoPDF) : éléments vides fermés, aucune entité nommée. Les textes arrivent mis en
+  forme par PdfDsm (masque hl.l,cl, euros, dates).
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Déclaration de stocks et mouvements</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 12mm 10mm 14mm 10mm;
+      @bottom-left { content: "BNIA – Déclaration de stocks et mouvements"; font: 7pt Helvetica, sans-serif; color: #666; }
+      @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 7pt Helvetica, sans-serif; color: #666; }
+    }
+    body { font-family: Helvetica, sans-serif; font-size: 8pt; color: #111; }
+    .page { page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+    .provisoire { border: 1.5pt solid #b45309; color: #b45309; font-weight: bold; text-align: center;
+      padding: 3pt; margin-bottom: 6pt; font-size: 10pt; }
+    h1 { font-size: 13pt; margin: 0 0 4pt 0; }
+    h2 { font-size: 11pt; margin: 8pt 0 4pt 0; }
+    table.entete { width: 100%; border-collapse: collapse; margin-bottom: 6pt; }
+    table.entete td { padding: 1pt 4pt 1pt 0; vertical-align: top; }
+    table.entete td.cle { color: #555; width: 22mm; }
+    table.grille { width: 100%; border-collapse: collapse; -fs-table-paginate: paginate; }
+    table.grille th, table.grille td { border: 0.5pt solid #999; padding: 2pt 3pt; }
+    table.grille thead th { background: #e8e8e8; font-weight: bold; vertical-align: bottom; }
+    table.grille th.numero { font-size: 9pt; }
+    table.grille .libelle { font-weight: normal; font-size: 6.5pt; display: block; }
+    table.grille td.volume, table.grille td.montant { text-align: right; white-space: nowrap; }
+    table.grille .grisee { background: #c8c8c8; }
+    table.grille .negatif { color: #b91c1c; font-weight: bold; }
+    table.grille tr.totaux td { font-weight: bold; background: #f3f3f3; }
+    p.note { color: #555; font-size: 7pt; margin-top: 4pt; }
+  </style>
+</head>
+<body>
+
+<div class="page" th:each="onglet : ${onglets}">
+  <div th:replace="~{::entete}"></div>
+  <h2 th:text="${onglet.titre}">Récapitulatif</h2>
+  <table class="grille">
+    <thead>
+      <tr>
+        <th>Clé</th>
+        <th>Millésime ou dénomination</th>
+        <th>Compte d'âge</th>
+        <th th:each="c : ${onglet.colonnes}" th:classappend="${c.grisee} ? 'grisee'" class="numero">
+          <span th:text="${c.numero}">17</span>
+          <span class="libelle" th:text="${c.libelle}">Marché intérieur</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="r : ${onglet.rangees}">
+        <td th:text="${r.cle}">NB</td>
+        <td th:text="${r.designation}">XO</td>
+        <td th:text="${r.compte}">12</td>
+        <td th:each="v : ${r.cellules}" class="volume" th:classappend="${(v.grisee ? 'grisee ' : '') + (v.negatif ? 'negatif' : '')}"
+            th:text="${v.texte}">1.18,35</td>
+      </tr>
+      <tr class="totaux">
+        <td colspan="3">Total</td>
+        <td th:each="v : ${onglet.totaux}" class="volume" th:classappend="${(v.grisee ? 'grisee ' : '') + (v.negatif ? 'negatif' : '')}"
+            th:text="${v.texte}">8.39,11</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">Volumes en litres d'alcool pur, au format hl.l,cl. Colonnes grisées : hors du périmètre du déclarant.</p>
+</div>
+
+<div class="page">
+  <div th:replace="~{::entete}"></div>
+  <h2>Cotisation CVO</h2>
+  <th:block th:if="${cotisation.statut == 'CALCULEE'}">
+    <p th:text="'Taux appliqué : ' + ${cotisation.taux}">Taux appliqué</p>
+    <table class="grille">
+      <thead>
+        <tr>
+          <th>Ligne de cotisation</th><th>Volume (hl.l,cl)</th><th>Volume (hlAP)</th>
+          <th>Part non assujettie</th><th>Part assujettie</th><th>Total HT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="l : ${cotisation.lignes}">
+          <td th:text="${l.libelle}">Sorties France</td>
+          <td class="volume" th:text="${l.volume}">8.39,11</td>
+          <td class="volume" th:text="${l.hectolitres}">8,3911</td>
+          <td class="montant" th:text="${l.nonAssujettie}">100,69 €</td>
+          <td class="montant" th:text="${l.assujettie}">402,77 €</td>
+          <td class="montant" th:text="${l.total}">503,46 €</td>
+        </tr>
+        <tr class="totaux">
+          <td colspan="3">Total</td>
+          <td class="montant" th:text="${cotisation.totalNonAssujettie}">371,19 €</td>
+          <td class="montant" th:text="${cotisation.totalAssujettie}">1 484,76 €</td>
+          <td class="montant" th:text="${cotisation.totalHt}">1 855,95 €</td>
+        </tr>
+      </tbody>
+    </table>
+    <p th:text="${cotisation.tva}">TVA indicative</p>
+    <p th:if="${cotisation.ttc != null}" th:text="'TTC indicatif : ' + ${cotisation.ttc}">TTC</p>
+    <p class="note">Cotisation calculée à la grille en vigueur à la fin de la période ; la facture la fixera.</p>
+  </th:block>
+  <p th:if="${cotisation.statut == 'NON_CALCULABLE'}" th:text="${cotisation.message}">Non calculable</p>
+  <th:block th:if="${cotisation.statut == 'FACTUREE'}">
+    <table class="grille">
+      <thead>
+        <tr><th>Document</th><th>Numéro</th><th>Date</th><th>HT</th><th>TVA</th><th>TTC</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="f : ${cotisation.factures}">
+          <td th:text="${f.type}">Facture</td>
+          <td th:text="${f.numero}">2026000700</td>
+          <td th:text="${f.date}">15/11/2026</td>
+          <td class="montant" th:text="${f.ht}">1 855,95 €</td>
+          <td class="montant" th:text="${f.tva}">296,95 €</td>
+          <td class="montant" th:text="${f.ttc}">2 152,90 €</td>
+        </tr>
+        <tr class="totaux">
+          <td colspan="3">Total HT facturé (factures moins avoirs)</td>
+          <td class="montant" colspan="3" th:text="${cotisation.totalHt}">1 855,95 €</td>
+        </tr>
+      </tbody>
+    </table>
+  </th:block>
+</div>
+
+<!-- En-tête de chaque page, inséré par th:replace ; absent du rendu à sa place d'origine. -->
+<th:block th:remove="all">
+  <div th:fragment="entete">
+    <div class="provisoire" th:if="${provisoire}">Document provisoire, DSM non validée</div>
+    <h1>Déclaration de stocks et mouvements</h1>
+    <table class="entete">
+      <tr>
+        <td class="cle">Opérateur</td><td th:text="${entete.operateur}">N320001 – Armagnacs de Gascogne</td>
+        <td class="cle">Période</td><td th:text="${entete.periode}">octobre 2026</td>
+      </tr>
+      <tr>
+        <td class="cle">Déclarant</td><td th:text="${entete.type}">Négociant</td>
+        <td class="cle">Date de la DIA</td><td th:text="${entete.dateDia}">—</td>
+      </tr>
+      <tr>
+        <td class="cle">État</td>
+        <td th:text="${entete.etat}">Envoyée</td>
+        <td class="cle">Validation</td><td th:text="${entete.validation}">—</td>
+      </tr>
+    </table>
+  </div>
+</th:block>
+
+</body>
+</html>

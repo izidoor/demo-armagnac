@@ -11,14 +11,16 @@ import static fr.bnia.declarations.domain.SensColonne.STOCK_DEBUT;
 import static fr.bnia.declarations.domain.SensColonne.STOCK_FIN;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.declarations.domain.partage.LigneCotisation;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Les 26 colonnes du format unique de la DSM (spec 05 §3.1) : référentiel fixe, défini par l'application.
  * Porte ce que les règles en tirent : onglet, sens dans le calcul du stock (RG-DEC-17), grisage pour un
- * producteur (RG-DEC-16). L'assiette, la ligne de cotisation et le justificatif attendu viennent avec
- * les lots 3 et 4.
+ * producteur (RG-DEC-16), assiette et ligne de cotisation (RG-DEC-31, H-DEC-3). Le justificatif attendu est
+ * porté par {@link TypeMouvement}.
  */
 public enum ColonneDsm {
 
@@ -90,6 +92,25 @@ public enum ColonneDsm {
     /** RG-DEC-16 : grisée pour ce type de déclarant, donc vide et non saisissable. */
     public boolean griseePour(TypeDeclarant type) {
         return griseeProducteur && type == TypeDeclarant.PRODUCTEUR;
+    }
+
+    /**
+     * H-DEC-3 : la ligne de cotisation qu'alimente la colonne, si elle est dans l'assiette (RG-DEC-31) :
+     * 14, 17, 18, 19 et 21 en France, 22 à 24 à l'export, 16 et 25 en autres produits.
+     */
+    public Optional<LigneCotisation> ligneCotisation() {
+        return Optional.ofNullable(switch (this) {
+            case C14, C17, C18, C19, C21 -> LigneCotisation.SORTIES_FRANCE;
+            case C22, C23, C24 -> LigneCotisation.SORTIES_EXPORT;
+            case C16 -> LigneCotisation.EDV_MARCHE_INTERIEUR;
+            case C25 -> LigneCotisation.EDV_EXPORT;
+            default -> null;
+        });
+    }
+
+    /** RG-DEC-31 : la colonne entre dans l'assiette de ce type de déclarant, colonnes grisées exclues. */
+    public boolean assiettePour(TypeDeclarant type) {
+        return ligneCotisation().isPresent() && !griseePour(type);
     }
 
     /** Colonnes 2 à 25 : les mouvements, saisis par l'opérateur (RG-DEC-17). */

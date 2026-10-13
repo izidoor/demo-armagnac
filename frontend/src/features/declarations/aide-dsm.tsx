@@ -244,6 +244,31 @@ export function AideDsm({
               déposées.
             </p>
           </Section>
+          <Section titre='Cotisation'>
+            <p>
+              L'onglet Cotisation calcule la cotisation CVO sur les sorties de
+              l'assiette : colonnes 14, 16 à 19 et 21 à 25, sauf les colonnes
+              grisées d'un producteur. Les volumes se comptent en hectolitres
+              d'alcool pur (litres ÷ 100), par ligne de cotisation : sorties
+              France, sorties export, autres produits.
+            </p>
+            <p>
+              Le taux est celui de la grille du BNIA en vigueur à la fin de la
+              période ; sa part exonérée de TVA donne la part non assujettie, le
+              reste la part assujettie, chacune arrondie au centime. La TVA et
+              le TTC sont indicatifs : la facture du BNIA fixe les montants.
+              Sans taux à cette date, la cotisation est non calculable.
+            </p>
+          </Section>
+          <Section titre='Édition PDF'>
+            <p>
+              Le bouton PDF ouvre la DSM enregistrée dans un nouvel onglet, au
+              format unique : un onglet par page, volumes au format hl.l,cl
+              (22.54,15 pour 2 254,15 L), puis la cotisation. Avant la
+              validation, chaque page porte la mention « Document provisoire,
+              DSM non validée ». Chaque édition est inscrite à l'historique.
+            </p>
+          </Section>
           <Section titre='Commentaires'>
             <p>
               Sous le classeur, le fil des échanges avec le BNIA, dans tous les

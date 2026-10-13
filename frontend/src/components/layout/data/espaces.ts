@@ -7,6 +7,7 @@ import {
   Landmark,
   LayoutDashboard,
   Percent,
+  Receipt,
   Tags,
   UserCog,
   Users,
@@ -62,6 +63,12 @@ export const parametrage: NavGroup = {
       title: 'TVA',
       icon: Percent,
       items: [{ title: 'Classes de TVA', url: TVA }],
+    },
+    {
+      // Spec 05 §6.1 : la grille de la cotisation des DSM (RG-DEC-30).
+      title: 'Cotisation',
+      icon: Receipt,
+      items: [{ title: 'Taux CVO', url: '/bo/parametrage/taux-cvo' }],
     },
   ],
 }

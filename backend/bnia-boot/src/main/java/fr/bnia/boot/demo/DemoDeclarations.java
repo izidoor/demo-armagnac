@@ -4,6 +4,8 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.CommenterDsm;
 import fr.bnia.declarations.application.FichierDepose;
 import fr.bnia.declarations.application.GererDsm;
+import fr.bnia.declarations.application.GererGrilleCotisation;
+import fr.bnia.declarations.application.GererGrilleCotisation.SaisieTauxCvo;
 import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.application.VueDsm;
@@ -22,6 +24,7 @@ import fr.bnia.operateurs.domain.partage.Acteur;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
@@ -39,7 +42,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Données de démonstration des déclarations (spec 05, §7.1, lots 1 à 3), en profil {@code demo} seulement,
+ * Données de démonstration des déclarations (spec 05, §7.1, lots 1 à 4), en profil {@code demo} seulement,
  * après les opérateurs. Les dates sont calculées depuis la date du jour (décision du 2026-10-13) :
  * <ul>
  * <li>les trois négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier
@@ -54,7 +57,9 @@ import org.springframework.stereotype.Component;
  * </ul></li>
  * <li>Maison Durand, Condom ({@code 000001}, producteur) : point de départ au 1er avril de l'an dernier, DSM
  * de cette année-là validée, avec ses douze DRM et le DAE de son export ; la suivante, à initier, montre le vieillissement et la fusion à {@code 20+} ;</li>
- * <li>Maison Durand, Eauze ({@code 000002}) : pas de point de départ, le BNIA le fixe en démonstration.</li>
+ * <li>Maison Durand, Eauze ({@code 000002}) : pas de point de départ, le BNIA le fixe en démonstration ;</li>
+ * <li>la grille CVO : 55,00 €/hlAP à partir du 1er janvier 2021, puis 60,00 €/hlAP à partir du 1er janvier 2024,
+ * 20 % exonérés de TVA ; la DSM de Gascogne y vaut 1 855,95 € HT, comme la facture d'exemple.</li>
  * </ul>
  *
  * <p>Tout passe par les cas d'usage : points de départ, instruction et commentaire interne au nom d'Anne
@@ -72,16 +77,18 @@ public class DemoDeclarations implements ApplicationRunner {
     private final GererDsm dsms;
     private final CommenterDsm commentaires;
     private final GererPieces pieces;
+    private final GererGrilleCotisation grille;
     private final OperateursLecture lecture;
     private final Clock horloge;
     private Acteur anne;
 
     public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, CommenterDsm commentaires, GererPieces pieces,
-            OperateursLecture lecture, Clock horloge) {
+            GererGrilleCotisation grille, OperateursLecture lecture, Clock horloge) {
         this.points = points;
         this.dsms = dsms;
         this.commentaires = commentaires;
         this.pieces = pieces;
+        this.grille = grille;
         this.lecture = lecture;
         this.horloge = horloge;
     }
@@ -89,10 +96,23 @@ public class DemoDeclarations implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments arguments) {
         anne = new Acteur(DemoPersonnelBnia.anne(lecture));
+        grilleCvo();
         armagnacsDeGascogne();
         maisonLarressingle();
         negoceDesLandes();
         maisonDurandCondom();
+    }
+
+    /** La grille CVO (spec 05 §7.1) : chaque taux, s'il n'est pas déjà saisi (relançable). */
+    private void grilleCvo() {
+        List<LocalDate> debuts = grille.consulter(anne).stream().map(t -> t.taux().debut()).toList();
+        for (SaisieTauxCvo taux : List.of(
+                new SaisieTauxCvo(new BigDecimal("55.00"), new BigDecimal("20.00"), LocalDate.of(2021, 1, 1)),
+                new SaisieTauxCvo(new BigDecimal("60.00"), new BigDecimal("20.00"), LocalDate.of(2024, 1, 1)))) {
+            if (!debuts.contains(taux.debut())) {
+                grille.ajouter(anne, taux);
+            }
+        }
     }
 
     /** Le premier du mois courant : début des négociants. */

@@ -54,7 +54,7 @@ Le BNIA (type `BNIA`, menu « BNIA » du back-office) et seize opérateurs du Ge
 Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N320002`, `N400001`, deux
 `AUTRE` (`000010`, `000011`), une fiche incomplète (`000012`) et une fiche inactive (`000013`).
 
-## Déclarations (spec 05, lots 1 à 3)
+## Déclarations (spec 05, lots 1 à 5)
 
 Les dates sont calculées depuis le jour du chargement. Les trois négociants partent du **premier du mois
 courant** (le 1er octobre 2026 pour un chargement en octobre 2026), avec un stock fixé par Anne Lamarque
@@ -76,6 +76,10 @@ au dernier jour du mois précédent : leur première DSM est celle du mois en co
   2015, `NB` « Blanche » `00`, avec ses **douze DRM** et le DAE de son export (ligne `NB` « Hors d'âge »
   `20+`), tous sur le même PDF de démonstration. La DSM de l'année en cours est à initier.
 - **Maison Durand, Eauze (`000002`, producteur)** : aucun point de départ.
+- **Grille CVO** (Paramétrage, rubrique Cotisation) : 55,00 €/hlAP à partir du 1er janvier 2021, puis
+  60,00 €/hlAP à partir du 1er janvier 2024, 20 % exonérés de TVA. La DSM de Gascogne y vaut 1 855,95 € HT,
+  comme la facture d'exemple. Aucune facture : `facturation` n'existe pas encore, l'onglet « Facturées »
+  du listing reste vide.
 
 La DSM suivante d'un négociant (reprise) ne s'initie qu'à partir du 1er du mois suivant : la reprise se
 montre sur le producteur.
@@ -112,4 +116,14 @@ Scénario :
 7. `admin@bnia.fr`, fiche de Maison Larressingle, onglet « Déclarations » : modifier le stock initial ;
    la colonne 1 de la DSM en cours suit. Changer la date de début est refusé tant que la DSM est en
    cours.
+8. `admin@bnia.fr`, roue crantée « Paramétrage », rubrique « Cotisation > Taux CVO » : les deux taux, le
+   premier clos au 31/12/2023. Ouvrir la DSM d'Armagnacs de Gascogne, onglet « Cotisation » : sorties
+   France 100,69 € + 402,77 €, export 270,50 € + 1 081,99 €, total HT 1 855,95 €, TVA indicative à 20 %
+   sur la part assujettie (296,95 €), TTC 2 152,90 €. Ajouter un taux de 62,00 € au 1er du mois courant :
+   la cotisation de Gascogne suit, puis supprimer ce taux. Listing « DSM » : total HT sur chaque ligne ;
+   la DSM validée de Condom est dans « Validées », donc à facturer.
+9. Bouton « PDF » d'une DSM (n'importe quel compte qui la lit, observateur compris) : le PDF s'ouvre dans
+   un nouvel onglet, un onglet du format unique par page, volumes au format hl.l,cl, puis la cotisation ;
+   « Document provisoire, DSM non validée » sur Gascogne, pas sur la DSM validée de Condom. L'édition
+   apparaît à l'historique.
 

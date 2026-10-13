@@ -12,10 +12,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { type Espace } from './api'
-import { formatDateHeure } from './format'
+import { formatDateHeure, formatEuros } from './format'
 import { VARIANTE_ETAT } from './libelles'
 
-/** Les DSM d'un opérateur, de la plus récente à la plus ancienne ; une ligne ouvre la DSM. */
+/**
+ * Les DSM d'un opérateur, de la plus récente à la plus ancienne, avec leur total HT, calculé ou facturé
+ * (RG-DEC-34) ; une ligne ouvre la DSM.
+ */
 export function ListeDsm({
   espace,
   operateur,
@@ -45,6 +48,7 @@ export function ListeDsm({
             <TableHead>État</TableHead>
             <TableHead>Envoyée le</TableHead>
             <TableHead>Validée le</TableHead>
+            <TableHead className='text-right'>Total HT</TableHead>
             <TableHead className='w-0' />
           </TableRow>
         </TableHeader>
@@ -52,7 +56,7 @@ export function ListeDsm({
           {dsms.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={5}
+                colSpan={6}
                 className='text-muted-foreground h-16 text-center'
               >
                 Aucune DSM.
@@ -71,6 +75,14 @@ export function ListeDsm({
               </TableCell>
               <TableCell>{formatDateHeure(d.envoyeeLe)}</TableCell>
               <TableCell>{formatDateHeure(d.valideeLe)}</TableCell>
+              <TableCell className='text-right tabular-nums'>
+                {formatEuros(d.totalHt)}
+                {d.facturee && (
+                  <Badge variant='secondary' className='ms-2'>
+                    Facturée
+                  </Badge>
+                )}
+              </TableCell>
               <TableCell>
                 <Button
                   variant='ghost'

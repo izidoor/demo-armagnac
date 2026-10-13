@@ -6,6 +6,7 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.CommenterDsm;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.application.GererDsm;
+import fr.bnia.declarations.application.GererGrilleCotisation;
 import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.domain.ColonneDsm;
@@ -18,6 +19,7 @@ import fr.bnia.declarations.domain.TypeMouvement;
 import fr.bnia.declarations.domain.TypePiece;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.support.AbstractIT;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
@@ -27,7 +29,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Chargeur de démonstration des déclarations (spec 05, §7.1, lots 1 à 3), après le personnel, les
+ * Chargeur de démonstration des déclarations (spec 05, §7.1, lots 1 à 4), après le personnel, les
  * référentiels et les opérateurs : relançable, et conforme à la spec.
  */
 class DemoDeclarationsIT extends AbstractIT {
@@ -36,6 +38,7 @@ class DemoDeclarationsIT extends AbstractIT {
     @Autowired GererDsm dsms;
     @Autowired CommenterDsm commentaires;
     @Autowired GererPieces pieces;
+    @Autowired GererGrilleCotisation grille;
     @Autowired ApplicationContext contexte;
 
     private Acteur anne;
@@ -46,7 +49,7 @@ class DemoDeclarationsIT extends AbstractIT {
 
     /** La seule DSM de l'opérateur, dans cet état, qui commence à cette date. */
     private DsmLigne seule(String code, EtatDsm etat, LocalDate debut) {
-        List<DsmLigne> declarations = dsms.lister(anne, id(code));
+        List<DsmLigne> declarations = dsms.lister(anne, id(code)).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
         assertThat(declarations).as(code).singleElement().satisfies(d -> {
             assertThat(d.etat()).isEqualTo(etat);
             assertThat(d.periode().debut()).isEqualTo(debut);
@@ -82,6 +85,10 @@ class DemoDeclarationsIT extends AbstractIT {
                 .containsExactly(false, true);
         assertThat(envoyee.manques()).extracting(Manque::typeMouvement)
                 .containsExactly(TypeMouvement.VENTE_NEGOCE, TypeMouvement.VENTE_EXPORT);
+        // La facture d'exemple : 1 855,95 € HT à 60 €/hlAP, 20 % exonérés.
+        assertThat(envoyee.cotisation().ht()).contains(new BigDecimal("1855.95"));
+        assertThat(grille.consulter(anne)).extracting(t -> t.taux().debut())
+                .contains(LocalDate.of(2021, 1, 1), LocalDate.of(2024, 1, 1));
 
         long larressingle = id("N320002");
         DsmLigne complements = seule("N320002", EtatDsm.COMPLEMENTS_DEMANDES, mois);

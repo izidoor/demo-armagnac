@@ -11,6 +11,7 @@ import fr.bnia.declarations.domain.ControlePieces;
 import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.EtatDsm;
+import fr.bnia.declarations.domain.GrilleCotisation;
 import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.LigneStockInitial;
@@ -25,6 +26,8 @@ import fr.bnia.declarations.domain.partage.DsmValidee;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
+import fr.bnia.referentiels.application.partage.ReferentielsLecture;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,7 +40,7 @@ import java.util.stream.Stream;
 /**
  * DSM d'un opérateur (analyse UC-DEC-4, 6, 8, 9, spec 05 §5.1) : l'opérateur l'initie pour la période
  * attendue, la remplit, l'enregistre et l'envoie ; le BNIA la prend en instruction, demande des compléments ou
- * la valide ; l'opérateur ou le BNIA supprime un brouillon. RG-DEC-01 à 05, 10 à 23.
+ * la valide ; l'opérateur ou le BNIA supprime un brouillon. RG-DEC-01 à 05, 10 à 23 ; sa cotisation, RG-DEC-31 à 34.
  */
 @UseCase
 public class GererDsm {
@@ -52,11 +55,13 @@ public class GererDsm {
     private final PublicationEvenements evenements;
     private final Autorisations autorisations;
     private final Journaliste journaliste;
+    private final Cotisations cotisations;
 
     public GererDsm(DsmRepository dsms, PointDeDepartRepository points, DsmLecture lecture,
             JournalDeclarations journal, Commentaires commentaires, Pieces pieces, StockageDocuments stockage,
-            PublicationEvenements evenements,
-            OperateursLecture operateurs, Clock horloge) {
+            GrilleCotisationRepository grilles, FacturesDsm factures, PublicationEvenements evenements,
+            OperateursLecture operateurs, ReferentielsLecture referentiels, ParametresDeclarations parametres,
+            Clock horloge) {
         this.dsms = dsms;
         this.points = points;
         this.lecture = lecture;
@@ -67,6 +72,7 @@ public class GererDsm {
         this.evenements = evenements;
         this.autorisations = new Autorisations(operateurs);
         this.journaliste = new Journaliste(journal, operateurs, horloge);
+        this.cotisations = new Cotisations(grilles, factures, referentiels, parametres, horloge);
     }
 
     /** RG-DEC-02 à 05 : la prochaine DSM de l'opérateur, ou ce qui en empêche l'initiation (spec 05 §6.2). */
@@ -224,10 +230,19 @@ public class GererDsm {
         journaliste.noter(acteur, dsm, ActionJournalDeclarations.BROUILLON_SUPPRIME, null);
     }
 
-    /** RG-DEC-01 : les DSM de l'opérateur, de la plus récente à la plus ancienne. */
-    public List<DsmLigne> lister(Acteur acteur, long operateur) {
+    /**
+     * Une DSM de l'opérateur et son total HT, facturé ou calculé ; absent si non calculable (RG-DEC-32, 34).
+     */
+    public record DsmDeLOperateur(DsmLigne dsm, Optional<BigDecimal> totalHt) {
+    }
+
+    /** RG-DEC-01, 34 : les DSM de l'opérateur, de la plus récente à la plus ancienne, avec leur total HT. */
+    public List<DsmDeLOperateur> lister(Acteur acteur, long operateur) {
         autorisations.exigerLecture(acteur, operateur);
-        return lecture.deLOperateur(operateur);
+        GrilleCotisation grille = cotisations.grille();
+        return lecture.deLOperateur(operateur).stream()
+                .map(d -> new DsmDeLOperateur(d, Cotisations.totalHt(d, grille)))
+                .toList();
     }
 
     /** Le côté d'où l'acteur lit les DSM de l'opérateur, pour les libellés des états. */
@@ -256,7 +271,8 @@ public class GererDsm {
     }
 
     private VueDsm vue(Acteur acteur, DeclarationStocksMouvements dsm, OperateurVue operateur) {
-        return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm));
+        return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm),
+                cotisations.de(dsm));
     }
 
     /** RG-DEC-29 : pièces lues en deux requêtes, jamais une par ligne. */

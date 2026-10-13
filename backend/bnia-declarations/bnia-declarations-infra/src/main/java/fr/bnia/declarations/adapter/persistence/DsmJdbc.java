@@ -25,11 +25,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
@@ -48,9 +50,27 @@ import org.springframework.stereotype.Repository;
 @Repository
 class DsmJdbc implements DsmRepository, DsmLecture {
 
-    /** La date de dernière modification est celle de la dernière entrée du journal de la DSM (spec 05 §3.2). */
+    /** Les colonnes de l'assiette (RG-DEC-31), sommées pour le total HT des listings. */
+    private static final List<ColonneDsm> ASSIETTE = Arrays.stream(ColonneDsm.values())
+            .filter(c -> c.ligneCotisation().isPresent()).toList();
+
+    /**
+     * La date de dernière modification est celle de la dernière entrée du journal de la DSM (spec 05 §3.2) ; les
+     * totaux de l'assiette et le HT facturé (RG-DEC-34) se lisent dans la même requête, jamais une par DSM.
+     */
     private static final String RESUME = "id, operateur_id, type, debut, fin, etat, envoyee_le, validee_le,"
-            + " (select max(j.date) from " + SCHEMA + ".journal j where j.dsm_id = dsm.id) as modifiee_le";
+            + " (select max(j.date) from " + SCHEMA + ".journal j where j.dsm_id = dsm.id) as modifiee_le,"
+            + " (select sum(case when f.type = 'AVOIR' then -f.ht else f.ht end) from " + SCHEMA + ".facture_dsm f"
+            + " where f.dsm_id = dsm.id) as ht_facture,"
+            + " exists (select 1 from " + SCHEMA + ".facture_dsm f where f.dsm_id = dsm.id and f.type = 'FACTURE')"
+            + " as facturee, "
+            + ASSIETTE.stream().map(c -> "a." + colonne(c)).collect(Collectors.joining(", "));
+
+    /** Jointure des totaux de l'assiette, à placer après {@code from dsm}. */
+    private static final String TOTAUX = " left join lateral (select "
+            + ASSIETTE.stream().map(c -> "sum(l." + colonne(c) + ") as " + colonne(c))
+                    .collect(Collectors.joining(", "))
+            + " from " + SCHEMA + ".ligne_dsm l where l.dsm_id = dsm.id) a on true";
 
     private final JdbcAggregateTemplate template;
     private final JdbcClient jdbcClient;
@@ -117,7 +137,8 @@ class DsmJdbc implements DsmRepository, DsmLecture {
 
     @Override
     public List<DsmLigne> deLOperateur(long operateur) {
-        return jdbcClient.sql("select " + RESUME + " from " + SCHEMA + ".dsm where operateur_id = :operateur"
+        return jdbcClient.sql("select " + RESUME + " from " + SCHEMA + ".dsm" + TOTAUX
+                        + " where operateur_id = :operateur"
                         + " order by debut desc")
                 .param("operateur", operateur)
                 .query(DsmJdbc::resume)
@@ -126,7 +147,8 @@ class DsmJdbc implements DsmRepository, DsmLecture {
 
     @Override
     public List<DsmLigne> rechercher(FiltreDsm filtre) {
-        StringBuilder sql = new StringBuilder("select " + RESUME + " from " + SCHEMA + ".dsm where true");
+        StringBuilder sql = new StringBuilder("select " + RESUME + " from " + SCHEMA + ".dsm" + TOTAUX
+                + " where true");
         Map<String, Object> parametres = new HashMap<>();
         filtre.operateur().ifPresent(o -> {
             sql.append(" and operateur_id = :operateur");
@@ -148,10 +170,22 @@ class DsmJdbc implements DsmRepository, DsmLecture {
     }
 
     private static DsmLigne resume(ResultSet rs, int n) throws SQLException {
+        Map<ColonneDsm, VolumeAlcoolPur> assiette = new EnumMap<>(ColonneDsm.class);
+        for (ColonneDsm c : ASSIETTE) {
+            BigDecimal litres = rs.getBigDecimal(colonne(c));
+            assiette.put(c, litres == null ? VolumeAlcoolPur.ZERO : VolumeAlcoolPur.litres(litres));
+        }
+        Optional<BigDecimal> htFacture = rs.getBoolean("facturee")
+                ? Optional.of(rs.getBigDecimal("ht_facture").setScale(2)) : Optional.empty();
         return new DsmLigne(rs.getLong("id"), rs.getLong("operateur_id"), TypeDeclarant.valueOf(rs.getString("type")),
                 new PeriodeDeclaration(rs.getObject("debut", LocalDate.class), rs.getObject("fin", LocalDate.class)),
                 EtatDsm.valueOf(rs.getString("etat")), instant(rs.getTimestamp("envoyee_le")),
-                instant(rs.getTimestamp("validee_le")), instant(rs.getTimestamp("modifiee_le")));
+                instant(rs.getTimestamp("validee_le")), instant(rs.getTimestamp("modifiee_le")), assiette, htFacture);
+    }
+
+    /** La colonne SQL d'une colonne de la DSM : {@code c14}. */
+    private static String colonne(ColonneDsm colonne) {
+        return "c%02d".formatted(colonne.numero());
     }
 
     @Override

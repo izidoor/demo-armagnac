@@ -40,3 +40,33 @@ const dateHeure = new Intl.DateTimeFormat('fr-FR', {
 export function formatDateHeure(instant: string | null | undefined) {
   return instant ? dateHeure.format(new Date(instant)) : ''
 }
+
+const euros = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+})
+
+/** Un montant en euros, au centime : « 1 855,95 € » (RG-DEC-33). */
+export function formatEuros(valeur: number | null | undefined) {
+  return valeur == null ? '' : euros.format(valeur)
+}
+
+const pourcentage = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
+/** Un pourcentage à deux décimales : « 20,00 % ». */
+export function formatPourcentage(valeur: number) {
+  return `${pourcentage.format(valeur)} %`
+}
+
+const hectolitres = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 4,
+})
+
+/** Un volume en hectolitres d'alcool pur, sans arrondi : « 8,3911 » (RG-DEC-33). */
+export function formatHectolitres(valeur: number) {
+  return hectolitres.format(valeur)
+}

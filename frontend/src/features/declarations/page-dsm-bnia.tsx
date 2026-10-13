@@ -37,7 +37,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageMetier } from '@/components/metier/page-metier'
 import { RechercheOperateur } from '@/features/operateurs/portail/recherche-operateur'
-import { formatDateHeure } from './format'
+import { formatDateHeure, formatEuros } from './format'
 import { TYPES_DECLARANT, VARIANTE_ETAT } from './libelles'
 
 const TOUS = 'tous'
@@ -59,9 +59,8 @@ type Vue = 'en-cours' | 'validees' | 'facturees'
 /**
  * Les DSM de tous les opérateurs, pour le BNIA (spec 05 §6.1, UC-DEC-7), en trois onglets : en cours
  * (brouillon, à prendre en charge, en instruction, compléments demandés, compléments reçus ; filtre d'état,
- * « tous » par défaut), validées,
- * facturées (avec la projection des factures, lot 4). Filtres opérateur, type et mois. Une ligne ouvre la
- * DSM.
+ * « tous » par défaut), validées (sans facture, donc à facturer), facturées (projection des factures,
+ * RG-DEC-34). Total HT, calculé ou facturé. Filtres opérateur, type et mois. Une ligne ouvre la DSM.
  */
 export function PageDsmBnia() {
   const navigate = useNavigate()
@@ -89,9 +88,9 @@ export function PageDsmBnia() {
   })
   const toutes = listing.data ?? []
   const enCours = toutes.filter((d) => d.etat !== 'VALIDEE')
-  const validees = toutes.filter((d) => d.etat === 'VALIDEE')
-  // Lot 4 : « facturée » se lira dans la projection des factures.
-  const facturees: typeof toutes = []
+  // RG-DEC-34 : une DSM validée sans facture est à facturer ; facturée, elle passe dans le dernier onglet.
+  const validees = toutes.filter((d) => d.etat === 'VALIDEE' && !d.facturee)
+  const facturees = toutes.filter((d) => d.facturee)
   const dsms =
     vue === 'validees'
       ? validees
@@ -227,11 +226,17 @@ export function PageDsmBnia() {
           </div>
         )}
       </div>
+      {vue === 'validees' && (
+        <p className='text-muted-foreground mb-4 flex items-center gap-2 text-sm'>
+          <Receipt className='size-4' />
+          Les DSM validées, à facturer ; total HT calculé à la grille CVO.
+        </p>
+      )}
       {vue === 'facturees' && (
         <p className='text-muted-foreground mb-4 flex items-center gap-2 text-sm'>
           <Receipt className='size-4' />
-          Les DSM facturées apparaîtront ici avec la cotisation et les factures
-          reçues de la facturation (lot 4).
+          Les DSM dont la facture a été reçue de la facturation ; total HT
+          facturé, factures moins avoirs.
         </p>
       )}
       <div className='rounded-md border'>
@@ -253,6 +258,7 @@ export function PageDsmBnia() {
                   <TableHead>Validée le</TableHead>
                 </>
               )}
+              <TableHead className='text-right'>Total HT</TableHead>
               <TableHead className='w-0' />
             </TableRow>
           </TableHeader>
@@ -260,7 +266,7 @@ export function PageDsmBnia() {
             {dsms.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className='text-muted-foreground h-16 text-center'
                 >
                   {listing.isPending ? 'Chargement…' : 'Aucune DSM.'}
@@ -308,6 +314,9 @@ export function PageDsmBnia() {
                     <TableCell>{formatDateHeure(d.valideeLe)}</TableCell>
                   </>
                 )}
+                <TableCell className='text-right tabular-nums'>
+                  {formatEuros(d.totalHt)}
+                </TableCell>
                 <TableCell>
                   <Button
                     variant='ghost'

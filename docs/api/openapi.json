@@ -494,6 +494,128 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/declarations/taux-cvo" : {
+      "get" : {
+        "operationId" : "listerTauxCvo",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TauxCvo"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La grille CVO, du plus ancien au plus récent, avec la fin calculée de chaque taux",
+        "tags" : [ "declarations" ]
+      },
+      "post" : {
+        "operationId" : "ajouterTauxCvo",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieTauxCvo"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TauxCvo"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Ajouter un taux CVO ; il clôt le précédent la veille de son début (RG-DEC-30)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/declarations/taux-cvo/{debut}" : {
+      "delete" : {
+        "operationId" : "supprimerTauxCvo",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "debut",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TauxCvo"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Supprimer le taux CVO qui commence à cette date ; la chaîne se recompose (RG-DEC-30)",
+        "tags" : [ "declarations" ]
+      },
+      "put" : {
+        "operationId" : "modifierTauxCvo",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "debut",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieTauxCvo"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TauxCvo"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Corriger le taux CVO qui commence à cette date (RG-DEC-30)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/invitations/{jeton}" : {
       "get" : {
         "operationId" : "consulterInvitationParJeton",
@@ -2540,6 +2662,43 @@
           }
         },
         "summary" : "Historique d'une DSM, du plus récent au plus ancien (RG-DEC-23)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/pdf" : {
+      "get" : {
+        "operationId" : "editerDsmPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF de la DSM, dans tous les états, « provisoire » avant validation ; inscrit au journal (RG-DEC-35)",
         "tags" : [ "declarations" ]
       }
     },
@@ -6880,6 +7039,60 @@
         },
         "required" : [ "actif", "id", "libelle", "volume" ]
       },
+      "CotisationDsm" : {
+        "type" : "object",
+        "description" : "Cotisation CVO d'une DSM (spec 05 §6.3, RG-DEC-31 à 34)",
+        "properties" : {
+          "factures" : {
+            "type" : "array",
+            "description" : "Facturée : factures et avoirs, par date",
+            "items" : {
+              "$ref" : "#/components/schemas/FactureDsm"
+            }
+          },
+          "finPeriode" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Fin de la période, date du taux appliqué (RG-DEC-32)"
+          },
+          "lignes" : {
+            "type" : "array",
+            "description" : "Calculée : une ligne par ligne de cotisation non nulle",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneCotisation"
+            }
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "CALCULEE", "NON_CALCULABLE", "FACTUREE" ]
+          },
+          "taux" : {
+            "$ref" : "#/components/schemas/TauxCvo",
+            "description" : "Calculée : le taux en vigueur à la fin de la période"
+          },
+          "totalAssujettie" : {
+            "type" : "number",
+            "description" : "Calculée : somme des parts assujetties"
+          },
+          "totalHt" : {
+            "type" : "number",
+            "description" : "Calculée : somme des parts ; facturée : factures moins avoirs ; absent si non calculable"
+          },
+          "totalNonAssujettie" : {
+            "type" : "number",
+            "description" : "Calculée : somme des parts non assujetties"
+          },
+          "ttc" : {
+            "type" : "number",
+            "description" : "Calculée : HT + TVA indicative"
+          },
+          "tva" : {
+            "$ref" : "#/components/schemas/TvaIndicative",
+            "description" : "Calculée : TVA indicative, absente si la classe de TVA de la CVO n'a pas de taux"
+          }
+        },
+        "required" : [ "factures", "finPeriode", "lignes", "statut" ]
+      },
       "DocumentDsm" : {
         "type" : "object",
         "description" : "Fichier déposé (ADR-018)",
@@ -6995,6 +7208,9 @@
               "$ref" : "#/components/schemas/ColonneDsm"
             }
           },
+          "cotisation" : {
+            "$ref" : "#/components/schemas/CotisationDsm"
+          },
           "dateDia" : {
             "type" : "string",
             "format" : "date",
@@ -7064,7 +7280,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
+        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "cotisation", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
       },
       "DsmListee" : {
         "type" : "object",
@@ -7081,6 +7297,10 @@
           "etat" : {
             "type" : "string",
             "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
+          },
+          "facturee" : {
+            "type" : "boolean",
+            "description" : "A au moins une facture (RG-DEC-34)"
           },
           "id" : {
             "type" : "integer",
@@ -7110,6 +7330,11 @@
           "raisonSociale" : {
             "type" : "string"
           },
+          "totalHt" : {
+            "type" : "number",
+            "description" : "Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)",
+            "example" : 1855.95
+          },
           "type" : {
             "type" : "string",
             "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
@@ -7119,7 +7344,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "codeOperateur", "etat", "id", "libelleEtat", "operateur", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
+        "required" : [ "codeOperateur", "etat", "facturee", "id", "libelleEtat", "operateur", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
       },
       "DsmResume" : {
         "type" : "object",
@@ -7132,6 +7357,10 @@
           "etat" : {
             "type" : "string",
             "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
+          },
+          "facturee" : {
+            "type" : "boolean",
+            "description" : "A au moins une facture (RG-DEC-34)"
           },
           "id" : {
             "type" : "integer",
@@ -7150,6 +7379,11 @@
           "periode" : {
             "$ref" : "#/components/schemas/PeriodeDeclaration"
           },
+          "totalHt" : {
+            "type" : "number",
+            "description" : "Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)",
+            "example" : 1855.95
+          },
           "type" : {
             "type" : "string",
             "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
@@ -7159,7 +7393,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "etat", "id", "libelleEtat", "periode", "type" ]
+        "required" : [ "etat", "facturee", "id", "libelleEtat", "periode", "type" ]
       },
       "EntreeJournalDeclarations" : {
         "type" : "object",
@@ -7247,6 +7481,33 @@
           }
         },
         "required" : [ "codeAttendu", "connecte" ]
+      },
+      "FactureDsm" : {
+        "type" : "object",
+        "description" : "Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "ht" : {
+            "type" : "number"
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "ttc" : {
+            "type" : "number"
+          },
+          "tva" : {
+            "type" : "number"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "AVOIR" ]
+          }
+        },
+        "required" : [ "date", "ht", "numero", "ttc", "tva", "type" ]
       },
       "FicheOperateur" : {
         "type" : "object",
@@ -7724,6 +7985,43 @@
           }
         },
         "required" : [ "date", "evenement", "identifiantSaisi", "libelle" ]
+      },
+      "LigneCotisation" : {
+        "type" : "object",
+        "description" : "Une ligne du détail de la cotisation (RG-DEC-33)",
+        "properties" : {
+          "assujettie" : {
+            "type" : "number",
+            "example" : 402.77
+          },
+          "hectolitres" : {
+            "type" : "number",
+            "description" : "hlAP",
+            "example" : 8.3911
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Sorties France"
+          },
+          "ligne" : {
+            "type" : "string",
+            "enum" : [ "SORTIES_FRANCE", "SORTIES_EXPORT", "EDV_MARCHE_INTERIEUR", "EDV_EXPORT" ]
+          },
+          "nonAssujettie" : {
+            "type" : "number",
+            "example" : 100.69
+          },
+          "total" : {
+            "type" : "number",
+            "example" : 503.46
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur",
+            "example" : 839.11
+          }
+        },
+        "required" : [ "assujettie", "hectolitres", "libelle", "ligne", "nonAssujettie", "total", "volume" ]
       },
       "LigneDsm" : {
         "type" : "object",
@@ -9365,6 +9663,28 @@
         },
         "required" : [ "role" ]
       },
+      "SaisieTauxCvo" : {
+        "type" : "object",
+        "description" : "Saisie d'un taux CVO (RG-DEC-30)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date",
+            "example" : "2024-01-01"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "€/hlAP, strictement positif",
+            "example" : 60.0
+          },
+          "pourcentageExonere" : {
+            "type" : "number",
+            "description" : "De 0 à 100",
+            "example" : 20.0
+          }
+        },
+        "required" : [ "debut", "montant", "pourcentageExonere" ]
+      },
       "SaisieTauxTva" : {
         "type" : "object",
         "properties" : {
@@ -9428,6 +9748,31 @@
         },
         "required" : [ "initiable", "message" ]
       },
+      "TauxCvo" : {
+        "type" : "object",
+        "description" : "Taux de la grille CVO, avec sa fin calculée (spec 05 §3.5, RG-DEC-30)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Veille du début du taux suivant ; absente pour le dernier"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "€/hlAP",
+            "example" : 60.0
+          },
+          "pourcentageExonere" : {
+            "type" : "number",
+            "example" : 20.0
+          }
+        },
+        "required" : [ "debut", "montant", "pourcentageExonere" ]
+      },
       "TauxTva" : {
         "type" : "object",
         "properties" : {
@@ -9459,6 +9804,22 @@
             "description" : "Version lue (verrou optimiste)"
           }
         }
+      },
+      "TvaIndicative" : {
+        "type" : "object",
+        "description" : "TVA indicative d'une DSM non facturée (RG-DEC-34, H-DEC-22)",
+        "properties" : {
+          "montant" : {
+            "type" : "number",
+            "example" : 296.95
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "Pourcentage",
+            "example" : 20.0
+          }
+        },
+        "required" : [ "montant", "taux" ]
       },
       "TypeMouvementDsm" : {
         "type" : "object",

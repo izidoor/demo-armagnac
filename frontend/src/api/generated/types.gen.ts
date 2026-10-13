@@ -235,6 +235,49 @@ export type Contenance = {
 };
 
 /**
+ * Cotisation CVO d'une DSM (spec 05 §6.3, RG-DEC-31 à 34)
+ */
+export type CotisationDsm = {
+    /**
+     * Facturée : factures et avoirs, par date
+     */
+    factures: Array<FactureDsm>;
+    /**
+     * Fin de la période, date du taux appliqué (RG-DEC-32)
+     */
+    finPeriode: string;
+    /**
+     * Calculée : une ligne par ligne de cotisation non nulle
+     */
+    lignes: Array<LigneCotisation>;
+    statut: 'CALCULEE' | 'NON_CALCULABLE' | 'FACTUREE';
+    /**
+     * Calculée : le taux en vigueur à la fin de la période
+     */
+    taux?: TauxCvo;
+    /**
+     * Calculée : somme des parts assujetties
+     */
+    totalAssujettie?: number;
+    /**
+     * Calculée : somme des parts ; facturée : factures moins avoirs ; absent si non calculable
+     */
+    totalHt?: number;
+    /**
+     * Calculée : somme des parts non assujetties
+     */
+    totalNonAssujettie?: number;
+    /**
+     * Calculée : HT + TVA indicative
+     */
+    ttc?: number;
+    /**
+     * Calculée : TVA indicative, absente si la classe de TVA de la CVO n'a pas de taux
+     */
+    tva?: TvaIndicative;
+};
+
+/**
  * Fichier déposé (ADR-018)
  */
 export type DocumentDsm = {
@@ -300,6 +343,7 @@ export type Dsm = {
     anomalies: Array<AnomalieDsm>;
     codeOperateur: string;
     colonnes: Array<ColonneDsm>;
+    cotisation: CotisationDsm;
     /**
      * Date de la DIA, facultative (RG-DEC-19)
      */
@@ -339,6 +383,10 @@ export type DsmListee = {
     codeOperateur: string;
     envoyeeLe?: string;
     etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    /**
+     * A au moins une facture (RG-DEC-34)
+     */
+    facturee: boolean;
     id: number;
     /**
      * Du point de vue du BNIA
@@ -355,6 +403,10 @@ export type DsmListee = {
      */
     prendreEnInstruction: boolean;
     raisonSociale: string;
+    /**
+     * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)
+     */
+    totalHt?: number;
     type: 'PRODUCTEUR' | 'NEGOCIANT';
     valideeLe?: string;
 };
@@ -365,6 +417,10 @@ export type DsmListee = {
 export type DsmResume = {
     envoyeeLe?: string;
     etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    /**
+     * A au moins une facture (RG-DEC-34)
+     */
+    facturee: boolean;
     id: number;
     /**
      * Du point de vue de l'utilisateur connecté
@@ -375,6 +431,10 @@ export type DsmResume = {
      */
     modifieeLe?: string;
     periode: PeriodeDeclaration;
+    /**
+     * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)
+     */
+    totalHt?: number;
     type: 'PRODUCTEUR' | 'NEGOCIANT';
     valideeLe?: string;
 };
@@ -428,6 +488,18 @@ export type EtatSession = {
      * L'utilisateur connecté
      */
     utilisateur?: number;
+};
+
+/**
+ * Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)
+ */
+export type FactureDsm = {
+    date: string;
+    ht: number;
+    numero: string;
+    ttc: number;
+    tva: number;
+    type: 'FACTURE' | 'AVOIR';
 };
 
 /**
@@ -683,6 +755,25 @@ export type LigneConnexion = {
     libelle: string;
     navigateur?: string;
     utilisateur?: number;
+};
+
+/**
+ * Une ligne du détail de la cotisation (RG-DEC-33)
+ */
+export type LigneCotisation = {
+    assujettie: number;
+    /**
+     * hlAP
+     */
+    hectolitres: number;
+    libelle: string;
+    ligne: 'SORTIES_FRANCE' | 'SORTIES_EXPORT' | 'EDV_MARCHE_INTERIEUR' | 'EDV_EXPORT';
+    nonAssujettie: number;
+    total: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volume: number;
 };
 
 /**
@@ -1619,6 +1710,21 @@ export type SaisieRole = {
     role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
 };
 
+/**
+ * Saisie d'un taux CVO (RG-DEC-30)
+ */
+export type SaisieTauxCvo = {
+    debut: string;
+    /**
+     * €/hlAP, strictement positif
+     */
+    montant: number;
+    /**
+     * De 0 à 100
+     */
+    pourcentageExonere: number;
+};
+
 export type SaisieTauxTva = {
     dateDebut: string;
     /**
@@ -1662,6 +1768,22 @@ export type SituationDsm = {
     periode?: PeriodeDeclaration;
 };
 
+/**
+ * Taux de la grille CVO, avec sa fin calculée (spec 05 §3.5, RG-DEC-30)
+ */
+export type TauxCvo = {
+    debut: string;
+    /**
+     * Veille du début du taux suivant ; absente pour le dernier
+     */
+    fin?: string;
+    /**
+     * €/hlAP
+     */
+    montant: number;
+    pourcentageExonere: number;
+};
+
 export type TauxTva = {
     dateDebut: string;
     /**
@@ -1682,6 +1804,17 @@ export type TransitionDsm = {
      * Version lue (verrou optimiste)
      */
     version?: number;
+};
+
+/**
+ * TVA indicative d'une DSM non facturée (RG-DEC-34, H-DEC-22)
+ */
+export type TvaIndicative = {
+    montant: number;
+    /**
+     * Pourcentage
+     */
+    taux: number;
 };
 
 /**
@@ -1974,6 +2107,74 @@ export type ListerToutesDsmResponses = {
 };
 
 export type ListerToutesDsmResponse = ListerToutesDsmResponses[keyof ListerToutesDsmResponses];
+
+export type ListerTauxCvoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/declarations/taux-cvo';
+};
+
+export type ListerTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type ListerTauxCvoResponse = ListerTauxCvoResponses[keyof ListerTauxCvoResponses];
+
+export type AjouterTauxCvoData = {
+    body: SaisieTauxCvo;
+    path?: never;
+    query?: never;
+    url: '/api/declarations/taux-cvo';
+};
+
+export type AjouterTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type AjouterTauxCvoResponse = AjouterTauxCvoResponses[keyof AjouterTauxCvoResponses];
+
+export type SupprimerTauxCvoData = {
+    body?: never;
+    path: {
+        debut: string;
+    };
+    query?: never;
+    url: '/api/declarations/taux-cvo/{debut}';
+};
+
+export type SupprimerTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type SupprimerTauxCvoResponse = SupprimerTauxCvoResponses[keyof SupprimerTauxCvoResponses];
+
+export type ModifierTauxCvoData = {
+    body: SaisieTauxCvo;
+    path: {
+        debut: string;
+    };
+    query?: never;
+    url: '/api/declarations/taux-cvo/{debut}';
+};
+
+export type ModifierTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type ModifierTauxCvoResponse = ModifierTauxCvoResponses[keyof ModifierTauxCvoResponses];
 
 export type ConsulterInvitationParJetonData = {
     body?: never;
@@ -3027,6 +3228,25 @@ export type ConsulterJournalDsmResponses = {
 };
 
 export type ConsulterJournalDsmResponse = ConsulterJournalDsmResponses[keyof ConsulterJournalDsmResponses];
+
+export type EditerDsmPdfData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/pdf';
+};
+
+export type EditerDsmPdfResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type EditerDsmPdfResponse = EditerDsmPdfResponses[keyof EditerDsmPdfResponses];
 
 export type PrendreDsmEnInstructionData = {
     body: TransitionDsm;

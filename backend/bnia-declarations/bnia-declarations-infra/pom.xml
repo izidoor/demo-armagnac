@@ -10,7 +10,7 @@
     </parent>
     <artifactId>bnia-declarations-infra</artifactId>
     <name>BNIA : declarations, infra</name>
-    <description>Contexte declarations : adapters REST et persistance.</description>
+    <description>Contexte declarations : adapters REST, persistance, événements et documents (PDF).</description>
     <dependencies>
         <dependency>
             <groupId>fr.bnia</groupId>
@@ -31,6 +31,15 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <!-- ADR-020 : édition PDF de la DSM, gabarit Thymeleaf (moteur seul) rendu par OpenHTMLtoPDF. -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
         </dependency>
     </dependencies>
 </project>

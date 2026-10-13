@@ -1,5 +1,6 @@
 package fr.bnia.declarations.application;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -15,8 +16,13 @@ import fr.bnia.operateurs.domain.partage.ResultatRecherche;
 import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
+import fr.bnia.referentiels.application.partage.ReferentielsLecture;
+import fr.bnia.referentiels.domain.partage.TauxTvaVue;
+import fr.bnia.referentiels.domain.partage.ValeurVue;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,10 +49,15 @@ final class Monde {
     static final Acteur INCONNU = new Acteur(30);
 
     /** Le 13 octobre 2026. */
+    static final ParametresDeclarations PARAMETRES = new ParametresDeclarations("NORMAL");
+
     static final Clock HORLOGE = Clock.fixed(Instant.parse("2026-10-13T08:00:00Z"), ZoneId.of("Europe/Paris"));
 
     final OperateursLecture operateurs = mock(OperateursLecture.class);
-    final DsmEnMemoire dsms = new DsmEnMemoire();
+    final FacturesEnMemoire factures = new FacturesEnMemoire();
+    final DsmEnMemoire dsms = new DsmEnMemoire(factures);
+    final GrilleEnMemoire grilles = new GrilleEnMemoire();
+    final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
     final PointsEnMemoire points = new PointsEnMemoire();
     final JournalEnMemoire journal = new JournalEnMemoire();
     final CommentairesEnMemoire commentaires = new CommentairesEnMemoire();
@@ -67,6 +78,11 @@ final class Monde {
                 .map(v -> new ResultatRecherche(v.id(), v.code(), v.raisonSociale(), Optional.empty(), Optional.empty()))
                 .toList());
         when(operateurs.droits(anyLong(), anyLong())).thenAnswer(i -> droits(i.getArgument(0), i.getArgument(1)));
+        // La classe de TVA de la CVO : 20 % depuis 2014.
+        when(referentiels.classeTvaParCode("NORMAL")).thenReturn(Optional.of(new ValeurVue(5, "NORMAL", "Normal", true)));
+        when(referentiels.tauxTva(anyLong(), any())).thenAnswer(i -> i.<Long>getArgument(0) == 5
+                ? Optional.of(new TauxTvaVue(5, new BigDecimal("20.00"), LocalDate.of(2014, 1, 1), Optional.empty()))
+                : Optional.empty());
     }
 
     void operateur(long id, TypeOperateur type, StatutDeclarationStock statut) {
@@ -95,8 +111,8 @@ final class Monde {
     }
 
     GererDsm gererDsm() {
-        return new GererDsm(dsms, points, dsms, journal, commentaires, pieces, stockage, evenements, operateurs,
-                HORLOGE);
+        return new GererDsm(dsms, points, dsms, journal, commentaires, pieces, stockage, grilles, factures, evenements,
+                operateurs, referentiels, PARAMETRES, HORLOGE);
     }
 
     CommenterDsm commenterDsm() {
@@ -108,6 +124,18 @@ final class Monde {
     }
 
     ListerDsm listerDsm() {
-        return new ListerDsm(dsms, operateurs);
+        return new ListerDsm(dsms, grilles, operateurs);
+    }
+
+    GererGrilleCotisation gererGrille() {
+        return new GererGrilleCotisation(grilles, operateurs);
+    }
+
+    EnregistrerFactures enregistrerFactures() {
+        return new EnregistrerFactures(factures);
+    }
+
+    CotisationsPubliees cotisationsPubliees() {
+        return new CotisationsPubliees(dsms, grilles, factures);
     }
 }

@@ -52,6 +52,9 @@ bnia:
     validite-invitation: 7d
     validite-changement-email: 24h
     delai-premier-mot-de-passe: 1h
+  declarations:
+    # RG-DEC-34, H-DEC-22 : code de la classe de TVA de la cotisation CVO (référentiels), pour la TVA indicative.
+    classe-tva-cvo: NORMAL
   authentification:
     validite-code: 10m
     validite-lien: 1h

@@ -6,6 +6,7 @@ import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Schema(name = "DsmListee", description = "Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)")
@@ -22,6 +23,10 @@ public record DsmListeeResponse(
         Instant envoyeeLe,
         Instant valideeLe,
         @Schema(description = "Date de la dernière action sur la DSM, lue au journal") Instant modifieeLe,
+        @Schema(description = "Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)",
+                example = "1855.95") BigDecimal totalHt,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "A au moins une facture (RG-DEC-34)")
+        boolean facturee,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)")
         boolean prendreEnInstruction) {
@@ -29,6 +34,7 @@ public record DsmListeeResponse(
     static DsmListeeResponse depuis(DsmListee listee) {
         DsmLigne l = listee.dsm();
         return new DsmListeeResponse(l.id(), l.operateur(), listee.code(), listee.raisonSociale(), l.type(),
-                PeriodeResponse.depuis(l.periode()), l.etat(), l.etat().libelle(Cote.BNIA), l.envoyeeLe(), l.valideeLe(), l.modifieeLe(), listee.prendreEnInstruction());
+                PeriodeResponse.depuis(l.periode()), l.etat(), l.etat().libelle(Cote.BNIA), l.envoyeeLe(), l.valideeLe(),
+                l.modifieeLe(), listee.totalHt().orElse(null), l.facturee(), listee.prendreEnInstruction());
     }
 }

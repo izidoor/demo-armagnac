@@ -10,7 +10,7 @@
     </parent>
     <artifactId>bnia-declarations-core</artifactId>
     <name>BNIA : declarations, core</name>
-    <description>Contexte declarations : domaine et cas d'usage, Java pur. Partie publiée en lecture : packages *.partage (ADR-017). Lit operateurs par sa partie publiée (ADR-012).</description>
+    <description>Contexte declarations : domaine et cas d'usage, Java pur. Partie publiée en lecture : packages *.partage (ADR-017). Lit operateurs (ADR-012) et referentiels (ADR-008) par leurs parties publiées.</description>
     <!-- Java pur (ADR-014) : aucune dépendance Spring. -->
     <dependencies>
         <dependency>
@@ -20,6 +20,10 @@
         <dependency>
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-operateurs-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-referentiels-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

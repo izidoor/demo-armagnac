@@ -36,6 +36,7 @@ import { Route as BoParametrageIndexRouteImport } from './routes/bo/parametrage/
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
 import { Route as BoDeclarationsIndexRouteImport } from './routes/bo/declarations/index'
 import { Route as PortailDeclarationsDsmRouteImport } from './routes/portail/declarations/$dsm'
+import { Route as BoParametrageTauxCvoRouteImport } from './routes/bo/parametrage/taux-cvo'
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
 import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
@@ -185,6 +186,11 @@ const PortailDeclarationsDsmRoute = PortailDeclarationsDsmRouteImport.update({
   path: '/declarations/$dsm',
   getParentRoute: () => PortailRouteRoute,
 } as any)
+const BoParametrageTauxCvoRoute = BoParametrageTauxCvoRouteImport.update({
+  id: '/taux-cvo',
+  path: '/taux-cvo',
+  getParentRoute: () => BoParametrageRouteRoute,
+} as any)
 const BoParametrageQualificationRoute =
   BoParametrageQualificationRouteImport.update({
     id: '/qualification',
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
+  '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
@@ -317,6 +324,7 @@ export interface FileRoutesByTo {
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
+  '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
@@ -359,6 +367,7 @@ export interface FileRoutesById {
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
+  '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/bo/declarations/': typeof BoDeclarationsIndexRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
+    | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
     | '/bo/declarations'
     | '/bo/operateurs'
@@ -440,6 +450,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
+    | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
     | '/bo/declarations'
     | '/bo/operateurs'
@@ -481,6 +492,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
+    | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
     | '/bo/declarations/'
     | '/bo/operateurs/'
@@ -705,6 +717,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortailDeclarationsDsmRouteImport
       parentRoute: typeof PortailRouteRoute
     }
+    '/bo/parametrage/taux-cvo': {
+      id: '/bo/parametrage/taux-cvo'
+      path: '/taux-cvo'
+      fullPath: '/bo/parametrage/taux-cvo'
+      preLoaderRoute: typeof BoParametrageTauxCvoRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
+    }
     '/bo/parametrage/qualification': {
       id: '/bo/parametrage/qualification'
       path: '/qualification'
@@ -796,6 +815,7 @@ interface BoParametrageRouteRouteChildren {
   BoParametrageCommercialisationRoute: typeof BoParametrageCommercialisationRoute
   BoParametrageGeographieRoute: typeof BoParametrageGeographieRoute
   BoParametrageQualificationRoute: typeof BoParametrageQualificationRoute
+  BoParametrageTauxCvoRoute: typeof BoParametrageTauxCvoRoute
   BoParametrageIndexRoute: typeof BoParametrageIndexRoute
   BoParametrageClassesTvaIdRoute: typeof BoParametrageClassesTvaIdRoute
   BoParametrageClassesTvaIndexRoute: typeof BoParametrageClassesTvaIndexRoute
@@ -805,6 +825,7 @@ const BoParametrageRouteRouteChildren: BoParametrageRouteRouteChildren = {
   BoParametrageCommercialisationRoute: BoParametrageCommercialisationRoute,
   BoParametrageGeographieRoute: BoParametrageGeographieRoute,
   BoParametrageQualificationRoute: BoParametrageQualificationRoute,
+  BoParametrageTauxCvoRoute: BoParametrageTauxCvoRoute,
   BoParametrageIndexRoute: BoParametrageIndexRoute,
   BoParametrageClassesTvaIdRoute: BoParametrageClassesTvaIdRoute,
   BoParametrageClassesTvaIndexRoute: BoParametrageClassesTvaIndexRoute,

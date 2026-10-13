@@ -57,6 +57,7 @@ public record DsmResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)")
         List<ManqueResponse> manques,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) CotisationResponse cotisation,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long version) {
 
     @Schema(name = "ColonneDsm", description = "Une des 26 colonnes du format unique (spec 05 §3.1)")
@@ -121,7 +122,8 @@ public record DsmResponse(
                 vue.actions().stream().sorted().toList(), colonnes,
                 dsm.lignes().stream().map(DsmResponse::ligne).toList(), volumes(dsm::total),
                 vue.anomalies().stream().map(DsmResponse::anomalie).toList(),
-                vue.manques().stream().map(DsmResponse::manque).toList(), dsm.version());
+                vue.manques().stream().map(DsmResponse::manque).toList(),
+                CotisationResponse.depuis(vue.cotisation(), dsm.periode().fin()), dsm.version());
     }
 
     private static LigneResponse ligne(LigneDsm ligne) {
