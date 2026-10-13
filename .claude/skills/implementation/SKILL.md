@@ -49,15 +49,11 @@ Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
 3. Écrire le plan : contexte, décisions prises en séance, conventions retenues sans question
    (modifiables à la relecture), **lots**, fichiers critiques, vérification. Puis le faire approuver.
 
-Découpage type, à adapter :
-
-| Lot | Contenu |
-|---|---|
-| 1 | Module Maven du contexte, schéma PostgreSQL, un premier objet de bout en bout (domaine → REST → IT) pour valider les patrons |
-| 2 à n | Les autres objets, du plus simple au plus riche ; un agrégat complexe par lot |
-| n+1 | Lecture par les autres contextes (port, événements ou partie publiée, selon les ADR) |
-| n+2 | Écrans (back-office, puis portail) |
-| n+3 | Données de démonstration (profil `demo`) et clôture |
+Les lots sont ceux de la spec (§ Lots d'implémentation) : des incréments verticaux, chacun livré de
+bout en bout (domaine, cas d'usage, persistance, REST, IT, **écrans**, données de démonstration) et
+démontrable à la fin du lot. Le plan peut les affiner (scinder un lot trop gros), pas les remettre en
+couches. Le lot 1 crée aussi le module Maven et le schéma PostgreSQL du contexte ; le dernier, la
+clôture. Une spec sans lots (antérieure à cette règle) : les proposer dans le plan sur ce modèle.
 
 ### B. Un lot
 Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
@@ -71,8 +67,9 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
 4. **REST** : controllers, DTO `@Schema` avec `requiredMode`, `operationId` explicites ou `@Ressource`.
 5. **IT** dans `bnia-boot` : chaîne complète, données uniques par test (base partagée), statuts 409 et
    422 avec la propriété `regle`.
-6. **Front** (lot des écrans) : `pnpm gen:api`, pages sous `src/features/<contexte>/`, routes fines
+6. **Front** (dans chaque lot) : `pnpm gen:api`, pages sous `src/features/<contexte>/`, routes fines
    sous `src/routes/bo/...`, menu dans `components/layout/data/espaces.ts`.
+7. **Démonstration** : les données du profil `demo` qui rendent l'incrément du lot démontrable.
 
 ### C. Vérification d'un lot
 - `cd backend && ./mvnw -q verify` : tests, IT, ArchUnit, enforcer, réexport de `docs/api/openapi.json`.

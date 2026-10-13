@@ -1,7 +1,7 @@
 # Analyse : declarations
 
 Statut : terminée, 2026-10-13 · Sources : §4.4 p.22-29, §5.4 p.64-66, C.3 p.107-112,
-§4.11.2 p.52, C.10.3 p.127, AGI 2.2 p.8-9,
+§4.11.2 p.52, C.10.3 p.128, AGI 2.2 p.8-9,
 §4.5.1 p.30-31, §4.6 p.36,
 §4.10 p.47, §4.10.5 p.49, annexe B p.98-99, C.5.1 p.118-119, annexe E p.140 ; matrices
 `docs/source/fichiers-example/20261005_DI_ModeleDSM-*.xlsx`, facture `FACTURE-CVO-Armagnac_2026000700.pdf` ; dire de l'utilisateur des 2026-10-12 et 13 · Doc publié : https://claude.ai/code/artifact/a514d4e0-0279-403e-959e-9ae399e45c39
@@ -267,8 +267,8 @@ classDiagram
 | `Justificatif`, `Drm` | entités | UC-4, 8, 9 | Justificatif rattaché à la DSM ou à une de ses lignes, déposant et date tracés (§4.4.5 p.25-26). Producteur : une DRM par mois de la période (§4.4.6 p.26). Le fichier n'est qu'une référence (`DocumentDepose` : clé, nom, type, taille) vers un stockage de documents commun à tous les contextes, port dans `commun` (ADR à écrire en spec : stockage objet S3/MinIO ou `bytea`) |
 | `Commentaire` | entité | UC-8 | Porte l'échange d'instruction, y compris la demande de compléments (décision du 2026-10-13). **Proposé** : remplace la note de contrôle de ligne (C.3.2.1 p.108) et le résultat et commentaire de contrôle d'un justificatif (C.3.3.1 p.111) |
 | `PointDeDepartDeclaratif` | agrégat | UC-3, 4 | Un par opérateur qui déclare ; modifiable tant que sa première DSM n'est pas validée (proposé) |
-| `GrilleCotisation` | agrégat (taux : objets-valeurs) | UC-10 | Taux `CVO` en €/hlAP et pourcentage exonéré de TVA, datés, sans chevauchement, administrés par le BNIA (§4.11.2 p.52, C.10.3 p.127). Même forme que `ClasseTva` (spec 01) |
-| `PolitiqueCotisation` | policy (sans état) | UC-10 | Assiette = colonnes soumises selon le type de déclarant (§4.4.9 p.27-28), en hlAP, × taux en vigueur à la **fin de période** de la DSM (décision du 2026-10-13). Produit le **détail de la cotisation**, ligne par ligne comme la facture d'exemple : commerce de l'Armagnac (sorties France, sorties export) et EDV pour un autre produit (marché intérieur, export), chacune avec son volume en hlAP, sa part non assujettie et sa part assujettie à la TVA (facture `FACTURE-CVO-Armagnac_2026000700.pdf` : 12 + 48 = 60 €/hlAP). Correspondance des colonnes aux lignes : en spec. Calcule le HT à la volée tant que la DSM n'est pas facturée, et le transmet à `facturation`, qui le fige sur la facture (C.10.3 p.127 : la correction d'un taux est sans effet sur une facture émise) |
+| `GrilleCotisation` | agrégat (taux : objets-valeurs) | UC-10 | Taux `CVO` en €/hlAP et pourcentage exonéré de TVA, datés, sans chevauchement, administrés par le BNIA (§4.11.2 p.52, C.10.3 p.128). Même forme que `ClasseTva` (spec 01) |
+| `PolitiqueCotisation` | policy (sans état) | UC-10 | Assiette = colonnes soumises selon le type de déclarant (§4.4.9 p.27-28), en hlAP, × taux en vigueur à la **fin de période** de la DSM (décision du 2026-10-13). Produit le **détail de la cotisation**, ligne par ligne comme la facture d'exemple : commerce de l'Armagnac (sorties France, sorties export) et EDV pour un autre produit (marché intérieur, export), chacune avec son volume en hlAP, sa part non assujettie et sa part assujettie à la TVA (facture `FACTURE-CVO-Armagnac_2026000700.pdf` : 12 + 48 = 60 €/hlAP). Correspondance des colonnes aux lignes : en spec. Calcule le HT à la volée tant que la DSM n'est pas facturée, et le transmet à `facturation`, qui le fige sur la facture (C.10.3 p.128 : la correction d'un taux est sans effet sur une facture émise) |
 | Read model de la DSM | modèle de lecture | UC-4 à 10 | État d'instruction, « à facturer » ou « facturée », HT, TVA et TTC (§4.4.1 p.22, §4.4.3 p.23). Facturée : montants de la facture. Sinon : HT de `PolitiqueCotisation`, TVA et TTC **indicatifs** demandés à `facturation`, responsable des règles de TVA (décision du 2026-10-13 ; mécanismes à l'étape 4) |
 | Stock déclaré, stock estimé | modèles de lecture | UC-1, 2 | Calculés, sans donnée propre : le stock déclaré lit la col. 26 des dernières DSM validées ; le stock estimé, livré plus tard, l'agrège et y ajoute les mouvements reçus de `contratsarmagnac` et `distillation` (grain ci-dessous) |
 
@@ -404,3 +404,16 @@ contrôle des lignes d'achat et de vente (étape 3).
 | ADR-008 (ou nouvel ADR) | Port de lecture défini par le contexte amont, implémenté par l'aval, adapter par défaut | Étape 4 |
 | Nouvel ADR, ADR-009 | Stockage de documents commun (port dans `commun`, `DocumentDepose` dans `commun.domain`) | Étape 3 |
 | Spec | Premier traitement planifié (retards) | Étape 4 |
+
+## Révisions en cours de spec
+
+Désaccords découverts en rédigeant la spec 05, soumis à l'utilisateur et tranchés (le doc publié n'est
+pas republié).
+
+| Date | Point de l'analyse | Révision | Spec |
+|---|---|---|---|
+| 2026-10-13 | Période « de la durée de la périodicité courante » (§3) | Périodicité fixée par le type : annuelle (1er avril - 31 mars) pour le producteur, mensuelle pour le négociant ; trimestre, semestre et changement de périodicité hors périmètre du prototype | §2.2, H-DEC-5, RG-DEC-03 |
+| 2026-10-13 | Point de départ : « un par opérateur » (§3) | Un point de départ en vigueur ; un nouveau peut être fixé après une interruption (sommeil, clôture), sans DSM en cours | H-DEC-10, H-DEC-14, RG-DEC-09 |
+| 2026-10-13 | « Lui seul modifie la DSM » (§2) | Exceptions : le BNIA dépose et supprime pièces et DRM pendant l'instruction (§4.4.6 p.26) et peut supprimer un brouillon | H-DEC-16, H-DEC-18, RG-DEC-22, RG-DEC-28 |
+| 2026-10-13 | C.10.3 cité p.127 | Page corrigée : p.128 | — |
+| 2026-10-13 | Facture lue par un port défini par `declarations` et implémenté par `facturation`, avec adapter par défaut (§4.2) | Projection locale des factures alimentée par `FactureEmise` et `AvoirEmis` (types dans la partie publiée de `declarations`, ADR-013) ; TVA indicative calculée avec les taux de `referentiels` ; pas d'ADR nouveau | A-DEC-4, RG-DEC-34 |

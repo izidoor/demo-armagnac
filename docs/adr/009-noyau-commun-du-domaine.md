@@ -1,6 +1,6 @@
 # ADR-009 : Noyau commun du domaine
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-13 (`VolumeAlcoolPur`, `DocumentDepose`)
 - Date : 2026-10-06
 - Spec : `docs/specs/01-referentiels/spec.md` (décision A-REF-4)
 
@@ -48,3 +48,16 @@ Options écartées :
   leurs propres tests, qui portent l'identifiant de la règle d'origine (spec et glossaire).
 - Un concept n'entre dans `commun` que si un deuxième contexte en a besoin de façon avérée ou certaine
   (spec écrite, CDC explicite), pas par anticipation.
+
+## Amendement du 2026-10-13 (spec 05, décision A-DEC-8 ; ADR-018)
+- **`VolumeAlcoolPur` entre dans `commun.domain`**, de candidat à membre : premier besoin avec
+  `declarations` ; besoin certain, le CDC portant un volume d'alcool pur sur les contrats (C.4), les
+  ventes et certificats export (C.6, C.7) et les fins de travaux (C.5). Litres en `BigDecimal` à 2
+  décimales, arrondi au demi supérieur, **signé** (un stock calculé peut être négatif), avec
+  `enHectolitres()`, `plus` et `moins`. La positivité d'un volume saisi est une règle de chaque
+  contexte ; le masque hl.l,cl est de la présentation (adapters et front).
+- **`DocumentDepose`** (clé, nom, type, taille) entre aussi dans `commun.domain`, avec le port
+  `StockageDocuments` dans `fr.bnia.commun.application` : c'est une référence technique partagée, admise
+  au même titre que les exceptions métier communes (ADR-018).
+- Le compte d'âge borné de la DSM (`CompteDAgeDsm`, `20+`) reste dans `declarations` (partie publiée,
+  ADR-017) : la borne est une règle de la DSM, pas du métier en général.
