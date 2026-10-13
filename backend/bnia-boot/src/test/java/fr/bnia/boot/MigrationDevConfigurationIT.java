@@ -4,13 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.bnia.support.AbstractIT;
 import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
  * Simule une modification de V1 (checksum faussé) et vérifie que la stratégie du profil dev recrée
- * la base. Les autres IT n'en souffrent pas : chacun crée ses propres données.
+ * la base. Les autres IT n'en souffrent pas : chacun crée ses propres données, et la session d'ADMIN du
+ * BNIA, effacée avec la base, est rouverte par le test suivant.
  */
 class MigrationDevConfigurationIT extends AbstractIT {
 
@@ -19,6 +21,11 @@ class MigrationDevConfigurationIT extends AbstractIT {
 
     @Autowired
     JdbcClient jdbcClient;
+
+    @AfterEach
+    void sessionsEffacees() {
+        oublierLesSessions();
+    }
 
     @Test
     void une_v1_modifiee_entraine_la_recreation_de_la_base() {

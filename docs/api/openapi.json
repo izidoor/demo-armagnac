@@ -21,6 +21,9 @@
     "description" : "Opérateurs : contacts, personnes sans compte (§4.3.4, C.1.9)",
     "name" : "contacts"
   }, {
+    "description" : "Déclarations de stocks et mouvements (spec 05)",
+    "name" : "declarations"
+  }, {
     "description" : "Connexion, double authentification, mots de passe, journal des connexions",
     "name" : "authentification"
   }, {
@@ -1546,6 +1549,345 @@
         "tags" : [ "contacts" ]
       }
     },
+    "/api/operateurs/{operateur}/declarations/denominations" : {
+      "get" : {
+        "operationId" : "listerDenominations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Dénominations déjà employées par l'opérateur, suggérées à la saisie (H-DEC-8)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/declarations/journal" : {
+      "get" : {
+        "operationId" : "consulterJournalDeclarations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/EntreeJournalDeclarations"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Journal des déclarations de l'opérateur, brouillons supprimés compris (RG-DEC-23)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm" : {
+      "get" : {
+        "operationId" : "listerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DsmResume"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les DSM de l'opérateur, de la plus récente à la plus ancienne (RG-DEC-01)",
+        "tags" : [ "declarations" ]
+      },
+      "post" : {
+        "operationId" : "initierDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "L'opérateur initie la DSM de la période attendue, reprise du stock initial (RG-DEC-01 à 05, 13)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/situation" : {
+      "get" : {
+        "operationId" : "consulterSituationDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SituationDsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La prochaine DSM de l'opérateur, ou ce qui en empêche l'initiation (RG-DEC-02 à 05)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Supprimer un brouillon, par l'opérateur ou le BNIA ; son journal avec lui (RG-DEC-01, 22)",
+        "tags" : [ "declarations" ]
+      },
+      "get" : {
+        "operationId" : "consulterDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une DSM, ses totaux et ses anomalies (RG-DEC-01, 16 à 18)",
+        "tags" : [ "declarations" ]
+      },
+      "put" : {
+        "operationId" : "enregistrerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'opérateur enregistre sa saisie ; les anomalies ne l'empêchent pas (RG-DEC-10 à 13, 15 à 19, 21)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/apercu" : {
+      "post" : {
+        "operationId" : "apercevoirDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Vue provisoire d'une saisie non enregistrée : totaux, comptes MB, anomalies ; rien n'est enregistré",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/journal" : {
+      "get" : {
+        "operationId" : "consulterJournalDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/EntreeJournalDeclarations"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Historique d'une DSM, du plus récent au plus ancien (RG-DEC-23)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/operateurs/{operateur}/fiches/{fiche}" : {
       "get" : {
         "operationId" : "consulterFiche",
@@ -2002,6 +2344,116 @@
         },
         "summary" : "Suspendre l'accès d'un membre à cet opérateur (RG-OPE-35, 43)",
         "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/point-de-depart" : {
+      "get" : {
+        "operationId" : "consulterPointDeDepart",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointDeDepart"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le point de départ en vigueur de l'opérateur ; 204 s'il n'est pas fixé (RG-DEC-01)",
+        "tags" : [ "declarations" ]
+      },
+      "post" : {
+        "operationId" : "fixerPointDeDepart",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisiePointDeDepart"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointDeDepart"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Le BNIA fixe le point de départ d'un producteur ou d'un négociant (RG-DEC-01, 06, 07)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/point-de-depart/{id}" : {
+      "put" : {
+        "operationId" : "modifierPointDeDepart",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisiePointDeDepart"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointDeDepart"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le BNIA modifie le point de départ tant qu'il n'est pas figé ; la DSM en cours suit (RG-DEC-01, 07, 08)",
+        "tags" : [ "declarations" ]
       }
     },
     "/api/operateurs/{operateur}/presentation" : {
@@ -5318,6 +5770,42 @@
         },
         "required" : [ "type" ]
       },
+      "AnomalieDsm" : {
+        "type" : "object",
+        "description" : "Anomalie de calcul, bloquante à l'envoi (RG-DEC-18)",
+        "properties" : {
+          "colonne" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Numéro de la colonne concernée"
+          },
+          "ecart" : {
+            "type" : "number",
+            "description" : "Litres en cause"
+          },
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Rang de la ligne concernée, 0 pour la première"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "niveau" : {
+            "type" : "string",
+            "enum" : [ "DSM", "ONGLET", "LIGNE" ]
+          },
+          "onglet" : {
+            "type" : "string",
+            "enum" : [ "RECAPITULATIF", "MOUVEMENTS_ENTREE", "MOUVEMENTS_SORTIE", "VENTES_FRANCE", "VENTES_EXPORT" ]
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "STOCK_FIN_NEGATIF", "ASSEMBLAGES_DESEQUILIBRES", "PASSAGES_SOUS_BOIS_DESEQUILIBRES", "COMPTE_MV_TROP_VIEUX" ]
+          }
+        },
+        "required" : [ "message", "niveau", "onglet", "type" ]
+      },
       "Blocage" : {
         "type" : "object",
         "properties" : {
@@ -5445,6 +5933,39 @@
             "example" : "N320004"
           }
         }
+      },
+      "ColonneDsm" : {
+        "type" : "object",
+        "description" : "Une des 26 colonnes du format unique (spec 05 §3.1)",
+        "properties" : {
+          "grisee" : {
+            "type" : "boolean",
+            "description" : "Grisée pour ce déclarant : visible, vide, non saisissable (RG-DEC-16)"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "libelleOnglet" : {
+            "type" : "string"
+          },
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "onglet" : {
+            "type" : "string",
+            "enum" : [ "RECAPITULATIF", "MOUVEMENTS_ENTREE", "MOUVEMENTS_SORTIE", "VENTES_FRANCE", "VENTES_EXPORT" ]
+          },
+          "saisissable" : {
+            "type" : "boolean",
+            "description" : "Colonnes 2 à 25 non grisées"
+          },
+          "sens" : {
+            "type" : "string",
+            "enum" : [ "STOCK_DEBUT", "ENTREE", "SORTIE", "STOCK_FIN" ]
+          }
+        },
+        "required" : [ "grisee", "libelle", "libelleOnglet", "numero", "onglet", "saisissable", "sens" ]
       },
       "ConfirmationEmail" : {
         "type" : "object",
@@ -5578,6 +6099,11 @@
             "type" : "string",
             "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
           },
+          "declarations" : {
+            "type" : "string",
+            "description" : "DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
           "operateur" : {
             "type" : "integer",
             "format" : "int64"
@@ -5601,7 +6127,169 @@
             "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
           }
         },
-        "required" : [ "acces", "adminBnia", "contacts", "operateur", "parametrage", "personnelBnia" ]
+        "required" : [ "acces", "adminBnia", "contacts", "declarations", "operateur", "parametrage", "personnelBnia" ]
+      },
+      "Dsm" : {
+        "type" : "object",
+        "description" : "Déclaration de stocks et mouvements, avec ses totaux et ses anomalies (spec 05 §3.2, §6.3)",
+        "properties" : {
+          "anomalies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AnomalieDsm"
+            }
+          },
+          "codeOperateur" : {
+            "type" : "string",
+            "example" : "N320001"
+          },
+          "colonnes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ColonneDsm"
+            }
+          },
+          "dateDia" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date de la DIA, facultative (RG-DEC-19)"
+          },
+          "envoyeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "VALIDEE" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelleEtat" : {
+            "type" : "string",
+            "example" : "Brouillon"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneDsm"
+            }
+          },
+          "modifiable" : {
+            "type" : "boolean",
+            "description" : "Lignes, volumes et date de DIA modifiables par l'opérateur (RG-DEC-21)"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "periode" : {
+            "$ref" : "#/components/schemas/PeriodeDeclaration"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "supprimable" : {
+            "type" : "boolean",
+            "description" : "Seul un brouillon se supprime (RG-DEC-22)"
+          },
+          "totaux" : {
+            "type" : "array",
+            "description" : "Total de chaque colonne, 26 valeurs (RG-DEC-17)",
+            "items" : {
+              "type" : "number"
+            }
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          },
+          "valideeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "valideePar" : {
+            "type" : "string",
+            "description" : "Copie du nom de qui l'a validée"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "anomalies", "codeOperateur", "colonnes", "etat", "id", "libelleEtat", "lignes", "modifiable", "operateur", "periode", "raisonSociale", "supprimable", "totaux", "type", "version" ]
+      },
+      "DsmResume" : {
+        "type" : "object",
+        "description" : "Une DSM dans un listing (spec 05 §6.1, §6.2)",
+        "properties" : {
+          "envoyeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "VALIDEE" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelleEtat" : {
+            "type" : "string",
+            "example" : "Brouillon"
+          },
+          "periode" : {
+            "$ref" : "#/components/schemas/PeriodeDeclaration"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          },
+          "valideeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "etat", "id", "libelleEtat", "periode", "type" ]
+      },
+      "EntreeJournalDeclarations" : {
+        "type" : "object",
+        "description" : "Action sur une DSM ou le point de départ, sans valeurs avant et après (RG-DEC-23)",
+        "properties" : {
+          "acteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'acteur"
+          },
+          "action" : {
+            "type" : "string",
+            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "COMMENTAIRE_SUPPRIME", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE" ]
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "detail" : {
+            "type" : "string",
+            "description" : "Nom de fichier, mois, format…"
+          },
+          "dsm" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "DSM concernée ; vide pour le point de départ"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "DSM enregistrée"
+          },
+          "periode" : {
+            "type" : "string",
+            "description" : "Copie de la période de la DSM",
+            "example" : "juin 2026"
+          }
+        },
+        "required" : [ "acteur", "action", "date", "libelle" ]
       },
       "EtapeConnexion" : {
         "type" : "object",
@@ -6092,6 +6780,54 @@
         },
         "required" : [ "date", "evenement", "identifiantSaisi", "libelle" ]
       },
+      "LigneDsm" : {
+        "type" : "object",
+        "description" : "Ligne d'une DSM (spec 05 §3.2.1)",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "description" : "MB : calculé (RG-DEC-12)",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Vide pour une ligne ajoutée, dans une vue provisoire"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "origine" : {
+            "type" : "string",
+            "description" : "REPRISE : ne se supprime pas, identité figée (RG-DEC-13)",
+            "enum" : [ "REPRISE", "AJOUT" ]
+          },
+          "totalEntrees" : {
+            "type" : "number"
+          },
+          "totalSorties" : {
+            "type" : "number"
+          },
+          "volumes" : {
+            "type" : "array",
+            "description" : "26 valeurs, colonne 26 calculée",
+            "items" : {
+              "type" : "number"
+            }
+          }
+        },
+        "required" : [ "cle", "compte", "origine", "totalEntrees", "totalSorties", "volumes" ]
+      },
       "LigneJournal" : {
         "type" : "object",
         "description" : "Action sur une personne ou un accès (RG-OPE-34)",
@@ -6133,6 +6869,33 @@
           }
         },
         "required" : [ "acteur", "action", "changements", "cible", "date", "idCible", "libelle", "nomCible" ]
+      },
+      "LigneStockInitial" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "cle", "compte", "volume" ]
       },
       "MarquePresentee" : {
         "type" : "object",
@@ -6425,6 +7188,25 @@
         },
         "required" : [ "actif", "code", "codeIso", "id", "langueCertificat", "libelle", "membreUe", "niveauDetailCertificat", "zoneCommerciale" ]
       },
+      "PeriodeDeclaration" : {
+        "type" : "object",
+        "description" : "Période d'une DSM : année du 1er avril au 31 mars, ou mois civil (RG-DEC-03)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "juin 2026"
+          }
+        },
+        "required" : [ "debut", "fin", "libelle" ]
+      },
       "PersonneAnnuaire" : {
         "type" : "object",
         "description" : "Ligne de l'annuaire : contact, membre, ou personne nouvelle invitée (RG-OPE-52)",
@@ -6487,6 +7269,43 @@
           }
         },
         "required" : [ "bloqueParBnia", "genre", "id", "nom", "nomComplet" ]
+      },
+      "PointDeDepart" : {
+        "type" : "object",
+        "description" : "Point de départ déclaratif : début et stock initial, fixés par le BNIA (spec 05 §3.3)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "fige" : {
+            "type" : "boolean",
+            "description" : "Une DSM qui commence à son début est validée : il ne se modifie plus (RG-DEC-08)"
+          },
+          "fixeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "fixePar" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneStockInitial"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "debut", "fige", "fixeLe", "fixePar", "id", "lignes", "version" ]
       },
       "PremierAdmin" : {
         "type" : "object",
@@ -6907,6 +7726,30 @@
         },
         "required" : [ "accesStatistiques", "niveau" ]
       },
+      "SaisieDsm" : {
+        "type" : "object",
+        "description" : "Toute la saisie d'une DSM : lignes, volumes, date de DIA (RG-DEC-10 à 19)",
+        "properties" : {
+          "dateDia" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Facultative (RG-DEC-19)"
+          },
+          "lignes" : {
+            "type" : "array",
+            "description" : "Toutes les lignes, dans l'ordre de l'écran",
+            "items" : {
+              "$ref" : "#/components/schemas/SaisieLigneDsm"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue, à l'enregistrement (verrou optimiste)"
+          }
+        },
+        "required" : [ "lignes" ]
+      },
       "SaisieEmail" : {
         "type" : "object",
         "properties" : {
@@ -7030,6 +7873,70 @@
           }
         },
         "required" : [ "email", "role" ]
+      },
+      "SaisieLigneDsm" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "description" : "Ignoré pour une ligne MB, dont le compte est calculé",
+            "example" : "12"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Ligne existante ; vide pour une ligne ajoutée"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "volumes" : {
+            "type" : "array",
+            "description" : "26 valeurs en litres d'alcool pur, indice 0 = colonne 1 ; colonnes 1 et 26 vides (calculées)",
+            "items" : {
+              "type" : "number"
+            }
+          }
+        },
+        "required" : [ "cle", "volumes" ]
+      },
+      "SaisieLigneStockInitial" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "description" : "Ignoré pour une ligne MB, dont le compte est calculé",
+            "example" : "12"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "cle", "volume" ]
       },
       "SaisieNouveauMotDePasse" : {
         "type" : "object",
@@ -7213,6 +8120,29 @@
           }
         },
         "required" : [ "code", "codeIso", "libelle", "membreUe", "zoneCommerciale" ]
+      },
+      "SaisiePointDeDepart" : {
+        "type" : "object",
+        "description" : "Fixer ou modifier un point de départ (RG-DEC-06 à 08)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Un 1er avril pour un producteur, un premier du mois pour un négociant"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SaisieLigneStockInitial"
+            }
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue, à la modification (verrou optimiste)"
+          }
+        },
+        "required" : [ "debut", "lignes" ]
       },
       "SaisieProduction" : {
         "type" : "object",
@@ -7408,6 +8338,33 @@
           }
         },
         "required" : [ "code", "libelle" ]
+      },
+      "SituationDsm" : {
+        "type" : "object",
+        "description" : "La prochaine DSM de l'opérateur, ou ce qui en empêche l'initiation (RG-DEC-02 à 05)",
+        "properties" : {
+          "dsmEnCours" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "La DSM non validée, s'il y en a une"
+          },
+          "empechement" : {
+            "type" : "string",
+            "description" : "TYPE_NON_DECLARANT, STATUT_NON_DECLARANT, SANS_POINT_DE_DEPART, DSM_EN_COURS, PERIODE_PAS_COMMENCEE"
+          },
+          "initiable" : {
+            "type" : "boolean"
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "Raison, pour l'écran ; vide si rien n'empêche"
+          },
+          "periode" : {
+            "$ref" : "#/components/schemas/PeriodeDeclaration",
+            "description" : "Période à initier, ou de la DSM en cours ; vide sans point de départ"
+          }
+        },
+        "required" : [ "initiable", "message" ]
       },
       "TauxTva" : {
         "type" : "object",

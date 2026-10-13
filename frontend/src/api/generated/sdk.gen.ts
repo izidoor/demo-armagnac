@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AccepterInvitationData, AccepterInvitationResponses, AjouterTauxTvaData, AjouterTauxTvaResponses, AnnulerInvitationData, AnnulerInvitationResponses, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponses, BloquerUtilisateurData, BloquerUtilisateurResponses, ChangerMotDePasseData, ChangerMotDePasseResponses, ChangerRoleMembreData, ChangerRoleMembreResponses, ChoisirOperateurActifData, ChoisirOperateurActifResponses, ConfirmerChangementEmailData, ConfirmerChangementEmailResponses, ConsulterAnnuaireData, ConsulterAnnuaireResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContactData, ConsulterContactResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterFicheData, ConsulterFicheResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterInvitationData, ConsulterInvitationParJetonData, ConsulterInvitationParJetonResponses, ConsulterInvitationResponses, ConsulterJournalContactData, ConsulterJournalContactResponses, ConsulterJournalMembreData, ConsulterJournalMembreResponses, ConsulterJournalOperateurData, ConsulterJournalOperateurResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterMembreBniaData, ConsulterMembreBniaResponses, ConsulterMembreData, ConsulterMembreResponses, ConsulterMesDroitsData, ConsulterMesDroitsResponses, ConsulterMoiData, ConsulterMoiResponses, ConsulterOperateurData, ConsulterOperateurResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterSessionData, ConsulterSessionResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterUtilisateurData, ConsulterUtilisateurResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContactData, CreerContactResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueDepuisFicheData, CreerMarqueDepuisFicheResponses, CreerMarqueResponses, CreerMembreBniaData, CreerMembreBniaResponses, CreerOperateurData, CreerOperateurResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DebloquerUtilisateurData, DebloquerUtilisateurResponses, DefinirPremierMotDePasseData, DefinirPremierMotDePasseResponses, DemanderChangementEmailData, DemanderChangementEmailResponses, DemanderReinitialisationData, DemanderReinitialisationResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverMembreBniaData, DesactiverMembreBniaResponses, DesactiverOperateurData, DesactiverOperateurResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, DesignerContactsOperateurData, DesignerContactsOperateurResponses, ExporterOperateursData, ExporterOperateursResponses, InviterData, InviterResponses, ListerAvertissementsContactData, ListerAvertissementsContactResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerConnexionsData, ListerConnexionsResponses, ListerContenancesData, ListerContenancesResponses, ListerDoublonsOperateurData, ListerDoublonsOperateurResponses, ListerEtatsComptesData, ListerEtatsComptesResponses, ListerGroupesOperateursData, ListerGroupesOperateursResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerMembresBniaData, ListerMembresBniaResponses, ListerMesConnexionsData, ListerMesConnexionsResponses, ListerOperateursData, ListerOperateursResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerUtilisateursData, ListerUtilisateursResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContactData, ModifierContactResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponses, ModifierFicheData, ModifierFicheResponses, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierMembreBniaData, ModifierMembreBniaResponses, ModifierMonProfilData, ModifierMonProfilResponses, ModifierPaysData, ModifierPaysResponses, ModifierPresentationOperateurData, ModifierPresentationOperateurResponses, ModifierProductionOperateurData, ModifierProductionOperateurResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierProfilOperateurData, ModifierProfilOperateurResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ProposerCodeOperateurData, ProposerCodeOperateurResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverMembreBniaData, ReactiverMembreBniaResponses, ReactiverMembreData, ReactiverMembreResponses, ReactiverOperateurData, ReactiverOperateurResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RechercherOperateursData, RechercherOperateursResponses, ReinitialiserMotDePasseData, ReinitialiserMotDePasseResponses, RelancerInvitationData, RelancerInvitationResponses, RenvoyerCodeData, RenvoyerCodeResponses, RetirerMembreData, RetirerMembreResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SeConnecterData, SeConnecterResponses, SeDeconnecterData, SeDeconnecterResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContactData, SupprimerContactResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerMembreBniaData, SupprimerMembreBniaResponses, SupprimerOperateurData, SupprimerOperateurResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses, SuspendreMembreData, SuspendreMembreResponses, VerifierCodeData, VerifierCodeResponses } from './types.gen';
+import type { AccepterInvitationData, AccepterInvitationResponses, AjouterTauxTvaData, AjouterTauxTvaResponses, AnnulerInvitationData, AnnulerInvitationResponses, ApercevoirDsmData, ApercevoirDsmResponses, AttribuerNouveauCodeOperateurData, AttribuerNouveauCodeOperateurResponses, BloquerUtilisateurData, BloquerUtilisateurResponses, ChangerMotDePasseData, ChangerMotDePasseResponses, ChangerRoleMembreData, ChangerRoleMembreResponses, ChoisirOperateurActifData, ChoisirOperateurActifResponses, ConfirmerChangementEmailData, ConfirmerChangementEmailResponses, ConsulterAnnuaireData, ConsulterAnnuaireResponses, ConsulterCentreInteretData, ConsulterCentreInteretResponses, ConsulterCircuitDistributionData, ConsulterCircuitDistributionResponses, ConsulterClasseTvaData, ConsulterClasseTvaResponses, ConsulterContactData, ConsulterContactResponses, ConsulterContenanceData, ConsulterContenanceResponses, ConsulterDsmData, ConsulterDsmResponses, ConsulterFicheData, ConsulterFicheResponses, ConsulterInfoSystemeData, ConsulterInfoSystemeResponses, ConsulterInvitationData, ConsulterInvitationParJetonData, ConsulterInvitationParJetonResponses, ConsulterInvitationResponses, ConsulterJournalContactData, ConsulterJournalContactResponses, ConsulterJournalDeclarationsData, ConsulterJournalDeclarationsResponses, ConsulterJournalDsmData, ConsulterJournalDsmResponses, ConsulterJournalMembreData, ConsulterJournalMembreResponses, ConsulterJournalOperateurData, ConsulterJournalOperateurResponses, ConsulterLabelData, ConsulterLabelResponses, ConsulterLangueData, ConsulterLangueResponses, ConsulterMarqueData, ConsulterMarqueResponses, ConsulterMembreBniaData, ConsulterMembreBniaResponses, ConsulterMembreData, ConsulterMembreResponses, ConsulterMesDroitsData, ConsulterMesDroitsResponses, ConsulterMoiData, ConsulterMoiResponses, ConsulterOperateurData, ConsulterOperateurResponses, ConsulterPaysData, ConsulterPaysResponses, ConsulterPointDeDepartData, ConsulterPointDeDepartResponses, ConsulterPresentationOperateurData, ConsulterPresentationOperateurResponses, ConsulterProduitCommercialiseData, ConsulterProduitCommercialiseResponses, ConsulterRegionData, ConsulterRegionResponses, ConsulterSessionData, ConsulterSessionResponses, ConsulterSituationDsmData, ConsulterSituationDsmResponses, ConsulterTitreData, ConsulterTitreResponses, ConsulterTypeVisiteData, ConsulterTypeVisiteResponses, ConsulterUtilisateurData, ConsulterUtilisateurResponses, ConsulterZoneCommercialeData, ConsulterZoneCommercialeResponses, CreerCentreInteretData, CreerCentreInteretResponses, CreerCircuitDistributionData, CreerCircuitDistributionResponses, CreerClasseTvaData, CreerClasseTvaResponses, CreerContactData, CreerContactResponses, CreerContenanceData, CreerContenanceResponses, CreerLabelData, CreerLabelResponses, CreerLangueData, CreerLangueResponses, CreerMarqueData, CreerMarqueDepuisFicheData, CreerMarqueDepuisFicheResponses, CreerMarqueResponses, CreerMembreBniaData, CreerMembreBniaResponses, CreerOperateurData, CreerOperateurResponses, CreerPaysData, CreerPaysResponses, CreerProduitCommercialiseData, CreerProduitCommercialiseResponses, CreerRegionData, CreerRegionResponses, CreerTitreData, CreerTitreResponses, CreerTypeVisiteData, CreerTypeVisiteResponses, CreerZoneCommercialeData, CreerZoneCommercialeResponses, DebloquerUtilisateurData, DebloquerUtilisateurResponses, DefinirPremierMotDePasseData, DefinirPremierMotDePasseResponses, DemanderChangementEmailData, DemanderChangementEmailResponses, DemanderReinitialisationData, DemanderReinitialisationResponses, DesactiverCentreInteretData, DesactiverCentreInteretResponses, DesactiverCircuitDistributionData, DesactiverCircuitDistributionResponses, DesactiverClasseTvaData, DesactiverClasseTvaResponses, DesactiverContenanceData, DesactiverContenanceResponses, DesactiverLabelData, DesactiverLabelResponses, DesactiverLangueData, DesactiverLangueResponses, DesactiverMarqueData, DesactiverMarqueResponses, DesactiverMembreBniaData, DesactiverMembreBniaResponses, DesactiverOperateurData, DesactiverOperateurResponses, DesactiverPaysData, DesactiverPaysResponses, DesactiverProduitCommercialiseData, DesactiverProduitCommercialiseResponses, DesactiverRegionData, DesactiverRegionResponses, DesactiverTitreData, DesactiverTitreResponses, DesactiverTypeVisiteData, DesactiverTypeVisiteResponses, DesactiverZoneCommercialeData, DesactiverZoneCommercialeResponses, DesignerContactsOperateurData, DesignerContactsOperateurResponses, EnregistrerDsmData, EnregistrerDsmResponses, ExporterOperateursData, ExporterOperateursResponses, FixerPointDeDepartData, FixerPointDeDepartResponses, InitierDsmData, InitierDsmResponses, InviterData, InviterResponses, ListerAvertissementsContactData, ListerAvertissementsContactResponses, ListerCentresInteretData, ListerCentresInteretResponses, ListerCircuitsDistributionData, ListerCircuitsDistributionResponses, ListerClassesTvaData, ListerClassesTvaResponses, ListerConnexionsData, ListerConnexionsResponses, ListerContenancesData, ListerContenancesResponses, ListerDenominationsData, ListerDenominationsResponses, ListerDoublonsOperateurData, ListerDoublonsOperateurResponses, ListerDsmData, ListerDsmResponses, ListerEtatsComptesData, ListerEtatsComptesResponses, ListerGroupesOperateursData, ListerGroupesOperateursResponses, ListerLabelsData, ListerLabelsResponses, ListerLanguesData, ListerLanguesResponses, ListerMarquesData, ListerMarquesProchesData, ListerMarquesProchesResponses, ListerMarquesResponses, ListerMembresBniaData, ListerMembresBniaResponses, ListerMesConnexionsData, ListerMesConnexionsResponses, ListerOperateursData, ListerOperateursResponses, ListerPaysData, ListerPaysResponses, ListerProduitsCommercialisesData, ListerProduitsCommercialisesResponses, ListerRegionsData, ListerRegionsResponses, ListerTitresData, ListerTitresResponses, ListerTypesVisiteData, ListerTypesVisiteResponses, ListerUtilisateursData, ListerUtilisateursResponses, ListerZonesCommercialesData, ListerZonesCommercialesResponses, ModifierCentreInteretData, ModifierCentreInteretResponses, ModifierCircuitDistributionData, ModifierCircuitDistributionResponses, ModifierClasseTvaData, ModifierClasseTvaResponses, ModifierContactData, ModifierContactResponses, ModifierContenanceData, ModifierContenanceResponses, ModifierDiffusionOperateurData, ModifierDiffusionOperateurResponses, ModifierFicheData, ModifierFicheResponses, ModifierIdentiteOperateurData, ModifierIdentiteOperateurResponses, ModifierLabelData, ModifierLabelResponses, ModifierLangueData, ModifierLangueResponses, ModifierMarqueData, ModifierMarqueResponses, ModifierMembreBniaData, ModifierMembreBniaResponses, ModifierMonProfilData, ModifierMonProfilResponses, ModifierPaysData, ModifierPaysResponses, ModifierPointDeDepartData, ModifierPointDeDepartResponses, ModifierPresentationOperateurData, ModifierPresentationOperateurResponses, ModifierProductionOperateurData, ModifierProductionOperateurResponses, ModifierProduitCommercialiseData, ModifierProduitCommercialiseResponses, ModifierProfilOperateurData, ModifierProfilOperateurResponses, ModifierRegionData, ModifierRegionResponses, ModifierTauxTvaData, ModifierTauxTvaResponses, ModifierTitreData, ModifierTitreResponses, ModifierTypeVisiteData, ModifierTypeVisiteResponses, ModifierZoneCommercialeData, ModifierZoneCommercialeResponses, ProposerCodeOperateurData, ProposerCodeOperateurResponses, ReactiverCentreInteretData, ReactiverCentreInteretResponses, ReactiverCircuitDistributionData, ReactiverCircuitDistributionResponses, ReactiverClasseTvaData, ReactiverClasseTvaResponses, ReactiverContenanceData, ReactiverContenanceResponses, ReactiverLabelData, ReactiverLabelResponses, ReactiverLangueData, ReactiverLangueResponses, ReactiverMarqueData, ReactiverMarqueResponses, ReactiverMembreBniaData, ReactiverMembreBniaResponses, ReactiverMembreData, ReactiverMembreResponses, ReactiverOperateurData, ReactiverOperateurResponses, ReactiverPaysData, ReactiverPaysResponses, ReactiverProduitCommercialiseData, ReactiverProduitCommercialiseResponses, ReactiverRegionData, ReactiverRegionResponses, ReactiverTitreData, ReactiverTitreResponses, ReactiverTypeVisiteData, ReactiverTypeVisiteResponses, ReactiverZoneCommercialeData, ReactiverZoneCommercialeResponses, RechercherOperateursData, RechercherOperateursResponses, ReinitialiserMotDePasseData, ReinitialiserMotDePasseResponses, RelancerInvitationData, RelancerInvitationResponses, RenvoyerCodeData, RenvoyerCodeResponses, RetirerMembreData, RetirerMembreResponses, RetirerTauxTvaData, RetirerTauxTvaResponses, SeConnecterData, SeConnecterResponses, SeDeconnecterData, SeDeconnecterResponses, SupprimerCentreInteretData, SupprimerCentreInteretResponses, SupprimerCircuitDistributionData, SupprimerCircuitDistributionResponses, SupprimerClasseTvaData, SupprimerClasseTvaResponses, SupprimerContactData, SupprimerContactResponses, SupprimerContenanceData, SupprimerContenanceResponses, SupprimerDsmData, SupprimerDsmResponses, SupprimerLabelData, SupprimerLabelResponses, SupprimerLangueData, SupprimerLangueResponses, SupprimerMarqueData, SupprimerMarqueResponses, SupprimerMembreBniaData, SupprimerMembreBniaResponses, SupprimerOperateurData, SupprimerOperateurResponses, SupprimerPaysData, SupprimerPaysResponses, SupprimerProduitCommercialiseData, SupprimerProduitCommercialiseResponses, SupprimerRegionData, SupprimerRegionResponses, SupprimerTitreData, SupprimerTitreResponses, SupprimerTypeVisiteData, SupprimerTypeVisiteResponses, SupprimerZoneCommercialeData, SupprimerZoneCommercialeResponses, SuspendreMembreData, SuspendreMembreResponses, VerifierCodeData, VerifierCodeResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -484,6 +484,100 @@ export const consulterJournalContact = <ThrowOnError extends boolean = false>(op
 });
 
 /**
+ * Dénominations déjà employées par l'opérateur, suggérées à la saisie (H-DEC-8)
+ */
+export const listerDenominations = <ThrowOnError extends boolean = false>(options: Options<ListerDenominationsData, ThrowOnError>): RequestResult<ListerDenominationsResponses, unknown, ThrowOnError> => (options.client ?? client).get<ListerDenominationsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/declarations/denominations',
+    ...options
+});
+
+/**
+ * Journal des déclarations de l'opérateur, brouillons supprimés compris (RG-DEC-23)
+ */
+export const consulterJournalDeclarations = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalDeclarationsData, ThrowOnError>): RequestResult<ConsulterJournalDeclarationsResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalDeclarationsResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/declarations/journal',
+    ...options
+});
+
+/**
+ * Les DSM de l'opérateur, de la plus récente à la plus ancienne (RG-DEC-01)
+ */
+export const listerDsm = <ThrowOnError extends boolean = false>(options: Options<ListerDsmData, ThrowOnError>): RequestResult<ListerDsmResponses, unknown, ThrowOnError> => (options.client ?? client).get<ListerDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm',
+    ...options
+});
+
+/**
+ * L'opérateur initie la DSM de la période attendue, reprise du stock initial (RG-DEC-01 à 05, 13)
+ */
+export const initierDsm = <ThrowOnError extends boolean = false>(options: Options<InitierDsmData, ThrowOnError>): RequestResult<InitierDsmResponses, unknown, ThrowOnError> => (options.client ?? client).post<InitierDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm',
+    ...options
+});
+
+/**
+ * La prochaine DSM de l'opérateur, ou ce qui en empêche l'initiation (RG-DEC-02 à 05)
+ */
+export const consulterSituationDsm = <ThrowOnError extends boolean = false>(options: Options<ConsulterSituationDsmData, ThrowOnError>): RequestResult<ConsulterSituationDsmResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterSituationDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm/situation',
+    ...options
+});
+
+/**
+ * Supprimer un brouillon, par l'opérateur ou le BNIA ; son journal avec lui (RG-DEC-01, 22)
+ */
+export const supprimerDsm = <ThrowOnError extends boolean = false>(options: Options<SupprimerDsmData, ThrowOnError>): RequestResult<SupprimerDsmResponses, unknown, ThrowOnError> => (options.client ?? client).delete<SupprimerDsmResponses, unknown, ThrowOnError>({ url: '/api/operateurs/{operateur}/dsm/{id}', ...options });
+
+/**
+ * Une DSM, ses totaux et ses anomalies (RG-DEC-01, 16 à 18)
+ */
+export const consulterDsm = <ThrowOnError extends boolean = false>(options: Options<ConsulterDsmData, ThrowOnError>): RequestResult<ConsulterDsmResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm/{id}',
+    ...options
+});
+
+/**
+ * L'opérateur enregistre sa saisie ; les anomalies ne l'empêchent pas (RG-DEC-10 à 13, 15 à 19, 21)
+ */
+export const enregistrerDsm = <ThrowOnError extends boolean = false>(options: Options<EnregistrerDsmData, ThrowOnError>): RequestResult<EnregistrerDsmResponses, unknown, ThrowOnError> => (options.client ?? client).put<EnregistrerDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Vue provisoire d'une saisie non enregistrée : totaux, comptes MB, anomalies ; rien n'est enregistré
+ */
+export const apercevoirDsm = <ThrowOnError extends boolean = false>(options: Options<ApercevoirDsmData, ThrowOnError>): RequestResult<ApercevoirDsmResponses, unknown, ThrowOnError> => (options.client ?? client).post<ApercevoirDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm/{id}/apercu',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Historique d'une DSM, du plus récent au plus ancien (RG-DEC-23)
+ */
+export const consulterJournalDsm = <ThrowOnError extends boolean = false>(options: Options<ConsulterJournalDsmData, ThrowOnError>): RequestResult<ConsulterJournalDsmResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterJournalDsmResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/dsm/{id}/journal',
+    ...options
+});
+
+/**
  * Consulter une fiche professionnelle
  */
 export const consulterFiche = <ThrowOnError extends boolean = false>(options: Options<ConsulterFicheData, ThrowOnError>): RequestResult<ConsulterFicheResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterFicheResponses, unknown, ThrowOnError>({
@@ -604,6 +698,41 @@ export const suspendreMembre = <ThrowOnError extends boolean = false>(options: O
     responseType: 'json',
     url: '/api/operateurs/{operateur}/membres/{membre}/suspension',
     ...options
+});
+
+/**
+ * Le point de départ en vigueur de l'opérateur ; 204 s'il n'est pas fixé (RG-DEC-01)
+ */
+export const consulterPointDeDepart = <ThrowOnError extends boolean = false>(options: Options<ConsulterPointDeDepartData, ThrowOnError>): RequestResult<ConsulterPointDeDepartResponses, unknown, ThrowOnError> => (options.client ?? client).get<ConsulterPointDeDepartResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/point-de-depart',
+    ...options
+});
+
+/**
+ * Le BNIA fixe le point de départ d'un producteur ou d'un négociant (RG-DEC-01, 06, 07)
+ */
+export const fixerPointDeDepart = <ThrowOnError extends boolean = false>(options: Options<FixerPointDeDepartData, ThrowOnError>): RequestResult<FixerPointDeDepartResponses, unknown, ThrowOnError> => (options.client ?? client).post<FixerPointDeDepartResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/point-de-depart',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Le BNIA modifie le point de départ tant qu'il n'est pas figé ; la DSM en cours suit (RG-DEC-01, 07, 08)
+ */
+export const modifierPointDeDepart = <ThrowOnError extends boolean = false>(options: Options<ModifierPointDeDepartData, ThrowOnError>): RequestResult<ModifierPointDeDepartResponses, unknown, ThrowOnError> => (options.client ?? client).put<ModifierPointDeDepartResponses, unknown, ThrowOnError>({
+    responseType: 'json',
+    url: '/api/operateurs/{operateur}/point-de-depart/{id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
 });
 
 /**

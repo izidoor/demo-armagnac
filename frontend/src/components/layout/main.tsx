@@ -16,9 +16,9 @@ export function Main({ fixed, className, fluid, ...props }: MainProps) {
         // If layout is fixed, make the main container flex and grow
         fixed && 'flex grow flex-col overflow-hidden',
 
-        // If layout is not fluid, set the max-width
+        // If layout is not fluid, set the max-width (1600 px, wide enough for the DSM grids)
         !fluid &&
-          '@7xl/content:mx-auto @7xl/content:w-full @7xl/content:max-w-7xl',
+          '@min-[100rem]/content:mx-auto @min-[100rem]/content:w-full @min-[100rem]/content:max-w-[100rem]',
         className
       )}
       {...props}

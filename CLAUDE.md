@@ -92,9 +92,11 @@ Front, depuis `frontend/` :
 - Contrôles : `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`
 - Dev : `pnpm dev` (proxy `/api` vers `localhost:8080`)
 
-Seconde instance, depuis un worktree, à côté de celle de l'IDE (base, ports et proxy à part) :
-- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 BNIA_SMTP_PORT=11025 BNIA_MAILPIT_PORT=18025 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
-- `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`
+Worktree (`../bnia-worktrees/<contexte>`), à côté de l'instance du dépôt principal : `./worktree-env.sh`
+à sa racine, une fois, lui donne ses propres ports (back, front, base, Mailpit) dans `backend/.env` et
+`frontend/.env.local`, ignorés par git et lus par Docker Compose, Spring Boot (profil `dev`) et Vite.
+Ensuite, lancement habituel (IntelliJ ou `pnpm dev`), sans variable à passer.
 
 Racine :
 - Remise à zéro volontaire de la base de dev : `./dev-reset.sh` (automatique si V1 a changé)
+- Ports propres à un worktree : `./worktree-env.sh`

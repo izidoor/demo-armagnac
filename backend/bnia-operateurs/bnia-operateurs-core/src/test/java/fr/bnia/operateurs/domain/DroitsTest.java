@@ -17,16 +17,20 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 class DroitsTest {
 
-    @ParameterizedTest(name = "{0} : contacts {1}, accès {2}, paramétrage {3}")
-    @CsvSource({"OBSERVATEUR, false, false, false", "AGENT, true, false, true", "ADMIN, true, true, true"})
+    @ParameterizedTest(name = "{0} : contacts {1}, accès {2}, paramétrage {3}, déclarations {4}")
+    @CsvSource({"OBSERVATEUR, false, false, false, false", "AGENT, true, false, true, true",
+            "ADMIN, true, true, true, true"})
     @DisplayName("RG-OPE-31 : tableau rôles × modules ; tout rôle lit")
-    void rg_ope_31_roles_et_modules(Role role, boolean contacts, boolean acces, boolean parametrage) {
+    void rg_ope_31_roles_et_modules(Role role, boolean contacts, boolean acces, boolean parametrage,
+            boolean declarations) {
         assertThat(role.gere(Module.CONTACTS)).isEqualTo(contacts);
         assertThat(role.gere(Module.ACCES)).isEqualTo(acces);
         assertThat(role.gere(Module.PARAMETRAGE)).isEqualTo(parametrage);
+        assertThat(role.gere(Module.DECLARATIONS)).isEqualTo(declarations);
         Droits local = new Droits(5, Optional.of(role), Optional.empty());
         assertThat(local.lit(Module.CONTACTS)).isTrue();
         assertThat(local.lit(Module.ACCES)).isTrue();
+        assertThat(local.lit(Module.DECLARATIONS)).isTrue();
     }
 
     @Test

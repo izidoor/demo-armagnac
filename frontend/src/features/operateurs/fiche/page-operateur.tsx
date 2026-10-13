@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { PageMetier } from '@/components/metier/page-metier'
+import { OngletDeclarations } from '@/features/declarations/onglet-declarations'
 import { apiOperateur, cleOperateur, type Espace } from '../commun/api'
 import { TYPES } from '../commun/libelles'
 import { OngletAnnuaire } from '../personnes/annuaire'
@@ -36,7 +37,8 @@ type Action = 'desactiver' | 'reactiver' | 'supprimer'
  * Fiche opérateur par onglets (spec 02, §6.1), ouverte sans changer d'opérateur actif ; au portail,
  * « Mon entreprise » (§6.2), dans les mêmes onglets, l'annuaire ayant son propre menu. Pour l'opérateur
  * BNIA, une fiche réduite : identité, coordonnées et annuaire (RG-OPE-39). Ce que l'on peut faire suit
- * les droits renvoyés avec la fiche (RG-OPE-31, 32, 36).
+ * les droits renvoyés avec la fiche (RG-OPE-31, 32, 36). Au back-office, un producteur ou un négociant a
+ * l'onglet « Déclarations », fourni par {@code declarations} (spec 05 §6.1).
  */
 export function PageOperateur({
   espace,
@@ -105,6 +107,8 @@ export function PageOperateur({
   const bnia = fiche.type === 'BNIA'
   const droits = fiche.droits
   const avecAnnuaire = bo
+  const avecDeclarations =
+    bo && (fiche.type === 'PRODUCTEUR' || fiche.type === 'NEGOCIANT')
   return (
     <PageMetier
       titre={
@@ -196,6 +200,9 @@ export function PageOperateur({
               <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
             </>
           )}
+          {avecDeclarations && (
+            <TabsTrigger value='declarations'>Déclarations</TabsTrigger>
+          )}
           {avecAnnuaire && (
             <>
               <TabsTrigger value='annuaire'>Annuaire</TabsTrigger>
@@ -235,6 +242,15 @@ export function PageOperateur({
               <SectionOenotourisme presentation={presentation} />
             </TabsContent>
           </>
+        )}
+        {avecDeclarations && (
+          <TabsContent value='declarations'>
+            <OngletDeclarations
+              operateur={id}
+              producteur={fiche.type === 'PRODUCTEUR'}
+              droits={droits}
+            />
+          </TabsContent>
         )}
         {avecAnnuaire && (
           <>

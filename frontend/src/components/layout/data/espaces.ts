@@ -1,6 +1,7 @@
 import {
   Building2,
   Contact,
+  FileSpreadsheet,
   Globe,
   History,
   Landmark,
@@ -122,6 +123,17 @@ export const espacePortail: Espace = {
           icon: Building2,
         },
         { title: 'Annuaire', url: '/portail/annuaire', icon: Contact },
+      ],
+    },
+    {
+      // Spec 05, §6.2.
+      title: 'Déclarations',
+      items: [
+        {
+          title: 'Mes DSM',
+          url: '/portail/declarations',
+          icon: FileSpreadsheet,
+        },
       ],
     },
   ],

@@ -56,6 +56,9 @@ l'utilisateur.
    - sinon, depuis la racine du dépôt principal : `git worktree add ../bnia-worktrees/<contexte> -b
      contexte/<contexte> main` (sans `-b` si la branche existe déjà). Le worktree part du dernier commit
      de `main` : ce que l'utilisateur n'a pas commité n'y est pas, le signaler s'il y en a.
+   - puis, à la racine du worktree (même en reprise : sans effet s'il est déjà configuré) :
+     `./worktree-env.sh`, qui lui donne ses propres ports (back, front, base, Mailpit) dans
+     `backend/.env` et `frontend/.env.local`, ignorés par git ; annoncer les ports à l'utilisateur.
 
    Entrer avec l'outil `EnterWorktree` (paramètre `path`, chemin absolu du worktree), puis vérifier
    `git branch --show-current`.

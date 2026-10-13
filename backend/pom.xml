@@ -25,6 +25,7 @@
         <module>bnia-referentiels</module>
         <module>bnia-operateurs</module>
         <module>bnia-authentification</module>
+        <module>bnia-declarations</module>
         <module>bnia-boot</module>
     </modules>
 
@@ -87,6 +88,16 @@
             <dependency>
                 <groupId>fr.bnia</groupId>
                 <artifactId>bnia-authentification-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-declarations-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-declarations-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

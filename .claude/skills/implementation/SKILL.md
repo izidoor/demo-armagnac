@@ -40,7 +40,8 @@ Les patrons de code à reprendre sont dans `patrons.md` (même dossier).
    `path`, chemin absolu de `../bnia-worktrees/<contexte>`) ; vérifier `git branch --show-current`
    (`contexte/<contexte>`). Worktree absent : s'arrêter et demander à l'utilisateur (le créer comme la
    skill `specs`, phase A, ou travailler ailleurs). Ne jamais implémenter dans le dépôt principal.
-   Premier passage : `pnpm install` dans `frontend/` du worktree.
+   Premier passage : `pnpm install` dans `frontend/` du worktree, et `./worktree-env.sh` à sa racine
+   (ports propres au worktree, sans effet s'ils existent déjà).
 1. Relire `CLAUDE.md`, la spec du contexte, les ADR, `docs/contextes.md` (fiche, dépendances), les
    specs et le code des contextes dont il dépend (`ReferentielsLecture` notamment), et `patrons.md`.
 2. Relever ce que la spec laisse ouvert côté implémentation (forme d'une saisie, identifiant d'un
@@ -82,16 +83,19 @@ Ordre de CLAUDE.md : tests de domaine, cas d'usage, adapters, front.
   les RG livrées par le lot.
 
 ### Lancer l'application (instance isolée)
-Seulement depuis le worktree, quand une vérification l'exige (démarrage, démo, écran). Variables
-lues par `backend/compose.yaml` et `frontend/vite.config.ts` ; sans elles, valeurs de l'utilisateur.
-- Backend, depuis `backend/` du worktree, en arrière-plan :
-  `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 BNIA_SMTP_PORT=11025 BNIA_MAILPIT_PORT=18025 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
-  (base et Mailpit propres au contexte, détectés par Spring Boot ; prêt quand `localhost:8181/v3/api-docs` répond 200).
-- Front, depuis `frontend/` du worktree : `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`.
-- Port occupé : prendre le suivant, sans arrêter le processus qui l'occupe.
+Seulement depuis le worktree, quand une vérification l'exige (démarrage, démo, écran). Ses ports sont
+dans `backend/.env` et `frontend/.env.local` (`./worktree-env.sh`), lus par Docker Compose, par Spring
+Boot en profil `dev` et par Vite : ni 8080, ni 5173, ni la base de l'utilisateur.
+- `-pl bnia-boot spring-boot:run` lit des modules périmés dans `~/.m2` : construire le jar
+  (`./mvnw -q -pl bnia-boot -am package -DskipTests`), démarrer la base du worktree
+  (`docker compose -f compose.yaml up -d` depuis `backend/`, qui lit `.env`), puis depuis
+  `backend/bnia-boot` : `java -jar target/bnia-boot-0.1.0-SNAPSHOT.jar --spring.profiles.active=dev,demo
+  --spring.datasource.url=jdbc:postgresql://localhost:<BNIA_DB_PORT>/bnia` (le jar n'embarque pas
+  l'intégration Docker Compose ; sans l'URL, il viserait la base de l'utilisateur). Prêt quand
+  `localhost:<SERVER_PORT>/v3/api-docs` répond 200.
+- Front, depuis `frontend/` du worktree : `pnpm dev`.
 - Arrêt : tuer le processus par son PID (jamais `pkill -f` sur un motif, qui atteint aussi les
-  processus de l'utilisateur), puis `BNIA_COMPOSE_PROJECT=bnia-<contexte> docker compose -f
-  compose.yaml down -v`.
+  processus de l'utilisateur), puis `docker compose -f compose.yaml down -v` depuis `backend/`.
 
 ### D. Compte rendu d'un lot
 - Une phrase de résultat : ce qui est livré, build vert (nombre d'IT), rien d'indexé.

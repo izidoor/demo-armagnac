@@ -272,8 +272,8 @@ interruption (H-DEC-10, H-DEC-14, décision du 2026-10-13).
 | action | liste fermée (RG-DEC-23) | |
 | détail | texte court | Nom de fichier, mois de DRM, type de pièce, format d'édition… ; jamais de valeurs avant et après |
 
-L'onglet « Historique » d'une DSM affiche ses entrées ; l'onglet « Déclarations » de la fiche opérateur,
-toutes les siennes (décision du 2026-10-13).
+L'historique d'une DSM (panneau latéral) affiche ses entrées ; l'onglet « Déclarations » de la fiche
+opérateur, toutes les siennes (décision du 2026-10-13).
 
 ### 3.5 Grille de cotisation (agrégat `GrilleCotisation`, lot 4)
 
@@ -510,10 +510,12 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
   (millésime ou dénomination, clé, compte d'âge), une colonne par colonne de l'onglet, numérotée ; une
   rangée de totaux. Colonnes 1 et 26 en lecture seule ; colonnes grisées visibles, grisées et vides
   pour un producteur (RG-DEC-16) ; volumes en litres décimaux (RG-DEC-15). Le récapitulatif montre aussi
-  les totaux d'entrées et de sorties par ligne, et la valeur de contrôle des colonnes croisées
-  (RG-DEC-18). Ajouter une ligne (clé, puis millésime ou dénomination, compte d'âge sauf `MB`, avec
-  suggestion des dénominations déjà employées) ; supprimer une ligne `AJOUT`. Date de DIA dans l'en-tête
-  du récapitulatif. Bouton « Enregistrer ».
+  les totaux d'entrées et de sorties par ligne ; les contrôles des colonnes croisées (RG-DEC-18) ne se
+  montrent qu'en anomalie, dans le panneau des anomalies (totaux d'entrée et de sortie, écart). Ajouter
+  une ligne (clé, puis millésime ou dénomination, compte d'âge sauf `MB`, avec suggestion des
+  dénominations déjà employées) ; supprimer une ligne `AJOUT`. Date de DIA en tête de l'onglet
+  *Mouvements en sortie*, celui de la colonne 10 dont elle date les pertes (H-DEC-12). Bouton
+  « Enregistrer ».
 - **Panneau des anomalies et des manques** : chaque anomalie (lot 1) et chaque pièce manquante (lot 3)
   avec son niveau et son écart ; un clic ouvre l'onglet et la ligne concernés (§4.4.7 p.27).
 - **Onglet *Pièces*** (lot 3) : justificatifs, groupés par type de mouvement, avec leur rattachement
@@ -527,7 +529,8 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
 - **Onglet *Cotisation*** (lot 4) : le détail par ligne de cotisation (volume en hlAP, parts non
   assujettie et assujettie, total), le taux et le pourcentage appliqués ; « facturée » ou « à
   facturer », TVA et TTC indicatifs, puis ceux de la facture.
-- **Onglet *Historique*** (lot 1) : le journal de la DSM.
+- **Historique** (lot 1) : le journal de la DSM, hors des onglets (ce n'est pas une partie de la
+  saisie), dans un panneau latéral ouvert depuis l'en-tête.
 - **Actions**, selon l'état et le côté :
 
 | État | Opérateur (gestion) | BNIA (gestion) |
@@ -675,7 +678,7 @@ RG qui portent son numéro (§4) ; il s'appuie sur les lots précédents, jamais
 
 | Lot | Incrément | Contenu | Démontrable à la fin du lot |
 |---|---|---|---|
-| 1 | **Saisie manuelle d'une DSM** | Modules Maven, schéma `declarations`, `Module.DECLARATIONS` (spec 02), règles ArchUnit de la partie publiée (ADR-017). Point de départ saisi à l'écran par le BNIA depuis la fiche opérateur. Initiation de la première DSM, lignes (identité, compte d'âge, ajout, suppression), saisie des 26 colonnes, colonnes grisées, stock de fin, totaux, anomalies montrées en direct, date de DIA. Suppression du brouillon. Journal et onglet « Historique ». Écrans : portail (mes DSM, saisie), back-office (point de départ, consultation). RG-DEC-01 à 08, 10 à 13, 15 à 19, 22, 23. | Le BNIA fixe le point de départ d'un négociant ; l'opérateur initie sa DSM, la remplit, voit ses anomalies et l'enregistre en brouillon. |
+| 1 | **Saisie manuelle d'une DSM** | Modules Maven, schéma `declarations`, `Module.DECLARATIONS` (spec 02), règles ArchUnit de la partie publiée (ADR-017). Point de départ saisi à l'écran par le BNIA depuis la fiche opérateur. Initiation de la première DSM, lignes (identité, compte d'âge, ajout, suppression), saisie des 26 colonnes, colonnes grisées, stock de fin, totaux, anomalies montrées en direct, date de DIA. Suppression du brouillon. Journal et historique de la DSM. Écrans : portail (mes DSM, saisie), back-office (point de départ, consultation). RG-DEC-01 à 08, 10 à 13, 15 à 19, 22, 23. | Le BNIA fixe le point de départ d'un négociant ; l'opérateur initie sa DSM, la remplit, voit ses anomalies et l'enregistre en brouillon. |
 | 2 | **Envoi, instruction, validation** | Cycle complet, commentaires (internes compris), listing du BNIA filtré par état, DSM suivante avec reprise et vieillissement au 1er avril. Événements `DsmEnvoyee`, `ComplementsDemandes`, `DsmValidee` (sans écouteur, ADR-013). RG-DEC-14, 20, 21, 24, 25. | Un négociant envoie mai ; le BNIA demande un complément, l'opérateur renvoie, le BNIA valide ; juin s'initie avec le stock de fin de mai. |
 | 3 | **Justificatifs et DRM** | Stockage de documents commun (A-DEC-5), dépôt, consultation, suppression ; mois attendus des DRM ; manques bloquant la validation. RG-DEC-26 à 29. | Un producteur dépose ses 12 DRM et ses pièces export ; la validation est refusée tant qu'un mois manque. |
 | 4 | **Cotisation** | Grille CVO dans le menu Paramétrage ; assiette, détail par ligne de cotisation, total HT et TVA indicative sur la DSM et le listing ; projection des factures (`FactureEmise`, `AvoirEmis`) ; lecture publiée de la cotisation pour `facturation`. RG-DEC-30 à 34. | Le BNIA saisit 60 €/hlAP et 20 % ; la DSM de l'exemple affiche 100,69 € + 402,77 € en sorties France. |
@@ -702,3 +705,4 @@ Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsa
 | 2026-10-13 | Spec validée par l'utilisateur : statut « terminée ». |
 | 2026-10-13 | Phase H : ADR-017 (partie publiée de `declarations`), ADR-018 (stockage de documents), ADR-019 (traitements planifiés), ADR-020 (production de documents), amendement d'ADR-009 ; colonne ADR du §8 à jour ; CLAUDE.md mis à jour ; spec 02 révisée. Règles ArchUnit à adapter au lot 1. |
 | 2026-10-13 | Implémentation, lot 1 : décisions en séance. Anomalies montrées dès la saisie par une **vue provisoire** calculée par le serveur (`POST …/dsm/{id}/apercu`, sans enregistrement ni journal, appelée 300 ms après la dernière frappe) : les règles restent dans le domaine, le front ne fait que les sommes d'affichage. La date de début d'un point de départ ne change pas tant qu'une DSM est en cours (RG-DEC-08 complétée). Choix d'implémentation : une seule API pour les deux espaces (`/api/operateurs/{operateur}/…`, les droits font la différence) ; « Enregistrer » envoie toute la saisie (lignes, volumes, date de DIA, version) ; volumes en litres, nombres JSON à 2 décimales, tableaux de 26 valeurs ; identifiant de ligne de DSM stable d'un enregistrement à l'autre ; un seul point de départ fixé par opérateur au lot 1 (un second est refusé, 409 : le nouveau point de départ vient au lot 7) ; anomalie des colonnes croisées au niveau de l'onglet des entrées. |
+| 2026-10-13 | Implémentation, lot 1, revue de l'écran de la DSM par l'utilisateur : les cinq onglets du format unique en classeur (le cadre de la saisie et ses languettes), chacun titré et situé par une phrase ; l'historique sort des onglets pour un panneau latéral ; les contrôles des colonnes croisées ne se montrent qu'en anomalie, dans le panneau du haut, et plus en permanence au récapitulatif ; la date de DIA passe du récapitulatif à l'onglet *Mouvements en sortie*, celui des pertes sur inventaire (§6.3). |
