@@ -377,6 +377,14 @@ export type Dsm = {
 };
 
 /**
+ * La DSM après l'import, et ses avertissements (RG-DEC-38)
+ */
+export type DsmImportee = {
+    avertissements: Array<string>;
+    dsm: Dsm;
+};
+
+/**
  * Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)
  */
 export type DsmListee = {
@@ -462,6 +470,22 @@ export type EntreeJournalDeclarations = {
      * Copie de la période de la DSM
      */
     periode?: string;
+};
+
+/**
+ * Une erreur du fichier importé, située
+ */
+export type ErreurImport = {
+    /**
+     * Lettre de colonne du classeur
+     */
+    colonne: string;
+    /**
+     * Numéro de ligne du classeur
+     */
+    ligne: number;
+    message: string;
+    onglet: string;
 };
 
 export type EtapeConnexion = {
@@ -643,6 +667,17 @@ export type FicheProfessionnelle = {
      */
     version: number;
     ville?: string;
+};
+
+/**
+ * Import Excel refusé, tout ou rien : chaque erreur à sa place dans le classeur (RG-DEC-37)
+ */
+export type ImportRefuse = {
+    detail: string;
+    erreurs: Array<ErreurImport>;
+    regle: string;
+    status: number;
+    title: string;
 };
 
 /**
@@ -1110,6 +1145,14 @@ export type PointDeDepart = {
     id: number;
     lignes: Array<LigneStockInitial>;
     version: number;
+};
+
+/**
+ * Le point de départ après l'import, et ses avertissements (RG-DEC-38)
+ */
+export type PointDeDepartImporte = {
+    avertissements: Array<string>;
+    point: PointDeDepart;
 };
 
 /**
@@ -3210,6 +3253,57 @@ export type EnvoyerDsmResponses = {
 
 export type EnvoyerDsmResponse = EnvoyerDsmResponses[keyof EnvoyerDsmResponses];
 
+export type EditerDsmExcelData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/excel';
+};
+
+export type EditerDsmExcelResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type EditerDsmExcelResponse = EditerDsmExcelResponses[keyof EditerDsmExcelResponses];
+
+export type ImporterDsmData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: {
+        version?: number;
+    };
+    url: '/api/operateurs/{operateur}/dsm/{id}/import';
+};
+
+export type ImporterDsmErrors = {
+    /**
+     * Fichier refusé, avec ses erreurs
+     */
+    422: ImportRefuse;
+};
+
+export type ImporterDsmError = ImporterDsmErrors[keyof ImporterDsmErrors];
+
+export type ImporterDsmResponses = {
+    /**
+     * OK
+     */
+    200: DsmImportee;
+};
+
+export type ImporterDsmResponse = ImporterDsmResponses[keyof ImporterDsmResponses];
+
 export type ConsulterJournalDsmData = {
     body?: never;
     path: {
@@ -3548,6 +3642,38 @@ export type FixerPointDeDepartResponses = {
 };
 
 export type FixerPointDeDepartResponse = FixerPointDeDepartResponses[keyof FixerPointDeDepartResponses];
+
+export type ImporterPointDeDepartData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+    };
+    query?: {
+        debut?: string;
+        version?: number;
+    };
+    url: '/api/operateurs/{operateur}/point-de-depart/import';
+};
+
+export type ImporterPointDeDepartErrors = {
+    /**
+     * Fichier refusé, avec ses erreurs
+     */
+    422: ImportRefuse;
+};
+
+export type ImporterPointDeDepartError = ImporterPointDeDepartErrors[keyof ImporterPointDeDepartErrors];
+
+export type ImporterPointDeDepartResponses = {
+    /**
+     * OK
+     */
+    200: PointDeDepartImporte;
+};
+
+export type ImporterPointDeDepartResponse = ImporterPointDeDepartResponses[keyof ImporterPointDeDepartResponses];
 
 export type ModifierPointDeDepartData = {
     body: SaisiePointDeDepart;

@@ -131,7 +131,7 @@ class CotisationDsmTest {
     void rg_dec_34_tva_indisponible() {
         grille.ajouter(AGENT_BNIA, taux("60", "20", LocalDate.of(2024, 1, 1)));
         GererDsm sansTva = new GererDsm(monde.dsms, monde.points, monde.dsms, monde.journal, monde.commentaires,
-                monde.pieces, monde.stockage, monde.grilles, monde.factures, monde.evenements, monde.operateurs,
+                monde.pieces, monde.stockage, monde.classeurs, monde.grilles, monde.factures, monde.evenements, monde.operateurs,
                 monde.referentiels, new ParametresDeclarations("INCONNUE"), Monde.HORLOGE);
 
         Calculee cotisation = (Calculee) sansTva.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).cotisation();

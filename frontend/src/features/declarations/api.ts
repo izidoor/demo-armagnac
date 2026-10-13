@@ -14,6 +14,8 @@ import {
   enregistrerDsm,
   envoyerDsm,
   fixerPointDeDepart,
+  importerDsm,
+  importerPointDeDepart,
   initierDsm,
   listerCommentairesDsm,
   listerDenominations,
@@ -61,6 +63,14 @@ export function apiDeclarations(operateur: number) {
         body,
         throwOnError: true,
       }).then((r) => r.data),
+    /** RG-DEC-37, 38 : le stock initial importé du modèle Excel ; sans date, le lendemain de la période du fichier. */
+    importerPointDeDepart: (fichier: File, debut?: string, version?: number) =>
+      importerPointDeDepart({
+        path,
+        body: { fichier },
+        query: { debut, version },
+        throwOnError: true,
+      }).then((r) => r.data),
     situation: () =>
       consulterSituationDsm({ path, throwOnError: true }).then((r) => r.data),
     lister: () => listerDsm({ path, throwOnError: true }).then((r) => r.data),
@@ -77,6 +87,14 @@ export function apiDeclarations(operateur: number) {
       enregistrerDsm({
         path: { operateur, id },
         body,
+        throwOnError: true,
+      }).then((r) => r.data),
+    /** RG-DEC-37, 38 : le modèle Excel importé dans la DSM, tout ou rien. */
+    importer: (id: number, fichier: File, version: number) =>
+      importerDsm({
+        path: { operateur, id },
+        body: { fichier },
+        query: { version },
         throwOnError: true,
       }).then((r) => r.data),
     supprimer: (id: number) =>
@@ -166,6 +184,8 @@ export function apiDeclarations(operateur: number) {
       `/api/operateurs/${operateur}/dsm/${dsm}/drm/${mois}/document`,
     /** RG-DEC-35 : le PDF de la DSM, ouvert dans un nouvel onglet ; l'édition est inscrite au journal. */
     urlPdf: (dsm: number) => `/api/operateurs/${operateur}/dsm/${dsm}/pdf`,
+    /** RG-DEC-36 : le classeur Excel de la DSM, téléchargé ; l'édition est inscrite au journal. */
+    urlExcel: (dsm: number) => `/api/operateurs/${operateur}/dsm/${dsm}/excel`,
     journalDsm: (id: number) =>
       consulterJournalDsm({ path: { operateur, id }, throwOnError: true }).then(
         (r) => r.data

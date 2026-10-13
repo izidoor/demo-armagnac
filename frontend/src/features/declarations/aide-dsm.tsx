@@ -269,6 +269,32 @@ export function AideDsm({
               DSM non validée ». Chaque édition est inscrite à l'historique.
             </p>
           </Section>
+          <Section titre='Excel : édition et import'>
+            <p>
+              Le bouton Excel télécharge la DSM enregistrée au format du modèle
+              du BNIA : cinq onglets, colonnes numérotées, volumes en litres
+              affichés au format hl.l,cl, totaux calculés, et un onglet «
+              Cotisation » pour information. Le classeur d'un brouillon sert de
+              modèle pré-rempli : les lignes se déclarent dans le récapitulatif
+              (millésime ou dénomination, clé, compte d'âge), leurs volumes dans
+              chaque onglet, sur la même rangée.
+            </p>
+            <p>
+              Importer remplace les colonnes 2 à 25 par celles du fichier. Les
+              lignes se rapprochent par leur identité : une ligne nouvelle est
+              ajoutée, une ligne reprise absente du fichier reste à 0, une ligne
+              ajoutée absente est supprimée. Le stock de début, le stock de fin,
+              le compte d'âge d'une ligne MB et la date de DIA restent ceux de
+              la DSM ; un écart du fichier est signalé en avertissement.
+            </p>
+            <p>
+              L'import est tout ou rien : une clé inconnue, un volume négatif ou
+              illisible, une ligne en double, une valeur en colonne grisée ou un
+              mois différent de la période refusent le fichier, avec la liste
+              des erreurs (onglet, ligne, colonne). Les modifications non
+              enregistrées de l'écran sont perdues.
+            </p>
+          </Section>
           <Section titre='Commentaires'>
             <p>
               Sous le classeur, le fil des échanges avec le BNIA, dans tous les

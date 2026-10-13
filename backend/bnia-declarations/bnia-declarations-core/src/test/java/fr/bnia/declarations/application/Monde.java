@@ -63,6 +63,7 @@ final class Monde {
     final CommentairesEnMemoire commentaires = new CommentairesEnMemoire();
     final PiecesEnMemoire pieces = new PiecesEnMemoire();
     final StockageEnMemoire stockage = new StockageEnMemoire();
+    final ClasseursEnMemoire classeurs = new ClasseursEnMemoire();
     final EvenementsCaptures evenements = new EvenementsCaptures();
     private final Map<Long, OperateurVue> vues = new HashMap<>();
 
@@ -107,12 +108,12 @@ final class Monde {
     }
 
     GererPointDeDepart gererPointDeDepart() {
-        return new GererPointDeDepart(points, dsms, journal, operateurs, HORLOGE);
+        return new GererPointDeDepart(points, dsms, classeurs, journal, operateurs, HORLOGE);
     }
 
     GererDsm gererDsm() {
-        return new GererDsm(dsms, points, dsms, journal, commentaires, pieces, stockage, grilles, factures, evenements,
-                operateurs, referentiels, PARAMETRES, HORLOGE);
+        return new GererDsm(dsms, points, dsms, journal, commentaires, pieces, stockage, classeurs, grilles, factures,
+                evenements, operateurs, referentiels, PARAMETRES, HORLOGE);
     }
 
     CommenterDsm commenterDsm() {

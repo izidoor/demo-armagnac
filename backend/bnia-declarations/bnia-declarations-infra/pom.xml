@@ -10,7 +10,7 @@
     </parent>
     <artifactId>bnia-declarations-infra</artifactId>
     <name>BNIA : declarations, infra</name>
-    <description>Contexte declarations : adapters REST, persistance, événements et documents (PDF).</description>
+    <description>Contexte declarations : adapters REST, persistance, événements et documents (PDF, Excel).</description>
     <dependencies>
         <dependency>
             <groupId>fr.bnia</groupId>
@@ -40,6 +40,15 @@
         <dependency>
             <groupId>io.github.openhtmltopdf</groupId>
             <artifactId>openhtmltopdf-pdfbox</artifactId>
+        </dependency>
+        <!-- ADR-020 : édition et import Excel de la DSM, au format de la matrice négociant du BNIA. -->
+        <dependency>
+            <groupId>org.dhatim</groupId>
+            <artifactId>fastexcel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dhatim</groupId>
+            <artifactId>fastexcel-reader</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -12,6 +12,8 @@ import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.GrilleCotisation;
+import fr.bnia.declarations.domain.ImportExcel;
+import fr.bnia.declarations.domain.ImportRefuse;
 import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.LigneStockInitial;
@@ -30,6 +32,7 @@ import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +43,8 @@ import java.util.stream.Stream;
 /**
  * DSM d'un opérateur (analyse UC-DEC-4, 6, 8, 9, spec 05 §5.1) : l'opérateur l'initie pour la période
  * attendue, la remplit, l'enregistre et l'envoie ; le BNIA la prend en instruction, demande des compléments ou
- * la valide ; l'opérateur ou le BNIA supprime un brouillon. RG-DEC-01 à 05, 10 à 23 ; sa cotisation, RG-DEC-31 à 34.
+ * la valide ; l'opérateur ou le BNIA supprime un brouillon. RG-DEC-01 à 05, 10 à 23 ; sa cotisation, RG-DEC-31 à 34 ;
+ * l'import du modèle Excel, RG-DEC-37, 38.
  */
 @UseCase
 public class GererDsm {
@@ -52,6 +56,7 @@ public class GererDsm {
     private final Commentaires commentaires;
     private final Pieces pieces;
     private final StockageDocuments stockage;
+    private final ClasseursDsm classeurs;
     private final PublicationEvenements evenements;
     private final Autorisations autorisations;
     private final Journaliste journaliste;
@@ -59,7 +64,7 @@ public class GererDsm {
 
     public GererDsm(DsmRepository dsms, PointDeDepartRepository points, DsmLecture lecture,
             JournalDeclarations journal, Commentaires commentaires, Pieces pieces, StockageDocuments stockage,
-            GrilleCotisationRepository grilles, FacturesDsm factures, PublicationEvenements evenements,
+            ClasseursDsm classeurs, GrilleCotisationRepository grilles, FacturesDsm factures, PublicationEvenements evenements,
             OperateursLecture operateurs, ReferentielsLecture referentiels, ParametresDeclarations parametres,
             Clock horloge) {
         this.dsms = dsms;
@@ -69,6 +74,7 @@ public class GererDsm {
         this.commentaires = commentaires;
         this.pieces = pieces;
         this.stockage = stockage;
+        this.classeurs = classeurs;
         this.evenements = evenements;
         this.autorisations = new Autorisations(operateurs);
         this.journaliste = new Journaliste(journal, operateurs, horloge);
@@ -140,7 +146,39 @@ public class GererDsm {
                 .collect(Collectors.toMap(LigneDsm::id, Function.identity()));
         dsm.enregistrer(saisie, version);
         DeclarationStocksMouvements enregistree = dsms.mettreAJour(dsm);
-        enregistree.lignes().forEach(l -> avant.remove(l.id()));
+        detacherLesSupprimees(avant, enregistree);
+        journaliste.noter(acteur, enregistree, ActionJournalDeclarations.DSM_ENREGISTREE, null);
+        return vue(acteur, enregistree, vue);
+    }
+
+    /** La DSM après un import réussi, et les avertissements de l'import (RG-DEC-38). */
+    public record DsmImportee(VueDsm vue, List<String> avertissements) {
+    }
+
+    /**
+     * RG-DEC-01, 21, 23, 37, 38 (UC-DEC-5) : l'opérateur importe le modèle Excel dans sa DSM modifiable. Tout ou
+     * rien : un fichier en erreur est refusé avec ses erreurs ({@link ImportRefuse}). Les commentaires et les
+     * justificatifs d'une ligne supprimée passent sur la DSM ; le journal garde le nom du fichier, pas le fichier.
+     */
+    public DsmImportee importer(Acteur acteur, long operateur, long id, FichierDepose fichier, Long version) {
+        OperateurVue vue = autorisations.exigerOperateur(acteur, operateur);
+        DeclarationStocksMouvements dsm = dsm(operateur, id);
+        dsm.exigerModifiable();
+        ImportExcel.Lecture lecture = ImportExcel.pourDsm(classeurs.lire(fichier.contenu()), dsm.type(), dsm.periode());
+        Map<Long, LigneDsm> avant = dsm.lignes().stream()
+                .collect(Collectors.toMap(LigneDsm::id, Function.identity()));
+        List<String> avertissements = new ArrayList<>(lecture.avertissements());
+        avertissements.addAll(dsm.importer(lecture.lignes(), version));
+        DeclarationStocksMouvements importee = dsms.mettreAJour(dsm);
+        detacherLesSupprimees(avant, importee);
+        journaliste.noter(acteur, importee, ActionJournalDeclarations.DSM_IMPORTEE, fichier.nom());
+        return new DsmImportee(vue(acteur, importee, vue), List.copyOf(avertissements));
+    }
+
+    /** Les commentaires et les justificatifs d'une ligne supprimée passent sur la DSM (décision du 2026-10-13). */
+    private void detacherLesSupprimees(Map<Long, LigneDsm> avant, DeclarationStocksMouvements apres) {
+        long id = apres.id();
+        apres.lignes().forEach(l -> avant.remove(l.id()));
         if (!avant.isEmpty()) {
             for (Commentaire commentaire : commentaires.deLaDsm(id)) {
                 LigneDsm supprimee = commentaire.ligne() == null ? null : avant.get(commentaire.ligne());
@@ -157,8 +195,6 @@ public class GererDsm {
                 }
             }
         }
-        journaliste.noter(acteur, enregistree, ActionJournalDeclarations.DSM_ENREGISTREE, null);
-        return vue(acteur, enregistree, vue);
     }
 
     /** RG-DEC-01, 18, 20, 23 : l'opérateur envoie sa DSM sans anomalie, ou la renvoie après compléments. */

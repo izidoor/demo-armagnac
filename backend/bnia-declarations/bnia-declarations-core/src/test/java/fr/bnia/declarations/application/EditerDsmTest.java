@@ -28,7 +28,7 @@ class EditerDsmTest {
     private final EditerDsm cas = new EditerDsm(monde.dsms, edition -> {
         editees.add(edition);
         return "%PDF-1.4".getBytes();
-    }, monde.journal, monde.grilles, monde.factures, monde.operateurs, monde.referentiels, Monde.PARAMETRES,
+    }, monde.classeurs, monde.journal, monde.grilles, monde.factures, monde.operateurs, monde.referentiels, Monde.PARAMETRES,
             Monde.HORLOGE);
     private long id;
 

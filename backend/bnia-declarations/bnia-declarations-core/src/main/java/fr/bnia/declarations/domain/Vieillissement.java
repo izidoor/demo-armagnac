@@ -24,9 +24,14 @@ public final class Vieillissement {
      * inchangés. Les lignes devenues identiques fusionnent, volumes additionnés, dans l'ordre de la première.
      */
     public static List<LigneStockInitial> reprise(DeclarationStocksMouvements precedente, LocalDate debut) {
+        return reprise(precedente.lignes(), debut);
+    }
+
+    /** RG-DEC-14, 38 : de même pour les lignes d'un fichier importé en stock initial. */
+    static List<LigneStockInitial> reprise(List<LigneDsm> lignes, LocalDate debut) {
         boolean anniversaire = debut.getMonth() == Month.APRIL && debut.getDayOfMonth() == 1;
         Map<IdentiteLigne, VolumeAlcoolPur> stock = new LinkedHashMap<>();
-        for (LigneDsm ligne : precedente.lignes()) {
+        for (LigneDsm ligne : lignes) {
             VolumeAlcoolPur fin = ligne.stockFin();
             if (fin.estNegatif() || fin.estNul()) {
                 continue;

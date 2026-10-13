@@ -2626,6 +2626,113 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/operateurs/{operateur}/dsm/{id}/excel" : {
+      "get" : {
+        "operationId" : "editerDsmExcel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le classeur Excel de la DSM, au format du modèle d'import (matrice négociant), dans tous les états ; celui d'un brouillon sert de modèle pré-rempli ; inscrit au journal (RG-DEC-36)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/import" : {
+      "post" : {
+        "operationId" : "importerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "version",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DsmImportee"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "422" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportRefuse"
+                }
+              }
+            },
+            "description" : "Fichier refusé, avec ses erreurs"
+          }
+        },
+        "summary" : "L'opérateur importe le modèle Excel dans sa DSM modifiable : colonnes 2 à 25 remplacées, lignes rapprochées ; tout ou rien (RG-DEC-21, 37, 38)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/operateurs/{operateur}/dsm/{id}/journal" : {
       "get" : {
         "operationId" : "consulterJournalDsm",
@@ -3313,6 +3420,76 @@
           }
         },
         "summary" : "Le BNIA fixe le point de départ d'un producteur ou d'un négociant (RG-DEC-01, 06, 07)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/point-de-depart/import" : {
+      "post" : {
+        "operationId" : "importerPointDeDepart",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "debut",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "version",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "fichier" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "fichier" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PointDeDepartImporte"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "422" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ImportRefuse"
+                }
+              }
+            },
+            "description" : "Fichier refusé, avec ses erreurs"
+          }
+        },
+        "summary" : "Le BNIA importe le modèle Excel en stock initial : le stock de fin du fichier, au lendemain de sa période ou à la date choisie ; fixe ou modifie le point de départ ; tout ou rien (RG-DEC-08, 37, 38)",
         "tags" : [ "declarations" ]
       }
     },
@@ -7282,6 +7459,22 @@
         },
         "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "cotisation", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
       },
+      "DsmImportee" : {
+        "type" : "object",
+        "description" : "La DSM après l'import, et ses avertissements (RG-DEC-38)",
+        "properties" : {
+          "avertissements" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "dsm" : {
+            "$ref" : "#/components/schemas/Dsm"
+          }
+        },
+        "required" : [ "avertissements", "dsm" ]
+      },
       "DsmListee" : {
         "type" : "object",
         "description" : "Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)",
@@ -7431,6 +7624,30 @@
           }
         },
         "required" : [ "acteur", "action", "date", "libelle" ]
+      },
+      "ErreurImport" : {
+        "type" : "object",
+        "description" : "Une erreur du fichier importé, située",
+        "properties" : {
+          "colonne" : {
+            "type" : "string",
+            "description" : "Lettre de colonne du classeur",
+            "example" : "D"
+          },
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Numéro de ligne du classeur"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "onglet" : {
+            "type" : "string",
+            "example" : "Ventes France"
+          }
+        },
+        "required" : [ "colonne", "ligne", "message", "onglet" ]
       },
       "EtapeConnexion" : {
         "type" : "object",
@@ -7781,6 +7998,33 @@
           }
         },
         "required" : [ "centresInteret", "id", "operateur", "type", "version" ]
+      },
+      "ImportRefuse" : {
+        "type" : "object",
+        "description" : "Import Excel refusé, tout ou rien : chaque erreur à sa place dans le classeur (RG-DEC-37)",
+        "properties" : {
+          "detail" : {
+            "type" : "string"
+          },
+          "erreurs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ErreurImport"
+            }
+          },
+          "regle" : {
+            "type" : "string",
+            "example" : "RG-DEC-37"
+          },
+          "status" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "title" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "detail", "erreurs", "regle", "status", "title" ]
       },
       "InfoSysteme" : {
         "type" : "object",
@@ -8647,6 +8891,22 @@
           }
         },
         "required" : [ "debut", "fige", "fixeLe", "fixePar", "id", "lignes", "version" ]
+      },
+      "PointDeDepartImporte" : {
+        "type" : "object",
+        "description" : "Le point de départ après l'import, et ses avertissements (RG-DEC-38)",
+        "properties" : {
+          "avertissements" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "point" : {
+            "$ref" : "#/components/schemas/PointDeDepart"
+          }
+        },
+        "required" : [ "avertissements", "point" ]
       },
       "PremierAdmin" : {
         "type" : "object",

@@ -54,7 +54,7 @@ Le BNIA (type `BNIA`, menu « BNIA » du back-office) et seize opérateurs du Ge
 Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N320002`, `N400001`, deux
 `AUTRE` (`000010`, `000011`), une fiche incomplète (`000012`) et une fiche inactive (`000013`).
 
-## Déclarations (spec 05, lots 1 à 5)
+## Déclarations (spec 05, lots 1 à 6)
 
 Les dates sont calculées depuis le jour du chargement. Les trois négociants partent du **premier du mois
 courant** (le 1er octobre 2026 pour un chargement en octobre 2026), avec un stock fixé par Anne Lamarque
@@ -126,4 +126,15 @@ Scénario :
    un nouvel onglet, un onglet du format unique par page, volumes au format hl.l,cl, puis la cotisation ;
    « Document provisoire, DSM non validée » sur Gascogne, pas sur la DSM validée de Condom. L'édition
    apparaît à l'historique.
+10. `admin@landes.fr` (Bernard Dufau), DSM en brouillon de Négoce des Landes, bouton « Excel » : le
+    classeur au format du modèle du BNIA (cinq onglets, volumes au format hl.l,cl, totaux en formules,
+    onglet « Cotisation »). Dans le tableur, ajouter une ligne au récapitulatif (`NV` « XO » 10), lui
+    mettre 100 L en colonne 22 (onglet des ventes export, même rangée), ramener la colonne 12 (assemblages
+    en sortie) à 50 L ; enregistrer, puis « Importer » : l'anomalie des assemblages disparaît, la ligne
+    nouvelle est ajoutée, l'import est à l'historique. Taper « abc » dans une cellule de volume, ou changer
+    le mois en A8, et réimporter : le fichier est refusé, chaque erreur située (onglet, ligne, colonne),
+    rien n'est importé.
+11. `admin@bnia.fr`, DSM validée de Maison Durand, Condom : bouton « Excel ». Fiche de Maison Durand,
+    Eauze, onglet « Déclarations », « Importer depuis Excel » avec ce fichier : le point de départ est fixé
+    au 1er avril qui suit la campagne du fichier, avec son stock de fin, vieilli d'un an.
 

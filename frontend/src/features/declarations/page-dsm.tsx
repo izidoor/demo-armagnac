@@ -12,6 +12,8 @@ import {
   CircleCheck,
   CircleHelp,
   FileDown,
+  FileSpreadsheet,
+  FileUp,
   FileWarning,
   History,
   Paperclip,
@@ -64,6 +66,7 @@ import { OngletCotisation } from './cotisation'
 import { DialogueLigne } from './dialogue-ligne'
 import { formatDateHeure, formatEuros } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
+import { DialogueImportExcel } from './import-excel'
 import { TableJournalDeclarations } from './journal'
 import {
   ONGLETS,
@@ -77,7 +80,7 @@ import { OngletPieces } from './pieces'
  * Écran d'une DSM, commun au back-office et au portail (spec 05 §6.3) : en-tête, cinq onglets du format
  * unique, les onglets des pièces et de la cotisation en classeur, panneau des anomalies et des manques,
  * commentaires sous le classeur ; l'historique, hors du formulaire, dans un panneau latéral ; le PDF dans un
- * nouvel onglet du navigateur. Les actions viennent du serveur,
+ * nouvel onglet du navigateur, l'Excel téléchargé ; l'import du modèle Excel (lot 6). Les actions viennent du serveur,
  * selon l'état et le côté de l'utilisateur (RG-DEC-01, 20 à 22, 24, 28) : l'opérateur saisit et envoie tant
  * que la DSM est chez lui ; le BNIA l'instruit ; l'un ou l'autre supprime un brouillon et dépose des pièces.
  */
@@ -94,6 +97,10 @@ export function PageDsm({
     queryKey: [...cleDeclarations(operateur), 'dsm', id],
     queryFn: () => apiDeclarations(operateur).consulter(id),
   })
+  const queryClient = useQueryClient()
+  // L'import vit hors de l'éditeur, recréé à chaque version : ses avertissements restent à l'écran.
+  const [importOuvert, setImportOuvert] = useState(false)
+  const [modificationsPerdues, setModificationsPerdues] = useState(false)
   const dsm = requete.data
   if (!dsm) {
     return (
@@ -108,7 +115,44 @@ export function PageDsm({
     )
   }
   return (
-    <EditeurDsm key={`${dsm.id}-${dsm.version}`} espace={espace} dsm={dsm} />
+    <>
+      <EditeurDsm
+        key={`${dsm.id}-${dsm.version}`}
+        espace={espace}
+        dsm={dsm}
+        onImporter={(modifie) => {
+          setModificationsPerdues(modifie)
+          setImportOuvert(true)
+        }}
+      />
+      <DialogueImportExcel
+        titre={`Importer le modèle Excel dans la DSM de ${dsm.periode.libelle}`}
+        description={
+          <>
+            Le fichier remplace les colonnes 2 à 25 ; ses lignes se rapprochent
+            de celles de la DSM par leur identité. Une ligne reprise absente du
+            fichier reste à 0, une ligne ajoutée absente est supprimée. Les
+            colonnes 1 et 26 et la date de DIA restent celles de la DSM. Un
+            fichier en erreur est refusé en entier.
+            {modificationsPerdues && (
+              <strong className='mt-2 block'>
+                Vos modifications non enregistrées seront perdues.
+              </strong>
+            )}
+          </>
+        }
+        ouvert={importOuvert}
+        onOuvertChange={setImportOuvert}
+        importer={(fichier) =>
+          apiDeclarations(operateur).importer(dsm.id, fichier, dsm.version)
+        }
+        onImporte={() =>
+          queryClient.invalidateQueries({
+            queryKey: cleDeclarations(operateur),
+          })
+        }
+      />
+    </>
   )
 }
 
@@ -121,7 +165,16 @@ const COTISATION = 'COTISATION'
 /** Les transitions qui demandent une confirmation (RG-DEC-20). */
 type Transition = 'envoi' | 'instruction' | 'complements' | 'validation'
 
-function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
+function EditeurDsm({
+  espace,
+  dsm,
+  onImporter,
+}: {
+  espace: Espace
+  dsm: Dsm
+  /** Ouvre l'import ; {@code modifie} : la saisie en cours sera perdue. */
+  onImporter: (modifie: boolean) => void
+}) {
   const permis = (action: Dsm['actions'][number]) =>
     dsm.actions.includes(action)
   // RG-DEC-01, 21 : la saisie est à l'opérateur, tant que la DSM est chez lui.
@@ -240,6 +293,15 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
       1500
     )
   }
+  // RG-DEC-36 : le classeur Excel de la DSM enregistrée, téléchargé ; l'édition entre au journal.
+  const editerExcel = () =>
+    setTimeout(
+      () =>
+        queryClient.invalidateQueries({
+          queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'journal'],
+        }),
+      1500
+    )
   const effacement = useMutation({
     mutationFn: () => api.supprimer(dsm.id),
     onSuccess: () => {
@@ -414,6 +476,27 @@ function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
                 : 'Le PDF de la DSM, dans un nouvel onglet.'}
             </TooltipContent>
           </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant='outline' asChild>
+                <a href={api.urlExcel(dsm.id)} download onClick={editerExcel}>
+                  <FileSpreadsheet className='size-4' /> Excel
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {modifie
+                ? 'Le classeur de la DSM enregistrée, sans les modifications en cours.'
+                : saisissable
+                  ? 'Le classeur de la DSM, au format du modèle : remplissez-le, puis importez-le.'
+                  : 'Le classeur de la DSM, au format du modèle du BNIA.'}
+            </TooltipContent>
+          </Tooltip>
+          {saisissable && (
+            <Button variant='outline' onClick={() => onImporter(modifie)}>
+              <FileUp className='size-4' /> Importer
+            </Button>
+          )}
           {saisissable && (
             <Button
               onClick={() => enregistrement.mutate()}

@@ -98,8 +98,57 @@ public final class DeclarationStocksMouvements {
                 appliquer(saisie.lignes()), envoyeeLe, valideeLe, valideePar, version);
     }
 
+    /**
+     * RG-DEC-21, 38 : l'import du modèle Excel remplace les colonnes 2 à 25. Les lignes se rapprochent par leur
+     * identité : ligne du fichier absente de la DSM ajoutée ({@code AJOUT}), ligne {@code REPRISE} absente du
+     * fichier gardée à 0, ligne {@code AJOUT} absente supprimée. La colonne 1 et la date de DIA restent celles de
+     * la DSM (Q-DEC-27) ; les écarts des colonnes 1 et 26 du fichier sont signalés.
+     *
+     * @param importees les lignes du fichier, contrôlées ({@link ImportExcel#pourDsm})
+     * @param versionLue {@code null} : pas de contrôle
+     * @return les avertissements
+     */
+    public List<String> importer(List<ImportExcel.LigneImportee> importees, Long versionLue) {
+        exigerModifiable();
+        Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        Map<IdentiteLigne, ImportExcel.LigneImportee> parIdentite = importees.stream()
+                .collect(Collectors.toMap(ImportExcel.LigneImportee::identite, Function.identity(), (a, b) -> a,
+                        LinkedHashMap::new));
+        Map<IdentiteLigne, LigneDsm> importeesDansLaDsm = new LinkedHashMap<>();
+        List<LigneDsm> nouvelles = new ArrayList<>();
+        for (LigneDsm ligne : lignes) {
+            ImportExcel.LigneImportee importee = parIdentite.remove(ligne.identite());
+            if (importee != null) {
+                EnumMap<ColonneDsm, VolumeAlcoolPur> volumes = mouvements(ligne.identite(), importee.mouvements());
+                volumes.put(ColonneDsm.C01, ligne.stockDebut());
+                LigneDsm importeeDsm = new LigneDsm(ligne.id(), ligne.identite(), ligne.origine(), volumes);
+                nouvelles.add(importeeDsm);
+                importeesDansLaDsm.put(ligne.identite(), importeeDsm);
+            } else if (ligne.origine() == OrigineLigne.REPRISE) {
+                nouvelles.add(new LigneDsm(ligne.id(), ligne.identite(), OrigineLigne.REPRISE,
+                        Map.of(ColonneDsm.C01, ligne.stockDebut())));
+            }
+        }
+        parIdentite.forEach((identite, importee) -> {
+            LigneDsm ajoutee = new LigneDsm(null, identite, OrigineLigne.AJOUT, mouvements(identite, importee.mouvements()));
+            nouvelles.add(ajoutee);
+            importeesDansLaDsm.put(identite, ajoutee);
+        });
+        Unicite.verifier(nouvelles.stream().map(LigneDsm::identite).toList());
+        List<String> avertissements = new ArrayList<>();
+        for (ImportExcel.LigneImportee importee : importees) {
+            LigneDsm ligne = importeesDansLaDsm.get(importee.identite());
+            importee.stockDebut().filter(lu -> lu.compareTo(ligne.stockDebut()) != 0).ifPresent(lu -> avertissements.add(
+                    importee.libelle() + " : stock de début " + ImportExcel.litres(lu) + " dans le fichier, "
+                            + ImportExcel.litres(ligne.stockDebut()) + " dans la DSM ; celui de la DSM est gardé."));
+            ImportExcel.ecartStockFin(importee, ligne, avertissements);
+        }
+        this.lignes = List.copyOf(nouvelles);
+        return List.copyOf(avertissements);
+    }
+
     /** RG-DEC-21 : les lignes, les volumes et la date de DIA ne se modifient que quand la DSM est chez l'opérateur. */
-    private void exigerModifiable() {
+    public void exigerModifiable() {
         if (!etat.modifiable()) {
             throw new RegleEnfreinte("RG-DEC-21", "La DSM de " + periode.libelle() + " est « "
                     + etat.libelle().toLowerCase() + " » : elle ne se modifie plus.");

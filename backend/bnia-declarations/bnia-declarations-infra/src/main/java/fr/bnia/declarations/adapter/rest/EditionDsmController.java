@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Éditions d'une DSM (spec 05 §5.1, H-DEC-21) : le PDF, ouvert dans le navigateur. */
+/** Éditions d'une DSM (spec 05 §5.1, H-DEC-21) : le PDF, ouvert dans le navigateur ; l'Excel, téléchargé. */
 @RestController
 @Tag(name = "declarations")
 class EditionDsmController {
+
+    private static final String XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
     private final EditerDsm editer;
 
@@ -35,5 +37,18 @@ class EditionDsmController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
                         .filename(pdf.nom(), StandardCharsets.UTF_8).build().toString())
                 .body(pdf.contenu());
+    }
+
+    @GetMapping(path = "/api/operateurs/{operateur}/dsm/{id}/excel", produces = XLSX)
+    @Operation(operationId = "editerDsmExcel",
+            summary = "Le classeur Excel de la DSM, au format du modèle d'import (matrice négociant), dans tous les états ;"
+                    + " celui d'un brouillon sert de modèle pré-rempli ; inscrit au journal (RG-DEC-36)")
+    ResponseEntity<byte[]> excel(Connecte connecte, @PathVariable long operateur, @PathVariable long id) {
+        DocumentEdite excel = editer.excel(Acteurs.de(connecte), operateur, id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(XLSX))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(excel.nom(), StandardCharsets.UTF_8).build().toString())
+                .body(excel.contenu());
     }
 }
