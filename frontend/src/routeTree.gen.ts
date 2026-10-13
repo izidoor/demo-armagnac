@@ -34,6 +34,7 @@ import { Route as PortailDeclarationsIndexRouteImport } from './routes/portail/d
 import { Route as PortailAnnuaireIndexRouteImport } from './routes/portail/annuaire/index'
 import { Route as BoParametrageIndexRouteImport } from './routes/bo/parametrage/index'
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
+import { Route as BoDeclarationsIndexRouteImport } from './routes/bo/declarations/index'
 import { Route as PortailDeclarationsDsmRouteImport } from './routes/portail/declarations/$dsm'
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
@@ -174,6 +175,11 @@ const BoOperateursIndexRoute = BoOperateursIndexRouteImport.update({
   path: '/operateurs/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const BoDeclarationsIndexRoute = BoDeclarationsIndexRouteImport.update({
+  id: '/declarations/',
+  path: '/declarations/',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const PortailDeclarationsDsmRoute = PortailDeclarationsDsmRouteImport.update({
   id: '/declarations/$dsm',
   path: '/declarations/$dsm',
@@ -274,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
+  '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
   '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
@@ -311,6 +318,7 @@ export interface FileRoutesByTo {
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
+  '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
   '/bo/parametrage': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
@@ -352,6 +360,7 @@ export interface FileRoutesById {
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
+  '/bo/declarations/': typeof BoDeclarationsIndexRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
   '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire/': typeof PortailAnnuaireIndexRoute
@@ -394,6 +403,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/portail/declarations/$dsm'
+    | '/bo/declarations'
     | '/bo/operateurs'
     | '/bo/parametrage/'
     | '/portail/annuaire'
@@ -431,6 +441,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/portail/declarations/$dsm'
+    | '/bo/declarations'
     | '/bo/operateurs'
     | '/bo/parametrage'
     | '/portail/annuaire'
@@ -471,6 +482,7 @@ export interface FileRouteTypes {
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/portail/declarations/$dsm'
+    | '/bo/declarations/'
     | '/bo/operateurs/'
     | '/bo/parametrage/'
     | '/portail/annuaire/'
@@ -679,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoOperateursIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/declarations/': {
+      id: '/bo/declarations/'
+      path: '/declarations'
+      fullPath: '/bo/declarations'
+      preLoaderRoute: typeof BoDeclarationsIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/portail/declarations/$dsm': {
       id: '/portail/declarations/$dsm'
       path: '/declarations/$dsm'
@@ -800,6 +819,7 @@ interface BoRouteRouteChildren {
   BoCompteRoute: typeof BoCompteRoute
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
+  BoDeclarationsIndexRoute: typeof BoDeclarationsIndexRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
   BoAccesUtilisateursIdRoute: typeof BoAccesUtilisateursIdRoute
   BoAccesUtilisateursIndexRoute: typeof BoAccesUtilisateursIndexRoute
@@ -814,6 +834,7 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoCompteRoute: BoCompteRoute,
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
+  BoDeclarationsIndexRoute: BoDeclarationsIndexRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
   BoAccesUtilisateursIdRoute: BoAccesUtilisateursIdRoute,
   BoAccesUtilisateursIndexRoute: BoAccesUtilisateursIndexRoute,

@@ -65,6 +65,11 @@ public final class CompteDAgeDsm implements Comparable<CompteDAgeDsm> {
         return compte < 0 ? DOUBLE_ZERO : de(compte);
     }
 
+    /** RG-DEC-14 : le compte un an plus tard ({@code 00} devient {@code 0}), borné à {@code 20+}. */
+    public CompteDAgeDsm suivant() {
+        return rang >= 20 ? VINGT_ET_PLUS : new CompteDAgeDsm(rang + 1);
+    }
+
     public boolean estPlusVieuxQue(CompteDAgeDsm autre) {
         return compareTo(autre) > 0;
     }

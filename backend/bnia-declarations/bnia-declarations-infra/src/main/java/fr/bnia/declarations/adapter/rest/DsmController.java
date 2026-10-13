@@ -2,6 +2,7 @@ package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.declarations.application.GererDsm;
+import fr.bnia.declarations.domain.Cote;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -34,7 +35,9 @@ class DsmController {
     @GetMapping("/dsm")
     @Operation(operationId = "listerDsm", summary = "Les DSM de l'opérateur, de la plus récente à la plus ancienne (RG-DEC-01)")
     List<DsmResumeResponse> lister(Connecte connecte, @PathVariable long operateur) {
-        return gerer.lister(Acteurs.de(connecte), operateur).stream().map(DsmResumeResponse::depuis).toList();
+        Cote cote = gerer.cote(Acteurs.de(connecte), operateur);
+        return gerer.lister(Acteurs.de(connecte), operateur).stream().map(d -> DsmResumeResponse.depuis(d, cote))
+                .toList();
     }
 
     @GetMapping("/dsm/situation")
@@ -47,7 +50,7 @@ class DsmController {
     @PostMapping("/dsm")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(operationId = "initierDsm",
-            summary = "L'opérateur initie la DSM de la période attendue, reprise du stock initial (RG-DEC-01 à 05, 13)")
+            summary = "L'opérateur initie la DSM de la période attendue, reprise du stock précédent (RG-DEC-01 à 05, 13, 14)")
     DsmResponse initier(Connecte connecte, @PathVariable long operateur) {
         return DsmResponse.depuis(gerer.initier(Acteurs.de(connecte), operateur));
     }
@@ -75,10 +78,41 @@ class DsmController {
         return DsmResponse.depuis(gerer.apercevoir(Acteurs.de(connecte), operateur, id, requete.versSaisie()));
     }
 
+    @PostMapping("/dsm/{id}/envoi")
+    @Operation(operationId = "envoyerDsm",
+            summary = "L'opérateur envoie sa DSM sans anomalie, ou la renvoie après compléments (RG-DEC-18, 20)")
+    DsmResponse envoyer(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
+            @RequestBody TransitionDsmRequest requete) {
+        return DsmResponse.depuis(gerer.envoyer(Acteurs.de(connecte), operateur, id, requete.version()));
+    }
+
+    @PostMapping("/dsm/{id}/prise-en-instruction")
+    @Operation(operationId = "prendreDsmEnInstruction", summary = "Le BNIA prend en instruction une DSM envoyée (RG-DEC-20)")
+    DsmResponse prendreEnInstruction(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
+            @RequestBody TransitionDsmRequest requete) {
+        return DsmResponse.depuis(gerer.prendreEnInstruction(Acteurs.de(connecte), operateur, id, requete.version()));
+    }
+
+    @PostMapping("/dsm/{id}/complements")
+    @Operation(operationId = "demanderComplementsDsm",
+            summary = "Le BNIA demande des compléments, avec un motif écrit en commentaire de la DSM (RG-DEC-20, 24)")
+    DsmResponse demanderComplements(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
+            @RequestBody ComplementsDsmRequest requete) {
+        return DsmResponse.depuis(gerer.demanderComplements(Acteurs.de(connecte), operateur, id, requete.motif(),
+                requete.version()));
+    }
+
+    @PostMapping("/dsm/{id}/validation")
+    @Operation(operationId = "validerDsm", summary = "Le BNIA valide une DSM en instruction ; elle est figée (RG-DEC-20)")
+    DsmResponse valider(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
+            @RequestBody TransitionDsmRequest requete) {
+        return DsmResponse.depuis(gerer.valider(Acteurs.de(connecte), operateur, id, requete.version()));
+    }
+
     @DeleteMapping("/dsm/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "supprimerDsm",
-            summary = "Supprimer un brouillon, par l'opérateur ou le BNIA ; son journal avec lui (RG-DEC-01, 22)")
+            summary = "Supprimer un brouillon, par l'opérateur ou le BNIA ; commentaires et journal avec lui (RG-DEC-01, 22)")
     void supprimer(Connecte connecte, @PathVariable long operateur, @PathVariable long id) {
         gerer.supprimer(Acteurs.de(connecte), operateur, id);
     }

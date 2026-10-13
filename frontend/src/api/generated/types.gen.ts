@@ -127,6 +127,55 @@ export type ColonneDsm = {
     sens: 'STOCK_DEBUT' | 'ENTREE' | 'SORTIE' | 'STOCK_FIN';
 };
 
+/**
+ * Commentaire d'instruction d'une DSM (spec 05 §3.2.4)
+ */
+export type CommentaireDsm = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    cote: 'BNIA' | 'OPERATEUR';
+    /**
+     * Écrit par l'utilisateur connecté : il le modifie ou le supprime
+     */
+    deLUtilisateur: boolean;
+    ecritLe: string;
+    id: number;
+    interne: boolean;
+    /**
+     * Ligne visée ; vide pour la DSM
+     */
+    ligne?: number;
+    /**
+     * Libellé de la ligne visée, supprimée depuis ; le commentaire porte alors sur la DSM
+     */
+    ligneSupprimee?: string;
+    /**
+     * Renseigné si modifié (« modifié » affiché)
+     */
+    modifieLe?: string;
+    /**
+     * Motif d'une demande de compléments : ne se supprime pas
+     */
+    motif: boolean;
+    texte: string;
+};
+
+/**
+ * Demande de compléments sur une DSM en instruction (RG-DEC-20)
+ */
+export type ComplementsDsm = {
+    /**
+     * Motif, écrit en commentaire de la DSM
+     */
+    motif: string;
+    /**
+     * Version lue (verrou optimiste)
+     */
+    version?: number;
+};
+
 export type ConfirmationEmail = {
     jeton: string;
 };
@@ -228,6 +277,10 @@ export type Droits = {
  * Déclaration de stocks et mouvements, avec ses totaux et ses anomalies (spec 05 §3.2, §6.3)
  */
 export type Dsm = {
+    /**
+     * Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)
+     */
+    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE'>;
     anomalies: Array<AnomalieDsm>;
     codeOperateur: string;
     colonnes: Array<ColonneDsm>;
@@ -236,21 +289,16 @@ export type Dsm = {
      */
     dateDia?: string;
     envoyeeLe?: string;
-    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'VALIDEE';
+    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     id: number;
+    /**
+     * Du point de vue de l'utilisateur connecté : « Envoyée » pour l'opérateur, « À prendre en charge » pour le BNIA
+     */
     libelleEtat: string;
     lignes: Array<LigneDsm>;
-    /**
-     * Lignes, volumes et date de DIA modifiables par l'opérateur (RG-DEC-21)
-     */
-    modifiable: boolean;
     operateur: number;
     periode: PeriodeDeclaration;
     raisonSociale: string;
-    /**
-     * Seul un brouillon se supprime (RG-DEC-22)
-     */
-    supprimable: boolean;
     /**
      * Total de chaque colonne, 26 valeurs (RG-DEC-17)
      */
@@ -265,13 +313,47 @@ export type Dsm = {
 };
 
 /**
+ * Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)
+ */
+export type DsmListee = {
+    codeOperateur: string;
+    envoyeeLe?: string;
+    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    id: number;
+    /**
+     * Du point de vue du BNIA
+     */
+    libelleEtat: string;
+    /**
+     * Date de la dernière action sur la DSM, lue au journal
+     */
+    modifieeLe?: string;
+    operateur: number;
+    periode: PeriodeDeclaration;
+    /**
+     * L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)
+     */
+    prendreEnInstruction: boolean;
+    raisonSociale: string;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+    valideeLe?: string;
+};
+
+/**
  * Une DSM dans un listing (spec 05 §6.1, §6.2)
  */
 export type DsmResume = {
     envoyeeLe?: string;
-    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'VALIDEE';
+    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     id: number;
+    /**
+     * Du point de vue de l'utilisateur connecté
+     */
     libelleEtat: string;
+    /**
+     * Date de la dernière action sur la DSM, lue au journal
+     */
+    modifieeLe?: string;
     periode: PeriodeDeclaration;
     type: 'PRODUCTEUR' | 'NEGOCIANT';
     valideeLe?: string;
@@ -984,6 +1066,21 @@ export type SaisieCode = {
     faireConfiance: boolean;
 };
 
+/**
+ * Commentaire écrit ou modifié (RG-DEC-24, 25)
+ */
+export type SaisieCommentaireDsm = {
+    /**
+     * Interne au BNIA, invisible de l'opérateur ; côté BNIA seulement. Faux par défaut
+     */
+    interne?: boolean;
+    /**
+     * Ligne visée ; vide pour la DSM. Ignorée à la modification
+     */
+    ligne?: number;
+    texte: string;
+};
+
 export type SaisieConnexion = {
     email: string;
     motDePasse: string;
@@ -1478,6 +1575,16 @@ export type TauxTva = {
 };
 
 /**
+ * Envoi, prise en instruction ou validation d'une DSM (RG-DEC-20)
+ */
+export type TransitionDsm = {
+    /**
+     * Version lue (verrou optimiste)
+     */
+    version?: number;
+};
+
+/**
  * Un utilisateur et ses rattachements (RG-OPE-53)
  */
 export type UtilisateurLigne = {
@@ -1730,6 +1837,33 @@ export type ConfirmerChangementEmailResponses = {
 };
 
 export type ConfirmerChangementEmailResponse = ConfirmerChangementEmailResponses[keyof ConfirmerChangementEmailResponses];
+
+export type ListerToutesDsmData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        type?: 'PRODUCTEUR' | 'NEGOCIANT';
+        /**
+         * Les DSM dont la période contient ce mois
+         */
+        mois?: string;
+        /**
+         * Les DSM dans l'un de ces états ; aucun : tous
+         */
+        etats?: Array<'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE'>;
+    };
+    url: '/api/declarations/dsm';
+};
+
+export type ListerToutesDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<DsmListee>;
+};
+
+export type ListerToutesDsmResponse = ListerToutesDsmResponses[keyof ListerToutesDsmResponses];
 
 export type ConsulterInvitationParJetonData = {
     body?: never;
@@ -2426,6 +2560,84 @@ export type ConsulterSituationDsmResponses = {
 
 export type ConsulterSituationDsmResponse = ConsulterSituationDsmResponses[keyof ConsulterSituationDsmResponses];
 
+export type ListerCommentairesDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
+};
+
+export type ListerCommentairesDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<CommentaireDsm>;
+};
+
+export type ListerCommentairesDsmResponse = ListerCommentairesDsmResponses[keyof ListerCommentairesDsmResponses];
+
+export type EcrireCommentaireDsmData = {
+    body: SaisieCommentaireDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
+};
+
+export type EcrireCommentaireDsmResponses = {
+    /**
+     * Created
+     */
+    201: CommentaireDsm;
+};
+
+export type EcrireCommentaireDsmResponse = EcrireCommentaireDsmResponses[keyof EcrireCommentaireDsmResponses];
+
+export type SupprimerCommentaireDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
+};
+
+export type SupprimerCommentaireDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerCommentaireDsmResponse = SupprimerCommentaireDsmResponses[keyof SupprimerCommentaireDsmResponses];
+
+export type ModifierCommentaireDsmData = {
+    body: SaisieCommentaireDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
+};
+
+export type ModifierCommentaireDsmResponses = {
+    /**
+     * OK
+     */
+    200: CommentaireDsm;
+};
+
+export type ModifierCommentaireDsmResponse = ModifierCommentaireDsmResponses[keyof ModifierCommentaireDsmResponses];
+
 export type SupprimerDsmData = {
     body?: never;
     path: {
@@ -2502,6 +2714,44 @@ export type ApercevoirDsmResponses = {
 
 export type ApercevoirDsmResponse = ApercevoirDsmResponses[keyof ApercevoirDsmResponses];
 
+export type DemanderComplementsDsmData = {
+    body: ComplementsDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/complements';
+};
+
+export type DemanderComplementsDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type DemanderComplementsDsmResponse = DemanderComplementsDsmResponses[keyof DemanderComplementsDsmResponses];
+
+export type EnvoyerDsmData = {
+    body: TransitionDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/envoi';
+};
+
+export type EnvoyerDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type EnvoyerDsmResponse = EnvoyerDsmResponses[keyof EnvoyerDsmResponses];
+
 export type ConsulterJournalDsmData = {
     body?: never;
     path: {
@@ -2520,6 +2770,44 @@ export type ConsulterJournalDsmResponses = {
 };
 
 export type ConsulterJournalDsmResponse = ConsulterJournalDsmResponses[keyof ConsulterJournalDsmResponses];
+
+export type PrendreDsmEnInstructionData = {
+    body: TransitionDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/prise-en-instruction';
+};
+
+export type PrendreDsmEnInstructionResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type PrendreDsmEnInstructionResponse = PrendreDsmEnInstructionResponses[keyof PrendreDsmEnInstructionResponses];
+
+export type ValiderDsmData = {
+    body: TransitionDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/validation';
+};
+
+export type ValiderDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type ValiderDsmResponse = ValiderDsmResponses[keyof ValiderDsmResponses];
 
 export type ConsulterFicheData = {
     body?: never;

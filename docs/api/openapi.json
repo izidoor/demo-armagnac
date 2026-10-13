@@ -434,6 +434,66 @@
         "tags" : [ "mon-compte" ]
       }
     },
+    "/api/declarations/dsm" : {
+      "get" : {
+        "operationId" : "listerToutesDsm",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          }
+        }, {
+          "description" : "Les DSM dont la période contient ce mois",
+          "example" : "2026-10",
+          "in" : "query",
+          "name" : "mois",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Les DSM dans l'un de ces états ; aucun : tous",
+          "in" : "query",
+          "name" : "etats",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DsmListee"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les DSM de tous les opérateurs, filtrées par opérateur, type, mois et états, de la période la plus récente à la plus ancienne (RG-DEC-01)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/invitations/{jeton}" : {
       "get" : {
         "operationId" : "consulterInvitationParJeton",
@@ -1664,7 +1724,7 @@
             "description" : "Created"
           }
         },
-        "summary" : "L'opérateur initie la DSM de la période attendue, reprise du stock initial (RG-DEC-01 à 05, 13)",
+        "summary" : "L'opérateur initie la DSM de la période attendue, reprise du stock précédent (RG-DEC-01 à 05, 13, 14)",
         "tags" : [ "declarations" ]
       }
     },
@@ -1696,6 +1756,178 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/operateurs/{operateur}/dsm/{dsm}/commentaires" : {
+      "get" : {
+        "operationId" : "listerCommentairesDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CommentaireDsm"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le fil des commentaires, du plus ancien au plus récent ; sans les internes pour l'opérateur (RG-DEC-24)",
+        "tags" : [ "declarations" ]
+      },
+      "post" : {
+        "operationId" : "ecrireCommentaireDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieCommentaireDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CommentaireDsm"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Commenter la DSM ou une de ses lignes (RG-DEC-24)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerCommentaireDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "L'auteur supprime son commentaire, sauf un motif de compléments (RG-DEC-25)",
+        "tags" : [ "declarations" ]
+      },
+      "put" : {
+        "operationId" : "modifierCommentaireDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieCommentaireDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CommentaireDsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'auteur modifie son commentaire (RG-DEC-25)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/operateurs/{operateur}/dsm/{id}" : {
       "delete" : {
         "operationId" : "supprimerDsm",
@@ -1721,7 +1953,7 @@
             "description" : "No Content"
           }
         },
-        "summary" : "Supprimer un brouillon, par l'opérateur ou le BNIA ; son journal avec lui (RG-DEC-01, 22)",
+        "summary" : "Supprimer un brouillon, par l'opérateur ou le BNIA ; commentaires et journal avec lui (RG-DEC-01, 22)",
         "tags" : [ "declarations" ]
       },
       "get" : {
@@ -1849,6 +2081,98 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/operateurs/{operateur}/dsm/{id}/complements" : {
+      "post" : {
+        "operationId" : "demanderComplementsDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComplementsDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le BNIA demande des compléments, avec un motif écrit en commentaire de la DSM (RG-DEC-20, 24)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/envoi" : {
+      "post" : {
+        "operationId" : "envoyerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TransitionDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'opérateur envoie sa DSM sans anomalie, ou la renvoie après compléments (RG-DEC-18, 20)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/operateurs/{operateur}/dsm/{id}/journal" : {
       "get" : {
         "operationId" : "consulterJournalDsm",
@@ -1885,6 +2209,98 @@
           }
         },
         "summary" : "Historique d'une DSM, du plus récent au plus ancien (RG-DEC-23)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/prise-en-instruction" : {
+      "post" : {
+        "operationId" : "prendreDsmEnInstruction",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TransitionDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le BNIA prend en instruction une DSM envoyée (RG-DEC-20)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/validation" : {
+      "post" : {
+        "operationId" : "validerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TransitionDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le BNIA valide une DSM en instruction ; elle est figée (RG-DEC-20)",
         "tags" : [ "declarations" ]
       }
     },
@@ -5967,6 +6383,74 @@
         },
         "required" : [ "grisee", "libelle", "libelleOnglet", "numero", "onglet", "saisissable", "sens" ]
       },
+      "CommentaireDsm" : {
+        "type" : "object",
+        "description" : "Commentaire d'instruction d'une DSM (spec 05 §3.2.4)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur"
+          },
+          "cote" : {
+            "type" : "string",
+            "enum" : [ "BNIA", "OPERATEUR" ]
+          },
+          "deLUtilisateur" : {
+            "type" : "boolean",
+            "description" : "Écrit par l'utilisateur connecté : il le modifie ou le supprime"
+          },
+          "ecritLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "interne" : {
+            "type" : "boolean"
+          },
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Ligne visée ; vide pour la DSM"
+          },
+          "ligneSupprimee" : {
+            "type" : "string",
+            "description" : "Libellé de la ligne visée, supprimée depuis ; le commentaire porte alors sur la DSM"
+          },
+          "modifieLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Renseigné si modifié (« modifié » affiché)"
+          },
+          "motif" : {
+            "type" : "boolean",
+            "description" : "Motif d'une demande de compléments : ne se supprime pas"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "auteur", "cote", "deLUtilisateur", "ecritLe", "id", "interne", "motif", "texte" ]
+      },
+      "ComplementsDsm" : {
+        "type" : "object",
+        "description" : "Demande de compléments sur une DSM en instruction (RG-DEC-20)",
+        "properties" : {
+          "motif" : {
+            "type" : "string",
+            "description" : "Motif, écrit en commentaire de la DSM",
+            "example" : "DAE manquants pour l'export"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (verrou optimiste)"
+          }
+        },
+        "required" : [ "motif" ]
+      },
       "ConfirmationEmail" : {
         "type" : "object",
         "properties" : {
@@ -6133,6 +6617,14 @@
         "type" : "object",
         "description" : "Déclaration de stocks et mouvements, avec ses totaux et ses anomalies (spec 05 §3.2, §6.3)",
         "properties" : {
+          "actions" : {
+            "type" : "array",
+            "description" : "Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "COMMENTER", "COMMENTER_INTERNE" ]
+            }
+          },
           "anomalies" : {
             "type" : "array",
             "items" : {
@@ -6160,7 +6652,7 @@
           },
           "etat" : {
             "type" : "string",
-            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "VALIDEE" ]
+            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
           },
           "id" : {
             "type" : "integer",
@@ -6168,17 +6660,14 @@
           },
           "libelleEtat" : {
             "type" : "string",
-            "example" : "Brouillon"
+            "description" : "Du point de vue de l'utilisateur connecté : « Envoyée » pour l'opérateur, « À prendre en charge » pour le BNIA",
+            "example" : "Envoyée"
           },
           "lignes" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/LigneDsm"
             }
-          },
-          "modifiable" : {
-            "type" : "boolean",
-            "description" : "Lignes, volumes et date de DIA modifiables par l'opérateur (RG-DEC-21)"
           },
           "operateur" : {
             "type" : "integer",
@@ -6189,10 +6678,6 @@
           },
           "raisonSociale" : {
             "type" : "string"
-          },
-          "supprimable" : {
-            "type" : "boolean",
-            "description" : "Seul un brouillon se supprime (RG-DEC-22)"
           },
           "totaux" : {
             "type" : "array",
@@ -6218,7 +6703,62 @@
             "format" : "int64"
           }
         },
-        "required" : [ "anomalies", "codeOperateur", "colonnes", "etat", "id", "libelleEtat", "lignes", "modifiable", "operateur", "periode", "raisonSociale", "supprimable", "totaux", "type", "version" ]
+        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "etat", "id", "libelleEtat", "lignes", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
+      },
+      "DsmListee" : {
+        "type" : "object",
+        "description" : "Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)",
+        "properties" : {
+          "codeOperateur" : {
+            "type" : "string",
+            "example" : "N320001"
+          },
+          "envoyeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelleEtat" : {
+            "type" : "string",
+            "description" : "Du point de vue du BNIA",
+            "example" : "À prendre en charge"
+          },
+          "modifieeLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Date de la dernière action sur la DSM, lue au journal"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "periode" : {
+            "$ref" : "#/components/schemas/PeriodeDeclaration"
+          },
+          "prendreEnInstruction" : {
+            "type" : "boolean",
+            "description" : "L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          },
+          "valideeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "codeOperateur", "etat", "id", "libelleEtat", "operateur", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
       },
       "DsmResume" : {
         "type" : "object",
@@ -6230,7 +6770,7 @@
           },
           "etat" : {
             "type" : "string",
-            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "VALIDEE" ]
+            "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
           },
           "id" : {
             "type" : "integer",
@@ -6238,7 +6778,13 @@
           },
           "libelleEtat" : {
             "type" : "string",
-            "example" : "Brouillon"
+            "description" : "Du point de vue de l'utilisateur connecté",
+            "example" : "Envoyée"
+          },
+          "modifieeLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Date de la dernière action sur la DSM, lue au journal"
           },
           "periode" : {
             "$ref" : "#/components/schemas/PeriodeDeclaration"
@@ -7582,6 +8128,25 @@
         },
         "required" : [ "code", "faireConfiance" ]
       },
+      "SaisieCommentaireDsm" : {
+        "type" : "object",
+        "description" : "Commentaire écrit ou modifié (RG-DEC-24, 25)",
+        "properties" : {
+          "interne" : {
+            "type" : "boolean",
+            "description" : "Interne au BNIA, invisible de l'opérateur ; côté BNIA seulement. Faux par défaut"
+          },
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Ligne visée ; vide pour la DSM. Ignorée à la modification"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "texte" ]
+      },
       "SaisieConnexion" : {
         "type" : "object",
         "properties" : {
@@ -8386,6 +8951,17 @@
           }
         },
         "required" : [ "dateDebut", "taux" ]
+      },
+      "TransitionDsm" : {
+        "type" : "object",
+        "description" : "Envoi, prise en instruction ou validation d'une DSM (RG-DEC-20)",
+        "properties" : {
+          "version" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Version lue (verrou optimiste)"
+          }
+        }
       },
       "UtilisateurLigne" : {
         "type" : "object",

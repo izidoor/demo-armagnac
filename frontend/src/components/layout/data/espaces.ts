@@ -89,6 +89,11 @@ export const espaceBackOffice: Espace = {
       ],
     },
     {
+      // Spec 05, §6.1 : listing de toutes les DSM, file d'attente de l'instruction.
+      title: 'Déclarations',
+      items: [{ title: 'DSM', url: '/bo/declarations', icon: FileSpreadsheet }],
+    },
+    {
       // Spec 02, §6.1 et spec 03, §6.2 : module Accès.
       title: 'Accès Portail',
       items: [

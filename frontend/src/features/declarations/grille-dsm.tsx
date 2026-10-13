@@ -5,6 +5,7 @@ import {
   ArrowUpDown,
   Ban,
   Calculator,
+  MessageSquare,
   Plus,
   Trash2,
 } from 'lucide-react'
@@ -127,6 +128,8 @@ export function GrilleDsm({
   onVolume,
   onAjouter,
   onSupprimer,
+  commentaires,
+  onCommentaires,
 }: {
   onglet: Onglet
   colonnes: ColonneDsm[]
@@ -142,6 +145,10 @@ export function GrilleDsm({
   /** Ajout d'une ligne, depuis n'importe quel onglet : les lignes sont communes aux cinq. */
   onAjouter?: () => void
   onSupprimer: (ligne: number) => void
+  /** Nombre de commentaires d'une ligne enregistrée, par son identifiant (spec 05 §6.3). */
+  commentaires?: Map<number, number>
+  /** La pastille d'une ligne commentée mène à ses commentaires. */
+  onCommentaires?: (ligne: number) => void
 }) {
   const recap = onglet === 'RECAPITULATIF'
   const visibles = colonnes.filter((c) => c.onglet === onglet)
@@ -274,6 +281,17 @@ export function GrilleDsm({
                       <span className='text-muted-foreground ml-1 text-xs'>
                         ajoutée
                       </span>
+                    )}
+                    {l.id != null && (commentaires?.get(l.id) ?? 0) > 0 && (
+                      <button
+                        type='button'
+                        className='bg-primary/10 text-primary hover:bg-primary/20 ml-2 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 align-middle text-xs font-semibold'
+                        aria-label={`${commentaires?.get(l.id)} commentaire(s) sur la ligne ${identite(l)}`}
+                        onClick={() => onCommentaires?.(l.id!)}
+                      >
+                        <MessageSquare className='size-3' />
+                        {commentaires?.get(l.id)}
+                      </button>
                     )}
                   </TableCell>
                   <TableCell className='font-medium'>{l.cle}</TableCell>

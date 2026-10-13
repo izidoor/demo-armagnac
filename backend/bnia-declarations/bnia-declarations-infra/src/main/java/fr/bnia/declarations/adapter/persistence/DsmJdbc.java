@@ -7,6 +7,7 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.DsmLecture;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.application.DsmRepository;
+import fr.bnia.declarations.application.FiltreDsm;
 import fr.bnia.declarations.domain.Auteur;
 import fr.bnia.declarations.domain.CalendrierDeclaratif.DsmPassee;
 import fr.bnia.declarations.domain.CleConditionnement;
@@ -19,10 +20,13 @@ import fr.bnia.declarations.domain.OrigineLigne;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +47,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 class DsmJdbc implements DsmRepository, DsmLecture {
+
+    /** La date de dernière modification est celle de la dernière entrée du journal de la DSM (spec 05 §3.2). */
+    private static final String RESUME = "id, operateur_id, type, debut, fin, etat, envoyee_le, validee_le,"
+            + " (select max(j.date) from " + SCHEMA + ".journal j where j.dsm_id = dsm.id) as modifiee_le";
 
     private final JdbcAggregateTemplate template;
     private final JdbcClient jdbcClient;
@@ -109,15 +117,41 @@ class DsmJdbc implements DsmRepository, DsmLecture {
 
     @Override
     public List<DsmLigne> deLOperateur(long operateur) {
-        return jdbcClient.sql("select id, operateur_id, type, debut, fin, etat, envoyee_le, validee_le from " + SCHEMA
-                        + ".dsm where operateur_id = :operateur order by debut desc")
+        return jdbcClient.sql("select " + RESUME + " from " + SCHEMA + ".dsm where operateur_id = :operateur"
+                        + " order by debut desc")
                 .param("operateur", operateur)
-                .query((rs, n) -> new DsmLigne(rs.getLong("id"), rs.getLong("operateur_id"),
-                        TypeDeclarant.valueOf(rs.getString("type")),
-                        new PeriodeDeclaration(rs.getObject("debut", LocalDate.class), rs.getObject("fin", LocalDate.class)),
-                        EtatDsm.valueOf(rs.getString("etat")), instant(rs.getTimestamp("envoyee_le")),
-                        instant(rs.getTimestamp("validee_le"))))
+                .query(DsmJdbc::resume)
                 .list();
+    }
+
+    @Override
+    public List<DsmLigne> rechercher(FiltreDsm filtre) {
+        StringBuilder sql = new StringBuilder("select " + RESUME + " from " + SCHEMA + ".dsm where true");
+        Map<String, Object> parametres = new HashMap<>();
+        filtre.operateur().ifPresent(o -> {
+            sql.append(" and operateur_id = :operateur");
+            parametres.put("operateur", o);
+        });
+        filtre.type().ifPresent(t -> {
+            sql.append(" and type = :type");
+            parametres.put("type", t.name());
+        });
+        if (!filtre.etats().isEmpty()) {
+            sql.append(" and etat in (:etats)");
+            parametres.put("etats", filtre.etats().stream().map(Enum::name).toList());
+        }
+        filtre.mois().ifPresent(m -> {
+            sql.append(" and debut <= :jour and fin >= :jour");
+            parametres.put("jour", m.atDay(1));
+        });
+        return jdbcClient.sql(sql.toString()).params(parametres).query(DsmJdbc::resume).list();
+    }
+
+    private static DsmLigne resume(ResultSet rs, int n) throws SQLException {
+        return new DsmLigne(rs.getLong("id"), rs.getLong("operateur_id"), TypeDeclarant.valueOf(rs.getString("type")),
+                new PeriodeDeclaration(rs.getObject("debut", LocalDate.class), rs.getObject("fin", LocalDate.class)),
+                EtatDsm.valueOf(rs.getString("etat")), instant(rs.getTimestamp("envoyee_le")),
+                instant(rs.getTimestamp("validee_le")), instant(rs.getTimestamp("modifiee_le")));
     }
 
     @Override

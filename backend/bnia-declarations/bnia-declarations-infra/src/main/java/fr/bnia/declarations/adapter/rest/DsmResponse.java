@@ -1,6 +1,7 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.application.ActionDsm;
 import fr.bnia.declarations.application.VueDsm;
 import fr.bnia.declarations.domain.Anomalie;
 import fr.bnia.declarations.domain.CleConditionnement;
@@ -36,15 +37,16 @@ public record DsmResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) TypeDeclarant type,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) PeriodeResponse periode,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) EtatDsm etat,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Brouillon") String libelleEtat,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Envoyée",
+                description = "Du point de vue de l'utilisateur connecté : « Envoyée » pour l'opérateur, « À prendre en charge » pour le BNIA")
+        String libelleEtat,
         @Schema(description = "Date de la DIA, facultative (RG-DEC-19)") LocalDate dateDia,
         Instant envoyeeLe,
         Instant valideeLe,
         @Schema(description = "Copie du nom de qui l'a validée") String valideePar,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
-                description = "Lignes, volumes et date de DIA modifiables par l'opérateur (RG-DEC-21)") boolean modifiable,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Seul un brouillon se supprime (RG-DEC-22)")
-        boolean supprimable,
+                description = "Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)")
+        List<ActionDsm> actions,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<ColonneResponse> colonnes,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<LigneResponse> lignes,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Total de chaque colonne, 26 valeurs (RG-DEC-17)")
@@ -99,9 +101,9 @@ public record DsmResponse(
                         c.griseePour(dsm.type()), c.saisissablePour(dsm.type())))
                 .toList();
         return new DsmResponse(dsm.id(), dsm.operateur(), vue.operateur().code(), vue.operateur().raisonSociale(),
-                dsm.type(), PeriodeResponse.depuis(dsm.periode()), dsm.etat(), dsm.etat().libelle(), dsm.dateDia(),
+                dsm.type(), PeriodeResponse.depuis(dsm.periode()), dsm.etat(), dsm.etat().libelle(vue.cote()), dsm.dateDia(),
                 dsm.envoyeeLe(), dsm.valideeLe(), dsm.valideePar() == null ? null : dsm.valideePar().nom(),
-                dsm.etat().modifiable(), dsm.etat() == EtatDsm.BROUILLON, colonnes,
+                vue.actions().stream().sorted().toList(), colonnes,
                 dsm.lignes().stream().map(DsmResponse::ligne).toList(), volumes(dsm::total),
                 vue.anomalies().stream().map(DsmResponse::anomalie).toList(), dsm.version());
     }

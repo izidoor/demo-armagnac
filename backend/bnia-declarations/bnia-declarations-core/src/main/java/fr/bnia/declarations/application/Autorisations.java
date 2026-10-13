@@ -2,6 +2,7 @@ package fr.bnia.declarations.application;
 
 import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.ElementIntrouvable;
+import fr.bnia.declarations.domain.Cote;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.Droits;
@@ -65,7 +66,40 @@ final class Autorisations {
         return vue;
     }
 
-    private Droits droits(Acteur acteur, long operateur) {
+    /**
+     * RG-DEC-01, 24 : écrire un commentaire, comme l'opérateur (son propre rôle) ou, à défaut, comme le BNIA.
+     *
+     * @return le côté de l'auteur
+     */
+    Cote exigerCommentaire(Acteur acteur, long operateur) {
+        OperateurVue vue = exigerLecture(acteur, operateur);
+        Droits droits = droits(acteur, operateur);
+        if (droits.local().map(r -> r.gere(Module.DECLARATIONS)).orElse(false)) {
+            return Cote.OPERATEUR;
+        }
+        if (droits.bnia().map(r -> r.gere(Module.DECLARATIONS)).orElse(false)) {
+            return Cote.BNIA;
+        }
+        throw new AccesRefuse("RG-DEC-01", "Votre rôle ne permet pas de commenter les déclarations de "
+                + vue.raisonSociale() + ".");
+    }
+
+    /**
+     * Le côté d'où l'acteur lit l'opérateur : le sien s'il en est membre, sinon celui du BNIA (libellés des
+     * états).
+     */
+    static Cote cote(Droits droits) {
+        return droits.local().isPresent() ? Cote.OPERATEUR : Cote.BNIA;
+    }
+
+    /** RG-DEC-01 : lire les DSM de tous les opérateurs (listing du BNIA, UC-DEC-7). */
+    void exigerLectureBnia(Acteur acteur) {
+        if (!droits(acteur, operateurs.operateurBnia()).personnelBnia()) {
+            throw new AccesRefuse("RG-DEC-01", "Le listing de toutes les DSM est réservé au personnel du BNIA.");
+        }
+    }
+
+    Droits droits(Acteur acteur, long operateur) {
         return operateurs.droits(acteur.utilisateur(), operateur);
     }
 

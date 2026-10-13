@@ -5,12 +5,14 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
+  Building2,
   CircleCheck,
   CircleHelp,
   History,
+  Send,
   TriangleAlert,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -29,10 +31,15 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { TabsContent } from '@/components/ui/tabs'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { OngletsClasseur } from '@/components/metier/onglets-classeur'
 import { PageMetier } from '@/components/metier/page-metier'
-import { useDroits } from '@/features/session/session'
 import { AideDsm } from './aide-dsm'
 import { apiDeclarations, cleDeclarations, type Espace } from './api'
 import {
@@ -43,6 +50,7 @@ import {
   sommes,
 } from './brouillon'
 import { ListeDenominations } from './champs-identite'
+import { SectionCommentaires } from './commentaires'
 import { DialogueLigne } from './dialogue-ligne'
 import { formatDateHeure } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
@@ -56,9 +64,10 @@ import {
 
 /**
  * Écran d'une DSM, commun au back-office et au portail (spec 05 §6.3) : en-tête, cinq onglets du format
- * unique en classeur, panneau des anomalies ; l'historique, hors du formulaire, dans un panneau latéral.
- * L'opérateur qui gère le module saisit tant que la DSM est chez lui (RG-DEC-01, 21) ; l'opérateur ou le
- * BNIA supprime un brouillon (RG-DEC-22).
+ * unique en classeur, panneau des anomalies, commentaires sous le classeur ; l'historique, hors du
+ * formulaire, dans un panneau latéral. Les actions viennent du serveur, selon l'état et le côté de
+ * l'utilisateur (RG-DEC-01, 20 à 22, 24) : l'opérateur saisit et envoie tant que la DSM est chez lui ; le
+ * BNIA l'instruit ; l'un ou l'autre supprime un brouillon.
  */
 export function PageDsm({
   espace,
@@ -73,9 +82,8 @@ export function PageDsm({
     queryKey: [...cleDeclarations(operateur), 'dsm', id],
     queryFn: () => apiDeclarations(operateur).consulter(id),
   })
-  const droits = useDroits(operateur)
   const dsm = requete.data
-  if (!dsm || !droits) {
+  if (!dsm) {
     return (
       <PageMetier
         titre='DSM'
@@ -87,36 +95,25 @@ export function PageDsm({
       </PageMetier>
     )
   }
-  // RG-DEC-01, 21 : la saisie est à l'opérateur, par son propre rôle, jamais par celui du BNIA.
-  const saisissable =
-    dsm.modifiable && droits.role != null && droits.role !== 'OBSERVATEUR'
-  const supprimable = dsm.supprimable && droits.declarations === 'GESTION'
   return (
-    <EditeurDsm
-      key={`${dsm.id}-${dsm.version}`}
-      espace={espace}
-      dsm={dsm}
-      saisissable={saisissable}
-      supprimable={supprimable}
-    />
+    <EditeurDsm key={`${dsm.id}-${dsm.version}`} espace={espace} dsm={dsm} />
   )
 }
 
-function EditeurDsm({
-  espace,
-  dsm,
-  saisissable,
-  supprimable,
-}: {
-  espace: Espace
-  dsm: Dsm
-  saisissable: boolean
-  supprimable: boolean
-}) {
+/** Les transitions qui demandent une confirmation (RG-DEC-20). */
+type Transition = 'envoi' | 'instruction' | 'complements' | 'validation'
+
+function EditeurDsm({ espace, dsm }: { espace: Espace; dsm: Dsm }) {
+  const permis = (action: Dsm['actions'][number]) =>
+    dsm.actions.includes(action)
+  // RG-DEC-01, 21 : la saisie est à l'opérateur, tant que la DSM est chez lui.
+  const saisissable = permis('ENREGISTRER')
   const operateur = dsm.operateur
   const api = apiDeclarations(operateur)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const router = useRouter()
+  const peutRevenir = useCanGoBack()
   const [brouillon, setBrouillon] = useState<Brouillon>(() => brouillonDe(dsm))
   const [modifie, setModifie] = useState(false)
   const [differe, setDiffere] = useState(brouillon)
@@ -127,6 +124,9 @@ function EditeurDsm({
   const [suppression, setSuppression] = useState(false)
   const [historiqueOuvert, setHistoriqueOuvert] = useState(false)
   const [aideOuverte, setAideOuverte] = useState(false)
+  const [transition, setTransition] = useState<Transition | null>(null)
+  const [motif, setMotif] = useState('')
+  const [ligneCommentee, setLigneCommentee] = useState<number | null>(null)
 
   // Vue provisoire (décision du 2026-10-13) : 300 ms après la dernière frappe, le serveur recalcule.
   useEffect(() => {
@@ -147,6 +147,17 @@ function EditeurDsm({
     queryFn: api.denominations,
     enabled: saisissable,
   })
+  const commentaires = useQuery({
+    queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'commentaires'],
+    queryFn: () => api.commentaires(dsm.id),
+  })
+  const parLigne = useMemo(() => {
+    const compte = new Map<number, number>()
+    for (const c of commentaires.data ?? []) {
+      if (c.ligne != null) compte.set(c.ligne, (compte.get(c.ligne) ?? 0) + 1)
+    }
+    return compte
+  }, [commentaires.data])
   const historique = useQuery({
     queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'journal'],
     queryFn: () => api.journalDsm(dsm.id),
@@ -184,14 +195,19 @@ function EditeurDsm({
       rafraichir()
     },
   })
-  const retour = () =>
-    espace === 'bo'
-      ? navigate({
-          to: '/bo/operateurs/$id',
-          params: { id: String(operateur) },
-          search: { onglet: 'declarations' },
-        })
-      : navigate({ to: '/portail/declarations' })
+  const ficheOperateur = () =>
+    navigate({
+      to: '/bo/operateurs/$id',
+      params: { id: String(operateur) },
+      search: { onglet: 'declarations' },
+    })
+  // L'écran d'où l'on vient (listing du BNIA, fiche opérateur, Mes DSM) ; à défaut (lien direct), la liste
+  // des DSM de l'opérateur.
+  const retour = () => {
+    if (peutRevenir) router.history.back()
+    else if (espace === 'bo') ficheOperateur()
+    else navigate({ to: '/portail/declarations' })
+  }
   const effacement = useMutation({
     mutationFn: () => api.supprimer(dsm.id),
     onSuccess: () => {
@@ -205,6 +221,71 @@ function EditeurDsm({
   const erreurEnregistrement = enregistrement.error
     ? lireProbleme(enregistrement.error)
     : null
+
+  // RG-DEC-20 : « Envoyer » enregistre d'abord la saisie en cours (décision du 2026-10-13).
+  const changementEtat = useMutation({
+    mutationFn: async (t: Transition) => {
+      switch (t) {
+        case 'envoi': {
+          const version = modifie
+            ? (await api.enregistrer(dsm.id, saisieDe(brouillon, dsm.version)))
+                .version
+            : dsm.version
+          return api.envoyer(dsm.id, version)
+        }
+        case 'instruction':
+          return api.prendreEnInstruction(dsm.id, dsm.version)
+        case 'complements':
+          return api.demanderComplements(dsm.id, motif, dsm.version)
+        case 'validation':
+          return api.valider(dsm.id, dsm.version)
+      }
+    },
+    meta: { erreurAffichee: true },
+    onSuccess: (_, t) => {
+      setTransition(null)
+      setMotif('')
+      toast.success(
+        {
+          envoi: `DSM de ${dsm.periode.libelle} envoyée au BNIA.`,
+          instruction: `DSM de ${dsm.periode.libelle} prise en instruction.`,
+          complements: `Compléments demandés à ${dsm.raisonSociale}.`,
+          validation: `DSM de ${dsm.periode.libelle} validée.`,
+        }[t]
+      )
+      rafraichir()
+    },
+    onError: () => {
+      setTransition(null)
+      rafraichir()
+    },
+  })
+  const renvoi = dsm.etat === 'COMPLEMENTS_DEMANDES'
+  const motifEnvoiImpossible =
+    anomalies.length > 0
+      ? "Corrigez les anomalies avant l'envoi."
+      : erreurApercu || !brouillonLisible(brouillon)
+        ? "Corrigez la saisie avant l'envoi."
+        : null
+
+  const montrerLigne = (id: number) => {
+    const rang = brouillon.lignes.findIndex((l) => l.id === id)
+    if (rang < 0) return
+    setLigneEnEvidence(rang)
+    setTimeout(
+      () =>
+        document
+          .getElementById(`ligne-${onglet}-${rang}`)
+          ?.scrollIntoView({ block: 'center' }),
+      50
+    )
+  }
+  const montrerCommentaires = (ligne: number) => {
+    setLigneCommentee(ligne)
+    document
+      .getElementById('commentaires')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const montrer = (a: AnomalieDsm) => {
     setOnglet(a.onglet)
@@ -240,9 +321,22 @@ function EditeurDsm({
         <span className='flex flex-wrap items-center gap-2'>
           <Button variant='link' className='h-auto p-0' onClick={retour}>
             <ArrowLeft className='size-4' />
-            {espace === 'bo' ? dsm.raisonSociale : 'Mes DSM'}
+            Retour
           </Button>
-          <span className='font-mono'>{dsm.codeOperateur}</span>
+          {espace === 'bo' && (
+            <Button
+              variant='link'
+              className='h-auto p-0'
+              onClick={ficheOperateur}
+            >
+              <Building2 className='size-4' />
+              Voir la fiche opérateur
+            </Button>
+          )}
+          <span>
+            <span className='font-mono'>{dsm.codeOperateur}</span> ·{' '}
+            {dsm.raisonSociale}
+          </span>
           <Badge variant='secondary'>{TYPES_DECLARANT[dsm.type]}</Badge>
           <Badge variant={VARIANTE_ETAT[dsm.etat]}>{dsm.libelleEtat}</Badge>
           {dsm.envoyeeLe && (
@@ -278,7 +372,41 @@ function EditeurDsm({
               Enregistrer
             </Button>
           )}
-          {supprimable && (
+          {permis('ENVOYER') && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={motifEnvoiImpossible ? 0 : undefined}>
+                  <Button
+                    onClick={() => setTransition('envoi')}
+                    disabled={motifEnvoiImpossible != null}
+                  >
+                    <Send className='size-4' />{' '}
+                    {renvoi ? 'Renvoyer' : 'Envoyer'}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {motifEnvoiImpossible && (
+                <TooltipContent>{motifEnvoiImpossible}</TooltipContent>
+              )}
+            </Tooltip>
+          )}
+          {permis('PRENDRE_EN_INSTRUCTION') && (
+            <Button onClick={() => setTransition('instruction')}>
+              Prendre en instruction
+            </Button>
+          )}
+          {permis('DEMANDER_COMPLEMENTS') && (
+            <Button
+              variant='outline'
+              onClick={() => setTransition('complements')}
+            >
+              Demander des compléments
+            </Button>
+          )}
+          {permis('VALIDER') && (
+            <Button onClick={() => setTransition('validation')}>Valider</Button>
+          )}
+          {permis('SUPPRIMER') && (
             <Button variant='destructive' onClick={() => setSuppression(true)}>
               Supprimer
             </Button>
@@ -350,10 +478,25 @@ function EditeurDsm({
                   lignes: brouillon.lignes.filter((_, i) => i !== ligne),
                 })
               }
+              commentaires={parLigne}
+              onCommentaires={montrerCommentaires}
             />
           </TabsContent>
         ))}
       </OngletsClasseur>
+      <SectionCommentaires
+        dsm={dsm}
+        commentaires={commentaires.data ?? []}
+        peutCommenter={permis('COMMENTER')}
+        peutInterne={permis('COMMENTER_INTERNE')}
+        ligneCiblee={ligneCommentee}
+        onMontrerLigne={montrerLigne}
+        onChange={() =>
+          queryClient.invalidateQueries({
+            queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id],
+          })
+        }
+      />
       <AideDsm open={aideOuverte} onOpenChange={setAideOuverte} />
       <Sheet open={historiqueOuvert} onOpenChange={setHistoriqueOuvert}>
         <SheetContent className='w-full overflow-y-auto sm:max-w-2xl'>
@@ -396,12 +539,63 @@ function EditeurDsm({
         open={suppression}
         onOpenChange={setSuppression}
         title='Supprimer la DSM'
-        desc={`Le brouillon de ${dsm.periode.libelle} sera supprimé avec ses lignes et son historique ; la suppression reste tracée au journal de l'opérateur. La période pourra être réinitiée.`}
+        desc={`Le brouillon de ${dsm.periode.libelle} sera supprimé avec ses lignes, ses commentaires et son historique ; la suppression reste tracée au journal de l'opérateur. La période pourra être réinitiée.`}
         confirmText='Supprimer'
         cancelBtnText='Annuler'
         destructive
         isLoading={effacement.isPending}
         handleConfirm={() => effacement.mutate()}
+      />
+      <ConfirmDialog
+        open={transition === 'envoi'}
+        onOpenChange={(open) => !open && setTransition(null)}
+        title={renvoi ? 'Renvoyer la DSM' : 'Envoyer la DSM'}
+        desc={`${modifie ? 'Vos modifications seront enregistrées, puis la' : 'La'} DSM de ${dsm.periode.libelle} sera ${renvoi ? 'renvoyée' : 'envoyée'} au BNIA. Vous ne pourrez plus la modifier, sauf s'il vous demande des compléments.`}
+        confirmText={renvoi ? 'Renvoyer' : 'Envoyer'}
+        cancelBtnText='Annuler'
+        isLoading={changementEtat.isPending}
+        handleConfirm={() => changementEtat.mutate('envoi')}
+      />
+      <ConfirmDialog
+        open={transition === 'instruction'}
+        onOpenChange={(open) => !open && setTransition(null)}
+        title='Prendre en instruction'
+        desc={`La DSM de ${dsm.periode.libelle} de ${dsm.raisonSociale} passe en instruction : vous pourrez ensuite demander des compléments ou la valider.`}
+        confirmText='Prendre en instruction'
+        cancelBtnText='Annuler'
+        isLoading={changementEtat.isPending}
+        handleConfirm={() => changementEtat.mutate('instruction')}
+      />
+      <ConfirmDialog
+        open={transition === 'complements'}
+        onOpenChange={(open) => !open && setTransition(null)}
+        title='Demander des compléments'
+        desc={`La DSM de ${dsm.periode.libelle} revient à ${dsm.raisonSociale}, qui la corrige puis la renvoie. Le motif est écrit en commentaire de la DSM, visible de l'opérateur.`}
+        confirmText='Demander'
+        cancelBtnText='Annuler'
+        disabled={motif.trim() === ''}
+        isLoading={changementEtat.isPending}
+        handleConfirm={() => changementEtat.mutate('complements')}
+      >
+        <div className='space-y-1'>
+          <Label htmlFor='motif-complements'>Motif</Label>
+          <Textarea
+            id='motif-complements'
+            rows={3}
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+          />
+        </div>
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={transition === 'validation'}
+        onOpenChange={(open) => !open && setTransition(null)}
+        title='Valider la DSM'
+        desc={`La DSM de ${dsm.periode.libelle} de ${dsm.raisonSociale} sera validée : elle ne se modifiera plus, et son stock de fin deviendra le stock de début de la période suivante.`}
+        confirmText='Valider'
+        cancelBtnText='Annuler'
+        isLoading={changementEtat.isPending}
+        handleConfirm={() => changementEtat.mutate('validation')}
       />
     </PageMetier>
   )

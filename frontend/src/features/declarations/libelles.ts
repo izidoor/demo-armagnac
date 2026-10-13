@@ -81,6 +81,7 @@ export const VARIANTE_ETAT: Record<
   ENVOYEE: 'secondary',
   EN_INSTRUCTION: 'secondary',
   COMPLEMENTS_DEMANDES: 'destructive',
+  COMPLEMENTS_RECUS: 'secondary',
   VALIDEE: 'default',
 }
 

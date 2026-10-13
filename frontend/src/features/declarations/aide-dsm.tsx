@@ -181,6 +181,60 @@ export function AideDsm({
             </p>
           </Section>
 
+          <Section titre='Envoyer, instruction, validation'>
+            <p>
+              Quand la DSM est complète et sans anomalie, « Envoyer »
+              l'enregistre puis la transmet au BNIA. Elle ne se modifie plus,
+              sauf si le BNIA vous demande des compléments.
+            </p>
+            <ul className='list-disc space-y-1 ps-5'>
+              <li>
+                <strong>Brouillon</strong> : vous la remplissez ; vous pouvez
+                encore la supprimer.
+              </li>
+              <li>
+                <strong>Envoyée</strong> : elle attend le BNIA.
+              </li>
+              <li>
+                <strong>En instruction</strong> : le BNIA la vérifie.
+              </li>
+              <li>
+                <strong>Compléments demandés</strong> : le BNIA vous la renvoie
+                avec un motif, en commentaire. Vous la corrigez, puis « Renvoyer
+                ».
+              </li>
+              <li>
+                <strong>Compléments envoyés</strong> : vos corrections attendent
+                le BNIA, qui valide ou redemande des compléments.
+              </li>
+              <li>
+                <strong>Validée</strong> : elle est figée ; son stock de fin
+                devient le stock de début de la période suivante.
+              </li>
+            </ul>
+            <p>
+              La DSM suivante reprend les lignes dont le stock de fin est
+              positif. Au 1er avril, les eaux-de-vie sous bois vieillissent :
+              compte d'âge recalculé pour une ligne <Code>MB</Code>, augmenté
+              d'un an pour une ligne <Code>NB</Code>, jusqu'à <Code>20+</Code> ;
+              deux lignes devenues identiques sont réunies.
+            </p>
+          </Section>
+
+          <Section titre='Commentaires'>
+            <p>
+              Sous le classeur, le fil des échanges avec le BNIA, dans tous les
+              états de la DSM, même validée. Un commentaire porte sur la DSM ou
+              sur une ligne ; une ligne commentée porte une pastille dans la
+              grille, qui mène à ses commentaires.
+            </p>
+            <p>
+              Vous modifiez ou supprimez vos propres commentaires ; le motif
+              d'une demande de compléments ne se supprime pas. Les commentaires
+              internes du BNIA ne vous sont pas montrés.
+            </p>
+          </Section>
+
           <Section titre='Glossaire'>
             <dl className='space-y-3'>
               <Terme nom='Assemblage'>

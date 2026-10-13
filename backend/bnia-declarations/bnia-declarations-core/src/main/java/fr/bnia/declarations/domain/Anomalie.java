@@ -4,7 +4,7 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 
 /**
  * Une anomalie de calcul (RG-DEC-18), montrée dès la saisie avec son niveau et son écart. Elle n'empêche
- * pas d'enregistrer le brouillon ; elle bloque l'envoi (lot 2).
+ * pas d'enregistrer le brouillon ; elle bloque l'envoi (RG-DEC-20).
  *
  * @param onglet  onglet où la montrer
  * @param colonne colonne concernée, {@code null} si aucune

@@ -89,9 +89,22 @@ final class DsmEnMemoire implements DsmRepository, DsmLecture {
     public List<DsmLigne> deLOperateur(long operateur) {
         return dsms.values().stream().filter(d -> d.operateur() == operateur)
                 .map(d -> new DsmLigne(d.id(), d.operateur(), d.type(), d.periode(), d.etat(), d.envoyeeLe(),
-                        d.valideeLe()))
+                        d.valideeLe(), null))
                 .toList()
                 .reversed();
+    }
+
+    @Override
+    public List<DsmLigne> rechercher(FiltreDsm filtre) {
+        return dsms.values().stream()
+                .filter(d -> filtre.operateur().map(o -> o == d.operateur()).orElse(true))
+                .filter(d -> filtre.type().map(t -> t == d.type()).orElse(true))
+                .filter(d -> filtre.etats().isEmpty() || filtre.etats().contains(d.etat()))
+                .filter(d -> filtre.mois().map(m -> !m.atDay(1).isBefore(d.periode().debut())
+                        && !m.atDay(1).isAfter(d.periode().fin())).orElse(true))
+                .map(d -> new DsmLigne(d.id(), d.operateur(), d.type(), d.periode(), d.etat(), d.envoyeeLe(),
+                        d.valideeLe(), null))
+                .toList();
     }
 
     @Override

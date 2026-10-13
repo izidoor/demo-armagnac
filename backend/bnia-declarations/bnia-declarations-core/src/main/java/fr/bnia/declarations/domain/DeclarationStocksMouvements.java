@@ -31,9 +31,9 @@ public final class DeclarationStocksMouvements {
     private EtatDsm etat;
     private LocalDate dateDia;
     private List<LigneDsm> lignes;
-    private final Instant envoyeeLe;
-    private final Instant valideeLe;
-    private final Auteur valideePar;
+    private Instant envoyeeLe;
+    private Instant valideeLe;
+    private Auteur valideePar;
     private final long version;
 
     private DeclarationStocksMouvements(Long id, long operateur, TypeDeclarant type, PeriodeDeclaration periode,
@@ -53,9 +53,10 @@ public final class DeclarationStocksMouvements {
     }
 
     /**
-     * RG-DEC-02, 13 : un producteur ou un négociant au statut {@code OUI} initie sa DSM, en brouillon ; le
-     * type de déclarant est lu maintenant et ne change plus. Ses lignes reprennent le stock initial
-     * (colonne 1, origine {@code REPRISE}).
+     * RG-DEC-02, 13, 14 : un producteur ou un négociant au statut {@code OUI} initie sa DSM, en brouillon ;
+     * le type de déclarant est lu maintenant et ne change plus. Ses lignes reprennent le stock de départ
+     * (colonne 1, origine {@code REPRISE}) : le stock initial du point de départ, ou le stock de fin de la DSM
+     * précédente, vieilli ({@link Vieillissement}).
      */
     public static DeclarationStocksMouvements initier(long operateur, TypeOperateur typeOperateur,
             StatutDeclarationStock statut, PeriodeDeclaration periode, List<LigneStockInitial> stockInitial) {
@@ -109,6 +110,63 @@ public final class DeclarationStocksMouvements {
         if (etat != EtatDsm.BROUILLON) {
             throw new RegleEnfreinte("RG-DEC-22", "La DSM de " + periode.libelle() + " est « "
                     + etat.libelle().toLowerCase() + " » : seul un brouillon se supprime.");
+        }
+    }
+
+    /**
+     * RG-DEC-20 : l'opérateur envoie sa DSM en brouillon ({@code ENVOYEE}), ou ses compléments
+     * ({@code COMPLEMENTS_RECUS}), si elle n'a aucune anomalie de calcul (RG-DEC-18).
+     *
+     * @return {@code true} pour un renvoi après compléments
+     */
+    public boolean envoyer(Instant le, Long versionLue) {
+        exigerEtat(EtatDsm.BROUILLON, EtatDsm.COMPLEMENTS_DEMANDES, "envoyée");
+        Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        int nombre = anomalies().size();
+        if (nombre > 0) {
+            throw new RegleEnfreinte("RG-DEC-20", "La DSM de " + periode.libelle() + " a " + nombre
+                    + (nombre == 1 ? " anomalie" : " anomalies") + " : corrigez-la avant de l'envoyer.");
+        }
+        boolean renvoi = etat == EtatDsm.COMPLEMENTS_DEMANDES;
+        this.etat = renvoi ? EtatDsm.COMPLEMENTS_RECUS : EtatDsm.ENVOYEE;
+        this.envoyeeLe = Objects.requireNonNull(le, "le");
+        return renvoi;
+    }
+
+    /** RG-DEC-20 : le BNIA prend en instruction une DSM envoyée. */
+    public void prendreEnInstruction(Long versionLue) {
+        exigerEtat(EtatDsm.ENVOYEE, null, "prise en instruction");
+        Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        this.etat = EtatDsm.EN_INSTRUCTION;
+    }
+
+    /**
+     * RG-DEC-20 : le BNIA demande des compléments sur une DSM en instruction, ou de nouveau après des
+     * compléments reçus ; le motif est un commentaire.
+     */
+    public void demanderComplements(Long versionLue) {
+        exigerEtat(EtatDsm.EN_INSTRUCTION, EtatDsm.COMPLEMENTS_RECUS, "renvoyée pour compléments");
+        Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        this.etat = EtatDsm.COMPLEMENTS_DEMANDES;
+    }
+
+    /**
+     * RG-DEC-20 : le BNIA valide une DSM en instruction, ou dès ses compléments reçus, sans la reprendre en
+     * instruction ; elle est alors figée. Pièces manquantes : lot 3.
+     */
+    public void valider(Auteur par, Instant le, Long versionLue) {
+        exigerEtat(EtatDsm.EN_INSTRUCTION, EtatDsm.COMPLEMENTS_RECUS, "validée");
+        Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        this.etat = EtatDsm.VALIDEE;
+        this.valideeLe = Objects.requireNonNull(le, "le");
+        this.valideePar = Objects.requireNonNull(par, "par");
+    }
+
+    /** RG-DEC-20 : la transition part de l'un de ces états ; aucune ne sort de {@code VALIDEE}. */
+    private void exigerEtat(EtatDsm attendu, EtatDsm autre, String participe) {
+        if (etat != attendu && etat != autre) {
+            throw new RegleEnfreinte("RG-DEC-20", "La DSM de " + periode.libelle() + " est « "
+                    + etat.libelle().toLowerCase() + " » : elle ne peut pas être " + participe + ".");
         }
     }
 
