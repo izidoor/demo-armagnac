@@ -22,7 +22,9 @@ export function Accueil({ espace, children }: AccueilProps) {
 
       <Main>
         <div className='mb-4'>
-          <h1 className='text-2xl font-bold tracking-tight'>{espace.nom}</h1>
+          <h1 className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'>
+            {espace.nom}
+          </h1>
           <p className='text-muted-foreground'>Accueil</p>
         </div>
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>

@@ -12,7 +12,9 @@ public enum Module {
     /** Invitations, rôles, suspensions, retraits ; utilisateurs et journal des connexions pour le BNIA. */
     ACCES("Accès"),
     /** Référentiels (spec 01) : opérateur BNIA seulement. */
-    PARAMETRAGE("Paramétrage");
+    PARAMETRAGE("Paramétrage"),
+    /** DSM, pièces, commentaires, point de départ, stocks déclarés (spec 05 §3.7). */
+    DECLARATIONS("Déclarations");
 
     private final String libelle;
 

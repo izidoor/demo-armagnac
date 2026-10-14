@@ -1,11 +1,13 @@
 import {
   Building2,
   Contact,
+  FileSpreadsheet,
   Globe,
   History,
   Landmark,
   LayoutDashboard,
   Percent,
+  Receipt,
   Tags,
   UserCog,
   Users,
@@ -62,6 +64,12 @@ export const parametrage: NavGroup = {
       icon: Percent,
       items: [{ title: 'Classes de TVA', url: TVA }],
     },
+    {
+      // Spec 05 §6.1 : la grille de la cotisation des DSM (RG-DEC-30).
+      title: 'Cotisation',
+      icon: Receipt,
+      items: [{ title: 'Taux CVO', url: '/bo/parametrage/taux-cvo' }],
+    },
   ],
 }
 
@@ -86,6 +94,11 @@ export const espaceBackOffice: Espace = {
         { title: 'BNIA', url: '/bo/bnia', icon: Landmark },
         { title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 },
       ],
+    },
+    {
+      // Spec 05, §6.1 : listing de toutes les DSM, file d'attente de l'instruction.
+      title: 'Déclarations',
+      items: [{ title: 'DSM', url: '/bo/declarations', icon: FileSpreadsheet }],
     },
     {
       // Spec 02, §6.1 et spec 03, §6.2 : module Accès.
@@ -122,6 +135,17 @@ export const espacePortail: Espace = {
           icon: Building2,
         },
         { title: 'Annuaire', url: '/portail/annuaire', icon: Contact },
+      ],
+    },
+    {
+      // Spec 05, §6.2.
+      title: 'Déclarations',
+      items: [
+        {
+          title: 'Mes DSM',
+          url: '/portail/declarations',
+          icon: FileSpreadsheet,
+        },
       ],
     },
   ],

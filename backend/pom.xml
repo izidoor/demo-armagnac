@@ -25,6 +25,7 @@
         <module>bnia-referentiels</module>
         <module>bnia-operateurs</module>
         <module>bnia-authentification</module>
+        <module>bnia-declarations</module>
         <module>bnia-boot</module>
     </modules>
 
@@ -34,6 +35,8 @@
         <springdoc.version>3.1.1</springdoc.version>
         <archunit.version>1.5.1</archunit.version>
         <fastexcel.version>0.19.0</fastexcel.version>
+        <!-- ADR-020 : PDF depuis des gabarits HTML (fork maintenu io.github.openhtmltopdf). -->
+        <openhtmltopdf.version>1.1.28</openhtmltopdf.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
     </properties>
 
@@ -90,6 +93,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-declarations-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-declarations-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
@@ -103,6 +116,11 @@
                 <groupId>org.dhatim</groupId>
                 <artifactId>fastexcel-reader</artifactId>
                 <version>${fastexcel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.openhtmltopdf</groupId>
+                <artifactId>openhtmltopdf-pdfbox</artifactId>
+                <version>${openhtmltopdf.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>

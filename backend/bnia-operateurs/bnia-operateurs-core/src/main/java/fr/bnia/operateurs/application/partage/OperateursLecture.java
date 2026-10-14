@@ -5,6 +5,7 @@ import fr.bnia.operateurs.domain.partage.EtatConnexion;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
 import fr.bnia.operateurs.domain.partage.PersonneVue;
 import fr.bnia.operateurs.domain.partage.ResultatRecherche;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +40,12 @@ public interface OperateursLecture {
      * commercial contient le texte ; vingt au plus. Moins de trois caractères : aucun résultat.
      */
     List<ResultatRecherche> rechercher(String texte);
+
+    /**
+     * L'identité (code, raison sociale, nom commercial, ville) de ces opérateurs, en une seule lecture, pour
+     * les listings d'autres contextes ; un identifiant inconnu est ignoré.
+     */
+    List<ResultatRecherche> identites(Collection<Long> ids);
 
     /** RG-OPE-39 : l'identifiant de l'opérateur BNIA. */
     long operateurBnia();

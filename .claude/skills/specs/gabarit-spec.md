@@ -38,9 +38,9 @@ Usages relevés ailleurs : <sections et pages trouvées par la recherche transve
 
 ## 4. Règles de gestion
 
-| Id | Règle | Source |
-|---|---|---|
-| RG-<CTX>-01 | | |
+| Id | Règle | Source | Lot |
+|---|---|---|---|
+| RG-<CTX>-01 | | | |
 
 ## 5. Cas d'usage
 
@@ -90,12 +90,22 @@ Usages relevés ailleurs : <sections et pages trouvées par la recherche transve
 | Id | Question | Bloque |
 |---|---|---|
 | Q-<CTX>-1 | | |
+| Q-<CTX>-2 | **Au BNIA** : confirmer que … (H-<CTX>-1). | Ce qu'une autre réponse changerait |
 
 ## 11. Tests attendus
 
 Chaque RG-<CTX>-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 - **Tests de domaine**, sans base : <RG>.
 - **Tests de cas d'usage**, avec repository simulé, puis IT : <RG>.
+
+## 12. Lots d'implémentation
+
+<Incréments au sens agile : chacun une tranche verticale (domaine → REST → écrans → démo), livrable,
+démontrable et testable seule, appuyée sur les lots précédents seulement.>
+
+| Lot | Incrément | Contenu (cas d'usage, écrans, RG) | Démontrable à la fin du lot |
+|---|---|---|---|
+| 1 | | | |
 
 ## Journal
 

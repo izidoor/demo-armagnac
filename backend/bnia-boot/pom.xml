@@ -32,6 +32,10 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-authentification-infra</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-declarations-infra</artifactId>
+        </dependency>
         <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -66,12 +70,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- Relecture de l'export Excel des opérateurs (RG-OPE-38). -->
-        <dependency>
-            <groupId>org.dhatim</groupId>
-            <artifactId>fastexcel-reader</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

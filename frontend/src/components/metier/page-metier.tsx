@@ -29,7 +29,9 @@ export function PageMetier({
           {imbriquee ? (
             <h4 className='text-base font-semibold'>{titre}</h4>
           ) : (
-            <h1 className='text-2xl font-bold tracking-tight'>{titre}</h1>
+            <h1 className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'>
+              {titre}
+            </h1>
           )}
           <p
             className={

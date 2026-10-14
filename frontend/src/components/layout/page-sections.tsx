@@ -67,7 +67,7 @@ export function PageSections({
       </Header>
       <Main fixed>
         <div className='space-y-0.5'>
-          <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
+          <h1 className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'>
             {titre}
           </h1>
           <p className='text-muted-foreground'>{description}</p>

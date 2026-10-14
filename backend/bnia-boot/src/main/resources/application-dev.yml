@@ -1,5 +1,9 @@
 # Profil de développement : PostgreSQL et Mailpit de backend/compose.yaml, démarrés au besoin (ADR-003).
+# Dans un worktree, backend/.env (worktree-env.sh, ignoré par git) donne ses propres ports : lu ici
+# (répertoire de travail bnia-boot) et par Docker Compose. Absent : valeurs par défaut.
 spring:
+  config:
+    import: optional:file:../.env[.properties]
   docker:
     compose:
       enabled: true
@@ -16,6 +20,9 @@ spring:
   mail:
     host: localhost
     port: ${BNIA_SMTP_PORT:1025}
+
+server:
+  port: ${SERVER_PORT:8080}
 
 bnia:
   authentification:

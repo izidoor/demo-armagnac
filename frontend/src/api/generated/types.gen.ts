@@ -18,6 +18,28 @@ export type Alambic = {
     type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
 };
 
+/**
+ * Anomalie de calcul, bloquante à l'envoi (RG-DEC-18)
+ */
+export type AnomalieDsm = {
+    /**
+     * Numéro de la colonne concernée
+     */
+    colonne?: number;
+    /**
+     * Litres en cause
+     */
+    ecart?: number;
+    /**
+     * Rang de la ligne concernée, 0 pour la première
+     */
+    ligne?: number;
+    message: string;
+    niveau: 'DSM' | 'ONGLET' | 'LIGNE';
+    onglet: 'RECAPITULATIF' | 'MOUVEMENTS_ENTREE' | 'MOUVEMENTS_SORTIE' | 'VENTES_FRANCE' | 'VENTES_EXPORT';
+    type: 'STOCK_FIN_NEGATIF' | 'ASSEMBLAGES_DESEQUILIBRES' | 'PASSAGES_SOUS_BOIS_DESEQUILIBRES' | 'COMPTE_MV_TROP_VIEUX';
+};
+
 export type Blocage = {
     /**
      * Conservé au journal, jamais envoyé (RG-OPE-50)
@@ -86,6 +108,74 @@ export type CodePropose = {
     code?: string;
 };
 
+/**
+ * Une des 26 colonnes du format unique (spec 05 §3.1)
+ */
+export type ColonneDsm = {
+    /**
+     * Grisée pour ce déclarant : visible, vide, non saisissable (RG-DEC-16)
+     */
+    grisee: boolean;
+    libelle: string;
+    libelleOnglet: string;
+    numero: number;
+    onglet: 'RECAPITULATIF' | 'MOUVEMENTS_ENTREE' | 'MOUVEMENTS_SORTIE' | 'VENTES_FRANCE' | 'VENTES_EXPORT';
+    /**
+     * Colonnes 2 à 25 non grisées
+     */
+    saisissable: boolean;
+    sens: 'STOCK_DEBUT' | 'ENTREE' | 'SORTIE' | 'STOCK_FIN';
+};
+
+/**
+ * Commentaire d'instruction d'une DSM (spec 05 §3.2.4)
+ */
+export type CommentaireDsm = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    cote: 'BNIA' | 'OPERATEUR';
+    /**
+     * Écrit par l'utilisateur connecté : il le modifie ou le supprime
+     */
+    deLUtilisateur: boolean;
+    ecritLe: string;
+    id: number;
+    interne: boolean;
+    /**
+     * Ligne visée ; vide pour la DSM
+     */
+    ligne?: number;
+    /**
+     * Libellé de la ligne visée, supprimée depuis ; le commentaire porte alors sur la DSM
+     */
+    ligneSupprimee?: string;
+    /**
+     * Renseigné si modifié (« modifié » affiché)
+     */
+    modifieLe?: string;
+    /**
+     * Motif d'une demande de compléments : ne se supprime pas
+     */
+    motif: boolean;
+    texte: string;
+};
+
+/**
+ * Demande de compléments sur une DSM en instruction (RG-DEC-20)
+ */
+export type ComplementsDsm = {
+    /**
+     * Motif, écrit en commentaire de la DSM
+     */
+    motif: string;
+    /**
+     * Version lue (verrou optimiste)
+     */
+    version?: number;
+};
+
 export type ConfirmationEmail = {
     jeton: string;
 };
@@ -145,6 +235,65 @@ export type Contenance = {
 };
 
 /**
+ * Cotisation CVO d'une DSM (spec 05 §6.3, RG-DEC-31 à 34)
+ */
+export type CotisationDsm = {
+    /**
+     * Facturée : factures et avoirs, par date
+     */
+    factures: Array<FactureDsm>;
+    /**
+     * Fin de la période, date du taux appliqué (RG-DEC-32)
+     */
+    finPeriode: string;
+    /**
+     * Calculée : une ligne par ligne de cotisation non nulle
+     */
+    lignes: Array<LigneCotisation>;
+    statut: 'CALCULEE' | 'NON_CALCULABLE' | 'FACTUREE';
+    /**
+     * Calculée : le taux en vigueur à la fin de la période
+     */
+    taux?: TauxCvo;
+    /**
+     * Calculée : somme des parts assujetties
+     */
+    totalAssujettie?: number;
+    /**
+     * Calculée : somme des parts ; facturée : factures moins avoirs ; absent si non calculable
+     */
+    totalHt?: number;
+    /**
+     * Calculée : somme des parts non assujetties
+     */
+    totalNonAssujettie?: number;
+    /**
+     * Calculée : HT + TVA indicative
+     */
+    ttc?: number;
+    /**
+     * Calculée : TVA indicative, absente si la classe de TVA de la CVO n'a pas de taux
+     */
+    tva?: TvaIndicative;
+};
+
+/**
+ * Fichier déposé (ADR-018)
+ */
+export type DocumentDsm = {
+    deposeLe: string;
+    /**
+     * Copie du nom de qui l'a déposé
+     */
+    deposePar: string;
+    nom: string;
+    /**
+     * Octets
+     */
+    taille: number;
+};
+
+/**
  * Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)
  */
 export type Doublon = {
@@ -163,6 +312,10 @@ export type Droits = {
      */
     adminBnia: boolean;
     contacts: 'AUCUN' | 'LECTURE' | 'GESTION';
+    /**
+     * DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)
+     */
+    declarations: 'AUCUN' | 'LECTURE' | 'GESTION';
     operateur: number;
     parametrage: 'AUCUN' | 'LECTURE' | 'GESTION';
     /**
@@ -177,6 +330,162 @@ export type Droits = {
      * Rôle tenu dans l'opérateur BNIA, valable pour tous les opérateurs
      */
     roleBnia?: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
+};
+
+/**
+ * Déclaration de stocks et mouvements, avec ses totaux et ses anomalies (spec 05 §3.2, §6.3)
+ */
+export type Dsm = {
+    /**
+     * Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)
+     */
+    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE' | 'DEPOSER_PIECES'>;
+    anomalies: Array<AnomalieDsm>;
+    codeOperateur: string;
+    colonnes: Array<ColonneDsm>;
+    cotisation: CotisationDsm;
+    /**
+     * Date de la DIA, facultative (RG-DEC-19)
+     */
+    dateDia?: string;
+    envoyeeLe?: string;
+    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    id: number;
+    /**
+     * Du point de vue de l'utilisateur connecté : « Envoyée » pour l'opérateur, « À prendre en charge » pour le BNIA
+     */
+    libelleEtat: string;
+    lignes: Array<LigneDsm>;
+    /**
+     * Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)
+     */
+    manques: Array<ManqueDsm>;
+    operateur: number;
+    periode: PeriodeDeclaration;
+    raisonSociale: string;
+    /**
+     * Total de chaque colonne, 26 valeurs (RG-DEC-17)
+     */
+    totaux: Array<number>;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+    valideeLe?: string;
+    /**
+     * Copie du nom de qui l'a validée
+     */
+    valideePar?: string;
+    version: number;
+};
+
+/**
+ * La DSM après l'import, et ses avertissements (RG-DEC-38)
+ */
+export type DsmImportee = {
+    avertissements: Array<string>;
+    dsm: Dsm;
+};
+
+/**
+ * Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)
+ */
+export type DsmListee = {
+    codeOperateur: string;
+    envoyeeLe?: string;
+    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    /**
+     * A au moins une facture (RG-DEC-34)
+     */
+    facturee: boolean;
+    id: number;
+    /**
+     * Du point de vue du BNIA
+     */
+    libelleEtat: string;
+    /**
+     * Date de la dernière action sur la DSM, lue au journal
+     */
+    modifieeLe?: string;
+    operateur: number;
+    periode: PeriodeDeclaration;
+    /**
+     * L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)
+     */
+    prendreEnInstruction: boolean;
+    raisonSociale: string;
+    /**
+     * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)
+     */
+    totalHt?: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+    valideeLe?: string;
+};
+
+/**
+ * Une DSM dans un listing (spec 05 §6.1, §6.2)
+ */
+export type DsmResume = {
+    envoyeeLe?: string;
+    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    /**
+     * A au moins une facture (RG-DEC-34)
+     */
+    facturee: boolean;
+    id: number;
+    /**
+     * Du point de vue de l'utilisateur connecté
+     */
+    libelleEtat: string;
+    /**
+     * Date de la dernière action sur la DSM, lue au journal
+     */
+    modifieeLe?: string;
+    periode: PeriodeDeclaration;
+    /**
+     * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)
+     */
+    totalHt?: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+    valideeLe?: string;
+};
+
+/**
+ * Action sur une DSM ou le point de départ, sans valeurs avant et après (RG-DEC-23)
+ */
+export type EntreeJournalDeclarations = {
+    /**
+     * Copie du nom de l'acteur
+     */
+    acteur: string;
+    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE';
+    date: string;
+    /**
+     * Nom de fichier, mois, format…
+     */
+    detail?: string;
+    /**
+     * DSM concernée ; vide pour le point de départ
+     */
+    dsm?: number;
+    libelle: string;
+    /**
+     * Copie de la période de la DSM
+     */
+    periode?: string;
+};
+
+/**
+ * Une erreur du fichier importé, située
+ */
+export type ErreurImport = {
+    /**
+     * Lettre de colonne du classeur
+     */
+    colonne: string;
+    /**
+     * Numéro de ligne du classeur
+     */
+    ligne: number;
+    message: string;
+    onglet: string;
 };
 
 export type EtapeConnexion = {
@@ -203,6 +512,18 @@ export type EtatSession = {
      * L'utilisateur connecté
      */
     utilisateur?: number;
+};
+
+/**
+ * Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)
+ */
+export type FactureDsm = {
+    date: string;
+    ht: number;
+    numero: string;
+    ttc: number;
+    tva: number;
+    type: 'FACTURE' | 'AVOIR';
 };
 
 /**
@@ -349,6 +670,17 @@ export type FicheProfessionnelle = {
 };
 
 /**
+ * Import Excel refusé, tout ou rien : chaque erreur à sa place dans le classeur (RG-DEC-37)
+ */
+export type ImportRefuse = {
+    detail: string;
+    erreurs: Array<ErreurImport>;
+    regle: string;
+    status: number;
+    title: string;
+};
+
+/**
  * Identification de l'application et de la base qui la sert
  */
 export type InfoSysteme = {
@@ -415,6 +747,29 @@ export type InvitationPublique = {
     titre?: number;
 };
 
+/**
+ * Justificatif d'une DSM (spec 05 §3.2.2)
+ */
+export type JustificatifDsm = {
+    document: DocumentDsm;
+    id: number;
+    libelleTypePiece: string;
+    /**
+     * Ligne visée ; vide pour la DSM
+     */
+    ligne?: number;
+    /**
+     * Libellé de la ligne visée, supprimée depuis ; la pièce porte alors sur la DSM
+     */
+    ligneSupprimee?: string;
+    /**
+     * Référence DAE/DAI
+     */
+    reference?: string;
+    typeMouvement: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
+    typePiece: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
 export type LabelObtenu = {
     commentaire?: string;
     /**
@@ -438,6 +793,58 @@ export type LigneConnexion = {
 };
 
 /**
+ * Une ligne du détail de la cotisation (RG-DEC-33)
+ */
+export type LigneCotisation = {
+    assujettie: number;
+    /**
+     * hlAP
+     */
+    hectolitres: number;
+    libelle: string;
+    ligne: 'SORTIES_FRANCE' | 'SORTIES_EXPORT' | 'EDV_MARCHE_INTERIEUR' | 'EDV_EXPORT';
+    nonAssujettie: number;
+    total: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volume: number;
+};
+
+/**
+ * Ligne d'une DSM (spec 05 §3.2.1)
+ */
+export type LigneDsm = {
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    /**
+     * MB : calculé (RG-DEC-12)
+     */
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * Vide pour une ligne ajoutée, dans une vue provisoire
+     */
+    id?: number;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    /**
+     * REPRISE : ne se supprime pas, identité figée (RG-DEC-13)
+     */
+    origine: 'REPRISE' | 'AJOUT';
+    totalEntrees: number;
+    totalSorties: number;
+    /**
+     * 26 valeurs, colonne 26 calculée
+     */
+    volumes: Array<number>;
+};
+
+/**
  * Action sur une personne ou un accès (RG-OPE-34)
  */
 export type LigneJournal = {
@@ -455,6 +862,44 @@ export type LigneJournal = {
      * Copie du nom de la cible
      */
     nomCible: string;
+};
+
+export type LigneStockInitial = {
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volume: number;
+};
+
+/**
+ * Pièce manquante, au niveau de la DSM (RG-DEC-29)
+ */
+export type ManqueDsm = {
+    message: string;
+    /**
+     * Mois sans DRM
+     */
+    mois?: string;
+    niveau: 'DSM' | 'ONGLET' | 'LIGNE';
+    /**
+     * Litres du type de mouvement en cause
+     */
+    total?: number;
+    type: 'JUSTIFICATIF' | 'DRM';
+    /**
+     * Type de mouvement sans justificatif
+     */
+    typeMouvement?: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
 };
 
 export type MarquePresentee = {
@@ -543,6 +988,18 @@ export type Moi = {
     version: number;
 };
 
+/**
+ * Un mois de la période d'un producteur et sa DRM (RG-DEC-27)
+ */
+export type MoisDrm = {
+    /**
+     * Vide : DRM attendue
+     */
+    drm?: DocumentDsm;
+    libelle: string;
+    mois: string;
+};
+
 export type OperateurActif = {
     operateur: number;
 };
@@ -598,6 +1055,15 @@ export type Pays = {
 };
 
 /**
+ * Période d'une DSM : année du 1er avril au 31 mars, ou mois civil (RG-DEC-03)
+ */
+export type PeriodeDeclaration = {
+    debut: string;
+    fin: string;
+    libelle: string;
+};
+
+/**
  * Ligne de l'annuaire : contact, membre, ou personne nouvelle invitée (RG-OPE-52)
  */
 export type PersonneAnnuaire = {
@@ -636,6 +1102,57 @@ export type PersonneAnnuaire = {
      * Identifiant du titre
      */
     titre?: number;
+};
+
+export type PieceCompatible = {
+    libelle: string;
+    type: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
+/**
+ * Pièces d'une DSM : justificatifs, mois de DRM, manques (spec 05 §6.3, onglet « Pièces »)
+ */
+export type PiecesDsm = {
+    /**
+     * Dans l'ordre de dépôt
+     */
+    justificatifs: Array<JustificatifDsm>;
+    manques: Array<ManqueDsm>;
+    /**
+     * Pour un producteur, les mois de la période et leur DRM ; vide pour un négociant (RG-DEC-27)
+     */
+    mois: Array<MoisDrm>;
+    /**
+     * Les types de mouvement, leurs colonnes et les types de pièce compatibles (RG-DEC-26)
+     */
+    typesMouvement: Array<TypeMouvementDsm>;
+};
+
+/**
+ * Point de départ déclaratif : début et stock initial, fixés par le BNIA (spec 05 §3.3)
+ */
+export type PointDeDepart = {
+    debut: string;
+    /**
+     * Une DSM qui commence à son début est validée : il ne se modifie plus (RG-DEC-08)
+     */
+    fige: boolean;
+    fixeLe: string;
+    /**
+     * Copie du nom de l'auteur
+     */
+    fixePar: string;
+    id: number;
+    lignes: Array<LigneStockInitial>;
+    version: number;
+};
+
+/**
+ * Le point de départ après l'import, et ses avertissements (RG-DEC-38)
+ */
+export type PointDeDepartImporte = {
+    avertissements: Array<string>;
+    point: PointDeDepart;
 };
 
 /**
@@ -783,6 +1300,21 @@ export type SaisieCode = {
     faireConfiance: boolean;
 };
 
+/**
+ * Commentaire écrit ou modifié (RG-DEC-24, 25)
+ */
+export type SaisieCommentaireDsm = {
+    /**
+     * Interne au BNIA, invisible de l'opérateur ; côté BNIA seulement. Faux par défaut
+     */
+    interne?: boolean;
+    /**
+     * Ligne visée ; vide pour la DSM. Ignorée à la modification
+     */
+    ligne?: number;
+    texte: string;
+};
+
 export type SaisieConnexion = {
     email: string;
     motDePasse: string;
@@ -874,6 +1406,24 @@ export type SaisieDiffusion = {
     version?: number;
 };
 
+/**
+ * Toute la saisie d'une DSM : lignes, volumes, date de DIA (RG-DEC-10 à 19)
+ */
+export type SaisieDsm = {
+    /**
+     * Facultative (RG-DEC-19)
+     */
+    dateDia?: string;
+    /**
+     * Toutes les lignes, dans l'ordre de l'écran
+     */
+    lignes: Array<SaisieLigneDsm>;
+    /**
+     * Version lue, à l'enregistrement (verrou optimiste)
+     */
+    version?: number;
+};
+
 export type SaisieEmail = {
     email: string;
 };
@@ -947,6 +1497,50 @@ export type SaisieInvitation = {
      * Personne nouvelle : identifiant du titre
      */
     titre?: number;
+};
+
+export type SaisieLigneDsm = {
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    /**
+     * Ignoré pour une ligne MB, dont le compte est calculé
+     */
+    compte?: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * Ligne existante ; vide pour une ligne ajoutée
+     */
+    id?: number;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    /**
+     * 26 valeurs en litres d'alcool pur, indice 0 = colonne 1 ; colonnes 1 et 26 vides (calculées)
+     */
+    volumes: Array<number>;
+};
+
+export type SaisieLigneStockInitial = {
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    /**
+     * Ignoré pour une ligne MB, dont le compte est calculé
+     */
+    compte?: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volume: number;
 };
 
 /**
@@ -1059,6 +1653,21 @@ export type SaisiePays = {
 };
 
 /**
+ * Fixer ou modifier un point de départ (RG-DEC-06 à 08)
+ */
+export type SaisiePointDeDepart = {
+    /**
+     * Un 1er avril pour un producteur, un premier du mois pour un négociant
+     */
+    debut: string;
+    lignes: Array<SaisieLigneStockInitial>;
+    /**
+     * Version lue, à la modification (verrou optimiste)
+     */
+    version?: number;
+};
+
+/**
  * Onglet Production : déclaratif, région, appellations, alambics
  */
 export type SaisieProduction = {
@@ -1144,6 +1753,21 @@ export type SaisieRole = {
     role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
 };
 
+/**
+ * Saisie d'un taux CVO (RG-DEC-30)
+ */
+export type SaisieTauxCvo = {
+    debut: string;
+    /**
+     * €/hlAP, strictement positif
+     */
+    montant: number;
+    /**
+     * De 0 à 100
+     */
+    pourcentageExonere: number;
+};
+
 export type SaisieTauxTva = {
     dateDebut: string;
     /**
@@ -1164,6 +1788,45 @@ export type SaisieValeurSimple = {
     libelle: string;
 };
 
+/**
+ * La prochaine DSM de l'opérateur, ou ce qui en empêche l'initiation (RG-DEC-02 à 05)
+ */
+export type SituationDsm = {
+    /**
+     * La DSM non validée, s'il y en a une
+     */
+    dsmEnCours?: number;
+    /**
+     * TYPE_NON_DECLARANT, STATUT_NON_DECLARANT, SANS_POINT_DE_DEPART, DSM_EN_COURS, PERIODE_PAS_COMMENCEE
+     */
+    empechement?: string;
+    initiable: boolean;
+    /**
+     * Raison, pour l'écran ; vide si rien n'empêche
+     */
+    message: string;
+    /**
+     * Période à initier, ou de la DSM en cours ; vide sans point de départ
+     */
+    periode?: PeriodeDeclaration;
+};
+
+/**
+ * Taux de la grille CVO, avec sa fin calculée (spec 05 §3.5, RG-DEC-30)
+ */
+export type TauxCvo = {
+    debut: string;
+    /**
+     * Veille du début du taux suivant ; absente pour le dernier
+     */
+    fin?: string;
+    /**
+     * €/hlAP
+     */
+    montant: number;
+    pourcentageExonere: number;
+};
+
 export type TauxTva = {
     dateDebut: string;
     /**
@@ -1174,6 +1837,37 @@ export type TauxTva = {
      * Pourcentage
      */
     taux: number;
+};
+
+/**
+ * Envoi, prise en instruction ou validation d'une DSM (RG-DEC-20)
+ */
+export type TransitionDsm = {
+    /**
+     * Version lue (verrou optimiste)
+     */
+    version?: number;
+};
+
+/**
+ * TVA indicative d'une DSM non facturée (RG-DEC-34, H-DEC-22)
+ */
+export type TvaIndicative = {
+    montant: number;
+    /**
+     * Pourcentage
+     */
+    taux: number;
+};
+
+/**
+ * Type de mouvement qui appelle un justificatif (H-DEC-13)
+ */
+export type TypeMouvementDsm = {
+    colonnes: Array<number>;
+    libelle: string;
+    pieces: Array<PieceCompatible>;
+    type: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
 };
 
 /**
@@ -1429,6 +2123,101 @@ export type ConfirmerChangementEmailResponses = {
 };
 
 export type ConfirmerChangementEmailResponse = ConfirmerChangementEmailResponses[keyof ConfirmerChangementEmailResponses];
+
+export type ListerToutesDsmData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        type?: 'PRODUCTEUR' | 'NEGOCIANT';
+        /**
+         * Les DSM dont la période contient ce mois
+         */
+        mois?: string;
+        /**
+         * Les DSM dans l'un de ces états ; aucun : tous
+         */
+        etats?: Array<'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE'>;
+    };
+    url: '/api/declarations/dsm';
+};
+
+export type ListerToutesDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<DsmListee>;
+};
+
+export type ListerToutesDsmResponse = ListerToutesDsmResponses[keyof ListerToutesDsmResponses];
+
+export type ListerTauxCvoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/declarations/taux-cvo';
+};
+
+export type ListerTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type ListerTauxCvoResponse = ListerTauxCvoResponses[keyof ListerTauxCvoResponses];
+
+export type AjouterTauxCvoData = {
+    body: SaisieTauxCvo;
+    path?: never;
+    query?: never;
+    url: '/api/declarations/taux-cvo';
+};
+
+export type AjouterTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type AjouterTauxCvoResponse = AjouterTauxCvoResponses[keyof AjouterTauxCvoResponses];
+
+export type SupprimerTauxCvoData = {
+    body?: never;
+    path: {
+        debut: string;
+    };
+    query?: never;
+    url: '/api/declarations/taux-cvo/{debut}';
+};
+
+export type SupprimerTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type SupprimerTauxCvoResponse = SupprimerTauxCvoResponses[keyof SupprimerTauxCvoResponses];
+
+export type ModifierTauxCvoData = {
+    body: SaisieTauxCvo;
+    path: {
+        debut: string;
+    };
+    query?: never;
+    url: '/api/declarations/taux-cvo/{debut}';
+};
+
+export type ModifierTauxCvoResponses = {
+    /**
+     * OK
+     */
+    200: Array<TauxCvo>;
+};
+
+export type ModifierTauxCvoResponse = ModifierTauxCvoResponses[keyof ModifierTauxCvoResponses];
 
 export type ConsulterInvitationParJetonData = {
     body?: never;
@@ -2035,6 +2824,562 @@ export type ConsulterJournalContactResponses = {
 
 export type ConsulterJournalContactResponse = ConsulterJournalContactResponses[keyof ConsulterJournalContactResponses];
 
+export type ListerDenominationsData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/declarations/denominations';
+};
+
+export type ListerDenominationsResponses = {
+    /**
+     * OK
+     */
+    200: Array<string>;
+};
+
+export type ListerDenominationsResponse = ListerDenominationsResponses[keyof ListerDenominationsResponses];
+
+export type ConsulterJournalDeclarationsData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/declarations/journal';
+};
+
+export type ConsulterJournalDeclarationsResponses = {
+    /**
+     * OK
+     */
+    200: Array<EntreeJournalDeclarations>;
+};
+
+export type ConsulterJournalDeclarationsResponse = ConsulterJournalDeclarationsResponses[keyof ConsulterJournalDeclarationsResponses];
+
+export type ListerDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm';
+};
+
+export type ListerDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<DsmResume>;
+};
+
+export type ListerDsmResponse = ListerDsmResponses[keyof ListerDsmResponses];
+
+export type InitierDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm';
+};
+
+export type InitierDsmResponses = {
+    /**
+     * Created
+     */
+    201: Dsm;
+};
+
+export type InitierDsmResponse = InitierDsmResponses[keyof InitierDsmResponses];
+
+export type ConsulterSituationDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/situation';
+};
+
+export type ConsulterSituationDsmResponses = {
+    /**
+     * OK
+     */
+    200: SituationDsm;
+};
+
+export type ConsulterSituationDsmResponse = ConsulterSituationDsmResponses[keyof ConsulterSituationDsmResponses];
+
+export type ListerCommentairesDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
+};
+
+export type ListerCommentairesDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<CommentaireDsm>;
+};
+
+export type ListerCommentairesDsmResponse = ListerCommentairesDsmResponses[keyof ListerCommentairesDsmResponses];
+
+export type EcrireCommentaireDsmData = {
+    body: SaisieCommentaireDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
+};
+
+export type EcrireCommentaireDsmResponses = {
+    /**
+     * Created
+     */
+    201: CommentaireDsm;
+};
+
+export type EcrireCommentaireDsmResponse = EcrireCommentaireDsmResponses[keyof EcrireCommentaireDsmResponses];
+
+export type SupprimerCommentaireDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
+};
+
+export type SupprimerCommentaireDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerCommentaireDsmResponse = SupprimerCommentaireDsmResponses[keyof SupprimerCommentaireDsmResponses];
+
+export type ModifierCommentaireDsmData = {
+    body: SaisieCommentaireDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
+};
+
+export type ModifierCommentaireDsmResponses = {
+    /**
+     * OK
+     */
+    200: CommentaireDsm;
+};
+
+export type ModifierCommentaireDsmResponse = ModifierCommentaireDsmResponses[keyof ModifierCommentaireDsmResponses];
+
+export type SupprimerDrmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        mois: string;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}';
+};
+
+export type SupprimerDrmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerDrmResponse = SupprimerDrmResponses[keyof SupprimerDrmResponses];
+
+export type DeposerDrmData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+        dsm: number;
+        mois: string;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}';
+};
+
+export type DeposerDrmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeposerDrmResponse = DeposerDrmResponses[keyof DeposerDrmResponses];
+
+export type TelechargerDrmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        mois: string;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}/document';
+};
+
+export type TelechargerDrmResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerDrmResponse = TelechargerDrmResponses[keyof TelechargerDrmResponses];
+
+export type DeposerJustificatifDsmData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query: {
+        typeMouvement: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
+        typePiece: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+        ligne?: number;
+        reference?: string;
+    };
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/justificatifs';
+};
+
+export type DeposerJustificatifDsmResponses = {
+    /**
+     * Created
+     */
+    201: JustificatifDsm;
+};
+
+export type DeposerJustificatifDsmResponse = DeposerJustificatifDsmResponses[keyof DeposerJustificatifDsmResponses];
+
+export type SupprimerJustificatifDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/justificatifs/{id}';
+};
+
+export type SupprimerJustificatifDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerJustificatifDsmResponse = SupprimerJustificatifDsmResponses[keyof SupprimerJustificatifDsmResponses];
+
+export type TelechargerJustificatifDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/justificatifs/{id}/document';
+};
+
+export type TelechargerJustificatifDsmResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerJustificatifDsmResponse = TelechargerJustificatifDsmResponses[keyof TelechargerJustificatifDsmResponses];
+
+export type ConsulterPiecesDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/pieces';
+};
+
+export type ConsulterPiecesDsmResponses = {
+    /**
+     * OK
+     */
+    200: PiecesDsm;
+};
+
+export type ConsulterPiecesDsmResponse = ConsulterPiecesDsmResponses[keyof ConsulterPiecesDsmResponses];
+
+export type SupprimerDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}';
+};
+
+export type SupprimerDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerDsmResponse = SupprimerDsmResponses[keyof SupprimerDsmResponses];
+
+export type ConsulterDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}';
+};
+
+export type ConsulterDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type ConsulterDsmResponse = ConsulterDsmResponses[keyof ConsulterDsmResponses];
+
+export type EnregistrerDsmData = {
+    body: SaisieDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}';
+};
+
+export type EnregistrerDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type EnregistrerDsmResponse = EnregistrerDsmResponses[keyof EnregistrerDsmResponses];
+
+export type ApercevoirDsmData = {
+    body: SaisieDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/apercu';
+};
+
+export type ApercevoirDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type ApercevoirDsmResponse = ApercevoirDsmResponses[keyof ApercevoirDsmResponses];
+
+export type DemanderComplementsDsmData = {
+    body: ComplementsDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/complements';
+};
+
+export type DemanderComplementsDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type DemanderComplementsDsmResponse = DemanderComplementsDsmResponses[keyof DemanderComplementsDsmResponses];
+
+export type EnvoyerDsmData = {
+    body: TransitionDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/envoi';
+};
+
+export type EnvoyerDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type EnvoyerDsmResponse = EnvoyerDsmResponses[keyof EnvoyerDsmResponses];
+
+export type EditerDsmExcelData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/excel';
+};
+
+export type EditerDsmExcelResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type EditerDsmExcelResponse = EditerDsmExcelResponses[keyof EditerDsmExcelResponses];
+
+export type ImporterDsmData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: {
+        version?: number;
+    };
+    url: '/api/operateurs/{operateur}/dsm/{id}/import';
+};
+
+export type ImporterDsmErrors = {
+    /**
+     * Fichier refusé, avec ses erreurs
+     */
+    422: ImportRefuse;
+};
+
+export type ImporterDsmError = ImporterDsmErrors[keyof ImporterDsmErrors];
+
+export type ImporterDsmResponses = {
+    /**
+     * OK
+     */
+    200: DsmImportee;
+};
+
+export type ImporterDsmResponse = ImporterDsmResponses[keyof ImporterDsmResponses];
+
+export type ConsulterJournalDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/journal';
+};
+
+export type ConsulterJournalDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<EntreeJournalDeclarations>;
+};
+
+export type ConsulterJournalDsmResponse = ConsulterJournalDsmResponses[keyof ConsulterJournalDsmResponses];
+
+export type EditerDsmPdfData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/pdf';
+};
+
+export type EditerDsmPdfResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type EditerDsmPdfResponse = EditerDsmPdfResponses[keyof EditerDsmPdfResponses];
+
+export type PrendreDsmEnInstructionData = {
+    body: TransitionDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/prise-en-instruction';
+};
+
+export type PrendreDsmEnInstructionResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type PrendreDsmEnInstructionResponse = PrendreDsmEnInstructionResponses[keyof PrendreDsmEnInstructionResponses];
+
+export type ValiderDsmData = {
+    body: TransitionDsm;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/validation';
+};
+
+export type ValiderDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type ValiderDsmResponse = ValiderDsmResponses[keyof ValiderDsmResponses];
+
 export type ConsulterFicheData = {
     body?: never;
     path: {
@@ -2261,6 +3606,93 @@ export type SuspendreMembreResponses = {
 };
 
 export type SuspendreMembreResponse = SuspendreMembreResponses[keyof SuspendreMembreResponses];
+
+export type ConsulterPointDeDepartData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/point-de-depart';
+};
+
+export type ConsulterPointDeDepartResponses = {
+    /**
+     * OK
+     */
+    200: PointDeDepart;
+};
+
+export type ConsulterPointDeDepartResponse = ConsulterPointDeDepartResponses[keyof ConsulterPointDeDepartResponses];
+
+export type FixerPointDeDepartData = {
+    body: SaisiePointDeDepart;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/point-de-depart';
+};
+
+export type FixerPointDeDepartResponses = {
+    /**
+     * Created
+     */
+    201: PointDeDepart;
+};
+
+export type FixerPointDeDepartResponse = FixerPointDeDepartResponses[keyof FixerPointDeDepartResponses];
+
+export type ImporterPointDeDepartData = {
+    body?: {
+        fichier: Blob | File;
+    };
+    path: {
+        operateur: number;
+    };
+    query?: {
+        debut?: string;
+        version?: number;
+    };
+    url: '/api/operateurs/{operateur}/point-de-depart/import';
+};
+
+export type ImporterPointDeDepartErrors = {
+    /**
+     * Fichier refusé, avec ses erreurs
+     */
+    422: ImportRefuse;
+};
+
+export type ImporterPointDeDepartError = ImporterPointDeDepartErrors[keyof ImporterPointDeDepartErrors];
+
+export type ImporterPointDeDepartResponses = {
+    /**
+     * OK
+     */
+    200: PointDeDepartImporte;
+};
+
+export type ImporterPointDeDepartResponse = ImporterPointDeDepartResponses[keyof ImporterPointDeDepartResponses];
+
+export type ModifierPointDeDepartData = {
+    body: SaisiePointDeDepart;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/point-de-depart/{id}';
+};
+
+export type ModifierPointDeDepartResponses = {
+    /**
+     * OK
+     */
+    200: PointDeDepart;
+};
+
+export type ModifierPointDeDepartResponse = ModifierPointDeDepartResponses[keyof ModifierPointDeDepartResponses];
 
 export type ConsulterPresentationOperateurData = {
     body?: never;

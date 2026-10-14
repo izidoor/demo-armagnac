@@ -29,20 +29,24 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
   - `bnia-<contexte>-core` : `fr.bnia.<contexte>.{domain, application}`, **Java pur** (aucune dépendance Spring) :
     - `domain` : aucun framework ni annotation de persistance.
     - `application` : cas d'usage (`@UseCase` maison) et ports. Dépend de `domain` uniquement.
-  - `bnia-<contexte>-infra` : `fr.bnia.<contexte>.adapter.{rest, persistence, integration, evenement}`.
-    Dépend de son `-core` et de `bnia-commun-infra`. Les adapters dépendent de `application`, jamais
-    entre eux. Une intégration externe vit dans le contexte qui en définit le port.
-- `bnia-commun` : noyau partagé. `bnia-commun-core` : concepts transverses (ADR-009), `@UseCase` ;
-  `bnia-commun-infra` : socle REST (erreurs, OpenAPI, `@Ressource`).
+  - `bnia-<contexte>-infra` : `fr.bnia.<contexte>.adapter.{rest, persistence, integration, evenement,
+    planification, document}`. Dépend de son `-core` et de `bnia-commun-infra`. Les adapters dépendent de
+    `application`, jamais entre eux. Une intégration externe vit dans le contexte qui en définit le port.
+    `planification` : composants `@Scheduled` qui n'appellent qu'un cas d'usage, horloge injectée,
+    idempotence en base (ADR-019). `document` : PDF (OpenHTMLtoPDF, gabarits Thymeleaf) et Excel
+    (`fastexcel`), en écriture comme en lecture (ADR-020).
+- `bnia-commun` : noyau partagé. `bnia-commun-core` : concepts transverses (ADR-009, dont
+  `VolumeAlcoolPur` et `DocumentDepose`), `@UseCase`, port `StockageDocuments` ; `bnia-commun-infra` : socle
+  REST (erreurs, OpenAPI, `@Ressource`) et stockage des documents en base (schéma `documents`, ADR-018).
 - `bnia-boot` : seul module avec `@SpringBootApplication`, `application*.yml`, câblage,
   transactions, migration Flyway, **tous les `*IT`** et les tests ArchUnit. Dépend du `-infra` de chaque contexte.
 - Nouveau contexte : trois poms (parent, `-core`, `-infra`), une entrée dans `<modules>` du pom racine,
   une dépendance de `bnia-boot` vers le `-infra`, un schéma dans `spring.flyway.schemas`.
 - Pas d'import direct entre contextes :
-  passer par des ports ou des événements. Trois exceptions : `fr.bnia.commun.domain`, noyau de concepts
+  passer par des ports ou des événements. Quatre exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et les parties publiées en lecture de `referentiels`
-  (`fr.bnia.referentiels.*.partage`, ADR-008) et de `operateurs` (`fr.bnia.operateurs.*.partage`,
-  ADR-012). Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
+  (`fr.bnia.referentiels.*.partage`, ADR-008), de `operateurs` (`fr.bnia.operateurs.*.partage`,
+  ADR-012) et de `declarations` (`fr.bnia.declarations.*.partage`, ADR-017). Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
   Exceptions sans clé étrangère : l'auteur d'une action (identifiant de l'utilisateur et copie de son nom,
   l'utilisateur pouvant être supprimé) et le compte de connexion de `authentification` (ADR-011 amendé).
 - Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
@@ -88,9 +92,11 @@ Front, depuis `frontend/` :
 - Contrôles : `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm build`
 - Dev : `pnpm dev` (proxy `/api` vers `localhost:8080`)
 
-Seconde instance, depuis un worktree, à côté de celle de l'IDE (base, ports et proxy à part) :
-- `BNIA_COMPOSE_PROJECT=bnia-<contexte> BNIA_DB_PORT=55432 BNIA_SMTP_PORT=11025 BNIA_MAILPIT_PORT=18025 SERVER_PORT=8181 ./mvnw -pl bnia-boot spring-boot:run`
-- `BNIA_API_URL=http://localhost:8181 pnpm dev --port 5174 --strictPort`
+Worktree (`../bnia-worktrees/<contexte>`), à côté de l'instance du dépôt principal : `./worktree-env.sh`
+à sa racine, une fois, lui donne ses propres ports (back, front, base, Mailpit) dans `backend/.env` et
+`frontend/.env.local`, ignorés par git et lus par Docker Compose, Spring Boot (profil `dev`) et Vite.
+Ensuite, lancement habituel (IntelliJ ou `pnpm dev`), sans variable à passer.
 
 Racine :
 - Remise à zéro volontaire de la base de dev : `./dev-reset.sh` (automatique si V1 a changé)
+- Ports propres à un worktree : `./worktree-env.sh`

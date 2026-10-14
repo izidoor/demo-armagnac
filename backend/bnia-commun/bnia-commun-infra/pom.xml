@@ -10,7 +10,7 @@
     </parent>
     <artifactId>bnia-commun-infra</artifactId>
     <name>BNIA : commun, infra</name>
-    <description>Socle REST partagé : erreurs (ProblemDetail), OpenAPI, @Ressource.</description>
+    <description>Socle REST partagé : erreurs (ProblemDetail), OpenAPI, @Ressource ; stockage des documents en base (ADR-018).</description>
     <dependencies>
         <dependency>
             <groupId>fr.bnia</groupId>
@@ -23,6 +23,10 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
     </dependencies>
 </project>

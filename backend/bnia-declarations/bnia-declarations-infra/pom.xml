@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.bnia</groupId>
+        <artifactId>bnia-declarations</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>bnia-declarations-infra</artifactId>
+    <name>BNIA : declarations, infra</name>
+    <description>Contexte declarations : adapters REST, persistance, événements et documents (PDF, Excel).</description>
+    <dependencies>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-declarations-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-commun-infra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <!-- ADR-020 : édition PDF de la DSM, gabarit Thymeleaf (moteur seul) rendu par OpenHTMLtoPDF. -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+        </dependency>
+        <!-- ADR-020 : édition et import Excel de la DSM, au format de la matrice négociant du BNIA. -->
+        <dependency>
+            <groupId>org.dhatim</groupId>
+            <artifactId>fastexcel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dhatim</groupId>
+            <artifactId>fastexcel-reader</artifactId>
+        </dependency>
+    </dependencies>
+</project>

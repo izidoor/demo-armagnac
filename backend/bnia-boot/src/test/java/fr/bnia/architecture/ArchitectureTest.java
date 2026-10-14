@@ -22,10 +22,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * à la compilation que {@code domain} et {@code application} restent en Java pur ; ces règles gardent le
  * sens des dépendances entre couches et l'isolement des contextes.
  * Les packages suivent {@code fr.bnia.<contexte>.<couche>}, avec pour couches {@code domain}, {@code application} et
- * {@code adapter.<rest|persistence|integration|evenement>} (ADR-013 pour {@code evenement}).
+ * {@code adapter.<rest|persistence|integration|evenement|planification|document>} (ADR-013 pour
+ * {@code evenement}, ADR-019 pour {@code planification}, ADR-020 pour {@code document}).
  * {@code fr.bnia.commun} est le noyau partagé (ADR-009) ; {@code fr.bnia.boot} le câblage.
  * Seules autres exceptions à l'isolement des contextes : les parties publiées en lecture de
- * {@code referentiels} (ADR-008) et de {@code operateurs} (ADR-012).
+ * {@code referentiels} (ADR-008), de {@code operateurs} (ADR-012) et de {@code declarations} (ADR-017).
  */
 @AnalyzeClasses(packages = "fr.bnia", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
@@ -36,8 +37,12 @@ class ArchitectureTest {
     private static final String[] PARTIE_PUBLIEE_OPERATEURS = {
             "fr.bnia.operateurs.domain.partage..", "fr.bnia.operateurs.application.partage.."};
 
+    private static final String[] PARTIE_PUBLIEE_DECLARATIONS = {
+            "fr.bnia.declarations.domain.partage..", "fr.bnia.declarations.application.partage.."};
+
     private static final String[] ADAPTERS = {"fr.bnia..adapter.rest..", "fr.bnia..adapter.persistence..",
-            "fr.bnia..adapter.integration..", "fr.bnia..adapter.evenement.."};
+            "fr.bnia..adapter.integration..", "fr.bnia..adapter.evenement..", "fr.bnia..adapter.planification..",
+            "fr.bnia..adapter.document.."};
 
     /** Les adapters autres que celui du package donné. */
     private static String[] autresAdapters(String adapter) {
@@ -75,6 +80,15 @@ class ArchitectureTest {
     @ArchTest
     static final ArchRule l_adapter_evenement_ignore_les_autres_adapters = adapterIsole("fr.bnia..adapter.evenement..");
 
+    /** ADR-019 : un traitement planifié ne fait qu'appeler un cas d'usage. */
+    @ArchTest
+    static final ArchRule l_adapter_planification_ignore_les_autres_adapters =
+            adapterIsole("fr.bnia..adapter.planification..");
+
+    /** ADR-020 : production et lecture de documents (PDF, Excel). */
+    @ArchTest
+    static final ArchRule l_adapter_document_ignore_les_autres_adapters = adapterIsole("fr.bnia..adapter.document..");
+
     private static ArchRule adapterIsole(String adapter) {
         return noClasses()
                 .that().resideInAPackage(adapter)
@@ -89,6 +103,7 @@ class ArchitectureTest {
             .ignoreDependency(alwaysTrue(), resideInAPackage("fr.bnia.commun.."))
             .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_REFERENTIELS))
             .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_OPERATEURS))
+            .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_DECLARATIONS))
             .ignoreDependency(resideInAPackage("fr.bnia.boot.."), alwaysTrue());
 
     @ArchTest
@@ -116,6 +131,24 @@ class ArchitectureTest {
             .that().resideInAnyPackage(PARTIE_PUBLIEE_OPERATEURS)
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage(concat(PARTIE_PUBLIEE_OPERATEURS, "java..", "fr.bnia.commun.domain.."))
+            .allowEmptyShould(true);
+
+    @ArchTest
+    static final ArchRule les_autres_contextes_ne_lisent_que_la_partie_publiee_des_declarations = noClasses()
+            .that().resideOutsideOfPackages("fr.bnia.declarations..", "fr.bnia.boot..")
+            .should().dependOnClassesThat(resideInAPackage("fr.bnia.declarations..")
+                    .and(not(resideInAnyPackage(PARTIE_PUBLIEE_DECLARATIONS))));
+
+    /**
+     * ADR-017 : même exigence ; elle peut lire les parties publiées dont {@code declarations} dépend
+     * ({@code operateurs}, {@code referentiels}).
+     */
+    @ArchTest
+    static final ArchRule la_partie_publiee_des_declarations_ne_depend_que_d_elle_meme_et_du_noyau = classes()
+            .that().resideInAnyPackage(PARTIE_PUBLIEE_DECLARATIONS)
+            .should().onlyDependOnClassesThat()
+            .resideInAnyPackage(concat(concat(PARTIE_PUBLIEE_DECLARATIONS, PARTIE_PUBLIEE_OPERATEURS),
+                    concat(PARTIE_PUBLIEE_REFERENTIELS, "java..", "fr.bnia.commun.domain..")))
             .allowEmptyShould(true);
 
     @ArchTest

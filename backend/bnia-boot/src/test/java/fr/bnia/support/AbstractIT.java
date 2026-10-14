@@ -70,6 +70,16 @@ public abstract class AbstractIT {
         }
     }
 
+    /**
+     * Oublie les sessions d'ADMIN du BNIA, après une recréation de la base qui les a effacées (avec le
+     * compte) : le prochain test reconnecte un ADMIN.
+     */
+    protected static void oublierLesSessions() {
+        synchronized (SESSIONS_ADMIN) {
+            SESSIONS_ADMIN.clear();
+        }
+    }
+
     /** Un client sans session, avec ses propres cookies. */
     protected RestTestClient anonyme() {
         return anonyme(new Navigateur());

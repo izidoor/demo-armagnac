@@ -315,11 +315,11 @@ rattachement (RG-OPE-29) ; ses informations professionnelles, par une fiche dans
 
 **3.2.7 Rôles et modules** (liste fermée, définie par l'application, vision §2.5)
 
-| Rôle | Contacts (contacts, fiches professionnelles, fiche et présentation de l'opérateur) | Accès (invitations, rôles, suspensions, retraits) | Paramétrage (référentiels ; opérateur BNIA seulement) |
-|---|---|---|---|
-| `OBSERVATEUR` | lecture | lecture | lecture |
-| `AGENT` | gestion | lecture | gestion |
-| `ADMIN` | gestion | gestion | gestion |
+| Rôle | Contacts (contacts, fiches professionnelles, fiche et présentation de l'opérateur) | Accès (invitations, rôles, suspensions, retraits) | Paramétrage (référentiels ; opérateur BNIA seulement) | Déclarations (DSM, pièces, commentaires, point de départ, stocks déclarés ; spec 05 §3.7) |
+|---|---|---|---|---|
+| `OBSERVATEUR` | lecture | lecture | lecture | lecture |
+| `AGENT` | gestion | lecture | gestion | gestion |
+| `ADMIN` | gestion | gestion | gestion | gestion |
 
 Gérer un module permet d'y tout faire (créer, modifier, supprimer). Un rôle tenu dans l'opérateur BNIA
 vaut pour tous les opérateurs (RG-OPE-32). Un nouveau module (DSM, contrats…) ajoute une colonne.
@@ -353,7 +353,7 @@ factures désignent une fiche professionnelle.
 | RG-OPE-07 | L'identifiant tiers ODG est facultatif et, s'il est renseigné, unique (bloquant), pour que la passerelle ODG rattache un flux sans ambiguïté. | C.1.1.1 p.101, §6.1.4 p.81, décision du 2026-10-06 |
 | RG-OPE-08 | Une raison sociale déjà portée par une autre fiche (à la casse, aux accents et aux espaces près) donne un avertissement non bloquant qui nomme cette fiche. | Décision du 2026-10-06 |
 | RG-OPE-09 | Deux fiches sont du même groupe si leurs groupes sont égaux à la casse, aux accents et aux espaces près. À la saisie, les groupes existants sont proposés. La fiche liste les autres fiches de son groupe. | §4.3.2 p.18, §4.3.3 p.20, H-OPE-1 |
-| RG-OPE-10 | La périodicité est mensuelle, trimestrielle, semestrielle ou annuelle. À la création, elle vaut annuelle pour un producteur, mensuelle pour un négociant, rien pour `AUTRE` ; elle est obligatoire pour un producteur ou un négociant. Elle se modifie à tout moment ; changer le type ne la modifie pas, l'écran suggère la valeur par défaut du nouveau type. Seule exception, ce que RG-OPE-01 et 11 imposent : passer en `AUTRE` retire la périodicité et change `OUI` en `NON` ; quitter `AUTRE` donne la périodicité et le statut par défaut du nouveau type. Seule la valeur courante est conservée. | C.1.1.1 p.101, §4.4.10 p.28, décision du 2026-10-06 (exception : implémentation, lot 3) |
+| RG-OPE-10 | La périodicité est mensuelle, trimestrielle, semestrielle ou annuelle. À la création, elle vaut annuelle pour un producteur, mensuelle pour un négociant, rien pour `AUTRE` ; elle est obligatoire pour un producteur ou un négociant. Elle se modifie à tout moment ; changer le type ne la modifie pas, l'écran suggère la valeur par défaut du nouveau type. Seule exception, ce que RG-OPE-01 et 11 imposent : passer en `AUTRE` retire la périodicité et change `OUI` en `NON` ; quitter `AUTRE` donne la périodicité et le statut par défaut du nouveau type. Seule la valeur courante est conservée. Dans le prototype, la périodicité n'a pas d'effet sur les DSM : leur période découle du type (spec 05 §2.2, RG-DEC-03). | C.1.1.1 p.101, §4.4.10 p.28, décision du 2026-10-06 (exception : implémentation, lot 3), spec 05 |
 | RG-OPE-11 | Le statut de déclaration de stock vaut `OUI`, `NON`, `SOMMEIL` ou `CLOTURE` ; `OUI` par défaut pour un producteur ou un négociant, `NON` pour `AUTRE`, qui ne peut pas être à `OUI`. Seul `OUI` rend une DSM attendue. Toutes les transitions sont permises. | C.1.1.2 p.102, §4.4.8 p.27, H-OPE-2 |
 | RG-OPE-12 | Les appellations sont un choix multiple parmi cinq valeurs, dont Blanche Armagnac. | C.1.1.2 p.102, AGI 2.1.1 p.5, décision du 2026-10-06 |
 | RG-OPE-13 | Un alambic a un type (`ARMAGNACAIS` ou `DOUBLE_CHAUFFE`) et, si elle est renseignée, une capacité strictement positive. L'opérateur est « détenteur d'alambic » si et seulement s'il a au moins un alambic. | C.1.1.2, C.1.2.1 p.102, H-OPE-3 |
@@ -448,7 +448,7 @@ Presque tous les contextes lisent un opérateur. Ils le font par une **partie pu
 | Un opérateur par identifiant : code, raison sociale, nom commercial, type, actif | tous |
 | Un opérateur par code (imports Excel) | `declarations`, `exportation` |
 | Un opérateur par identifiant ODG, puis par CVI ou SIRET | `distillation`, `contratsvin` (passerelle ODG) |
-| Type, périodicité, statut de déclaration ; opérateurs à `OUI` (sans l'opérateur BNIA, RG-OPE-39) | `declarations` (génération, relances, colonnes grisées, assiette de cotisation) |
+| Type, périodicité, statut de déclaration ; opérateurs à `OUI` (sans l'opérateur BNIA, RG-OPE-39) | `declarations` (initiation par l'opérateur, retards, colonnes grisées, assiette de cotisation ; la périodicité n'est pas lue dans le prototype, spec 05 §2.2) |
 | Type | `statistiques` |
 | Adresse, pays, e-mail résolu du destinataire des factures | `facturation` (figés sur la facture), `boutique` |
 | Raison sociale et adresse de l'expéditeur | `exportation` (certificat, figées) |
@@ -492,8 +492,9 @@ deux espaces. Les entrées de menu et les actions s'affichent selon les droits (
     « accès suspendu », « invitation envoyée ») ; déclarer un contact ; inviter ; ouvrir une personne ;
     invitations en attente (relancer, annuler) ;
   - *Journal* : actions sur les personnes et les accès de l'opérateur (RG-OPE-34) ;
-  - blocs ajoutés par les étapes suivantes : dernière DSM et son état, historique des DSM, factures,
-    contrats (§4.3.3, §2.2).
+  - *Déclarations* (producteur ou négociant), fourni par `declarations` : point de départ, DSM,
+    journal, stock déclaré (spec 05 §6.1) ;
+  - blocs ajoutés par les étapes suivantes : factures, contrats (§4.3.3, §2.2).
 - **Actions sur l'opérateur** (ADMIN BNIA) : désactiver, réactiver, supprimer (refusée si l'opérateur est
   utilisé : le message propose de désactiver), avec la liste des effets sur les accès (RG-OPE-25, 26).
 - **Menu « BNIA »** : l'opérateur BNIA, en deux onglets : *Fiche* réduite (identité et coordonnées, sans
@@ -560,6 +561,9 @@ Des données plausibles, présentées comme telles, sur les référentiels de d�
 | Maison Durand, Condom | Paul Petit | | contact (maître de chai), désigné contact principal |
 | Distillerie ambulante Lafitte | Marc Lafitte | | invitation `EN_ATTENTE`, rôle `ADMIN` |
 | tous les autres | | | aucun membre |
+
+Pour la démonstration de `declarations` (spec 05 §7.1, lot 7), un producteur passe au statut de
+déclaration `SOMMEIL` ; il a une DSM validée dans les données de `declarations`.
 
 ### 7.2 Reprise AGI
 
@@ -634,7 +638,7 @@ décisions et hypothèses ; seules la reprise et `declarations` (Q-OPE-7) dépen
 | Q-OPE-4 | **Au BNIA** : que contient le champ « membre BNIA » (adhésion, collège, rôle dans les instances) ? **Demande à AGI** : une vue de la table « paramétrage - membres BNIA » (identifiant, code, libellé), à joindre à la demande Q-REF-6. | Les valeurs initiales de `MembreBnia` et la reprise du champ |
 | ~~Q-OPE-5~~ | Que voit un opérateur des autres opérateurs au portail, pour désigner l'autre partie d'un contrat ? **Tranché le 2026-10-06 : recherche restreinte** (RG-OPE-37). À confirmer par le BNIA, avec la façon de faire actuelle sur pro.armagnac.fr. | |
 | Q-OPE-6 | **Au BNIA** : à quoi sert le groupe opérateur aujourd'hui ? La « propre structure juridique » des statistiques du portail (§4.10 p.47, §5.11 p.75) est-elle le groupe, le SIREN, ou la fiche ? | H-OPE-1 ; le périmètre des statistiques du portail |
-| Q-OPE-7 | **Au BNIA** : que signifient « oui », « non », « sommeil » et « clôturé » du statut de déclaration de stock ? Lesquels rendent une DSM attendue ? | H-OPE-2 ; la génération et les relances de `declarations` |
+| Q-OPE-7 | **Au BNIA** : que signifient « oui », « non », « sommeil » et « clôturé » du statut de déclaration de stock ? Lesquels rendent une DSM attendue ? | H-OPE-2 ; l'initiation et les retards de `declarations` (spec 05, H-DEC-10, Q-DEC-11) |
 | Q-OPE-8 | **Au BNIA** : quels types d'alambic et quelles unités de capacité sont en usage ? | H-OPE-3 ; la reprise des alambics |
 | Q-OPE-9 | **Au BNIA** : que signifie l'accord statistique « partiel » d'InteGraal ? Une autorisation d'utilisation des données, distincte de la diffusion des millésimes, est-elle nécessaire (§5.11 p.75) ? | H-OPE-4 ; la reprise du champ Statistiques |
 | ~~Q-OPE-10~~ | Les droits portail sont-ils portés par le contact (C.1.9.2) ou par le rattachement du compte (C.13.2) ? **Tranché le 2026-10-06 : par le contact** ; le droit « gestion des contacts » devient le rôle d'administrateur. À confirmer par le BNIA. **Révisé le 2026-10-08 : par le rattachement**, avec un rôle fixe (C.13.2 suivi, vision). |  |
@@ -684,5 +688,6 @@ Chaque RG-OPE-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-08 | Démonstration (demande de l'utilisateur) : identifiants de connexion lisibles, un par rôle et par type d'opérateur (`admin@`, `agent@`, `observateur@` × `bnia.fr`, `producteur.fr`, `negociant.fr`) ; trois membres ajoutés au négociant Armagnacs de Gascogne ; Pierre Roy aussi observateur actif à Condom, pour que son compte se connecte (sa suspension à Eauze reste montrée). §7.1 et `docs/demo.md` mis à jour. Mot de passe de démonstration `demo-armagnac` (13 caractères, RG-AUT-07 respectée), à la place de `demo-bnia-2026`. |
 | 2026-10-12 | Listing du back-office (demande de l'utilisateur) : les filtres code, raison sociale, nom commercial, code postal et ville (§4.3.1 p.18) réunis en un seul champ de recherche (paramètre `recherche`, « contient », sans distinction de casse, une colonne suffit), pour l'écran comme pour l'export Excel. Le code postal se cherche désormais n'importe où dans la valeur, et plus seulement par son début. |
 | 2026-10-12 | Écrans (demande de l'utilisateur) : le sélecteur d'opérateur actif quitte la barre latérale pour l'en-tête du contenu, à droite avant les icônes thème, paramétrage et profil, conformément au §6. « Mon compte » mis en page comme le Paramétrage (sections Profil, Mon compte, Mes opérateurs, Mes connexions). |
+| 2026-10-13 | Révision demandée par la spec 05 (`declarations`) : colonne « Déclarations » du tableau rôles × modules (§3.2.7) ; onglet « Déclarations » de la fiche opérateur (§6.1) ; périodicité sans effet sur les DSM dans le prototype (RG-OPE-10) ; « génération » remplacée par l'initiation par l'opérateur (§5.2, Q-OPE-7) ; un producteur `SOMMEIL` en démonstration (§7.1). |
 | 2026-10-13 | Correction (anomalie signalée par l'utilisateur : un contact et le membre invité au même e-mail figuraient tous deux dans l'annuaire, contre RG-OPE-29). Décision de l'utilisateur : RG-OPE-40, une personne nouvelle à l'e-mail d'un contact est invitée depuis ce contact (identité saisie ignorée, signalée à l'écran) ; RG-OPE-42, à l'acceptation, le contact déclaré pendant l'attente avec l'e-mail de l'invitation est repris de même. Alternatives écartées : reprise à l'acceptation seulement (deux lignes pendant l'attente) ; refus à l'envoi. |
 | 2026-10-13 | Écrans (demande de l'utilisateur) : le menu du profil, en haut à droite, affiche sous l'opérateur actif le rôle qu'y tient l'utilisateur (« Rôle : Observateur », « Agent » ou « Admin »). |

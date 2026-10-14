@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
  * Traduit les exceptions métier en {@link ProblemDetail} (RFC 9457). Le {@code detail} est le message
@@ -42,6 +43,15 @@ class GestionErreurs {
     @ExceptionHandler(RegleEnfreinte.class)
     ProblemDetail regleEnfreinte(RegleEnfreinte exception) {
         return probleme(HttpStatus.UNPROCESSABLE_CONTENT, "Règle de gestion enfreinte", exception);
+    }
+
+    /** ADR-018 : un fichier de plus de 10 Mo est arrêté avant d'atteindre le stockage. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ProblemDetail tropGros(MaxUploadSizeExceededException exception) {
+        ProblemDetail probleme = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT,
+                "Le fichier dépasse 10 Mo.");
+        probleme.setTitle("Fichier refusé");
+        return probleme;
     }
 
     @ExceptionHandler(NonConnecte.class)

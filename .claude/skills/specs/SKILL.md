@@ -24,6 +24,12 @@ la spec (voir « Conclusions de l'analyse »).
   `C.10.5.1`, `AGI 2.6.1 p.13`). Ce qui a été décidé en séance porte « décision du <date> ».
 - **Itérer.** Spec → `contextes.md` → spec. Aucune des deux n'est figée avant l'autre.
 - **Les questions vivent dans la spec du contexte** (§ Questions ouvertes), jamais dans un fichier global.
+- **Toute hypothèse retenue est une question au BNIA.** Dès qu'une discussion retient une
+  interprétation (source muette, sources contradictoires, écart au CDC), l'écrire aussitôt, sans
+  attendre la rédaction : l'hypothèse `H-<CTX>-n` (§ Hypothèses, avec son pourquoi et ses sources), et
+  sa question `Q-<CTX>-n` (§ Questions ouvertes) : « **Au BNIA** : confirmer que … (H-<CTX>-n) », avec
+  dans « Bloque » ce qu'une autre réponse changerait. Les questions au BNIA de la spec forment ainsi la
+  liste complète des points à valider avec lui.
 - **Pas de code, pas de commit, pas de `git add`.**
 - **Conclusions de l'analyse.** Ce que l'analyse a validé (cadrage, frontières, cas d'usage
   `UC-<CTX>-n`, objets et invariants, flux entre contextes, amendements au CDC, révisions de
@@ -50,6 +56,9 @@ l'utilisateur.
    - sinon, depuis la racine du dépôt principal : `git worktree add ../bnia-worktrees/<contexte> -b
      contexte/<contexte> main` (sans `-b` si la branche existe déjà). Le worktree part du dernier commit
      de `main` : ce que l'utilisateur n'a pas commité n'y est pas, le signaler s'il y en a.
+   - puis, à la racine du worktree (même en reprise : sans effet s'il est déjà configuré) :
+     `./worktree-env.sh`, qui lui donne ses propres ports (back, front, base, Mailpit) dans
+     `backend/.env` et `frontend/.env.local`, ignorés par git ; annoncer les ports à l'utilisateur.
 
    Entrer avec l'outil `EnterWorktree` (paramètre `path`, chemin absolu du worktree), puis vérifier
    `git branch --show-current`.
@@ -80,6 +89,12 @@ Questions sur les attributs, les types, les invariants, les cas implicites (supp
 valeurs par défaut, historique). Puis rédiger le modèle, les règles `RG-<CTX>-nn`, les cas d'usage,
 les écrans et les données (démo, reprise AGI vue par vue). Le modèle part des objets et invariants de
 l'analyse ; les cas d'usage reprennent ses `UC-<CTX>-n` (mêmes numéros), complétés des cas secondaires.
+
+Proposer enfin les **lots d'implémentation** (§ Lots) : des incréments au sens agile, chacun une
+tranche verticale (domaine, cas d'usage, persistance, REST, écrans, démo) livrable, démontrable et
+testable seule, qui ne s'appuie que sur les lots précédents. Par exemple : saisie manuelle, puis
+édition PDF, puis import et export Excel. Pour chaque lot : l'incrément, son contenu, ses RG, et ce
+qu'on peut démontrer à la fin. Chaque RG porte le numéro du lot qui la livre (colonne « Lot » du § Règles).
 
 ### D. Impact sur `contextes.md`
 Lister ce que la spec change : fiche du contexte, fiches des autres contextes (objets déplacés,
@@ -131,7 +146,9 @@ devenus faux. Signaler les numéros de page non vérifiés.
       démo et la reprise.
 - [ ] Chaque cas d'usage cite les RG qu'il applique ; chaque RG est appliquée par un cas d'usage.
 - [ ] Les tests attendus répartissent les RG entre domaine et cas d'usage / IT.
+- [ ] Chaque RG a un lot ; chaque lot est un incrément vertical démontrable, sans dépendance vers un lot suivant.
 - [ ] Hypothèses et questions : statut à jour, aucune « à trancher » oubliée.
+- [ ] Chaque hypothèse `H-<CTX>-n` a sa question « Au BNIA : confirmer… » dans § Questions ouvertes.
 - [ ] Aucun renvoi vers `docs/questions-ouvertes.md`.
 - [ ] Vocabulaire conforme au glossaire (ADR-001) ; nouveaux termes listés pour la phase G.
 - [ ] `contextes.md` cohérent avec la spec (fiche, autres fiches, interrogations, journal).

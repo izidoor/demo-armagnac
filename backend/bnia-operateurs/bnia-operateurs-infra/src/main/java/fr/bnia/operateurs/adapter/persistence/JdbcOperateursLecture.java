@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -102,6 +103,20 @@ class JdbcOperateursLecture implements OperateursLecture {
                         + " order by raison_sociale, code limit :limite")
                 .param("motif", Sql.motifContient(recherche))
                 .param("limite", RESULTATS_MAXIMUM)
+                .query((rs, i) -> new ResultatRecherche(rs.getLong("id"), rs.getString("code"),
+                        rs.getString("raison_sociale"), Optional.ofNullable(rs.getString("nom_commercial")),
+                        Optional.ofNullable(rs.getString("ville"))))
+                .list();
+    }
+
+    @Override
+    public List<ResultatRecherche> identites(Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return jdbcClient.sql("select id, code, raison_sociale, nom_commercial, ville from " + TABLE
+                        + " where id in (:ids)")
+                .param("ids", List.copyOf(ids))
                 .query((rs, i) -> new ResultatRecherche(rs.getLong("id"), rs.getString("code"),
                         rs.getString("raison_sociale"), Optional.ofNullable(rs.getString("nom_commercial")),
                         Optional.ofNullable(rs.getString("ville"))))

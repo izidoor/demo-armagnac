@@ -113,7 +113,9 @@ public class DemoOperateurs implements ApplicationRunner {
         negociant("N320001", "Armagnacs de Gascogne", "32100", "Condom");
         armagnacsDeGascogne();
         negociant("N320002", "Maison Larressingle", "32100", "Condom");
+        gerant("N320002", "admin@larressingle.fr", "Lacoste", "Marie", "Gérante");
         negociant("N400001", "Négoce des Landes", "40000", "Mont-de-Marsan");
+        gerant("N400001", "admin@landes.fr", "Dufau", "Bernard", "Gérant");
         distillerieLafitte();
         autre("000011", "Courtage Sud-Ouest", "Courtier", "47600", "Nérac");
         incomplete();
@@ -172,6 +174,15 @@ public class DemoOperateurs implements ApplicationRunner {
                 "Gérant"));
         comptes.membre(castex, id, Role.AGENT, "agent@negociant.fr", "Darrigade", "Julie", "Responsable des achats");
         comptes.membre(castex, id, Role.OBSERVATEUR, "observateur@negociant.fr", "Barrère", "Thomas", "Commercial");
+    }
+
+    /**
+     * Le gérant d'un négociant, ADMIN, pour que ses déclarations passent par les cas d'usage (spec 05 §7.1,
+     * lot 2). Relançable : un membre existant est laissé tel quel.
+     */
+    private void gerant(String code, String email, String nom, String prenom, String fonction) {
+        long id = lecture.operateurParCode(code).orElseThrow().id();
+        comptes.membre(anne, id, Role.ADMIN, email, nom, prenom, fonction);
     }
 
     /** Distillerie ambulante Lafitte : Marc Lafitte, invité comme ADMIN, n'a pas encore accepté. */
