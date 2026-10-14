@@ -2,16 +2,15 @@ package fr.bnia.declarations.adapter.document;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.declarations.application.ClasseursDsm;
-import fr.bnia.declarations.application.CotisationDsm;
 import fr.bnia.declarations.application.CotisationDsm.Calculee;
 import fr.bnia.declarations.application.CotisationDsm.Facturee;
+import fr.bnia.declarations.application.CotisationDsm;
 import fr.bnia.declarations.application.EditionsDsm.EditionDsm;
 import fr.bnia.declarations.application.FactureDsm;
 import fr.bnia.declarations.domain.CelluleLue;
 import fr.bnia.declarations.domain.ClasseurLu;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.GrilleCotisation.TauxEnVigueur;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.LigneDsm;
@@ -19,6 +18,7 @@ import fr.bnia.declarations.domain.OngletDsm;
 import fr.bnia.declarations.domain.PolitiqueCotisation.Detail;
 import fr.bnia.declarations.domain.PolitiqueCotisation.LigneDetail;
 import fr.bnia.declarations.domain.TypeDeclarant;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -168,7 +168,8 @@ class ExcelDsm implements ClasseursDsm {
                 {"État", dsm.etat().libelle(edition.cote())},
                 {"Validée le", dsm.valideeLe() == null ? "—" : dsm.valideeLe().atZone(PARIS).toLocalDate().format(DATE)
                         + (dsm.valideePar() == null ? "" : " par " + dsm.valideePar().nom())},
-                {"Date de DIA", dsm.dateDia() == null ? "—" : dsm.dateDia().format(DATE)}};
+                {"Date de DIA", dsm.dateDia() == null ? "—" : dsm.dateDia().format(DATE)},
+                {"Échéance", dsm.periode().echeance(dsm.type()).format(DATE)}};
         for (int i = 0; i < champs.length; i++) {
             if (champs[i] != null) {
                 ws.value(4 + i, 0, champs[i][0]);

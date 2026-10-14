@@ -1,10 +1,10 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.SaisieDsm;
 import fr.bnia.declarations.domain.SaisieLigneDsm;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;

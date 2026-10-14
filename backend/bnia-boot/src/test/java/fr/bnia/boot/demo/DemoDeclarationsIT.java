@@ -11,13 +11,14 @@ import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.Commentaire;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.Manque;
 import fr.bnia.declarations.domain.TypeAnomalie;
 import fr.bnia.declarations.domain.TypeMouvement;
 import fr.bnia.declarations.domain.TypePiece;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.Acteur;
+import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.support.AbstractIT;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,7 +30,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Chargeur de démonstration des déclarations (spec 05, §7.1, lots 1 à 4), après le personnel, les
+ * Chargeur de démonstration des déclarations (spec 05, §7.1, lots 1 à 7), après le personnel, les
  * référentiels et les opérateurs : relançable, et conforme à la spec.
  */
 class DemoDeclarationsIT extends AbstractIT {
@@ -91,7 +92,10 @@ class DemoDeclarationsIT extends AbstractIT {
                 .contains(LocalDate.of(2021, 1, 1), LocalDate.of(2024, 1, 1));
 
         long larressingle = id("N320002");
-        DsmLigne complements = seule("N320002", EtatDsm.COMPLEMENTS_DEMANDES, mois);
+        DsmLigne complements = seule("N320002", EtatDsm.COMPLEMENTS_DEMANDES, mois.minusMonths(1));
+        assertThat(dsms.consulter(anne, larressingle, complements.id()).enRetard())
+                .as("en retard dès le 6 du mois").isEqualTo(LocalDate.now().getDayOfMonth() > 5);
+        assertThat(dsms.consulter(anne, gascogne, envoyee.dsm().id()).enRetard()).as("attend le BNIA").isFalse();
         assertThat(commentaires.lister(anne, larressingle, complements.id())).singleElement()
                 .satisfies(c -> assertThat(c.texte()).isEqualTo("DAE manquants pour l'export"));
 
@@ -110,6 +114,12 @@ class DemoDeclarationsIT extends AbstractIT {
         assertThat(dsms.situation(anne, id("000001")).initiable()).as("la DSM suivante est à initier").isTrue();
 
         assertThat(points.consulter(anne, id("000002"))).isEmpty();
+
+        // Lot 7 : le Domaine de Laubade, en sommeil après sa DSM d'il y a deux ans, attend un nouveau point de départ.
+        seule("000003", EtatDsm.VALIDEE, LocalDate.of(annee - 2, 4, 1));
+        assertThat(operateurs.operateur(id("000003")).orElseThrow().statutDeclarationStock())
+                .isEqualTo(StatutDeclarationStock.SOMMEIL);
+        assertThat(points.consulter(anne, id("000003")).orElseThrow().renouvelable()).isTrue();
     }
 
     private static String somme(List<LigneDsm> lignes, ColonneDsm... colonnes) {

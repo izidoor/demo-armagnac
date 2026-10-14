@@ -10,8 +10,10 @@ import static fr.bnia.declarations.domain.Exemples.refuse;
 import static fr.bnia.declarations.domain.Exemples.sixLignes;
 import static fr.bnia.declarations.domain.Exemples.stock;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.ModificationConcurrente;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PointDeDepartDeclaratifTest {
 
@@ -75,5 +76,26 @@ class PointDeDepartDeclaratifTest {
         PointDeDepartDeclaratif point = pointDeJuin(sixLignes());
         assertThatThrownBy(() -> point.modifier(TypeDeclarant.NEGOCIANT, JUIN, List.of(), false, Optional.empty(), BNIA,
                 MAINTENANT, 3L)).isInstanceOf(ModificationConcurrente.class);
+    }
+
+    @Test
+    @DisplayName("RG-DEC-09 : un nouveau point de départ, sans DSM en cours, après la dernière DSM validée")
+    void rg_dec_09_nouveau_point_de_depart() {
+        PeriodeDeclaration derniere = PERIODE_JUIN;
+        refuse("RG-DEC-09", () -> PointDeDepartDeclaratif.fixerApres(OPERATEUR, TypeDeclarant.NEGOCIANT,
+                LocalDate.of(2026, 9, 1), List.of(), Optional.of(PERIODE_JUIN.suivante(TypeDeclarant.NEGOCIANT)),
+                derniere, BNIA, MAINTENANT));
+        refuse("RG-DEC-09", () -> PointDeDepartDeclaratif.fixerApres(OPERATEUR, TypeDeclarant.NEGOCIANT,
+                LocalDate.of(2026, 6, 1), List.of(), Optional.empty(), derniere, BNIA, MAINTENANT));
+        refuse("RG-DEC-06", () -> PointDeDepartDeclaratif.fixerApres(OPERATEUR, TypeDeclarant.NEGOCIANT,
+                LocalDate.of(2026, 9, 15), List.of(), Optional.empty(), derniere, BNIA, MAINTENANT));
+
+        PointDeDepartDeclaratif lendemain = PointDeDepartDeclaratif.fixerApres(OPERATEUR, TypeDeclarant.NEGOCIANT,
+                LocalDate.of(2026, 7, 1), sixLignes(), Optional.empty(), derniere, BNIA, MAINTENANT);
+        assertThat(lendemain.debut()).isEqualTo(LocalDate.of(2026, 7, 1));
+        assertThat(lendemain.lignes()).hasSize(6);
+        assertThat(PointDeDepartDeclaratif.fixerApres(OPERATEUR, TypeDeclarant.NEGOCIANT, LocalDate.of(2027, 2, 1),
+                List.of(), Optional.empty(), derniere, BNIA, MAINTENANT).debut())
+                .as("après une interruption").isEqualTo(LocalDate.of(2027, 2, 1));
     }
 }

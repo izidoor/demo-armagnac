@@ -762,3 +762,12 @@ create table declarations.journal (
 create index journal_declarations_operateur on declarations.journal (operateur_id, date desc);
 -- (dsm_id, date) : le journal d'une DSM, et sa dernière action (« modifiée le » du listing) lue dans l'index.
 create index journal_declarations_dsm on declarations.journal (dsm_id, date desc);
+
+-- Retards déjà signalés (RG-DEC-41, A-DEC-7, ADR-019) : une ligne par période en retard d'un opérateur.
+-- DeclarationEnRetard n'est publié que si l'insertion réussit : une double exécution est inoffensive.
+create table declarations.retard_signale (
+    operateur_id  bigint       not null references operateurs.operateur (id) on delete cascade,
+    debut         date         not null,
+    signale_le    timestamptz  not null,
+    primary key (operateur_id, debut)
+);

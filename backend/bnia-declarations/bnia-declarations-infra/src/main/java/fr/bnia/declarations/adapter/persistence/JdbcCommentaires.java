@@ -5,7 +5,7 @@ import static fr.bnia.declarations.adapter.persistence.Lignes.SCHEMA;
 import fr.bnia.declarations.application.Commentaires;
 import fr.bnia.declarations.domain.Auteur;
 import fr.bnia.declarations.domain.Commentaire;
-import fr.bnia.declarations.domain.Cote;
+import fr.bnia.declarations.domain.partage.Cote;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;

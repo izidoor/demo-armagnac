@@ -14,11 +14,11 @@ import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.SaisieLigneStock;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
@@ -112,5 +112,71 @@ class GererPointDeDepartTest {
         assertThat(derniere.dsm()).isNull();
         assertThat(derniere.nomActeur()).isEqualTo("Utilisateur 20");
         assertThat(derniere.detail()).isEqualTo("Début au 01/07/2026, 2 lignes de stock initial");
+    }
+
+    /** La DSM de juin du négociant, initiée, envoyée, prise en instruction et validée, sans mouvement. */
+    private long juinValidee() {
+        GererDsm dsms = monde.gererDsm();
+        long dsm = dsms.initier(AGENT_NEGOCIANT, NEGOCIANT).dsm().id();
+        dsms.envoyer(AGENT_NEGOCIANT, NEGOCIANT, dsm, null);
+        dsms.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, dsm, null);
+        dsms.valider(AGENT_BNIA, NEGOCIANT, dsm, null);
+        return dsm;
+    }
+
+    @Test
+    @DisplayName("RG-DEC-09 : nouveau point de départ quand le précédent est figé et qu'aucune DSM n'est en cours")
+    void rg_dec_09_nouveau_point_de_depart() {
+        cas.fixer(AGENT_BNIA, NEGOCIANT, JUIN, STOCK);
+        assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT).orElseThrow().renouvelable()).isFalse();
+        juinValidee();
+        assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT).orElseThrow().renouvelable()).isTrue();
+
+        long juillet = monde.gererDsm().initier(AGENT_NEGOCIANT, NEGOCIANT).dsm().id();
+        assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT).orElseThrow().renouvelable()).isFalse();
+        assertThatThrownBy(() -> cas.fixer(AGENT_BNIA, NEGOCIANT, LocalDate.of(2026, 9, 1), STOCK))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("juillet 2026 est en cours");
+        monde.gererDsm().supprimer(AGENT_BNIA, NEGOCIANT, juillet);
+
+        assertThatThrownBy(() -> cas.fixer(AGENT_BNIA, NEGOCIANT, JUIN, STOCK))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("après le 30/06/2026");
+        GererPointDeDepart.PointDeDepart nouveau = cas.fixer(AGENT_BNIA, NEGOCIANT, LocalDate.of(2027, 5, 1), STOCK);
+
+        assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT).orElseThrow().point().id()).isEqualTo(nouveau.point().id());
+        assertThat(cas.historique(OBSERVATEUR_NEGOCIANT, NEGOCIANT)).extracting(p -> p.point().debut(),
+                GererPointDeDepart.PointDeDepart::fige).containsExactly(
+                        org.assertj.core.groups.Tuple.tuple(LocalDate.of(2027, 5, 1), false),
+                        org.assertj.core.groups.Tuple.tuple(JUIN, true));
+        assertThat(monde.journal.deLOperateur(NEGOCIANT).getFirst().detail()).isEqualTo("Nouveau point de départ : "
+                + "Début au 01/05/2027, 2 lignes de stock initial, après une interruption du 01/07/2026 au 30/04/2027");
+        assertThat(monde.gererDsm().situation(AGENT_NEGOCIANT, NEGOCIANT).periode().orElseThrow().libelle())
+                .as("la période suivante commence au nouveau point de départ").isEqualTo("mai 2027");
+    }
+
+    @Test
+    @DisplayName("RG-DEC-09 : le stock proposé est le stock de fin de la dernière DSM validée, vieilli à la date retenue")
+    void rg_dec_09_proposition() {
+        cas.fixer(AGENT_BNIA, NEGOCIANT, JUIN, STOCK);
+        assertThat(cas.proposer(AGENT_BNIA, NEGOCIANT, java.util.Optional.empty()))
+                .as("sans DSM validée, le point de départ se modifie").isEmpty();
+        juinValidee();
+
+        GererPointDeDepart.Proposition lendemain = cas.proposer(AGENT_BNIA, NEGOCIANT, java.util.Optional.empty())
+                .orElseThrow();
+        assertThat(lendemain.debut()).isEqualTo(LocalDate.of(2026, 7, 1));
+        assertThat(lendemain.derniere().libelle()).isEqualTo("juin 2026");
+        assertThat(lendemain.lignes()).extracting(l -> l.identite().compte().toString()).containsExactly("12", "15");
+
+        GererPointDeDepart.Proposition apres = cas.proposer(AGENT_BNIA, NEGOCIANT,
+                java.util.Optional.of(LocalDate.of(2028, 5, 1))).orElseThrow();
+        assertThat(apres.lignes()).extracting(l -> l.identite().compte().toString())
+                .as("XO +2 (avril 2027 et 2028), MB 2010 recalculé").containsExactly("14", "17");
+        assertThat(apres.lignes()).extracting(l -> l.volume().toString()).containsExactly("1500.00", "640.25");
+
+        for (Acteur refuse : List.of(AGENT_NEGOCIANT, OBSERVATEUR_BNIA)) {
+            assertThatThrownBy(() -> cas.proposer(refuse, NEGOCIANT, java.util.Optional.empty()))
+                    .isInstanceOf(AccesRefuse.class);
+        }
+        assertThatThrownBy(() -> cas.historique(Monde.INCONNU, NEGOCIANT)).isInstanceOf(AccesRefuse.class);
     }
 }

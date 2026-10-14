@@ -4,10 +4,8 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.ActionDsm;
 import fr.bnia.declarations.application.VueDsm;
 import fr.bnia.declarations.domain.Anomalie;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.Manque;
@@ -18,6 +16,8 @@ import fr.bnia.declarations.domain.SensColonne;
 import fr.bnia.declarations.domain.TypeAnomalie;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import fr.bnia.declarations.domain.TypeMouvement;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -58,6 +58,11 @@ public record DsmResponse(
                 description = "Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)")
         List<ManqueResponse> manques,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) CotisationResponse cotisation,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Échéance de la période (RG-DEC-39)")
+        LocalDate echeance,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Échéance passée, DSM en brouillon ou en compléments demandés, opérateur au statut OUI (RG-DEC-40)")
+        boolean enRetard,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long version) {
 
     @Schema(name = "ColonneDsm", description = "Une des 26 colonnes du format unique (spec 05 §3.1)")
@@ -123,7 +128,8 @@ public record DsmResponse(
                 dsm.lignes().stream().map(DsmResponse::ligne).toList(), volumes(dsm::total),
                 vue.anomalies().stream().map(DsmResponse::anomalie).toList(),
                 vue.manques().stream().map(DsmResponse::manque).toList(),
-                CotisationResponse.depuis(vue.cotisation(), dsm.periode().fin()), dsm.version());
+                CotisationResponse.depuis(vue.cotisation(), dsm.periode().fin()), vue.echeance(), vue.enRetard(),
+                dsm.version());
     }
 
     private static LigneResponse ligne(LigneDsm ligne) {

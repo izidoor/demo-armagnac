@@ -2,9 +2,9 @@ package fr.bnia.declarations.application;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.domain.ColonneDsm;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.TypeDeclarant;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;

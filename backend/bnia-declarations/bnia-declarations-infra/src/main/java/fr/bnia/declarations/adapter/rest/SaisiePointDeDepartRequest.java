@@ -1,8 +1,8 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.SaisieLigneStock;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;

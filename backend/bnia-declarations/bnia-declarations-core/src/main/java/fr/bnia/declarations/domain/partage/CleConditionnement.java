@@ -1,4 +1,4 @@
-package fr.bnia.declarations.domain;
+package fr.bnia.declarations.domain.partage;
 
 /**
  * Clé de conditionnement d'une ligne de DSM (glossaire, §4.4.3 p.23, C.3.2.1 p.108). La première lettre

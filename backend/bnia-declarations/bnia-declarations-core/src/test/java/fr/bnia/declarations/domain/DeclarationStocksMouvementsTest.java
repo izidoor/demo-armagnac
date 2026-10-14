@@ -25,6 +25,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.ModificationConcurrente;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.LocalDate;

@@ -12,12 +12,14 @@ import {
   useDsms,
   usePointDeDepart,
 } from './api'
+import { BandeauEcheance } from './echeance'
 import { ListeDsm } from './liste-dsm'
 import { ResumePointDeDepart } from './point-de-depart'
 
 /**
  * « Mes DSM » au portail (spec 05 §6.2) : les DSM de l'opérateur actif, le bouton « Initier la DSM de
- * <période> » ou la raison qui l'empêche (RG-DEC-02 à 05), le point de départ en lecture.
+ * <période> » ou la raison qui l'empêche (RG-DEC-02 à 05), le point de départ en lecture ; le bandeau de
+ * l'échéance et du retard de la période attendue (RG-DEC-39, 40).
  */
 export function PageMesDsm() {
   const { actif } = useMoi()
@@ -49,6 +51,12 @@ function MesDsm({ operateur }: { operateur: number }) {
   })
   const s = situation.data
   const gere = droits?.declarations === 'GESTION'
+  // La période attendue : à initier, ou celle de la DSM en cours ; une DSM envoyée attend le BNIA.
+  const enCours = dsms.data?.find((d) => d.id === s?.dsmEnCours)
+  const attendue =
+    s?.periode && s.echeance && (s.initiable || s.dsmEnCours != null)
+      ? { periode: s.periode.libelle, echeance: s.echeance }
+      : null
 
   return (
     <PageMetier
@@ -67,6 +75,19 @@ function MesDsm({ operateur }: { operateur: number }) {
       }
     >
       <div className='space-y-6'>
+        {attendue && (
+          <BandeauEcheance
+            periode={attendue.periode}
+            echeance={attendue.echeance}
+            enRetard={s?.enRetard ?? false}
+            attendBnia={
+              enCours != null &&
+              ['ENVOYEE', 'EN_INSTRUCTION', 'COMPLEMENTS_RECUS'].includes(
+                enCours.etat
+              )
+            }
+          />
+        )}
         {s && !s.initiable && (
           <Alert>
             <Info />

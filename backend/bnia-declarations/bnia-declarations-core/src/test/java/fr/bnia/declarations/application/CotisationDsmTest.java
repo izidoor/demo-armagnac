@@ -158,7 +158,7 @@ class CotisationDsmTest {
         assertThat(cotisation.documents()).extracting(FactureDsm::numero).containsExactly("2026000700", "A2026000012");
         assertThat(cotisation.totalHt()).isEqualByComparingTo("1755.95");
         ListerDsm.DsmListee listee = monde.listerDsm().lister(AGENT_BNIA, TOUT).getFirst();
-        assertThat(listee.dsm().facturee()).isTrue();
+        assertThat(listee.dsm().orElseThrow().facturee()).isTrue();
         assertThat(listee.totalHt()).contains(new BigDecimal("1755.95"));
     }
 
@@ -166,7 +166,7 @@ class CotisationDsmTest {
     @DisplayName("RG-DEC-31 à 33 : la cotisation publiée pour facturation, détail et taux ; vide pour une DSM inconnue")
     void rg_dec_33_lecture_publiee() {
         grille.ajouter(AGENT_BNIA, taux("60", "20", LocalDate.of(2024, 1, 1)));
-        CotisationsPubliees lecture = monde.cotisationsPubliees();
+        DeclarationsPubliees lecture = monde.declarationsPubliees();
 
         CotisationDsmVue vue = lecture.cotisation(id).orElseThrow();
 

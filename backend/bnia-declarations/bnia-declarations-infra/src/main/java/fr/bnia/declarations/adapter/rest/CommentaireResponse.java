@@ -1,7 +1,7 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.declarations.domain.Commentaire;
-import fr.bnia.declarations.domain.Cote;
+import fr.bnia.declarations.domain.partage.Cote;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 

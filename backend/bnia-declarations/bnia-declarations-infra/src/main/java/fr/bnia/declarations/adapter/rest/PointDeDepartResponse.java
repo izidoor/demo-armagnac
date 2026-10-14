@@ -1,9 +1,10 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.declarations.application.GererPointDeDepart.PointDeDepart;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.IdentiteLigne;
+import fr.bnia.declarations.domain.LigneStockInitial;
 import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -20,6 +21,9 @@ public record PointDeDepartResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "Une DSM qui commence à son début est validée : il ne se modifie plus (RG-DEC-08)")
         boolean fige,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Figé et sans DSM en cours : un nouveau point de départ peut le remplacer (RG-DEC-09)")
+        boolean renouvelable,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long version) {
 
     @Schema(name = "LigneStockInitial")
@@ -33,11 +37,16 @@ public record PointDeDepartResponse(
 
     static PointDeDepartResponse depuis(PointDeDepart p) {
         PointDeDepartDeclaratif point = p.point();
-        return new PointDeDepartResponse(point.id(), point.debut(), point.lignes().stream().map(l -> {
+        return new PointDeDepartResponse(point.id(), point.debut(), lignes(point.lignes()), point.fixePar().nom(),
+                point.fixeLe(), p.fige(), p.renouvelable(), point.version());
+    }
+
+    static List<LigneStockInitialResponse> lignes(List<LigneStockInitial> lignes) {
+        return lignes.stream().map(l -> {
             IdentiteLigne i = l.identite();
             return new LigneStockInitialResponse(i.cle(), i.millesime() == null ? null : i.millesime().annee(),
                     i.denomination() == null ? null : i.denomination().texte(), i.compte().toString(),
                     l.volume().litres());
-        }).toList(), point.fixePar().nom(), point.fixeLe(), p.fige(), point.version());
+        }).toList();
     }
 }

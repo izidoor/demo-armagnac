@@ -348,6 +348,14 @@ export type Dsm = {
      * Date de la DIA, facultative (RG-DEC-19)
      */
     dateDia?: string;
+    /**
+     * Échéance de la période (RG-DEC-39)
+     */
+    echeance: string;
+    /**
+     * Échéance passée, DSM en brouillon ou en compléments demandés, opérateur au statut OUI (RG-DEC-40)
+     */
+    enRetard: boolean;
     envoyeeLe?: string;
     etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     id: number;
@@ -385,19 +393,37 @@ export type DsmImportee = {
 };
 
 /**
- * Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)
+ * Une ligne du listing du BNIA : une DSM, ou la période attendue d'un opérateur sans DSM (absente), avec son opérateur (spec 05 §6.1, UC-DEC-7, RG-DEC-40)
  */
 export type DsmListee = {
+    /**
+     * Période attendue sans DSM initiée (RG-DEC-40)
+     */
+    absente: boolean;
     codeOperateur: string;
+    /**
+     * Échéance de la période (RG-DEC-39)
+     */
+    echeance: string;
+    /**
+     * Échéance passée, DSM absente, en brouillon ou en compléments demandés (RG-DEC-40)
+     */
+    enRetard: boolean;
     envoyeeLe?: string;
-    etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
+    /**
+     * Vide pour une période absente
+     */
+    etat?: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     /**
      * A au moins une facture (RG-DEC-34)
      */
     facturee: boolean;
-    id: number;
     /**
-     * Du point de vue du BNIA
+     * Vide pour une période absente
+     */
+    id?: number;
+    /**
+     * Du point de vue du BNIA ; « Absente » sans DSM
      */
     libelleEtat: string;
     /**
@@ -412,7 +438,7 @@ export type DsmListee = {
     prendreEnInstruction: boolean;
     raisonSociale: string;
     /**
-     * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)
+     * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34) ou sans DSM
      */
     totalHt?: number;
     type: 'PRODUCTEUR' | 'NEGOCIANT';
@@ -423,6 +449,10 @@ export type DsmListee = {
  * Une DSM dans un listing (spec 05 §6.1, §6.2)
  */
 export type DsmResume = {
+    /**
+     * Échéance de la période (RG-DEC-39)
+     */
+    echeance: string;
     envoyeeLe?: string;
     etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     /**
@@ -864,6 +894,55 @@ export type LigneJournal = {
     nomCible: string;
 };
 
+export type LigneStock = {
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    /**
+     * Litres d'alcool pur
+     */
+    stock: number;
+};
+
+/**
+ * Une ligne du stock déclaré d'un opérateur : le stock de fin d'une ligne de sa dernière DSM validée (RG-DEC-42)
+ */
+export type LigneStockDeclare = {
+    /**
+     * Fin de sa période : la date du stock
+     */
+    au: string;
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    codeOperateur: string;
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * La DSM dont la ligne est tirée
+     */
+    dsm: number;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    operateur: number;
+    raisonSociale: string;
+    /**
+     * Litres d'alcool pur
+     */
+    stock: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+};
+
 export type LigneStockInitial = {
     cle: 'MB' | 'MV' | 'NB' | 'NV';
     compte: string;
@@ -1144,6 +1223,10 @@ export type PointDeDepart = {
     fixePar: string;
     id: number;
     lignes: Array<LigneStockInitial>;
+    /**
+     * Figé et sans DSM en cours : un nouveau point de départ peut le remplacer (RG-DEC-09)
+     */
+    renouvelable: boolean;
     version: number;
 };
 
@@ -1205,6 +1288,21 @@ export type PresentationOperateur = {
      * Un type de visite au plus une fois (RG-OPE-17)
      */
     visites: Array<VisiteProposee>;
+};
+
+/**
+ * Le stock proposé pour un nouveau point de départ : le stock de fin de la dernière DSM validée, vieilli (RG-DEC-09)
+ */
+export type PropositionPointDeDepart = {
+    /**
+     * Date de début retenue
+     */
+    debut: string;
+    /**
+     * Période de la dernière DSM validée
+     */
+    derniere: PeriodeDeclaration;
+    lignes: Array<LigneStockInitial>;
 };
 
 export type RattachementUtilisateur = {
@@ -1797,9 +1895,17 @@ export type SituationDsm = {
      */
     dsmEnCours?: number;
     /**
+     * Échéance de la période, présente avec elle (RG-DEC-39)
+     */
+    echeance?: string;
+    /**
      * TYPE_NON_DECLARANT, STATUT_NON_DECLARANT, SANS_POINT_DE_DEPART, DSM_EN_COURS, PERIODE_PAS_COMMENCEE
      */
     empechement?: string;
+    /**
+     * Échéance passée, DSM absente, en brouillon ou en compléments demandés (RG-DEC-40)
+     */
+    enRetard: boolean;
     initiable: boolean;
     /**
      * Raison, pour l'écran ; vide si rien n'empêche
@@ -1809,6 +1915,22 @@ export type SituationDsm = {
      * Période à initier, ou de la DSM en cours ; vide sans point de départ
      */
     periode?: PeriodeDeclaration;
+};
+
+/**
+ * Le stock déclaré d'un opérateur : le stock de fin de sa dernière DSM validée, ligne par ligne, lignes nulles omises (RG-DEC-42)
+ */
+export type StockDeclare = {
+    /**
+     * La DSM dont il est tiré
+     */
+    dsm: number;
+    lignes: Array<LigneStock>;
+    /**
+     * Sa période : le stock est daté de sa fin
+     */
+    periode: PeriodeDeclaration;
+    valideeLe?: string;
 };
 
 /**
@@ -2150,6 +2272,44 @@ export type ListerToutesDsmResponses = {
 };
 
 export type ListerToutesDsmResponse = ListerToutesDsmResponses[keyof ListerToutesDsmResponses];
+
+export type ListerStocksDeclaresData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        type?: 'PRODUCTEUR' | 'NEGOCIANT';
+    };
+    url: '/api/declarations/stocks';
+};
+
+export type ListerStocksDeclaresResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneStockDeclare>;
+};
+
+export type ListerStocksDeclaresResponse = ListerStocksDeclaresResponses[keyof ListerStocksDeclaresResponses];
+
+export type ExporterStocksDeclaresData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        type?: 'PRODUCTEUR' | 'NEGOCIANT';
+    };
+    url: '/api/declarations/stocks/excel';
+};
+
+export type ExporterStocksDeclaresResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type ExporterStocksDeclaresResponse = ExporterStocksDeclaresResponses[keyof ExporterStocksDeclaresResponses];
 
 export type ListerTauxCvoData = {
     body?: never;
@@ -3643,6 +3803,24 @@ export type FixerPointDeDepartResponses = {
 
 export type FixerPointDeDepartResponse = FixerPointDeDepartResponses[keyof FixerPointDeDepartResponses];
 
+export type HistoriquePointsDeDepartData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/point-de-depart/historique';
+};
+
+export type HistoriquePointsDeDepartResponses = {
+    /**
+     * OK
+     */
+    200: Array<PointDeDepart>;
+};
+
+export type HistoriquePointsDeDepartResponse = HistoriquePointsDeDepartResponses[keyof HistoriquePointsDeDepartResponses];
+
 export type ImporterPointDeDepartData = {
     body?: {
         fichier: Blob | File;
@@ -3674,6 +3852,29 @@ export type ImporterPointDeDepartResponses = {
 };
 
 export type ImporterPointDeDepartResponse = ImporterPointDeDepartResponses[keyof ImporterPointDeDepartResponses];
+
+export type ProposerPointDeDepartData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        /**
+         * Date de début ; vide : le lendemain de la dernière DSM validée
+         */
+        debut?: string;
+    };
+    url: '/api/operateurs/{operateur}/point-de-depart/proposition';
+};
+
+export type ProposerPointDeDepartResponses = {
+    /**
+     * OK
+     */
+    200: PropositionPointDeDepart;
+};
+
+export type ProposerPointDeDepartResponse = ProposerPointDeDepartResponses[keyof ProposerPointDeDepartResponses];
 
 export type ModifierPointDeDepartData = {
     body: SaisiePointDeDepart;
@@ -3729,6 +3930,24 @@ export type ModifierPresentationOperateurResponses = {
 };
 
 export type ModifierPresentationOperateurResponse = ModifierPresentationOperateurResponses[keyof ModifierPresentationOperateurResponses];
+
+export type ConsulterStockDeclareData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/stock-declare';
+};
+
+export type ConsulterStockDeclareResponses = {
+    /**
+     * OK
+     */
+    200: StockDeclare;
+};
+
+export type ConsulterStockDeclareResponse = ConsulterStockDeclareResponses[keyof ConsulterStockDeclareResponses];
 
 export type ListerCentresInteretData = {
     body?: never;

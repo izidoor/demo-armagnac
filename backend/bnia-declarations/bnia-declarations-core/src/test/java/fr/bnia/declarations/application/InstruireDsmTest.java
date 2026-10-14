@@ -16,12 +16,9 @@ import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.ListerDsm.DsmListee;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.Commentaire;
-import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.OrigineLigne;
 import fr.bnia.declarations.domain.SaisieDsm;
@@ -29,9 +26,12 @@ import fr.bnia.declarations.domain.SaisieLigneDsm;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import fr.bnia.declarations.domain.TypeMouvement;
 import fr.bnia.declarations.domain.TypePiece;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.declarations.domain.partage.ComplementsDemandes;
+import fr.bnia.declarations.domain.partage.Cote;
 import fr.bnia.declarations.domain.partage.DsmEnvoyee;
 import fr.bnia.declarations.domain.partage.DsmValidee;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -279,7 +279,7 @@ class InstruireDsmTest {
         cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, null);
         FiltreDsm enCours = new FiltreDsm(Optional.empty(), Optional.empty(), Optional.empty(),
                 Set.of(EtatDsm.BROUILLON, EtatDsm.ENVOYEE));
-        assertThat(lister.lister(AGENT_BNIA, enCours)).extracting(d -> d.dsm().id()).containsExactly(id);
+        assertThat(lister.lister(AGENT_BNIA, enCours)).extracting(d -> d.dsm().orElseThrow().id()).containsExactly(id);
         assertThat(lister.lister(AGENT_BNIA, enCours)).singleElement()
                 .satisfies(d -> assertThat(d.prendreEnInstruction()).isTrue());
         assertThat(lister.lister(OBSERVATEUR_BNIA, enCours)).singleElement()

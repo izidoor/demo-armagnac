@@ -1,4 +1,4 @@
-package fr.bnia.declarations.domain;
+package fr.bnia.declarations.domain.partage;
 
 /**
  * États d'instruction d'une DSM (analyse §2 et §3, spec 05 §3.2). {@code BROUILLON} à l'initiation ; les

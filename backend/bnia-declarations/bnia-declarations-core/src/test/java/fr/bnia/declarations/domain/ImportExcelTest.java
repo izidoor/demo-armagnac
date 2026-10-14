@@ -13,6 +13,7 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.domain.ImportExcel.Lecture;
 import fr.bnia.declarations.domain.ImportExcel.StockImporte;
 import fr.bnia.declarations.domain.ImportRefuse.Erreur;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.declarations.domain.partage.CompteDAgeDsm;
 import java.time.LocalDate;
 import java.time.YearMonth;

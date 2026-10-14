@@ -40,6 +40,7 @@ import { Route as BoParametrageTauxCvoRouteImport } from './routes/bo/parametrag
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
 import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
+import { Route as BoDeclarationsStocksRouteImport } from './routes/bo/declarations/stocks'
 import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
 import { Route as BoOperateursIdIndexRouteImport } from './routes/bo/operateurs/$id/index'
@@ -208,6 +209,11 @@ const BoParametrageCommercialisationRoute =
     path: '/commercialisation',
     getParentRoute: () => BoParametrageRouteRoute,
   } as any)
+const BoDeclarationsStocksRoute = BoDeclarationsStocksRouteImport.update({
+  id: '/declarations/stocks',
+  path: '/declarations/stocks',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoAccesConnexionsRoute = BoAccesConnexionsRouteImport.update({
   id: '/acces/connexions',
   path: '/acces/connexions',
@@ -282,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
+  '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
@@ -321,6 +328,7 @@ export interface FileRoutesByTo {
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
+  '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
+  '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
@@ -408,6 +417,7 @@ export interface FileRouteTypes {
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
+    | '/bo/declarations/stocks'
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
     | '/bo'
     | '/portail'
     | '/bo/acces/connexions'
+    | '/bo/declarations/stocks'
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
@@ -489,6 +500,7 @@ export interface FileRouteTypes {
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
+    | '/bo/declarations/stocks'
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
@@ -745,6 +757,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageCommercialisationRouteImport
       parentRoute: typeof BoParametrageRouteRoute
     }
+    '/bo/declarations/stocks': {
+      id: '/bo/declarations/stocks'
+      path: '/declarations/stocks'
+      fullPath: '/bo/declarations/stocks'
+      preLoaderRoute: typeof BoDeclarationsStocksRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/acces/connexions': {
       id: '/bo/acces/connexions'
       path: '/acces/connexions'
@@ -840,6 +859,7 @@ interface BoRouteRouteChildren {
   BoCompteRoute: typeof BoCompteRoute
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
+  BoDeclarationsStocksRoute: typeof BoDeclarationsStocksRoute
   BoDeclarationsIndexRoute: typeof BoDeclarationsIndexRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
   BoAccesUtilisateursIdRoute: typeof BoAccesUtilisateursIdRoute
@@ -855,6 +875,7 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoCompteRoute: BoCompteRoute,
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
+  BoDeclarationsStocksRoute: BoDeclarationsStocksRoute,
   BoDeclarationsIndexRoute: BoDeclarationsIndexRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
   BoAccesUtilisateursIdRoute: BoAccesUtilisateursIdRoute,

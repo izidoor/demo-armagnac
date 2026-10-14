@@ -1,4 +1,4 @@
-package fr.bnia.declarations.domain;
+package fr.bnia.declarations.domain.partage;
 
 /**
  * Le côté d'un acteur : le BNIA qui instruit, ou l'opérateur qui déclare. Il porte l'auteur d'un commentaire

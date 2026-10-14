@@ -98,6 +98,7 @@ public class DemoOperateurs implements ApplicationRunner {
         maisonDurand();
         producteur("000003", "Domaine de Laubade", "Château de Laubade", "32110", "Sorbets", "GERS",
                 TypeAlambic.ARMAGNACAIS, Appellation.BAS_ARMAGNAC);
+        gerant("000003", "admin@laubade.fr", "Lassus", "Hélène", "Gérante");
         producteur("000004", "Domaine Boingnères", null, "40240", "Le Frêche", "LANDES", TypeAlambic.ARMAGNACAIS,
                 Appellation.BAS_ARMAGNAC);
         producteur("000005", "Château de Pellehaut", null, "32250", "Montréal", "GERS", TypeAlambic.DOUBLE_CHAUFFE,

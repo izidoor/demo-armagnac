@@ -11,6 +11,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.DocumentDepose;
 import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
+import fr.bnia.declarations.domain.partage.Cote;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.LocalDate;
 import java.time.YearMonth;

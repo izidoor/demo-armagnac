@@ -2,6 +2,7 @@ package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.declarations.domain.CalendrierDeclaratif.Situation;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
 
 @Schema(name = "SituationDsm", description = "La prochaine DSM de l'opérateur, ou ce qui en empêche l'initiation (RG-DEC-02 à 05)")
 public record SituationDsmResponse(
@@ -11,10 +12,15 @@ public record SituationDsmResponse(
         String empechement,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Raison, pour l'écran ; vide si rien n'empêche")
         String message,
-        @Schema(description = "La DSM non validée, s'il y en a une") Long dsmEnCours) {
+        @Schema(description = "La DSM non validée, s'il y en a une") Long dsmEnCours,
+        @Schema(description = "Échéance de la période, présente avec elle (RG-DEC-39)") LocalDate echeance,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Échéance passée, DSM absente, en brouillon ou en compléments demandés (RG-DEC-40)")
+        boolean enRetard) {
 
     static SituationDsmResponse depuis(Situation s) {
         return new SituationDsmResponse(s.periode().map(PeriodeResponse::depuis).orElse(null), s.initiable(),
-                s.empechement().map(Enum::name).orElse(null), s.message(), s.dsmEnCours().orElse(null));
+                s.empechement().map(Enum::name).orElse(null), s.message(), s.dsmEnCours().orElse(null),
+                s.echeance().orElse(null), s.enRetard());
     }
 }

@@ -1,6 +1,7 @@
 package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 
 /**
  * Une ligne de stock initial telle que saisie (RG-DEC-07) : contrôlée par le point de départ.

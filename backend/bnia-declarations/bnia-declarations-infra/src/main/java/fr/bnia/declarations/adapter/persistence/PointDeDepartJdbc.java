@@ -6,10 +6,10 @@ import fr.bnia.commun.domain.ConflitUnicite;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.PointDeDepartRepository;
 import fr.bnia.declarations.domain.Auteur;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.LigneStockInitial;
 import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -67,6 +67,18 @@ class PointDeDepartJdbc implements PointDeDepartRepository {
                 .query(Long.class)
                 .optional()
                 .flatMap(this::parId);
+    }
+
+    @Override
+    public List<PointDeDepartDeclaratif> deLOperateur(long operateur) {
+        return jdbcClient.sql("select id from " + SCHEMA + ".point_de_depart where operateur_id = :operateur"
+                        + " order by debut desc")
+                .param("operateur", operateur)
+                .query(Long.class)
+                .list()
+                .stream()
+                .map(id -> parId(id).orElseThrow())
+                .toList();
     }
 
     private static Ligne versLigne(PointDeDepartDeclaratif point) {

@@ -42,6 +42,16 @@ public record PeriodeDeclaration(LocalDate debut, LocalDate fin) {
         return commencant(type, fin.plusDays(1));
     }
 
+    /**
+     * RG-DEC-39 : le 5 du mois qui suit la fin pour un négociant, le 30 avril qui suit pour un producteur, jour
+     * compris (H-DEC-6).
+     */
+    public LocalDate echeance(TypeDeclarant type) {
+        LocalDate lendemain = fin.plusDays(1);
+        return type == TypeDeclarant.PRODUCTEUR ? lendemain.withMonth(4).withDayOfMonth(30)
+                : lendemain.withDayOfMonth(5);
+    }
+
     /** RG-DEC-05 : la période a commencé à cette date. */
     public boolean commencee(LocalDate aujourdhui) {
         return !aujourdhui.isBefore(debut);

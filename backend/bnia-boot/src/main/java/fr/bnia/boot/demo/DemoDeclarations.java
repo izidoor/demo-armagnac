@@ -1,15 +1,15 @@
 package fr.bnia.boot.demo;
 
+import fr.bnia.commun.domain.Appellation;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.CommenterDsm;
 import fr.bnia.declarations.application.FichierDepose;
 import fr.bnia.declarations.application.GererDsm;
-import fr.bnia.declarations.application.GererGrilleCotisation;
 import fr.bnia.declarations.application.GererGrilleCotisation.SaisieTauxCvo;
+import fr.bnia.declarations.application.GererGrilleCotisation;
 import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.application.VueDsm;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.IdentiteLigne;
@@ -19,8 +19,15 @@ import fr.bnia.declarations.domain.SaisieLigneDsm;
 import fr.bnia.declarations.domain.SaisieLigneStock;
 import fr.bnia.declarations.domain.TypeMouvement;
 import fr.bnia.declarations.domain.TypePiece;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
+import fr.bnia.operateurs.application.GererOperateurs;
+import fr.bnia.operateurs.application.SaisieProduction;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
+import fr.bnia.operateurs.domain.TypeAlambic;
 import fr.bnia.operateurs.domain.partage.Acteur;
+import fr.bnia.operateurs.domain.partage.PeriodiciteDsm;
+import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
+import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -33,6 +40,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -42,22 +50,27 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Données de démonstration des déclarations (spec 05, §7.1, lots 1 à 4), en profil {@code demo} seulement,
+ * Données de démonstration des déclarations (spec 05, §7.1, lots 1 à 7), en profil {@code demo} seulement,
  * après les opérateurs. Les dates sont calculées depuis la date du jour (décision du 2026-10-13) :
  * <ul>
- * <li>les trois négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier
- * jour du mois précédent ; leur première DSM est celle du mois courant :
+ * <li>les négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier jour du
+ * mois précédent ; leur première DSM est celle du mois courant :
  * <ul>
  * <li>Armagnacs de Gascogne ({@code N320001}) : envoyée, sorties France 839,11 L et export 2 254,15 L (la
- * facture d'exemple), un commentaire de l'opérateur et un commentaire interne du BNIA ;</li>
- * <li>Maison Larressingle ({@code N320002}) : en compléments demandés, motif « DAE manquants pour
- * l'export » ;</li>
+ * facture d'exemple), un commentaire de l'opérateur et un commentaire interne du BNIA ; elle attend le BNIA,
+ * l'opérateur n'est pas en retard ;</li>
+ * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
+ * 2026-10-14), DSM en compléments demandés, motif « DAE manquants pour l'export » : en retard dès le 6 du
+ * mois courant ;</li>
  * <li>aucun justificatif sur ces deux DSM : leurs manques bloquent la validation (RG-DEC-29) ;</li>
  * <li>Négoce des Landes ({@code N400001}) : en brouillon, avec une anomalie (Σ6 ≠ Σ12) ;</li>
  * </ul></li>
  * <li>Maison Durand, Condom ({@code 000001}, producteur) : point de départ au 1er avril de l'an dernier, DSM
  * de cette année-là validée, avec ses douze DRM et le DAE de son export ; la suivante, à initier, montre le vieillissement et la fusion à {@code 20+} ;</li>
  * <li>Maison Durand, Eauze ({@code 000002}) : pas de point de départ, le BNIA le fixe en démonstration ;</li>
+ * <li>Domaine de Laubade ({@code 000003}, producteur) : point de départ au 1er avril d'il y a deux ans, DSM de
+ * cette année-là validée, puis statut de déclaration passé à {@code SOMMEIL} : le BNIA fixe un nouveau point de
+ * départ après l'interruption (RG-DEC-09) ;</li>
  * <li>la grille CVO : 55,00 €/hlAP à partir du 1er janvier 2021, puis 60,00 €/hlAP à partir du 1er janvier 2024,
  * 20 % exonérés de TVA ; la DSM de Gascogne y vaut 1 855,95 € HT, comme la facture d'exemple.</li>
  * </ul>
@@ -78,18 +91,23 @@ public class DemoDeclarations implements ApplicationRunner {
     private final CommenterDsm commentaires;
     private final GererPieces pieces;
     private final GererGrilleCotisation grille;
+    private final GererOperateurs operateurs;
     private final OperateursLecture lecture;
+    private final ReferentielsLecture referentiels;
     private final Clock horloge;
     private Acteur anne;
 
     public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, CommenterDsm commentaires, GererPieces pieces,
-            GererGrilleCotisation grille, OperateursLecture lecture, Clock horloge) {
+            GererGrilleCotisation grille, GererOperateurs operateurs, OperateursLecture lecture,
+            ReferentielsLecture referentiels, Clock horloge) {
         this.points = points;
         this.dsms = dsms;
         this.commentaires = commentaires;
         this.pieces = pieces;
         this.grille = grille;
+        this.operateurs = operateurs;
         this.lecture = lecture;
+        this.referentiels = referentiels;
         this.horloge = horloge;
     }
 
@@ -101,6 +119,7 @@ public class DemoDeclarations implements ApplicationRunner {
         maisonLarressingle();
         negoceDesLandes();
         maisonDurandCondom();
+        domaineDeLaubade();
     }
 
     /** La grille CVO (spec 05 §7.1) : chaque taux, s'il n'est pas déjà saisi (relançable). */
@@ -162,13 +181,13 @@ public class DemoDeclarations implements ApplicationRunner {
         LOG.info("Démo : DSM de {} d'Armagnacs de Gascogne envoyée.", dsm.periode().libelle());
     }
 
-    /** DSM renvoyée à l'opérateur : compléments demandés. */
+    /** DSM renvoyée à l'opérateur : compléments demandés, sur le mois précédent, donc en retard dès le 6. */
     private void maisonLarressingle() {
         Long id = aCharger("N320002");
         if (id == null) {
             return;
         }
-        points.fixer(anne, id, moisCourant(), List.of(
+        points.fixer(anne, id, moisCourant().minusMonths(1), List.of(
                 stock(CleConditionnement.NB, "VSOP", "4", "900.00"),
                 stock(CleConditionnement.NB, "XO", "10", "1200.00"),
                 stock(CleConditionnement.MV, 2008, "15", "150.00"),
@@ -234,6 +253,39 @@ public class DemoDeclarations implements ApplicationRunner {
         dsms.prendreEnInstruction(anne, id, dsm.id(), null);
         dsms.valider(anne, id, dsm.id(), null);
         LOG.info("Démo : DSM {} de la Maison Durand, Condom, validée.", dsm.periode().libelle());
+    }
+
+    /**
+     * Producteur sorti du circuit : sa DSM d'il y a deux ans validée, puis son statut de déclaration passé à
+     * {@code SOMMEIL}. Le BNIA fixe à la main un nouveau point de départ, puis repasse le statut à {@code OUI}.
+     */
+    private void domaineDeLaubade() {
+        Long id = aCharger("000003");
+        if (id == null) {
+            return;
+        }
+        LocalDate aujourdhui = LocalDate.now(horloge);
+        int annee = aujourdhui.getMonthValue() >= 4 ? aujourdhui.getYear() : aujourdhui.getYear() - 1;
+        points.fixer(anne, id, LocalDate.of(annee - 2, Month.APRIL, 1), List.of(
+                stock(CleConditionnement.NB, "Hors d'âge", "15", "420.00"),
+                stock(CleConditionnement.MB, 2008, null, "260.00"),
+                stock(CleConditionnement.NB, "VSOP", "4", "380.00")));
+        Acteur helene = membre("admin@laubade.fr");
+        DeclarationStocksMouvements dsm = remplir(helene, id, Map.of(
+                0, Map.of(ColonneDsm.C17, "60.00"),
+                2, Map.of(ColonneDsm.C04, "150.00", ColonneDsm.C17, "90.00"))).dsm();
+        for (YearMonth mois : dsm.moisAttendus()) {
+            pieces.deposerDrm(helene, id, dsm.id(), mois, pdf("drm-" + mois + ".pdf"));
+        }
+        dsms.envoyer(helene, id, dsm.id(), null);
+        dsms.prendreEnInstruction(anne, id, dsm.id(), null);
+        dsms.valider(anne, id, dsm.id(), null);
+        operateurs.modifierProduction(anne, id, new SaisieProduction(PeriodiciteDsm.ANNUELLE,
+                StatutDeclarationStock.SOMMEIL, referentiels.regionParCode("GERS").map(r -> r.id()).orElse(null),
+                Set.of(Appellation.BAS_ARMAGNAC),
+                List.of(new SaisieProduction.Alambic(null, TypeAlambic.ARMAGNACAIS, new BigDecimal("20"))), null));
+        LOG.info("Démo : DSM {} du Domaine de Laubade validée, statut de déclaration en sommeil.",
+                dsm.periode().libelle());
     }
 
     /** Le PDF de démonstration, sous ce nom (spec 05 §7.1 : un même document pour toutes les pièces). */

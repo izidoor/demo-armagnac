@@ -26,7 +26,7 @@ import fr.bnia.declarations.domain.LigneStockInitial;
 import fr.bnia.declarations.domain.OrigineLigne;
 import fr.bnia.declarations.domain.SaisieDsm;
 import fr.bnia.declarations.domain.SaisieLigneDsm;
-import fr.bnia.declarations.domain.CleConditionnement;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import java.time.LocalDate;
 import java.time.YearMonth;

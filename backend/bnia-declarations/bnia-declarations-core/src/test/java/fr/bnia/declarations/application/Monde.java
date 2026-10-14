@@ -41,6 +41,8 @@ final class Monde {
     static final long BNIA = 1;
     static final long NEGOCIANT = 7;
     static final long PRODUCTEUR = 8;
+    /** Un producteur au statut SOMMEIL, sans DSM en cours. */
+    static final long SOMMEIL = 9;
 
     static final Acteur AGENT_NEGOCIANT = new Acteur(10);
     static final Acteur OBSERVATEUR_NEGOCIANT = new Acteur(11);
@@ -65,12 +67,20 @@ final class Monde {
     final StockageEnMemoire stockage = new StockageEnMemoire();
     final ClasseursEnMemoire classeurs = new ClasseursEnMemoire();
     final EvenementsCaptures evenements = new EvenementsCaptures();
+    final CalendriersEnMemoire calendriers = new CalendriersEnMemoire(points, dsms);
+    final RetardsEnMemoire retards = new RetardsEnMemoire();
+    final StocksEnMemoire stocks = new StocksEnMemoire(dsms);
+    final EditionsStocksCapturees editionsStocks = new EditionsStocksCapturees();
     private final Map<Long, OperateurVue> vues = new HashMap<>();
 
     Monde() {
         operateur(BNIA, TypeOperateur.BNIA, StatutDeclarationStock.NON);
         operateur(NEGOCIANT, TypeOperateur.NEGOCIANT, StatutDeclarationStock.OUI);
         operateur(PRODUCTEUR, TypeOperateur.PRODUCTEUR, StatutDeclarationStock.OUI);
+        operateur(SOMMEIL, TypeOperateur.PRODUCTEUR, StatutDeclarationStock.SOMMEIL);
+        when(operateurs.declarantsAttendus()).thenAnswer(i -> vues.values().stream()
+                .filter(v -> v.statutDeclarationStock() == StatutDeclarationStock.OUI && v.type().declare())
+                .sorted(java.util.Comparator.comparing(OperateurVue::code)).toList());
         when(operateurs.operateur(anyLong())).thenAnswer(i -> Optional.ofNullable(vues.get(i.<Long>getArgument(0))));
         when(operateurs.nomUtilisateur(anyLong())).thenAnswer(i -> Optional.of("Utilisateur " + i.getArgument(0)));
         when(operateurs.operateurBnia()).thenReturn(BNIA);
@@ -100,7 +110,8 @@ final class Monde {
             default -> Optional.empty();
         };
         Optional<Role> local = switch ((int) utilisateur) {
-            case 10 -> operateur == NEGOCIANT || operateur == PRODUCTEUR ? Optional.of(Role.AGENT) : Optional.empty();
+            case 10 -> operateur == NEGOCIANT || operateur == PRODUCTEUR || operateur == SOMMEIL ? Optional.of(Role.AGENT)
+                    : Optional.empty();
             case 11 -> operateur == NEGOCIANT ? Optional.of(Role.OBSERVATEUR) : Optional.empty();
             default -> operateur == BNIA ? bnia : Optional.empty();
         };
@@ -125,7 +136,7 @@ final class Monde {
     }
 
     ListerDsm listerDsm() {
-        return new ListerDsm(dsms, grilles, operateurs);
+        return new ListerDsm(dsms, calendriers, grilles, operateurs, HORLOGE);
     }
 
     GererGrilleCotisation gererGrille() {
@@ -136,7 +147,15 @@ final class Monde {
         return new EnregistrerFactures(factures);
     }
 
-    CotisationsPubliees cotisationsPubliees() {
-        return new CotisationsPubliees(dsms, grilles, factures);
+    DeclarationsPubliees declarationsPubliees() {
+        return new DeclarationsPubliees(dsms, dsms, stocks, grilles, factures);
+    }
+
+    DetecterRetards detecterRetards(Clock horloge) {
+        return new DetecterRetards(operateurs, calendriers, retards, evenements, horloge);
+    }
+
+    ConsulterStocksDeclares consulterStocks() {
+        return new ConsulterStocksDeclares(stocks, dsms, editionsStocks, operateurs, HORLOGE);
     }
 }

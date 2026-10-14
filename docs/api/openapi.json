@@ -494,6 +494,82 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/declarations/stocks" : {
+      "get" : {
+        "operationId" : "listerStocksDeclares",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneStockDeclare"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les stocks déclarés de tous les opérateurs, filtrés par opérateur et type, ligne par ligne, par code d'opérateur (RG-DEC-01, 42)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/declarations/stocks/excel" : {
+      "get" : {
+        "operationId" : "exporterStocksDeclares",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'état des stocks déclarés en Excel, pour les douanes, aux mêmes filtres que le listing (UC-DEC-1, RG-DEC-42)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/declarations/taux-cvo" : {
       "get" : {
         "operationId" : "listerTauxCvo",
@@ -3419,7 +3495,38 @@
             "description" : "Created"
           }
         },
-        "summary" : "Le BNIA fixe le point de départ d'un producteur ou d'un négociant (RG-DEC-01, 06, 07)",
+        "summary" : "Le BNIA fixe le premier point de départ d'un producteur ou d'un négociant, ou un nouveau quand le précédent est figé (RG-DEC-01, 06, 07, 09)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/point-de-depart/historique" : {
+      "get" : {
+        "operationId" : "historiquePointsDeDepart",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointDeDepart"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Tous les points de départ de l'opérateur, du plus récent au plus ancien (RG-DEC-01, 09)",
         "tags" : [ "declarations" ]
       }
     },
@@ -3490,6 +3597,43 @@
           }
         },
         "summary" : "Le BNIA importe le modèle Excel en stock initial : le stock de fin du fichier, au lendemain de sa période ou à la date choisie ; fixe ou modifie le point de départ ; tout ou rien (RG-DEC-08, 37, 38)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/point-de-depart/proposition" : {
+      "get" : {
+        "operationId" : "proposerPointDeDepart",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "description" : "Date de début ; vide : le lendemain de la dernière DSM validée",
+          "in" : "query",
+          "name" : "debut",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PropositionPointDeDepart"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le stock proposé pour un nouveau point de départ, vieilli à la date retenue ; 204 sans DSM validée (RG-DEC-01, 09, 14)",
         "tags" : [ "declarations" ]
       }
     },
@@ -3601,6 +3745,34 @@
         },
         "summary" : "Remplacer la présentation (RG-OPE-16 à 19, 21)",
         "tags" : [ "presentation" ]
+      }
+    },
+    "/api/operateurs/{operateur}/stock-declare" : {
+      "get" : {
+        "operationId" : "consulterStockDeclare",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StockDeclare"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le stock déclaré de l'opérateur : le stock de fin de sa dernière DSM validée ; 204 sans DSM validée (RG-DEC-01, 42)",
+        "tags" : [ "declarations" ]
       }
     },
     "/api/referentiels/centres-interet" : {
@@ -7393,6 +7565,15 @@
             "format" : "date",
             "description" : "Date de la DIA, facultative (RG-DEC-19)"
           },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Échéance de la période (RG-DEC-39)"
+          },
+          "enRetard" : {
+            "type" : "boolean",
+            "description" : "Échéance passée, DSM en brouillon ou en compléments demandés, opérateur au statut OUI (RG-DEC-40)"
+          },
           "envoyeeLe" : {
             "type" : "string",
             "format" : "date-time"
@@ -7457,7 +7638,7 @@
             "format" : "int64"
           }
         },
-        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "cotisation", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
+        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "cotisation", "echeance", "enRetard", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
       },
       "DsmImportee" : {
         "type" : "object",
@@ -7477,11 +7658,24 @@
       },
       "DsmListee" : {
         "type" : "object",
-        "description" : "Une DSM du listing du BNIA, avec son opérateur (spec 05 §6.1, UC-DEC-7)",
+        "description" : "Une ligne du listing du BNIA : une DSM, ou la période attendue d'un opérateur sans DSM (absente), avec son opérateur (spec 05 §6.1, UC-DEC-7, RG-DEC-40)",
         "properties" : {
+          "absente" : {
+            "type" : "boolean",
+            "description" : "Période attendue sans DSM initiée (RG-DEC-40)"
+          },
           "codeOperateur" : {
             "type" : "string",
             "example" : "N320001"
+          },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Échéance de la période (RG-DEC-39)"
+          },
+          "enRetard" : {
+            "type" : "boolean",
+            "description" : "Échéance passée, DSM absente, en brouillon ou en compléments demandés (RG-DEC-40)"
           },
           "envoyeeLe" : {
             "type" : "string",
@@ -7489,6 +7683,7 @@
           },
           "etat" : {
             "type" : "string",
+            "description" : "Vide pour une période absente",
             "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
           },
           "facturee" : {
@@ -7497,11 +7692,12 @@
           },
           "id" : {
             "type" : "integer",
-            "format" : "int64"
+            "format" : "int64",
+            "description" : "Vide pour une période absente"
           },
           "libelleEtat" : {
             "type" : "string",
-            "description" : "Du point de vue du BNIA",
+            "description" : "Du point de vue du BNIA ; « Absente » sans DSM",
             "example" : "À prendre en charge"
           },
           "modifieeLe" : {
@@ -7525,7 +7721,7 @@
           },
           "totalHt" : {
             "type" : "number",
-            "description" : "Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34)",
+            "description" : "Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34) ou sans DSM",
             "example" : 1855.95
           },
           "type" : {
@@ -7537,12 +7733,17 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "codeOperateur", "etat", "facturee", "id", "libelleEtat", "operateur", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
+        "required" : [ "absente", "codeOperateur", "echeance", "enRetard", "facturee", "libelleEtat", "operateur", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
       },
       "DsmResume" : {
         "type" : "object",
         "description" : "Une DSM dans un listing (spec 05 §6.1, §6.2)",
         "properties" : {
+          "echeance" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Échéance de la période (RG-DEC-39)"
+          },
           "envoyeeLe" : {
             "type" : "string",
             "format" : "date-time"
@@ -7586,7 +7787,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "etat", "facturee", "id", "libelleEtat", "periode", "type" ]
+        "required" : [ "echeance", "etat", "facturee", "id", "libelleEtat", "periode", "type" ]
       },
       "EntreeJournalDeclarations" : {
         "type" : "object",
@@ -8357,6 +8558,86 @@
         },
         "required" : [ "acteur", "action", "changements", "cible", "date", "idCible", "libelle", "nomCible" ]
       },
+      "LigneStock" : {
+        "type" : "object",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "stock" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "cle", "compte", "stock" ]
+      },
+      "LigneStockDeclare" : {
+        "type" : "object",
+        "description" : "Une ligne du stock déclaré d'un opérateur : le stock de fin d'une ligne de sa dernière DSM validée (RG-DEC-42)",
+        "properties" : {
+          "au" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Fin de sa période : la date du stock"
+          },
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "codeOperateur" : {
+            "type" : "string",
+            "example" : "N320001"
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "dsm" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "La DSM dont la ligne est tirée"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "stock" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          }
+        },
+        "required" : [ "au", "cle", "codeOperateur", "compte", "dsm", "operateur", "raisonSociale", "stock", "type" ]
+      },
       "LigneStockInitial" : {
         "type" : "object",
         "properties" : {
@@ -8885,12 +9166,16 @@
               "$ref" : "#/components/schemas/LigneStockInitial"
             }
           },
+          "renouvelable" : {
+            "type" : "boolean",
+            "description" : "Figé et sans DSM en cours : un nouveau point de départ peut le remplacer (RG-DEC-09)"
+          },
           "version" : {
             "type" : "integer",
             "format" : "int64"
           }
         },
-        "required" : [ "debut", "fige", "fixeLe", "fixePar", "id", "lignes", "version" ]
+        "required" : [ "debut", "fige", "fixeLe", "fixePar", "id", "lignes", "renouvelable", "version" ]
       },
       "PointDeDepartImporte" : {
         "type" : "object",
@@ -9019,6 +9304,28 @@
           }
         },
         "required" : [ "accueilGroupes", "adhesionOenotourisme", "cartes", "circuits", "degustationGratuite", "labels", "langues", "lieuDeVente", "marques", "medailles", "paiementCarte", "produitsCommercialises", "visites" ]
+      },
+      "PropositionPointDeDepart" : {
+        "type" : "object",
+        "description" : "Le stock proposé pour un nouveau point de départ : le stock de fin de la dernière DSM validée, vieilli (RG-DEC-09)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date de début retenue"
+          },
+          "derniere" : {
+            "$ref" : "#/components/schemas/PeriodeDeclaration",
+            "description" : "Période de la dernière DSM validée"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneStockInitial"
+            }
+          }
+        },
+        "required" : [ "debut", "derniere", "lignes" ]
       },
       "RattachementUtilisateur" : {
         "type" : "object",
@@ -9990,9 +10297,18 @@
             "format" : "int64",
             "description" : "La DSM non validée, s'il y en a une"
           },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Échéance de la période, présente avec elle (RG-DEC-39)"
+          },
           "empechement" : {
             "type" : "string",
             "description" : "TYPE_NON_DECLARANT, STATUT_NON_DECLARANT, SANS_POINT_DE_DEPART, DSM_EN_COURS, PERIODE_PAS_COMMENCEE"
+          },
+          "enRetard" : {
+            "type" : "boolean",
+            "description" : "Échéance passée, DSM absente, en brouillon ou en compléments demandés (RG-DEC-40)"
           },
           "initiable" : {
             "type" : "boolean"
@@ -10006,7 +10322,33 @@
             "description" : "Période à initier, ou de la DSM en cours ; vide sans point de départ"
           }
         },
-        "required" : [ "initiable", "message" ]
+        "required" : [ "enRetard", "initiable", "message" ]
+      },
+      "StockDeclare" : {
+        "type" : "object",
+        "description" : "Le stock déclaré d'un opérateur : le stock de fin de sa dernière DSM validée, ligne par ligne, lignes nulles omises (RG-DEC-42)",
+        "properties" : {
+          "dsm" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "La DSM dont il est tiré"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneStock"
+            }
+          },
+          "periode" : {
+            "$ref" : "#/components/schemas/PeriodeDeclaration",
+            "description" : "Sa période : le stock est daté de sa fin"
+          },
+          "valideeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "dsm", "lignes", "periode" ]
       },
       "TauxCvo" : {
         "type" : "object",

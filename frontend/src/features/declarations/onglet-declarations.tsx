@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { type Droits } from '@/api/generated'
+import { type Droits, type PropositionPointDeDepart } from '@/api/generated'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,19 +11,25 @@ import {
   apiDeclarations,
   cleDeclarations,
   useDsms,
+  useHistoriquePointsDeDepart,
   useJournalDeclarations,
   usePointDeDepart,
+  useStockDeclare,
 } from './api'
 import { DialoguePointDeDepart } from './dialogue-point-de-depart'
+import { formatDate, formatDateHeure } from './format'
 import { DialogueImportExcel } from './import-excel'
 import { TableJournalDeclarations } from './journal'
 import { ListeDsm } from './liste-dsm'
 import { ResumePointDeDepart } from './point-de-depart'
+import { ResumeStockDeclare } from './stock-declare'
 
 /**
  * Onglet « Déclarations » de la fiche opérateur, au back-office (spec 05 §6.1) : le point de départ,
  * fixé ou modifié par le BNIA qui gère le module (RG-DEC-01, 06 à 08), saisi ou importé du modèle Excel
- * (RG-DEC-37, 38), les DSM de l'opérateur et le journal de ses déclarations.
+ * (RG-DEC-37, 38), les DSM de l'opérateur et le journal de ses déclarations. Lot 7 : un nouveau point de
+ * départ quand le précédent est figé et qu'aucune DSM n'est en cours, et les points précédents en lecture
+ * (RG-DEC-09) ; lot 8 : le stock déclaré (RG-DEC-42).
  */
 export function OngletDeclarations({
   operateur,
@@ -37,18 +44,43 @@ export function OngletDeclarations({
   const point = usePointDeDepart(operateur)
   const dsms = useDsms(operateur)
   const journal = useJournalDeclarations(operateur)
+  const historique = useHistoriquePointsDeDepart(operateur)
+  const stock = useStockDeclare(operateur)
+  const [proposition, setProposition] =
+    useState<PropositionPointDeDepart | null>(null)
+  // RG-DEC-09 : le stock proposé est chargé avant d'ouvrir le dialogue.
+  const proposer = useMutation({
+    mutationFn: () => apiDeclarations(operateur).proposition(),
+    meta: { erreurAffichee: true },
+    onSuccess: (p) => p && setProposition(p),
+  })
   const [edition, setEdition] = useState(false)
   const [import_, setImport] = useState(false)
   const [dateChoisie, setDateChoisie] = useState(false)
   const [debut, setDebut] = useState('')
   const gereBnia = droits.personnelBnia && droits.declarations === 'GESTION'
   const actuel = point.data ?? null
+  const precedents = (historique.data ?? []).filter((p) => p.id !== actuel?.id)
 
   return (
     <div className='space-y-6'>
       <section className='space-y-2'>
         <div className='flex flex-wrap items-center justify-between gap-2'>
           <h3 className='text-lg font-semibold'>Point de départ</h3>
+          {gereBnia && actuel?.renouvelable && (
+            <div className='flex flex-wrap gap-2'>
+              <Button variant='outline' onClick={() => setImport(true)}>
+                Importer depuis Excel
+              </Button>
+              <Button
+                variant='outline'
+                disabled={proposer.isPending}
+                onClick={() => proposer.mutate()}
+              >
+                Fixer un nouveau point de départ
+              </Button>
+            </div>
+          )}
           {gereBnia && point.isSuccess && !actuel?.fige && (
             <div className='flex flex-wrap gap-2'>
               <Button variant='outline' onClick={() => setImport(true)}>
@@ -72,6 +104,25 @@ export function OngletDeclarations({
             </p>
           ))}
       </section>
+      {precedents.length > 0 && (
+        <section className='space-y-2'>
+          <h3 className='text-lg font-semibold'>Points de départ précédents</h3>
+          <ul className='space-y-1 text-sm'>
+            {precedents.map((p) => (
+              <li key={p.id} className='flex flex-wrap items-center gap-2'>
+                Début au <strong>{formatDate(p.debut)}</strong>,{' '}
+                {p.lignes.length} ligne{p.lignes.length > 1 ? 's' : ''} de stock
+                initial, fixé par {p.fixePar} le {formatDateHeure(p.fixeLe)}
+                {p.fige && <Badge variant='secondary'>Figé</Badge>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <section className='space-y-2'>
+        <h3 className='text-lg font-semibold'>Stock déclaré</h3>
+        {stock.isSuccess && <ResumeStockDeclare stock={stock.data} />}
+      </section>
       <section className='space-y-2'>
         <h3 className='text-lg font-semibold'>DSM</h3>
         <ListeDsm espace='bo' operateur={operateur} dsms={dsms.data ?? []} />
@@ -87,9 +138,11 @@ export function OngletDeclarations({
             Le stock de fin de chaque ligne du fichier (colonnes 1 à 25,
             calculé) devient le stock initial ; les lignes finies à 0 ne sont
             pas reprises.{' '}
-            {actuel
-              ? 'Le point de départ en vigueur est remplacé ; la DSM en cours suit.'
-              : 'Le point de départ est fixé.'}{' '}
+            {actuel?.renouvelable
+              ? 'Un nouveau point de départ est fixé ; le précédent reste consultable.'
+              : actuel
+                ? 'Le point de départ en vigueur est remplacé ; la DSM en cours suit.'
+                : 'Le point de départ est fixé.'}{' '}
             Un fichier en erreur est refusé en entier.
           </>
         }
@@ -149,6 +202,21 @@ export function OngletDeclarations({
           })
         }
       />
+      {proposition && (
+        <DialoguePointDeDepart
+          operateur={operateur}
+          producteur={producteur}
+          point={null}
+          proposition={proposition}
+          onOpenChange={(ouvert) => !ouvert && setProposition(null)}
+          onEnregistre={() => {
+            toast.success('Nouveau point de départ fixé.')
+            queryClient.invalidateQueries({
+              queryKey: cleDeclarations(operateur),
+            })
+          }}
+        />
+      )}
       {edition && (
         <DialoguePointDeDepart
           operateur={operateur}

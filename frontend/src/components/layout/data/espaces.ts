@@ -2,6 +2,7 @@ import {
   Building2,
   Contact,
   FileSpreadsheet,
+  Warehouse,
   Globe,
   History,
   Landmark,
@@ -96,9 +97,16 @@ export const espaceBackOffice: Espace = {
       ],
     },
     {
-      // Spec 05, §6.1 : listing de toutes les DSM, file d'attente de l'instruction.
+      // Spec 05, §6.1 : listing de toutes les DSM, file d'attente de l'instruction ; stocks déclarés (lot 8).
       title: 'Déclarations',
-      items: [{ title: 'DSM', url: '/bo/declarations', icon: FileSpreadsheet }],
+      items: [
+        { title: 'DSM', url: '/bo/declarations', icon: FileSpreadsheet },
+        {
+          title: 'Stocks déclarés',
+          url: '/bo/declarations/stocks',
+          icon: Warehouse,
+        },
+      ],
     },
     {
       // Spec 02, §6.1 et spec 03, §6.2 : module Accès.

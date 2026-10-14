@@ -2,7 +2,7 @@ package fr.bnia.declarations.application;
 
 import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.ElementIntrouvable;
-import fr.bnia.declarations.domain.Cote;
+import fr.bnia.declarations.domain.partage.Cote;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.Droits;
@@ -110,6 +110,16 @@ final class Autorisations {
     void exigerLectureBnia(Acteur acteur) {
         if (!droits(acteur, operateurs.operateurBnia()).personnelBnia()) {
             throw new AccesRefuse("RG-DEC-01", "Le listing de toutes les DSM est réservé au personnel du BNIA.");
+        }
+    }
+
+    /**
+     * RG-DEC-01 : lire les stocks déclarés de tous les opérateurs ; tout le personnel du BNIA, comme le listing
+     * (décision du 2026-10-14, au lieu de la gestion du module).
+     */
+    void exigerLectureStocks(Acteur acteur) {
+        if (!droits(acteur, operateurs.operateurBnia()).personnelBnia()) {
+            throw new AccesRefuse("RG-DEC-01", "Les stocks déclarés de tous les opérateurs sont réservés au personnel du BNIA.");
         }
     }
 

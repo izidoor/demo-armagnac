@@ -1,6 +1,8 @@
 package fr.bnia.declarations.application.partage;
 
 import fr.bnia.declarations.domain.partage.CotisationDsmVue;
+import fr.bnia.declarations.domain.partage.DerniereDsmVue;
+import fr.bnia.declarations.domain.partage.StockDeclareVue;
 import java.util.Optional;
 
 /**
@@ -12,4 +14,10 @@ public interface DeclarationsLecture {
 
     /** La cotisation d'une DSM, pour {@code facturation} (RG-DEC-31 à 33) ; vide si la DSM n'existe pas. */
     Optional<CotisationDsmVue> cotisation(long dsm);
+
+    /** La DSM la plus récente de l'opérateur, quel que soit son état, pour sa fiche ; vide s'il n'en a pas. */
+    Optional<DerniereDsmVue> derniereDsm(long operateur);
+
+    /** RG-DEC-42 : le stock déclaré de l'opérateur, pour sa fiche ; vide sans DSM validée. */
+    Optional<StockDeclareVue> stockDeclare(long operateur);
 }

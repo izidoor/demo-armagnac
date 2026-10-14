@@ -2,13 +2,13 @@ package fr.bnia.declarations.domain;
 
 import static fr.bnia.declarations.domain.Exemples.JUIN;
 import static fr.bnia.declarations.domain.Exemples.PERIODE_JUIN;
-import static fr.bnia.declarations.domain.Exemples.pointDeJuin;
 import static fr.bnia.declarations.domain.Exemples.refuse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.bnia.declarations.domain.CalendrierDeclaratif.DsmPassee;
 import fr.bnia.declarations.domain.CalendrierDeclaratif.Empechement;
 import fr.bnia.declarations.domain.CalendrierDeclaratif.Situation;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.LocalDate;
@@ -22,7 +22,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 class CalendrierDeclaratifTest {
 
     private static final LocalDate AUJOURDHUI = LocalDate.of(2026, 10, 13);
-    private static final Optional<PointDeDepartDeclaratif> POINT = Optional.of(pointDeJuin(List.of()));
+    private static final Optional<LocalDate> POINT = Optional.of(JUIN);
 
     private static Situation situation(List<DsmPassee> dsms) {
         return CalendrierDeclaratif.prochaine(TypeOperateur.NEGOCIANT, StatutDeclarationStock.OUI, POINT, dsms, AUJOURDHUI);
@@ -87,5 +87,53 @@ class CalendrierDeclaratifTest {
     void rg_dec_02_type() {
         assertThat(CalendrierDeclaratif.prochaine(TypeOperateur.AUTRE, StatutDeclarationStock.NON, POINT, List.of(),
                 AUJOURDHUI).empechement()).contains(Empechement.TYPE_NON_DECLARANT);
+    }
+
+    @Test
+    @DisplayName("RG-DEC-39 : échéance le 5 du mois qui suit (négociant), le 30 avril qui suit (producteur)")
+    void rg_dec_39_echeance() {
+        assertThat(PERIODE_JUIN.echeance(TypeDeclarant.NEGOCIANT)).isEqualTo(LocalDate.of(2026, 7, 5));
+        assertThat(PeriodeDeclaration.commencant(TypeDeclarant.NEGOCIANT, LocalDate.of(2026, 12, 1))
+                .echeance(TypeDeclarant.NEGOCIANT)).isEqualTo(LocalDate.of(2027, 1, 5));
+        assertThat(PeriodeDeclaration.commencant(TypeDeclarant.PRODUCTEUR, LocalDate.of(2025, 4, 1))
+                .echeance(TypeDeclarant.PRODUCTEUR)).isEqualTo(LocalDate.of(2026, 4, 30));
+        assertThat(situation(List.of()).echeance()).contains(LocalDate.of(2026, 7, 5));
+    }
+
+    @Test
+    @DisplayName("RG-DEC-40 : la période attendue sans DSM est absente, en retard le lendemain de l'échéance")
+    void rg_dec_40_absente_en_retard() {
+        Situation absente = situation(List.of());
+        assertThat(absente.absente()).isTrue();
+        assertThat(absente.enRetard()).isTrue();
+        Situation leJourDeLEcheance = CalendrierDeclaratif.prochaine(TypeOperateur.NEGOCIANT,
+                StatutDeclarationStock.OUI, POINT, List.of(), LocalDate.of(2026, 7, 5));
+        assertThat(leJourDeLEcheance.absente()).isTrue();
+        assertThat(leJourDeLEcheance.enRetard()).as("échéance, jour compris").isFalse();
+        assertThat(CalendrierDeclaratif.prochaine(TypeOperateur.NEGOCIANT, StatutDeclarationStock.OUI, POINT, List.of(),
+                LocalDate.of(2026, 7, 6)).enRetard()).isTrue();
+        Situation pasCommencee = CalendrierDeclaratif.prochaine(TypeOperateur.NEGOCIANT, StatutDeclarationStock.OUI,
+                POINT, List.of(), LocalDate.of(2026, 5, 31));
+        assertThat(pasCommencee.absente()).as("une période pas commencée n'est pas encore attendue").isFalse();
+        assertThat(pasCommencee.enRetard()).isFalse();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = EtatDsm.class, names = "VALIDEE", mode = EnumSource.Mode.EXCLUDE)
+    @DisplayName("RG-DEC-40 : en retard en brouillon ou en compléments demandés ; pas quand la DSM attend le BNIA")
+    void rg_dec_40_selon_l_etat(EtatDsm etat) {
+        Situation situation = situation(List.of(new DsmPassee(6, PERIODE_JUIN, etat)));
+        assertThat(situation.absente()).isFalse();
+        assertThat(situation.enRetard()).isEqualTo(etat == EtatDsm.BROUILLON || etat == EtatDsm.COMPLEMENTS_DEMANDES);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatutDeclarationStock.class, names = "OUI", mode = EnumSource.Mode.EXCLUDE)
+    @DisplayName("RG-DEC-40 : seul un opérateur au statut OUI est attendu, donc en retard")
+    void rg_dec_40_statut(StatutDeclarationStock statut) {
+        assertThat(CalendrierDeclaratif.prochaine(TypeOperateur.NEGOCIANT, statut, POINT,
+                List.of(new DsmPassee(7, PERIODE_JUIN, EtatDsm.BROUILLON)), AUJOURDHUI).enRetard()).isFalse();
+        assertThat(CalendrierDeclaratif.prochaine(TypeOperateur.NEGOCIANT, statut, POINT, List.of(), AUJOURDHUI)
+                .absente()).isFalse();
     }
 }

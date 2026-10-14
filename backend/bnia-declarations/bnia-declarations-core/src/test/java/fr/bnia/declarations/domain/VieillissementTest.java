@@ -8,6 +8,7 @@ import static fr.bnia.declarations.domain.Exemples.saisie;
 import static fr.bnia.declarations.domain.Exemples.stock;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.declarations.domain.partage.CompteDAgeDsm;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.LocalDate;
@@ -28,7 +29,7 @@ class VieillissementTest {
     }
 
     @Test
-    @DisplayName("RG-DEC-14 : au 1er avril, MB recalculé, NB +1 borné à 20+, MV et NV inchangés ; fusion à 20+")
+    @DisplayName("RG-DEC-14 : au 1er avril, compte MB recalculé depuis son millésime, NB +1 borné à 20+, MV et NV inchangés ; fusion à 20+")
     void rg_dec_14_vieillissement_et_fusion() {
         DeclarationStocksMouvements annee = dsm(TypeOperateur.PRODUCTEUR,
                 PeriodeDeclaration.commencant(TypeDeclarant.PRODUCTEUR, AVRIL_2025), List.of(
@@ -61,5 +62,36 @@ class VieillissementTest {
 
         assertThat(reprise).hasSize(5).extracting(VieillissementTest::ligne).first().isEqualTo("NB VSOP 5 = 2000.00");
         assertThat(reprise).extracting(VieillissementTest::ligne).contains("NB Blanche 00 = 120.00");
+    }
+
+    @Test
+    @DisplayName("RG-DEC-09 : après une interruption, NB prend +1 par 1er avril franchi, compte MB recalculé depuis son millésime")
+    void rg_dec_09_vieillissement_apres_interruption() {
+        DeclarationStocksMouvements annee = dsm(TypeOperateur.PRODUCTEUR,
+                PeriodeDeclaration.commencant(TypeDeclarant.PRODUCTEUR, AVRIL_2025), List.of(
+                        stock(CleConditionnement.NB, "Hors d'âge", "12", "300"),
+                        stock(CleConditionnement.NB, "XO", "19", "50"),
+                        stock(CleConditionnement.MB, 2015, null, "100"),
+                        stock(CleConditionnement.NV, "VSOP", "5", "40")));
+
+        // Fin le 31 mars 2026, reprise le 1er avril 2028 : trois 1er avril franchis (2026, 2027, 2028).
+        List<LigneStockInitial> reprise = Vieillissement.apresInterruption(annee, LocalDate.of(2028, 4, 1));
+
+        assertThat(reprise).extracting(VieillissementTest::ligne).containsExactly(
+                "NB Hors d'âge 15 = 300.00",
+                "NB XO 20+ = 50.00",
+                "MB 2015 12 = 100.00",
+                "NV VSOP 5 = 40.00");
+        assertThat(Vieillissement.apresInterruption(annee, AVRIL_2026)).extracting(VieillissementTest::ligne)
+                .as("sans interruption : la reprise ordinaire").containsExactlyElementsOf(
+                        Vieillissement.reprise(annee, AVRIL_2026).stream().map(VieillissementTest::ligne).toList());
+    }
+
+    @Test
+    @DisplayName("RG-DEC-09 : un négociant qui reprend en cours d'année vieillit des 1er avril franchis")
+    void rg_dec_09_anniversaires() {
+        assertThat(Vieillissement.anniversaires(LocalDate.of(2026, 7, 1), LocalDate.of(2026, 9, 1))).isZero();
+        assertThat(Vieillissement.anniversaires(LocalDate.of(2026, 7, 1), LocalDate.of(2027, 4, 1))).isEqualTo(1);
+        assertThat(Vieillissement.anniversaires(LocalDate.of(2026, 4, 1), LocalDate.of(2028, 3, 1))).isEqualTo(2);
     }
 }

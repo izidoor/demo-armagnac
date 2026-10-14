@@ -5,6 +5,7 @@ import static fr.bnia.declarations.domain.Exemples.MAINTENANT;
 import static fr.bnia.declarations.domain.Exemples.refuse;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import fr.bnia.declarations.domain.partage.Cote;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

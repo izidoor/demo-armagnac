@@ -13,7 +13,7 @@ import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.declarations.application.EditerDsm.DocumentEdite;
 import fr.bnia.declarations.application.EditionsDsm.EditionDsm;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
-import fr.bnia.declarations.domain.Cote;
+import fr.bnia.declarations.domain.partage.Cote;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

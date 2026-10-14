@@ -64,6 +64,7 @@ import { ListeDenominations } from './champs-identite'
 import { SectionCommentaires } from './commentaires'
 import { OngletCotisation } from './cotisation'
 import { DialogueLigne } from './dialogue-ligne'
+import { Echeance } from './echeance'
 import { formatDateHeure, formatEuros } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
 import { DialogueImportExcel } from './import-excel'
@@ -437,6 +438,11 @@ function EditeurDsm({
           </span>
           <Badge variant='secondary'>{TYPES_DECLARANT[dsm.type]}</Badge>
           <Badge variant={VARIANTE_ETAT[dsm.etat]}>{dsm.libelleEtat}</Badge>
+          {/* RG-DEC-39, 40 : l'échéance, et le retard tant que la DSM est chez l'opérateur. */}
+          <span className='inline-flex items-center gap-1'>
+            Échéance{' '}
+            <Echeance echeance={dsm.echeance} enRetard={dsm.enRetard} />
+          </span>
           {dsm.envoyeeLe && (
             <span>Envoyée le {formatDateHeure(dsm.envoyeeLe)}</span>
           )}

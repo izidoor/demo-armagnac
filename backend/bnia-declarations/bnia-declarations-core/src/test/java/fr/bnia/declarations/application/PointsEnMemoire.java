@@ -4,6 +4,7 @@ import fr.bnia.commun.domain.ModificationConcurrente;
 import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,6 +38,14 @@ final class PointsEnMemoire implements PointDeDepartRepository {
     public Optional<PointDeDepartDeclaratif> parId(long id) {
         return Optional.ofNullable(points.get(id)).map(p -> PointDeDepartDeclaratif.reconstituer(p.id(), p.operateur(),
                 p.debut(), p.lignes(), p.fixePar(), p.fixeLe(), p.version()));
+    }
+
+    @Override
+    public List<PointDeDepartDeclaratif> deLOperateur(long operateur) {
+        return points.values().stream().filter(p -> p.operateur() == operateur)
+                .sorted(Comparator.comparing(PointDeDepartDeclaratif::debut).reversed())
+                .map(p -> parId(p.id()).orElseThrow())
+                .toList();
     }
 
     @Override

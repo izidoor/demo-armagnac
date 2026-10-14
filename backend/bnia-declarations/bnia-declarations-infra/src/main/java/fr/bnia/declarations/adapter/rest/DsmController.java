@@ -2,7 +2,7 @@ package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.declarations.application.GererDsm;
-import fr.bnia.declarations.domain.Cote;
+import fr.bnia.declarations.domain.partage.Cote;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

@@ -8,9 +8,7 @@ import fr.bnia.declarations.domain.CalendrierDeclaratif.Situation;
 import fr.bnia.declarations.domain.CalendrierDeclaratif;
 import fr.bnia.declarations.domain.Commentaire;
 import fr.bnia.declarations.domain.ControlePieces;
-import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.GrilleCotisation;
 import fr.bnia.declarations.domain.ImportExcel;
 import fr.bnia.declarations.domain.ImportRefuse;
@@ -23,8 +21,10 @@ import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
 import fr.bnia.declarations.domain.SaisieDsm;
 import fr.bnia.declarations.domain.Vieillissement;
 import fr.bnia.declarations.domain.partage.ComplementsDemandes;
+import fr.bnia.declarations.domain.partage.Cote;
 import fr.bnia.declarations.domain.partage.DsmEnvoyee;
 import fr.bnia.declarations.domain.partage.DsmValidee;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
@@ -88,8 +88,9 @@ public class GererDsm {
     }
 
     private Situation situation(OperateurVue vue) {
-        return CalendrierDeclaratif.prochaine(vue.type(), vue.statutDeclarationStock(), points.enVigueur(vue.id()),
-                dsms.dsmsDe(vue.id()), LocalDate.now(journaliste.horloge()));
+        return CalendrierDeclaratif.prochaine(vue.type(), vue.statutDeclarationStock(),
+                points.enVigueur(vue.id()).map(PointDeDepartDeclaratif::debut), dsms.dsmsDe(vue.id()),
+                LocalDate.now(journaliste.horloge()));
     }
 
     /**
@@ -308,7 +309,7 @@ public class GererDsm {
 
     private VueDsm vue(Acteur acteur, DeclarationStocksMouvements dsm, OperateurVue operateur) {
         return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm),
-                cotisations.de(dsm));
+                cotisations.de(dsm), LocalDate.now(journaliste.horloge()));
     }
 
     /** RG-DEC-29 : pièces lues en deux requêtes, jamais une par ligne. */

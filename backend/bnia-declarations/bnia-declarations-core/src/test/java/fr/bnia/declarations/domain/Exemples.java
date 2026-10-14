@@ -1,7 +1,10 @@
 package fr.bnia.declarations.domain;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.Instant;
@@ -11,8 +14,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Données d'exemple des tests du domaine : le négociant de la démonstration (spec 05 §7.1). */
 final class Exemples {

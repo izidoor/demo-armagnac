@@ -7,6 +7,7 @@ import {
   consulterPiecesDsm,
   consulterPointDeDepart,
   consulterSituationDsm,
+  consulterStockDeclare,
   demanderComplementsDsm,
   deposerDrm,
   deposerJustificatifDsm,
@@ -14,6 +15,7 @@ import {
   enregistrerDsm,
   envoyerDsm,
   fixerPointDeDepart,
+  historiquePointsDeDepart,
   importerDsm,
   importerPointDeDepart,
   initierDsm,
@@ -23,6 +25,7 @@ import {
   modifierCommentaireDsm,
   modifierPointDeDepart,
   prendreDsmEnInstruction,
+  proposerPointDeDepart,
   supprimerCommentaireDsm,
   supprimerDrm,
   supprimerDsm,
@@ -52,6 +55,23 @@ export function apiDeclarations(operateur: number) {
       consulterPointDeDepart({ path, throwOnError: true }).then(
         // 204 : pas encore de point de départ.
         (r) => (r.status === 204 ? null : r.data)
+      ),
+    /** RG-DEC-09 : tous les points de départ, du plus récent au plus ancien. */
+    historique: () =>
+      historiquePointsDeDepart({ path, throwOnError: true }).then(
+        (r) => r.data
+      ),
+    /** RG-DEC-09 : le stock proposé pour un nouveau point de départ ; {@code null} sans DSM validée. */
+    proposition: (debut?: string) =>
+      proposerPointDeDepart({
+        path,
+        query: { debut },
+        throwOnError: true,
+      }).then((r) => (r.status === 204 ? null : r.data)),
+    /** RG-DEC-42 : le stock déclaré ; {@code null} sans DSM validée. */
+    stockDeclare: () =>
+      consulterStockDeclare({ path, throwOnError: true }).then((r) =>
+        r.status === 204 ? null : r.data
       ),
     fixer: (body: SaisiePointDeDepart) =>
       fixerPointDeDepart({ path, body, throwOnError: true }).then(
@@ -204,6 +224,22 @@ export function usePointDeDepart(operateur: number) {
   return useQuery({
     queryKey: [...cleDeclarations(operateur), 'point-de-depart'],
     queryFn: apiDeclarations(operateur).pointDeDepart,
+  })
+}
+
+/** Les points de départ de l'opérateur, du plus récent au plus ancien (RG-DEC-09). */
+export function useHistoriquePointsDeDepart(operateur: number) {
+  return useQuery({
+    queryKey: [...cleDeclarations(operateur), 'point-de-depart', 'historique'],
+    queryFn: apiDeclarations(operateur).historique,
+  })
+}
+
+/** Le stock déclaré de l'opérateur, ou {@code null} (RG-DEC-42). */
+export function useStockDeclare(operateur: number) {
+  return useQuery({
+    queryKey: [...cleDeclarations(operateur), 'stock-declare'],
+    queryFn: apiDeclarations(operateur).stockDeclare,
   })
 }
 

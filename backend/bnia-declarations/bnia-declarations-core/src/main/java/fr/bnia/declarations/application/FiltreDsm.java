@@ -1,7 +1,7 @@
 package fr.bnia.declarations.application;
 
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.TypeDeclarant;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import java.time.YearMonth;
 import java.util.Optional;
 import java.util.Set;

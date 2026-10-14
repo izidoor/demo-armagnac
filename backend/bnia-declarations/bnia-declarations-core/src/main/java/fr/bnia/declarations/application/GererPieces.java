@@ -1,20 +1,20 @@
 package fr.bnia.declarations.application;
 
-import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.application.StockageDocuments.DocumentLu;
+import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.DocumentDepose;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
 import fr.bnia.declarations.domain.ControlePieces;
-import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.Drm;
 import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.Manque;
 import fr.bnia.declarations.domain.TypeMouvement;
 import fr.bnia.declarations.domain.TypePiece;
+import fr.bnia.declarations.domain.partage.Cote;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import java.time.Clock;

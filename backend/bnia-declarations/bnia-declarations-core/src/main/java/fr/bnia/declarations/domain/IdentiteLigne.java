@@ -2,6 +2,7 @@ package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.Millesime;
 import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.declarations.domain.partage.CompteDAgeDsm;
 import java.time.LocalDate;
 import java.util.Objects;

@@ -1,7 +1,7 @@
 package fr.bnia.declarations.application;
 
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.Droits;
 import fr.bnia.operateurs.domain.partage.Module;
 import java.util.EnumSet;

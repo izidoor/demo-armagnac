@@ -2,19 +2,19 @@ package fr.bnia.declarations.adapter.document;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
-import fr.bnia.declarations.application.CotisationDsm;
 import fr.bnia.declarations.application.CotisationDsm.Calculee;
 import fr.bnia.declarations.application.CotisationDsm.Facturee;
+import fr.bnia.declarations.application.CotisationDsm;
 import fr.bnia.declarations.application.EditionsDsm;
 import fr.bnia.declarations.application.FactureDsm;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
-import fr.bnia.declarations.domain.EtatDsm;
 import fr.bnia.declarations.domain.GrilleCotisation.TauxEnVigueur;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.OngletDsm;
 import fr.bnia.declarations.domain.PolitiqueCotisation.Detail;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -89,6 +89,7 @@ class PdfDsm implements EditionsDsm {
         entete.put("periode", dsm.periode().libelle() + " (du " + dsm.periode().debut().format(DATE) + " au "
                 + dsm.periode().fin().format(DATE) + ")");
         entete.put("dateDia", dsm.dateDia() == null ? "—" : dsm.dateDia().format(DATE));
+        entete.put("echeance", dsm.periode().echeance(dsm.type()).format(DATE));
         entete.put("etat", dsm.etat().libelle(edition.cote()));
         entete.put("validation", dsm.valideeLe() == null ? "—" : "le " + dsm.valideeLe().atZone(PARIS).format(DATE_HEURE)
                 + (dsm.valideePar() == null ? "" : " par " + dsm.valideePar().nom()));

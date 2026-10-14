@@ -1,6 +1,7 @@
 package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import java.util.Map;
 
 /**

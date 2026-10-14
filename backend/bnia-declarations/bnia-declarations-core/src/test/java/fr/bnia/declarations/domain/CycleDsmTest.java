@@ -15,6 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.ModificationConcurrente;
+import fr.bnia.declarations.domain.partage.Cote;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;

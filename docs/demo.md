@@ -41,6 +41,7 @@ opérateur. Le sélecteur sous le titre de l'espace change d'opérateur actif.
 | `observateur@negociant.fr` | Thomas Barrère | Armagnacs de Gascogne | `OBSERVATEUR` | Portail en lecture seule |
 | `admin@larressingle.fr` | Marie Lacoste | Maison Larressingle (`N320002`) | `ADMIN` | Portail : DSM en compléments demandés, à corriger et renvoyer |
 | `admin@landes.fr` | Bernard Dufau | Négoce des Landes (`N400001`) | `ADMIN` | Portail : DSM en brouillon avec une anomalie |
+| `admin@laubade.fr` | Hélène Lassus | Domaine de Laubade (`000003`) | `ADMIN` | Portail d'un producteur en sommeil : DSM 2024-2025 validée, en attente d'un nouveau point de départ |
 
 Sans compte :
 
@@ -54,11 +55,11 @@ Le BNIA (type `BNIA`, menu « BNIA » du back-office) et seize opérateurs du Ge
 Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N320002`, `N400001`, deux
 `AUTRE` (`000010`, `000011`), une fiche incomplète (`000012`) et une fiche inactive (`000013`).
 
-## Déclarations (spec 05, lots 1 à 6)
+## Déclarations (spec 05, lots 1 à 8)
 
-Les dates sont calculées depuis le jour du chargement. Les trois négociants partent du **premier du mois
-courant** (le 1er octobre 2026 pour un chargement en octobre 2026), avec un stock fixé par Anne Lamarque
-au dernier jour du mois précédent : leur première DSM est celle du mois en cours.
+Les dates sont calculées depuis le jour du chargement. Armagnacs de Gascogne et Négoce des Landes partent du
+**premier du mois courant** (le 1er octobre 2026 pour un chargement en octobre 2026), Maison Larressingle du
+**premier du mois précédent**, avec un stock fixé par Anne Lamarque : leur première DSM est celle de ce mois.
 
 - **Armagnacs de Gascogne (`N320001`, négociant)** : six lignes de stock initial (`NB` « XO » 12, `NB`
   « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM du mois
@@ -66,8 +67,9 @@ au dernier jour du mois précédent : leur première DSM est celle du mois en co
   France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; un commentaire de Julie sur
   la ligne XO, un commentaire **interne** d'Anne Lamarque. Aucune pièce : il manque un justificatif pour
   les ventes négoce et un pour l'export.
-- **Maison Larressingle (`N320002`, négociant)** : DSM du mois envoyée par Marie Lacoste, prise en
-  instruction puis en **compléments demandés** par Anne Lamarque, motif « DAE manquants pour l'export ».
+- **Maison Larressingle (`N320002`, négociant)** : DSM du mois précédent envoyée par Marie Lacoste, prise en
+  instruction puis en **compléments demandés** par Anne Lamarque, motif « DAE manquants pour l'export » :
+  **en retard** dès le 6 du mois courant (échéance le 5).
 - **Négoce des Landes (`N400001`, négociant)** : DSM du mois en **brouillon**, remplie par Bernard Dufau,
   avec une anomalie : les assemblages en entrée (colonne 6, 50 L) et en sortie (colonne 12, 60 L)
   diffèrent de 10 L.
@@ -76,6 +78,9 @@ au dernier jour du mois précédent : leur première DSM est celle du mois en co
   2015, `NB` « Blanche » `00`, avec ses **douze DRM** et le DAE de son export (ligne `NB` « Hors d'âge »
   `20+`), tous sur le même PDF de démonstration. La DSM de l'année en cours est à initier.
 - **Maison Durand, Eauze (`000002`, producteur)** : aucun point de départ.
+- **Domaine de Laubade (`000003`, producteur)**, compte `admin@laubade.fr` (Hélène Lassus, `ADMIN`) : point
+  de départ au 1er avril d'il y a deux ans (2024), DSM 2024-2025 **validée** avec ses douze DRM, puis statut
+  de déclaration passé à **`SOMMEIL`** : il attend un nouveau point de départ.
 - **Grille CVO** (Paramétrage, rubrique Cotisation) : 55,00 €/hlAP à partir du 1er janvier 2021, puis
   60,00 €/hlAP à partir du 1er janvier 2024, 20 % exonérés de TVA. La DSM de Gascogne y vaut 1 855,95 € HT,
   comme la facture d'exemple. Aucune facture : `facturation` n'existe pas encore, l'onglet « Facturées »
@@ -137,4 +142,21 @@ Scénario :
 11. `admin@bnia.fr`, DSM validée de Maison Durand, Condom : bouton « Excel ». Fiche de Maison Durand,
     Eauze, onglet « Déclarations », « Importer depuis Excel » avec ce fichier : le point de départ est fixé
     au 1er avril qui suit la campagne du fichier, avec son stock de fin, vieilli d'un an.
-
+12. `admin@bnia.fr`, menu « Déclarations > DSM », onglet « En cours » : colonne « Échéance » ; Maison
+    Larressingle « En retard » (à partir du 6 du mois) ; Armagnacs de Gascogne, envoyée, attend le BNIA et
+    n'est pas en retard ; Maison Durand, Condom apparaît en ligne « Absente » (la DSM de l'année n'est pas
+    initiée), qui ouvre l'onglet « Déclarations » de sa fiche. Filtre « En retard seulement », état
+    « Absente ». La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
+    `notifications`, rien ne part encore.
+13. `admin@larressingle.fr`, « Mes DSM » : bandeau rouge du retard ; `admin@landes.fr` : bandeau de
+    l'échéance à venir (le 5 du mois prochain). En-tête de la DSM et éditions PDF et Excel : l'échéance.
+14. `admin@bnia.fr`, fiche du Domaine de Laubade, onglet « Déclarations » : point de départ figé,
+    « Fixer un nouveau point de départ » ; le stock proposé est celui de fin de la DSM 2024-2025. Choisir
+    le 1er avril de l'année en cours, « Reprendre le stock vieilli à cette date » : `NB` « Hors d'âge »
+    prend un an par 1er avril franchi. Enregistrer : le journal note l'interruption, l'ancien point passe
+    dans « Points de départ précédents ». Onglet « Production », repasser le statut de déclaration à
+    `OUI` ; puis `admin@laubade.fr`, « Mes DSM » : initier la DSM de l'année.
+15. `admin@bnia.fr` (ou `observateur@bnia.fr`), menu « Déclarations > Stocks déclarés » : le stock de fin
+    de la dernière DSM validée de Maison Durand, Condom et du Domaine de Laubade, ligne par ligne, total ;
+    filtres opérateur et type ; « Exporter en Excel » pour les douanes. La fiche de chacun en montre le
+    sien, section « Stock déclaré ».

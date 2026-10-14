@@ -1,7 +1,7 @@
 package fr.bnia.declarations.application;
 
-import fr.bnia.declarations.domain.Cote;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
+import fr.bnia.declarations.domain.partage.Cote;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
 
 /** Production des éditions de la DSM (ADR-020, adapter {@code document}). */

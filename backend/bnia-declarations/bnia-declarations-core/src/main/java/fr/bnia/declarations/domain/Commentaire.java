@@ -1,6 +1,7 @@
 package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.declarations.domain.partage.Cote;
 import java.time.Instant;
 import java.util.Objects;
 

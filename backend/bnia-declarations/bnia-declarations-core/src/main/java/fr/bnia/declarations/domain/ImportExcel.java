@@ -3,6 +3,7 @@ package fr.bnia.declarations.domain;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.domain.ImportRefuse.Erreur;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

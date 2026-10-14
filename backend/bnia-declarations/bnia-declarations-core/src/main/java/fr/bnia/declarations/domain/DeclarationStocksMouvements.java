@@ -2,6 +2,8 @@ package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.domain.partage.Cote;
+import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.StatutDeclarationStock;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.Instant;

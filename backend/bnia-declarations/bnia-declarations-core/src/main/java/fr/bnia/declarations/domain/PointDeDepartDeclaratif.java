@@ -43,6 +43,28 @@ public final class PointDeDepartDeclaratif {
         return new PointDeDepartDeclaratif(null, operateur, debut, lignes(lignes, debut), auteur, maintenant, 0);
     }
 
+    /**
+     * RG-DEC-09 : un nouveau point de départ, quand l'opérateur n'a aucune DSM en cours, à une date postérieure
+     * à la fin de sa dernière DSM validée. Le précédent reste consultable.
+     *
+     * @param dsmEnCours la période de la DSM non validée de l'opérateur, s'il en a une
+     * @param derniere   la période de sa dernière DSM validée
+     */
+    public static PointDeDepartDeclaratif fixerApres(long operateur, TypeDeclarant type, LocalDate debut,
+            List<SaisieLigneStock> lignes, Optional<PeriodeDeclaration> dsmEnCours, PeriodeDeclaration derniere,
+            Auteur auteur, Instant maintenant) {
+        if (dsmEnCours.isPresent()) {
+            throw new RegleEnfreinte("RG-DEC-09", "La DSM de " + dsmEnCours.get().libelle()
+                    + " est en cours : un nouveau point de départ attend qu'elle soit validée ou supprimée.");
+        }
+        verifierDebut(type, debut);
+        if (!debut.isAfter(derniere.fin())) {
+            throw new RegleEnfreinte("RG-DEC-09", "Le nouveau point de départ commence après le "
+                    + DATE.format(derniere.fin()) + ", fin de la dernière DSM validée (" + derniere.libelle() + ").");
+        }
+        return fixer(operateur, type, debut, lignes, auteur, maintenant);
+    }
+
     public static PointDeDepartDeclaratif reconstituer(long id, long operateur, LocalDate debut,
             List<LigneStockInitial> lignes, Auteur fixePar, Instant fixeLe, long version) {
         return new PointDeDepartDeclaratif(id, operateur, debut, lignes, fixePar, fixeLe, version);

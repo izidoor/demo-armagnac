@@ -2,9 +2,9 @@ package fr.bnia.declarations.adapter.persistence;
 
 import fr.bnia.commun.domain.Millesime;
 import fr.bnia.commun.domain.ModificationConcurrente;
-import fr.bnia.declarations.domain.CleConditionnement;
 import fr.bnia.declarations.domain.Denomination;
 import fr.bnia.declarations.domain.IdentiteLigne;
+import fr.bnia.declarations.domain.partage.CleConditionnement;
 import fr.bnia.declarations.domain.partage.CompteDAgeDsm;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
