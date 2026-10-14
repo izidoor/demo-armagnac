@@ -154,13 +154,21 @@ export function PageOperateur({
       }
     >
       <div className='mb-4 space-y-2'>
-        {!bnia && fiche.champsManquants.length > 0 && (
+        {!bnia && fiche.manquePourFacturer.length > 0 && (
           <Alert>
             <TriangleAlert />
-            <AlertTitle>Fiche incomplète</AlertTitle>
+            <AlertTitle>Non facturable</AlertTitle>
             <AlertDescription>
-              Il manque, pour facturer ou certifier :{' '}
-              {fiche.champsManquants.join(', ')}.
+              Il manque : {fiche.manquePourFacturer.join(', ')}.
+            </AlertDescription>
+          </Alert>
+        )}
+        {!bnia && fiche.manquePourCertifier.length > 0 && (
+          <Alert>
+            <TriangleAlert />
+            <AlertTitle>Non certifiable</AlertTitle>
+            <AlertDescription>
+              Il manque : {fiche.manquePourCertifier.join(', ')}.
             </AlertDescription>
           </Alert>
         )}

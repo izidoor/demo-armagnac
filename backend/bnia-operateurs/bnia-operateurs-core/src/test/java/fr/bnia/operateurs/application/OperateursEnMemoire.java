@@ -90,7 +90,8 @@ class OperateursEnMemoire implements OperateurRepository, ListingOperateurs, Num
         return operateurs.values().stream().filter(o -> !o.estBnia())
                 .map(o -> new OperateurLigne(o.id(), o.type(), o.code().valeur(), o.identite().raisonSociale(),
                         o.identite().nomCommercial(), o.identite().adresse().codePostal(), o.identite().adresse().ville(),
-                        o.identite().telephone1(), null, o.estActif(), !o.champsManquants().isEmpty()))
+                        o.identite().telephone1(), null, o.estActif(), o.manquePourFacturer(true).isEmpty(),
+                        o.manquePourCertifier().isEmpty()))
                 .toList();
     }
 

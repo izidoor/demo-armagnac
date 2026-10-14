@@ -15,6 +15,7 @@ public record SaisieOperateurRequest(
         @Schema(description = "Comparé à la casse, aux accents et aux espaces près (RG-OPE-09)", example = "Maison Durand") String groupe,
         @Schema(example = "3203200123") String cvi,
         @Schema(example = "41234567800012") String siret,
+        @Schema(description = "FR, une clé de 2 chiffres, le SIREN (RG-OPE-06)", example = "FR23412345678") String numeroTva,
         @Schema(example = "FR012345E6789") String accise,
         String bureauDouanes,
         @Schema(description = "Unique (RG-OPE-07)") String identifiantOdg,
@@ -50,8 +51,8 @@ public record SaisieOperateurRequest(
     }
 
     SaisieOperateur versSaisie() {
-        return new SaisieOperateur(type, code, groupe, cvi, siret, accise, bureauDouanes, identifiantOdg, titre,
-                raisonSociale, nomCommercial, adresseLigne1, adresseLigne2, adresseLigne3, codePostal, ville, pays,
+        return new SaisieOperateur(type, code, groupe, cvi, siret, numeroTva, accise, bureauDouanes, identifiantOdg,
+                titre, raisonSociale, nomCommercial, adresseLigne1, adresseLigne2, adresseLigne3, codePostal, ville, pays,
                 telephone1, telephone2, portable, emailGeneral, siteWeb, siteCommercial, latitude, longitude,
                 membreBnia, accordDiffusionGeneral, commentaireInterne, version);
     }

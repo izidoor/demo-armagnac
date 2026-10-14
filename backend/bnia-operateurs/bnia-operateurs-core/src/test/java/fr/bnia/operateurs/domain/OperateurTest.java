@@ -9,12 +9,23 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class OperateurTest {
 
     static IdentiteOperateur identite(String raisonSociale, Adresse adresse) {
-        return new IdentiteOperateur(null, null, null, null, null, null, null, raisonSociale, null, adresse, null,
+        return new IdentiteOperateur(null, null, null, null, null, null, null, null, raisonSociale, null, adresse, null,
                 null, null, null, null, null, null, null, false, null);
+    }
+
+    static IdentiteOperateur identite(String raisonSociale, Adresse adresse, String siret) {
+        return identite(raisonSociale, adresse, siret, null);
+    }
+
+    static IdentiteOperateur identite(String raisonSociale, Adresse adresse, String siret, String numeroTva) {
+        return new IdentiteOperateur(null, null, Siret.facultatif(siret), NumeroTva.facultatif(numeroTva), null, null,
+                null, null, raisonSociale, null, adresse, null, null, null, null, null, null, null, null, false, null);
     }
 
     static Adresse adresse(String codePostal) {
@@ -38,18 +49,50 @@ class OperateurTest {
     }
 
     @Test
-    @DisplayName("RG-OPE-02 : une fiche sans adresse s'enregistre, et nomme ce qui manque")
-    void rg_ope_02_fiche_incomplete() {
+    @DisplayName("RG-OPE-02 : une fiche non facturable ou non certifiable s'enregistre, et nomme ce qui manque")
+    void rg_ope_02_facturable_et_certifiable() {
         Operateur complet = Operateur.creer(TypeOperateur.PRODUCTEUR, CodeOperateur.de("000001"),
-                identite("Durand", adresse("32100")));
-        Operateur incomplet = Operateur.creer(TypeOperateur.PRODUCTEUR, CodeOperateur.de("000002"),
+                identite("Durand", adresse("32100"), "41234567800012"));
+        Operateur vide = Operateur.creer(TypeOperateur.PRODUCTEUR, CodeOperateur.de("000002"),
                 identite("Petit", new Adresse(" ", null, null, "", null, null)));
 
-        assertThat(complet.champsManquants()).containsExactly("région");
+        assertThat(complet.manquePourFacturer(true)).isEmpty();
+        assertThat(complet.manquePourFacturer(false)).containsExactly("destinataire des factures");
+        assertThat(complet.manquePourCertifier()).containsExactly("région");
         complet.modifierProduction(complet.declaratif(), new Production(7L, Set.of(), List.of()));
-        assertThat(complet.champsManquants()).isEmpty();
-        assertThat(incomplet.estActif()).isTrue();
-        assertThat(incomplet.champsManquants()).containsExactly("adresse", "code postal", "ville", "pays", "région");
+        assertThat(complet.manquePourCertifier()).isEmpty();
+        assertThat(vide.estActif()).isTrue();
+        assertThat(vide.manquePourFacturer(false))
+                .containsExactly("SIRET", "adresse", "code postal", "ville", "pays", "destinataire des factures");
+        assertThat(vide.manquePourCertifier()).containsExactly("adresse", "code postal", "ville", "pays", "région");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"FR55776999955", "fr 55 776 999 955", "FR23412345678"})
+    @DisplayName("RG-OPE-06 : le n° de TVA est FR, une clé de 2 chiffres et le SIREN")
+    void rg_ope_06_numero_tva_valide(String saisie) {
+        assertThat(NumeroTva.facultatif(saisie).valeur()).matches("FR[0-9]{11}");
+        assertThat(NumeroTva.facultatif("  ")).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"FR56776999955", "FR5577699995", "DE55776999955", "FRAB776999955"})
+    @DisplayName("RG-OPE-06 : un n° de TVA mal formé ou de clé fausse est refusé")
+    void rg_ope_06_numero_tva_invalide(String saisie) {
+        assertThatThrownBy(() -> new NumeroTva(saisie))
+                .isInstanceOf(RegleEnfreinte.class)
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-OPE-06");
+    }
+
+    @Test
+    @DisplayName("RG-OPE-06 : un n° de TVA qui ne concorde pas avec le SIRET avertit, sans bloquer")
+    void rg_ope_06_numero_tva_discordant() {
+        IdentiteOperateur concordante = identite("Durand", adresse("32100"), "41234567800012", "FR23412345678");
+        IdentiteOperateur discordante = identite("Durand", adresse("32100"), "77699995500029", "FR23412345678");
+
+        assertThat(concordante.tvaDiscordante()).isFalse();
+        assertThat(discordante.tvaDiscordante()).isTrue();
+        assertThat(identite("Durand", adresse("32100")).tvaDiscordante()).as("sans n° de TVA").isFalse();
     }
 
     @Test
@@ -81,9 +124,9 @@ class OperateurTest {
     @Test
     @DisplayName("RG-OPE-08 et RG-OPE-09 : raison sociale et groupe comparés à la casse, aux accents et aux espaces près")
     void rg_ope_09_groupe_normalise() {
-        IdentiteOperateur a = new IdentiteOperateur(" Maison  Durand ", null, null, null, null, null, null,
+        IdentiteOperateur a = new IdentiteOperateur(" Maison  Durand ", null, null, null, null, null, null, null,
                 "Château Élise", null, null, null, null, null, null, null, null, null, null, false, null);
-        IdentiteOperateur b = new IdentiteOperateur("MAISON DURAND", null, null, null, null, null, null,
+        IdentiteOperateur b = new IdentiteOperateur("MAISON DURAND", null, null, null, null, null, null, null,
                 "chateau  elise", null, null, null, null, null, null, null, null, null, null, false, null);
 
         assertThat(a.groupeNormalise()).isEqualTo(b.groupeNormalise()).isEqualTo("MAISON DURAND");

@@ -56,12 +56,16 @@ class JdbcListingOperateurs implements ListingOperateurs, NumerotationLecture {
             conditions.add("o.actif = :actif");
             parametres.put("actif", filtre.actif());
         }
-        if (filtre.incomplet() != null) {
-            conditions.add(filtre.incomplet() ? Sql.INCOMPLET : "not " + Sql.INCOMPLET);
+        if (filtre.facturable() != null) {
+            conditions.add(filtre.facturable() ? Sql.FACTURABLE : "not " + Sql.FACTURABLE);
+        }
+        if (filtre.certifiable() != null) {
+            conditions.add(filtre.certifiable() ? Sql.CERTIFIABLE : "not " + Sql.CERTIFIABLE);
         }
         String where = " where " + String.join(" and ", conditions);
         return jdbcClient.sql("select o.id, o.type, o.code, o.raison_sociale, o.nom_commercial, o.code_postal, o.ville,"
-                        + " o.telephone1, o.email_general, o.actif, " + Sql.INCOMPLET + " as incomplet from " + TABLE
+                        + " o.telephone1, o.email_general, o.actif, " + Sql.FACTURABLE + " as facturable, "
+                        + Sql.CERTIFIABLE + " as certifiable from " + TABLE
                         + where + " order by o.raison_sociale, o.code")
                 .params(parametres)
                 .query(OperateurLigne.class)

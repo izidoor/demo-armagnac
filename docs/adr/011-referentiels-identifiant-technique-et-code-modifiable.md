@@ -1,6 +1,7 @@
 # ADR-011 : Référentiels, identifiant technique et code modifiable
 
-- Statut : accepté ; amendé le 2026-10-08 (auteur d'une action, identifiants `bigint` confirmés)
+- Statut : accepté ; amendé le 2026-10-08 (auteur d'une action, identifiants `bigint` confirmés) et le
+  2026-10-14 (références opaques de `facturation`)
 - Date : 2026-10-06
 - Remplace : la « référence par code métier » de l'ADR-008 (décision A-REF-1 de la spec 01)
 - Spec : `docs/specs/01-referentiels/spec.md` (A-REF-1, RG-REF-02, RG-REF-04)
@@ -61,3 +62,15 @@ Options écartées :
   la cohérence passe par les événements de `operateurs` (ADR-015).
 - Écartés : ne jamais supprimer un utilisateur (comptes dormants, écart à la vision) ; bloquer la
   suppression d'un utilisateur auteur d'une action (deux comportements selon l'historique).
+
+## Amendement du 2026-10-14 (spec 08, décision A-FAC-8)
+- **Exception : les références opaques de `facturation`.** `facturation` est une lib en aval (ADR-021) :
+  elle ne connaît pas les tables de ses sources, ni celles de son hôte. L'origine d'une facture
+  (`Origine` : source, nature, identifiant de l'objet chez la source) et son client (`ClientRef` :
+  identifiant et code de l'opérateur) sont donc stockés en texte, **sans clé étrangère**. Des index sur
+  (source, identifiant) et sur le client portent l'unicité d'une facture vivante par origine et les
+  recherches.
+- La facture recopie tout l'acheteur. Supprimer un opérateur ne la rend pas incohérente :
+  `facturation` ne protège pas l'opérateur facturé contre la suppression.
+- Écartée : une clé étrangère par source (une colonne par type d'objet), qui ferait dépendre la lib de
+  chacune de ses sources.

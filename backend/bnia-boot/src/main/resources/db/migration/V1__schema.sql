@@ -174,6 +174,7 @@ create table operateurs.operateur (
     groupe_normalise          text,
     cvi                       text          check (cvi ~ '^[A-Z0-9]{10}$'),
     siret                     text          check (siret ~ '^[0-9]{14}$'),
+    numero_tva                text          check (numero_tva ~ '^FR[0-9]{11}$'),
     accise                    text          check (accise ~ '^FR[A-Z0-9]{11}$'),
     bureau_douanes            text,
     identifiant_odg           text,

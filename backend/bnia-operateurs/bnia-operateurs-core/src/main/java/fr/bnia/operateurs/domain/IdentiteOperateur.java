@@ -6,6 +6,7 @@ import fr.bnia.commun.domain.RegleEnfreinte;
  * Identité et coordonnées d'un opérateur (C.1.1.1 p.100-101), hors type et code. Seule la raison sociale
  * est obligatoire (RG-OPE-02) ; les textes facultatifs vides valent « non renseigné ».
  *
+ * @param numeroTva  n° de TVA intracommunautaire, ou {@code null} (RG-OPE-06)
  * @param titre      identifiant du titre dans {@code referentiels}, ou {@code null}
  * @param membreBnia identifiant du membre BNIA dans {@code referentiels}, ou {@code null} (Q-OPE-4)
  */
@@ -13,6 +14,7 @@ public record IdentiteOperateur(
         String groupe,
         Cvi cvi,
         Siret siret,
+        NumeroTva numeroTva,
         NumeroAccise accise,
         String bureauDouanes,
         String identifiantOdg,
@@ -49,9 +51,15 @@ public record IdentiteOperateur(
 
     /** RG-OPE-36 : la même identité, avec les seuls champs qu'un opérateur modifie lui-même. */
     public IdentiteOperateur avecProfil(ProfilOperateur p) {
-        return new IdentiteOperateur(groupe, cvi, siret, accise, bureauDouanes, identifiantOdg, p.titre(), raisonSociale,
-                p.nomCommercial(), p.adresse(), p.telephone1(), p.telephone2(), p.portable(), p.emailGeneral(),
-                p.siteWeb(), p.siteCommercial(), p.gps(), membreBnia, p.accordDiffusionGeneral(), commentaireInterne);
+        return new IdentiteOperateur(groupe, cvi, siret, numeroTva, accise, bureauDouanes, identifiantOdg, p.titre(),
+                raisonSociale, p.nomCommercial(), p.adresse(), p.telephone1(), p.telephone2(), p.portable(),
+                p.emailGeneral(), p.siteWeb(), p.siteCommercial(), p.gps(), membreBnia, p.accordDiffusionGeneral(),
+                commentaireInterne);
+    }
+
+    /** RG-OPE-06 : le n° de TVA ne concorde pas avec le SIRET (avertissement, sans blocage). */
+    public boolean tvaDiscordante() {
+        return numeroTva != null && siret != null && !numeroTva.concordeAvec(siret);
     }
 
     /** RG-OPE-08 : forme de comparaison de la raison sociale. */

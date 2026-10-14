@@ -50,7 +50,19 @@ export function PageOperateurs() {
     type: type === TOUS ? undefined : (type as TypeOperateur),
     recherche: rechercheStable.trim() || undefined,
     actif: etat === TOUS ? undefined : etat === 'actifs',
-    incomplet: completude === TOUS ? undefined : completude === 'incompletes',
+    // RG-OPE-02 : fiches facturables ou certifiables, ou celles auxquelles il manque quelque chose.
+    facturable:
+      completude === 'non-facturables'
+        ? false
+        : completude === 'completes'
+          ? true
+          : undefined,
+    certifiable:
+      completude === 'non-certifiables'
+        ? false
+        : completude === 'completes'
+          ? true
+          : undefined,
   }
   const requete = useQuery({
     queryKey: ['operateurs', filtre],
@@ -133,8 +145,11 @@ export function PageOperateurs() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={TOUS}>Complètes ou non</SelectItem>
-            <SelectItem value='incompletes'>Fiches incomplètes</SelectItem>
-            <SelectItem value='completes'>Fiches complètes</SelectItem>
+            <SelectItem value='non-facturables'>Non facturables</SelectItem>
+            <SelectItem value='non-certifiables'>Non certifiables</SelectItem>
+            <SelectItem value='completes'>
+              Facturables et certifiables
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -165,9 +180,14 @@ export function PageOperateurs() {
                 <TableCell className='font-mono'>{o.code}</TableCell>
                 <TableCell>
                   {o.raisonSociale}
-                  {o.incomplet && (
+                  {!o.facturable && (
                     <Badge variant='outline' className='ms-2'>
-                      Incomplète
+                      Non facturable
+                    </Badge>
+                  )}
+                  {!o.certifiable && (
+                    <Badge variant='outline' className='ms-2'>
+                      Non certifiable
                     </Badge>
                   )}
                 </TableCell>

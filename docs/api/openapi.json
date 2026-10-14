@@ -897,9 +897,17 @@
             "type" : "boolean"
           }
         }, {
-          "description" : "Vrai : fiches incomplètes seulement (RG-OPE-02)",
+          "description" : "Vrai : fiches facturables seulement ; faux : les autres (RG-OPE-02)",
           "in" : "query",
-          "name" : "incomplet",
+          "name" : "facturable",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Vrai : fiches certifiables seulement ; faux : les autres (RG-OPE-02)",
+          "in" : "query",
+          "name" : "certifiable",
           "required" : false,
           "schema" : {
             "type" : "boolean"
@@ -1082,7 +1090,14 @@
           }
         }, {
           "in" : "query",
-          "name" : "incomplet",
+          "name" : "facturable",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "certifiable",
           "required" : false,
           "schema" : {
             "type" : "boolean"
@@ -7504,6 +7519,11 @@
             "description" : "DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)",
             "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
           },
+          "facturation" : {
+            "type" : "string",
+            "description" : "Factures et avoirs (spec 08 §3.12)",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
           "operateur" : {
             "type" : "integer",
             "format" : "int64"
@@ -7527,7 +7547,7 @@
             "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
           }
         },
-        "required" : [ "acces", "adminBnia", "contacts", "declarations", "operateur", "parametrage", "personnelBnia" ]
+        "required" : [ "acces", "adminBnia", "contacts", "declarations", "facturation", "operateur", "parametrage", "personnelBnia" ]
       },
       "Dsm" : {
         "type" : "object",
@@ -7929,7 +7949,7 @@
       },
       "FicheOperateur" : {
         "type" : "object",
-        "description" : "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur",
+        "description" : "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 06, 09) et les droits du lecteur",
         "properties" : {
           "accesStatistiques" : {
             "type" : "boolean"
@@ -7974,13 +7994,6 @@
           },
           "bureauDouanes" : {
             "type" : "string"
-          },
-          "champsManquants" : {
-            "type" : "array",
-            "description" : "Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète",
-            "items" : {
-              "type" : "string"
-            }
           },
           "code" : {
             "type" : "string",
@@ -8048,6 +8061,20 @@
           "longitude" : {
             "type" : "number"
           },
+          "manquePourCertifier" : {
+            "type" : "array",
+            "description" : "Ce qui manque pour certifier (RG-OPE-02) ; vide si la fiche est certifiable",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "manquePourFacturer" : {
+            "type" : "array",
+            "description" : "Ce qui manque pour facturer (RG-OPE-02) ; vide si la fiche est facturable",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "membreBnia" : {
             "type" : "integer",
             "format" : "int64",
@@ -8067,6 +8094,10 @@
           },
           "nomCommercial" : {
             "type" : "string"
+          },
+          "numeroTva" : {
+            "type" : "string",
+            "description" : "N° de TVA intracommunautaire (RG-OPE-06)"
           },
           "pays" : {
             "type" : "integer",
@@ -8118,6 +8149,10 @@
             "format" : "int64",
             "description" : "Identifiant du titre"
           },
+          "tvaDiscordante" : {
+            "type" : "boolean",
+            "description" : "Le n° de TVA ne concorde pas avec le SIRET : avertissement (RG-OPE-06)"
+          },
           "type" : {
             "type" : "string",
             "enum" : [ "BNIA", "PRODUCTEUR", "NEGOCIANT", "AUTRE" ]
@@ -8131,7 +8166,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "accesStatistiques", "accordDiffusionGeneral", "actif", "alambics", "appellations", "autresDuGroupe", "champsManquants", "code", "codeConforme", "detenteurAlambic", "droits", "id", "millesimesDiffusables", "niveauDiffusion", "raisonSociale", "statutDeclarationStock", "type", "version" ]
+        "required" : [ "accesStatistiques", "accordDiffusionGeneral", "actif", "alambics", "appellations", "autresDuGroupe", "code", "codeConforme", "detenteurAlambic", "droits", "id", "manquePourCertifier", "manquePourFacturer", "millesimesDiffusables", "niveauDiffusion", "raisonSociale", "statutDeclarationStock", "tvaDiscordante", "type", "version" ]
       },
       "FicheProfessionnelle" : {
         "type" : "object",
@@ -8897,6 +8932,10 @@
           "actif" : {
             "type" : "boolean"
           },
+          "certifiable" : {
+            "type" : "boolean",
+            "description" : "Rien ne manque pour certifier (RG-OPE-02)"
+          },
           "code" : {
             "type" : "string",
             "example" : "000012"
@@ -8907,13 +8946,13 @@
           "emailGeneral" : {
             "type" : "string"
           },
+          "facturable" : {
+            "type" : "boolean",
+            "description" : "Rien ne manque pour facturer (RG-OPE-02)"
+          },
           "id" : {
             "type" : "integer",
             "format" : "int64"
-          },
-          "incomplet" : {
-            "type" : "boolean",
-            "description" : "Fiche incomplète (RG-OPE-02)"
           },
           "nomCommercial" : {
             "type" : "string"
@@ -8932,7 +8971,7 @@
             "type" : "string"
           }
         },
-        "required" : [ "actif", "code", "id", "incomplet", "raisonSociale", "type" ]
+        "required" : [ "actif", "certifiable", "code", "facturable", "id", "raisonSociale", "type" ]
       },
       "OperateurResume" : {
         "type" : "object",
@@ -9949,6 +9988,11 @@
           },
           "nomCommercial" : {
             "type" : "string"
+          },
+          "numeroTva" : {
+            "type" : "string",
+            "description" : "FR, une clé de 2 chiffres, le SIREN (RG-OPE-06)",
+            "example" : "FR23412345678"
           },
           "pays" : {
             "type" : "integer",

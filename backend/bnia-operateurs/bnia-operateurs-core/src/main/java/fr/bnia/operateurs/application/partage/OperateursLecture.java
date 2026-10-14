@@ -1,5 +1,6 @@
 package fr.bnia.operateurs.application.partage;
 
+import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Droits;
 import fr.bnia.operateurs.domain.partage.EtatConnexion;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
@@ -19,6 +20,9 @@ public interface OperateursLecture {
 
     /** Actif ou non, pour l'afficher là où il est référencé. */
     Optional<OperateurVue> operateur(long id);
+
+    /** {@code facturation} : l'opérateur vu comme acheteur, avec ce qui manque pour le facturer (RG-OPE-02, 23). */
+    Optional<AcheteurVue> acheteur(long id);
 
     /** Imports Excel, dont les fichiers portent des codes. */
     Optional<OperateurVue> operateurParCode(String code);

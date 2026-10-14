@@ -15,6 +15,7 @@ import fr.bnia.operateurs.domain.DiffusionMillesimes;
 import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
 import fr.bnia.operateurs.domain.NumeroAccise;
+import fr.bnia.operateurs.domain.NumeroTva;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.Production;
 import fr.bnia.operateurs.domain.Siret;
@@ -128,7 +129,8 @@ class OperateurJdbc implements OperateurRepository {
         Adresse a = i.adresse();
         Production p = o.production();
         return new Ligne(o.id(), o.type(), o.code().valeur(), i.groupe(), i.groupeNormalise(),
-                texte(i.cvi(), Cvi::valeur), texte(i.siret(), Siret::valeur), texte(i.accise(), NumeroAccise::valeur),
+                texte(i.cvi(), Cvi::valeur), texte(i.siret(), Siret::valeur), texte(i.numeroTva(), NumeroTva::valeur),
+                texte(i.accise(), NumeroAccise::valeur),
                 i.bureauDouanes(), i.identifiantOdg(), i.titre(), i.raisonSociale(), i.raisonSocialeNormalisee(),
                 i.nomCommercial(), a.ligne1(), a.ligne2(), a.ligne3(), a.codePostal(), a.ville(), a.pays(),
                 i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral(), Email::valeur),
@@ -152,6 +154,7 @@ class OperateurJdbc implements OperateurRepository {
                 l.groupe(),
                 l.cvi() == null ? null : new Cvi(l.cvi()),
                 l.siret() == null ? null : new Siret(l.siret()),
+                l.numeroTva() == null ? null : new NumeroTva(l.numeroTva()),
                 l.accise() == null ? null : new NumeroAccise(l.accise()),
                 l.bureauDouanes(),
                 l.identifiantOdg(),
@@ -200,6 +203,7 @@ class OperateurJdbc implements OperateurRepository {
             String groupeNormalise,
             String cvi,
             String siret,
+            String numeroTva,
             String accise,
             String bureauDouanes,
             String identifiantOdg,

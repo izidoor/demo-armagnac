@@ -24,7 +24,7 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
 - Contrat d'API : généré depuis les controllers (springdoc), exporté vers `docs/api/openapi.json`
   par `OpenApiContratIT` ; client TypeScript généré depuis ce fichier (ADR-007).
 
-## Architecture (un module parent par contexte, sous-modules -core et -infra, ADR-014)
+## Architecture (un module parent par contexte, sous-modules -core et -infra, ADR-014 ; hexagonale stricte)
 - `bnia-<contexte>` : module parent (packaging `pom`) d'un bounded context, avec deux sous-modules :
   - `bnia-<contexte>-core` : `fr.bnia.<contexte>.{domain, application}`, **Java pur** (aucune dépendance Spring) :
     - `domain` : aucun framework ni annotation de persistance.
@@ -35,8 +35,13 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
     `planification` : composants `@Scheduled` qui n'appellent qu'un cas d'usage, horloge injectée,
     idempotence en base (ADR-019). `document` : PDF (OpenHTMLtoPDF, gabarits Thymeleaf) et Excel
     (`fastexcel`), en écriture comme en lecture (ADR-020).
+- `bnia-<contexte>-api` (ADR-021, amendement d'ADR-014) : pour un contexte que d'autres appellent ou dont
+  ils implémentent un port (premier cas : `bnia-facturation-api`). Java pur : interfaces, types échangés,
+  événements ; son `-core` en dépend. Seule l'**infra** d'un autre contexte en dépend, jamais son core :
+  le core a son propre port, implémenté par un adapter sur l'API.
 - `bnia-commun` : noyau partagé. `bnia-commun-core` : concepts transverses (ADR-009, dont
-  `VolumeAlcoolPur` et `DocumentDepose`), `@UseCase`, port `StockageDocuments` ; `bnia-commun-infra` : socle
+  `VolumeAlcoolPur` et `DocumentDepose`), `@UseCase`, ports `StockageDocuments` et `Transactions` (nouvelle
+  transaction, pour les traitements par lot, ADR-022) ; `bnia-commun-infra` : socle
   REST (erreurs, OpenAPI, `@Ressource`) et stockage des documents en base (schéma `documents`, ADR-018).
 - `bnia-boot` : seul module avec `@SpringBootApplication`, `application*.yml`, câblage,
   transactions, migration Flyway, **tous les `*IT`** et les tests ArchUnit. Dépend du `-infra` de chaque contexte.
@@ -46,12 +51,14 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
   passer par des ports ou des événements. Quatre exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et les parties publiées en lecture de `referentiels`
   (`fr.bnia.referentiels.*.partage`, ADR-008), de `operateurs` (`fr.bnia.operateurs.*.partage`,
-  ADR-012) et de `declarations` (`fr.bnia.declarations.*.partage`, ADR-017). Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
+  ADR-012) et de `declarations` (`fr.bnia.declarations.*.partage`, ADR-017). S'y ajoute le module
+  `bnia-facturation-api` (ADR-021), importé par l'infra des sources seulement. Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
   Exceptions sans clé étrangère : l'auteur d'une action (identifiant de l'utilisateur et copie de son nom,
-  l'utilisateur pouvant être supprimé) et le compte de connexion de `authentification` (ADR-011 amendé).
+  l'utilisateur pouvant être supprimé), le compte de connexion de `authentification` (ADR-011 amendé),
+  l'origine et le client d'une facture (`Origine`, `ClientRef`, opaques ; ADR-011 amendé le 2026-10-14).
 - Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
-  par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée du contexte dont l'autre
-  dépend, jamais de cycle (ADR-013). Jamais de secret (mot de passe) dans un événement.
+  par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée (ou le module `-api`) du
+  contexte dont l'autre dépend, jamais de cycle (ADR-013). Jamais de secret (mot de passe) dans un événement.
 - Personnes et droits (ADR-016) : dans `operateurs`. Rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN`, un par
   rattachement ; modules lus ou gérés par rôle ; le BNIA est un opérateur (type `BNIA`) dont les rôles
   valent pour tous les opérateurs. **Les droits se vérifient dans les cas d'usage** : le controller passe

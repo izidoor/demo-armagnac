@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Un opérateur et ce que la fiche en montre : ce qui manque (RG-OPE-02), un code qui n'a plus la forme
+ * Un opérateur et ce que la fiche en montre : ce qui manque pour facturer et pour certifier, un n° de TVA
+ * qui ne concorde pas avec le SIRET (RG-OPE-02, 06), un code qui n'a plus la forme
  * de son type (RG-OPE-05), les autres fiches du groupe (RG-OPE-09), l'adresse de facturation qui résulte
  * du destinataire (RG-OPE-23), et les droits du lecteur (RG-OPE-31, 36 : commentaire interne et
  * signalements réservés au BNIA).
@@ -16,7 +17,9 @@ import java.util.Optional;
  */
 public record FicheOperateur(
         Operateur operateur,
-        List<String> champsManquants,
+        List<String> manquePourFacturer,
+        List<String> manquePourCertifier,
+        boolean tvaDiscordante,
         boolean codeConforme,
         Optional<CodeOperateur> codePropose,
         List<OperateurResume> autresDuGroupe,

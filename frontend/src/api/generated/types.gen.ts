@@ -316,6 +316,10 @@ export type Droits = {
      * DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)
      */
     declarations: 'AUCUN' | 'LECTURE' | 'GESTION';
+    /**
+     * Factures et avoirs (spec 08 §3.12)
+     */
+    facturation: 'AUCUN' | 'LECTURE' | 'GESTION';
     operateur: number;
     parametrage: 'AUCUN' | 'LECTURE' | 'GESTION';
     /**
@@ -557,7 +561,7 @@ export type FactureDsm = {
 };
 
 /**
- * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur
+ * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 06, 09) et les droits du lecteur
  */
 export type FicheOperateur = {
     accesStatistiques: boolean;
@@ -574,10 +578,6 @@ export type FicheOperateur = {
      */
     autresDuGroupe: Array<OperateurResume>;
     bureauDouanes?: string;
-    /**
-     * Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète
-     */
-    champsManquants: Array<string>;
     code: string;
     /**
      * Faux si le code n'a plus la forme de son type ou de son département (RG-OPE-05)
@@ -621,6 +621,14 @@ export type FicheOperateur = {
     latitude?: number;
     longitude?: number;
     /**
+     * Ce qui manque pour certifier (RG-OPE-02) ; vide si la fiche est certifiable
+     */
+    manquePourCertifier: Array<string>;
+    /**
+     * Ce qui manque pour facturer (RG-OPE-02) ; vide si la fiche est facturable
+     */
+    manquePourFacturer: Array<string>;
+    /**
      * Identifiant du membre BNIA
      */
     membreBnia?: number;
@@ -630,6 +638,10 @@ export type FicheOperateur = {
     millesimesDiffusables: Array<number>;
     niveauDiffusion: 'REFUS' | 'PARTIEL' | 'TOTAL';
     nomCommercial?: string;
+    /**
+     * N° de TVA intracommunautaire (RG-OPE-06)
+     */
+    numeroTva?: string;
     /**
      * Identifiant du pays
      */
@@ -658,6 +670,10 @@ export type FicheOperateur = {
      * Identifiant du titre
      */
     titre?: number;
+    /**
+     * Le n° de TVA ne concorde pas avec le SIRET : avertissement (RG-OPE-06)
+     */
+    tvaDiscordante: boolean;
     type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
     /**
      * À renvoyer avec chaque modification (RG-OPE-51)
@@ -1088,14 +1104,18 @@ export type OperateurActif = {
  */
 export type OperateurLigne = {
     actif: boolean;
+    /**
+     * Rien ne manque pour certifier (RG-OPE-02)
+     */
+    certifiable: boolean;
     code: string;
     codePostal?: string;
     emailGeneral?: string;
-    id: number;
     /**
-     * Fiche incomplète (RG-OPE-02)
+     * Rien ne manque pour facturer (RG-OPE-02)
      */
-    incomplet: boolean;
+    facturable: boolean;
+    id: number;
     nomCommercial?: string;
     raisonSociale: string;
     telephone1?: string;
@@ -1694,6 +1714,10 @@ export type SaisieOperateur = {
      */
     membreBnia?: number;
     nomCommercial?: string;
+    /**
+     * FR, une clé de 2 chiffres, le SIREN (RG-OPE-06)
+     */
+    numeroTva?: string;
     /**
      * Identifiant du pays ; absent à la création : la France (RG-OPE-02)
      */
@@ -2495,9 +2519,13 @@ export type ListerOperateursData = {
          */
         actif?: boolean;
         /**
-         * Vrai : fiches incomplètes seulement (RG-OPE-02)
+         * Vrai : fiches facturables seulement ; faux : les autres (RG-OPE-02)
          */
-        incomplet?: boolean;
+        facturable?: boolean;
+        /**
+         * Vrai : fiches certifiables seulement ; faux : les autres (RG-OPE-02)
+         */
+        certifiable?: boolean;
     };
     url: '/api/operateurs';
 };
@@ -2582,7 +2610,8 @@ export type ExporterOperateursData = {
         type?: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
         recherche?: string;
         actif?: boolean;
-        incomplet?: boolean;
+        facturable?: boolean;
+        certifiable?: boolean;
     };
     url: '/api/operateurs/export.xlsx';
 };

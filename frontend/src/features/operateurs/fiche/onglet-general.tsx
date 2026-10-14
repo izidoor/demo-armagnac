@@ -44,6 +44,7 @@ const schema = z.object({
   groupe: z.string(),
   cvi: z.string(),
   siret: z.string(),
+  numeroTva: z.string(),
   accise: z.string(),
   bureauDouanes: z.string(),
   identifiantOdg: z.string(),
@@ -78,6 +79,7 @@ function depuis(f: FicheOperateur): Saisie {
     groupe: versTexte(f.groupe),
     cvi: versTexte(f.cvi),
     siret: versTexte(f.siret),
+    numeroTva: versTexte(f.numeroTva),
     accise: versTexte(f.accise),
     bureauDouanes: versTexte(f.bureauDouanes),
     identifiantOdg: versTexte(f.identifiantOdg),
@@ -136,6 +138,7 @@ function versIdentite(s: Saisie, version: number) {
     groupe: texte(s.groupe),
     cvi: texte(s.cvi),
     siret: texte(s.siret),
+    numeroTva: texte(s.numeroTva),
     accise: texte(s.accise),
     bureauDouanes: texte(s.bureauDouanes),
     identifiantOdg: texte(s.identifiantOdg),
@@ -307,6 +310,18 @@ export function OngletGeneral({
                 <div className='space-y-1'>
                   {ouvert('SIRET', 'siret', fiche.siret)}
                   <AlerteDoublons doublons={doublons} champ='SIRET' />
+                </div>
+                <div className='space-y-1'>
+                  {ouvert(
+                    'N° de TVA intracommunautaire',
+                    'numeroTva',
+                    fiche.numeroTva
+                  )}
+                  {fiche.tvaDiscordante && (
+                    <p className='text-sm text-amber-700 dark:text-amber-400'>
+                      Le n° de TVA ne concorde pas avec le SIRET.
+                    </p>
+                  )}
                 </div>
                 <div className='space-y-1'>
                   {ouvert("N° d'accise", 'accise', fiche.accise)}

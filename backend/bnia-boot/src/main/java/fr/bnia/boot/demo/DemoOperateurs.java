@@ -32,6 +32,7 @@ import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -214,6 +215,9 @@ public class DemoOperateurs implements ApplicationRunner {
         creerSiAbsent(saisie(TypeOperateur.NEGOCIANT, code, raisonSociale, null, null, "Zone d'activités",
                 codePostal, ville, null))
                 .ifPresent(id -> {
+                    // RG-OPE-23 : le destinataire des factures, une adresse saisie ; la fiche est facturable.
+                    operateurs.designer(anne, id, new SaisieDesignations(null, null,
+                            "comptabilite@" + code.toLowerCase() + ".example", null));
                     production(id, PeriodiciteDsm.MENSUELLE, codePostal.startsWith("40") ? "LANDES" : "GERS", List.of(),
                             Appellation.ARMAGNAC, Appellation.BLANCHE_ARMAGNAC);
                     operateurs.modifierDiffusion(anne, id, new SaisieDiffusion(NiveauDiffusion.TOTAL, List.of(), false,
@@ -281,11 +285,23 @@ public class DemoOperateurs implements ApplicationRunner {
         return new SaisieProduction.Alambic(agrement, type, new BigDecimal(capacite));
     }
 
+    /**
+     * SIRET et n° de TVA (RG-OPE-02, 06 ; spec 08 §7.1) des opérateurs à facturer en démonstration. Le Domaine de
+     * Laubade, qui a une DSM validée, reste sans SIRET : non facturable, il montre le refus.
+     */
+    private static final Map<String, String[]> IDENTIFIANTS_LEGAUX = Map.of(
+            "000001", new String[] {"32145678900015", "FR65321456789"},
+            "000002", new String[] {"32145678900023", "FR65321456789"},
+            "N320001", new String[] {"32890123400018", "FR23328901234"},
+            "N320002", new String[] {"32789012300018", "FR74327890123"},
+            "N400001", new String[] {"40123456700014", "FR61401234567"});
+
     private SaisieOperateur saisie(TypeOperateur type, String code, String raisonSociale, String nomCommercial,
             String groupe, String adresse, String codePostal, String ville, String telephone) {
         Long france = adresse == null ? null : referentiels.paysParCode("FR").map(p -> p.id()).orElse(null);
         String email = adresse == null ? null : "accueil@" + code.toLowerCase() + ".example";
-        return new SaisieOperateur(type, code, groupe, null, null, null, null, null, null, raisonSociale,
+        String[] legal = IDENTIFIANTS_LEGAUX.getOrDefault(code, new String[2]);
+        return new SaisieOperateur(type, code, groupe, null, legal[0], legal[1], null, null, null, null, raisonSociale,
                 nomCommercial, adresse, null, null, codePostal, ville, france, telephone, null, null, email, null,
                 null, null, null, referentiels.membreBniaParCode(type == TypeOperateur.NEGOCIANT ? "NEGO" : "PROD")
                         .map(ValeurVue::id).orElse(null),

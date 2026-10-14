@@ -42,13 +42,14 @@ class OperateurBniaTest {
     }
 
     @Test
-    @DisplayName("RG-OPE-39 : l'opérateur BNIA ne se désactive ni ne se supprime ; sa fiche n'est jamais incomplète")
+    @DisplayName("RG-OPE-39 : l'opérateur BNIA ne se désactive ni ne se supprime ; sa fiche est toujours facturable et certifiable")
     void rg_ope_39_bnia_ni_desactive_ni_supprime() {
         Operateur bnia = bnia();
 
         assertThatThrownBy(bnia::desactiver).hasMessageContaining("ne se désactive pas");
         assertThatThrownBy(bnia::verifierSuppressible).hasMessageContaining("ne se supprime pas");
-        assertThat(bnia.champsManquants()).isEmpty();
+        assertThat(bnia.manquePourFacturer(false)).isEmpty();
+        assertThat(bnia.manquePourCertifier()).isEmpty();
         assertThat(bnia.serieAttendueSiCodeNonConforme(true)).as("aucun code proposé").isEmpty();
     }
 

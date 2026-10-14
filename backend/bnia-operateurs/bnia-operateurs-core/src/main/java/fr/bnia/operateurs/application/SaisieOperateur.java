@@ -17,6 +17,7 @@ public record SaisieOperateur(
         String groupe,
         String cvi,
         String siret,
+        String numeroTva,
         String accise,
         String bureauDouanes,
         String identifiantOdg,

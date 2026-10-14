@@ -16,10 +16,12 @@ public record OperateurLigneResponse(
         String telephone1,
         String emailGeneral,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean actif,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Fiche incomplète (RG-OPE-02)") boolean incomplet) {
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Rien ne manque pour facturer (RG-OPE-02)") boolean facturable,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Rien ne manque pour certifier (RG-OPE-02)") boolean certifiable) {
 
     static OperateurLigneResponse depuis(OperateurLigne l) {
         return new OperateurLigneResponse(l.id(), l.type(), l.code(), l.raisonSociale(), l.nomCommercial(),
-                l.codePostal(), l.ville(), l.telephone1(), l.emailGeneral(), l.actif(), l.incomplet());
+                l.codePostal(), l.ville(), l.telephone1(), l.emailGeneral(), l.actif(), l.facturable(),
+                l.certifiable());
     }
 }
