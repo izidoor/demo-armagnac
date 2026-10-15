@@ -139,6 +139,17 @@ class JdbcOperateursLecture implements OperateursLecture {
     }
 
     @Override
+    public Set<Long> facturables(Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return Set.of();
+        }
+        return Set.copyOf(jdbcClient.sql("select o.id from " + TABLE + " o where o.id in (:ids) and " + Sql.FACTURABLE)
+                .param("ids", List.copyOf(ids))
+                .query(Long.class)
+                .list());
+    }
+
+    @Override
     public long operateurBnia() {
         return repository.idBnia();
     }

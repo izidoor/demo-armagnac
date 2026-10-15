@@ -18,10 +18,11 @@ import java.util.Optional;
  * @param assiette   le total de la DSM pour chaque colonne de l'assiette (RG-DEC-31), de quoi calculer sa
  *                   cotisation sans la charger
  * @param htFacture  RG-DEC-34 : présent si la DSM a une facture ; ses factures moins ses avoirs
+ * @param facturationDemandee RG-DEC-43 : sa facture est demandée, pas encore émise
  */
 public record DsmLigne(long id, long operateur, TypeDeclarant type, PeriodeDeclaration periode, EtatDsm etat,
         Instant envoyeeLe, Instant valideeLe, Instant modifieeLe, Map<ColonneDsm, VolumeAlcoolPur> assiette,
-        Optional<BigDecimal> htFacture) {
+        Optional<BigDecimal> htFacture, boolean facturationDemandee) {
 
     public DsmLigne {
         assiette = Map.copyOf(assiette);

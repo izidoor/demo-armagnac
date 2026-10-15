@@ -494,6 +494,38 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/declarations/facturation" : {
+      "post" : {
+        "operationId" : "facturerSelectionDsm",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FacturationDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DsmFacturee"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le BNIA demande les factures d'une sélection de DSM validées, toutes ou aucune (RG-DEC-43)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/declarations/stocks" : {
       "get" : {
         "operationId" : "listerStocksDeclares",
@@ -690,6 +722,266 @@
         },
         "summary" : "Corriger le taux CVO qui commence à cette date (RG-DEC-30)",
         "tags" : [ "declarations" ]
+      }
+    },
+    "/api/facturation/pieces" : {
+      "get" : {
+        "operationId" : "listerPieces",
+        "parameters" : [ {
+          "description" : "Début du numéro",
+          "in" : "query",
+          "name" : "numero",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "sens",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "AVOIR" ]
+          }
+        }, {
+          "in" : "query",
+          "name" : "etat",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "BROUILLON", "EMISE" ]
+          }
+        }, {
+          "description" : "Nature d'origine",
+          "example" : "DSM",
+          "in" : "query",
+          "name" : "nature",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Identifiant du client (opérateur)",
+          "in" : "query",
+          "name" : "client",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Contenu dans le nom de l'acheteur ou le n° BNIA du client",
+          "in" : "query",
+          "name" : "acheteur",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Contenu dans le libellé de la période",
+          "in" : "query",
+          "name" : "periode",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Date d'émission au plus tôt",
+          "in" : "query",
+          "name" : "du",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "Date d'émission au plus tard",
+          "in" : "query",
+          "name" : "au",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PieceListee"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'historique des pièces, brouillons compris, filtré (RG-FAC-26, 27)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/pieces/{id}" : {
+      "get" : {
+        "operationId" : "consulterPiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Piece"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une pièce ; pour un brouillon, ce qui empêche son émission (RG-FAC-09, 20, 26)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/pieces/{id}/emission" : {
+      "post" : {
+        "operationId" : "emettrePiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Piece"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Émet un brouillon : numéro, échéance, vendeur recopié, PDF, FactureEmise (RG-FAC-09 à 15, 25)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/pieces/{id}/journal" : {
+      "get" : {
+        "operationId" : "consulterJournalPiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/EntreeJournalPiece"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le journal d'une pièce, du plus récent au plus ancien (RG-FAC-20, 26)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/pieces/{id}/pdf" : {
+      "get" : {
+        "operationId" : "telechargerPdfPiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF d'une pièce émise, journalisé (RG-FAC-15, 20)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/vendeur" : {
+      "get" : {
+        "operationId" : "consulterVendeur",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ParametrageFacturation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le vendeur, s'il est paramétré (RG-FAC-16, 26)",
+        "tags" : [ "facturation" ]
+      },
+      "put" : {
+        "operationId" : "parametrerVendeur",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VendeurFacturation"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VendeurFacturation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Paramètre le vendeur ; les pièces émises gardent celui de leur émission (RG-FAC-16, 26)",
+        "tags" : [ "facturation" ]
       }
     },
     "/api/invitations/{jeton}" : {
@@ -2751,6 +3043,42 @@
           }
         },
         "summary" : "Le classeur Excel de la DSM, au format du modèle d'import (matrice négociant), dans tous les états ; celui d'un brouillon sert de modèle pré-rempli ; inscrit au journal (RG-DEC-36)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{id}/facturation" : {
+      "post" : {
+        "operationId" : "facturerDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le BNIA demande la facture d'une DSM validée : un brouillon de facture est créé (RG-DEC-43)",
         "tags" : [ "declarations" ]
       }
     },
@@ -7024,6 +7352,81 @@
         },
         "required" : [ "nouveauCompte", "operateur" ]
       },
+      "AcheteurPiece" : {
+        "type" : "object",
+        "description" : "L'acheteur recopié sur la pièce (spec 08 §3.5)",
+        "properties" : {
+          "adresseFacturation" : {
+            "$ref" : "#/components/schemas/AdresseFacturation"
+          },
+          "adresseLivraison" : {
+            "$ref" : "#/components/schemas/AdresseFacturation"
+          },
+          "categorie" : {
+            "type" : "string",
+            "enum" : [ "PROFESSIONNEL", "PARTICULIER" ]
+          },
+          "clientCode" : {
+            "type" : "string",
+            "description" : "N° BNIA du client"
+          },
+          "clientIdentifiant" : {
+            "type" : "string",
+            "description" : "Identifiant du client chez l'hôte ; vide pour un client libre"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "manques" : {
+            "type" : "array",
+            "description" : "Ce qui manque pour qu'il soit complet (RG-FAC-10)",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "numeroTva" : {
+            "type" : "string"
+          },
+          "siren" : {
+            "type" : "string"
+          },
+          "siret" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "adresseFacturation", "categorie", "manques" ]
+      },
+      "AdresseFacturation" : {
+        "type" : "object",
+        "description" : "Adresse d'un acheteur ou du vendeur (spec 08 §3.5, §3.7)",
+        "properties" : {
+          "codePays" : {
+            "type" : "string",
+            "description" : "Code ISO du pays",
+            "example" : "FR"
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "ligne1" : {
+            "type" : "string"
+          },
+          "ligne2" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "string",
+            "description" : "Nom du pays, imprimé",
+            "example" : "France"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        }
+      },
       "Alambic" : {
         "type" : "object",
         "properties" : {
@@ -7305,6 +7708,24 @@
         },
         "required" : [ "motif" ]
       },
+      "ConditionPaiement" : {
+        "type" : "object",
+        "description" : "Condition de paiement (spec 08 §3.6)",
+        "properties" : {
+          "finDeMois" : {
+            "type" : "boolean"
+          },
+          "jours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "30 jours fin de mois"
+          }
+        },
+        "required" : [ "finDeMois", "jours", "libelle" ]
+      },
       "ConfirmationEmail" : {
         "type" : "object",
         "properties" : {
@@ -7558,7 +7979,7 @@
             "description" : "Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)",
             "items" : {
               "type" : "string",
-              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "COMMENTER", "COMMENTER_INTERNE", "DEPOSER_PIECES" ]
+              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "COMMENTER", "COMMENTER_INTERNE", "DEPOSER_PIECES", "FACTURER" ]
             }
           },
           "anomalies" : {
@@ -7566,6 +7987,11 @@
             "items" : {
               "$ref" : "#/components/schemas/AnomalieDsm"
             }
+          },
+          "brouillonFacture" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Facture demandée, pas encore émise : la pièce du brouillon chez facturation (RG-DEC-43)"
           },
           "codeOperateur" : {
             "type" : "string",
@@ -7617,6 +8043,13 @@
               "$ref" : "#/components/schemas/LigneDsm"
             }
           },
+          "manquePourFacturer" : {
+            "type" : "array",
+            "description" : "Quand « Facturer » est offert, ce qui manque à l'opérateur pour le facturer : non vide, la facturation sera refusée (RG-OPE-02, RG-DEC-43) ; vide sinon",
+            "items" : {
+              "type" : "string"
+            }
+          },
           "manques" : {
             "type" : "array",
             "description" : "Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)",
@@ -7658,7 +8091,23 @@
             "format" : "int64"
           }
         },
-        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "cotisation", "echeance", "enRetard", "etat", "id", "libelleEtat", "lignes", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
+        "required" : [ "actions", "anomalies", "codeOperateur", "colonnes", "cotisation", "echeance", "enRetard", "etat", "id", "libelleEtat", "lignes", "manquePourFacturer", "manques", "operateur", "periode", "raisonSociale", "totaux", "type", "version" ]
+      },
+      "DsmFacturee" : {
+        "type" : "object",
+        "description" : "La facture demandée d'une DSM : son brouillon chez facturation",
+        "properties" : {
+          "brouillon" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la pièce"
+          },
+          "dsm" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "brouillon", "dsm" ]
       },
       "DsmImportee" : {
         "type" : "object",
@@ -7706,6 +8155,10 @@
             "description" : "Vide pour une période absente",
             "enum" : [ "BROUILLON", "ENVOYEE", "EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "COMPLEMENTS_RECUS", "VALIDEE" ]
           },
+          "facturationDemandee" : {
+            "type" : "boolean",
+            "description" : "Sa facture est demandée, pas encore émise : un brouillon (RG-DEC-43)"
+          },
           "facturee" : {
             "type" : "boolean",
             "description" : "A au moins une facture (RG-DEC-34)"
@@ -7728,6 +8181,10 @@
           "operateur" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "operateurFacturable" : {
+            "type" : "boolean",
+            "description" : "Rien ne manque à l'opérateur pour le facturer (RG-OPE-02, RG-DEC-43)"
           },
           "periode" : {
             "$ref" : "#/components/schemas/PeriodeDeclaration"
@@ -7753,7 +8210,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "absente", "codeOperateur", "echeance", "enRetard", "facturee", "libelleEtat", "operateur", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
+        "required" : [ "absente", "codeOperateur", "echeance", "enRetard", "facturationDemandee", "facturee", "libelleEtat", "operateur", "operateurFacturable", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
       },
       "DsmResume" : {
         "type" : "object",
@@ -7819,7 +8276,7 @@
           },
           "action" : {
             "type" : "string",
-            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "COMMENTAIRE_SUPPRIME", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE" ]
+            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "COMMENTAIRE_SUPPRIME", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE", "FACTURATION_DEMANDEE", "FACTURE_EMISE" ]
           },
           "date" : {
             "type" : "string",
@@ -7845,6 +8302,36 @@
           }
         },
         "required" : [ "acteur", "action", "date", "libelle" ]
+      },
+      "EntreeJournalPiece" : {
+        "type" : "object",
+        "description" : "Entrée du journal d'une pièce (spec 08 §3.9, RG-FAC-20)",
+        "properties" : {
+          "acteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'utilisateur, ou nom du traitement"
+          },
+          "cote" : {
+            "type" : "string",
+            "enum" : [ "VENDEUR", "CLIENT" ]
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "evenement" : {
+            "type" : "string",
+            "enum" : [ "DEMANDEE", "CREEE", "MODIFIEE", "EMISE", "CONSULTEE", "ANNULEE", "AVOIR_EMIS", "DEPOSEE", "REJETEE", "EN_ANOMALIE", "PAYEE", "NOTE" ]
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Émise"
+          }
+        },
+        "required" : [ "acteur", "cote", "date", "evenement", "libelle" ]
       },
       "ErreurImport" : {
         "type" : "object",
@@ -7920,6 +8407,20 @@
         },
         "required" : [ "codeAttendu", "connecte" ]
       },
+      "FacturationDsm" : {
+        "type" : "object",
+        "description" : "Les DSM à facturer ensemble (RG-DEC-43)",
+        "properties" : {
+          "dsms" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          }
+        },
+        "required" : [ "dsms" ]
+      },
       "FactureDsm" : {
         "type" : "object",
         "description" : "Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)",
@@ -7934,6 +8435,11 @@
           "numero" : {
             "type" : "string"
           },
+          "piece" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant de la pièce chez facturation"
+          },
           "ttc" : {
             "type" : "number"
           },
@@ -7942,10 +8448,10 @@
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "FACTURE", "AVOIR" ]
+            "enum" : [ "BROUILLON", "FACTURE", "AVOIR" ]
           }
         },
-        "required" : [ "date", "ht", "numero", "ttc", "tva", "type" ]
+        "required" : [ "date", "ht", "numero", "piece", "ttc", "tva", "type" ]
       },
       "FicheOperateur" : {
         "type" : "object",
@@ -8593,6 +9099,66 @@
         },
         "required" : [ "acteur", "action", "changements", "cible", "date", "idCible", "libelle", "nomCible" ]
       },
+      "LignePiece" : {
+        "type" : "object",
+        "description" : "Une ligne de la pièce : article, texte, ou groupe et ses lignes (spec 08 §3.2, RG-FAC-04)",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "Article : code dans sa source",
+            "example" : "CVO-SORTIES_FRANCE-S"
+          },
+          "lignes" : {
+            "type" : "array",
+            "description" : "Groupe : ses lignes ; vide sinon",
+            "items" : {
+              "$ref" : "#/components/schemas/LignePiece"
+            }
+          },
+          "montantHt" : {
+            "type" : "number",
+            "description" : "Article : HT de la ligne ; groupe : sous-total HT"
+          },
+          "nature" : {
+            "type" : "string",
+            "enum" : [ "BIEN", "SERVICE" ]
+          },
+          "prixUnitaire" : {
+            "type" : "number",
+            "description" : "HT, 4 décimales"
+          },
+          "quantite" : {
+            "type" : "number"
+          },
+          "sorte" : {
+            "type" : "string",
+            "enum" : [ "ARTICLE", "TEXTE", "GROUPE" ]
+          },
+          "source" : {
+            "type" : "string",
+            "description" : "Article : source"
+          },
+          "texte" : {
+            "type" : "string",
+            "description" : "Désignation d'un article, texte, ou titre d'un groupe"
+          },
+          "tvaCode" : {
+            "type" : "string",
+            "enum" : [ "S", "Z", "E", "O" ]
+          },
+          "tvaLibelle" : {
+            "type" : "string",
+            "example" : "20,00 %"
+          },
+          "tvaTaux" : {
+            "type" : "number"
+          },
+          "unite" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "lignes", "sorte", "texte" ]
+      },
       "LigneStock" : {
         "type" : "object",
         "properties" : {
@@ -8699,6 +9265,35 @@
           }
         },
         "required" : [ "cle", "compte", "volume" ]
+      },
+      "LigneTvaPiece" : {
+        "type" : "object",
+        "description" : "Une ligne du récapitulatif de TVA (RG-FAC-05)",
+        "properties" : {
+          "base" : {
+            "type" : "number"
+          },
+          "code" : {
+            "type" : "string",
+            "enum" : [ "S", "Z", "E", "O" ]
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "20,00 %"
+          },
+          "motif" : {
+            "type" : "string",
+            "description" : "Motif d'exonération"
+          },
+          "taux" : {
+            "type" : "number",
+            "description" : "Vide hors champ"
+          },
+          "tva" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "base", "code", "libelle", "tva" ]
       },
       "ManqueDsm" : {
         "type" : "object",
@@ -8998,6 +9593,47 @@
         },
         "required" : [ "actif", "code", "id", "raisonSociale" ]
       },
+      "OriginePiece" : {
+        "type" : "object",
+        "description" : "Ce qu'une facture facture, fourni par la source (spec 08 §3.4)",
+        "properties" : {
+          "identifiant" : {
+            "type" : "string",
+            "description" : "Identifiant opaque chez la source"
+          },
+          "libelleNature" : {
+            "type" : "string"
+          },
+          "nature" : {
+            "type" : "string",
+            "example" : "DSM"
+          },
+          "reference" : {
+            "type" : "string",
+            "example" : "DSM juillet 2026"
+          },
+          "source" : {
+            "type" : "string",
+            "example" : "declarations"
+          }
+        },
+        "required" : [ "identifiant", "libelleNature", "nature", "reference", "source" ]
+      },
+      "ParametrageFacturation" : {
+        "type" : "object",
+        "description" : "Paramétrage de la facturation (spec 08 §6.1)",
+        "properties" : {
+          "modifiable" : {
+            "type" : "boolean",
+            "description" : "L'utilisateur connecté peut le modifier (RG-FAC-26)"
+          },
+          "vendeur" : {
+            "$ref" : "#/components/schemas/VendeurFacturation",
+            "description" : "Vide tant qu'il n'est pas paramétré : l'émission est alors refusée (RG-FAC-09)"
+          }
+        },
+        "required" : [ "modifiable" ]
+      },
       "Pays" : {
         "type" : "object",
         "properties" : {
@@ -9128,6 +9764,122 @@
         },
         "required" : [ "bloqueParBnia", "genre", "id", "nom", "nomComplet" ]
       },
+      "Piece" : {
+        "type" : "object",
+        "description" : "Une facture ou un avoir, avec ses lignes, son récapitulatif de TVA et ses totaux (spec 08 §3.1, §6.1)",
+        "properties" : {
+          "acheteur" : {
+            "$ref" : "#/components/schemas/AcheteurPiece"
+          },
+          "bonDeCommande" : {
+            "type" : "string"
+          },
+          "condition" : {
+            "$ref" : "#/components/schemas/ConditionPaiement"
+          },
+          "creeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "creeePar" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur de la demande"
+          },
+          "dateEmission" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Vide pour un brouillon"
+          },
+          "dateOperation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Calculée à l'émission (RG-FAC-13)"
+          },
+          "emettre" : {
+            "type" : "boolean",
+            "description" : "L'utilisateur connecté peut l'émettre (RG-FAC-26)"
+          },
+          "empechements" : {
+            "type" : "array",
+            "description" : "Ce qui empêche l'émission d'un brouillon (RG-FAC-09) ; vide sinon",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "BROUILLON", "EMISE" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libellePeriode" : {
+            "type" : "string"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LignePiece"
+            }
+          },
+          "natureOperation" : {
+            "type" : "string",
+            "description" : "RG-FAC-08 ; vide sans ligne article",
+            "enum" : [ "BIENS", "SERVICES", "LES_DEUX" ]
+          },
+          "noteEntete" : {
+            "type" : "string"
+          },
+          "notePied" : {
+            "type" : "string"
+          },
+          "numero" : {
+            "type" : "string",
+            "description" : "Vide pour un brouillon"
+          },
+          "origine" : {
+            "$ref" : "#/components/schemas/OriginePiece",
+            "description" : "Vide pour un avoir"
+          },
+          "pdf" : {
+            "type" : "boolean",
+            "description" : "Le PDF est disponible (pièce émise)"
+          },
+          "recapitulatifTva" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneTvaPiece"
+            }
+          },
+          "sens" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "AVOIR" ]
+          },
+          "titre" : {
+            "type" : "string",
+            "description" : "Libellé de la nature d'origine, ou « Avoir »"
+          },
+          "totalHt" : {
+            "type" : "number"
+          },
+          "totalTtc" : {
+            "type" : "number"
+          },
+          "totalTva" : {
+            "type" : "number"
+          },
+          "vendeur" : {
+            "$ref" : "#/components/schemas/VendeurFacturation",
+            "description" : "Recopié à l'émission ; vide en brouillon"
+          }
+        },
+        "required" : [ "acheteur", "condition", "creeeLe", "creeePar", "dateOperation", "emettre", "empechements", "etat", "id", "lignes", "pdf", "recapitulatifTva", "sens", "titre", "totalHt", "totalTtc", "totalTva" ]
+      },
       "PieceCompatible" : {
         "type" : "object",
         "properties" : {
@@ -9140,6 +9892,78 @@
           }
         },
         "required" : [ "libelle", "type" ]
+      },
+      "PieceListee" : {
+        "type" : "object",
+        "description" : "Une pièce de l'historique (RG-FAC-27)",
+        "properties" : {
+          "acheteur" : {
+            "type" : "string",
+            "example" : "Armagnacs de Gascogne"
+          },
+          "clientCode" : {
+            "type" : "string",
+            "description" : "N° BNIA du client",
+            "example" : "N320001"
+          },
+          "clientIdentifiant" : {
+            "type" : "string",
+            "description" : "Identifiant du client chez l'hôte (opérateur) ; vide pour un client libre"
+          },
+          "creeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "dateEmission" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Vide pour un brouillon"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "BROUILLON", "EMISE" ]
+          },
+          "ht" : {
+            "type" : "number"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelleNature" : {
+            "type" : "string",
+            "example" : "Cotisation interprofessionnelle Armagnac"
+          },
+          "libellePeriode" : {
+            "type" : "string",
+            "example" : "DSM de juillet 2026"
+          },
+          "nature" : {
+            "type" : "string",
+            "description" : "Nature d'origine ; vide pour un avoir",
+            "example" : "DSM"
+          },
+          "numero" : {
+            "type" : "string",
+            "description" : "Vide pour un brouillon",
+            "example" : "2026000001"
+          },
+          "reference" : {
+            "type" : "string",
+            "example" : "DSM juillet 2026"
+          },
+          "sens" : {
+            "type" : "string",
+            "enum" : [ "FACTURE", "AVOIR" ]
+          },
+          "ttc" : {
+            "type" : "number"
+          },
+          "tva" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "acheteur", "creeeLe", "etat", "ht", "id", "sens", "ttc", "tva" ]
       },
       "PiecesDsm" : {
         "type" : "object",
@@ -10547,6 +11371,61 @@
           }
         },
         "required" : [ "actif", "code", "id", "libelle" ]
+      },
+      "VendeurFacturation" : {
+        "type" : "object",
+        "description" : "Le vendeur, le BNIA, recopié sur chaque pièce à son émission (spec 08 §3.7, RG-FAC-16)",
+        "properties" : {
+          "adresseFacturation" : {
+            "$ref" : "#/components/schemas/AdresseFacturation",
+            "description" : "Si elle diffère du siège"
+          },
+          "bic" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "example" : "compta@armagnac.fr"
+          },
+          "escompte" : {
+            "type" : "string",
+            "description" : "Défaut : « Pas d'escompte pour paiement anticipé »"
+          },
+          "iban" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "numeroTva" : {
+            "type" : "string",
+            "example" : "FR55776999955"
+          },
+          "penalites" : {
+            "type" : "string",
+            "description" : "Défaut : « trois fois le taux d'intérêt légal »"
+          },
+          "siege" : {
+            "$ref" : "#/components/schemas/AdresseFacturation"
+          },
+          "siren" : {
+            "type" : "string",
+            "description" : "Tiré du SIRET s'il est vide",
+            "example" : "776999955"
+          },
+          "siret" : {
+            "type" : "string",
+            "example" : "77699995500029"
+          },
+          "telephone" : {
+            "type" : "string"
+          },
+          "tvaSurDebits" : {
+            "type" : "boolean",
+            "description" : "Option pour la TVA d'après les débits"
+          }
+        },
+        "required" : [ "bic", "email", "iban", "nom", "numeroTva", "siege", "siret", "telephone", "tvaSurDebits" ]
       },
       "VisiteProposee" : {
         "type" : "object",

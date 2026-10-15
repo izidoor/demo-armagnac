@@ -125,7 +125,7 @@ final class DsmEnMemoire implements DsmRepository, DsmLecture {
                 ? Optional.of(documents.stream().map(FactureDsm::htSigne).reduce(BigDecimal.ZERO, BigDecimal::add))
                 : Optional.empty();
         return new DsmLigne(d.id(), d.operateur(), d.type(), d.periode(), d.etat(), d.envoyeeLe(), d.valideeLe(), null,
-                assiette, htFacture);
+                assiette, htFacture, documents.stream().anyMatch(f -> f.type() == FactureDsm.Type.BROUILLON));
     }
 
     @Override

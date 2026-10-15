@@ -9,6 +9,7 @@ import fr.bnia.operateurs.domain.partage.ResultatRecherche;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Lecture des opérateurs, de leurs personnes et des droits par les autres contextes (ADR-012, amendé par
@@ -50,6 +51,12 @@ public interface OperateursLecture {
      * les listings d'autres contextes ; un identifiant inconnu est ignoré.
      */
     List<ResultatRecherche> identites(Collection<Long> ids);
+
+    /**
+     * RG-OPE-02 : ceux de ces opérateurs qui sont facturables, en une seule lecture, pour les listings d'autres
+     * contextes ; un identifiant inconnu est ignoré.
+     */
+    Set<Long> facturables(Collection<Long> ids);
 
     /** RG-OPE-39 : l'identifiant de l'opérateur BNIA. */
     long operateurBnia();

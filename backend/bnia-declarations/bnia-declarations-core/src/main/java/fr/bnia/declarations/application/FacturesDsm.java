@@ -2,12 +2,22 @@ package fr.bnia.declarations.application;
 
 import java.util.List;
 
-/** Projection locale des factures et avoirs des DSM, alimentée par les événements de {@code facturation} (A-DEC-4). */
+/**
+ * Projection locale des documents de facturation des DSM (A-DEC-4) : brouillons demandés, et factures et
+ * avoirs reçus de {@code facturation} par ses événements.
+ */
 public interface FacturesDsm {
 
-    /** Idempotent : un document déjà reçu (même type, même numéro) n'est pas enregistré deux fois. */
-    void inserer(FactureDsm facture);
+    /**
+     * Idempotent : un document déjà reçu (même type, même numéro, ou même brouillon) n'est pas enregistré deux fois.
+     *
+     * @return {@code true} s'il est nouveau
+     */
+    boolean inserer(FactureDsm facture);
 
-    /** Les factures et avoirs de la DSM, par date ; le même jour, les factures avant les avoirs. */
+    /** Le brouillon de cette pièce n'est plus : émise, elle est remplacée par sa facture. */
+    void retirerBrouillon(long piece);
+
+    /** Les documents de la DSM : brouillons d'abord, puis par date ; le même jour, les factures avant les avoirs. */
     List<FactureDsm> deLaDsm(long dsm);
 }

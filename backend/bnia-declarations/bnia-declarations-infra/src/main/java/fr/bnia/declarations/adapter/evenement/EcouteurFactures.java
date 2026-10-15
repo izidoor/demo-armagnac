@@ -1,17 +1,23 @@
 package fr.bnia.declarations.adapter.evenement;
 
 import fr.bnia.declarations.application.EnregistrerFactures;
-import fr.bnia.declarations.domain.partage.AvoirEmis;
-import fr.bnia.declarations.domain.partage.FactureEmise;
+import fr.bnia.declarations.application.EnregistrerFactures.PieceRecue;
+import fr.bnia.facturation.api.FactureEmise;
+import fr.bnia.operateurs.domain.partage.Acteur;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Les factures et avoirs de {@code facturation} (A-DEC-4), reçus dans sa transaction (ADR-013) : la projection
- * locale des factures des DSM (RG-DEC-34).
+ * Les factures émises par {@code facturation} (ADR-021), reçues dans sa transaction (ADR-013, RG-FAC-25) : celles
+ * des DSM, reconnues par leur origine, alimentent la projection locale (RG-DEC-34). Les avoirs suivront au lot 4
+ * de la spec 08.
  */
 @Component
 class EcouteurFactures {
+
+    /** L'origine des factures de DSM, telle que {@code FacturationAdapter} la demande. */
+    static final String SOURCE = "declarations";
+    static final String NATURE = "DSM";
 
     private final EnregistrerFactures factures;
 
@@ -21,11 +27,10 @@ class EcouteurFactures {
 
     @EventListener
     void factureEmise(FactureEmise evenement) {
-        factures.factureEmise(evenement);
-    }
-
-    @EventListener
-    void avoirEmis(AvoirEmis evenement) {
-        factures.avoirEmis(evenement);
+        if (SOURCE.equals(evenement.origine().source()) && NATURE.equals(evenement.origine().nature())) {
+            factures.factureEmise(new PieceRecue(Long.parseLong(evenement.origine().identifiant()), evenement.piece(),
+                    evenement.numero(), evenement.date(), evenement.ht(), evenement.tva(), evenement.ttc(),
+                    new Acteur(evenement.emisePar().utilisateur())));
+        }
     }
 }

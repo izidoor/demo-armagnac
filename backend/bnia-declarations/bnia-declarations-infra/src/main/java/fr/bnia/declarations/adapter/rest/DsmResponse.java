@@ -63,6 +63,11 @@ public record DsmResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "Échéance passée, DSM en brouillon ou en compléments demandés, opérateur au statut OUI (RG-DEC-40)")
         boolean enRetard,
+        @Schema(description = "Facture demandée, pas encore émise : la pièce du brouillon chez facturation (RG-DEC-43)")
+        Long brouillonFacture,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Quand « Facturer » est offert, ce qui manque à l'opérateur pour le facturer : non vide, la facturation sera refusée (RG-OPE-02, RG-DEC-43) ; vide sinon")
+        List<String> manquePourFacturer,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long version) {
 
     @Schema(name = "ColonneDsm", description = "Une des 26 colonnes du format unique (spec 05 §3.1)")
@@ -129,7 +134,7 @@ public record DsmResponse(
                 vue.anomalies().stream().map(DsmResponse::anomalie).toList(),
                 vue.manques().stream().map(DsmResponse::manque).toList(),
                 CotisationResponse.depuis(vue.cotisation(), dsm.periode().fin()), vue.echeance(), vue.enRetard(),
-                dsm.version());
+                vue.brouillonFacture().orElse(null), vue.manquePourFacturer(), dsm.version());
     }
 
     private static LigneResponse ligne(LigneDsm ligne) {

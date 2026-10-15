@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, TriangleAlert } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { ArrowLeft, FileText, TriangleAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   attribuerNouveauCodeOperateur,
@@ -132,23 +132,38 @@ export function PageOperateur({
         </span>
       }
       actions={
-        droits.adminBnia &&
-        !bnia && (
+        !bnia &&
+        (bo || droits.adminBnia) && (
           <div className='flex gap-2'>
-            <Button
-              variant='outline'
-              onClick={() =>
-                setAction(fiche.actif ? 'desactiver' : 'reactiver')
-              }
-            >
-              {fiche.actif ? 'Désactiver' : 'Réactiver'}
-            </Button>
-            <Button
-              variant='destructive'
-              onClick={() => setAction('supprimer')}
-            >
-              Supprimer
-            </Button>
+            {/* Spec 08 §6.1, RG-FAC-27 : l'historique des factures, filtré sur ce client. */}
+            {bo && (
+              <Button variant='outline' asChild>
+                <Link
+                  to='/bo/facturation'
+                  search={{ client: String(fiche.id) }}
+                >
+                  <FileText className='size-4' /> Factures
+                </Link>
+              </Button>
+            )}
+            {droits.adminBnia && (
+              <>
+                <Button
+                  variant='outline'
+                  onClick={() =>
+                    setAction(fiche.actif ? 'desactiver' : 'reactiver')
+                  }
+                >
+                  {fiche.actif ? 'Désactiver' : 'Réactiver'}
+                </Button>
+                <Button
+                  variant='destructive'
+                  onClick={() => setAction('supprimer')}
+                >
+                  Supprimer
+                </Button>
+              </>
+            )}
           </div>
         )
       }

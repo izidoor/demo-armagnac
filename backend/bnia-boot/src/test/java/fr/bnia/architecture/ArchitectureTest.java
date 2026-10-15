@@ -26,7 +26,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * {@code evenement}, ADR-019 pour {@code planification}, ADR-020 pour {@code document}).
  * {@code fr.bnia.commun} est le noyau partagé (ADR-009) ; {@code fr.bnia.boot} le câblage.
  * Seules autres exceptions à l'isolement des contextes : les parties publiées en lecture de
- * {@code referentiels} (ADR-008), de {@code operateurs} (ADR-012) et de {@code declarations} (ADR-017).
+ * {@code referentiels} (ADR-008), de {@code operateurs} (ADR-012) et de {@code declarations} (ADR-017), et l'API
+ * de {@code facturation}, importée par l'infra des sources seulement (ADR-021).
  */
 @AnalyzeClasses(packages = "fr.bnia", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
@@ -39,6 +40,9 @@ class ArchitectureTest {
 
     private static final String[] PARTIE_PUBLIEE_DECLARATIONS = {
             "fr.bnia.declarations.domain.partage..", "fr.bnia.declarations.application.partage.."};
+
+    /** ADR-021 : le module d'API de {@code facturation}, seul visible des autres contextes. */
+    private static final String API_FACTURATION = "fr.bnia.facturation.api..";
 
     private static final String[] ADAPTERS = {"fr.bnia..adapter.rest..", "fr.bnia..adapter.persistence..",
             "fr.bnia..adapter.integration..", "fr.bnia..adapter.evenement..", "fr.bnia..adapter.planification..",
@@ -53,17 +57,18 @@ class ArchitectureTest {
         return Stream.concat(Arrays.stream(paquets), Arrays.stream(autres)).toArray(String[]::new);
     }
 
+    /** Le domaine de {@code facturation} emploie les valeurs de son API (ADR-021) ; aucun autre n'y a accès. */
     @ArchTest
     static final ArchRule le_domaine_est_du_java_pur = classes()
             .that().resideInAPackage("fr.bnia..domain..")
-            .should().onlyDependOnClassesThat().resideInAnyPackage("java..", "fr.bnia..domain..")
+            .should().onlyDependOnClassesThat().resideInAnyPackage("java..", "fr.bnia..domain..", API_FACTURATION)
             .allowEmptyShould(true);
 
     @ArchTest
     static final ArchRule l_application_ne_depend_que_du_domaine = classes()
             .that().resideInAPackage("fr.bnia..application..")
             .should().onlyDependOnClassesThat()
-            .resideInAnyPackage("java..", "fr.bnia..domain..", "fr.bnia..application..");
+            .resideInAnyPackage("java..", "fr.bnia..domain..", "fr.bnia..application..", API_FACTURATION);
 
     @ArchTest
     static final ArchRule l_adapter_rest_ignore_les_autres_adapters = adapterIsole("fr.bnia..adapter.rest..");
@@ -104,7 +109,27 @@ class ArchitectureTest {
             .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_REFERENTIELS))
             .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_OPERATEURS))
             .ignoreDependency(alwaysTrue(), resideInAnyPackage(PARTIE_PUBLIEE_DECLARATIONS))
+            .ignoreDependency(resideInAPackage("fr.bnia..adapter.."), resideInAPackage(API_FACTURATION))
             .ignoreDependency(resideInAPackage("fr.bnia.boot.."), alwaysTrue());
+
+    /** ADR-021 : le core d'une source a son propre port ; seule son infra importe l'API de {@code facturation}. */
+    @ArchTest
+    static final ArchRule seule_l_infra_des_sources_importe_l_api_de_facturation = noClasses()
+            .that().resideOutsideOfPackages("fr.bnia.facturation..", "fr.bnia..adapter..", "fr.bnia.boot..")
+            .should().dependOnClassesThat().resideInAPackage("fr.bnia.facturation..");
+
+    /** ADR-021 : de {@code facturation}, les autres contextes ne voient que l'API. */
+    @ArchTest
+    static final ArchRule les_autres_contextes_n_importent_que_l_api_de_facturation = noClasses()
+            .that().resideOutsideOfPackages("fr.bnia.facturation..", "fr.bnia.boot..")
+            .should().dependOnClassesThat(resideInAPackage("fr.bnia.facturation..")
+                    .and(not(resideInAPackage(API_FACTURATION))));
+
+    /** ADR-021 : Java pur, sans autre dépendance que le noyau commun. */
+    @ArchTest
+    static final ArchRule l_api_de_facturation_ne_depend_que_d_elle_meme_et_du_noyau = classes()
+            .that().resideInAPackage(API_FACTURATION)
+            .should().onlyDependOnClassesThat().resideInAnyPackage("java..", API_FACTURATION, "fr.bnia.commun.domain..");
 
     @ArchTest
     static final ArchRule les_autres_contextes_ne_lisent_que_la_partie_publiee_des_referentiels = noClasses()

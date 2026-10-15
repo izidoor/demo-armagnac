@@ -5,7 +5,12 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { useCanGoBack, useNavigate, useRouter } from '@tanstack/react-router'
+import {
+  Link,
+  useCanGoBack,
+  useNavigate,
+  useRouter,
+} from '@tanstack/react-router'
 import {
   ArrowLeft,
   Building2,
@@ -258,6 +263,18 @@ function EditeurDsm({
   const rafraichir = () =>
     queryClient.invalidateQueries({ queryKey: cleDeclarations(operateur) })
 
+  // RG-DEC-43 : on reste sur la DSM, qui montre ensuite « Facturation demandée » (décision du 2026-10-14).
+  // Un opérateur non facturable (RG-OPE-02) : « Facturer » est désactivé, un bandeau dit ce qui manque.
+  const nonFacturable = dsm.manquePourFacturer.length > 0
+  const facturation = useMutation({
+    mutationFn: () => api.facturer(dsm.id),
+    onSuccess: () => {
+      toast.success('Brouillon de facture créé.')
+      rafraichir()
+      queryClient.invalidateQueries({ queryKey: ['facturation'] })
+    },
+  })
+
   const enregistrement = useMutation({
     mutationFn: () => api.enregistrer(dsm.id, saisieDe(brouillon, dsm.version)),
     meta: { erreurAffichee: true },
@@ -457,6 +474,17 @@ function EditeurDsm({
               {vue.cotisation.statut === 'FACTUREE' && ' (facturé)'}
             </span>
           )}
+          {espace === 'bo' && dsm.brouillonFacture != null && (
+            <Link
+              to='/bo/facturation/$id'
+              params={{ id: String(dsm.brouillonFacture) }}
+            >
+              <Badge variant='outline' className='gap-1'>
+                <Receipt className='size-3' /> Facturation demandée : voir le
+                brouillon
+              </Badge>
+            </Link>
+          )}
           {modifie && (
             <Badge variant='outline'>Modifications non enregistrées</Badge>
           )}
@@ -563,6 +591,25 @@ function EditeurDsm({
               )}
             </Tooltip>
           )}
+          {permis('FACTURER') && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={nonFacturable ? 0 : undefined}>
+                  <Button
+                    onClick={() => facturation.mutate()}
+                    disabled={nonFacturable || facturation.isPending}
+                  >
+                    <Receipt className='size-4' /> Facturer
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {nonFacturable && (
+                <TooltipContent>
+                  {dsm.raisonSociale} n'est pas facturable (RG-OPE-02).
+                </TooltipContent>
+              )}
+            </Tooltip>
+          )}
           {permis('SUPPRIMER') && (
             <Button variant='destructive' onClick={() => setSuppression(true)}>
               Supprimer
@@ -572,6 +619,26 @@ function EditeurDsm({
       }
     >
       <div className='mb-4 space-y-2'>
+        {nonFacturable && (
+          <Alert variant='destructive'>
+            <TriangleAlert />
+            <AlertTitle>Opérateur non facturable</AlertTitle>
+            <AlertDescription>
+              <p>
+                Il manque à la fiche de {dsm.raisonSociale} :{' '}
+                {dsm.manquePourFacturer.join(', ')}. La DSM ne peut être
+                facturée qu'une fois la fiche complétée (RG-OPE-02).
+              </p>
+              <Button
+                variant='link'
+                className='h-auto p-0'
+                onClick={ficheOperateur}
+              >
+                Ouvrir la fiche de l'opérateur
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         {erreurEnregistrement && (
           <Alert variant='destructive'>
             <TriangleAlert />
@@ -689,7 +756,7 @@ function EditeurDsm({
               19, 21 à 25), au taux en vigueur à la fin de la période.
             </p>
           </div>
-          <OngletCotisation dsm={vue} />
+          <OngletCotisation dsm={vue} liens={espace === 'bo'} />
         </TabsContent>
       </OngletsClasseur>
       <SectionCommentaires

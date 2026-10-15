@@ -56,14 +56,16 @@ class DsmJdbc implements DsmRepository, DsmLecture {
 
     /**
      * La date de dernière modification est celle de la dernière entrée du journal de la DSM (spec 05 §3.2) ; les
-     * totaux de l'assiette et le HT facturé (RG-DEC-34) se lisent dans la même requête, jamais une par DSM.
+     * totaux de l'assiette, le HT facturé (RG-DEC-34) et la facture demandée (RG-DEC-43) se lisent dans la même requête, jamais une par DSM.
      */
     private static final String RESUME = "id, operateur_id, type, debut, fin, etat, envoyee_le, validee_le,"
             + " (select max(j.date) from " + SCHEMA + ".journal j where j.dsm_id = dsm.id) as modifiee_le,"
             + " (select sum(case when f.type = 'AVOIR' then -f.ht else f.ht end) from " + SCHEMA + ".facture_dsm f"
-            + " where f.dsm_id = dsm.id) as ht_facture,"
+            + " where f.dsm_id = dsm.id and f.type <> 'BROUILLON') as ht_facture,"
             + " exists (select 1 from " + SCHEMA + ".facture_dsm f where f.dsm_id = dsm.id and f.type = 'FACTURE')"
-            + " as facturee, "
+            + " as facturee,"
+            + " exists (select 1 from " + SCHEMA + ".facture_dsm f where f.dsm_id = dsm.id and f.type = 'BROUILLON')"
+            + " as facturation_demandee, "
             + ASSIETTE.stream().map(c -> "a." + colonne(c)).collect(Collectors.joining(", "));
 
     /** Jointure des totaux de l'assiette, à placer après {@code from dsm}. */
@@ -180,7 +182,8 @@ class DsmJdbc implements DsmRepository, DsmLecture {
         return new DsmLigne(rs.getLong("id"), rs.getLong("operateur_id"), TypeDeclarant.valueOf(rs.getString("type")),
                 new PeriodeDeclaration(rs.getObject("debut", LocalDate.class), rs.getObject("fin", LocalDate.class)),
                 EtatDsm.valueOf(rs.getString("etat")), instant(rs.getTimestamp("envoyee_le")),
-                instant(rs.getTimestamp("validee_le")), instant(rs.getTimestamp("modifiee_le")), assiette, htFacture);
+                instant(rs.getTimestamp("validee_le")), instant(rs.getTimestamp("modifiee_le")), assiette, htFacture,
+                rs.getBoolean("facturation_demandee"));
     }
 
     /** La colonne SQL d'une colonne de la DSM : {@code c14}. */

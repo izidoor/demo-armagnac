@@ -2,6 +2,7 @@ import {
   Building2,
   Contact,
   FileSpreadsheet,
+  FileText,
   Warehouse,
   Globe,
   History,
@@ -71,6 +72,12 @@ export const parametrage: NavGroup = {
       icon: Receipt,
       items: [{ title: 'Taux CVO', url: '/bo/parametrage/taux-cvo' }],
     },
+    {
+      // Spec 08 §6.1 : le vendeur recopié sur les factures (RG-FAC-16).
+      title: 'Facturation',
+      icon: FileText,
+      items: [{ title: 'Vendeur', url: '/bo/parametrage/facturation' }],
+    },
   ],
 }
 
@@ -107,6 +114,11 @@ export const espaceBackOffice: Espace = {
           icon: Warehouse,
         },
       ],
+    },
+    {
+      // Spec 08, §6.1 : historique des factures et brouillons à émettre.
+      title: 'Facturation',
+      items: [{ title: 'Factures', url: '/bo/facturation', icon: FileText }],
     },
     {
       // Spec 02, §6.1 et spec 03, §6.2 : module Accès.

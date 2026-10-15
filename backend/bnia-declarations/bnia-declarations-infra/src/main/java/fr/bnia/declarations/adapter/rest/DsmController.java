@@ -1,6 +1,7 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
+import fr.bnia.declarations.application.FacturerDsm;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.domain.partage.Cote;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 class DsmController {
 
     private final GererDsm gerer;
+    private final FacturerDsm facturer;
 
-    DsmController(GererDsm gerer) {
+    DsmController(GererDsm gerer, FacturerDsm facturer) {
         this.gerer = gerer;
+        this.facturer = facturer;
     }
 
     @GetMapping("/dsm")
@@ -107,6 +110,14 @@ class DsmController {
     DsmResponse valider(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
             @RequestBody TransitionDsmRequest requete) {
         return DsmResponse.depuis(gerer.valider(Acteurs.de(connecte), operateur, id, requete.version()));
+    }
+
+    @PostMapping("/dsm/{id}/facturation")
+    @Operation(operationId = "facturerDsm",
+            summary = "Le BNIA demande la facture d'une DSM validée : un brouillon de facture est créé (RG-DEC-43)")
+    DsmResponse facturer(Connecte connecte, @PathVariable long operateur, @PathVariable long id) {
+        facturer.facturer(Acteurs.de(connecte), operateur, id);
+        return DsmResponse.depuis(gerer.consulter(Acteurs.de(connecte), operateur, id));
     }
 
     @DeleteMapping("/dsm/{id}")

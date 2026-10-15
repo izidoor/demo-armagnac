@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.bnia</groupId>
+        <artifactId>bnia-facturation</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>bnia-facturation-infra</artifactId>
+    <name>BNIA : facturation, infra</name>
+    <description>Contexte facturation : adapters REST, persistance, événements, PDF, et ports de l'hôte sur les parties publiées d'operateurs et de referentiels (ADR-021).</description>
+    <dependencies>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-facturation-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-commun-infra</artifactId>
+        </dependency>
+        <!-- Ports de l'hôte (A-FAC-3) : droits et clients sur la partie publiée d'operateurs ; pays de l'acheteur dans referentiels. -->
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-operateurs-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-referentiels-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <!-- ADR-020, A-FAC-10 : PDF de la pièce, gabarit Thymeleaf (moteur seul) rendu par OpenHTMLtoPDF. -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+        </dependency>
+    </dependencies>
+</project>

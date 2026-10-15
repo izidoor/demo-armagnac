@@ -14,6 +14,7 @@ import {
   ecrireCommentaireDsm,
   enregistrerDsm,
   envoyerDsm,
+  facturerDsm,
   fixerPointDeDepart,
   historiquePointsDeDepart,
   importerDsm,
@@ -137,6 +138,11 @@ export function apiDeclarations(operateur: number) {
         body: { motif, version },
         throwOnError: true,
       }).then((r) => r.data),
+    /** RG-DEC-43 : le BNIA demande la facture d'une DSM validée ; la DSM revient avec son brouillon. */
+    facturer: (id: number) =>
+      facturerDsm({ path: { operateur, id }, throwOnError: true }).then(
+        (r) => r.data
+      ),
     valider: (id: number, version: number) =>
       validerDsm({
         path: { operateur, id },

@@ -18,15 +18,13 @@ import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.SaisieDsm;
 import fr.bnia.declarations.domain.SaisieLigneDsm;
-import fr.bnia.declarations.domain.partage.AvoirEmis;
-import fr.bnia.declarations.domain.partage.CotisationDsmVue;
-import fr.bnia.declarations.domain.partage.FactureEmise;
 import fr.bnia.declarations.domain.partage.LigneCotisation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import fr.bnia.declarations.domain.ActionJournalDeclarations;
 import java.util.Optional;
 import java.util.Set;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
@@ -146,37 +144,48 @@ class CotisationDsmTest {
     void rg_dec_34_facturee() {
         grille.ajouter(AGENT_BNIA, taux("60", "20", LocalDate.of(2024, 1, 1)));
         EnregistrerFactures factures = monde.enregistrerFactures();
-        FactureEmise facture = new FactureEmise(id, "2026000700", LocalDate.of(2026, 7, 15), new BigDecimal("1855.95"),
-                new BigDecimal("296.95"), new BigDecimal("2152.90"));
+        monde.factures.inserer(FactureDsm.brouillon(id, 41));
+        EnregistrerFactures.PieceRecue facture = new EnregistrerFactures.PieceRecue(id, 41, "2026000700",
+                LocalDate.of(2026, 7, 15), new BigDecimal("1855.95"), new BigDecimal("296.95"),
+                new BigDecimal("2152.90"), AGENT_BNIA);
 
         factures.factureEmise(facture);
         factures.factureEmise(facture);
-        factures.avoirEmis(new AvoirEmis(id, "A2026000012", LocalDate.of(2026, 8, 1), new BigDecimal("100.00"),
-                new BigDecimal("20.00"), new BigDecimal("120.00")));
+        factures.avoirEmis(new EnregistrerFactures.PieceRecue(id, 42, "2026000712", LocalDate.of(2026, 8, 1),
+                new BigDecimal("100.00"), new BigDecimal("20.00"), new BigDecimal("120.00"), AGENT_BNIA));
 
         Facturee cotisation = (Facturee) dsms.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).cotisation();
-        assertThat(cotisation.documents()).extracting(FactureDsm::numero).containsExactly("2026000700", "A2026000012");
+        assertThat(cotisation.documents()).extracting(FactureDsm::numero).containsExactly("2026000700", "2026000712");
         assertThat(cotisation.totalHt()).isEqualByComparingTo("1755.95");
         ListerDsm.DsmListee listee = monde.listerDsm().lister(AGENT_BNIA, TOUT).getFirst();
         assertThat(listee.dsm().orElseThrow().facturee()).isTrue();
+        assertThat(listee.dsm().orElseThrow().facturationDemandee()).as("brouillon remplacé par la facture").isFalse();
         assertThat(listee.totalHt()).contains(new BigDecimal("1755.95"));
+        assertThat(monde.journal.deLaDsm(id)).filteredOn(e -> e.action() == ActionJournalDeclarations.FACTURE_EMISE)
+                .singleElement().satisfies(e -> assertThat(e.detail()).isEqualTo("2026000700"));
     }
 
     @Test
-    @DisplayName("RG-DEC-31 à 33 : la cotisation publiée pour facturation, détail et taux ; vide pour une DSM inconnue")
-    void rg_dec_33_lecture_publiee() {
+    @DisplayName("Spec 08 §3.13 : huit articles de cotisation, prix du taux CVO à la date, part assujettie à la TVA de la CVO, l'autre exonérée")
+    void rg_dec_33_articles_de_cotisation() {
+        grille.ajouter(AGENT_BNIA, taux("55", "20", LocalDate.of(2021, 1, 1)));
         grille.ajouter(AGENT_BNIA, taux("60", "20", LocalDate.of(2024, 1, 1)));
-        DeclarationsPubliees lecture = monde.declarationsPubliees();
+        ArticlesCotisation catalogue = monde.articlesCotisation();
 
-        CotisationDsmVue vue = lecture.cotisation(id).orElseThrow();
-
-        assertThat(vue.operateur()).isEqualTo(NEGOCIANT);
-        assertThat(vue.validee()).isFalse();
-        assertThat(vue.facturee()).isFalse();
-        assertThat(vue.montant()).contains(new BigDecimal("60.00"));
-        assertThat(vue.lignes()).extracting(CotisationDsmVue.LigneCotisationVue::nonAssujettie)
-                .containsExactly(new BigDecimal("100.69"), new BigDecimal("270.50"));
-        assertThat(vue.totalHt()).isEqualByComparingTo("1855.95");
-        assertThat(lecture.cotisation(9999)).isEmpty();
+        assertThat(catalogue.articles(LocalDate.of(2026, 7, 31))).hasSize(8).first().satisfies(a -> {
+            assertThat(a.code()).isEqualTo("CVO-SORTIES_FRANCE-S");
+            assertThat(a.prixUnitaire()).isEqualByComparingTo("48.0000");
+            assertThat(a.tauxTva()).contains(new BigDecimal("20.00"));
+            assertThat(a.actif()).isTrue();
+        });
+        assertThat(catalogue.article("CVO-SORTIES_EXPORT-E", LocalDate.of(2023, 6, 30)).orElseThrow())
+                .satisfies(a -> {
+                    assertThat(a.prixUnitaire()).isEqualByComparingTo("11.0000");
+                    assertThat(a.tauxTva()).isEmpty();
+                    assertThat(a.designation()).isEqualTo("Cotisation Sorties Export, part non assujettie");
+                });
+        assertThat(catalogue.article("CVO-SORTIES_FRANCE-S", LocalDate.of(2020, 6, 30)).orElseThrow().actif())
+                .as("aucun taux CVO en 2020").isFalse();
+        assertThat(catalogue.article("CVO-INCONNU", LocalDate.of(2026, 7, 31))).isEmpty();
     }
 }

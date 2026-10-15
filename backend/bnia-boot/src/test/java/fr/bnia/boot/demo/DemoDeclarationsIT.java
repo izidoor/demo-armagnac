@@ -76,7 +76,15 @@ class DemoDeclarationsIT extends AbstractIT {
 
         long gascogne = id("N320001");
         assertThat(points.consulter(anne, gascogne).orElseThrow().point().lignes()).hasSize(6);
-        var envoyee = dsms.consulter(anne, gascogne, seule("N320001", EtatDsm.ENVOYEE, mois).id());
+        // Spec 08 §7.1 : deux mois validés, à facturer, avant celui qui attend le BNIA.
+        List<DsmLigne> declarations = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
+        assertThat(declarations).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactly(
+                org.assertj.core.groups.Tuple.tuple(EtatDsm.ENVOYEE, mois),
+                org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(1)),
+                org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(2)));
+        assertThat(dsms.consulter(anne, gascogne, declarations.get(1).id()).cotisation().ht())
+                .contains(new BigDecimal("1855.95"));
+        var envoyee = dsms.consulter(anne, gascogne, declarations.getFirst().id());
         assertThat(envoyee.anomalies()).isEmpty();
         List<LigneDsm> lignes = envoyee.dsm().lignes();
         assertThat(somme(lignes, ColonneDsm.C14, ColonneDsm.C17, ColonneDsm.C18, ColonneDsm.C19, ColonneDsm.C21))

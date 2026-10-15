@@ -106,6 +106,17 @@ final class Autorisations {
         return droits.local().isPresent() ? Cote.OPERATEUR : Cote.BNIA;
     }
 
+    /**
+     * RG-DEC-43 : facturer une DSM, réservé à qui gère la facturation au BNIA (spec 08 §3.12) ; {@code facturation}
+     * revérifie.
+     */
+    void exigerFacturation(Acteur acteur) {
+        if (!droits(acteur, operateurs.operateurBnia()).gere(Module.FACTURATION)) {
+            throw new AccesRefuse("RG-DEC-43",
+                    "Facturer une DSM est réservé au personnel du BNIA qui gère le module « Facturation ».");
+        }
+    }
+
     /** RG-DEC-01 : lire les DSM de tous les opérateurs (listing du BNIA, UC-DEC-7). */
     void exigerLectureBnia(Acteur acteur) {
         if (!droits(acteur, operateurs.operateurBnia()).personnelBnia()) {

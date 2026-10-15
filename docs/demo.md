@@ -57,12 +57,15 @@ Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N3200
 
 ## Déclarations (spec 05, lots 1 à 8)
 
-Les dates sont calculées depuis le jour du chargement. Armagnacs de Gascogne et Négoce des Landes partent du
-**premier du mois courant** (le 1er octobre 2026 pour un chargement en octobre 2026), Maison Larressingle du
-**premier du mois précédent**, avec un stock fixé par Anne Lamarque : leur première DSM est celle de ce mois.
+Les dates sont calculées depuis le jour du chargement. Négoce des Landes part du **premier du mois courant**
+(le 1er octobre 2026 pour un chargement en octobre 2026), Maison Larressingle du **premier du mois
+précédent**, Armagnacs de Gascogne du **premier du mois, deux mois avant** (spec 08 §7.1), avec un stock fixé
+par Anne Lamarque : leur première DSM est celle de ce mois.
 
 - **Armagnacs de Gascogne (`N320001`, négociant)** : six lignes de stock initial (`NB` « XO » 12, `NB`
-  « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM du mois
+  « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM des deux mois
+  précédents **validées**, aux volumes de la facture d'exemple (sorties France 839,11 L, export 2 254,15 L,
+  avec le DAE de l'export) : à facturer (voir « Facturation »). DSM du mois
   **envoyée** par Julie Darrigade : 40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6), sorties
   France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; un commentaire de Julie sur
   la ligne XO, un commentaire **interne** d'Anne Lamarque. Aucune pièce : il manque un justificatif pour
@@ -83,8 +86,7 @@ Les dates sont calculées depuis le jour du chargement. Armagnacs de Gascogne et
   de déclaration passé à **`SOMMEIL`** : il attend un nouveau point de départ.
 - **Grille CVO** (Paramétrage, rubrique Cotisation) : 55,00 €/hlAP à partir du 1er janvier 2021, puis
   60,00 €/hlAP à partir du 1er janvier 2024, 20 % exonérés de TVA. La DSM de Gascogne y vaut 1 855,95 € HT,
-  comme la facture d'exemple. Aucune facture : `facturation` n'existe pas encore, l'onglet « Facturées »
-  du listing reste vide.
+  comme la facture d'exemple. Les factures sont décrites plus bas (« Facturation »).
 
 La DSM suivante d'un négociant (reprise) ne s'initie qu'à partir du 1er du mois suivant : la reprise se
 montre sur le producteur.
@@ -126,7 +128,7 @@ Scénario :
    France 100,69 € + 402,77 €, export 270,50 € + 1 081,99 €, total HT 1 855,95 €, TVA indicative à 20 %
    sur la part assujettie (296,95 €), TTC 2 152,90 €. Ajouter un taux de 62,00 € au 1er du mois courant :
    la cotisation de Gascogne suit, puis supprimer ce taux. Listing « DSM » : total HT sur chaque ligne ;
-   la DSM validée de Condom est dans « Validées », donc à facturer.
+   les DSM validées sans facture sont dans « Validées », donc à facturer.
 9. Bouton « PDF » d'une DSM (n'importe quel compte qui la lit, observateur compris) : le PDF s'ouvre dans
    un nouvel onglet, un onglet du format unique par page, volumes au format hl.l,cl, puis la cotisation ;
    « Document provisoire, DSM non validée » sur Gascogne, pas sur la DSM validée de Condom. L'édition
@@ -160,3 +162,37 @@ Scénario :
     de la dernière DSM validée de Maison Durand, Condom et du Domaine de Laubade, ligne par ligne, total ;
     filtres opérateur et type ; « Exporter en Excel » pour les douanes. La fiche de chacun en montre le
     sien, section « Stock déclaré ».
+
+## Facturation (spec 08, lot 1)
+
+- **Vendeur** (roue crantée « Paramétrage », rubrique « Facturation > Vendeur ») : le BNIA, tel qu'imprimé
+  sur les factures d'exemple (11 place de la Liberté, Eauze ; SIRET 77699995500029 ; TVA FR55776999955 ;
+  IBAN et BIC ; `compta@armagnac.fr`), sans option sur les débits.
+- **SIRET et n° de TVA** : Maison Durand (`000001`, `000002`) et les trois négociants ; un destinataire des
+  factures `comptabilite@<code>.example` pour chaque négociant. Le Domaine de Laubade (`000003`), qui a une DSM
+  validée, n'a pas de SIRET : il n'est pas facturable.
+- **Armagnacs de Gascogne** : la DSM validée la plus ancienne est **facturée** et sa facture **émise** par
+  Anne Lamarque (premier numéro de l'année, par exemple `2026000001`), 1 855,95 € HT, 296,95 € de TVA,
+  2 152,90 € TTC, comme la facture d'exemple ; la DSM du mois suivant reste **à facturer**.
+- **Maison Durand, Condom** : la facture de sa DSM validée est **demandée** : un brouillon attend son émission.
+
+Scénario :
+
+1. `admin@bnia.fr`, menu « Facturation > Factures », onglet « Émises » : la facture d'Armagnacs de Gascogne.
+   L'ouvrir : acheteur, dates, échéance au dernier jour du mois suivant (« 30 jours fin de mois »), groupe
+   « Commerce de l'Armagnac » avec quatre lignes (part assujettie à 20 %, part non assujettie exonérée),
+   sous-total, récapitulatif de TVA, totaux. « PDF » : la facture au nouveau modèle ; onglet « Journal » :
+   demandée, émise, puis consultée (ouverture, PDF).
+2. Onglet « Brouillons » : celui de Maison Durand, Condom. L'ouvrir : rien n'empêche son émission ;
+   « Émettre » : il prend le numéro suivant. Sa DSM (fiche de l'opérateur, onglet « Déclarations ») passe à
+   « facturée », le numéro ouvre la facture.
+3. Menu « Déclarations > DSM », onglet « Validées » : la DSM restante d'Armagnacs de Gascogne et celle du
+   Domaine de Laubade. Ouvrir celle de Gascogne : « Facturer » ; on reste sur la DSM, « Brouillon de facture
+   créé », puis « Facturation demandée : voir le brouillon ». Au listing, elle est passée dans « Facturées »,
+   badge « Brouillon ».
+4. Revenir à « Validées », cocher la DSM du Domaine de Laubade, « Facturer la sélection » : refusé, « Domaine
+   de Laubade n'est pas facturable (SIRET manquant) ». Sa fiche le dit (« Non facturable »).
+5. Fiche d'Armagnacs de Gascogne, bouton « Factures » : l'historique filtré sur ce client.
+6. Paramétrage, « Facturation > Vendeur » : modifier le téléphone ; les factures déjà émises gardent
+   l'ancien. Un SIRET faux est refusé.
+

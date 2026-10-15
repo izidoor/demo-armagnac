@@ -12,6 +12,50 @@ export type Acceptation = {
     operateur: number;
 };
 
+/**
+ * L'acheteur recopié sur la pièce (spec 08 §3.5)
+ */
+export type AcheteurPiece = {
+    adresseFacturation: AdresseFacturation;
+    adresseLivraison?: AdresseFacturation;
+    categorie: 'PROFESSIONNEL' | 'PARTICULIER';
+    /**
+     * N° BNIA du client
+     */
+    clientCode?: string;
+    /**
+     * Identifiant du client chez l'hôte ; vide pour un client libre
+     */
+    clientIdentifiant?: string;
+    email?: string;
+    /**
+     * Ce qui manque pour qu'il soit complet (RG-FAC-10)
+     */
+    manques: Array<string>;
+    nom?: string;
+    numeroTva?: string;
+    siren?: string;
+    siret?: string;
+};
+
+/**
+ * Adresse d'un acheteur ou du vendeur (spec 08 §3.5, §3.7)
+ */
+export type AdresseFacturation = {
+    /**
+     * Code ISO du pays
+     */
+    codePays?: string;
+    codePostal?: string;
+    ligne1?: string;
+    ligne2?: string;
+    /**
+     * Nom du pays, imprimé
+     */
+    pays?: string;
+    ville?: string;
+};
+
 export type Alambic = {
     capacite?: number;
     numeroAgrement?: string;
@@ -174,6 +218,15 @@ export type ComplementsDsm = {
      * Version lue (verrou optimiste)
      */
     version?: number;
+};
+
+/**
+ * Condition de paiement (spec 08 §3.6)
+ */
+export type ConditionPaiement = {
+    finDeMois: boolean;
+    jours: number;
+    libelle: string;
 };
 
 export type ConfirmationEmail = {
@@ -343,8 +396,12 @@ export type Dsm = {
     /**
      * Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)
      */
-    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE' | 'DEPOSER_PIECES'>;
+    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE' | 'DEPOSER_PIECES' | 'FACTURER'>;
     anomalies: Array<AnomalieDsm>;
+    /**
+     * Facture demandée, pas encore émise : la pièce du brouillon chez facturation (RG-DEC-43)
+     */
+    brouillonFacture?: number;
     codeOperateur: string;
     colonnes: Array<ColonneDsm>;
     cotisation: CotisationDsm;
@@ -369,6 +426,10 @@ export type Dsm = {
     libelleEtat: string;
     lignes: Array<LigneDsm>;
     /**
+     * Quand « Facturer » est offert, ce qui manque à l'opérateur pour le facturer : non vide, la facturation sera refusée (RG-OPE-02, RG-DEC-43) ; vide sinon
+     */
+    manquePourFacturer: Array<string>;
+    /**
      * Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)
      */
     manques: Array<ManqueDsm>;
@@ -386,6 +447,17 @@ export type Dsm = {
      */
     valideePar?: string;
     version: number;
+};
+
+/**
+ * La facture demandée d'une DSM : son brouillon chez facturation
+ */
+export type DsmFacturee = {
+    /**
+     * Identifiant de la pièce
+     */
+    brouillon: number;
+    dsm: number;
 };
 
 /**
@@ -419,6 +491,10 @@ export type DsmListee = {
      */
     etat?: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     /**
+     * Sa facture est demandée, pas encore émise : un brouillon (RG-DEC-43)
+     */
+    facturationDemandee: boolean;
+    /**
      * A au moins une facture (RG-DEC-34)
      */
     facturee: boolean;
@@ -435,6 +511,10 @@ export type DsmListee = {
      */
     modifieeLe?: string;
     operateur: number;
+    /**
+     * Rien ne manque à l'opérateur pour le facturer (RG-OPE-02, RG-DEC-43)
+     */
+    operateurFacturable: boolean;
     periode: PeriodeDeclaration;
     /**
      * L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)
@@ -489,7 +569,7 @@ export type EntreeJournalDeclarations = {
      * Copie du nom de l'acteur
      */
     acteur: string;
-    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE';
+    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE';
     date: string;
     /**
      * Nom de fichier, mois, format…
@@ -504,6 +584,21 @@ export type EntreeJournalDeclarations = {
      * Copie de la période de la DSM
      */
     periode?: string;
+};
+
+/**
+ * Entrée du journal d'une pièce (spec 08 §3.9, RG-FAC-20)
+ */
+export type EntreeJournalPiece = {
+    /**
+     * Copie du nom de l'utilisateur, ou nom du traitement
+     */
+    acteur: string;
+    cote: 'VENDEUR' | 'CLIENT';
+    date: string;
+    detail?: string;
+    evenement: 'DEMANDEE' | 'CREEE' | 'MODIFIEE' | 'EMISE' | 'CONSULTEE' | 'ANNULEE' | 'AVOIR_EMIS' | 'DEPOSEE' | 'REJETEE' | 'EN_ANOMALIE' | 'PAYEE' | 'NOTE';
+    libelle: string;
 };
 
 /**
@@ -549,15 +644,26 @@ export type EtatSession = {
 };
 
 /**
+ * Les DSM à facturer ensemble (RG-DEC-43)
+ */
+export type FacturationDsm = {
+    dsms: Array<number>;
+};
+
+/**
  * Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)
  */
 export type FactureDsm = {
     date: string;
     ht: number;
     numero: string;
+    /**
+     * Identifiant de la pièce chez facturation
+     */
+    piece: number;
     ttc: number;
     tva: number;
-    type: 'FACTURE' | 'AVOIR';
+    type: 'BROUILLON' | 'FACTURE' | 'AVOIR';
 };
 
 /**
@@ -910,6 +1016,43 @@ export type LigneJournal = {
     nomCible: string;
 };
 
+/**
+ * Une ligne de la pièce : article, texte, ou groupe et ses lignes (spec 08 §3.2, RG-FAC-04)
+ */
+export type LignePiece = {
+    /**
+     * Article : code dans sa source
+     */
+    code?: string;
+    /**
+     * Groupe : ses lignes ; vide sinon
+     */
+    lignes: Array<LignePiece>;
+    /**
+     * Article : HT de la ligne ; groupe : sous-total HT
+     */
+    montantHt?: number;
+    nature?: 'BIEN' | 'SERVICE';
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire?: number;
+    quantite?: number;
+    sorte: 'ARTICLE' | 'TEXTE' | 'GROUPE';
+    /**
+     * Article : source
+     */
+    source?: string;
+    /**
+     * Désignation d'un article, texte, ou titre d'un groupe
+     */
+    texte: string;
+    tvaCode?: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle?: string;
+    tvaTaux?: number;
+    unite?: string;
+};
+
 export type LigneStock = {
     cle: 'MB' | 'MV' | 'NB' | 'NV';
     compte: string;
@@ -974,6 +1117,24 @@ export type LigneStockInitial = {
      * Litres d'alcool pur
      */
     volume: number;
+};
+
+/**
+ * Une ligne du récapitulatif de TVA (RG-FAC-05)
+ */
+export type LigneTvaPiece = {
+    base: number;
+    code: 'S' | 'Z' | 'E' | 'O';
+    libelle: string;
+    /**
+     * Motif d'exonération
+     */
+    motif?: string;
+    /**
+     * Vide hors champ
+     */
+    taux?: number;
+    tva: number;
 };
 
 /**
@@ -1134,6 +1295,34 @@ export type OperateurResume = {
     ville?: string;
 };
 
+/**
+ * Ce qu'une facture facture, fourni par la source (spec 08 §3.4)
+ */
+export type OriginePiece = {
+    /**
+     * Identifiant opaque chez la source
+     */
+    identifiant: string;
+    libelleNature: string;
+    nature: string;
+    reference: string;
+    source: string;
+};
+
+/**
+ * Paramétrage de la facturation (spec 08 §6.1)
+ */
+export type ParametrageFacturation = {
+    /**
+     * L'utilisateur connecté peut le modifier (RG-FAC-26)
+     */
+    modifiable: boolean;
+    /**
+     * Vide tant qu'il n'est pas paramétré : l'émission est alors refusée (RG-FAC-09)
+     */
+    vendeur?: VendeurFacturation;
+};
+
 export type Pays = {
     actif: boolean;
     /**
@@ -1203,9 +1392,112 @@ export type PersonneAnnuaire = {
     titre?: number;
 };
 
+/**
+ * Une facture ou un avoir, avec ses lignes, son récapitulatif de TVA et ses totaux (spec 08 §3.1, §6.1)
+ */
+export type Piece = {
+    acheteur: AcheteurPiece;
+    bonDeCommande?: string;
+    condition: ConditionPaiement;
+    creeeLe: string;
+    /**
+     * Copie du nom de l'auteur de la demande
+     */
+    creeePar: string;
+    /**
+     * Vide pour un brouillon
+     */
+    dateEmission?: string;
+    dateOperation: string;
+    /**
+     * Calculée à l'émission (RG-FAC-13)
+     */
+    echeance?: string;
+    /**
+     * L'utilisateur connecté peut l'émettre (RG-FAC-26)
+     */
+    emettre: boolean;
+    /**
+     * Ce qui empêche l'émission d'un brouillon (RG-FAC-09) ; vide sinon
+     */
+    empechements: Array<string>;
+    etat: 'BROUILLON' | 'EMISE';
+    id: number;
+    libellePeriode?: string;
+    lignes: Array<LignePiece>;
+    /**
+     * RG-FAC-08 ; vide sans ligne article
+     */
+    natureOperation?: 'BIENS' | 'SERVICES' | 'LES_DEUX';
+    noteEntete?: string;
+    notePied?: string;
+    /**
+     * Vide pour un brouillon
+     */
+    numero?: string;
+    /**
+     * Vide pour un avoir
+     */
+    origine?: OriginePiece;
+    /**
+     * Le PDF est disponible (pièce émise)
+     */
+    pdf: boolean;
+    recapitulatifTva: Array<LigneTvaPiece>;
+    sens: 'FACTURE' | 'AVOIR';
+    /**
+     * Libellé de la nature d'origine, ou « Avoir »
+     */
+    titre: string;
+    totalHt: number;
+    totalTtc: number;
+    totalTva: number;
+    /**
+     * Recopié à l'émission ; vide en brouillon
+     */
+    vendeur?: VendeurFacturation;
+};
+
 export type PieceCompatible = {
     libelle: string;
     type: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
+/**
+ * Une pièce de l'historique (RG-FAC-27)
+ */
+export type PieceListee = {
+    acheteur: string;
+    /**
+     * N° BNIA du client
+     */
+    clientCode?: string;
+    /**
+     * Identifiant du client chez l'hôte (opérateur) ; vide pour un client libre
+     */
+    clientIdentifiant?: string;
+    creeeLe: string;
+    /**
+     * Vide pour un brouillon
+     */
+    dateEmission?: string;
+    etat: 'BROUILLON' | 'EMISE';
+    ht: number;
+    id: number;
+    libelleNature?: string;
+    libellePeriode?: string;
+    /**
+     * Nature d'origine ; vide pour un avoir
+     */
+    nature?: string;
+    /**
+     * Vide pour un brouillon
+     */
+    numero?: string;
+    reference?: string;
+    sens: 'FACTURE' | 'AVOIR';
+    ttc: number;
+    tva: number;
 };
 
 /**
@@ -2041,6 +2333,40 @@ export type ValeurSimple = {
     libelle: string;
 };
 
+/**
+ * Le vendeur, le BNIA, recopié sur chaque pièce à son émission (spec 08 §3.7, RG-FAC-16)
+ */
+export type VendeurFacturation = {
+    /**
+     * Si elle diffère du siège
+     */
+    adresseFacturation?: AdresseFacturation;
+    bic: string;
+    email: string;
+    /**
+     * Défaut : « Pas d'escompte pour paiement anticipé »
+     */
+    escompte?: string;
+    iban: string;
+    nom: string;
+    numeroTva: string;
+    /**
+     * Défaut : « trois fois le taux d'intérêt légal »
+     */
+    penalites?: string;
+    siege: AdresseFacturation;
+    /**
+     * Tiré du SIRET s'il est vide
+     */
+    siren?: string;
+    siret: string;
+    telephone: string;
+    /**
+     * Option pour la TVA d'après les débits
+     */
+    tvaSurDebits: boolean;
+};
+
 export type VisiteProposee = {
     commentaire?: string;
     /**
@@ -2297,6 +2623,22 @@ export type ListerToutesDsmResponses = {
 
 export type ListerToutesDsmResponse = ListerToutesDsmResponses[keyof ListerToutesDsmResponses];
 
+export type FacturerSelectionDsmData = {
+    body: FacturationDsm;
+    path?: never;
+    query?: never;
+    url: '/api/declarations/facturation';
+};
+
+export type FacturerSelectionDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<DsmFacturee>;
+};
+
+export type FacturerSelectionDsmResponse = FacturerSelectionDsmResponses[keyof FacturerSelectionDsmResponses];
+
 export type ListerStocksDeclaresData = {
     body?: never;
     path?: never;
@@ -2402,6 +2744,157 @@ export type ModifierTauxCvoResponses = {
 };
 
 export type ModifierTauxCvoResponse = ModifierTauxCvoResponses[keyof ModifierTauxCvoResponses];
+
+export type ListerPiecesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Début du numéro
+         */
+        numero?: string;
+        sens?: 'FACTURE' | 'AVOIR';
+        etat?: 'BROUILLON' | 'EMISE';
+        /**
+         * Nature d'origine
+         */
+        nature?: string;
+        /**
+         * Identifiant du client (opérateur)
+         */
+        client?: string;
+        /**
+         * Contenu dans le nom de l'acheteur ou le n° BNIA du client
+         */
+        acheteur?: string;
+        /**
+         * Contenu dans le libellé de la période
+         */
+        periode?: string;
+        /**
+         * Date d'émission au plus tôt
+         */
+        du?: string;
+        /**
+         * Date d'émission au plus tard
+         */
+        au?: string;
+    };
+    url: '/api/facturation/pieces';
+};
+
+export type ListerPiecesResponses = {
+    /**
+     * OK
+     */
+    200: Array<PieceListee>;
+};
+
+export type ListerPiecesResponse = ListerPiecesResponses[keyof ListerPiecesResponses];
+
+export type ConsulterPieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}';
+};
+
+export type ConsulterPieceResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type ConsulterPieceResponse = ConsulterPieceResponses[keyof ConsulterPieceResponses];
+
+export type EmettrePieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/emission';
+};
+
+export type EmettrePieceResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type EmettrePieceResponse = EmettrePieceResponses[keyof EmettrePieceResponses];
+
+export type ConsulterJournalPieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/journal';
+};
+
+export type ConsulterJournalPieceResponses = {
+    /**
+     * OK
+     */
+    200: Array<EntreeJournalPiece>;
+};
+
+export type ConsulterJournalPieceResponse = ConsulterJournalPieceResponses[keyof ConsulterJournalPieceResponses];
+
+export type TelechargerPdfPieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/pdf';
+};
+
+export type TelechargerPdfPieceResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerPdfPieceResponse = TelechargerPdfPieceResponses[keyof TelechargerPdfPieceResponses];
+
+export type ConsulterVendeurData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/vendeur';
+};
+
+export type ConsulterVendeurResponses = {
+    /**
+     * OK
+     */
+    200: ParametrageFacturation;
+};
+
+export type ConsulterVendeurResponse = ConsulterVendeurResponses[keyof ConsulterVendeurResponses];
+
+export type ParametrerVendeurData = {
+    body: VendeurFacturation;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/vendeur';
+};
+
+export type ParametrerVendeurResponses = {
+    /**
+     * OK
+     */
+    200: VendeurFacturation;
+};
+
+export type ParametrerVendeurResponse = ParametrerVendeurResponses[keyof ParametrerVendeurResponses];
 
 export type ConsulterInvitationParJetonData = {
     body?: never;
@@ -3460,6 +3953,25 @@ export type EditerDsmExcelResponses = {
 };
 
 export type EditerDsmExcelResponse = EditerDsmExcelResponses[keyof EditerDsmExcelResponses];
+
+export type FacturerDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/facturation';
+};
+
+export type FacturerDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type FacturerDsmResponse = FacturerDsmResponses[keyof FacturerDsmResponses];
 
 export type ImporterDsmData = {
     body?: {

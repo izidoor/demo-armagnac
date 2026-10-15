@@ -56,8 +56,10 @@ import org.springframework.stereotype.Component;
  * <li>les négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier jour du
  * mois précédent ; leur première DSM est celle du mois courant :
  * <ul>
- * <li>Armagnacs de Gascogne ({@code N320001}) : envoyée, sorties France 839,11 L et export 2 254,15 L (la
- * facture d'exemple), un commentaire de l'opérateur et un commentaire interne du BNIA ; elle attend le BNIA,
+ * <li>Armagnacs de Gascogne ({@code N320001}) : part de deux mois avant le mois courant (spec 08 §7.1) ; ses
+ * DSM de ces deux mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L, export
+ * 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture ; celle du mois courant est envoyée, avec les
+ * mêmes totaux, un commentaire de l'opérateur et un commentaire interne du BNIA ; elle attend le BNIA,
  * l'opérateur n'est pas en retard ;</li>
  * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
  * 2026-10-14), DSM en compléments demandés, motif « DAE manquants pour l'export » : en retard dès le 6 du
@@ -149,21 +151,34 @@ public class DemoDeclarations implements ApplicationRunner {
         return new Acteur(lecture.utilisateurParEmail(email).orElseThrow());
     }
 
-    /** DSM envoyée, qui reproduit les volumes de la facture d'exemple ; la file d'attente du BNIA. */
+    /**
+     * Deux DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM envoyée du mois
+     * courant, aux mêmes totaux : la file d'attente du BNIA. Le stock de départ couvre les sorties des deux mois.
+     */
     private void armagnacsDeGascogne() {
         Long id = aCharger("N320001");
         if (id == null) {
             LOG.info("Démo : déclarations déjà chargées.");
             return;
         }
-        points.fixer(anne, id, moisCourant(), List.of(
-                stock(CleConditionnement.NB, "XO", "12", "1520.40"),
-                stock(CleConditionnement.NB, "VSOP", "5", "2310.75"),
+        points.fixer(anne, id, moisCourant().minusMonths(2), List.of(
+                stock(CleConditionnement.NB, "XO", "12", "3198.62"),
+                stock(CleConditionnement.NB, "VSOP", "5", "6819.05"),
                 stock(CleConditionnement.NV, "VSOP", "5", "865.20"),
                 stock(CleConditionnement.MB, 2010, null, "642.10"),
                 stock(CleConditionnement.MV, 2015, "6", "318.60"),
                 stock(CleConditionnement.NB, "Blanche", "00", "1250.00")));
         Acteur julie = membre("agent@negociant.fr");
+        for (int mois = 0; mois < 2; mois++) {
+            DeclarationStocksMouvements validee = remplir(julie, id, Map.of(
+                    0, Map.of(ColonneDsm.C17, "839.11"),
+                    1, Map.of(ColonneDsm.C22, "2254.15"))).dsm();
+            pieces.deposerJustificatif(julie, id, validee.id(), validee.lignes().get(1).id(), TypeMouvement.VENTE_EXPORT,
+                    TypePiece.DAE, "26FRA00000000" + (98765 + mois), pdf("dae-export.pdf"));
+            dsms.envoyer(julie, id, validee.id(), null);
+            dsms.prendreEnInstruction(anne, id, validee.id(), null);
+            dsms.valider(anne, id, validee.id(), null);
+        }
         // Sorties France (14, 17, 18, 19, 21) : 839,11 L ; export (22 à 24) : 2 254,15 L.
         VueDsm vue = remplir(julie, id, Map.of(
                 0, Map.of(ColonneDsm.C12, "40.00", ColonneDsm.C17, "118.35", ColonneDsm.C21, "120.00",

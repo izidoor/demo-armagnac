@@ -26,6 +26,7 @@ import fr.bnia.declarations.domain.partage.DsmEnvoyee;
 import fr.bnia.declarations.domain.partage.DsmValidee;
 import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
+import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
@@ -58,6 +59,7 @@ public class GererDsm {
     private final StockageDocuments stockage;
     private final ClasseursDsm classeurs;
     private final PublicationEvenements evenements;
+    private final OperateursLecture operateurs;
     private final Autorisations autorisations;
     private final Journaliste journaliste;
     private final Cotisations cotisations;
@@ -76,6 +78,7 @@ public class GererDsm {
         this.stockage = stockage;
         this.classeurs = classeurs;
         this.evenements = evenements;
+        this.operateurs = operateurs;
         this.autorisations = new Autorisations(operateurs);
         this.journaliste = new Journaliste(journal, operateurs, horloge);
         this.cotisations = new Cotisations(grilles, factures, referentiels, parametres, horloge);
@@ -309,7 +312,13 @@ public class GererDsm {
 
     private VueDsm vue(Acteur acteur, DeclarationStocksMouvements dsm, OperateurVue operateur) {
         return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm),
-                cotisations.de(dsm), LocalDate.now(journaliste.horloge()));
+                cotisations.de(dsm), cotisations.brouillon(dsm), () -> manquePourFacturer(operateur.id()),
+                LocalDate.now(journaliste.horloge()));
+    }
+
+    /** RG-OPE-02, RG-DEC-43 : ce qui manque à l'opérateur pour le facturer, lu seulement si « Facturer » est offert. */
+    private List<String> manquePourFacturer(long operateur) {
+        return operateurs.acheteur(operateur).map(AcheteurVue::manquePourFacturer).orElse(List.of());
     }
 
     /** RG-DEC-29 : pièces lues en deux requêtes, jamais une par ligne. */

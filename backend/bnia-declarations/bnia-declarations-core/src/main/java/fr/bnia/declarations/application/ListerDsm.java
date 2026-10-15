@@ -60,10 +60,11 @@ public class ListerDsm {
      * @param enRetard             RG-DEC-40
      * @param prendreEnInstruction l'acteur peut la prendre en instruction depuis le listing (RG-DEC-01, 20)
      * @param totalHt              facturé ou calculé ; absent si non calculable (RG-DEC-32, 34) ou sans DSM
+     * @param operateurFacturable  rien ne manque à l'opérateur pour le facturer (RG-OPE-02, RG-DEC-43)
      */
     public record DsmListee(Optional<DsmLigne> dsm, long operateur, TypeDeclarant type, PeriodeDeclaration periode,
             String code, String raisonSociale, LocalDate echeance, boolean enRetard, boolean prendreEnInstruction,
-            Optional<BigDecimal> totalHt) {
+            Optional<BigDecimal> totalHt, boolean operateurFacturable) {
 
         /** RG-DEC-40 : la période attendue, sans DSM. */
         public boolean absente() {
@@ -74,8 +75,8 @@ public class ListerDsm {
     /**
      * RG-DEC-01 : de la période la plus récente à la plus ancienne, puis par code d'opérateur. Les périodes
      * absentes suivent les filtres d'opérateur, de type et de mois, et n'apparaissent pas quand un état est
-     * demandé. Six lectures en tout, quelle que soit la taille du listing : les droits, les DSM, les opérateurs
-     * attendus, leurs repères, l'identité des opérateurs, la grille.
+     * demandé. Sept lectures en tout, quelle que soit la taille du listing : les droits, les DSM, les opérateurs
+     * attendus, leurs repères, l'identité des opérateurs, ceux qui sont facturables (RG-DEC-43), la grille.
      */
     public List<DsmListee> lister(Acteur acteur, FiltreDsm filtre) {
         autorisations.exigerLectureBnia(acteur);
@@ -94,19 +95,22 @@ public class ListerDsm {
                 : List.of();
         GrilleCotisation grille = grilles.charger();
         Map<Long, ResultatRecherche> identites = identites(dsms, absentes);
+        Set<Long> facturables = identites.isEmpty() ? Set.of() : operateurs.facturables(identites.keySet());
         List<DsmListee> listing = new ArrayList<>();
         for (DsmLigne d : dsms) {
             ResultatRecherche identite = identites.get(d.operateur());
             listing.add(new DsmListee(Optional.of(d), d.operateur(), d.type(), d.periode(), code(identite),
                     raisonSociale(identite, d.operateur()), d.periode().echeance(d.type()), enRetard.contains(d.id()),
-                    instruit && d.etat() == EtatDsm.ENVOYEE, Cotisations.totalHt(d, grille)));
+                    instruit && d.etat() == EtatDsm.ENVOYEE, Cotisations.totalHt(d, grille),
+                    facturables.contains(d.operateur())));
         }
         for (Attendue a : absentes) {
             long operateur = a.operateur().id();
             ResultatRecherche identite = identites.get(operateur);
             listing.add(new DsmListee(Optional.empty(), operateur, TypeDeclarant.de(a.operateur().type()),
                     a.situation().periode().orElseThrow(), code(identite), raisonSociale(identite, operateur),
-                    a.situation().echeance().orElseThrow(), a.situation().enRetard(), false, Optional.empty()));
+                    a.situation().echeance().orElseThrow(), a.situation().enRetard(), false, Optional.empty(),
+                    facturables.contains(operateur)));
         }
         listing.sort(Comparator.comparing((DsmListee l) -> l.periode().debut()).reversed()
                 .thenComparing(DsmListee::code));

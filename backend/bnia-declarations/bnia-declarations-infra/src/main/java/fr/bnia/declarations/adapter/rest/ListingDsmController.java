@@ -1,18 +1,22 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
+import fr.bnia.declarations.application.FacturerDsm;
 import fr.bnia.declarations.application.FiltreDsm;
 import fr.bnia.declarations.application.ListerDsm;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import fr.bnia.declarations.domain.partage.EtatDsm;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,9 +26,30 @@ import org.springframework.web.bind.annotation.RestController;
 class ListingDsmController {
 
     private final ListerDsm lister;
+    private final FacturerDsm facturer;
 
-    ListingDsmController(ListerDsm lister) {
+    ListingDsmController(ListerDsm lister, FacturerDsm facturer) {
         this.lister = lister;
+        this.facturer = facturer;
+    }
+
+    @Schema(name = "FacturationDsm", description = "Les DSM à facturer ensemble (RG-DEC-43)")
+    record FacturationRequest(@Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<Long> dsms) {
+    }
+
+    @Schema(name = "DsmFacturee", description = "La facture demandée d'une DSM : son brouillon chez facturation")
+    record DsmFactureeResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long dsm,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Identifiant de la pièce")
+            long brouillon) {
+    }
+
+    @PostMapping("/api/declarations/facturation")
+    @Operation(operationId = "facturerSelectionDsm",
+            summary = "Le BNIA demande les factures d'une sélection de DSM validées, toutes ou aucune (RG-DEC-43)")
+    List<DsmFactureeResponse> facturer(Connecte connecte, @RequestBody FacturationRequest requete) {
+        return facturer.facturer(Acteurs.de(connecte), requete.dsms()).stream()
+                .map(f -> new DsmFactureeResponse(f.dsm(), f.brouillon())).toList();
     }
 
     @GetMapping("/api/declarations/dsm")

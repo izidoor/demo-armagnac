@@ -36,6 +36,10 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-declarations-infra</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-facturation-infra</artifactId>
+        </dependency>
         <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

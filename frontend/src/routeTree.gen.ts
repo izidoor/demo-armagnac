@@ -34,12 +34,15 @@ import { Route as PortailDeclarationsIndexRouteImport } from './routes/portail/d
 import { Route as PortailAnnuaireIndexRouteImport } from './routes/portail/annuaire/index'
 import { Route as BoParametrageIndexRouteImport } from './routes/bo/parametrage/index'
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
+import { Route as BoFacturationIndexRouteImport } from './routes/bo/facturation/index'
 import { Route as BoDeclarationsIndexRouteImport } from './routes/bo/declarations/index'
 import { Route as PortailDeclarationsDsmRouteImport } from './routes/portail/declarations/$dsm'
 import { Route as BoParametrageTauxCvoRouteImport } from './routes/bo/parametrage/taux-cvo'
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
+import { Route as BoParametrageFacturationRouteImport } from './routes/bo/parametrage/facturation'
 import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
+import { Route as BoFacturationIdRouteImport } from './routes/bo/facturation/$id'
 import { Route as BoDeclarationsStocksRouteImport } from './routes/bo/declarations/stocks'
 import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
@@ -177,6 +180,11 @@ const BoOperateursIndexRoute = BoOperateursIndexRouteImport.update({
   path: '/operateurs/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const BoFacturationIndexRoute = BoFacturationIndexRouteImport.update({
+  id: '/facturation/',
+  path: '/facturation/',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoDeclarationsIndexRoute = BoDeclarationsIndexRouteImport.update({
   id: '/declarations/',
   path: '/declarations/',
@@ -203,12 +211,23 @@ const BoParametrageGeographieRoute = BoParametrageGeographieRouteImport.update({
   path: '/geographie',
   getParentRoute: () => BoParametrageRouteRoute,
 } as any)
+const BoParametrageFacturationRoute =
+  BoParametrageFacturationRouteImport.update({
+    id: '/facturation',
+    path: '/facturation',
+    getParentRoute: () => BoParametrageRouteRoute,
+  } as any)
 const BoParametrageCommercialisationRoute =
   BoParametrageCommercialisationRouteImport.update({
     id: '/commercialisation',
     path: '/commercialisation',
     getParentRoute: () => BoParametrageRouteRoute,
   } as any)
+const BoFacturationIdRoute = BoFacturationIdRouteImport.update({
+  id: '/facturation/$id',
+  path: '/facturation/$id',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoDeclarationsStocksRoute = BoDeclarationsStocksRouteImport.update({
   id: '/declarations/stocks',
   path: '/declarations/stocks',
@@ -289,12 +308,15 @@ export interface FileRoutesByFullPath {
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
+  '/bo/facturation/$id': typeof BoFacturationIdRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/facturation': typeof BoParametrageFacturationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
+  '/bo/facturation': typeof BoFacturationIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
   '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
@@ -329,12 +351,15 @@ export interface FileRoutesByTo {
   '/portail': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
+  '/bo/facturation/$id': typeof BoFacturationIdRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/facturation': typeof BoParametrageFacturationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
+  '/bo/facturation': typeof BoFacturationIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
   '/bo/parametrage': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
@@ -373,12 +398,15 @@ export interface FileRoutesById {
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
+  '/bo/facturation/$id': typeof BoFacturationIdRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/facturation': typeof BoParametrageFacturationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/bo/declarations/': typeof BoDeclarationsIndexRoute
+  '/bo/facturation/': typeof BoFacturationIndexRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
   '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire/': typeof PortailAnnuaireIndexRoute
@@ -418,12 +446,15 @@ export interface FileRouteTypes {
     | '/portail/'
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
+    | '/bo/facturation/$id'
     | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/facturation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
     | '/bo/declarations'
+    | '/bo/facturation'
     | '/bo/operateurs'
     | '/bo/parametrage/'
     | '/portail/annuaire'
@@ -458,12 +489,15 @@ export interface FileRouteTypes {
     | '/portail'
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
+    | '/bo/facturation/$id'
     | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/facturation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
     | '/bo/declarations'
+    | '/bo/facturation'
     | '/bo/operateurs'
     | '/bo/parametrage'
     | '/portail/annuaire'
@@ -501,12 +535,15 @@ export interface FileRouteTypes {
     | '/portail/'
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
+    | '/bo/facturation/$id'
     | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/facturation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
     | '/bo/declarations/'
+    | '/bo/facturation/'
     | '/bo/operateurs/'
     | '/bo/parametrage/'
     | '/portail/annuaire/'
@@ -715,6 +752,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoOperateursIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/facturation/': {
+      id: '/bo/facturation/'
+      path: '/facturation'
+      fullPath: '/bo/facturation'
+      preLoaderRoute: typeof BoFacturationIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/declarations/': {
       id: '/bo/declarations/'
       path: '/declarations'
@@ -750,12 +794,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageGeographieRouteImport
       parentRoute: typeof BoParametrageRouteRoute
     }
+    '/bo/parametrage/facturation': {
+      id: '/bo/parametrage/facturation'
+      path: '/facturation'
+      fullPath: '/bo/parametrage/facturation'
+      preLoaderRoute: typeof BoParametrageFacturationRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
+    }
     '/bo/parametrage/commercialisation': {
       id: '/bo/parametrage/commercialisation'
       path: '/commercialisation'
       fullPath: '/bo/parametrage/commercialisation'
       preLoaderRoute: typeof BoParametrageCommercialisationRouteImport
       parentRoute: typeof BoParametrageRouteRoute
+    }
+    '/bo/facturation/$id': {
+      id: '/bo/facturation/$id'
+      path: '/facturation/$id'
+      fullPath: '/bo/facturation/$id'
+      preLoaderRoute: typeof BoFacturationIdRouteImport
+      parentRoute: typeof BoRouteRoute
     }
     '/bo/declarations/stocks': {
       id: '/bo/declarations/stocks'
@@ -832,6 +890,7 @@ declare module '@tanstack/react-router' {
 
 interface BoParametrageRouteRouteChildren {
   BoParametrageCommercialisationRoute: typeof BoParametrageCommercialisationRoute
+  BoParametrageFacturationRoute: typeof BoParametrageFacturationRoute
   BoParametrageGeographieRoute: typeof BoParametrageGeographieRoute
   BoParametrageQualificationRoute: typeof BoParametrageQualificationRoute
   BoParametrageTauxCvoRoute: typeof BoParametrageTauxCvoRoute
@@ -842,6 +901,7 @@ interface BoParametrageRouteRouteChildren {
 
 const BoParametrageRouteRouteChildren: BoParametrageRouteRouteChildren = {
   BoParametrageCommercialisationRoute: BoParametrageCommercialisationRoute,
+  BoParametrageFacturationRoute: BoParametrageFacturationRoute,
   BoParametrageGeographieRoute: BoParametrageGeographieRoute,
   BoParametrageQualificationRoute: BoParametrageQualificationRoute,
   BoParametrageTauxCvoRoute: BoParametrageTauxCvoRoute,
@@ -860,7 +920,9 @@ interface BoRouteRouteChildren {
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
   BoDeclarationsStocksRoute: typeof BoDeclarationsStocksRoute
+  BoFacturationIdRoute: typeof BoFacturationIdRoute
   BoDeclarationsIndexRoute: typeof BoDeclarationsIndexRoute
+  BoFacturationIndexRoute: typeof BoFacturationIndexRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
   BoAccesUtilisateursIdRoute: typeof BoAccesUtilisateursIdRoute
   BoAccesUtilisateursIndexRoute: typeof BoAccesUtilisateursIndexRoute
@@ -876,7 +938,9 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
   BoDeclarationsStocksRoute: BoDeclarationsStocksRoute,
+  BoFacturationIdRoute: BoFacturationIdRoute,
   BoDeclarationsIndexRoute: BoDeclarationsIndexRoute,
+  BoFacturationIndexRoute: BoFacturationIndexRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
   BoAccesUtilisateursIdRoute: BoAccesUtilisateursIdRoute,
   BoAccesUtilisateursIndexRoute: BoAccesUtilisateursIndexRoute,

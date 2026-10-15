@@ -286,15 +286,16 @@ public class DemoOperateurs implements ApplicationRunner {
     }
 
     /**
-     * SIRET et n° de TVA (RG-OPE-02, 06 ; spec 08 §7.1) des opérateurs à facturer en démonstration. Le Domaine de
+     * SIRET et n° de TVA (RG-OPE-02, 06 ; spec 08 §7.1) des opérateurs à facturer en démonstration, clés de Luhn
+     * et de TVA justes (RG-FAC-10). Le Domaine de
      * Laubade, qui a une DSM validée, reste sans SIRET : non facturable, il montre le refus.
      */
     private static final Map<String, String[]> IDENTIFIANTS_LEGAUX = Map.of(
-            "000001", new String[] {"32145678900015", "FR65321456789"},
-            "000002", new String[] {"32145678900023", "FR65321456789"},
-            "N320001", new String[] {"32890123400018", "FR23328901234"},
-            "N320002", new String[] {"32789012300018", "FR74327890123"},
-            "N400001", new String[] {"40123456700014", "FR61401234567"});
+            "000001", new String[] {"32145678200010", "FR44321456782"},
+            "000002", new String[] {"32145678200028", "FR44321456782"},
+            "N320001", new String[] {"32890123600013", "FR29328901236"},
+            "N320002", new String[] {"32789012500013", "FR80327890125"},
+            "N400001", new String[] {"40123456200015", "FR46401234562"});
 
     private SaisieOperateur saisie(TypeOperateur type, String code, String raisonSociale, String nomCommercial,
             String groupe, String adresse, String codePostal, String ville, String telephone) {

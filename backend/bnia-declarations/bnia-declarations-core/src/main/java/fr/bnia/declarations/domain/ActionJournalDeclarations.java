@@ -22,7 +22,11 @@ public enum ActionJournalDeclarations {
     COMMENTAIRE_SUPPRIME("Commentaire supprimé"),
     POINT_DE_DEPART_FIXE("Point de départ fixé"),
     POINT_DE_DEPART_MODIFIE("Point de départ modifié"),
-    POINT_DE_DEPART_IMPORTE("Point de départ importé");
+    POINT_DE_DEPART_IMPORTE("Point de départ importé"),
+    /** RG-DEC-43 (spec 08 §3.13). */
+    FACTURATION_DEMANDEE("Facturation demandée"),
+    /** RG-DEC-34 : reçu de {@code facturation} ; détail : le numéro. */
+    FACTURE_EMISE("Facture émise");
 
     private final String libelle;
 

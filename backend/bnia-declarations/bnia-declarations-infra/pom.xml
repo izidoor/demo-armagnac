@@ -20,6 +20,11 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-commun-infra</artifactId>
         </dependency>
+        <!-- ADR-021 : demander des factures, exposer les articles de cotisation, écouter les pièces émises. -->
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-facturation-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
