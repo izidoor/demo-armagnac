@@ -1,9 +1,21 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Mail, Plus } from 'lucide-react'
+import { ChevronDown, Mail, Plus } from 'lucide-react'
 import { creerContact, type Contact, type Droits } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import {
   Dialog,
   DialogContent,
@@ -23,20 +35,24 @@ import { cleOperateur, useAnnuaire, type Espace } from '../commun/api'
 import { ROLES } from '../commun/libelles'
 import { DialogueInvitation } from './dialogue-invitation'
 import { FormulaireContact } from './formulaires'
+import { OngletJournal } from './journal'
 import { genreDe, useNavigationPersonnes } from './navigation'
 
 /**
  * Annuaire d'un opérateur (RG-OPE-52) : contacts, membres et personnes nouvelles invitées, en une liste ;
- * déclarer un contact (module Contacts) ; inviter (module Accès).
+ * déclarer un contact (module Contacts) ; inviter (module Accès) ; au back-office, le journal en dessous.
  */
 export function OngletAnnuaire({
   espace,
   operateur,
   droits,
+  avecJournal = false,
 }: {
   espace: Espace
   operateur: number
   droits: Droits
+  /** Le journal (RG-OPE-34) dans un cadre dépliable sous la liste ; au portail, il a son propre onglet. */
+  avecJournal?: boolean
 }) {
   const queryClient = useQueryClient()
   const annuaire = useAnnuaire(operateur)
@@ -49,79 +65,106 @@ export function OngletAnnuaire({
 
   return (
     <div className='space-y-4'>
-      <div className='flex flex-wrap justify-end gap-2'>
-        {droits.contacts === 'GESTION' && (
-          <Button variant='outline' onClick={() => setCreation(true)}>
-            <Plus /> Déclarer un contact
-          </Button>
-        )}
-        {droits.acces === 'GESTION' && (
-          <Button onClick={() => setInvitation(true)}>
-            <Mail /> Inviter une personne
-          </Button>
-        )}
-      </div>
-      <div className='rounded-md border'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nom</TableHead>
-              <TableHead>Fonction</TableHead>
-              <TableHead>E-mail</TableHead>
-              <TableHead>Téléphone</TableHead>
-              <TableHead>État</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {personnes.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className='text-muted-foreground h-16 text-center'
-                >
-                  {annuaire.isPending ? 'Chargement…' : 'Personne.'}
-                </TableCell>
-              </TableRow>
+      <Card>
+        <CardHeader>
+          <CardTitle>Personnes</CardTitle>
+          <CardAction className='flex flex-wrap justify-end gap-2'>
+            {droits.contacts === 'GESTION' && (
+              <Button variant='outline' onClick={() => setCreation(true)}>
+                <Plus /> Déclarer un contact
+              </Button>
             )}
-            {personnes.map((p) => (
-              <TableRow
-                key={`${p.genre}-${p.id}`}
-                className='cursor-pointer'
-                onClick={() => navigation.ouvrir(genreDe(p), p.id)}
-              >
-                <TableCell>{p.nomComplet}</TableCell>
-                <TableCell>{p.fonction}</TableCell>
-                <TableCell>{p.email}</TableCell>
-                <TableCell>{p.telephoneProfessionnel}</TableCell>
-                <TableCell>
-                  <span className='flex flex-wrap gap-1'>
-                    {p.genre === 'CONTACT' && (
-                      <Badge variant='outline'>Contact</Badge>
-                    )}
-                    {p.genre === 'MEMBRE' && p.role && (
-                      <Badge>{ROLES[p.role]}</Badge>
-                    )}
-                    {p.statut === 'SUSPENDU' && (
-                      <Badge variant='secondary'>Accès suspendu</Badge>
-                    )}
-                    {p.bloqueParBnia && (
-                      <Badge variant='destructive'>Bloqué par le BNIA</Badge>
-                    )}
-                    {(p.genre === 'INVITATION' || p.invitationEnAttente) && (
-                      <Badge variant='secondary'>
-                        Invitation envoyée
-                        {p.genre === 'INVITATION' && p.role
-                          ? ` (${ROLES[p.role]})`
-                          : ''}
-                      </Badge>
-                    )}
-                  </span>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            {droits.acces === 'GESTION' && (
+              <Button onClick={() => setInvitation(true)}>
+                <Mail /> Inviter une personne
+              </Button>
+            )}
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <div className='rounded-md border'>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nom</TableHead>
+                  <TableHead>Fonction</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead>Téléphone</TableHead>
+                  <TableHead>État</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {personnes.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className='text-muted-foreground h-16 text-center'
+                    >
+                      {annuaire.isPending ? 'Chargement…' : 'Personne.'}
+                    </TableCell>
+                  </TableRow>
+                )}
+                {personnes.map((p) => (
+                  <TableRow
+                    key={`${p.genre}-${p.id}`}
+                    className='cursor-pointer'
+                    onClick={() => navigation.ouvrir(genreDe(p), p.id)}
+                  >
+                    <TableCell>{p.nomComplet}</TableCell>
+                    <TableCell>{p.fonction}</TableCell>
+                    <TableCell>{p.email}</TableCell>
+                    <TableCell>{p.telephoneProfessionnel}</TableCell>
+                    <TableCell>
+                      <span className='flex flex-wrap gap-1'>
+                        {p.genre === 'CONTACT' && (
+                          <Badge variant='outline'>Contact</Badge>
+                        )}
+                        {p.genre === 'MEMBRE' && p.role && (
+                          <Badge>{ROLES[p.role]}</Badge>
+                        )}
+                        {p.statut === 'SUSPENDU' && (
+                          <Badge variant='secondary'>Accès suspendu</Badge>
+                        )}
+                        {p.bloqueParBnia && (
+                          <Badge variant='destructive'>
+                            Bloqué par le BNIA
+                          </Badge>
+                        )}
+                        {(p.genre === 'INVITATION' ||
+                          p.invitationEnAttente) && (
+                          <Badge variant='secondary'>
+                            Invitation envoyée
+                            {p.genre === 'INVITATION' && p.role
+                              ? ` (${ROLES[p.role]})`
+                              : ''}
+                          </Badge>
+                        )}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+      {avecJournal && (
+        <Collapsible asChild className='group'>
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger className='hover:text-primary flex w-full items-center justify-between text-left'>
+                <CardTitle>Journal des accès utilisateurs</CardTitle>
+                <ChevronDown className='text-muted-foreground size-4 shrink-0 transition-transform group-data-[state=open]:rotate-180' />
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent>
+                <OngletJournal operateur={operateur} />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
       <Dialog open={creation} onOpenChange={setCreation}>
         <DialogContent className='sm:max-w-3xl'>
           <DialogHeader>

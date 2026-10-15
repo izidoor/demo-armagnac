@@ -30,8 +30,8 @@ type OngletPieces = 'emises' | 'brouillons'
 
 /**
  * Factures du back-office (spec 08 §6.1, UC-FAC-4) : l'historique des pièces émises, filtré par numéro, acheteur,
- * période et date d'émission (RG-FAC-27), et l'onglet « Brouillons ». Le lien « Factures » de la fiche opérateur
- * l'ouvre filtré sur ce client. Une ligne ouvre la pièce.
+ * période et date d'émission (RG-FAC-27), et l'onglet « Brouillons ». Filtrable sur un client par l'URL ; la
+ * fiche opérateur a son propre onglet « Factures ». Une ligne ouvre la pièce.
  */
 export function PagePieces({
   client,
@@ -69,8 +69,6 @@ export function PagePieces({
       to: '/bo/facturation',
       search: { client, onglet: o as OngletPieces },
     })
-  const ouvrir = (p: PieceListee) =>
-    navigate({ to: '/bo/facturation/$id', params: { id: String(p.id) } })
   const nomClient = pieces.find((p) => p.clientIdentifiant === client)
 
   return (
@@ -168,106 +166,138 @@ export function PagePieces({
           </>
         )}
       </div>
-      <div className='rounded-md border'>
-        <Table>
-          <TableHeader>
+      <TablePieces
+        pieces={pieces}
+        brouillons={brouillons}
+        chargement={listing.isPending}
+      />
+    </PageMetier>
+  )
+}
+
+/**
+ * Les pièces, émises ou brouillons : une ligne ouvre la pièce. Sans acheteur dans l'onglet « Factures » de la
+ * fiche opérateur, où il est toujours le même.
+ */
+export function TablePieces({
+  pieces,
+  brouillons,
+  chargement,
+  avecAcheteur = true,
+}: {
+  pieces: PieceListee[]
+  brouillons: boolean
+  chargement: boolean
+  avecAcheteur?: boolean
+}) {
+  const navigate = useNavigate()
+  return (
+    <div className='rounded-md border'>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {brouillons ? (
+              <TableHead>Demandée le</TableHead>
+            ) : (
+              <>
+                <TableHead>Numéro</TableHead>
+                <TableHead>Date</TableHead>
+              </>
+            )}
+            {avecAcheteur && <TableHead>Acheteur</TableHead>}
+            <TableHead>Origine</TableHead>
+            <TableHead>Période</TableHead>
+            <TableHead className='text-right'>HT</TableHead>
+            <TableHead className='text-right'>TVA</TableHead>
+            <TableHead className='text-right'>TTC</TableHead>
+            <TableHead className='w-0' />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pieces.length === 0 && (
             <TableRow>
+              <TableCell
+                colSpan={(brouillons ? 7 : 8) + (avecAcheteur ? 1 : 0)}
+                className='text-muted-foreground h-16 text-center'
+              >
+                {chargement
+                  ? 'Chargement…'
+                  : brouillons
+                    ? 'Aucun brouillon.'
+                    : 'Aucune pièce émise.'}
+              </TableCell>
+            </TableRow>
+          )}
+          {pieces.map((p) => (
+            <TableRow
+              key={p.id}
+              className='cursor-pointer'
+              onClick={() =>
+                navigate({
+                  to: '/bo/facturation/$id',
+                  params: { id: String(p.id) },
+                })
+              }
+            >
               {brouillons ? (
-                <TableHead>Demandée le</TableHead>
+                <TableCell>{formatDateHeure(p.creeeLe)}</TableCell>
               ) : (
                 <>
-                  <TableHead>Numéro</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableCell className='font-mono font-medium'>
+                    {p.numero}
+                    {p.sens === 'AVOIR' && (
+                      <Badge variant='secondary' className='ms-2'>
+                        {SENS[p.sens]}
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>{formatDate(p.dateEmission)}</TableCell>
                 </>
               )}
-              <TableHead>Acheteur</TableHead>
-              <TableHead>Origine</TableHead>
-              <TableHead>Période</TableHead>
-              <TableHead className='text-right'>HT</TableHead>
-              <TableHead className='text-right'>TVA</TableHead>
-              <TableHead className='text-right'>TTC</TableHead>
-              <TableHead className='w-0' />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pieces.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={9}
-                  className='text-muted-foreground h-16 text-center'
-                >
-                  {listing.isPending
-                    ? 'Chargement…'
-                    : brouillons
-                      ? 'Aucun brouillon.'
-                      : 'Aucune pièce émise.'}
-                </TableCell>
-              </TableRow>
-            )}
-            {pieces.map((p) => (
-              <TableRow
-                key={p.id}
-                className='cursor-pointer'
-                onClick={() => ouvrir(p)}
-              >
-                {brouillons ? (
-                  <TableCell>{formatDateHeure(p.creeeLe)}</TableCell>
-                ) : (
-                  <>
-                    <TableCell className='font-mono font-medium'>
-                      {p.numero}
-                      {p.sens === 'AVOIR' && (
-                        <Badge variant='secondary' className='ms-2'>
-                          {SENS[p.sens]}
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>{formatDate(p.dateEmission)}</TableCell>
-                  </>
-                )}
+              {avecAcheteur && (
                 <TableCell>
                   {p.clientCode && (
                     <span className='font-mono'>{p.clientCode} · </span>
                   )}
                   {p.acheteur}
                 </TableCell>
-                <TableCell>
-                  <span className='block'>{p.libelleNature ?? '—'}</span>
-                  <span className='text-muted-foreground text-xs'>
-                    {p.reference}
-                  </span>
-                </TableCell>
-                <TableCell>{p.libellePeriode}</TableCell>
-                <TableCell className='text-right tabular-nums'>
-                  {formatEuros(p.ht)}
-                </TableCell>
-                <TableCell className='text-right tabular-nums'>
-                  {formatEuros(p.tva)}
-                </TableCell>
-                <TableCell className='text-right font-medium tabular-nums'>
-                  {formatEuros(p.ttc)}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    asChild
-                    onClick={(e) => e.stopPropagation()}
+              )}
+              <TableCell>
+                <span className='block'>{p.libelleNature ?? '—'}</span>
+                <span className='text-muted-foreground text-xs'>
+                  {p.reference}
+                </span>
+              </TableCell>
+              <TableCell>{p.libellePeriode}</TableCell>
+              <TableCell className='text-right tabular-nums'>
+                {formatEuros(p.ht)}
+              </TableCell>
+              <TableCell className='text-right tabular-nums'>
+                {formatEuros(p.tva)}
+              </TableCell>
+              <TableCell className='text-right font-medium tabular-nums'>
+                {formatEuros(p.ttc)}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  asChild
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Link
+                    to='/bo/facturation/$id'
+                    params={{ id: String(p.id) }}
+                    aria-label={`Ouvrir la pièce ${p.numero ?? p.reference ?? p.id}`}
                   >
-                    <Link
-                      to='/bo/facturation/$id'
-                      params={{ id: String(p.id) }}
-                      aria-label={`Ouvrir la pièce ${p.numero ?? p.reference ?? p.id}`}
-                    >
-                      <ChevronRight className='size-4' />
-                    </Link>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </PageMetier>
+                    <ChevronRight className='size-4' />
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

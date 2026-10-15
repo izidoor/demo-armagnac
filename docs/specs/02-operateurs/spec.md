@@ -482,26 +482,45 @@ deux espaces. Les entrées de menu et les actions s'affichent selon les droits (
 - **Création** : type d'abord, puis code postal ; le code proposé se remplit (RG-OPE-03) et reste
   modifiable ; avertissements de doublon affichés sans bloquer ; bloc facultatif « inviter un premier
   ADMIN » (nom, prénom, e-mail), pour un ADMIN BNIA (RG-OPE-40).
-- **Fiche opérateur**, consultation et édition par onglets, ouverte sans changer d'opérateur actif :
+- **Fiche opérateur**, consultation et édition par onglets, ouverte sans changer d'opérateur actif ; deux
+  barres côte à côte, libellées : « Fiche de l'opérateur » (de *Général* à *Œnotourisme*) et « Suivi des activités » (de *Stocks &
+  Mouvements* à *Exportations*) ; la fiche du BNIA n'a qu'une barre, sans libellé (décision du 2026-10-15) :
   - *Général* : identité (dont titre), coordonnées, e-mail général, destinataire des factures (bascule
     « une personne de l'annuaire » / « une adresse »), contact principal (une personne de l'annuaire),
-    membre BNIA, accord de diffusion général, commentaire interne ; n° de TVA, avec un avertissement s'il ne concorde pas avec le SIRET ; alertes « Non facturable » et « Non certifiable », chacune nommant ce qui manque ; alerte de
+    membre BNIA, accord de diffusion général, commentaire interne ; n° de TVA, avec un avertissement s'il ne concorde pas avec le SIRET ; alertes « Impossible de facturer » (« La fiche de l'opérateur n'est pas correctement renseignée. Il manque : … », décision du 2026-10-15) et « Non certifiable », chacune nommant ce qui manque, en avertissement orangé ; alerte de
     code non conforme avec « attribuer un nouveau code » (RG-OPE-05) ; autres fiches du groupe
-    (RG-OPE-09) ;
-  - *Production*, *Diffusion*, *Marques*, *Visites et labels*, *Œnotourisme* (dont médailles),
-    *Statistiques* : inchangés ;
-  - *Annuaire* : la liste de RG-OPE-52 (nom, fonction, e-mail, téléphone, état : contact, rôle,
+    (RG-OPE-09) ; trois cadres (identité, coordonnées, contact principal et destinataire des
+    factures), chacun en lecture, « Éditer » le passant en saisie avec « Annuler » et « Enregistrer »,
+    un cadre à la fois (décision du 2026-10-15) ;
+  - *Production* : cadres déclaratif, alambics, marques et circuits France, marques et circuits Export,
+    labels ; chacun en lecture (une liste vide le dit : « Aucune marque », « Aucun circuit de
+    distribution », « Aucun label », « Aucun alambic », « Aucune appellation »), « Éditer » le passant
+    en saisie, un cadre à la fois (décision du 2026-10-15) ;
+  - *Œnotourisme* : cadres accueil, visites, langues parlées, produits commercialisés, présentation du
+    domaine, médailles et concours ; en lecture (« Aucune visite », « Aucune langue », « Aucun produit
+    commercialisé », « Aucune médaille »), « Éditer » le passant en saisie (décision du 2026-10-15) ;
+    un seul cadre de présentation en édition à la fois, d'un onglet à l'autre (*Production* et
+    *Œnotourisme* enregistrent la même présentation) ;
+  - *Statistiques* (anciennement *Diffusion et statistiques*), dernier de la barre « Fiche de
+    l'opérateur » : cadres « Diffusion des millésimes » (niveau d'accord, millésimes diffusables en accord
+    partiel, « Aucun millésime ») et « Accès aux statistiques du portail » (personnel du BNIA), en lecture,
+    « Éditer » le passant en saisie, un cadre à la fois ; plus d'onglets *Marques* ni *Visites et labels*
+    (décisions du 2026-10-15) ;
+  - *Contacts* (anciennement *Annuaire*, second onglet, décision du 2026-10-15) : la liste de RG-OPE-52 (nom, fonction, e-mail, téléphone, état : contact, rôle,
     « accès suspendu », « invitation envoyée ») ; déclarer un contact ; inviter ; ouvrir une personne ;
     invitations en attente (relancer, annuler) ;
-  - *Journal* : actions sur les personnes et les accès de l'opérateur (RG-OPE-34) ;
-  - *Déclarations* (producteur ou négociant), fourni par `declarations` : point de départ, DSM,
-    journal, stock déclaré (spec 05 §6.1) ;
+    sous la liste, un cadre dépliable, fermé par défaut, « Journal des accès utilisateurs » : actions sur les personnes et les
+    accès de l'opérateur (RG-OPE-34) ; plus d'onglet *Journal* (décision du 2026-10-15) ;
+  - *Stocks & Mouvements* (producteur ou négociant ; nommé *Déclarations* jusqu'au 2026-10-15), fourni
+    par `declarations` : point de départ, DSM, journal, stock déclaré (spec 05 §6.1) ;
+  - *Contrats* et *Exportations*, réservés aux contextes à venir : un cadre « À venir » en attendant ;
+    puis, au back-office, *Factures*, fourni par `facturation` (spec 08 §6.1) (décisions du 2026-10-15) ;
   - blocs ajoutés par les étapes suivantes : factures, contrats (§4.3.3, §2.2).
 - **Actions sur l'opérateur** (ADMIN BNIA) : désactiver, réactiver, supprimer (refusée si l'opérateur est
   utilisé : le message propose de désactiver), avec la liste des effets sur les accès (RG-OPE-25, 26).
 - **Menu « BNIA »** : l'opérateur BNIA, en deux onglets : *Fiche* réduite (identité et coordonnées, sans
   déclaratif ni présentation, RG-OPE-39), dont les coordonnées servent aussi à l'assistance du portail
-  (§5.2.2 p.61) ; *Annuaire* (personnel, invitations), avec les mêmes écrans que l'annuaire d'un
+  (§5.2.2 p.61) ; *Contacts* (personnel, invitations), avec les mêmes écrans que l'annuaire d'un
   opérateur.
 - **Menu « Accès »** : *Utilisateurs* (RG-OPE-53 : liste, filtres nom, e-mail, statut, opérateur ;
   blocage avec motif et déblocage pour un ADMIN BNIA, RG-OPE-50) ; *Journal des connexions* (spec 03).
@@ -695,3 +714,4 @@ Chaque RG-OPE-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-13 | Correction (anomalie signalée par l'utilisateur : un contact et le membre invité au même e-mail figuraient tous deux dans l'annuaire, contre RG-OPE-29). Décision de l'utilisateur : RG-OPE-40, une personne nouvelle à l'e-mail d'un contact est invitée depuis ce contact (identité saisie ignorée, signalée à l'écran) ; RG-OPE-42, à l'acceptation, le contact déclaré pendant l'attente avec l'e-mail de l'invitation est repris de même. Alternatives écartées : reprise à l'acceptation seulement (deux lignes pendant l'attente) ; refus à l'envoi. |
 | 2026-10-13 | Écrans (demande de l'utilisateur) : le menu du profil, en haut à droite, affiche sous l'opérateur actif le rôle qu'y tient l'utilisateur (« Rôle : Observateur », « Agent » ou « Admin »). |
 | 2026-10-14 | Révision demandée par la spec 08 (`facturation`), implémentée au lot 1a de la spec 08 : n° de TVA intracommunautaire (RG-OPE-06) ; « fiche incomplète » remplacée par deux indicateurs, facturable et certifiable (RG-OPE-02), au listing (filtre, badges) et sur la fiche ; module Facturation (§3.2.7, RG-OPE-31), dont la gestion est réservée au rôle tenu dans l'opérateur BNIA ; acheteur publié pour `facturation` (§5.2) ; SIRET et n° de TVA en démonstration (§7.1). |
+| 2026-10-15 | Écrans (demande de l'utilisateur) : onglet *Général* et fiche du BNIA en lecture, édition par cadre (« Éditer », puis « Annuler » ou « Enregistrer »), un cadre à la fois, au back-office comme au portail. Fiche opérateur : marques, circuits et labels dans *Production* ; visites dans *Œnotourisme* ; onglets *Marques* et *Visites et labels* supprimés ; onglets *Contrats* et *Exportations* ajoutés en dernier, « À venir » ; onglets en deux barres libellées, « Fiche de l'opérateur » et « Suivi des activités » ; onglet *Factures* en fin de barre « Suivi des activités » (back-office), le bouton *Factures* de l'en-tête retiré ; onglet *Annuaire* renommé *Contacts*, placé en second : la liste dans un cadre « Personnes », le journal dans un cadre dépliable en dessous, « Journal des accès utilisateurs », l'onglet *Journal* supprimé (le portail garde son onglet *Journal* dans « Annuaire »). *Production*, *Œnotourisme* et *Statistiques* (anciennement *Diffusion et statistiques*, placé en dernier de sa barre) en cadres éditables, comme *Général* ; une liste vide se dit (« Aucune marque »…) ; un cadre de présentation annulé reprend ses seuls champs enregistrés, son enregistrement porte toute la présentation (un seul agrégat). |

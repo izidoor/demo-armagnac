@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, FileText, TriangleAlert } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { ArrowLeft, TriangleAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   attribuerNouveauCodeOperateur,
@@ -12,23 +12,20 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { OngletDeclarations } from '@/features/declarations/onglet-declarations'
+import { OngletFactures } from '@/features/facturation/onglet-factures'
 import { apiOperateur, cleOperateur, type Espace } from '../commun/api'
 import { TYPES } from '../commun/libelles'
 import { OngletAnnuaire } from '../personnes/annuaire'
-import { OngletJournal } from '../personnes/journal'
 import { OngletDiffusion } from './onglet-diffusion'
 import { OngletGeneral } from './onglet-general'
 import { OngletProduction } from './onglet-production'
-import {
-  SectionMarques,
-  SectionOenotourisme,
-  SectionVisitesLabels,
-} from './presentation'
+import { SectionOenotourisme } from './presentation'
 import { usePresentation } from './use-presentation'
 
 type Action = 'desactiver' | 'reactiver' | 'supprimer'
@@ -38,7 +35,7 @@ type Action = 'desactiver' | 'reactiver' | 'supprimer'
  * « Mon entreprise » (§6.2), dans les mêmes onglets, l'annuaire ayant son propre menu. Pour l'opérateur
  * BNIA, une fiche réduite : identité, coordonnées et annuaire (RG-OPE-39). Ce que l'on peut faire suit
  * les droits renvoyés avec la fiche (RG-OPE-31, 32, 36). Au back-office, un producteur ou un négociant a
- * l'onglet « Déclarations », fourni par {@code declarations} (spec 05 §6.1).
+ * l'onglet « Stocks & Mouvements », fourni par {@code declarations} (spec 05 §6.1).
  */
 export function PageOperateur({
   espace,
@@ -133,53 +130,39 @@ export function PageOperateur({
       }
       actions={
         !bnia &&
-        (bo || droits.adminBnia) && (
+        droits.adminBnia && (
           <div className='flex gap-2'>
-            {/* Spec 08 §6.1, RG-FAC-27 : l'historique des factures, filtré sur ce client. */}
-            {bo && (
-              <Button variant='outline' asChild>
-                <Link
-                  to='/bo/facturation'
-                  search={{ client: String(fiche.id) }}
-                >
-                  <FileText className='size-4' /> Factures
-                </Link>
-              </Button>
-            )}
-            {droits.adminBnia && (
-              <>
-                <Button
-                  variant='outline'
-                  onClick={() =>
-                    setAction(fiche.actif ? 'desactiver' : 'reactiver')
-                  }
-                >
-                  {fiche.actif ? 'Désactiver' : 'Réactiver'}
-                </Button>
-                <Button
-                  variant='destructive'
-                  onClick={() => setAction('supprimer')}
-                >
-                  Supprimer
-                </Button>
-              </>
-            )}
+            <Button
+              variant='outline'
+              onClick={() =>
+                setAction(fiche.actif ? 'desactiver' : 'reactiver')
+              }
+            >
+              {fiche.actif ? 'Désactiver' : 'Réactiver'}
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={() => setAction('supprimer')}
+            >
+              Supprimer
+            </Button>
           </div>
         )
       }
     >
       <div className='mb-4 space-y-2'>
         {!bnia && fiche.manquePourFacturer.length > 0 && (
-          <Alert>
+          <Alert variant='warning'>
             <TriangleAlert />
-            <AlertTitle>Non facturable</AlertTitle>
+            <AlertTitle>Impossible de facturer</AlertTitle>
             <AlertDescription>
-              Il manque : {fiche.manquePourFacturer.join(', ')}.
+              La fiche de l'opérateur n'est pas correctement renseignée. Il
+              manque : {fiche.manquePourFacturer.join(', ')}.
             </AlertDescription>
           </Alert>
         )}
         {!bnia && fiche.manquePourCertifier.length > 0 && (
-          <Alert>
+          <Alert variant='warning'>
             <TriangleAlert />
             <AlertTitle>Non certifiable</AlertTitle>
             <AlertDescription>
@@ -188,7 +171,7 @@ export function PageOperateur({
           </Alert>
         )}
         {droits.personnelBnia && !fiche.codeConforme && (
-          <Alert>
+          <Alert variant='warning'>
             <TriangleAlert />
             <AlertTitle>Code non conforme</AlertTitle>
             <AlertDescription className='flex flex-wrap items-center gap-2'>
@@ -208,31 +191,36 @@ export function PageOperateur({
         )}
       </div>
       <Tabs defaultValue={onglet}>
-        <TabsList className='flex-wrap'>
-          <TabsTrigger value='general'>
-            {bnia ? 'Fiche' : 'Général'}
-          </TabsTrigger>
+        {/* Deux groupes d'onglets : la fiche, qui décrit l'opérateur, et son activité. */}
+        <div className='flex flex-wrap items-end gap-x-8 gap-y-4'>
+          <GroupeOnglets libelle={bnia ? undefined : "Fiche de l'opérateur"}>
+            <TabsTrigger value='general'>
+              {bnia ? 'Fiche' : 'Général'}
+            </TabsTrigger>
+            {avecAnnuaire && (
+              <TabsTrigger value='annuaire'>Contacts</TabsTrigger>
+            )}
+            {!bnia && (
+              <>
+                <TabsTrigger value='production'>Production</TabsTrigger>
+                <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
+                <TabsTrigger value='diffusion'>Statistiques</TabsTrigger>
+              </>
+            )}
+          </GroupeOnglets>
           {!bnia && (
-            <>
-              <TabsTrigger value='production'>Production</TabsTrigger>
-              <TabsTrigger value='diffusion'>
-                Diffusion et statistiques
-              </TabsTrigger>
-              <TabsTrigger value='marques'>Marques</TabsTrigger>
-              <TabsTrigger value='visites'>Visites et labels</TabsTrigger>
-              <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
-            </>
+            <GroupeOnglets libelle='Suivi des activités'>
+              {avecDeclarations && (
+                <TabsTrigger value='declarations'>
+                  Stocks & Mouvements
+                </TabsTrigger>
+              )}
+              <TabsTrigger value='contrats'>Contrats</TabsTrigger>
+              <TabsTrigger value='exportations'>Exportations</TabsTrigger>
+              {bo && <TabsTrigger value='factures'>Factures</TabsTrigger>}
+            </GroupeOnglets>
           )}
-          {avecDeclarations && (
-            <TabsTrigger value='declarations'>Déclarations</TabsTrigger>
-          )}
-          {avecAnnuaire && (
-            <>
-              <TabsTrigger value='annuaire'>Annuaire</TabsTrigger>
-              <TabsTrigger value='journal'>Journal</TabsTrigger>
-            </>
-          )}
-        </TabsList>
+        </div>
         <TabsContent value='general'>
           <OngletGeneral
             espace={espace}
@@ -245,6 +233,7 @@ export function PageOperateur({
             <TabsContent value='production'>
               <OngletProduction
                 fiche={fiche}
+                presentation={presentation}
                 onEnregistre={enregistre(rafraichir)}
               />
             </TabsContent>
@@ -255,14 +244,11 @@ export function PageOperateur({
                 onEnregistre={enregistre(rafraichir)}
               />
             </TabsContent>
-            <TabsContent value='marques'>
-              <SectionMarques presentation={presentation} />
-            </TabsContent>
-            <TabsContent value='visites'>
-              <SectionVisitesLabels presentation={presentation} />
-            </TabsContent>
             <TabsContent value='oenotourisme'>
-              <SectionOenotourisme presentation={presentation} />
+              <SectionOenotourisme
+                presentation={presentation}
+                modifiable={droits.contacts === 'GESTION'}
+              />
             </TabsContent>
           </>
         )}
@@ -276,13 +262,28 @@ export function PageOperateur({
           </TabsContent>
         )}
         {avecAnnuaire && (
+          <TabsContent value='annuaire'>
+            <OngletAnnuaire
+              espace={espace}
+              operateur={id}
+              droits={droits}
+              avecJournal
+            />
+          </TabsContent>
+        )}
+        {!bnia && (
           <>
-            <TabsContent value='annuaire'>
-              <OngletAnnuaire espace={espace} operateur={id} droits={droits} />
+            <TabsContent value='contrats'>
+              <AVenir titre='Contrats' />
             </TabsContent>
-            <TabsContent value='journal'>
-              <OngletJournal operateur={id} />
+            <TabsContent value='exportations'>
+              <AVenir titre='Exportations' />
             </TabsContent>
+            {bo && (
+              <TabsContent value='factures'>
+                <OngletFactures operateur={id} />
+              </TabsContent>
+            )}
           </>
         )}
       </Tabs>
@@ -316,6 +317,38 @@ export function PageOperateur({
         handleConfirm={() => action && etat.mutate(action)}
       />
     </PageMetier>
+  )
+}
+
+/** Une barre d'onglets, sous le libellé de son groupe ; sans libellé quand elle est seule (fiche du BNIA). */
+function GroupeOnglets({
+  libelle,
+  children,
+}: {
+  libelle?: string
+  children: ReactNode
+}) {
+  return (
+    <div className='space-y-1.5'>
+      {libelle && (
+        <div className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
+          {libelle}
+        </div>
+      )}
+      <TabsList className='flex-wrap'>{children}</TabsList>
+    </div>
+  )
+}
+
+/** Un onglet réservé à un contexte pas encore livré (contrats, suivis de sortie export). */
+function AVenir({ titre }: { titre: string }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{titre}</CardTitle>
+      </CardHeader>
+      <CardContent className='text-muted-foreground'>À venir.</CardContent>
+    </Card>
   )
 }
 

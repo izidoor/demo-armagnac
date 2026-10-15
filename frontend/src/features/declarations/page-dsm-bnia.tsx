@@ -76,7 +76,7 @@ type Vue = 'en-cours' | 'validees' | 'facturees'
  * « tous » par défaut), validées (sans facture, donc à facturer), facturées (projection des factures,
  * RG-DEC-34). Total HT, calculé ou facturé. Filtres opérateur, type et mois. Une ligne ouvre la DSM.
  * Lot 7 : échéance et retard de chaque ligne ; la période attendue d'un opérateur sans DSM est une ligne
- * « absente » de l'onglet « En cours », qui ouvre l'onglet « Déclarations » de sa fiche (RG-DEC-39, 40).
+ * « absente » de l'onglet « En cours », qui ouvre l'onglet « Stocks & Mouvements » de sa fiche (RG-DEC-39, 40).
  * Spec 08 : dans « Validées », une sélection se facture d'un coup (RG-DEC-43) ; une DSM dont la facture est
  * demandée passe dans « Facturées », badge « Brouillon » (décision du 2026-10-14).
  */
@@ -136,7 +136,7 @@ export function PageDsmBnia() {
       to: '/bo/operateurs/$id/dsm/$dsm',
       params: { id: String(operateurId), dsm: String(id) },
     })
-  // Une période absente n'a pas de DSM : elle ouvre l'onglet « Déclarations » de la fiche opérateur.
+  // Une période absente n'a pas de DSM : elle ouvre l'onglet « Stocks & Mouvements » de la fiche opérateur.
   const ouvrirLigne = (d: DsmListee) =>
     d.id == null
       ? navigate({

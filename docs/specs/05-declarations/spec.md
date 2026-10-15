@@ -275,8 +275,8 @@ interruption (H-DEC-10, H-DEC-14, décision du 2026-10-13).
 | action | liste fermée (RG-DEC-23) | |
 | détail | texte court | Nom de fichier, mois de DRM, type de pièce, format d'édition… ; jamais de valeurs avant et après |
 
-L'historique d'une DSM (panneau latéral) affiche ses entrées ; l'onglet « Déclarations » de la fiche
-opérateur, toutes les siennes (décision du 2026-10-13).
+L'historique d'une DSM (panneau latéral) affiche ses entrées ; l'onglet « Stocks & Mouvements » de la
+fiche opérateur, toutes les siennes (décision du 2026-10-13).
 
 ### 3.5 Grille de cotisation (agrégat `GrilleCotisation`, lot 4)
 
@@ -501,14 +501,16 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
   - *Stocks déclarés* (UC-DEC-1) : par opérateur et par ligne (clé, millésime ou dénomination, compte
     d'âge, stock, fin de période), filtres opérateur et type, total ; export Excel pour les douanes
     (lot 8).
-- **Fiche opérateur, nouvel onglet « Déclarations »** (producteur ou négociant ; remplace les blocs
-  « dernière DSM » et « historique des DSM » annoncés par la spec 02 §6.1) :
-  - *Point de départ* : début et lignes de stock initial ; fixer, modifier tant qu'il n'est pas figé
-    (lot 1), importer depuis le modèle Excel (lot 6) ; points de départ précédents en lecture et « fixer
-    un nouveau point de départ » (lot 7) ;
+- **Fiche opérateur, nouvel onglet « Stocks & Mouvements »** (producteur ou négociant ; remplace les
+  blocs « dernière DSM » et « historique des DSM » annoncés par la spec 02 §6.1 ; nommé « Déclarations »
+  jusqu'au 2026-10-15), chaque partie dans un cadre, dans cet ordre (décision du 2026-10-15) :
   - *DSM* : les DSM de l'opérateur, du plus récent au plus ancien, avec état ; ouverture (lot 1) ;
-  - *Journal* : toutes les entrées de l'opérateur, brouillons supprimés compris (lot 1) ;
-  - *Stock déclaré* : celui de l'opérateur (lot 8).
+  - « Stocks déclarés » : celui de l'opérateur (lot 8) ;
+  - « Stock initial » (le point de départ) : début et lignes de stock initial ; fixer, modifier tant
+    qu'il n'est pas figé (lot 1), importer depuis le modèle Excel (lot 6) ; « Stocks initiaux
+    précédents » en lecture et « Fixer un nouveau stock initial » (lot 7) ;
+  - « Journal des déclarations de stocks et mouvements », cadre dépliable, fermé par défaut : toutes
+    les entrées de l'opérateur, brouillons supprimés compris (lot 1).
 - **Menu « Paramétrage »**, nouvelle entrée *Cotisation > Taux CVO* : liste des taux (début, fin
   calculée, montant, pourcentage exonéré), ajout, modification, suppression ; module Paramétrage (lot 4).
 
@@ -756,3 +758,4 @@ Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsa
 | 2026-10-14 | Implémentation, lots 7 et 8 (ensemble) : décisions en séance. Démonstration du retard : Maison Larressingle part du mois précédent, en retard dès le 6 du mois ; Négoce des Landes reste au mois courant (échéance à venir) (§7.1). Nouveau point de départ : une ligne `NB` prend +1 par 1er avril franchi depuis la fin de la dernière DSM validée ; le compte d'âge `MB` est recalculé depuis son millésime à la nouvelle date, le millésime ne change pas (RG-DEC-09). Stocks déclarés de tous les opérateurs : lus par tout le personnel du BNIA, comme le listing (RG-DEC-01 amendée). Choix d'implémentation : une période n'est absente qu'une fois commencée ; une ligne « absente » du listing (onglet *En cours*, état « Absente », filtre « En retard seulement ») ouvre l'onglet « Déclarations » de la fiche opérateur ; échéance et retard sur la DSM, la situation du portail (bandeau, masqué quand la DSM attend le BNIA), les listings et les éditions PDF et Excel (RG-DEC-35, reporté du lot 5). `DetecterRetards` sans acteur (seul le planificateur l'appelle, cron `bnia.declarations.detection-retards`, 6 h, coupé dans les IT), table `retard_signale` ; l'événement cite la DSM en brouillon ou en compléments demandés. Nouveau point de départ : « Fixer un nouveau point de départ » sur la fiche quand le point en vigueur est figé et qu'aucune DSM n'est en cours ; le stock proposé se recalcule à la date choisie ; l'import Excel du stock initial fixe aussi un nouveau point dans ce cas ; le journal note l'interruption (« après une interruption du … au … »). Stocks déclarés : lignes finies à 0 omises ; export Excel (une ligne par ligne de stock, opérateur, fin de période, volumes au masque hl.l,cl, total en formule) ; section « Stock déclaré » de la fiche ; une ligne du listing ouvre la DSM dont elle est tirée. `EtatDsm`, `Cote` et `CleConditionnement` passent dans la partie publiée (`domain.partage`) pour `DerniereDsmVue` et `StockDeclareVue` (lève l'écart du lot 4) ; `CotisationsPubliees` devient `DeclarationsPubliees`. |
 | 2026-10-14 | Révision par la spec 08 (lot 1b) : UC-DEC-10 livré dans ce contexte (RG-DEC-43, nouvelle) ; RG-DEC-34 révisée (facture vivante, brouillon demandé dans la projection) ; articles de cotisation publiés à `facturation` ; port `Facturation` ; `FactureEmise`, `AvoirEmis` et `CotisationDsmVue` retirés de la partie publiée, `DeclarationsLecture.cotisation` supprimée (ADR-021) ; journal « Facturation demandée », « Facture émise » ; action « Facturer » sur la DSM, sélection dans *Validées*, badge « Brouillon » dans *Facturées* ; démonstration : deux DSM validées pour Armagnacs de Gascogne. Choix d'implémentation : le refus d'une DSM la désigne par « opérateur, DSM période » ; une cotisation nulle se refuse (rien à facturer) ; le libellé de période élide « de » devant une voyelle (« DSM d'octobre 2026 ») ; un avoir reçu s'enregistre par le cas d'usage, son écouteur viendra avec `AvoirEmis` (spec 08 lot 4). |
 | 2026-10-15 | Revue de l'utilisateur (RG-DEC-43) : l'écran annonce un opérateur non facturable avant le refus du serveur. Listing : `operateurFacturable` sur chaque ligne (lecture groupée `OperateursLecture.facturables`, une requête de plus), icône « attention » ; sélection qui en compte : dialogue, seules les autres sont facturées (la règle « toute ou rien » du serveur ne change pas). Vue de la DSM : `manquePourFacturer`, rempli seulement quand « Facturer » est offert ; bandeau et bouton désactivé. |
+| 2026-10-15 | Écrans (demande de l'utilisateur) : l'onglet « Déclarations » de la fiche opérateur devient « Stocks & Mouvements » ; point de départ, points précédents, stock déclaré et DSM chacun dans un cadre ; le journal dans un cadre dépliable, fermé par défaut, « Journal des déclarations de stocks et mouvements » (§6.1). Ordre : DSM, « Stocks déclarés », « Stock initial » (titre du cadre du point de départ ; le terme du glossaire ne change pas), « Stocks initiaux précédents », journal ; les boutons et les titres de leurs dialogues disent aussi « stock initial » (« Fixer le stock initial », « Modifier le stock initial », « Fixer un nouveau stock initial »). |

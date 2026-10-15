@@ -20,18 +20,18 @@ export function OngletsClasseur({
   children: React.ReactNode
 }) {
   return (
-    <Tabs value={value} onValueChange={onValueChange} className='gap-0'>
-      <TabsList className='h-auto w-full justify-start gap-0.5 overflow-x-auto rounded-none bg-transparent p-0 ps-2'>
+    <Tabs value={value} onValueChange={onValueChange} className='mt-0 gap-0'>
+      <TabsList className='h-auto w-full justify-start gap-0.5 overflow-x-auto rounded-none border-0 bg-transparent p-0 ps-2'>
         {onglets.map((o) => (
           <TabsTrigger
             key={o.valeur}
             value={o.valeur}
             className={cn(
-              'relative -mb-px h-auto flex-none rounded-t-sm rounded-b-none border border-b-0 px-5 py-2.5 text-base',
+              'relative -mb-px h-auto flex-none rounded-t-sm rounded-b-none border border-b-0 px-5 py-2.5 text-base font-medium tracking-normal normal-case [font-variant-caps:normal] before:hidden data-[state=active]:font-medium',
               'bg-muted/60 text-muted-foreground border-border/60 hover:bg-muted hover:text-foreground',
               'data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:border-border data-[state=active]:z-10 data-[state=active]:shadow-none',
               'data-[state=active]:border-t-primary data-[state=active]:border-t-2',
-              'dark:data-[state=active]:bg-card dark:data-[state=active]:border-border dark:data-[state=active]:border-t-primary dark:text-muted-foreground'
+              'dark:data-[state=active]:bg-card dark:data-[state=active]:text-foreground dark:data-[state=active]:border-border dark:data-[state=active]:border-t-primary dark:text-muted-foreground'
             )}
           >
             {o.libelle}
