@@ -305,6 +305,7 @@ que la `CVO`, toujours en €/hlAP ; le taux de fin de travaux appartient à `di
 | Vue de la DSM | DSM, anomalies, cotisation, « à facturer », « facturation demandée » (avec la pièce du brouillon) ou « facturée » lus dans la projection des factures, TVA indicative (RG-DEC-34, 43, A-DEC-4) | 1, 4, spec 08 |
 | Listing des DSM | Filtres : opérateur, type, période, état, en retard, absente (RG-DEC-40) | 2, 7 |
 | Stock déclaré | Colonne 26 de la dernière DSM validée de chaque opérateur, par ligne, datée de sa fin de période (RG-DEC-42) | 8 |
+| Historique des stocks déclarés | Stock déclaré de chaque opérateur à chaque fin de mois écoulée d'une année déclarative, par ligne, avec sa DSM d'origine (RG-DEC-44) | 8 (révision) |
 
 Le stock estimé, les engagements, le stock disponible et le bilan prévisionnel (analyse UC-DEC-2, §4.3)
 sont livrés avec `contratsarmagnac` et `distillation` ; leur contrat d'interface est décrit en §5.2.
@@ -381,6 +382,7 @@ module Paramétrage (décision du 2026-10-13).
 | RG-DEC-41 | Un traitement planifié quotidien publie `DeclarationEnRetard` une seule fois par période en retard, le lendemain de l'échéance. | §4.4.8 p.27, analyse §4.1, H-DEC-6 | 7 |
 | **Stocks** | | | |
 | RG-DEC-42 | Le stock déclaré d'un opérateur est le stock de fin (colonne 26) de sa dernière DSM validée, ligne par ligne, daté de la fin de sa période ; sans DSM validée, il n'en a pas. | analyse UC-DEC-1, §4.10.5 p.49 | 8 |
+| RG-DEC-44 | Les stocks déclarés s'interrogent par année déclarative (du 1er avril au 31 mars), l'année en cours par défaut, une seule à la fois : ils ne se cumulent jamais d'une année à l'autre. À chaque fin de mois écoulée de l'année, un opérateur compte pour le stock de fin de sa dernière DSM validée de cette année finie à cette date, lignes nulles omises : un négociant sans DSM validée pour le mois garde celui du mois précédent, un producteur n'apparaît qu'au 31 mars. Seuls les stocks déclarés comptent, sans vieillissement ni prévision. Un stock à une date ne s'additionne pas avec celui d'une autre date : la date du stock est une dimension du tableau croisé, ou réduite à une seule date. | décision du 2026-10-15 | 8 (révision) |
 | **Facturation** | | | |
 | RG-DEC-43 | Facturer une DSM, ou une sélection de DSM, est réservé à qui gère la facturation au BNIA (spec 08 §3.12). Chaque DSM est validée, sans facture vivante (RG-DEC-34), d'un opérateur facturable (RG-OPE-02), et sa cotisation est calculable et non nulle ; sinon le refus nomme la DSM et la raison (pour un opérateur non facturable, ce qui lui manque). Une sélection se facture toute ou pas du tout. L'écran l'annonce avant : le listing marque l'opérateur non facturable, la DSM dit ce qui lui manque et désactive « Facturer », et une sélection qui en compte n'en facture, après confirmation, que les autres (décision du 2026-10-15). Chaque DSM devient une demande de facture (spec 08 §3.13) : origine `declarations`/`DSM` (« DSM juillet 2026 »), client = l'opérateur, date de l'opération = fin de période, « 30 jours fin de mois » (H-FAC-3), un groupe par famille de lignes de cotisation, deux lignes article par ligne de volume non nul (H-FAC-5), note de pied (H-FAC-6). Le brouillon rendu entre dans la projection ; journal « Facturation demandée », puis « Facture émise » à la réception de `FactureEmise`. | spec 08 §3.13, UC-DEC-10 ; décision du 2026-10-14 | spec 08 |
 
@@ -498,9 +500,22 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
     les onglets ; si la sélection compte de ses DSM, un dialogue les nomme, annonce qu'elles ne seront pas
     facturées, et « Facturer N DSM » ne facture que les autres (rien si aucune ne l'est) (décision du
     2026-10-15).
-  - *Stocks déclarés* (UC-DEC-1) : par opérateur et par ligne (clé, millésime ou dénomination, compte
-    d'âge, stock, fin de période), filtres opérateur et type, total ; export Excel pour les douanes
-    (lot 8).
+  - *Stocks déclarés* (UC-DEC-1), deux onglets indépendants, chacun avec ses filtres (décisions du
+    2026-10-15) :
+    - *Données* : le listing du lot 8, par opérateur et par ligne (clé, millésime ou dénomination, compte
+      d'âge, stock, fin de période) ; recherche, tri et filtre par valeurs sur chaque colonne, total des
+      lignes affichées ; une ligne ouvre sa DSM ; export Excel pour les douanes, de toutes les lignes
+      (RG-DEC-42) ;
+    - *Analyse* : tableau croisé dynamique et graphique d'une année déclarative, l'année en cours par
+      défaut (RG-DEC-44). Champs :
+    date du stock (fin de mois, non cumulable), opérateur, type, clé, millésime ou dénomination, compte
+    d'âge, DSM d'origine ; mesure : stock en L AP. L'utilisateur glisse les champs vers les zones
+    *Lignes*, *Colonnes* et *Filtres* (ou clique un champ pour le mettre en lignes), choisit les valeurs
+    d'un filtre, ou part d'une vue prédéfinie (par compte d'âge, évolution mois par mois, par millésime ou
+    dénomination, par opérateur, par type) ; sa dernière composition est retenue par le navigateur. Les
+    lignes se déplient avec leurs sous-totaux, les colonnes se trient ; aucun total ne cumule deux dates.
+    Le graphique suit le tableau : courbe quand la date est en colonnes ou au premier niveau des lignes,
+    histogramme empilé sinon. Filtres année, opérateur et type ; export Excel du tableau affiché.
 - **Fiche opérateur, nouvel onglet « Stocks & Mouvements »** (producteur ou négociant ; remplace les
   blocs « dernière DSM » et « historique des DSM » annoncés par la spec 02 §6.1 ; nommé « Déclarations »
   jusqu'au 2026-10-15), chaque partie dans un cadre, dans cet ordre (décision du 2026-10-15) :
@@ -516,10 +531,17 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
 
 ### 6.2 Portail (opérateur actif : producteur ou négociant)
 
-- **Menu « Déclarations »**, entrée *Mes DSM* : les DSM de l'opérateur actif (période, état, envoyée le,
-  validée le ; total HT au lot 4) ; bouton « Initier la DSM de <période> », ou la raison qui l'empêche
-  (pas de point de départ, DSM précédente non validée, période pas commencée, statut de déclaration) ;
-  le point de départ en lecture ; bandeau de l'échéance et du retard (lot 7).
+- **Menu « Déclarations »**, entrée *DSM* (« Mes DSM » jusqu'au 2026-10-15) : les DSM de l'opérateur
+  actif (période, état, envoyée le, validée le ; total HT au lot 4), dans un cadre « Mes déclarations » ;
+  bouton « Initier la DSM de <période> », ou la raison qui l'empêche (pas de point de départ, DSM
+  précédente non validée, période pas commencée, statut de déclaration) ; le point de départ en lecture,
+  dans un cadre dépliable « Stock initial », fermé par défaut ; bandeau de l'échéance et du retard
+  (lot 7).
+- **Menu « Déclarations »**, entrée *Stocks déclarés* (décision du 2026-10-15), pour tout lecteur des
+  déclarations de l'opérateur actif (RG-DEC-01), en deux onglets indépendants : *Données*, son stock
+  déclaré, ligne par ligne (RG-DEC-42), avec un lien vers sa DSM, en table triable et filtrable comme au
+  back-office ; *Analyse*, le tableau croisé et le graphique du back-office
+  (§6.1), réduits à l'opérateur (sans les champs opérateur et type ; RG-DEC-44).
 - **Écran d'une DSM** (§6.3), sans commentaires internes ni actions du BNIA.
 
 ### 6.3 Écran d'une DSM (commun)
@@ -727,7 +749,7 @@ RG qui portent son numéro (§4) ; il s'appuie sur les lots précédents, jamais
 | 5 | **Édition PDF** | PDF de la DSM, dans tous les états. RG-DEC-35. | L'opérateur et le BNIA téléchargent le PDF d'une DSM provisoire puis validée. |
 | 6 | **Excel : édition et import** | Édition Excel réimportable ; import tout ou rien sur une DSM et sur un stock initial. RG-DEC-36 à 38. | L'opérateur télécharge son brouillon en Excel, le remplit, le réimporte ; un fichier erroné est refusé avec ses erreurs. |
 | 7 | **Échéances et retards** | Échéances, période attendue, DSM absentes et en retard dans le listing ; traitement planifié et `DeclarationEnRetard` ; nouveau point de départ après une interruption. RG-DEC-09, 39 à 41. | Le listing montre les opérateurs en retard ; l'événement part le lendemain de l'échéance ; un opérateur sorti de sommeil repart d'un nouveau point de départ. |
-| 8 | **Stocks déclarés** | Stock déclaré d'un opérateur et de tous (UC-DEC-1) ; lecture publiée de la dernière DSM et du stock déclaré (fiche opérateur). RG-DEC-42. | Le BNIA exporte l'état des stocks déclarés pour les douanes. |
+| 8 | **Stocks déclarés** | Stock déclaré d'un opérateur et de tous (UC-DEC-1) ; lecture publiée de la dernière DSM et du stock déclaré (fiche opérateur). RG-DEC-42 ; révision du 2026-10-15 : historique par année déclarative en tableau croisé dynamique, au back-office et au portail, RG-DEC-44. | Le BNIA exporte l'état des stocks déclarés pour les douanes ; il compose l'évolution mois par mois du stock par compte d'âge et l'exporte. |
 
 Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsarmagnac` et
 `distillation`), facturation (UC-DEC-10, avec `facturation`), envoi des notifications (avec
@@ -760,3 +782,4 @@ Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsa
 | 2026-10-15 | Revue de l'utilisateur (RG-DEC-43) : l'écran annonce un opérateur non facturable avant le refus du serveur. Listing : `operateurFacturable` sur chaque ligne (lecture groupée `OperateursLecture.facturables`, une requête de plus), icône « attention » ; sélection qui en compte : dialogue, seules les autres sont facturées (la règle « toute ou rien » du serveur ne change pas). Vue de la DSM : `manquePourFacturer`, rempli seulement quand « Facturer » est offert ; bandeau et bouton désactivé. |
 | 2026-10-15 | Écrans (demande de l'utilisateur) : l'onglet « Déclarations » de la fiche opérateur devient « Stocks & Mouvements » ; point de départ, points précédents, stock déclaré et DSM chacun dans un cadre ; le journal dans un cadre dépliable, fermé par défaut, « Journal des déclarations de stocks et mouvements » (§6.1). Ordre : DSM, « Stocks déclarés », « Stock initial » (titre du cadre du point de départ ; le terme du glossaire ne change pas), « Stocks initiaux précédents », journal ; les boutons et les titres de leurs dialogues disent aussi « stock initial » (« Fixer le stock initial », « Modifier le stock initial », « Fixer un nouveau stock initial »). |
 | 2026-10-15 | Révision par la spec 08 (lot 2) : RG-DEC-34 complétée (brouillon abandonné dans `facturation`, reçu par `FactureAbandonnee` : il quitte la projection, la DSM redevient à facturer) ; action de journal « Facturation abandonnée » ; démonstration : onze DSM validées pour Armagnacs de Gascogne, dix à facturer. |
+| 2026-10-15 | Révision des stocks déclarés (demande de l'utilisateur, avant le lot 5 de la spec 08) : tableau croisé dynamique et graphique au back-office et au portail (§6.1, §6.2), RG-DEC-44. Décisions en séance : composant maison sur TanStack Table et Recharts, réutilisé pour les ventes de la facturation ; composition par glisser-déposer, à la Excel ; vues prédéfinies et dernière composition retenue par le navigateur, rien côté serveur ; seuls les stocks déclarés (certains), sans vieillissement ni prévision ; interrogation par année déclarative (1er avril – 31 mars), jamais de cumul d'une année à l'autre ; à chaque fin de mois, le stock de la dernière DSM validée de l'année finie à cette date. Choix d'implémentation : `AnneeDeclarative` (domaine ; « campagne » désigne au glossaire la campagne de distillation) ; endpoints `GET /api/declarations/stocks/historique` (BO, filtres année, opérateur, type) et `GET /api/operateurs/{operateur}/stock-declare/historique` (portail), réponse `HistoriqueStocks` avec les années disponibles (celles qui ont une DSM validée, et l'année en cours) ; le report est calculé par le cas d'usage ; la date du stock est un champ non cumulable (en lignes, en colonnes, ou réduite à une date, la dernière par défaut) ; export du tableau affiché écrit dans le navigateur (`write-excel-file`) ; deux onglets indépendants, chacun avec ses filtres, au back-office comme au portail : *Données* (le listing du lot 8, ou le stock de la dernière DSM validée au portail, avec l'export pour les douanes au back-office) et *Analyse* (le tableau croisé). Menu du portail : « Mes DSM » devient « DSM », entrée « Stocks déclarés » ajoutée. |

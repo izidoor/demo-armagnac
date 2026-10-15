@@ -602,6 +602,50 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/declarations/stocks/historique" : {
+      "get" : {
+        "operationId" : "historiqueStocksDeclares",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "annee",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HistoriqueStocks"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les stocks déclarés de tous les opérateurs à chaque fin de mois écoulée d'une année déclarative (l'année en cours par défaut), filtrés par opérateur et type (RG-DEC-01, 44)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/declarations/taux-cvo" : {
       "get" : {
         "operationId" : "listerTauxCvo",
@@ -4458,6 +4502,42 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/operateurs/{operateur}/stock-declare/historique" : {
+      "get" : {
+        "operationId" : "historiqueStockDeclare",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "annee",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/HistoriqueStocks"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le stock déclaré de l'opérateur à chaque fin de mois écoulée d'une année déclarative, l'année en cours par défaut (RG-DEC-01, 44)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/referentiels/centres-interet" : {
       "get" : {
         "operationId" : "listerCentresInteret",
@@ -7783,6 +7863,31 @@
         },
         "required" : [ "type" ]
       },
+      "AnneeDeclarative" : {
+        "type" : "object",
+        "description" : "Du 1er avril au 31 mars (RG-DEC-44)",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "debutAnnee" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Année de son 1er avril",
+            "example" : 2026
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "2026-2027"
+          }
+        },
+        "required" : [ "debut", "debutAnnee", "fin", "libelle" ]
+      },
       "AnomalieDsm" : {
         "type" : "object",
         "description" : "Anomalie de calcul, bloquante à l'envoi (RG-DEC-18)",
@@ -9172,6 +9277,29 @@
           }
         },
         "required" : [ "centresInteret", "id", "operateur", "type", "version" ]
+      },
+      "HistoriqueStocks" : {
+        "type" : "object",
+        "description" : "Les stocks déclarés d'une année déclarative, à chaque fin de mois écoulée (RG-DEC-44)",
+        "properties" : {
+          "annee" : {
+            "$ref" : "#/components/schemas/AnneeDeclarative"
+          },
+          "anneesDisponibles" : {
+            "type" : "array",
+            "description" : "Les années qui ont une DSM validée, et l'année en cours, de la plus récente à la plus ancienne",
+            "items" : {
+              "$ref" : "#/components/schemas/AnneeDeclarative"
+            }
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StockALaDate"
+            }
+          }
+        },
+        "required" : [ "annee", "anneesDisponibles", "lignes" ]
       },
       "ImportRefuse" : {
         "type" : "object",
@@ -11732,6 +11860,68 @@
           }
         },
         "required" : [ "enRetard", "initiable", "message" ]
+      },
+      "StockALaDate" : {
+        "type" : "object",
+        "description" : "Une ligne du stock déclaré d'un opérateur à une fin de mois : celle de sa dernière DSM validée finie à cette date (RG-DEC-44)",
+        "properties" : {
+          "au" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "La fin de mois"
+          },
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "codeOperateur" : {
+            "type" : "string",
+            "example" : "N320001"
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "dsm" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "La DSM dont la ligne est tirée"
+          },
+          "finDsm" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Fin de la période de la DSM"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "operateur" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "periodeDsm" : {
+            "type" : "string",
+            "example" : "juillet 2026"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "stock" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
+          }
+        },
+        "required" : [ "au", "cle", "codeOperateur", "compte", "dsm", "finDsm", "operateur", "periodeDsm", "raisonSociale", "stock", "type" ]
       },
       "StockDeclare" : {
         "type" : "object",

@@ -63,6 +63,19 @@ export type Alambic = {
 };
 
 /**
+ * Du 1er avril au 31 mars (RG-DEC-44)
+ */
+export type AnneeDeclarative = {
+    debut: string;
+    /**
+     * Année de son 1er avril
+     */
+    debutAnnee: number;
+    fin: string;
+    libelle: string;
+};
+
+/**
  * Anomalie de calcul, bloquante à l'envoi (RG-DEC-18)
  */
 export type AnomalieDsm = {
@@ -877,6 +890,18 @@ export type FicheProfessionnelle = {
      */
     version: number;
     ville?: string;
+};
+
+/**
+ * Les stocks déclarés d'une année déclarative, à chaque fin de mois écoulée (RG-DEC-44)
+ */
+export type HistoriqueStocks = {
+    annee: AnneeDeclarative;
+    /**
+     * Les années qui ont une DSM validée, et l'année en cours, de la plus récente à la plus ancienne
+     */
+    anneesDisponibles: Array<AnneeDeclarative>;
+    lignes: Array<StockALaDate>;
 };
 
 /**
@@ -2373,6 +2398,43 @@ export type SituationDsm = {
 };
 
 /**
+ * Une ligne du stock déclaré d'un opérateur à une fin de mois : celle de sa dernière DSM validée finie à cette date (RG-DEC-44)
+ */
+export type StockALaDate = {
+    /**
+     * La fin de mois
+     */
+    au: string;
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    codeOperateur: string;
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * La DSM dont la ligne est tirée
+     */
+    dsm: number;
+    /**
+     * Fin de la période de la DSM
+     */
+    finDsm: string;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    operateur: number;
+    periodeDsm: string;
+    raisonSociale: string;
+    /**
+     * Litres d'alcool pur
+     */
+    stock: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+};
+
+/**
  * Le stock déclaré d'un opérateur : le stock de fin de sa dernière DSM validée, ligne par ligne, lignes nulles omises (RG-DEC-42)
  */
 export type StockDeclare = {
@@ -2815,6 +2877,26 @@ export type ExporterStocksDeclaresResponses = {
 };
 
 export type ExporterStocksDeclaresResponse = ExporterStocksDeclaresResponses[keyof ExporterStocksDeclaresResponses];
+
+export type HistoriqueStocksDeclaresData = {
+    body?: never;
+    path?: never;
+    query?: {
+        annee?: number;
+        operateur?: number;
+        type?: 'PRODUCTEUR' | 'NEGOCIANT';
+    };
+    url: '/api/declarations/stocks/historique';
+};
+
+export type HistoriqueStocksDeclaresResponses = {
+    /**
+     * OK
+     */
+    200: HistoriqueStocks;
+};
+
+export type HistoriqueStocksDeclaresResponse = HistoriqueStocksDeclaresResponses[keyof HistoriqueStocksDeclaresResponses];
 
 export type ListerTauxCvoData = {
     body?: never;
@@ -4812,6 +4894,26 @@ export type ConsulterStockDeclareResponses = {
 };
 
 export type ConsulterStockDeclareResponse = ConsulterStockDeclareResponses[keyof ConsulterStockDeclareResponses];
+
+export type HistoriqueStockDeclareData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        annee?: number;
+    };
+    url: '/api/operateurs/{operateur}/stock-declare/historique';
+};
+
+export type HistoriqueStockDeclareResponses = {
+    /**
+     * OK
+     */
+    200: HistoriqueStocks;
+};
+
+export type HistoriqueStockDeclareResponse = HistoriqueStockDeclareResponses[keyof HistoriqueStockDeclareResponses];
 
 export type ListerCentresInteretData = {
     body?: never;

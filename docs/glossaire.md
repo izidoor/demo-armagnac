@@ -71,6 +71,7 @@
 | DSM | `DeclarationStocksMouvements` | Déclaration de stocks et mouvements d'un opérateur pour une période. Format unique producteur/négociant : 5 onglets, 26 colonnes numérotées. L'opérateur l'initie, la remplit et l'envoie ; le BNIA l'instruit et la valide, ce qui la fige. | p.22-24, spec 05 |
 | Périodicité DSM | `PeriodiciteDsm` | Mensuelle, trimestrielle, semestrielle ou annuelle, portée par la fiche opérateur. Sans effet dans le prototype : la période découle du type (`PeriodeDeclaration`). | p.28, 101, spec 05 §2.2 |
 | Statut de déclaration de stock | `StatutDeclarationStock` | `OUI`, `NON`, `SOMMEIL`, `CLOTURE`, sur la fiche opérateur. Seul `OUI` rend une DSM attendue (H-OPE-2). | p.102 |
+| Année déclarative | `AnneeDeclarative` | Du 1er avril au 31 mars (« 2026-2027 ») : l'année de la période d'un producteur, au début de laquelle le stock vieillit. Les stocks déclarés s'interrogent une année à la fois, sans cumul d'une année à l'autre. À ne pas confondre avec la campagne de distillation. | spec 05 RG-DEC-44 |
 | Période de déclaration | `PeriodeDeclaration` | Du 1er avril au 31 mars pour un producteur, mois civil pour un négociant. Commence le lendemain de la dernière DSM validée, ou au point de départ. Ni chevauchement, ni trou. | p.22, spec 05 RG-DEC-03, 04 |
 | Point de départ déclaratif | `PointDeDepartDeclaratif` | Début de la première période d'un opérateur et son stock initial, ligne par ligne, fixés par le BNIA ; modifiable tant que la première DSM qui en est issue n'est pas validée ; un nouveau peut être fixé après une interruption. | spec 05 §3.3 |
 | Échéance | — | Date limite d'envoi d'une DSM : le 5 du mois qui suit la période (négociant), le 30 avril qui suit (producteur). | spec 05 RG-DEC-39 |
@@ -88,7 +89,7 @@
 | DAE / DAI | `Dae`, `Dai` | Document d'accompagnement électronique ; document annuel d'inventaire. | p.96 |
 | DIA | — | Déclaration d'inventaire annuel déposée aux douanes ; les pertes de la colonne 10 en reprennent le détail, sa date est portée par la DSM (le CDC écrit « DAI » en C.3.2.5). | p.109, modèles Excel, spec 05 H-DEC-12 |
 | Signature de la DSM | `SignatureDsm` | Validation par l'opérateur d'un PDF signé via un service tiers. Hors périmètre du prototype (décision du 2026-10-12). | p.66 |
-| Stock déclaré | — | Stock de fin de la dernière DSM validée d'un opérateur, ligne par ligne, daté de sa fin de période. | spec 05 RG-DEC-42 |
+| Stock déclaré | — | Stock de fin de la dernière DSM validée d'un opérateur, ligne par ligne, daté de sa fin de période. À une fin de mois : celui de sa dernière DSM validée finie à cette date, dans la même année déclarative. | spec 05 RG-DEC-42, 44 |
 | Stock estimé | — | Stock déclaré vieilli à une date, plus les entrées connues depuis (achats retirés, fins de travaux du propriétaire), moins les ventes retirées. Livré avec `contratsarmagnac` et `distillation`. | spec 05 §5.2 |
 | Engagements | — | Volumes des contrats de vente validés, pas encore retirés. | spec 05 §5.2 |
 | Stock disponible | — | Stock estimé moins les engagements. | spec 05 §5.2 |

@@ -23,6 +23,14 @@ export const CLES: Record<CleConditionnement, string> = {
 export const millesimee = (cle: CleConditionnement) =>
   cle === 'MB' || cle === 'MV'
 
+/** Ordre de la grille des comptes d'âge : 00, 0, 1… 20+ ; un compte inattendu va à la fin. */
+export function rangCompte(compte: string) {
+  if (compte === '00') return -1
+  if (compte.endsWith('+')) return Number(compte.slice(0, -1)) + 0.5
+  const n = Number(compte)
+  return Number.isNaN(n) ? 1000 : n
+}
+
 export const TYPES_DECLARANT: Record<Dsm['type'], string> = {
   PRODUCTEUR: 'Producteur',
   NEGOCIANT: 'Négociant',
