@@ -1,11 +1,25 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ChevronRight, X } from 'lucide-react'
-import { listerPieces, type PieceListee } from '@/api/generated'
+import { ChevronRight, Send, X } from 'lucide-react'
+import {
+  emettreBrouillons,
+  listerPieces,
+  type CompteRenduEmission,
+  type PieceListee,
+} from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -17,12 +31,14 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ConfirmDialog } from '@/components/confirm-dialog'
 import { PageMetier } from '@/components/metier/page-metier'
 import {
   formatDate,
   formatDateHeure,
   formatEuros,
 } from '@/features/declarations/format'
+import { useDroits, useMoi } from '@/features/session/session'
 import { cleFacturation } from './api'
 import { SENS } from './libelles'
 
@@ -30,8 +46,9 @@ type OngletPieces = 'emises' | 'brouillons'
 
 /**
  * Factures du back-office (spec 08 §6.1, UC-FAC-4) : l'historique des pièces émises, filtré par numéro, acheteur,
- * période et date d'émission (RG-FAC-27), et l'onglet « Brouillons ». Filtrable sur un client par l'URL ; la
- * fiche opérateur a son propre onglet « Factures ». Une ligne ouvre la pièce.
+ * période et date d'émission (RG-FAC-27), et l'onglet « Brouillons », où qui gère la facturation sélectionne des
+ * brouillons à émettre ensemble, avec un compte rendu par brouillon (RG-FAC-19). Filtrable sur un client par
+ * l'URL ; la fiche opérateur a son propre onglet « Factures ». Une ligne ouvre la pièce.
  */
 export function PagePieces({
   client,
@@ -41,6 +58,15 @@ export function PagePieces({
   onglet: OngletPieces
 }) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { actif } = useMoi()
+  const gere = useDroits(actif?.operateur ?? 0)?.facturation === 'GESTION'
+  const [selection, setSelection] = useState<Set<number>>(new Set())
+  const [confirmation, setConfirmation] = useState(false)
+  const [emis, setEmis] = useState<{
+    comptesRendus: CompteRenduEmission[]
+    selection: PieceListee[]
+  }>()
   const [numero, setNumero] = useState('')
   const [acheteur, setAcheteur] = useState('')
   const [periode, setPeriode] = useState('')
@@ -64,6 +90,34 @@ export function PagePieces({
       listerPieces({ query: filtre, throwOnError: true }).then((r) => r.data),
   })
   const pieces = listing.data ?? []
+  // Le nombre de brouillons en attente, sans les filtres de saisie (seul le client de l'URL compte).
+  const filtreBrouillons = { client, etat: 'BROUILLON' as const }
+  const enAttente = useQuery({
+    queryKey: [...cleFacturation, 'pieces', filtreBrouillons],
+    queryFn: () =>
+      listerPieces({ query: filtreBrouillons, throwOnError: true }).then(
+        (r) => r.data
+      ),
+  }).data?.length
+  // Seuls les brouillons affichés comptent : un filtre en masque, une émission en retire.
+  const selectionnes = brouillons
+    ? pieces.filter((p) => selection.has(p.id))
+    : []
+  const emission = useMutation({
+    mutationFn: () =>
+      emettreBrouillons({
+        body: { ids: selectionnes.map((p) => p.id) },
+        throwOnError: true,
+      }).then((r) => r.data),
+    onSuccess: (resultat) => {
+      setConfirmation(false)
+      setSelection(new Set())
+      setEmis({ comptesRendus: resultat, selection: selectionnes })
+      queryClient.invalidateQueries({ queryKey: cleFacturation })
+      queryClient.invalidateQueries({ queryKey: ['declarations'] })
+    },
+    onError: () => setConfirmation(false),
+  })
   const changerOnglet = (o: string) =>
     navigate({
       to: '/bo/facturation',
@@ -78,8 +132,18 @@ export function PagePieces({
     >
       <Tabs value={onglet} onValueChange={changerOnglet} className='mb-4'>
         <TabsList>
+          <TabsTrigger value='brouillons'>
+            Brouillons
+            {enAttente != null && (
+              <Badge
+                variant={enAttente > 0 ? 'default' : 'secondary'}
+                className='ms-1 h-5 min-w-5 rounded-full px-1.5 tabular-nums'
+              >
+                {enAttente}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value='emises'>Émises</TabsTrigger>
-          <TabsTrigger value='brouillons'>Brouillons</TabsTrigger>
         </TabsList>
       </Tabs>
       <div className='mb-4 flex flex-wrap items-end gap-4'>
@@ -166,10 +230,41 @@ export function PagePieces({
           </>
         )}
       </div>
+      {brouillons && gere && (
+        <div className='mb-2 flex justify-end'>
+          <Button
+            disabled={selectionnes.length === 0 || emission.isPending}
+            onClick={() => setConfirmation(true)}
+          >
+            <Send className='size-4' /> Émettre la sélection
+            {selectionnes.length > 0 && ` (${selectionnes.length})`}
+          </Button>
+        </div>
+      )}
       <TablePieces
         pieces={pieces}
         brouillons={brouillons}
         chargement={listing.isPending}
+        selection={
+          brouillons && gere
+            ? { ids: selection, changer: (ids) => setSelection(new Set(ids)) }
+            : undefined
+        }
+      />
+      <ConfirmDialog
+        open={confirmation}
+        onOpenChange={setConfirmation}
+        title={`Émettre ${selectionnes.length} brouillon${selectionnes.length > 1 ? 's' : ''} ?`}
+        desc="Chacun reçoit le numéro suivant, dans l'ordre du tableau, et ne se modifiera plus. Un brouillon qui ne peut pas être émis est écarté sans arrêter les autres ; le compte rendu dira pourquoi."
+        confirmText='Émettre'
+        cancelBtnText='Annuler'
+        isLoading={emission.isPending}
+        handleConfirm={() => emission.mutate()}
+      />
+      <CompteRendu
+        comptesRendus={emis?.comptesRendus}
+        pieces={emis?.selection ?? []}
+        onFermer={() => setEmis(undefined)}
       />
     </PageMetier>
   )
@@ -184,18 +279,41 @@ export function TablePieces({
   brouillons,
   chargement,
   avecAcheteur = true,
+  selection,
 }: {
   pieces: PieceListee[]
   brouillons: boolean
   chargement: boolean
   avecAcheteur?: boolean
+  /** Des cases à cocher, pour émettre une sélection de brouillons (RG-FAC-19). */
+  selection?: { ids: Set<number>; changer: (ids: number[]) => void }
 }) {
   const navigate = useNavigate()
+  const coches = selection
+    ? pieces.filter((p) => selection.ids.has(p.id)).length
+    : 0
   return (
     <div className='rounded-md border'>
       <Table>
         <TableHeader>
           <TableRow>
+            {selection && (
+              <TableHead className='w-0'>
+                <Checkbox
+                  aria-label='Tout sélectionner'
+                  checked={
+                    coches > 0 && coches === pieces.length
+                      ? true
+                      : coches > 0
+                        ? 'indeterminate'
+                        : false
+                  }
+                  onCheckedChange={(v) =>
+                    selection.changer(v === true ? pieces.map((p) => p.id) : [])
+                  }
+                />
+              </TableHead>
+            )}
             {brouillons ? (
               <TableHead>Demandée le</TableHead>
             ) : (
@@ -217,7 +335,11 @@ export function TablePieces({
           {pieces.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={(brouillons ? 7 : 8) + (avecAcheteur ? 1 : 0)}
+                colSpan={
+                  (brouillons ? 7 : 8) +
+                  (avecAcheteur ? 1 : 0) +
+                  (selection ? 1 : 0)
+                }
                 className='text-muted-foreground h-16 text-center'
               >
                 {chargement
@@ -239,6 +361,21 @@ export function TablePieces({
                 })
               }
             >
+              {selection && (
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    aria-label={`Sélectionner ${p.reference ?? p.id}`}
+                    checked={selection.ids.has(p.id)}
+                    onCheckedChange={(v) =>
+                      selection.changer(
+                        v === true
+                          ? [...selection.ids, p.id]
+                          : [...selection.ids].filter((id) => id !== p.id)
+                      )
+                    }
+                  />
+                </TableCell>
+              )}
               {brouillons ? (
                 <TableCell>{formatDateHeure(p.creeeLe)}</TableCell>
               ) : (
@@ -299,5 +436,84 @@ export function TablePieces({
         </TableBody>
       </Table>
     </div>
+  )
+}
+
+/**
+ * RG-FAC-19 : le sort de chaque brouillon de la sélection, dans l'ordre : son numéro, ou le motif du refus. Les
+ * brouillons émis quittent le listing : on les nomme d'après la sélection, prise au moment de l'émission.
+ */
+function CompteRendu({
+  comptesRendus,
+  pieces,
+  onFermer,
+}: {
+  comptesRendus?: CompteRenduEmission[]
+  pieces: PieceListee[]
+  onFermer: () => void
+}) {
+  const emis = comptesRendus?.filter((c) => c.numero).length ?? 0
+  const ecartes = (comptesRendus?.length ?? 0) - emis
+  return (
+    <Dialog open={!!comptesRendus} onOpenChange={(o) => !o && onFermer()}>
+      <DialogContent className='sm:max-w-2xl'>
+        <DialogHeader>
+          <DialogTitle>Compte rendu de l'émission</DialogTitle>
+          <DialogDescription>
+            {emis} émis
+            {ecartes > 0 && `, ${ecartes} écarté${ecartes > 1 ? 's' : ''}`}.
+          </DialogDescription>
+        </DialogHeader>
+        <div className='max-h-96 overflow-y-auto rounded-md border'>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Brouillon</TableHead>
+                <TableHead>Résultat</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {comptesRendus?.map((c) => {
+                const piece = pieces.find((p) => p.id === c.id)
+                return (
+                  <TableRow key={c.id}>
+                    <TableCell>
+                      {piece ? (
+                        <>
+                          <span className='block'>{piece.acheteur}</span>
+                          <span className='text-muted-foreground text-xs'>
+                            {piece.reference}
+                          </span>
+                        </>
+                      ) : (
+                        `n° ${c.id}`
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {c.numero ? (
+                        <Link
+                          to='/bo/facturation/$id'
+                          params={{ id: String(c.id) }}
+                          className='font-mono font-medium underline-offset-4 hover:underline'
+                        >
+                          {c.numero}
+                        </Link>
+                      ) : (
+                        <span className='text-destructive text-sm'>
+                          {c.motif}
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
+        <DialogFooter>
+          <Button onClick={onFermer}>Fermer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

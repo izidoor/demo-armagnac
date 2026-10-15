@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.ElementIntrouvable;
+import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.facturation.domain.CoteJournal;
 import fr.bnia.facturation.domain.EntreeJournal;
 import fr.bnia.facturation.domain.EvenementJournal;
@@ -49,11 +50,28 @@ class ConsulterFacturesTest {
     }
 
     @Test
+    @DisplayName("RG-FAC-15 : un brouillon a un aperçu PDF, avec le vendeur s'il est paramétré, ni journalisé ni "
+            + "conservé ; une pièce émise n'en a pas")
+    void rg_fac_15_apercu() {
+        assertThat(new String(cas.apercu(Monde.LECTEUR, brouillon))).isEqualTo("%PDF-1.7 projet");
+        monde.vendeurs.vendeur = Exemples.vendeur();
+        assertThat(new String(cas.apercu(Monde.LECTEUR, brouillon))).isEqualTo("%PDF-1.7 projet vendeur");
+        assertThat(cas.journal(Monde.LECTEUR, brouillon)).extracting(EntreeJournal::evenement)
+                .containsExactly(EvenementJournal.DEMANDEE);
+        assertThat(cas.consulter(Monde.LECTEUR, brouillon).piece().pdf()).isEmpty();
+
+        monde.emettre().emettre(GESTIONNAIRE, brouillon);
+        assertThatThrownBy(() -> cas.apercu(Monde.LECTEUR, brouillon))
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.regle()).contains("RG-FAC-14"));
+    }
+
+    @Test
     @DisplayName("RG-FAC-26 : l'historique, les pièces et leur journal sont lus par le personnel du BNIA seulement")
     void rg_fac_26_refus() {
         assertThatThrownBy(() -> cas.consulter(Monde.ETRANGER, brouillon))
                 .isInstanceOfSatisfying(AccesRefuse.class, e -> assertThat(e.regle()).contains("RG-FAC-26"));
         assertThatThrownBy(() -> cas.lister(Monde.ETRANGER, FiltrePieces.aucun())).isInstanceOf(AccesRefuse.class);
         assertThatThrownBy(() -> cas.journal(Monde.ETRANGER, brouillon)).isInstanceOf(AccesRefuse.class);
+        assertThatThrownBy(() -> cas.apercu(Monde.ETRANGER, brouillon)).isInstanceOf(AccesRefuse.class);
     }
 }

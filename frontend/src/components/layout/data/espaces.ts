@@ -156,19 +156,33 @@ export const espacePortail: Espace = {
           url: '/portail/entreprise',
           icon: Building2,
         },
-        { title: 'Annuaire', url: '/portail/annuaire', icon: Contact },
+        {
+          title: 'Mes utilisateurs',
+          url: '/portail/annuaire',
+          icon: Contact,
+        },
       ],
     },
     {
-      // Spec 05, §6.2.
+      // Spec 05, §6.2 : les DSM de l'opérateur, puis son stock déclaré (RG-DEC-42).
       title: 'Déclarations',
       items: [
         {
-          title: 'Mes DSM',
+          title: 'DSM',
           url: '/portail/declarations',
           icon: FileSpreadsheet,
         },
+        {
+          title: 'Stocks déclarés',
+          url: '/portail/declarations/stocks',
+          icon: Warehouse,
+        },
       ],
+    },
+    {
+      // Spec 08, §6.2 : lu par tout rattachement actif (§3.12).
+      title: 'Facturation',
+      items: [{ title: 'Factures', url: '/portail/factures', icon: FileText }],
     },
   ],
 }

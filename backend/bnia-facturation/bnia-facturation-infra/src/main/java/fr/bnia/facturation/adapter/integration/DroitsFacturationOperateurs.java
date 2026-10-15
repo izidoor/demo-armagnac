@@ -32,6 +32,11 @@ class DroitsFacturationOperateurs implements DroitsFacturation {
     }
 
     @Override
+    public boolean litClient(Acteur acteur, long operateur) {
+        return operateurs.droits(acteur.utilisateur(), operateur).lit(Module.FACTURATION);
+    }
+
+    @Override
     public Optional<String> nom(long utilisateur) {
         return operateurs.nomUtilisateur(utilisateur);
     }

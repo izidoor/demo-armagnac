@@ -14,8 +14,8 @@ import java.time.Clock;
 import java.util.List;
 
 /**
- * Historique, détail, PDF et journal des pièces au back-office (UC-FAC-4). RG-FAC-09 (ce qui empêche
- * l'émission), 20 (consultation journalisée côté vendeur), 26, 27.
+ * Historique, détail, PDF (et aperçu d'un brouillon) et journal des pièces au back-office (UC-FAC-4). RG-FAC-09
+ * (ce qui empêche l'émission), 15, 20 (consultation journalisée côté vendeur), 26, 27.
  */
 @UseCase
 public class ConsulterFactures {
@@ -25,17 +25,20 @@ public class ConsulterFactures {
     private final VendeurRepository vendeurs;
     private final JournalFacturation journal;
     private final StockageDocuments stockage;
+    private final ApercuPiece apercu;
     private final DroitsFacturation droits;
     private final Controles controles;
     private final Clock horloge;
 
     public ConsulterFactures(FactureRepository factures, PiecesLecture lecture, VendeurRepository vendeurs,
-            JournalFacturation journal, StockageDocuments stockage, DroitsFacturation droits, Clock horloge) {
+            JournalFacturation journal, StockageDocuments stockage, ApercuPiece apercu, DroitsFacturation droits,
+            Clock horloge) {
         this.factures = factures;
         this.lecture = lecture;
         this.vendeurs = vendeurs;
         this.journal = journal;
         this.stockage = stockage;
+        this.apercu = apercu;
         this.droits = droits;
         this.controles = new Controles(droits);
         this.horloge = horloge;
@@ -58,7 +61,7 @@ public class ConsulterFactures {
             return new VuePiece(piece, piece.empechements(vendeurs.charger()), droits.gere(acteur));
         }
         consultee(acteur, id, null);
-        return new VuePiece(piece, List.of(), false);
+        return new VuePiece(piece, List.of(), droits.gere(acteur));
     }
 
     /** RG-FAC-15, 20, 26 : le PDF d'une pièce émise, téléchargement journalisé {@code CONSULTEE}, côté vendeur. */
@@ -69,6 +72,17 @@ public class ConsulterFactures {
                 .orElseThrow(() -> new ElementIntrouvable("Un brouillon n'a pas de PDF : il s'édite à l'émission.")).cle());
         consultee(acteur, id, "PDF");
         return document;
+    }
+
+    /**
+     * RG-FAC-15, 26 : l'aperçu PDF d'un brouillon, marqué « projet », avec le vendeur paramétré à cet instant ;
+     * calculé à chaque demande, ni conservé ni journalisé. Une pièce émise a son PDF (RG-FAC-14).
+     */
+    public byte[] apercu(Acteur acteur, long id) {
+        controles.exigerLectureBnia(acteur);
+        Facture piece = piece(id);
+        piece.exigerBrouillon();
+        return apercu.apercu(piece, vendeurs.charger());
     }
 
     /** RG-FAC-20, 26 : le journal de la pièce, lu par le BNIA seulement. */

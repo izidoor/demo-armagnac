@@ -9,6 +9,6 @@ export const Route = createFileRoute('/bo/facturation/')({
   }),
   component: function Pieces() {
     const { client, onglet } = Route.useSearch()
-    return <PagePieces client={client} onglet={onglet ?? 'emises'} />
+    return <PagePieces client={client} onglet={onglet ?? 'brouillons'} />
   },
 })

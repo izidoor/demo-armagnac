@@ -29,12 +29,15 @@ import { Route as authConnexionRouteImport } from './routes/(auth)/connexion'
 import { Route as authChoixOperateurRouteImport } from './routes/(auth)/choix-operateur'
 import { Route as authChangementEmailRouteImport } from './routes/(auth)/changement-email'
 import { Route as BoParametrageRouteRouteImport } from './routes/bo/parametrage/route'
+import { Route as PortailFacturesIndexRouteImport } from './routes/portail/factures/index'
 import { Route as PortailDeclarationsIndexRouteImport } from './routes/portail/declarations/index'
 import { Route as PortailAnnuaireIndexRouteImport } from './routes/portail/annuaire/index'
 import { Route as BoParametrageIndexRouteImport } from './routes/bo/parametrage/index'
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
 import { Route as BoFacturationIndexRouteImport } from './routes/bo/facturation/index'
 import { Route as BoDeclarationsIndexRouteImport } from './routes/bo/declarations/index'
+import { Route as PortailFacturesIdRouteImport } from './routes/portail/factures/$id'
+import { Route as PortailDeclarationsStocksRouteImport } from './routes/portail/declarations/stocks'
 import { Route as PortailDeclarationsDsmRouteImport } from './routes/portail/declarations/$dsm'
 import { Route as BoParametrageTauxCvoRouteImport } from './routes/bo/parametrage/taux-cvo'
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
@@ -153,6 +156,11 @@ const BoParametrageRouteRoute = BoParametrageRouteRouteImport.update({
   path: '/parametrage',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const PortailFacturesIndexRoute = PortailFacturesIndexRouteImport.update({
+  id: '/factures/',
+  path: '/factures/',
+  getParentRoute: () => PortailRouteRoute,
+} as any)
 const PortailDeclarationsIndexRoute =
   PortailDeclarationsIndexRouteImport.update({
     id: '/declarations/',
@@ -184,6 +192,17 @@ const BoDeclarationsIndexRoute = BoDeclarationsIndexRouteImport.update({
   path: '/declarations/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const PortailFacturesIdRoute = PortailFacturesIdRouteImport.update({
+  id: '/factures/$id',
+  path: '/factures/$id',
+  getParentRoute: () => PortailRouteRoute,
+} as any)
+const PortailDeclarationsStocksRoute =
+  PortailDeclarationsStocksRouteImport.update({
+    id: '/declarations/stocks',
+    path: '/declarations/stocks',
+    getParentRoute: () => PortailRouteRoute,
+  } as any)
 const PortailDeclarationsDsmRoute = PortailDeclarationsDsmRouteImport.update({
   id: '/declarations/$dsm',
   path: '/declarations/$dsm',
@@ -307,12 +326,15 @@ export interface FileRoutesByFullPath {
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
+  '/portail/declarations/stocks': typeof PortailDeclarationsStocksRoute
+  '/portail/factures/$id': typeof PortailFacturesIdRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/facturation': typeof BoFacturationIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
   '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
   '/portail/declarations': typeof PortailDeclarationsIndexRoute
+  '/portail/factures': typeof PortailFacturesIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
@@ -349,12 +371,15 @@ export interface FileRoutesByTo {
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
+  '/portail/declarations/stocks': typeof PortailDeclarationsStocksRoute
+  '/portail/factures/$id': typeof PortailFacturesIdRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/facturation': typeof BoFacturationIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
   '/bo/parametrage': typeof BoParametrageIndexRoute
   '/portail/annuaire': typeof PortailAnnuaireIndexRoute
   '/portail/declarations': typeof PortailDeclarationsIndexRoute
+  '/portail/factures': typeof PortailFacturesIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
@@ -395,12 +420,15 @@ export interface FileRoutesById {
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
+  '/portail/declarations/stocks': typeof PortailDeclarationsStocksRoute
+  '/portail/factures/$id': typeof PortailFacturesIdRoute
   '/bo/declarations/': typeof BoDeclarationsIndexRoute
   '/bo/facturation/': typeof BoFacturationIndexRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
   '/bo/parametrage/': typeof BoParametrageIndexRoute
   '/portail/annuaire/': typeof PortailAnnuaireIndexRoute
   '/portail/declarations/': typeof PortailDeclarationsIndexRoute
+  '/portail/factures/': typeof PortailFacturesIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
@@ -442,12 +470,15 @@ export interface FileRouteTypes {
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
+    | '/portail/declarations/stocks'
+    | '/portail/factures/$id'
     | '/bo/declarations'
     | '/bo/facturation'
     | '/bo/operateurs'
     | '/bo/parametrage/'
     | '/portail/annuaire'
     | '/portail/declarations'
+    | '/portail/factures'
     | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
     | '/portail/annuaire/$genre/$personne'
@@ -484,12 +515,15 @@ export interface FileRouteTypes {
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
+    | '/portail/declarations/stocks'
+    | '/portail/factures/$id'
     | '/bo/declarations'
     | '/bo/facturation'
     | '/bo/operateurs'
     | '/bo/parametrage'
     | '/portail/annuaire'
     | '/portail/declarations'
+    | '/portail/factures'
     | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
     | '/portail/annuaire/$genre/$personne'
@@ -529,12 +563,15 @@ export interface FileRouteTypes {
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
     | '/portail/declarations/$dsm'
+    | '/portail/declarations/stocks'
+    | '/portail/factures/$id'
     | '/bo/declarations/'
     | '/bo/facturation/'
     | '/bo/operateurs/'
     | '/bo/parametrage/'
     | '/portail/annuaire/'
     | '/portail/declarations/'
+    | '/portail/factures/'
     | '/bo/acces/utilisateurs/$id'
     | '/bo/parametrage/classes-tva/$id'
     | '/portail/annuaire/$genre/$personne'
@@ -704,6 +741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageRouteRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/portail/factures/': {
+      id: '/portail/factures/'
+      path: '/factures'
+      fullPath: '/portail/factures'
+      preLoaderRoute: typeof PortailFacturesIndexRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
     '/portail/declarations/': {
       id: '/portail/declarations/'
       path: '/declarations'
@@ -745,6 +789,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/bo/declarations'
       preLoaderRoute: typeof BoDeclarationsIndexRouteImport
       parentRoute: typeof BoRouteRoute
+    }
+    '/portail/factures/$id': {
+      id: '/portail/factures/$id'
+      path: '/factures/$id'
+      fullPath: '/portail/factures/$id'
+      preLoaderRoute: typeof PortailFacturesIdRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
+    '/portail/declarations/stocks': {
+      id: '/portail/declarations/stocks'
+      path: '/declarations/stocks'
+      fullPath: '/portail/declarations/stocks'
+      preLoaderRoute: typeof PortailDeclarationsStocksRouteImport
+      parentRoute: typeof PortailRouteRoute
     }
     '/portail/declarations/$dsm': {
       id: '/portail/declarations/$dsm'
@@ -936,8 +994,11 @@ interface PortailRouteRouteChildren {
   PortailEntrepriseRoute: typeof PortailEntrepriseRoute
   PortailIndexRoute: typeof PortailIndexRoute
   PortailDeclarationsDsmRoute: typeof PortailDeclarationsDsmRoute
+  PortailDeclarationsStocksRoute: typeof PortailDeclarationsStocksRoute
+  PortailFacturesIdRoute: typeof PortailFacturesIdRoute
   PortailAnnuaireIndexRoute: typeof PortailAnnuaireIndexRoute
   PortailDeclarationsIndexRoute: typeof PortailDeclarationsIndexRoute
+  PortailFacturesIndexRoute: typeof PortailFacturesIndexRoute
   PortailAnnuaireGenrePersonneRoute: typeof PortailAnnuaireGenrePersonneRoute
 }
 
@@ -946,8 +1007,11 @@ const PortailRouteRouteChildren: PortailRouteRouteChildren = {
   PortailEntrepriseRoute: PortailEntrepriseRoute,
   PortailIndexRoute: PortailIndexRoute,
   PortailDeclarationsDsmRoute: PortailDeclarationsDsmRoute,
+  PortailDeclarationsStocksRoute: PortailDeclarationsStocksRoute,
+  PortailFacturesIdRoute: PortailFacturesIdRoute,
   PortailAnnuaireIndexRoute: PortailAnnuaireIndexRoute,
   PortailDeclarationsIndexRoute: PortailDeclarationsIndexRoute,
+  PortailFacturesIndexRoute: PortailFacturesIndexRoute,
   PortailAnnuaireGenrePersonneRoute: PortailAnnuaireGenrePersonneRoute,
 }
 

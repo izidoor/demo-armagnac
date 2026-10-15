@@ -153,7 +153,7 @@ Facture et avoir partagent un même agrégat, distingués par leur sens (analyse
 | motif | texte long | Obligatoire pour un avoir | C.8.4.1 p.125 |
 | numéro | texte, `AAAA` + 6 chiffres | Attribué à l'émission (RG-FAC-12) ; vide en brouillon | C.8.3.1 p.124, factures d'exemple |
 | date d'émission | date | Date du jour à l'émission | C.8.3.1 p.124 |
-| date de l'opération | date | Fournie par la source ; date de résolution des articles (H-FAC-2) | analyse §3 |
+| date de l'opération | date | Fournie par la source ; date de résolution des articles (H-FAC-2) ; non modifiable en brouillon (RG-FAC-17) | analyse §3 ; décision du 2026-10-15 |
 | libellé de la période | texte court, facultatif | « DSM de juillet 2026 », « Campagne 2025/2026 » ; modifiable en brouillon | §4.9.3 p.45, C.8.3.1 p.124 |
 | n° de bon de commande | texte court, facultatif | Imprimé s'il est donné | mention obligatoire (analyse §3) |
 | condition de paiement | `ConditionPaiement` (§3.6) | Obligatoire ; fournie par la source, modifiable en brouillon | analyse §3 ; décision du 2026-10-14 |
@@ -181,9 +181,11 @@ d'EXTENDED-CTC-FR).
 | Sorte | Champ | Type | Règle |
 |---|---|---|---|
 | toutes | position | entier | Ordre d'impression ; réordonnable en brouillon |
+| toutes | numéro | entier | Identité stable de la ligne dans la pièce, attribuée à sa création ; survit aux déplacements |
+| toutes | reçue | booléen | Reçue de la source avec la demande : verrouillée (RG-FAC-17) |
 | toutes | groupe | référence d'une `LigneGroupe` de la pièce, facultatif | Un seul niveau (RG-FAC-04) |
 | `LigneArticle` | article | `ArticleRef` (source, code) | Résolu par `CatalogueArticles` (RG-FAC-03) |
-| `LigneArticle` | désignation, unité | texte court | Recopiés de l'article, modifiables en brouillon |
+| `LigneArticle` | désignation, unité | texte court | Recopiés de l'article ; la désignation se modifie en brouillon, l'unité seulement sur une ligne ajoutée (RG-FAC-17) |
 | `LigneArticle` | nature | `BIEN`, `SERVICE` | Recopiée de l'article |
 | `LigneArticle` | code comptable | texte court, facultatif | Recopié de l'article |
 | `LigneArticle` | quantité | décimal, 4 décimales, signé | Non nulle (RG-FAC-06) |
@@ -231,9 +233,9 @@ se calcule que dans le récapitulatif (RG-FAC-05), comme le veut EN 16931.
 | e-mail | texte court | Obligatoire : destinataire des factures | C.8.1.1 p.123, RG-OPE-23 |
 
 Un acheteur **avec client** se lit par le port `Clients` (§3.11) : à la demande, puis de nouveau à
-l'émission (décision du 2026-10-14). Il ne se modifie pas dans le brouillon. On le corrige sur la fiche
-de l'opérateur, ou l'on choisit un autre client. Un acheteur **sans client** se saisit et se modifie dans
-le brouillon (RG-FAC-11).
+l'émission (décision du 2026-10-14). Il ne se modifie pas dans le brouillon, et l'on n'y change pas de
+client : on le corrige sur la fiche de l'opérateur (décision du 2026-10-15, RG-FAC-11). La saisie d'un
+acheteur **sans client** se définira avec la première source qui en envoie (`boutique`).
 
 ### 3.6 Condition de paiement (`ConditionPaiement`, valeur publiée, lot 1)
 
@@ -304,7 +306,7 @@ le core de `facturation`, implémentés dans son infra (A-FAC-3).
 | `CatalogueArticles` | port implémenté par chaque source | `source()`, `articles(date)`, `article(code, date)` | 1 |
 | `Article` | valeur | Source, code, désignation, unité, prix unitaire HT à la date, `CategorieTva` à la date, nature, code comptable facultatif, actif, lien d'administration | 1 |
 | `FactureEmise` | événement | Pièce, origine, client, numéro, date d'émission, HT, TVA, TTC | 1 |
-| `FactureAbandonnee` | événement | Origine | 2 |
+| `FactureAbandonnee` | événement | Pièce, origine, client, acteur qui l'a abandonné (pour le journal de la source, comme `FactureEmise`) | 2 |
 | `AvoirEmis` | événement | Pièce, numéro, date, annulation, factures rattachées (pièce, numéro, origine), HT, TVA, TTC | 4 |
 | Lecture des ventes | partie publiée en lecture | `LigneVendue` d'une période, filtrée par nature d'origine (RG-FAC-31) | 5 |
 | `DroitsFacturation` | port de la lib, implémenté dans son infra sur `operateurs` | L'acteur gère-t-il la facturation ? Quels clients lit-il ? (RG-FAC-26) | 1 |
@@ -358,14 +360,14 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | RG-FAC-08 | La nature de l'opération vaut `BIENS` si toutes les lignes article sont des biens, `SERVICES` si toutes sont des services, `LES_DEUX` sinon. | mention obligatoire de 2026 (analyse §3) | 1 |
 | RG-FAC-09 | Émettre un brouillon, c'est vérifier dans l'ordre : au moins une ligne article ; un acheteur complet (RG-FAC-10, relu selon RG-FAC-11) ; un vendeur complet (§3.7) ; RG-FAC-06 et 07. Un refus nomme ce qui manque. L'émission attribue ensuite le numéro (RG-FAC-12), la date d'émission (le jour même) et l'échéance (RG-FAC-13) ; elle recopie le vendeur, produit le PDF (RG-FAC-15), journalise `EMISE` et publie `FactureEmise`, ou `AvoirEmis` pour un avoir, dans la même transaction. | §4.9.8 p.46, analyse §3, ADR-013 | 1 |
 | RG-FAC-10 | Un acheteur est complet s'il a un nom, une adresse de facturation (ligne 1, code postal, ville, pays) et un e-mail. Un professionnel dont le pays est la France a en outre un SIREN (9 chiffres, clé de Luhn). Le n° de TVA, s'il est donné, a le format `FR` + clé + SIREN, avec une clé juste ; une adresse de livraison, si elle est donnée, est complète. | C.8.1.1 p.123, mentions obligatoires (analyse §3) | 1 |
-| RG-FAC-11 | Un acheteur avec client se lit par le port `Clients` à la demande et de nouveau à l'émission ; il ne se modifie pas dans le brouillon, mais on peut changer de client. Un acheteur sans client se saisit et se modifie dans le brouillon. | décision du 2026-10-14 | 1 |
+| RG-FAC-11 | Un acheteur avec client se lit par le port `Clients` à la demande et de nouveau à l'émission ; il ne se modifie pas dans le brouillon, et l'on n'y change pas de client : il se corrige sur la fiche de l'opérateur. La saisie d'un acheteur sans client se définira avec la première source qui en envoie (`boutique`). | décisions du 2026-10-14 et du 2026-10-15 | 1 |
 | RG-FAC-12 | Le numéro est l'année d'émission suivie de 6 chiffres. Les factures et les avoirs suivent une seule séquence par année, continue, sans trou ni doublon ; le numéro est pris dans la transaction d'émission. | BOI-TVA-DECLA-30-20-20-10, factures d'exemple, analyse §3 | 1 |
 | RG-FAC-13 | Échéance = date d'émission + nombre de jours, puis, si la condition le dit, le dernier jour de ce mois. Le nombre de jours va de 0 à 60, et de 0 à 45 avec fin de mois. | C. com. L441-10, factures d'exemple ; décision du 2026-10-14 | 1 |
 | RG-FAC-14 | Une pièce émise ne se modifie ni ne se supprime. Elle ne reçoit plus que des entrées de journal (notes, consultations, retours de Zeendoc) et se corrige par avoir. | §4.9.7 p.46, CGI art. 289 (analyse §3) | 1 |
-| RG-FAC-15 | Le PDF d'une pièce reprend : le vendeur et ses mentions générées (§3.7) ; l'acheteur ; le titre (libellé de la nature d'origine, ou « Avoir ») ; le numéro ; la date d'émission ; la date de l'opération ; la période ; l'échéance et la condition de paiement ; la référence de l'origine, ou pour un avoir les factures rattachées (numéro et date) ou le contrat et la période, avec le motif ; le n° de bon de commande ; la nature de l'opération ; la note d'en-tête ; les lignes (désignation, quantité, unité, prix unitaire HT, HT, taux) ; les titres et sous-totaux des groupes ; le récapitulatif de TVA, avec les motifs d'exonération ; les totaux ; la note de pied. Il est produit une fois, à l'émission, puis conservé (ADR-018, ADR-020). | §4.9.8 p.46, mentions obligatoires (analyse §3) | 1 |
+| RG-FAC-15 | Le PDF d'une pièce reprend : le vendeur et ses mentions générées (§3.7) ; l'acheteur ; le titre (libellé de la nature d'origine, ou « Avoir ») ; le numéro ; la date d'émission ; la date de l'opération ; la période ; l'échéance et la condition de paiement ; la référence de l'origine, ou pour un avoir les factures rattachées (numéro et date) ou le contrat et la période, avec le motif ; le n° de bon de commande ; la nature de l'opération ; la note d'en-tête ; les lignes (désignation, quantité, unité, prix unitaire HT, HT, taux) ; les titres et sous-totaux des groupes ; le récapitulatif de TVA, avec les motifs d'exonération ; les totaux ; la note de pied. Il est produit une fois, à l'émission, puis conservé (ADR-018, ADR-020). Un brouillon a un **aperçu** de même mise en page, recalculé à chaque demande, ni conservé ni journalisé : bandeau « BROUILLON · PROJET DE FACTURE » (ou « D'AVOIR »), filigrane, « n° attribué à l'émission », date d'émission et échéance « à l'émission », vendeur paramétré à cet instant (ou « Vendeur non paramétré ») ; une pièce émise n'a pas d'aperçu, elle a son PDF (RG-FAC-14). | §4.9.8 p.46, mentions obligatoires (analyse §3) | 1 |
 | RG-FAC-16 | Le vendeur se paramètre une fois. Le modifier ne change aucune pièce émise. | analyse §3 ; décision du 2026-10-14 | 1 |
-| RG-FAC-17 | Dans un brouillon, tout se modifie : libellé de la période, date de l'opération, condition de paiement, n° de bon de commande, notes, acheteur (RG-FAC-11). Les lignes s'ajoutent (article de n'importe quel catalogue, à la date de l'opération), se modifient, se retirent et se réordonnent. Chaque enregistrement est journalisé `MODIFIEE`. | §4.9.3 p.45 ; analyse UC-FAC-2 | 2 |
-| RG-FAC-18 | Abandonner un brouillon le supprime avec son journal et publie `FactureAbandonnee` avec son origine. Un brouillon d'avoir s'abandonne de même, sans événement. | analyse UC-FAC-2 ; décision du 2026-10-14 | 2 |
+| RG-FAC-17 | Dans un brouillon se modifient le libellé de la période, la condition de paiement, le n° de bon de commande et les notes. La date de l'opération et l'acheteur ne se modifient pas (RG-FAC-11) : pour les corriger, on abandonne le brouillon et l'on refait la demande depuis la source. Une ligne **reçue** de la source garde son article, sa quantité, son unité, son prix et son groupe, et ne se retire pas ; seules sa désignation (ou le titre du groupe) et sa position changent. Les lignes **ajoutées** (article de n'importe quel catalogue, résolu à la date de l'opération ; texte ; groupe) se modifient, se retirent et se réordonnent librement. L'en-tête et les lignes s'enregistrent d'un coup, sur la version affichée ; chaque enregistrement est journalisé `MODIFIEE`. | §4.9.3 p.45 ; analyse UC-FAC-2 ; décisions du 2026-10-15 | 2 |
+| RG-FAC-18 | Abandonner un brouillon le supprime avec son journal et publie `FactureAbandonnee` avec son origine ; la source peut refaire la demande. Un brouillon d'avoir s'abandonne de même, sans événement. Une pièce émise ne s'abandonne pas (RG-FAC-14). | analyse UC-FAC-2 ; décision du 2026-10-14 | 2 |
 | RG-FAC-19 | Une émission en lot émet chaque brouillon dans sa propre transaction, dans l'ordre de la sélection. Elle rend un compte rendu par brouillon : son numéro, ou le motif de son refus. Un brouillon refusé ne consomme pas de numéro. | décision du 2026-10-14 | 2 |
 | RG-FAC-20 | Le journal d'une pièce est en ajout seul. Il enregistre la demande d'une facture ou la création d'un avoir, chaque modification, l'émission, chaque consultation (côté client au portail, côté vendeur au back-office), l'annulation (avec le numéro de l'avoir), les avoirs émis, les retours de Zeendoc et les notes. Il est lu par le BNIA seulement. | CGI art. 289 VII, analyse §3 | 1 |
 | RG-FAC-21 | Une note est un texte interne, ajouté côté vendeur par un acteur qui gère la facturation, sur un brouillon comme sur une pièce émise. Elle n'est jamais imprimée ni transmise. | analyse §3 | 2 |
@@ -392,7 +394,7 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | UC-DEC-10 (dans `declarations`) Facturer une DSM ou une sélection de DSM : DSM validées, sans facture vivante, opérateur facturable ; une demande par DSM | DSM, projection `FactureDsm` | 01, 02 ; RG-DEC-34 révisée | 1 |
 | UC-FAC-2 Émettre un brouillon | `Facture`, `Numerotation`, `Journal` | 05, 09, 10, 11, 12, 13, 14, 15, 25, 26 | 1 |
 | Paramétrer le vendeur | `Vendeur` | 16, 26 | 1 |
-| UC-FAC-2 Modifier un brouillon (en-tête, acheteur, lignes, groupes, ordre) | `Facture`, `Journal` | 03, 04, 05, 06, 07, 08, 11, 14, 17, 26 | 2 |
+| UC-FAC-2 Modifier un brouillon (en-tête, lignes, groupes, ordre) | `Facture`, `Journal` | 03, 04, 05, 06, 07, 08, 11, 14, 17, 26 | 2 |
 | UC-FAC-2 Abandonner un brouillon | `Facture`, `Journal` | 14, 18, 25, 26 | 2 |
 | UC-FAC-2 Émettre une sélection de brouillons | `Facture` | 19, et celles de l'émission | 2 |
 | Ajouter une note | `Journal` | 20, 21, 26 | 2 |
@@ -433,14 +435,18 @@ son infra sur la partie publiée d'`operateurs` (analyse §4). Les articles lui 
   - l'onglet *Journal*, avec l'ajout d'une note ;
   - le PDF (après l'émission) ; l'état Zeendoc (lot 6) ;
   - les actions selon l'état :
-    - brouillon : *Modifier*, *Émettre*, *Abandonner* ;
+    - brouillon : *Aperçu PDF* (RG-FAC-15 ; masqué tant qu'une carte est en saisie), *Émettre*, *Abandonner* ; *Modifier* est porté par chaque carte (ci-dessous) ;
     - facture émise : *Annuler*, *Créer un avoir*, *Ajouter une note*.
 
   Un brouillon affiche ce qui l'empêche d'être émis.
-- **Édition d'un brouillon** (lot 2) :
-  - l'en-tête ;
-  - l'acheteur : client en lecture, avec *Changer de client* (recherche par le port `Clients`), ou saisie s'il est libre ;
-  - les lignes : ajout d'un article (recherche dans tous les catalogues), d'un texte ou d'un groupe ; déplacement ; suppression.
+- **Édition d'un brouillon** (lot 2) : la pièce se présente en quatre cartes, *Acheteur*, *Facture*, *Contenu* et *Note de pied*. En haut à droite de chacune, *Modifier* si elle se modifie, sinon un cadenas dont l'infobulle dit pourquoi (pièce émise, acheteur, consultation sans gestion). *Modifier* passe la seule carte en saisie, une carte à la fois ; *Enregistrer* enregistre le brouillon (une entrée `MODIFIEE`), *Annuler* n'écrit rien (décisions du 2026-10-15) :
+  - *Facture* : période, condition de paiement (jours, fin de mois), bon de commande, note d'en-tête ; la date de l'opération en lecture ;
+  - *Acheteur* : jamais modifiable, il se corrige sur la fiche de l'opérateur (RG-FAC-11) ;
+  - *Contenu* : les lignes (ajout d'un article, recherche dans tous les catalogues, d'un texte ou d'un groupe ; ordre par glisser-déposer, au pointeur ou au clavier, une ligne restant dans sa liste (racine ou groupe) ; désignation modifiable ; quantité, unité, prix et suppression pour les seules lignes ajoutées, ceux des lignes reçues affichés en texte avec un cadenas, RG-FAC-17). Dessous, le récapitulatif de TVA et les totaux, recalculés à chaque saisie avec les arrondis de RG-FAC-05 (le serveur recalcule à l'enregistrement et fait foi) ;
+  - *Note de pied* : sa propre carte, sous les totaux ; vide, elle ne s'affiche que sur un brouillon que l'on peut modifier.
+- **Abandonner** un brouillon (lot 2) : confirmation qui dit que l'origine redevient à facturer (« DSM juillet 2026 redeviendra à facturer ») ; retour à l'onglet *Brouillons*.
+- **Journal** (lot 2) : sans onglets : bouton *Historique* (à gauche de *PDF* ou d'*Aperçu PDF*) qui ouvre le journal dans un tiroir à droite, pour un brouillon comme pour une pièce émise. *Ajouter une note*, au-dessus des entrées, pour qui gère la facturation, sur un brouillon comme sur une pièce émise (RG-FAC-21).
+- **Brouillons** (lot 2) : cases à cocher et *Émettre la sélection (n)*, pour qui gère la facturation ; une confirmation, puis un compte rendu par brouillon : son numéro (lien vers la pièce), ou le motif de son écart (RG-FAC-19).
 - **Avoir** (lot 4) : choix des factures visées (même acheteur) ou du contrat du client (son n° BNIA) et d'une période, par défaut l'année civile en cours ; motif ; lignes préremplies depuis les factures ; avertissement de dépassement (RG-FAC-22).
 - **Paramètres de l'application > BNIA > Facturation** : le vendeur (§3.7), dans un cadre en lecture, éditable, sous la fiche et les contacts du BNIA (spec 02 §6.1).
 - **Écrans d'autres contextes** :
@@ -449,7 +455,7 @@ son infra sur la partie publiée d'`operateurs` (analyse §4). Les articles lui 
 
 ### 6.2 Portail (opérateur actif : producteur ou négociant)
 
-**Menu Factures** (lot 3) : la liste des factures et avoirs émis (RG-FAC-28), puis le détail d'une pièce :
+**Menu Factures** (lot 3) : la liste des factures et avoirs émis (RG-FAC-28 ; filtres numéro, pièces : toutes, factures ou avoirs, période, dates d'émission ; colonne « Objet » : libellé de la nature d'origine et référence), puis le détail d'une pièce, sans journal :
 - en-tête, lignes et totaux ;
 - PDF ;
 - référence de l'origine ;
@@ -469,6 +475,7 @@ Le module Facturation est lu par tout rattachement actif (§3.12).
 - **Pièces**, à partir des DSM validées de la démonstration :
   - une facture émise par opérateur à DSM validée, aux montants de la facture d'exemple ;
   - un brouillon en attente ;
+  - dix DSM validées d'Armagnacs de Gascogne à facturer en lot (onze mois validés, le plus ancien facturé), une note au journal de la facture émise (lot 2) ;
   - une facture annulée par avoir puis refacturée (lot 4) ;
   - un avoir de correction partiel (lot 4) ;
   - des transmissions dans chaque état (lot 6).
@@ -569,3 +576,6 @@ Chaque RG-FAC-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-14 | Lot 1b implémenté : contexte `facturation` (modules `-api`, `-core`, `-infra`, schéma `facturation`), RG-FAC-01 à 16, 20, 25 à 27 ; révision de `declarations` (spec 05 : RG-DEC-34 révisée, RG-DEC-43 nouvelle, port `Facturation`, catalogue de la cotisation, projection avec le brouillon demandé). Choix d'implémentation : l'API dépend du noyau commun (`RegleEnfreinte`), et ses valeurs (`CategorieTva`, `ConditionPaiement`, `Origine`, `ClientRef`) se valident elles-mêmes ; le domaine de `facturation` emploie ces valeurs (ArchUnit l'admet, et seulement pour lui) ; `FactureEmise` porte en plus l'acteur qui a émis, pour le journal de la source ; prix unitaire à 4 décimales, quantité en hlAP à 4 décimales ; motif d'exonération « Part de la cotisation interprofessionnelle non assujettie à la TVA » (Q-FAC-1) ; note de pied composée d'après H-FAC-6 (Q-FAC-8) ; vendeur en une ligne, émission refusée tant qu'il n'est pas paramétré ; totaux stockés pour l'historique ; acheteur, vendeur et origine en colonnes préfixées ; l'ouverture d'une pièce émise et son PDF sont journalisés « consultée » au back-office, pas celle d'un brouillon ; historique en deux onglets (*Émises*, *Brouillons*), filtres numéro, acheteur, période, dates, client (lien de la fiche opérateur) ; SIRET de démonstration corrigés (clé de Luhn) ; Armagnacs de Gascogne a deux DSM validées en démonstration (spec 05 §7.1). |
 | 2026-10-15 | Écrans (demande de l'utilisateur) : l'historique des factures d'un opérateur devient l'onglet *Factures* de sa fiche, dernier de la barre « Suivi des activités », au back-office (pièces émises, puis brouillons s'il y en a) ; le bouton *Factures* en tête de fiche est retiré ; l'historique reste filtrable par client par l'URL. |
 | 2026-10-15 | Écrans (demande de l'utilisateur) : le vendeur passe de la section *Facturation* du Paramétrage à la sous-section *Facturation* de la section *BNIA* des paramètres de l'application, dans un cadre « Vendeur » en lecture, « Éditer » le passant en saisie. |
+| 2026-10-15 | Implémentation, lot 2, décisions en séance : édition d'un brouillon **d'un seul enregistrement** (un journal `MODIFIEE` par enregistrement) ; **date de l'opération non modifiable** et **acheteur non modifiable**, sans *Changer de client* ni saisie libre (écarts à RG-FAC-11, 17 et §6.1 : on abandonne et l'on refacture ; la saisie d'un acheteur libre se définira avec `boutique`) ; **lignes reçues verrouillées** (article, quantité, unité, prix, groupe ; ni retrait), seules leur désignation et leur position changent ; lignes ajoutées libres. RG-FAC-11, 17, 18 révisées, §3.1, §3.2, §3.5, §6.1. |
+| 2026-10-15 | Lot 2 implémenté : RG-FAC-17, 18, 19, 21. Choix d'implémentation : chaque ligne a un numéro stable et un indicateur « reçue » (colonnes `numero`, `recue` de `ligne_facture`) ; le `PUT` du brouillon renvoie le numéro des lignes existantes, dont le serveur reprend article, nature, code comptable et TVA tels qu'enregistrés (la TVA ne vient jamais du navigateur) ; seule une ligne article nouvelle se résout dans son catalogue ; une ligne reçue reste dans son groupe reçu ; version de la pièce renvoyée, 409 si elle est périmée ; `FactureAbandonnee` porte la pièce, le client et l'acteur, pour le journal de la DSM (« Facturation abandonnée », spec 05) ; émission en lot par `EmettreLot` et le port `Transactions` (ADR-022), toute erreur métier devenant un motif du compte rendu, un brouillon sélectionné deux fois ne comptant qu'une ; endpoints `PUT`, `DELETE /pieces/{id}`, `POST /pieces/emission`, `POST /pieces/{id}/notes`, `GET /pieces/{id}/articles` (articles actifs de tous les catalogues à la date de l'opération) ; monter et descendre au lieu du glisser-déposer ; en démonstration, Armagnacs de Gascogne a onze DSM validées (une facturée, dix à facturer) et la facture émise porte une note. |
+| 2026-10-15 | Lot 3 implémenté (portail) : RG-FAC-28, RG-FAC-26 pour le portail. Choix d'implémentation : endpoints rattachés à l'opérateur, comme les DSM du portail (`/api/operateurs/{operateur}/factures`, détail, PDF) ; droit de lecture du module Facturation sur l'opérateur (port `DroitsFacturation.litClient`) ; un brouillon, ou la pièce d'un autre client, est introuvable (404) sans dire qu'elle existe ; consultation journalisée côté client, côté vendeur si c'est le personnel du BNIA ; le journal n'est pas exposé au portail (RG-FAC-20) ; filtre par sens (toutes, factures, avoirs), la nature d'origine en colonne ; l'acheteur n'y renvoie pas à la fiche opérateur. Démonstration : aucune donnée nouvelle, la facture émise d'Armagnacs de Gascogne suffit. |

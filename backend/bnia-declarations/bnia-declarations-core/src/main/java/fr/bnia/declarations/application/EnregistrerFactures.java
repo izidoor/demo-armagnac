@@ -51,6 +51,18 @@ public class EnregistrerFactures {
         }
     }
 
+    /**
+     * RG-DEC-34 : le brouillon demandé a été abandonné dans {@code facturation} ; il quitte la projection et la DSM
+     * redevient à facturer. Journal « Facturation abandonnée ».
+     *
+     * @param abandonnePar l'utilisateur qui l'a abandonné
+     */
+    public void factureAbandonnee(long dsm, long piece, Acteur abandonnePar) {
+        factures.retirerBrouillon(piece);
+        dsms.parId(dsm).ifPresent(d -> journaliste.noter(abandonnePar, d,
+                ActionJournalDeclarations.FACTURATION_ABANDONNEE, null));
+    }
+
     /** RG-DEC-34 : l'avoir se retranche du total facturé de la DSM (publié par {@code facturation} au lot 4). */
     public void avoirEmis(PieceRecue avoir) {
         factures.inserer(new FactureDsm(avoir.dsm(), avoir.piece(), FactureDsm.Type.AVOIR, avoir.numero(),

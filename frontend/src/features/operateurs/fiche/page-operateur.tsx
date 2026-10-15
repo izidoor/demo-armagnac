@@ -189,9 +189,10 @@ export function PageOperateur({
         )}
       </div>
       <Tabs defaultValue={onglet}>
-        {/* Deux groupes d'onglets : la fiche, qui décrit l'opérateur, et son activité. */}
+        {/* Au back-office, deux groupes d'onglets : la fiche, qui décrit l'opérateur, et son activité. Au portail,
+            la fiche seule, sans libellé : l'activité a ses propres menus (déclarations, factures). */}
         <div className='flex flex-wrap items-end gap-x-8 gap-y-4'>
-          <GroupeOnglets libelle="Fiche de l'opérateur">
+          <GroupeOnglets libelle={bo ? "Fiche de l'opérateur" : undefined}>
             <TabsTrigger value='general'>Général</TabsTrigger>
             {avecAnnuaire && (
               <TabsTrigger value='annuaire'>Contacts</TabsTrigger>
@@ -200,16 +201,18 @@ export function PageOperateur({
             <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
             <TabsTrigger value='diffusion'>Statistiques</TabsTrigger>
           </GroupeOnglets>
-          <GroupeOnglets libelle='Suivi des activités'>
-            {avecDeclarations && (
-              <TabsTrigger value='declarations'>
-                Stocks & Mouvements
-              </TabsTrigger>
-            )}
-            <TabsTrigger value='contrats'>Contrats</TabsTrigger>
-            <TabsTrigger value='exportations'>Exportations</TabsTrigger>
-            {bo && <TabsTrigger value='factures'>Factures</TabsTrigger>}
-          </GroupeOnglets>
+          {bo && (
+            <GroupeOnglets libelle='Suivi des activités'>
+              {avecDeclarations && (
+                <TabsTrigger value='declarations'>
+                  Stocks & Mouvements
+                </TabsTrigger>
+              )}
+              <TabsTrigger value='contrats'>Contrats</TabsTrigger>
+              <TabsTrigger value='exportations'>Exportations</TabsTrigger>
+              <TabsTrigger value='factures'>Factures</TabsTrigger>
+            </GroupeOnglets>
+          )}
         </div>
         <TabsContent value='general'>
           <OngletGeneral
@@ -307,14 +310,16 @@ function GroupeOnglets({
   libelle,
   children,
 }: {
-  libelle: string
+  libelle?: string
   children: ReactNode
 }) {
   return (
     <div className='space-y-1.5'>
-      <div className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
-        {libelle}
-      </div>
+      {libelle && (
+        <div className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
+          {libelle}
+        </div>
+      )}
       <TabsList className='flex-wrap'>{children}</TabsList>
     </div>
   )

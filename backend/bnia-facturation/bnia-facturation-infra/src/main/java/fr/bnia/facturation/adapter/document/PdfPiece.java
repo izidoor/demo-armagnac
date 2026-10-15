@@ -3,6 +3,7 @@ package fr.bnia.facturation.adapter.document;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import fr.bnia.facturation.api.CategorieTva;
 import fr.bnia.facturation.api.Origine;
+import fr.bnia.facturation.application.ApercuPiece;
 import fr.bnia.facturation.application.EditionPiece;
 import fr.bnia.facturation.domain.Acheteur;
 import fr.bnia.facturation.domain.Adresse;
@@ -13,6 +14,7 @@ import fr.bnia.facturation.domain.LigneFacture.LigneGroupe;
 import fr.bnia.facturation.domain.LigneFacture.LigneInformative;
 import fr.bnia.facturation.domain.LigneTva;
 import fr.bnia.facturation.domain.NatureOperation;
+import fr.bnia.facturation.domain.SensPiece;
 import fr.bnia.facturation.domain.Totaux;
 import fr.bnia.facturation.domain.Vendeur;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
@@ -35,12 +38,12 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 /**
- * Le PDF d'une pièce émise (RG-FAC-15, A-FAC-10) : gabarit Thymeleaf {@code gabarits/facturation/piece.html}
- * rendu par OpenHTMLtoPDF, A4 portrait, d'après la facture d'exemple. Le gabarit ne reçoit que des textes déjà
- * mis en forme : montants en euros, quantités, dates à la française.
+ * Le PDF d'une pièce émise (RG-FAC-15, A-FAC-10), et l'aperçu d'un brouillon : gabarit Thymeleaf
+ * {@code gabarits/facturation/piece.html} rendu par OpenHTMLtoPDF, A4 portrait, d'après la facture d'exemple. Le
+ * gabarit ne reçoit que des textes déjà mis en forme : montants en euros, quantités, dates à la française.
  */
 @Component
-class PdfPiece implements EditionPiece {
+class PdfPiece implements EditionPiece, ApercuPiece {
 
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -58,14 +61,26 @@ class PdfPiece implements EditionPiece {
 
     @Override
     public byte[] pdf(Facture piece) {
-        Vendeur vendeur = piece.vendeur().orElseThrow(() -> new IllegalStateException("Pièce non émise"));
+        return rendre(piece, piece.vendeur().orElseThrow(() -> new IllegalStateException("Pièce non émise")), false);
+    }
+
+    /** Le brouillon, marqué « Projet de facture » (bandeau et filigrane) : ni numéro, ni date d'émission. */
+    @Override
+    public byte[] apercu(Facture brouillon, Optional<Vendeur> vendeur) {
+        return rendre(brouillon, vendeur.orElse(null), true);
+    }
+
+    /** @param vendeur {@code null} pour l'aperçu d'un brouillon sans vendeur paramétré */
+    private byte[] rendre(Facture piece, Vendeur vendeur, boolean projet) {
         Context contexte = new Context(Locale.FRANCE);
         contexte.setVariable("titre", piece.titre());
         contexte.setVariable("sens", piece.sens().libelle());
-        contexte.setVariable("numero", piece.numero().orElseThrow());
-        contexte.setVariable("vendeur", vendeur(vendeur));
+        contexte.setVariable("numero", projet ? null : piece.numero().orElseThrow());
+        contexte.setVariable("projet", projet
+                ? (piece.sens() == SensPiece.AVOIR ? "PROJET D'AVOIR" : "PROJET DE FACTURE") : null);
+        contexte.setVariable("vendeur", vendeur == null ? VENDEUR_ABSENT : vendeur(vendeur));
         contexte.setVariable("acheteur", acheteur(piece.acheteur()));
-        contexte.setVariable("informations", informations(piece));
+        contexte.setVariable("informations", informations(piece, projet));
         contexte.setVariable("noteEntete", piece.noteEntete());
         contexte.setVariable("lignes", lignes(piece.lignes()));
         contexte.setVariable("recapitulatif", piece.recapitulatifTva().stream().map(PdfPiece::tva).toList());
@@ -73,8 +88,8 @@ class PdfPiece implements EditionPiece {
         contexte.setVariable("totaux", Map.of("ht", euros(totaux.ht()), "tva", euros(totaux.tva()),
                 "ttc", euros(totaux.ttc())));
         contexte.setVariable("notePied", piece.notePied());
-        contexte.setVariable("mentions", vendeur.mentions(piece.acheteur().categorie()));
-        contexte.setVariable("reglement", "IBAN " + vendeur.iban() + " · BIC " + vendeur.bic());
+        contexte.setVariable("mentions", vendeur == null ? List.of() : vendeur.mentions(piece.acheteur().categorie()));
+        contexte.setVariable("reglement", vendeur == null ? null : "IBAN " + vendeur.iban() + " · BIC " + vendeur.bic());
         String html = moteur.process("facturation/piece", contexte);
         try (ByteArrayOutputStream sortie = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
@@ -87,6 +102,10 @@ class PdfPiece implements EditionPiece {
             throw new UncheckedIOException(e);
         }
     }
+
+    /** Aperçu d'un brouillon quand le vendeur n'est pas encore paramétré (il empêche l'émission, RG-FAC-09). */
+    private static final Map<String, Object> VENDEUR_ABSENT = Map.of("nom", "Vendeur non paramétré",
+            "lignes", List.of("Paramètres de l'application > BNIA > Facturation"));
 
     private static Map<String, Object> vendeur(Vendeur v) {
         List<String> lignes = new ArrayList<>(adresse(v.siege()));
@@ -123,15 +142,19 @@ class PdfPiece implements EditionPiece {
         return Stream.of(codePostal, ville).filter(t -> t != null).reduce((x, y) -> x + " " + y).orElse(null);
     }
 
-    /** RG-FAC-15 : dates, période, échéance et condition, origine, bon de commande, nature de l'opération. */
-    private static Map<String, String> informations(Facture piece) {
+    /**
+     * RG-FAC-15 : dates, période, échéance et condition, origine, bon de commande, nature de l'opération. Un
+     * projet n'a ni date d'émission ni échéance : elles se fixent à l'émission (RG-FAC-13).
+     */
+    private static Map<String, String> informations(Facture piece, boolean projet) {
         Map<String, String> infos = new LinkedHashMap<>();
-        infos.put("Date d'émission", piece.dateEmission().orElseThrow().format(DATE));
+        infos.put("Date d'émission", projet ? "à l'émission" : piece.dateEmission().orElseThrow().format(DATE));
         infos.put("Date de l'opération", piece.dateOperation().format(DATE));
         if (piece.libellePeriode() != null) {
             infos.put("Période", piece.libellePeriode());
         }
-        infos.put("Échéance", piece.echeance().orElseThrow().format(DATE) + " (" + piece.condition().libelle() + ")");
+        infos.put("Échéance", projet ? "calculée à l'émission (" + piece.condition().libelle() + ")"
+                : piece.echeance().orElseThrow().format(DATE) + " (" + piece.condition().libelle() + ")");
         Origine origine = piece.origine();
         if (origine != null) {
             infos.put("Référence", origine.reference());

@@ -764,7 +764,8 @@ create table declarations.journal (
                       'DSM_ENVOYEE', 'DSM_PRISE_EN_INSTRUCTION', 'COMPLEMENTS_DEMANDES', 'DSM_VALIDEE', 'DSM_EDITEE',
                       'BROUILLON_SUPPRIME', 'JUSTIFICATIF_DEPOSE', 'JUSTIFICATIF_SUPPRIME', 'DRM_DEPOSEE',
                       'DRM_SUPPRIMEE', 'COMMENTAIRE_SUPPRIME', 'POINT_DE_DEPART_FIXE', 'POINT_DE_DEPART_MODIFIE',
-                      'POINT_DE_DEPART_IMPORTE', 'FACTURATION_DEMANDEE', 'FACTURE_EMISE')),
+                      'POINT_DE_DEPART_IMPORTE', 'FACTURATION_DEMANDEE', 'FACTURE_EMISE',
+                      'FACTURATION_ABANDONNEE')),
     detail        text
 );
 create index journal_declarations_operateur on declarations.journal (operateur_id, date desc);
@@ -916,10 +917,13 @@ create index facture_date_emission on facturation.facture (date_emission desc);
 
 -- Lignes de la pièce (A-FAC-4) : une table, sorte ARTICLE, TEXTE ou GROUPE ; position = ordre d'impression. Une
 -- ligne d'un groupe désigne la position de sa ligne GROUPE dans la même pièce (un seul niveau, RG-FAC-04). texte :
--- désignation d'un article, texte informatif ou titre d'un groupe.
+-- désignation d'un article, texte informatif ou titre d'un groupe. numero : identité stable de la ligne dans la
+-- pièce, qui survit aux déplacements ; recue : ligne reçue de la source avec la demande, verrouillée (RG-FAC-17).
 create table facturation.ligne_facture (
     facture_id      bigint         not null references facturation.facture (id) on delete cascade,
     position        integer        not null,
+    numero          integer        not null check (numero > 0),
+    recue           boolean        not null,
     sorte           text           not null check (sorte in ('ARTICLE', 'TEXTE', 'GROUPE')),
     groupe          integer,
     texte           text           not null,
@@ -935,6 +939,7 @@ create table facturation.ligne_facture (
     tva_motif       text,
     montant_ht      numeric(14,2),
     primary key (facture_id, position),
+    unique (facture_id, numero),
     foreign key (facture_id, groupe) references facturation.ligne_facture (facture_id, position)
         deferrable initially deferred,
     check ((sorte = 'ARTICLE') = (article_code is not null)),

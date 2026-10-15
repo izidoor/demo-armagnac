@@ -26,7 +26,9 @@ public enum ActionJournalDeclarations {
     /** RG-DEC-43 (spec 08 §3.13). */
     FACTURATION_DEMANDEE("Facturation demandée"),
     /** RG-DEC-34 : reçu de {@code facturation} ; détail : le numéro. */
-    FACTURE_EMISE("Facture émise");
+    FACTURE_EMISE("Facture émise"),
+    /** RG-DEC-34 : brouillon abandonné dans {@code facturation} ; la DSM redevient à facturer. */
+    FACTURATION_ABANDONNEE("Facturation abandonnée");
 
     private final String libelle;
 

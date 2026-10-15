@@ -55,7 +55,12 @@ class DemoFacturationIT extends AbstractIT {
         });
         List<DsmLigne> validees = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm)
                 .filter(d -> d.etat() == EtatDsm.VALIDEE).toList();
-        assertThat(validees).extracting(DsmLigne::facturee).containsExactly(false, true);
+        // Lot 2 : onze DSM validées, la plus ancienne facturée (avec une note), dix à facturer en lot.
+        assertThat(validees).hasSize(11);
+        assertThat(validees.getLast().facturee()).isTrue();
+        assertThat(validees.subList(0, 10)).noneMatch(DsmLigne::facturee);
+        assertThat(factures.journal(lecteur, pieces.getFirst().id())).extracting(e -> e.evenement())
+                .contains(fr.bnia.facturation.domain.EvenementJournal.NOTE);
 
         long condom = operateurs.operateurParCode("000001").orElseThrow().id();
         assertThat(dsms.lister(anne, condom)).extracting(d -> d.dsm().facturationDemandee()).contains(true);

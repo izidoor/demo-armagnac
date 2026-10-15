@@ -76,12 +76,14 @@ class DemoDeclarationsIT extends AbstractIT {
 
         long gascogne = id("N320001");
         assertThat(points.consulter(anne, gascogne).orElseThrow().point().lignes()).hasSize(6);
-        // Spec 08 §7.1 : deux mois validés, à facturer, avant celui qui attend le BNIA.
+        // Spec 08 §7.1 : onze mois validés, à facturer, avant celui qui attend le BNIA.
         List<DsmLigne> declarations = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
-        assertThat(declarations).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactly(
-                org.assertj.core.groups.Tuple.tuple(EtatDsm.ENVOYEE, mois),
-                org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(1)),
-                org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(2)));
+        List<org.assertj.core.groups.Tuple> attendues = new java.util.ArrayList<>();
+        attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.ENVOYEE, mois));
+        for (int m = 1; m <= 11; m++) {
+            attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(m)));
+        }
+        assertThat(declarations).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactlyElementsOf(attendues);
         assertThat(dsms.consulter(anne, gascogne, declarations.get(1).id()).cotisation().ht())
                 .contains(new BigDecimal("1855.95"));
         var envoyee = dsms.consulter(anne, gascogne, declarations.getFirst().id());

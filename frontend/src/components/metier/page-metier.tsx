@@ -6,6 +6,8 @@ import { PageImbriquee } from './page-imbriquee'
 
 type PageMetierProps = {
   titre: string
+  /** Après le titre, séparé par un tiret, en petites capitales (le client d'une facture, par exemple). */
+  complement?: string
   description: ReactNode
   actions?: ReactNode
   children: ReactNode
@@ -17,24 +19,36 @@ type PageMetierProps = {
  */
 export function PageMetier({
   titre,
+  complement,
   description,
   actions,
   children,
 }: PageMetierProps) {
   const imbriquee = useContext(PageImbriquee)
   const [refTitre, titreSorti] = useTitreSorti()
+  const titreComplet = (
+    <>
+      {titre}
+      {complement && (
+        <>
+          {' – '}
+          <span className='[font-variant-caps:small-caps]'>{complement}</span>
+        </>
+      )}
+    </>
+  )
   const contenu = (
     <>
       <div className='mb-4 flex flex-wrap items-end justify-between gap-2'>
         <div>
           {imbriquee ? (
-            <h4 className='text-base font-semibold'>{titre}</h4>
+            <h4 className='text-base font-semibold'>{titreComplet}</h4>
           ) : (
             <h1
               ref={refTitre}
               className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'
             >
-              {titre}
+              {titreComplet}
             </h1>
           )}
           <p
@@ -55,7 +69,11 @@ export function PageMetier({
   if (imbriquee) return contenu
   return (
     <>
-      <Header fixed titre={titre} titreVisible={titreSorti}>
+      <Header
+        fixed
+        titre={complement ? `${titre} – ${complement}` : titre}
+        titreVisible={titreSorti}
+      >
         <ActionsEntete />
       </Header>
       <Main>{contenu}</Main>

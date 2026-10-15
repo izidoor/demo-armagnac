@@ -59,11 +59,11 @@ Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N3200
 
 Les dates sont calculées depuis le jour du chargement. Négoce des Landes part du **premier du mois courant**
 (le 1er octobre 2026 pour un chargement en octobre 2026), Maison Larressingle du **premier du mois
-précédent**, Armagnacs de Gascogne du **premier du mois, deux mois avant** (spec 08 §7.1), avec un stock fixé
+précédent**, Armagnacs de Gascogne du **premier du mois, onze mois avant** (spec 08 §7.1), avec un stock fixé
 par Anne Lamarque : leur première DSM est celle de ce mois.
 
 - **Armagnacs de Gascogne (`N320001`, négociant)** : six lignes de stock initial (`NB` « XO » 12, `NB`
-  « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM des deux mois
+  « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM des onze mois
   précédents **validées**, aux volumes de la facture d'exemple (sorties France 839,11 L, export 2 254,15 L,
   avec le DAE de l'export) : à facturer (voir « Facturation »). DSM du mois
   **envoyée** par Julie Darrigade : 40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6), sorties
@@ -163,7 +163,7 @@ Scénario :
     filtres opérateur et type ; « Exporter en Excel » pour les douanes. La fiche de chacun en montre le
     sien, section « Stock déclaré ».
 
-## Facturation (spec 08, lot 1)
+## Facturation (spec 08, lots 1 et 2)
 
 - **Vendeur** (roue crantée « Paramètres de l'application », rubrique « BNIA > Facturation ») : le BNIA, tel qu'imprimé
   sur les factures d'exemple (11 place de la Liberté, Eauze ; SIRET 77699995500029 ; TVA FR55776999955 ;
@@ -173,7 +173,8 @@ Scénario :
   validée, n'a pas de SIRET : il n'est pas facturable.
 - **Armagnacs de Gascogne** : la DSM validée la plus ancienne est **facturée** et sa facture **émise** par
   Anne Lamarque (premier numéro de l'année, par exemple `2026000001`), 1 855,95 € HT, 296,95 € de TVA,
-  2 152,90 € TTC, comme la facture d'exemple ; la DSM du mois suivant reste **à facturer**.
+  2 152,90 € TTC, comme la facture d'exemple, avec une **note** au journal ; les **dix** DSM suivantes restent
+  **à facturer**.
 - **Maison Durand, Condom** : la facture de sa DSM validée est **demandée** : un brouillon attend son émission.
 
 Scénario :
@@ -181,7 +182,7 @@ Scénario :
 1. `admin@bnia.fr`, menu « Facturation > Factures », onglet « Émises » : la facture d'Armagnacs de Gascogne.
    L'ouvrir : acheteur, dates, échéance au dernier jour du mois suivant (« 30 jours fin de mois »), groupe
    « Commerce de l'Armagnac » avec quatre lignes (part assujettie à 20 %, part non assujettie exonérée),
-   sous-total, récapitulatif de TVA, totaux. « PDF » : la facture au nouveau modèle ; onglet « Journal » :
+   sous-total, récapitulatif de TVA, totaux. « PDF » : la facture au nouveau modèle ; bouton « Historique » :
    demandée, émise, puis consultée (ouverture, PDF).
 2. Onglet « Brouillons » : celui de Maison Durand, Condom. L'ouvrir : rien n'empêche son émission ;
    « Émettre » : il prend le numéro suivant. Sa DSM (fiche de l'opérateur, onglet « Déclarations ») passe à
@@ -195,4 +196,25 @@ Scénario :
 5. Fiche d'Armagnacs de Gascogne, bouton « Factures » : l'historique filtré sur ce client.
 6. Paramétrage, « Facturation > Vendeur » : modifier le téléphone ; les factures déjà émises gardent
    l'ancien. Un SIRET faux est refusé.
+
+Brouillons (lot 2) :
+
+7. « Déclarations > DSM », onglet « Validées » : cocher les DSM d'Armagnacs de Gascogne, « Facturer la
+   sélection » : un brouillon par DSM.
+8. « Facturation > Factures », onglet « Brouillons » : en ouvrir un, « Modifier ». La date de l'opération et
+   l'acheteur sont en lecture ; les lignes reçues de la DSM portent un cadenas (seule leur désignation change).
+   Corriger la période, ajouter un texte « Régularisation suite au contrôle », le remonter en tête,
+   « Enregistrer » : le journal note « Modifiée ». Ajouter un article (« Article ») puis le retirer.
+9. Sur un autre brouillon, « Abandonner » : il disparaît, et sa DSM redevient « à facturer » (journal de la
+   DSM : « Facturation abandonnée »).
+10. Onglet « Brouillons » : tout cocher, « Émettre la sélection » : le compte rendu donne un numéro par
+    brouillon, ou le motif d'un écart (par exemple, l'opérateur a perdu son SIRET entre-temps).
+11. Ouvrir la facture émise de Gascogne, bouton « Historique » : la note de démonstration ; en ajouter une.
+
+Portail (lot 3) :
+
+12. `observateur@negociant.fr` (Armagnacs de Gascogne), menu « Facturation > Factures » : les factures émises
+    de Gascogne, sans les brouillons. Filtrer par numéro ou par période ; ouvrir la facture, puis « PDF ».
+13. `admin@bnia.fr`, la même facture, bouton « Historique » : « Consultée » par Thomas Barrère, côté « Client »
+    (ouverture, puis PDF).
 

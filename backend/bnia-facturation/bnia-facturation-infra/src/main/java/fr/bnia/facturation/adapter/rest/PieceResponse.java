@@ -50,12 +50,19 @@ public record PieceResponse(
                 description = "Ce qui empêche l'émission d'un brouillon (RG-FAC-09) ; vide sinon")
         List<String> empechements,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
-                description = "L'utilisateur connecté peut l'émettre (RG-FAC-26)") boolean emettre,
+                description = "Brouillon que l'utilisateur connecté peut modifier, émettre ou abandonner (RG-FAC-26)")
+        boolean emettre,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "L'utilisateur connecté gère la facturation : il annote la pièce (RG-FAC-21, 26)")
+        boolean gerer,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Le PDF est disponible (pièce émise)")
         boolean pdf,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Instant creeeLe,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Copie du nom de l'auteur de la demande")
-        String creeePar) {
+        String creeePar,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Version de la pièce, renvoyée à la modification d'un brouillon (RG-FAC-17)")
+        long version) {
 
     @Schema(name = "ConditionPaiement", description = "Condition de paiement (spec 08 §3.6)")
     public record ConditionResponse(
@@ -104,6 +111,11 @@ public record PieceResponse(
 
     @Schema(name = "LignePiece", description = "Une ligne de la pièce : article, texte, ou groupe et ses lignes (spec 08 §3.2, RG-FAC-04)")
     public record LigneResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Identité stable de la ligne dans la pièce")
+            int numero,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                    description = "Reçue de la source : seules sa désignation et sa position se modifient (RG-FAC-17)")
+            boolean recue,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Sorte sorte,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                     description = "Désignation d'un article, texte, ou titre d'un groupe") String texte,
@@ -128,12 +140,12 @@ public record PieceResponse(
 
         static LigneResponse de(LigneFacture ligne) {
             return switch (ligne) {
-                case LigneArticle a -> new LigneResponse(Sorte.ARTICLE, a.designation(), a.article().source(),
+                case LigneArticle a -> new LigneResponse(a.numero(), a.recue(), Sorte.ARTICLE, a.designation(), a.article().source(),
                         a.article().code(), a.unite(), a.nature(), a.quantite(), a.prixUnitaire(), a.tva().code(),
                         a.tva().taux(), a.tva().libelle(), a.montantHt(), List.of());
-                case LigneInformative i -> new LigneResponse(Sorte.TEXTE, i.texte(), null, null, null, null, null, null,
+                case LigneInformative i -> new LigneResponse(i.numero(), i.recue(), Sorte.TEXTE, i.texte(), null, null, null, null, null, null,
                         null, null, null, null, List.of());
-                case LigneGroupe g -> new LigneResponse(Sorte.GROUPE, g.titre(), null, null, null, null, null, null,
+                case LigneGroupe g -> new LigneResponse(g.numero(), g.recue(), Sorte.GROUPE, g.titre(), null, null, null, null, null, null,
                         null, null, null, g.sousTotalHt(), g.lignes().stream().map(LigneResponse::de).toList());
             };
         }
@@ -160,7 +172,7 @@ public record PieceResponse(
                 p.natureOperation().orElse(null), p.lignes().stream().map(LigneResponse::de).toList(),
                 p.recapitulatifTva().stream().map(t -> new LigneTvaResponse(t.categorie().code(), t.categorie().taux(),
                         t.categorie().libelle(), t.categorie().motif(), t.base(), t.tva())).toList(),
-                totaux.ht(), totaux.tva(), totaux.ttc(), vue.empechements(), vue.emettre(), p.pdf().isPresent(),
-                p.creeeLe(), p.creePar().nom());
+                totaux.ht(), totaux.tva(), totaux.ttc(), vue.empechements(), vue.emettre(), vue.gerer(),
+                p.pdf().isPresent(), p.creeeLe(), p.creePar().nom(), p.version());
     }
 }

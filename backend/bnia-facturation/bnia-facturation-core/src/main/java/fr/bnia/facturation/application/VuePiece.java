@@ -1,5 +1,6 @@
 package fr.bnia.facturation.application;
 
+import fr.bnia.facturation.domain.EtatPiece;
 import fr.bnia.facturation.domain.Facture;
 import java.util.List;
 
@@ -8,11 +9,17 @@ import java.util.List;
  * émis »).
  *
  * @param empechements RG-FAC-09 ; vide pour une pièce émise, ou un brouillon prêt à l'être
- * @param emettre      l'acteur peut l'émettre : brouillon, et gestion de la facturation (RG-FAC-26)
+ * @param gerer        l'acteur gère la facturation (RG-FAC-26) : il modifie, émet et abandonne un brouillon, et
+ *                     annote toute pièce
  */
-public record VuePiece(Facture piece, List<String> empechements, boolean emettre) {
+public record VuePiece(Facture piece, List<String> empechements, boolean gerer) {
 
     public VuePiece {
         empechements = List.copyOf(empechements);
+    }
+
+    /** L'acteur peut modifier, émettre ou abandonner ce brouillon. */
+    public boolean emettre() {
+        return gerer && piece.etat() == EtatPiece.BROUILLON;
     }
 }

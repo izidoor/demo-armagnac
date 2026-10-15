@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <!--
-  PDF d'une pièce émise (spec 08, RG-FAC-15, A-FAC-10) : A4 portrait, d'après la facture d'exemple
+  PDF d'une pièce émise (spec 08, RG-FAC-15, A-FAC-10), ou aperçu d'un brouillon (projet : bandeau, filigrane,
+  sans numéro) : A4 portrait, d'après la facture d'exemple
   FACTURE-CVO-Armagnac_2026000700.pdf. XHTML bien formé (OpenHTMLtoPDF) : éléments vides fermés, aucune entité
   nommée. Les textes arrivent mis en forme par PdfPiece (euros, quantités, dates).
 -->
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <title th:text="${titre} + ' ' + ${numero}">Facture</title>
+  <title th:text="${projet} ?: (${titre} + ' ' + ${numero})">Facture</title>
   <style>
     @page {
       size: A4 portrait;
@@ -43,9 +44,22 @@
     table.totaux tr.ttc td { font-weight: bold; font-size: 10pt; border-top: 1pt solid #111; }
     .nombre { text-align: right; white-space: nowrap; }
     .mentions { margin-top: 6mm; color: #444; font-size: 7.5pt; }
+    .bandeau { border: 1.5pt solid #b42318; color: #b42318; font-weight: bold; font-size: 10pt; text-align: center;
+      padding: 2mm; margin-bottom: 5mm; letter-spacing: 1pt; }
+    .bandeau .petit { color: #b42318; font-weight: normal; letter-spacing: 0; }
+    /* Répété sur chaque page (élément fixe) ; transparent pour laisser lire la pièce. */
+    .filigrane { position: fixed; top: 110mm; left: -20mm; width: 220mm; text-align: center; font-size: 44pt;
+      white-space: nowrap;
+      font-weight: bold; color: #b42318; opacity: 0.12; transform: rotate(-35deg); }
   </style>
 </head>
 <body>
+
+<div class="filigrane" th:if="${projet}" th:text="${projet}">PROJET DE FACTURE</div>
+<div class="bandeau" th:if="${projet}">
+  <span th:text="'BROUILLON · ' + ${projet}">BROUILLON · PROJET DE FACTURE</span>
+  <div class="petit">Document sans valeur comptable : la pièce n'est ni numérotée ni émise.</div>
+</div>
 
 <table class="parties">
   <tr>
@@ -61,7 +75,8 @@
 </table>
 
 <h1 th:text="${titre}">Cotisation interprofessionnelle Armagnac</h1>
-<div class="numero"><span th:text="${sens}">Facture</span> n° <strong th:text="${numero}">2026000001</strong></div>
+<div class="numero" th:if="${numero}"><span th:text="${sens}">Facture</span> n° <strong th:text="${numero}">2026000001</strong></div>
+<div class="numero" th:unless="${numero}"><span th:text="${sens}">Facture</span> n° <strong>attribué à l'émission</strong></div>
 
 <table class="infos">
   <tr th:each="i : ${informations}">
@@ -135,7 +150,7 @@
 <p class="note" th:if="${notePied}" th:text="${notePied}">Note de pied</p>
 
 <div class="mentions">
-  <div th:text="${reglement}">IBAN · BIC</div>
+  <div th:if="${reglement}" th:text="${reglement}">IBAN · BIC</div>
   <div th:each="m : ${mentions}" th:text="${m}">Mention</div>
 </div>
 

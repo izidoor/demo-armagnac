@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Le contexte en mémoire, pour les tests de cas d'usage : repositories qui attribuent les identifiants, ports de
@@ -36,6 +37,9 @@ final class Monde {
     static final Acteur GESTIONNAIRE = new Acteur(1);
     static final Acteur LECTEUR = new Acteur(2);
     static final Acteur ETRANGER = new Acteur(3);
+    /** Rattaché à l'opérateur du client de l'exemple ({@link Exemples#CLIENT}, n° 42). */
+    static final Acteur CLIENT = new Acteur(4);
+    static final long OPERATEUR_CLIENT = 42;
 
     final Clock horloge = Clock.fixed(Instant.parse("2026-10-07T08:00:00Z"), ZoneId.of("Europe/Paris"));
     final Factures factures = new Factures();
@@ -56,7 +60,13 @@ final class Monde {
 
         @Override
         public boolean litTout(Acteur acteur) {
-            return !acteur.equals(ETRANGER);
+            return acteur.equals(GESTIONNAIRE) || acteur.equals(LECTEUR);
+        }
+
+        @Override
+        public boolean litClient(Acteur acteur, long operateur) {
+            return acteur.equals(GESTIONNAIRE) || acteur.equals(LECTEUR)
+                    || acteur.equals(CLIENT) && operateur == OPERATEUR_CLIENT;
         }
 
         @Override
@@ -104,11 +114,34 @@ final class Monde {
     }
 
     ConsulterFactures consulter() {
-        return new ConsulterFactures(factures, filtre -> List.of(), vendeurs, journal, stockage, droits, horloge);
+        return new ConsulterFactures(factures, filtre -> List.of(), vendeurs, journal, stockage,
+                (piece, vendeur) -> ("%PDF-1.7 projet" + (vendeur.isPresent() ? " vendeur" : "")).getBytes(),
+                droits, horloge);
     }
 
     ParametrerVendeur parametrer() {
         return new ParametrerVendeur(vendeurs, droits);
+    }
+
+    ModifierBrouillon modifier() {
+        return new ModifierBrouillon(factures, vendeurs, journal, droits, List.of(catalogue), horloge);
+    }
+
+    AbandonnerBrouillon abandonner() {
+        return new AbandonnerBrouillon(factures, evenements::add, droits);
+    }
+
+    /** Transactions immédiates (ADR-022) : l'action s'exécute sans transaction. */
+    EmettreLot emettreLot() {
+        return new EmettreLot(emettre(), Supplier::get, droits);
+    }
+
+    ConsulterMesFactures mesFactures(PiecesLecture lecture) {
+        return new ConsulterMesFactures(factures, lecture, journal, stockage, droits, horloge);
+    }
+
+    AnnoterPiece annoter() {
+        return new AnnoterPiece(factures, journal, droits, horloge);
     }
 
     static final class Factures implements FactureRepository {
@@ -145,6 +178,11 @@ final class Monde {
         @Override
         public Optional<Facture> parId(long id) {
             return Optional.ofNullable(parId.get(id)).map(Facture::reconstituer);
+        }
+
+        @Override
+        public void supprimer(long id) {
+            parId.remove(id);
         }
 
         @Override

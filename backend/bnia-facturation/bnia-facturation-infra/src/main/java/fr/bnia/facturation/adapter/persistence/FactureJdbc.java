@@ -88,6 +88,12 @@ class FactureJdbc implements FactureRepository {
     }
 
     @Override
+    public void supprimer(long id) {
+        // Le journal suit par la clé étrangère (on delete cascade), les lignes avec l'agrégat (RG-FAC-18).
+        template.deleteById(id, Ligne.class);
+    }
+
+    @Override
     public boolean origineVivante(String source, String identifiant) {
         return jdbcClient.sql("select exists (select 1 from " + SCHEMA + ".facture where sens = 'FACTURE'"
                         + " and origine_source = :source and origine_identifiant = :identifiant)")
@@ -119,7 +125,7 @@ class FactureJdbc implements FactureRepository {
         for (LigneFacture ligne : lignes) {
             if (ligne instanceof LigneGroupe g) {
                 int position = plates.size();
-                plates.add(LigneFactureLigne.texte("GROUPE", null, g.titre()));
+                plates.add(LigneFactureLigne.texte("GROUPE", null, g.titre(), g.numero(), g.recue()));
                 g.lignes().forEach(l -> plates.add(LigneFactureLigne.de(l, position)));
             } else {
                 plates.add(LigneFactureLigne.de(ligne, null));
@@ -159,7 +165,8 @@ class FactureJdbc implements FactureRepository {
         }
         List<LigneFacture> lignes = new ArrayList<>();
         parPosition.forEach((position, ligne) -> lignes.add(ligne instanceof LigneFactureLigne g
-                ? new LigneGroupe(g.texte(), enfants.getOrDefault(position, List.of())) : (LigneFacture) ligne));
+                ? new LigneGroupe(g.texte(), enfants.getOrDefault(position, List.of()), g.numero(), g.recue())
+                : (LigneFacture) ligne));
         return lignes;
     }
 
@@ -236,21 +243,23 @@ class FactureJdbc implements FactureRepository {
 
     /** Une ligne de la pièce, quelle que soit sa sorte (A-FAC-4) ; colonnes de l'article vides hors article. */
     @Table(schema = SCHEMA, name = "ligne_facture")
-    record LigneFactureLigne(String sorte, Integer groupe, String texte, String articleSource, String articleCode,
-            String unite, NatureArticle nature, String codeComptable, BigDecimal quantite, BigDecimal prixUnitaire,
-            CategorieTva.Code tvaCode, BigDecimal tvaTaux, String tvaMotif, BigDecimal montantHt) {
+    record LigneFactureLigne(int numero, boolean recue, String sorte, Integer groupe, String texte,
+            String articleSource, String articleCode, String unite, NatureArticle nature, String codeComptable,
+            BigDecimal quantite, BigDecimal prixUnitaire, CategorieTva.Code tvaCode, BigDecimal tvaTaux,
+            String tvaMotif, BigDecimal montantHt) {
 
-        static LigneFactureLigne texte(String sorte, Integer groupe, String texte) {
-            return new LigneFactureLigne(sorte, groupe, texte, null, null, null, null, null, null, null, null, null,
-                    null, null);
+        static LigneFactureLigne texte(String sorte, Integer groupe, String texte, int numero, boolean recue) {
+            return new LigneFactureLigne(numero, recue, sorte, groupe, texte, null, null, null, null, null, null, null,
+                    null, null, null, null);
         }
 
         static LigneFactureLigne de(LigneFacture ligne, Integer groupe) {
             return switch (ligne) {
-                case LigneArticle a -> new LigneFactureLigne("ARTICLE", groupe, a.designation(), a.article().source(),
-                        a.article().code(), a.unite(), a.nature(), a.codeComptable(), a.quantite(), a.prixUnitaire(),
-                        a.tva().code(), a.tva().taux(), a.tva().motif(), a.montantHt());
-                case LigneInformative i -> texte("TEXTE", groupe, i.texte());
+                case LigneArticle a -> new LigneFactureLigne(a.numero(), a.recue(), "ARTICLE", groupe, a.designation(),
+                        a.article().source(), a.article().code(), a.unite(), a.nature(), a.codeComptable(),
+                        a.quantite(), a.prixUnitaire(), a.tva().code(), a.tva().taux(), a.tva().motif(),
+                        a.montantHt());
+                case LigneInformative i -> texte("TEXTE", groupe, i.texte(), i.numero(), i.recue());
                 case LigneGroupe g -> throw new IllegalArgumentException("Un groupe ne se range pas dans un groupe.");
             };
         }
@@ -258,8 +267,9 @@ class FactureJdbc implements FactureRepository {
         LigneFacture versDomaine() {
             return switch (sorte) {
                 case "ARTICLE" -> new LigneArticle(new ArticleRef(articleSource, articleCode), texte, unite, nature,
-                        codeComptable, quantite, prixUnitaire, new CategorieTva(tvaCode, tvaTaux, tvaMotif));
-                case "TEXTE" -> new LigneInformative(texte);
+                        codeComptable, quantite, prixUnitaire, new CategorieTva(tvaCode, tvaTaux, tvaMotif), numero,
+                        recue);
+                case "TEXTE" -> new LigneInformative(texte, numero, recue);
                 default -> throw new IllegalStateException("Ligne de groupe inattendue à cette place.");
             };
         }

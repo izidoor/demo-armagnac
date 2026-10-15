@@ -57,7 +57,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
- * Lot 1 de la spec 08 : facturer une DSM, de bout en bout. La DSM validée d'un négociant aux volumes de la facture
+ * Lots 1 et 2 de la spec 08 : facturer une DSM, de bout en bout, puis travailler son brouillon. La DSM validée d'un négociant aux volumes de la facture
  * d'exemple, facturée depuis {@code declarations}, émise par {@code facturation}, puis « facturée » dans la DSM.
  * La grille CVO, la classe de TVA de la CVO et le vendeur sont communs à la base des IT : on les assure.
  */
@@ -250,8 +250,21 @@ class FacturationIT extends AbstractIT {
         long brouillon = ((Number) corps(client.post().uri("/api/operateurs/" + operateur + "/dsm/" + id + "/facturation")
                 .exchange().expectStatus().isOk()).get("brouillonFacture")).longValue();
         client.get().uri(PIECES + "/{id}/pdf", brouillon).exchange().expectStatus().isNotFound();
+        byte[] apercu = client.get().uri(PIECES + "/{id}/apercu", brouillon).exchange().expectStatus().isOk()
+                .expectHeader().contentType("application/pdf")
+                .expectBody(byte[].class).returnResult().getResponseBody();
+        try (PDDocument document = Loader.loadPDF(apercu)) {
+            assertThat(new PDFTextStripper().getText(document)).contains("BROUILLON", "PROJET DE FACTURE",
+                    "Document sans valeur comptable", "Facture n° attribué à l'émission", "Commerce de l'Armagnac",
+                    "2 152,90 €", "calculée à l'émission");
+        }
+        client.get().uri(PIECES + "/{id}/journal", brouillon).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.length()").isEqualTo(1);
         String numero = (String) corps(client.post().uri(PIECES + "/{id}/emission", brouillon).exchange()
                 .expectStatus().isOk()).get("numero");
+        client.get().uri(PIECES + "/{id}/apercu", brouillon).exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-FAC-14");
 
         byte[] pdf = client.get().uri(PIECES + "/{id}/pdf", brouillon).exchange().expectStatus().isOk()
                 .expectHeader().contentType("application/pdf")
@@ -313,7 +326,7 @@ class FacturationIT extends AbstractIT {
     }
 
     @Test
-    @DisplayName("RG-FAC-26 : l'historique, l'émission et le vendeur sont refusés à un membre d'un négociant ; le vendeur incomplet est refusé (RG-FAC-16)")
+    @DisplayName("RG-FAC-26 : l'historique, l'émission, la modification, l'abandon, les notes et le vendeur sont refusés à un membre d'un négociant ; le vendeur incomplet est refusé (RG-FAC-16)")
     void rg_fac_26_droits() {
         long operateur = negociant(true);
         String email = emailUnique("admin");
@@ -322,6 +335,13 @@ class FacturationIT extends AbstractIT {
 
         negociant.get().uri(PIECES).exchange().expectStatus().isForbidden();
         negociant.post().uri(PIECES + "/1/emission").exchange().expectStatus().isForbidden();
+        negociant.post().uri(PIECES + "/emission").body(Map.of("ids", List.of(1))).exchange().expectStatus()
+                .isForbidden();
+        negociant.put().uri(PIECES + "/1").body(Map.of("condition", Map.of("jours", 0, "finDeMois", false),
+                "lignes", List.of(), "version", 0)).exchange().expectStatus().isForbidden();
+        negociant.delete().uri(PIECES + "/1").exchange().expectStatus().isForbidden();
+        negociant.post().uri(PIECES + "/1/notes").body(Map.of("texte", "Note")).exchange().expectStatus().isForbidden();
+        negociant.get().uri(PIECES + "/1/articles").exchange().expectStatus().isForbidden();
         negociant.put().uri(VENDEUR).body(vendeur()).exchange().expectStatus().isForbidden();
         negociant.post().uri("/api/declarations/facturation").body(Map.of("dsms", List.of(1))).exchange()
                 .expectStatus().isForbidden();
@@ -380,6 +400,183 @@ class FacturationIT extends AbstractIT {
                     assertThat(a.prixUnitaire()).isEqualByComparingTo("11");
                     assertThat(a.tva().code()).isEqualTo(CategorieTva.Code.E);
                 });
+    }
+
+    /** Le brouillon de la DSM validée d'un nouveau négociant facturable. */
+    private long brouillonDeDsm(long operateur) {
+        long id = dsmValidee(operateur);
+        return ((Number) corps(client.post().uri("/api/operateurs/" + operateur + "/dsm/" + id + "/facturation")
+                .exchange().expectStatus().isOk()).get("brouillonFacture")).longValue();
+    }
+
+    /** Une ligne de la réponse, telle qu'elle se renvoie à l'enregistrement (RG-FAC-17). */
+    private static Map<String, Object> saisieDe(Map<String, Object> ligne) {
+        Map<String, Object> saisie = new HashMap<>();
+        for (String champ : List.of("numero", "sorte", "texte", "unite", "quantite", "prixUnitaire")) {
+            saisie.put(champ, ligne.get(champ));
+        }
+        saisie.put("lignes", ((List<Map<String, Object>>) ligne.get("lignes")).stream().map(FacturationIT::saisieDe)
+                .toList());
+        return saisie;
+    }
+
+    private static Map<String, Object> modification(Map<String, Object> piece, String periode,
+            List<Map<String, Object>> lignes) {
+        Map<String, Object> corps = new HashMap<>();
+        corps.put("libellePeriode", periode);
+        corps.put("condition", Map.of("jours", 30, "finDeMois", true));
+        corps.put("notePied", piece.get("notePied"));
+        corps.put("lignes", lignes);
+        corps.put("version", piece.get("version"));
+        return corps;
+    }
+
+    @Test
+    @DisplayName("RG-FAC-17 : période corrigée, texte ajouté en tête, journal « modifiée » ; ligne reçue verrouillée ; version périmée refusée")
+    void rg_fac_17_modifier() {
+        long brouillon = brouillonDeDsm(negociant(true));
+        Map<String, Object> piece = corps(client.get().uri(PIECES + "/{id}", brouillon).exchange().expectStatus().isOk());
+        Map<String, Object> groupe = saisieDe(((List<Map<String, Object>>) piece.get("lignes")).getFirst());
+        Map<String, Object> texte = new HashMap<>(Map.of("sorte", "TEXTE",
+                "texte", "Régularisation suite au contrôle du 02/10"));
+
+        Map<String, Object> modifiee = corps(client.put().uri(PIECES + "/{id}", brouillon)
+                .body(modification(piece, "DSM juillet 2026, rectifiée", List.of(texte, groupe))).exchange()
+                .expectStatus().isOk());
+
+        assertThat(modifiee.get("libellePeriode")).isEqualTo("DSM juillet 2026, rectifiée");
+        List<Map<String, Object>> lignes = (List<Map<String, Object>>) modifiee.get("lignes");
+        assertThat(lignes.getFirst()).containsEntry("sorte", "TEXTE").containsEntry("recue", false);
+        assertThat(lignes.getLast()).containsEntry("recue", true);
+        assertThat(modifiee.get("totalTtc")).isEqualTo(2152.9);
+        client.get().uri(PIECES + "/{id}/journal", brouillon).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].evenement").isEqualTo("MODIFIEE");
+        // Saisie faite sur la version d'avant : quelqu'un a enregistré entre-temps.
+        client.put().uri(PIECES + "/{id}", brouillon).body(modification(piece, "Autre", List.of(groupe))).exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+        Map<String, Object> ampute = new HashMap<>(groupe);
+        ampute.put("lignes", ((List<?>) groupe.get("lignes")).subList(1, 4));
+        client.put().uri(PIECES + "/{id}", brouillon).body(modification(modifiee, null, List.of(ampute))).exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-FAC-17");
+        client.get().uri(PIECES + "/{id}/articles", brouillon).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[*].code").value(codes ->
+                        assertThat((List<String>) codes).contains("CVO-SORTIES_FRANCE-S", "CVO-SORTIES_FRANCE-E"));
+    }
+
+    @Test
+    @DisplayName("RG-FAC-18, 25 : le brouillon abandonné disparaît avec son journal ; la DSM redevient à facturer et se refacture ; une pièce émise ne s'abandonne pas")
+    void rg_fac_18_abandonner() {
+        long operateur = negociant(true);
+        long id = dsmValidee(operateur);
+        String dsm = "/api/operateurs/" + operateur + "/dsm/" + id;
+        long brouillon = ((Number) corps(client.post().uri(dsm + "/facturation").exchange().expectStatus().isOk())
+                .get("brouillonFacture")).longValue();
+
+        client.delete().uri(PIECES + "/{id}", brouillon).exchange().expectStatus().isNoContent();
+
+        client.get().uri(PIECES + "/{id}", brouillon).exchange().expectStatus().isNotFound();
+        assertThat((List<String>) corps(client.get().uri(dsm).exchange().expectStatus().isOk()).get("actions"))
+                .contains("FACTURER");
+        client.get().uri("/api/declarations/dsm?operateur=" + operateur).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].facturationDemandee").isEqualTo(false)
+                .jsonPath("$[0].facturee").isEqualTo(false);
+        client.get().uri(dsm + "/journal").exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].action").isEqualTo("FACTURATION_ABANDONNEE");
+        long refacturee = ((Number) corps(client.post().uri(dsm + "/facturation").exchange().expectStatus().isOk())
+                .get("brouillonFacture")).longValue();
+        client.post().uri(PIECES + "/{id}/emission", refacturee).exchange().expectStatus().isOk();
+        client.delete().uri(PIECES + "/{id}", refacturee).exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-FAC-14");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-19 : une sélection émise brouillon par brouillon, dans l'ordre ; un refus est rapporté et ne consomme pas de numéro")
+    void rg_fac_19_lot() {
+        long dejaEmis = brouillonDeDsm(negociant(true));
+        long aEmettre = brouillonDeDsm(negociant(true));
+        long numero = Long.parseLong((String) corps(client.post().uri(PIECES + "/{id}/emission", dejaEmis).exchange()
+                .expectStatus().isOk()).get("numero"));
+
+        List<Map<String, Object>> comptesRendus = client.post().uri(PIECES + "/emission")
+                .body(Map.of("ids", List.of(dejaEmis, aEmettre))).exchange().expectStatus().isOk()
+                .expectBody(List.class).returnResult().getResponseBody();
+
+        assertThat(comptesRendus).extracting(c -> ((Number) c.get("id")).longValue()).containsExactly(dejaEmis, aEmettre);
+        assertThat((String) comptesRendus.getFirst().get("motif")).contains("est émise");
+        assertThat(comptesRendus.getFirst().get("numero")).isNull();
+        assertThat(Long.parseLong((String) comptesRendus.getLast().get("numero"))).isEqualTo(numero + 1);
+        client.get().uri(PIECES + "/{id}", aEmettre).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.etat").isEqualTo("EMISE");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-21 : une note interne au journal, sur un brouillon comme sur une pièce émise ; une note vide est refusée")
+    void rg_fac_21_note() {
+        long brouillon = brouillonDeDsm(negociant(true));
+
+        client.post().uri(PIECES + "/{id}/notes", brouillon).body(Map.of("texte", "Relancer le comptable")).exchange()
+                .expectStatus().isOk().expectBody().jsonPath("$.evenement").isEqualTo("NOTE");
+        client.post().uri(PIECES + "/{id}/emission", brouillon).exchange().expectStatus().isOk();
+        client.post().uri(PIECES + "/{id}/notes", brouillon).body(Map.of("texte", "Envoyée par courrier")).exchange()
+                .expectStatus().isOk();
+        client.post().uri(PIECES + "/{id}/notes", brouillon).body(Map.of("texte", " ")).exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-FAC-21");
+
+        client.get().uri(PIECES + "/{id}/journal", brouillon).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].detail").isEqualTo("Envoyée par courrier")
+                .jsonPath("$[0].cote").isEqualTo("VENDEUR")
+                .jsonPath("$[2].detail").isEqualTo("Relancer le comptable");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-26, 28 : au portail, l'opérateur voit ses pièces émises, jamais ses brouillons ; détail et PDF journalisés côté client")
+    void rg_fac_28_portail() throws IOException {
+        long operateur = negociant(true);
+        long emise = brouillonDeDsm(operateur);
+        String numero = (String) corps(client.post().uri(PIECES + "/{id}/emission", emise).exchange()
+                .expectStatus().isOk()).get("numero");
+        long brouillon = demandeFactures.demander(new Acteur(admin.utilisateur()), List.of(new DemandeFacture(
+                new Origine("declarations", "TEST", "Test du portail", "IT-" + unique(), "IT"),
+                ClientRef.operateur(operateur, operateurs.operateur(operateur).orElseThrow().code()),
+                LocalDate.of(2026, 7, 31), null, ConditionPaiement.TRENTE_JOURS_FIN_DE_MOIS, null, null, null,
+                List.of(new ArticleDemande(new ArticleRef("declarations", "CVO-SORTIES_FRANCE-S"), BigDecimal.ONE,
+                        null, null))))).getFirst();
+        String email = emailUnique("observateur");
+        membre(operateur, Role.OBSERVATEUR, email);
+        RestTestClient observateur = connecte(email);
+        String factures = "/api/operateurs/" + operateur + "/factures";
+
+        observateur.get().uri(factures).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[*].id").isEqualTo(List.of((int) emise))
+                .jsonPath("$[0].numero").isEqualTo(numero);
+        observateur.get().uri(factures + "/{id}", emise).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.numero").isEqualTo(numero)
+                .jsonPath("$.origine.reference").value(r -> assertThat((String) r).startsWith("DSM "))
+                .jsonPath("$.emettre").isEqualTo(false);
+        byte[] pdf = observateur.get().uri(factures + "/{id}/pdf", emise).exchange().expectStatus().isOk()
+                .expectBody(byte[].class).returnResult().getResponseBody();
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            assertThat(new PDFTextStripper().getText(document)).contains("Facture n° " + numero);
+        }
+        observateur.get().uri(factures + "/{id}", brouillon).exchange().expectStatus().isNotFound();
+        observateur.get().uri(factures + "/{id}/journal", emise).exchange().expectStatus().isNotFound();
+
+        client.get().uri(PIECES + "/{id}/journal", emise).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].evenement").isEqualTo("CONSULTEE")
+                .jsonPath("$[0].cote").isEqualTo("CLIENT")
+                .jsonPath("$[0].detail").isEqualTo("PDF")
+                .jsonPath("$[1].cote").isEqualTo("CLIENT");
+
+        // RG-FAC-26 : un membre d'un autre opérateur n'y a pas accès, ni à l'historique du BNIA.
+        String autre = emailUnique("observateur");
+        membre(negociant(true), Role.OBSERVATEUR, autre);
+        RestTestClient etranger = connecte(autre);
+        etranger.get().uri(factures).exchange().expectStatus().isForbidden();
+        etranger.get().uri(factures + "/{id}", emise).exchange().expectStatus().isForbidden();
+        observateur.get().uri(PIECES + "/{id}", emise).exchange().expectStatus().isForbidden();
     }
 
     @Test

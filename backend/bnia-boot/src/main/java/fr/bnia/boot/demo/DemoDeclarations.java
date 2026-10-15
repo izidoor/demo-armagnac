@@ -56,9 +56,9 @@ import org.springframework.stereotype.Component;
  * <li>les négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier jour du
  * mois précédent ; leur première DSM est celle du mois courant :
  * <ul>
- * <li>Armagnacs de Gascogne ({@code N320001}) : part de deux mois avant le mois courant (spec 08 §7.1) ; ses
- * DSM de ces deux mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L, export
- * 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture ; celle du mois courant est envoyée, avec les
+ * <li>Armagnacs de Gascogne ({@code N320001}) : part de onze mois avant le mois courant (spec 08 §7.1, lots 1
+ * et 2) ; ses DSM de ces onze mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L,
+ * export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle du mois courant est envoyée, avec les
  * mêmes totaux, un commentaire de l'opérateur et un commentaire interne du BNIA ; elle attend le BNIA,
  * l'opérateur n'est pas en retard ;</li>
  * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
@@ -151,9 +151,13 @@ public class DemoDeclarations implements ApplicationRunner {
         return new Acteur(lecture.utilisateurParEmail(email).orElseThrow());
     }
 
+    /** Mois validés d'Armagnacs de Gascogne, à facturer : une facture émise, dix à facturer en lot (spec 08 §7.1). */
+    private static final int MOIS_VALIDES_GASCOGNE = 11;
+
     /**
-     * Deux DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM envoyée du mois
-     * courant, aux mêmes totaux : la file d'attente du BNIA. Le stock de départ couvre les sorties des deux mois.
+     * Onze DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM envoyée du mois
+     * courant, aux mêmes totaux : la file d'attente du BNIA. Le stock de départ couvre les sorties des onze mois et
+     * laisse au mois courant le même reliquat qu'avec deux.
      */
     private void armagnacsDeGascogne() {
         Long id = aCharger("N320001");
@@ -161,15 +165,15 @@ public class DemoDeclarations implements ApplicationRunner {
             LOG.info("Démo : déclarations déjà chargées.");
             return;
         }
-        points.fixer(anne, id, moisCourant().minusMonths(2), List.of(
-                stock(CleConditionnement.NB, "XO", "12", "3198.62"),
-                stock(CleConditionnement.NB, "VSOP", "5", "6819.05"),
+        points.fixer(anne, id, moisCourant().minusMonths(MOIS_VALIDES_GASCOGNE), List.of(
+                stock(CleConditionnement.NB, "XO", "12", "10750.61"),
+                stock(CleConditionnement.NB, "VSOP", "5", "27106.40"),
                 stock(CleConditionnement.NV, "VSOP", "5", "865.20"),
                 stock(CleConditionnement.MB, 2010, null, "642.10"),
                 stock(CleConditionnement.MV, 2015, "6", "318.60"),
                 stock(CleConditionnement.NB, "Blanche", "00", "1250.00")));
         Acteur julie = membre("agent@negociant.fr");
-        for (int mois = 0; mois < 2; mois++) {
+        for (int mois = 0; mois < MOIS_VALIDES_GASCOGNE; mois++) {
             DeclarationStocksMouvements validee = remplir(julie, id, Map.of(
                     0, Map.of(ColonneDsm.C17, "839.11"),
                     1, Map.of(ColonneDsm.C22, "2254.15"))).dsm();

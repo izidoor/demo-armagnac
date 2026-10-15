@@ -4,6 +4,7 @@ import fr.bnia.declarations.application.FacturerDsm;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.domain.partage.EtatDsm;
+import fr.bnia.facturation.application.AnnoterPiece;
 import fr.bnia.facturation.application.EmettrePiece;
 import fr.bnia.facturation.application.ParametrerVendeur;
 import fr.bnia.facturation.domain.Adresse;
@@ -21,12 +22,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Données de démonstration de la facturation (spec 08 §7.1, lot 1), en profil {@code demo} seulement, après les
+ * Données de démonstration de la facturation (spec 08 §7.1, lots 1 et 2), en profil {@code demo} seulement, après les
  * déclarations :
  * <ul>
  * <li>le vendeur, le BNIA, tel qu'imprimé sur les factures d'exemple ;</li>
  * <li>Armagnacs de Gascogne ({@code N320001}) : sa plus ancienne DSM validée est facturée et la facture émise,
- * au total de la facture d'exemple (1 855,95 € HT, 2 152,90 € TTC) ; la suivante reste à facturer ;</li>
+ * au total de la facture d'exemple (1 855,95 € HT, 2 152,90 € TTC), avec une note au journal ; les dix suivantes
+ * restent à facturer, en lot (lot 2) ;</li>
  * <li>Maison Durand, Condom ({@code 000001}) : la facture de sa DSM validée est demandée, un brouillon en
  * attente ;</li>
  * <li>le Domaine de Laubade ({@code 000003}), sans SIRET : sa DSM validée reste à facturer, et le refus nomme ce
@@ -46,14 +48,16 @@ public class DemoFacturation implements ApplicationRunner {
     private final ParametrerVendeur vendeur;
     private final FacturerDsm facturer;
     private final EmettrePiece emettre;
+    private final AnnoterPiece annoter;
     private final GererDsm dsms;
     private final OperateursLecture lecture;
 
-    public DemoFacturation(ParametrerVendeur vendeur, FacturerDsm facturer, EmettrePiece emettre, GererDsm dsms,
-            OperateursLecture lecture) {
+    public DemoFacturation(ParametrerVendeur vendeur, FacturerDsm facturer, EmettrePiece emettre, AnnoterPiece annoter,
+            GererDsm dsms, OperateursLecture lecture) {
         this.vendeur = vendeur;
         this.facturer = facturer;
         this.emettre = emettre;
+        this.annoter = annoter;
         this.dsms = dsms;
         this.lecture = lecture;
     }
@@ -74,6 +78,7 @@ public class DemoFacturation implements ApplicationRunner {
         List<Long> gascogne = validees(anne, "N320001");
         long piece = facturer.facturer(anne, List.of(gascogne.getFirst())).getFirst().brouillon();
         String numero = emettre.emettre(emettrice, piece).numero().orElseThrow();
+        annoter.annoter(emettrice, piece, "Facture envoyée aussi par courrier, à la demande du service comptable.");
         LOG.info("Démo : facture {} d'Armagnacs de Gascogne émise.", numero);
 
         facturer.facturer(anne, validees(anne, "000001"));

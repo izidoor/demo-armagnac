@@ -14,6 +14,9 @@ public interface FactureRepository {
 
     Optional<Facture> parId(long id);
 
+    /** RG-FAC-18 : supprime un brouillon abandonné, avec ses lignes et son journal. */
+    void supprimer(long id);
+
     /** RG-FAC-02 : cette origine a une facture vivante (un brouillon, ou une facture émise non annulée). */
     boolean origineVivante(String source, String identifiant);
 }

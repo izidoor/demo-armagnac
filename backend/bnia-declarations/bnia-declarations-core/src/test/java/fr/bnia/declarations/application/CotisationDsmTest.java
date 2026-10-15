@@ -166,6 +166,21 @@ class CotisationDsmTest {
     }
 
     @Test
+    @DisplayName("RG-DEC-34 : le brouillon abandonné dans facturation quitte la projection ; la DSM redevient à facturer")
+    void rg_dec_34_brouillon_abandonne() {
+        grille.ajouter(AGENT_BNIA, taux("60", "20", LocalDate.of(2024, 1, 1)));
+        monde.factures.inserer(FactureDsm.brouillon(id, 41));
+
+        monde.enregistrerFactures().factureAbandonnee(id, 41, AGENT_BNIA);
+
+        ListerDsm.DsmListee listee = monde.listerDsm().lister(AGENT_BNIA, TOUT).getFirst();
+        assertThat(listee.dsm().orElseThrow().facturationDemandee()).isFalse();
+        assertThat(listee.dsm().orElseThrow().facturee()).isFalse();
+        assertThat(monde.journal.deLaDsm(id)).extracting(e -> e.action())
+                .contains(ActionJournalDeclarations.FACTURATION_ABANDONNEE);
+    }
+
+    @Test
     @DisplayName("Spec 08 §3.13 : huit articles de cotisation, prix du taux CVO à la date, part assujettie à la TVA de la CVO, l'autre exonérée")
     void rg_dec_33_articles_de_cotisation() {
         grille.ajouter(AGENT_BNIA, taux("55", "20", LocalDate.of(2021, 1, 1)));

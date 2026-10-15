@@ -15,6 +15,12 @@ public interface DroitsFacturation {
     /** Lit toutes les pièces : personnel du BNIA. */
     boolean litTout(Acteur acteur);
 
+    /**
+     * Lit les pièces émises de ce client, au portail : rattachement actif à l'opérateur, qui lit le module
+     * « Facturation » (RG-FAC-26) ; le personnel du BNIA aussi.
+     */
+    boolean litClient(Acteur acteur, long operateur);
+
     /** Copie du nom de l'utilisateur, pour le journal (ADR-011 amendé) ; vide s'il n'existe plus. */
     Optional<String> nom(long utilisateur);
 }

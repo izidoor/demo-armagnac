@@ -30,6 +30,12 @@ final class Catalogues {
         }
     }
 
+    /** Les articles actifs de tous les catalogues à cette date, par source puis par code. */
+    List<Article> actifs(LocalDate date) {
+        return parSource.values().stream().flatMap(c -> c.articles(date).stream()).filter(Article::actif)
+                .sorted(java.util.Comparator.comparing(Article::source).thenComparing(Article::code)).toList();
+    }
+
     /**
      * RG-FAC-03 : l'article à la date de l'opération ; désignation, unité, nature, code comptable et catégorie de
      * TVA recopiés ; le prix de la demande s'il est donné, sinon celui de l'article. Inconnu ou inactif : refusé.

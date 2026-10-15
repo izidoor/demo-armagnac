@@ -1,6 +1,7 @@
 package fr.bnia.facturation.domain;
 
 import fr.bnia.commun.domain.DocumentDepose;
+import fr.bnia.commun.domain.ModificationConcurrente;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.facturation.api.CategorieTva;
 import fr.bnia.facturation.api.ConditionPaiement;
@@ -8,13 +9,16 @@ import fr.bnia.facturation.api.NatureArticle;
 import fr.bnia.facturation.api.Origine;
 import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
 import fr.bnia.facturation.domain.LigneFacture.LigneGroupe;
+import fr.bnia.facturation.domain.LigneFacture.LigneInformative;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -28,14 +32,14 @@ public final class Facture {
     private EtatPiece etat;
     private final Origine origine;
     private final LocalDate dateOperation;
-    private final String libellePeriode;
-    private final ConditionPaiement condition;
-    private final String bonDeCommande;
-    private final String noteEntete;
-    private final String notePied;
+    private String libellePeriode;
+    private ConditionPaiement condition;
+    private String bonDeCommande;
+    private String noteEntete;
+    private String notePied;
     private Acheteur acheteur;
     private Vendeur vendeur;
-    private final List<LigneFacture> lignes;
+    private List<LigneFacture> lignes;
     private String numero;
     private LocalDate dateEmission;
     private LocalDate echeance;
@@ -76,7 +80,8 @@ public final class Facture {
     }
 
     /**
-     * RG-FAC-01 : le brouillon de facture d'une demande, avec son origine, son acheteur et ses lignes résolues.
+     * RG-FAC-01 : le brouillon de facture d'une demande, avec son origine, son acheteur et ses lignes résolues,
+     * numérotées et marquées reçues de la source (RG-FAC-17).
      */
     public static Facture demandee(Origine origine, Acheteur acheteur, LocalDate dateOperation, String libellePeriode,
             ConditionPaiement condition, String bonDeCommande, String noteEntete, String notePied,
@@ -94,8 +99,8 @@ public final class Facture {
             throw new RegleEnfreinte("RG-FAC-10", "Une facture a un acheteur.");
         }
         return new Facture(new Donnees(null, SensPiece.FACTURE, EtatPiece.BROUILLON, origine, dateOperation,
-                libellePeriode, condition, bonDeCommande, noteEntete, notePied, acheteur, null, lignes, null, null, null,
-                null, creeeLe, creePar, 0));
+                libellePeriode, condition, bonDeCommande, noteEntete, notePied, acheteur, null,
+                ranger(lignes, 1, true), null, null, null, null, creeeLe, creePar, 0));
     }
 
     public static Facture reconstituer(Donnees donnees) {
@@ -105,6 +110,158 @@ public final class Facture {
     public Donnees donnees() {
         return new Donnees(id, sens, etat, origine, dateOperation, libellePeriode, condition, bonDeCommande, noteEntete,
                 notePied, acheteur, vendeur, lignes, numero, dateEmission, echeance, pdf, creeeLe, creePar, version);
+    }
+
+    /** L'en-tête modifiable d'un brouillon (RG-FAC-17) ; la date de l'opération et l'acheteur n'en sont pas. */
+    public record EnTete(String libellePeriode, ConditionPaiement condition, String bonDeCommande, String noteEntete,
+            String notePied) {
+    }
+
+    /**
+     * RG-FAC-17 : l'en-tête et les lignes d'un brouillon, tels que saisis. Une ligne existante est désignée par
+     * son numéro ; une ligne nouvelle a le numéro {@code 0} et reçoit le suivant. Une ligne reçue de la source
+     * reste présente, dans son groupe, avec son article, sa quantité, son unité et son prix : seules sa
+     * désignation et sa position changent. Les autres lignes sont libres.
+     *
+     * @param versionConnue la version sur laquelle la saisie a été faite
+     * @throws ModificationConcurrente si le brouillon a changé depuis
+     */
+    public void modifier(EnTete enTete, List<LigneFacture> saisies, long versionConnue) {
+        exigerBrouillon();
+        if (versionConnue != version) {
+            throw new ModificationConcurrente(null, designation() + " a été modifié entre-temps par quelqu'un "
+                    + "d'autre : rechargez l'écran, puis recommencez.");
+        }
+        if (enTete.condition() == null) {
+            throw new RegleEnfreinte("RG-FAC-13", "Une facture a une condition de paiement.");
+        }
+        Map<Integer, Placee> avant = placer(lignes);
+        Map<Integer, Placee> apres = new HashMap<>();
+        for (Placee p : placees(saisies)) {
+            if (p.ligne().numero() == 0) {
+                continue;
+            }
+            Placee ancienne = avant.get(p.ligne().numero());
+            if (ancienne == null || ancienne.ligne().getClass() != p.ligne().getClass()) {
+                throw new RegleEnfreinte("RG-FAC-17", "La ligne n° " + p.ligne().numero() + " n'est pas une ligne "
+                        + "de ce brouillon.");
+            }
+            if (apres.put(p.ligne().numero(), p) != null) {
+                throw new RegleEnfreinte("RG-FAC-17", "La ligne « " + p.ligne().designation() + " » figure deux fois.");
+            }
+            if (ancienne.ligne() instanceof LigneArticle a && p.ligne() instanceof LigneArticle b
+                    && !(a.article().equals(b.article()) && a.tva().equals(b.tva()) && a.nature() == b.nature()
+                            && Objects.equals(a.codeComptable(), b.codeComptable()))) {
+                throw new RegleEnfreinte("RG-FAC-17", "La ligne « " + a.designation() + " » garde son article et sa "
+                        + "TVA : pour en changer, retirez-la et ajoutez l'autre article.");
+            }
+        }
+        for (Placee ancienne : avant.values()) {
+            if (ancienne.ligne().recue()) {
+                verrouillee(ancienne, apres.get(ancienne.ligne().numero()));
+            }
+        }
+        int suivant = avant.keySet().stream().mapToInt(Integer::intValue).max().orElse(0) + 1;
+        List<LigneFacture> rangees = new ArrayList<>();
+        for (LigneFacture saisie : saisies) {
+            LigneFacture rangee = ranger(saisie, avant, suivant);
+            suivant += nouvelles(saisie);
+            rangees.add(rangee);
+        }
+        libellePeriode = Textes.facultatif(enTete.libellePeriode());
+        condition = enTete.condition();
+        bonDeCommande = Textes.facultatif(enTete.bonDeCommande());
+        noteEntete = Textes.facultatif(enTete.noteEntete());
+        notePied = Textes.facultatif(enTete.notePied());
+        lignes = List.copyOf(rangees);
+    }
+
+    /** RG-FAC-17 : une ligne reçue reste, dans son groupe, avec son article, sa quantité, son unité et son prix. */
+    private static void verrouillee(Placee ancienne, Placee nouvelle) {
+        String nom = "La ligne « " + ancienne.ligne().designation() + " », reçue de la source,";
+        if (nouvelle == null) {
+            throw new RegleEnfreinte("RG-FAC-17", nom + " ne se retire pas : pour la retirer, corrigez la source, "
+                    + "puis abandonnez le brouillon et refacturez.");
+        }
+        if (ancienne.groupe() != nouvelle.groupe()) {
+            throw new RegleEnfreinte("RG-FAC-17", nom + " reste dans son groupe.");
+        }
+        if (ancienne.ligne() instanceof LigneArticle a && nouvelle.ligne() instanceof LigneArticle b
+                && !(a.quantite().compareTo(b.quantite()) == 0 && a.prixUnitaire().compareTo(b.prixUnitaire()) == 0
+                        && Objects.equals(a.unite(), b.unite()))) {
+            throw new RegleEnfreinte("RG-FAC-17", nom + " garde sa quantité, son unité et son prix : seule sa "
+                    + "désignation se modifie.");
+        }
+    }
+
+    /** Une ligne et le numéro de son groupe ({@code 0} hors groupe). */
+    private record Placee(LigneFacture ligne, int groupe) {
+    }
+
+    private static List<Placee> placees(List<LigneFacture> lignes) {
+        List<Placee> placees = new ArrayList<>();
+        for (LigneFacture ligne : lignes) {
+            placees.add(new Placee(ligne, 0));
+            if (ligne instanceof LigneGroupe g) {
+                g.lignes().forEach(l -> placees.add(new Placee(l, g.numero())));
+            }
+        }
+        return placees;
+    }
+
+    private static Map<Integer, Placee> placer(List<LigneFacture> lignes) {
+        Map<Integer, Placee> parNumero = new HashMap<>();
+        placees(lignes).forEach(p -> parNumero.put(p.ligne().numero(), p));
+        return parNumero;
+    }
+
+    /** Une ligne saisie : existante, elle garde son numéro et sa provenance ; nouvelle, elle prend le suivant. */
+    private static LigneFacture ranger(LigneFacture saisie, Map<Integer, Placee> avant, int suivant) {
+        int[] numero = {suivant};
+        LigneFacture rangee = rangerUne(saisie, avant, numero);
+        if (rangee instanceof LigneGroupe g) {
+            return g.avecLignes(g.lignes().stream().map(l -> rangerUne(l, avant, numero)).toList());
+        }
+        return rangee;
+    }
+
+    private static LigneFacture rangerUne(LigneFacture saisie, Map<Integer, Placee> avant, int[] suivant) {
+        if (saisie.numero() == 0) {
+            return saisie.rangee(suivant[0]++, false);
+        }
+        return saisie.rangee(saisie.numero(), avant.get(saisie.numero()).ligne().recue());
+    }
+
+    /** Le nombre de lignes nouvelles de cette saisie, groupe compris. */
+    private static int nouvelles(LigneFacture saisie) {
+        int n = saisie.numero() == 0 ? 1 : 0;
+        if (saisie instanceof LigneGroupe g) {
+            n += (int) g.lignes().stream().filter(l -> l.numero() == 0).count();
+        }
+        return n;
+    }
+
+    /** Les lignes d'une demande, numérotées dans l'ordre d'impression à partir de {@code premier}. */
+    private static List<LigneFacture> ranger(List<LigneFacture> lignes, int premier, boolean recues) {
+        int[] numero = {premier};
+        return lignes.stream().map(l -> {
+            LigneFacture rangee = l.rangee(numero[0]++, recues);
+            if (rangee instanceof LigneGroupe g) {
+                return (LigneFacture) g.avecLignes(g.lignes().stream()
+                        .map(e -> e.rangee(numero[0]++, recues)).toList());
+            }
+            return rangee;
+        }).toList();
+    }
+
+    /** La ligne de ce numéro, groupes dépliés. */
+    public Optional<LigneFacture> ligne(int numero) {
+        return placees(lignes).stream().map(Placee::ligne).filter(l -> l.numero() == numero).findFirst();
+    }
+
+    /** RG-FAC-14, 18 : seul un brouillon s'abandonne ; une pièce émise se corrige par avoir. */
+    public void exigerAbandonnable() {
+        exigerBrouillon();
     }
 
     /** RG-FAC-14 : seul un brouillon se modifie ou s'émet. */
@@ -197,7 +354,7 @@ public final class Facture {
                 case LigneArticle a -> articles.add(a);
                 case LigneGroupe g -> g.lignes().stream().filter(LigneArticle.class::isInstance)
                         .map(LigneArticle.class::cast).forEach(articles::add);
-                case LigneFacture.LigneInformative i -> {
+                case LigneInformative i -> {
                 }
             }
         }

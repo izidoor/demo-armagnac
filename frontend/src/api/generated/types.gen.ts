@@ -84,6 +84,31 @@ export type AnomalieDsm = {
     type: 'STOCK_FIN_NEGATIF' | 'ASSEMBLAGES_DESEQUILIBRES' | 'PASSAGES_SOUS_BOIS_DESEQUILIBRES' | 'COMPTE_MV_TROP_VIEUX';
 };
 
+/**
+ * Un article actif d'un catalogue, à la date de l'opération du brouillon (RG-FAC-03)
+ */
+export type ArticlePropose = {
+    code: string;
+    designation: string;
+    nature: 'BIEN' | 'SERVICE';
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire: number;
+    source: string;
+    tvaCode: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle: string;
+    /**
+     * Motif d'exonération
+     */
+    tvaMotif?: string;
+    /**
+     * Vide hors champ
+     */
+    tvaTaux?: number;
+    unite?: string;
+};
+
 export type Blocage = {
     /**
      * Conservé au journal, jamais envoyé (RG-OPE-50)
@@ -221,12 +246,38 @@ export type ComplementsDsm = {
 };
 
 /**
+ * Le sort d'un brouillon de la sélection : son numéro, ou le motif du refus (RG-FAC-19)
+ */
+export type CompteRenduEmission = {
+    id: number;
+    /**
+     * Vide s'il a été émis
+     */
+    motif?: string;
+    /**
+     * Vide si le brouillon a été refusé
+     */
+    numero?: string;
+};
+
+/**
  * Condition de paiement (spec 08 §3.6)
  */
 export type ConditionPaiement = {
     finDeMois: boolean;
     jours: number;
     libelle: string;
+};
+
+/**
+ * Condition de paiement (spec 08 §3.6, RG-FAC-13)
+ */
+export type ConditionPaiementSaisie = {
+    finDeMois: boolean;
+    /**
+     * De 0 à 60 ; 45 au plus avec fin de mois
+     */
+    jours: number;
 };
 
 export type ConfirmationEmail = {
@@ -562,6 +613,13 @@ export type DsmResume = {
 };
 
 /**
+ * Les brouillons à émettre, dans l'ordre de la sélection (RG-FAC-19)
+ */
+export type EmissionBrouillons = {
+    ids: Array<number>;
+};
+
+/**
  * Action sur une DSM ou le point de départ, sans valeurs avant et après (RG-DEC-23)
  */
 export type EntreeJournalDeclarations = {
@@ -569,7 +627,7 @@ export type EntreeJournalDeclarations = {
      * Copie du nom de l'acteur
      */
     acteur: string;
-    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE';
+    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE' | 'FACTURATION_ABANDONNEE';
     date: string;
     /**
      * Nom de fichier, mois, format…
@@ -1034,10 +1092,18 @@ export type LignePiece = {
     montantHt?: number;
     nature?: 'BIEN' | 'SERVICE';
     /**
+     * Identité stable de la ligne dans la pièce
+     */
+    numero: number;
+    /**
      * HT, 4 décimales
      */
     prixUnitaire?: number;
     quantite?: number;
+    /**
+     * Reçue de la source : seules sa désignation et sa position se modifient (RG-FAC-17)
+     */
+    recue: boolean;
     sorte: 'ARTICLE' | 'TEXTE' | 'GROUPE';
     /**
      * Article : source
@@ -1050,6 +1116,45 @@ export type LignePiece = {
     tvaCode?: 'S' | 'Z' | 'E' | 'O';
     tvaLibelle?: string;
     tvaTaux?: number;
+    unite?: string;
+};
+
+/**
+ * Une ligne saisie ; numéro vide pour une ligne nouvelle (RG-FAC-17)
+ */
+export type LigneSaisie = {
+    /**
+     * Article nouveau : code dans sa source
+     */
+    code?: string;
+    /**
+     * Groupe : ses lignes
+     */
+    lignes?: Array<LigneSaisie>;
+    /**
+     * Numéro d'une ligne existante ; vide pour une ligne nouvelle
+     */
+    numero?: number;
+    /**
+     * Article : HT ; facultatif pour un article nouveau (celui du catalogue)
+     */
+    prixUnitaire?: number;
+    /**
+     * Article : non nulle (RG-FAC-06)
+     */
+    quantite?: number;
+    sorte: 'ARTICLE' | 'TEXTE' | 'GROUPE';
+    /**
+     * Article nouveau : source
+     */
+    source?: string;
+    /**
+     * Désignation d'un article (facultative pour un article nouveau), texte, ou titre d'un groupe
+     */
+    texte?: string;
+    /**
+     * Article
+     */
     unite?: string;
 };
 
@@ -1212,6 +1317,25 @@ export type Membre = {
 };
 
 /**
+ * Un brouillon tel que saisi, enregistré d'un coup ; date de l'opération et acheteur n'en sont pas (RG-FAC-17)
+ */
+export type ModificationBrouillon = {
+    bonDeCommande?: string;
+    condition: ConditionPaiementSaisie;
+    libellePeriode?: string;
+    /**
+     * Dans l'ordre d'impression
+     */
+    lignes: Array<LigneSaisie>;
+    noteEntete?: string;
+    notePied?: string;
+    /**
+     * Version de la pièce affichée
+     */
+    version: number;
+};
+
+/**
  * L'utilisateur connecté et ses rattachements (RG-OPE-49)
  */
 export type Moi = {
@@ -1254,6 +1378,13 @@ export type MoisDrm = {
     drm?: DocumentDsm;
     libelle: string;
     mois: string;
+};
+
+/**
+ * Une note interne, jamais imprimée ni transmise (RG-FAC-21)
+ */
+export type NotePiece = {
+    texte: string;
 };
 
 export type OperateurActif = {
@@ -1414,7 +1545,7 @@ export type Piece = {
      */
     echeance?: string;
     /**
-     * L'utilisateur connecté peut l'émettre (RG-FAC-26)
+     * Brouillon que l'utilisateur connecté peut modifier, émettre ou abandonner (RG-FAC-26)
      */
     emettre: boolean;
     /**
@@ -1422,6 +1553,10 @@ export type Piece = {
      */
     empechements: Array<string>;
     etat: 'BROUILLON' | 'EMISE';
+    /**
+     * L'utilisateur connecté gère la facturation : il annote la pièce (RG-FAC-21, 26)
+     */
+    gerer: boolean;
     id: number;
     libellePeriode?: string;
     lignes: Array<LignePiece>;
@@ -1456,6 +1591,10 @@ export type Piece = {
      * Recopié à l'émission ; vide en brouillon
      */
     vendeur?: VendeurFacturation;
+    /**
+     * Version de la pièce, renvoyée à la modification d'un brouillon (RG-FAC-17)
+     */
+    version: number;
 };
 
 export type PieceCompatible = {
@@ -2792,6 +2931,40 @@ export type ListerPiecesResponses = {
 
 export type ListerPiecesResponse = ListerPiecesResponses[keyof ListerPiecesResponses];
 
+export type EmettreBrouillonsData = {
+    body: EmissionBrouillons;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/pieces/emission';
+};
+
+export type EmettreBrouillonsResponses = {
+    /**
+     * OK
+     */
+    200: Array<CompteRenduEmission>;
+};
+
+export type EmettreBrouillonsResponse = EmettreBrouillonsResponses[keyof EmettreBrouillonsResponses];
+
+export type AbandonnerBrouillonData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}';
+};
+
+export type AbandonnerBrouillonResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type AbandonnerBrouillonResponse = AbandonnerBrouillonResponses[keyof AbandonnerBrouillonResponses];
+
 export type ConsulterPieceData = {
     body?: never;
     path: {
@@ -2809,6 +2982,60 @@ export type ConsulterPieceResponses = {
 };
 
 export type ConsulterPieceResponse = ConsulterPieceResponses[keyof ConsulterPieceResponses];
+
+export type ModifierBrouillonData = {
+    body: ModificationBrouillon;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}';
+};
+
+export type ModifierBrouillonResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type ModifierBrouillonResponse = ModifierBrouillonResponses[keyof ModifierBrouillonResponses];
+
+export type ApercuPdfBrouillonData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/apercu';
+};
+
+export type ApercuPdfBrouillonResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type ApercuPdfBrouillonResponse = ApercuPdfBrouillonResponses[keyof ApercuPdfBrouillonResponses];
+
+export type ListerArticlesProposesData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/articles';
+};
+
+export type ListerArticlesProposesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ArticlePropose>;
+};
+
+export type ListerArticlesProposesResponse = ListerArticlesProposesResponses[keyof ListerArticlesProposesResponses];
 
 export type EmettrePieceData = {
     body?: never;
@@ -2845,6 +3072,24 @@ export type ConsulterJournalPieceResponses = {
 };
 
 export type ConsulterJournalPieceResponse = ConsulterJournalPieceResponses[keyof ConsulterJournalPieceResponses];
+
+export type AnnoterPieceData = {
+    body: NotePiece;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/notes';
+};
+
+export type AnnoterPieceResponses = {
+    /**
+     * OK
+     */
+    200: EntreeJournalPiece;
+};
+
+export type AnnoterPieceResponse = AnnoterPieceResponses[keyof AnnoterPieceResponses];
 
 export type TelechargerPdfPieceData = {
     body?: never;
@@ -4080,6 +4325,84 @@ export type ValiderDsmResponses = {
 };
 
 export type ValiderDsmResponse = ValiderDsmResponses[keyof ValiderDsmResponses];
+
+export type ListerMesFacturesData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        /**
+         * Début du numéro
+         */
+        numero?: string;
+        sens?: 'FACTURE' | 'AVOIR';
+        /**
+         * Nature d'origine
+         */
+        nature?: string;
+        /**
+         * Contenu dans le libellé de la période
+         */
+        periode?: string;
+        /**
+         * Date d'émission au plus tôt
+         */
+        du?: string;
+        /**
+         * Date d'émission au plus tard
+         */
+        au?: string;
+    };
+    url: '/api/operateurs/{operateur}/factures';
+};
+
+export type ListerMesFacturesResponses = {
+    /**
+     * OK
+     */
+    200: Array<PieceListee>;
+};
+
+export type ListerMesFacturesResponse = ListerMesFacturesResponses[keyof ListerMesFacturesResponses];
+
+export type ConsulterMaFactureData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/factures/{id}';
+};
+
+export type ConsulterMaFactureResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type ConsulterMaFactureResponse = ConsulterMaFactureResponses[keyof ConsulterMaFactureResponses];
+
+export type TelechargerPdfMaFactureData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/factures/{id}/pdf';
+};
+
+export type TelechargerPdfMaFactureResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerPdfMaFactureResponse = TelechargerPdfMaFactureResponses[keyof TelechargerPdfMaFactureResponses];
 
 export type ConsulterFicheData = {
     body?: never;

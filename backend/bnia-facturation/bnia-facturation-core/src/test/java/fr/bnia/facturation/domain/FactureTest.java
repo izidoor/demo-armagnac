@@ -7,15 +7,18 @@ import static fr.bnia.facturation.domain.Exemples.brouillon;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import fr.bnia.commun.domain.ModificationConcurrente;
 import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.facturation.api.ArticleRef;
 import fr.bnia.facturation.api.CategorieTva;
+import fr.bnia.facturation.api.ConditionPaiement;
 import fr.bnia.facturation.api.NatureArticle;
 import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
 import fr.bnia.facturation.domain.LigneFacture.LigneGroupe;
 import fr.bnia.facturation.domain.LigneFacture.LigneInformative;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -152,5 +155,113 @@ class FactureTest {
                 .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.regle()).contains("RG-FAC-14"));
         assertThatThrownBy(() -> facture.relireAcheteur(Exemples.acheteur()))
                 .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.regle()).contains("RG-FAC-14"));
+        assertThatThrownBy(() -> facture.modifier(enTete("Rectifiée"), facture.lignes(), facture.version()))
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.regle()).contains("RG-FAC-14"));
+        assertThatThrownBy(facture::exigerAbandonnable)
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.regle()).contains("RG-FAC-14"));
+    }
+
+    private static Facture.EnTete enTete(String periode) {
+        return new Facture.EnTete(periode, ConditionPaiement.TRENTE_JOURS_FIN_DE_MOIS, null, null, null);
+    }
+
+    /** Le groupe reçu de l'exemple (n° 1) et ses quatre lignes article (n° 2 à 5). */
+    private static LigneGroupe groupeRecu(Facture facture) {
+        return (LigneGroupe) facture.lignes().getFirst();
+    }
+
+    @Test
+    @DisplayName("RG-FAC-17 : les lignes d'une demande sont numérotées dans l'ordre d'impression et marquées reçues")
+    void rg_fac_17_lignes_recues_numerotees() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+
+        LigneGroupe groupe = groupeRecu(facture);
+        assertThat(groupe.numero()).isEqualTo(1);
+        assertThat(groupe.recue()).isTrue();
+        assertThat(groupe.lignes()).extracting(LigneFacture::numero).containsExactly(2, 3, 4, 5);
+        assertThat(groupe.lignes()).allMatch(LigneFacture::recue);
+    }
+
+    @Test
+    @DisplayName("RG-FAC-17 : en-tête modifié ; texte ajouté ; ligne reçue renommée et déplacée dans son groupe")
+    void rg_fac_17_modification_admise() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+        LigneGroupe groupe = groupeRecu(facture);
+        List<LigneFacture> reordonnees = new ArrayList<>(groupe.lignes());
+        LigneArticle premiere = (LigneArticle) reordonnees.removeFirst();
+        reordonnees.add(premiere.saisie("Sorties France, part assujettie", "hl", new BigDecimal("99"),
+                new BigDecimal("1")));
+
+        facture.modifier(new Facture.EnTete("DSM juillet 2026, rectifiée", new ConditionPaiement(30, false), "BC-12",
+                "Voir contrôle", null), List.of(new LigneInformative("Régularisation suite au contrôle du 02/10"),
+                groupe.avecLignes(reordonnees)), facture.version());
+
+        assertThat(facture.libellePeriode()).isEqualTo("DSM juillet 2026, rectifiée");
+        assertThat(facture.condition()).isEqualTo(new ConditionPaiement(30, false));
+        assertThat(facture.bonDeCommande()).isEqualTo("BC-12");
+        LigneFacture texte = facture.lignes().getFirst();
+        assertThat(texte.numero()).isEqualTo(6);
+        assertThat(texte.recue()).isFalse();
+        LigneArticle renommee = (LigneArticle) ((LigneGroupe) facture.lignes().getLast()).lignes().getLast();
+        // Ligne reçue : seule la désignation change ; quantité, unité et prix restent ceux de la source.
+        assertThat(renommee.numero()).isEqualTo(2);
+        assertThat(renommee.designation()).isEqualTo("Sorties France, part assujettie");
+        assertThat(renommee.quantite()).isEqualByComparingTo("8.3911");
+        assertThat(renommee.unite()).isEqualTo("hlAP");
+        assertThat(facture.totaux().ttc()).isEqualByComparingTo("2152.90");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-17 : une ligne reçue ne se retire pas, ne change ni de quantité ni de groupe")
+    void rg_fac_17_ligne_recue_verrouillee() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+        LigneGroupe groupe = groupeRecu(facture);
+        LigneArticle recue = (LigneArticle) groupe.lignes().getFirst();
+        List<LigneFacture> sansLaPremiere = groupe.lignes().subList(1, 4);
+
+        assertThatThrownBy(() -> facture.modifier(enTete(null), List.of(groupe.avecLignes(sansLaPremiere)),
+                facture.version()))
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> {
+                    assertThat(e.regle()).contains("RG-FAC-17");
+                    assertThat(e.getMessage()).contains("ne se retire pas");
+                });
+        LigneArticle autreQuantite = new LigneArticle(recue.article(), recue.designation(), recue.unite(),
+                recue.nature(), recue.codeComptable(), new BigDecimal("1"), recue.prixUnitaire(), recue.tva(),
+                recue.numero(), true);
+        List<LigneFacture> modifiees = new ArrayList<>(groupe.lignes());
+        modifiees.set(0, autreQuantite);
+        assertThatThrownBy(() -> facture.modifier(enTete(null), List.of(groupe.avecLignes(modifiees)),
+                facture.version()))
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.getMessage()).contains("quantité"));
+        assertThatThrownBy(() -> facture.modifier(enTete(null), List.of(recue, groupe.avecLignes(sansLaPremiere)),
+                facture.version()))
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.getMessage()).contains("son groupe"));
+    }
+
+    @Test
+    @DisplayName("RG-FAC-17 : une ligne ajoutée se modifie et se retire librement")
+    void rg_fac_17_ligne_ajoutee_libre() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+        LigneGroupe groupe = groupeRecu(facture);
+        facture.modifier(enTete(null), List.of(groupe, article("FRAIS", "1", "10", TVA_20)), facture.version());
+        LigneArticle ajoutee = (LigneArticle) facture.lignes().getLast();
+        assertThat(ajoutee.numero()).isEqualTo(6);
+        assertThat(ajoutee.recue()).isFalse();
+
+        facture.modifier(enTete(null), List.of(groupe, ajoutee.saisie("Frais", "u", new BigDecimal("2"),
+                new BigDecimal("15"))), facture.version());
+        assertThat(((LigneArticle) facture.lignes().getLast()).montantHt()).isEqualByComparingTo("30.00");
+
+        facture.modifier(enTete(null), List.of(groupe), facture.version());
+        assertThat(facture.lignes()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("RG-FAC-17 : une saisie faite sur une version périmée est refusée")
+    void rg_fac_17_version_perimee() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+
+        assertThatThrownBy(() -> facture.modifier(enTete(null), facture.lignes(), facture.version() + 1))
+                .isInstanceOf(ModificationConcurrente.class);
     }
 }
