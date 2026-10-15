@@ -10,7 +10,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { SelecteurOperateur } from './selecteur-operateur'
 
-/** Actions à droite de l'en-tête : opérateur actif, thème, Paramétrage (back-office seulement), profil. */
+/** Actions à droite de l'en-tête : opérateur actif, thème, paramètres de l'application (back-office seulement), profil. */
 export function ActionsEntete() {
   const { pathname } = useLocation()
   return (
@@ -25,14 +25,14 @@ export function ActionsEntete() {
               size='icon'
               variant='ghost'
               className='scale-95 rounded-full'
-              aria-label='Paramétrage'
+              aria-label="Paramètres de l'application"
             >
               <Link to='/bo/parametrage'>
                 <Settings className='size-[1.2rem]' aria-hidden='true' />
               </Link>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Paramétrage</TooltipContent>
+          <TooltipContent>Paramètres de l'application</TooltipContent>
         </Tooltip>
       )}
       <ProfileDropdown />

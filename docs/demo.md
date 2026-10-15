@@ -51,7 +51,7 @@ Sans compte :
 
 ## Opérateurs
 
-Le BNIA (type `BNIA`, menu « BNIA » du back-office) et seize opérateurs du Gers, des Landes et du
+Le BNIA (type `BNIA`, section « BNIA » des paramètres de l'application, roue crantée du back-office) et seize opérateurs du Gers, des Landes et du
 Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N320002`, `N400001`, deux
 `AUTRE` (`000010`, `000011`), une fiche incomplète (`000012`) et une fiche inactive (`000013`).
 
@@ -123,7 +123,7 @@ Scénario :
 7. `admin@bnia.fr`, fiche de Maison Larressingle, onglet « Déclarations » : modifier le stock initial ;
    la colonne 1 de la DSM en cours suit. Changer la date de début est refusé tant que la DSM est en
    cours.
-8. `admin@bnia.fr`, roue crantée « Paramétrage », rubrique « Cotisation > Taux CVO » : les deux taux, le
+8. `admin@bnia.fr`, roue crantée « Paramètres de l'application », rubrique « Cotisation > Taux CVO » : les deux taux, le
    premier clos au 31/12/2023. Ouvrir la DSM d'Armagnacs de Gascogne, onglet « Cotisation » : sorties
    France 100,69 € + 402,77 €, export 270,50 € + 1 081,99 €, total HT 1 855,95 €, TVA indicative à 20 %
    sur la part assujettie (296,95 €), TTC 2 152,90 €. Ajouter un taux de 62,00 € au 1er du mois courant :
@@ -165,7 +165,7 @@ Scénario :
 
 ## Facturation (spec 08, lot 1)
 
-- **Vendeur** (roue crantée « Paramétrage », rubrique « Facturation > Vendeur ») : le BNIA, tel qu'imprimé
+- **Vendeur** (roue crantée « Paramètres de l'application », rubrique « BNIA > Facturation ») : le BNIA, tel qu'imprimé
   sur les factures d'exemple (11 place de la Liberté, Eauze ; SIRET 77699995500029 ; TVA FR55776999955 ;
   IBAN et BIC ; `compta@armagnac.fr`), sans option sur les débits.
 - **SIRET et n° de TVA** : Maison Durand (`000001`, `000002`) et les trois négociants ; un destinataire des

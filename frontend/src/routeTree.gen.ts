@@ -17,7 +17,6 @@ import { Route as BoIndexRouteImport } from './routes/bo/index'
 import { Route as PortailEntrepriseRouteImport } from './routes/portail/entreprise'
 import { Route as PortailCompteRouteImport } from './routes/portail/compte'
 import { Route as BoCompteRouteImport } from './routes/bo/compte'
-import { Route as BoBniaRouteImport } from './routes/bo/bnia'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -40,8 +39,8 @@ import { Route as PortailDeclarationsDsmRouteImport } from './routes/portail/dec
 import { Route as BoParametrageTauxCvoRouteImport } from './routes/bo/parametrage/taux-cvo'
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
-import { Route as BoParametrageFacturationRouteImport } from './routes/bo/parametrage/facturation'
 import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
+import { Route as BoParametrageBniaRouteImport } from './routes/bo/parametrage/bnia'
 import { Route as BoFacturationIdRouteImport } from './routes/bo/facturation/$id'
 import { Route as BoDeclarationsStocksRouteImport } from './routes/bo/declarations/stocks'
 import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
@@ -92,11 +91,6 @@ const PortailCompteRoute = PortailCompteRouteImport.update({
 const BoCompteRoute = BoCompteRouteImport.update({
   id: '/compte',
   path: '/compte',
-  getParentRoute: () => BoRouteRoute,
-} as any)
-const BoBniaRoute = BoBniaRouteImport.update({
-  id: '/bnia',
-  path: '/bnia',
   getParentRoute: () => BoRouteRoute,
 } as any)
 const errors503Route = errors503RouteImport.update({
@@ -211,18 +205,17 @@ const BoParametrageGeographieRoute = BoParametrageGeographieRouteImport.update({
   path: '/geographie',
   getParentRoute: () => BoParametrageRouteRoute,
 } as any)
-const BoParametrageFacturationRoute =
-  BoParametrageFacturationRouteImport.update({
-    id: '/facturation',
-    path: '/facturation',
-    getParentRoute: () => BoParametrageRouteRoute,
-  } as any)
 const BoParametrageCommercialisationRoute =
   BoParametrageCommercialisationRouteImport.update({
     id: '/commercialisation',
     path: '/commercialisation',
     getParentRoute: () => BoParametrageRouteRoute,
   } as any)
+const BoParametrageBniaRoute = BoParametrageBniaRouteImport.update({
+  id: '/bnia',
+  path: '/bnia',
+  getParentRoute: () => BoParametrageRouteRoute,
+} as any)
 const BoFacturationIdRoute = BoFacturationIdRouteImport.update({
   id: '/facturation/$id',
   path: '/facturation/$id',
@@ -300,7 +293,6 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/bo/bnia': typeof BoBniaRoute
   '/bo/compte': typeof BoCompteRoute
   '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
@@ -309,8 +301,8 @@ export interface FileRoutesByFullPath {
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
+  '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
-  '/bo/parametrage/facturation': typeof BoParametrageFacturationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
@@ -343,7 +335,6 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/bo/bnia': typeof BoBniaRoute
   '/bo/compte': typeof BoCompteRoute
   '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
@@ -352,8 +343,8 @@ export interface FileRoutesByTo {
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
+  '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
-  '/bo/parametrage/facturation': typeof BoParametrageFacturationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
@@ -390,7 +381,6 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
-  '/bo/bnia': typeof BoBniaRoute
   '/bo/compte': typeof BoCompteRoute
   '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
@@ -399,8 +389,8 @@ export interface FileRoutesById {
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
+  '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
-  '/bo/parametrage/facturation': typeof BoParametrageFacturationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/taux-cvo': typeof BoParametrageTauxCvoRoute
@@ -438,7 +428,6 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/bo/bnia'
     | '/bo/compte'
     | '/portail/compte'
     | '/portail/entreprise'
@@ -447,8 +436,8 @@ export interface FileRouteTypes {
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
+    | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
-    | '/bo/parametrage/facturation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
@@ -481,7 +470,6 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/bo/bnia'
     | '/bo/compte'
     | '/portail/compte'
     | '/portail/entreprise'
@@ -490,8 +478,8 @@ export interface FileRouteTypes {
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
+    | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
-    | '/bo/parametrage/facturation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
@@ -527,7 +515,6 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
-    | '/bo/bnia'
     | '/bo/compte'
     | '/portail/compte'
     | '/portail/entreprise'
@@ -536,8 +523,8 @@ export interface FileRouteTypes {
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
+    | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
-    | '/bo/parametrage/facturation'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/taux-cvo'
@@ -631,13 +618,6 @@ declare module '@tanstack/react-router' {
       path: '/compte'
       fullPath: '/bo/compte'
       preLoaderRoute: typeof BoCompteRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
-    '/bo/bnia': {
-      id: '/bo/bnia'
-      path: '/bnia'
-      fullPath: '/bo/bnia'
-      preLoaderRoute: typeof BoBniaRouteImport
       parentRoute: typeof BoRouteRoute
     }
     '/(errors)/503': {
@@ -794,18 +774,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageGeographieRouteImport
       parentRoute: typeof BoParametrageRouteRoute
     }
-    '/bo/parametrage/facturation': {
-      id: '/bo/parametrage/facturation'
-      path: '/facturation'
-      fullPath: '/bo/parametrage/facturation'
-      preLoaderRoute: typeof BoParametrageFacturationRouteImport
-      parentRoute: typeof BoParametrageRouteRoute
-    }
     '/bo/parametrage/commercialisation': {
       id: '/bo/parametrage/commercialisation'
       path: '/commercialisation'
       fullPath: '/bo/parametrage/commercialisation'
       preLoaderRoute: typeof BoParametrageCommercialisationRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
+    }
+    '/bo/parametrage/bnia': {
+      id: '/bo/parametrage/bnia'
+      path: '/bnia'
+      fullPath: '/bo/parametrage/bnia'
+      preLoaderRoute: typeof BoParametrageBniaRouteImport
       parentRoute: typeof BoParametrageRouteRoute
     }
     '/bo/facturation/$id': {
@@ -889,8 +869,8 @@ declare module '@tanstack/react-router' {
 }
 
 interface BoParametrageRouteRouteChildren {
+  BoParametrageBniaRoute: typeof BoParametrageBniaRoute
   BoParametrageCommercialisationRoute: typeof BoParametrageCommercialisationRoute
-  BoParametrageFacturationRoute: typeof BoParametrageFacturationRoute
   BoParametrageGeographieRoute: typeof BoParametrageGeographieRoute
   BoParametrageQualificationRoute: typeof BoParametrageQualificationRoute
   BoParametrageTauxCvoRoute: typeof BoParametrageTauxCvoRoute
@@ -900,8 +880,8 @@ interface BoParametrageRouteRouteChildren {
 }
 
 const BoParametrageRouteRouteChildren: BoParametrageRouteRouteChildren = {
+  BoParametrageBniaRoute: BoParametrageBniaRoute,
   BoParametrageCommercialisationRoute: BoParametrageCommercialisationRoute,
-  BoParametrageFacturationRoute: BoParametrageFacturationRoute,
   BoParametrageGeographieRoute: BoParametrageGeographieRoute,
   BoParametrageQualificationRoute: BoParametrageQualificationRoute,
   BoParametrageTauxCvoRoute: BoParametrageTauxCvoRoute,
@@ -915,7 +895,6 @@ const BoParametrageRouteRouteWithChildren =
 
 interface BoRouteRouteChildren {
   BoParametrageRouteRoute: typeof BoParametrageRouteRouteWithChildren
-  BoBniaRoute: typeof BoBniaRoute
   BoCompteRoute: typeof BoCompteRoute
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
@@ -933,7 +912,6 @@ interface BoRouteRouteChildren {
 
 const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoParametrageRouteRoute: BoParametrageRouteRouteWithChildren,
-  BoBniaRoute: BoBniaRoute,
   BoCompteRoute: BoCompteRoute,
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,

@@ -17,19 +17,30 @@ import {
 import { type Espace, type NavGroup } from '../types'
 
 /**
- * Référentiels (spec 01, §6.1), module Paramétrage : lu par tout le personnel du BNIA, géré par ses agents
- * et administrateurs. Hors de la barre latérale : rubriques de la page Paramétrage, ouverte par la roue
- * crantée de l'en-tête. Quatre sections, chacune enchaînant ses référentiels ; chaque référentiel mène à
- * sa section, pour la recherche.
+ * Paramètres de l'application (spec 01, §6.1) : le BNIA (sa fiche, ses contacts, le vendeur des factures),
+ * puis les référentiels du module Paramétrage, lus par tout le personnel du BNIA, gérés par ses agents et
+ * administrateurs. Hors de la barre latérale : sections de la page ouverte par la roue crantée de
+ * l'en-tête, chacune enchaînant ses blocs ; chaque bloc mène à sa section, pour la recherche.
  */
 const GEOGRAPHIE = '/bo/parametrage/geographie'
 const QUALIFICATION = '/bo/parametrage/qualification'
 const COMMERCIALISATION = '/bo/parametrage/commercialisation'
 const TVA = '/bo/parametrage/classes-tva'
+const BNIA = '/bo/parametrage/bnia'
 
 export const parametrage: NavGroup = {
-  title: 'Paramétrage',
+  title: "Paramètres de l'application",
   items: [
+    {
+      // Spec 02 §6.1 et spec 08 §6.1 : la fiche réduite du BNIA, ses contacts, le vendeur des factures.
+      title: 'BNIA',
+      icon: Landmark,
+      items: [
+        { title: 'Fiche', url: BNIA },
+        { title: 'Contacts', url: BNIA },
+        { title: 'Facturation', url: BNIA },
+      ],
+    },
     {
       title: 'Codes géographiques',
       icon: Globe,
@@ -72,12 +83,6 @@ export const parametrage: NavGroup = {
       icon: Receipt,
       items: [{ title: 'Taux CVO', url: '/bo/parametrage/taux-cvo' }],
     },
-    {
-      // Spec 08 §6.1 : le vendeur recopié sur les factures (RG-FAC-16).
-      title: 'Facturation',
-      icon: FileText,
-      items: [{ title: 'Vendeur', url: '/bo/parametrage/facturation' }],
-    },
   ],
 }
 
@@ -98,10 +103,7 @@ export const espaceBackOffice: Espace = {
     {
       // Spec 02, §6.1.
       title: 'Opérateurs',
-      items: [
-        { title: 'BNIA', url: '/bo/bnia', icon: Landmark },
-        { title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 },
-      ],
+      items: [{ title: 'Opérateurs', url: '/bo/operateurs', icon: Building2 }],
     },
     {
       // Spec 05, §6.1 : listing de toutes les DSM, file d'attente de l'instruction ; stocks déclarés (lot 8).

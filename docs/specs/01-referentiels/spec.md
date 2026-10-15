@@ -241,9 +241,11 @@ qui appelle le cas d'usage de `referentiels` ; elle n'a pas besoin d'être publi
 ## 6. Écrans
 
 ### 6.1 Back-office
-- **Page « Paramétrage »**, ouverte par la roue crantée de l'en-tête (back-office seulement), hors de la
-  barre latérale : quatre sections à gauche (Codes géographiques, Qualification, Commercialisation, TVA) ; à
-  droite, les référentiels de la section choisie l'un sous l'autre, séparés par un trait horizontal.
+- **Page « Paramètres de l'application »** (module Paramétrage), ouverte par la roue crantée de l'en-tête
+  (back-office seulement), hors de la barre latérale, sans sous-titre : sections à gauche (*BNIA*, propre à
+  la spec 02 §6.1 et à la spec 08 §6.1, puis Codes géographiques, Qualification, Commercialisation, TVA,
+  Cotisation) ; à droite, les référentiels de la section choisie l'un sous l'autre, séparés par un trait
+  horizontal.
   Chaque référentiel reste proposé par la recherche (Ctrl+K), qui ouvre sa section.
 - **Un bloc par référentiel** : tableau (code, libellé, attributs propres, état), recherche, filtre
   actif / inactif, création et modification dans une fenêtre, actions désactiver / réactiver et
@@ -375,3 +377,4 @@ Chaque RG-REF-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-06 | `MembreBnia` implémenté (lot 1 de l'implémentation de `operateurs`) : liste simple sur le patron commun (A-REF-3), table `referentiels.membre_bnia`, `ReferentielsLecture` (par identifiant, par code, actifs), page « Membres BNIA » du groupe Qualification, trois valeurs fictives en démonstration (Q-OPE-4). |
 | 2026-10-06 | Démonstration : la France ajoutée aux pays (pays par défaut d'une fiche opérateur et code négociant, spec 02). |
 | 2026-10-12 | Écrans (demande de l'utilisateur) : le Paramétrage quitte la barre latérale pour une page ouverte par la roue crantée de l'en-tête, mise en page comme /settings du gabarit shadcn-admin ; le tiroir « Theme Settings » du gabarit est retiré. Puis quatre sections (Codes géographiques, Qualification, Commercialisation, TVA), chacune enchaînant ses référentiels. |
+| 2026-10-15 | Écrans (demande de l'utilisateur) : la page « Paramétrage » devient « Paramètres de l'application », sans sous-titre ; une section *BNIA* en tête (fiche, contacts et facturation du BNIA, spec 02 et 08), la section *Facturation* y étant reprise. |
