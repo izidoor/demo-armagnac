@@ -27,3 +27,16 @@ export const NATURES_OPERATION: Record<
   SERVICES: 'Prestation de services',
   LES_DEUX: 'Livraison de biens et prestation de services',
 }
+
+type EtatZeendoc = NonNullable<Piece['zeendoc']>
+
+/** RG-FAC-32, 33 : l'état d'une pièce émise dans Zeendoc (simulé). */
+export const ETATS_ZEENDOC: Record<EtatZeendoc, string> = {
+  TRANSMISE: 'Transmis',
+  PAYEE: 'Payé',
+}
+
+export const VARIANTE_ZEENDOC: Record<EtatZeendoc, 'secondary' | 'default'> = {
+  TRANSMISE: 'secondary',
+  PAYEE: 'default',
+}

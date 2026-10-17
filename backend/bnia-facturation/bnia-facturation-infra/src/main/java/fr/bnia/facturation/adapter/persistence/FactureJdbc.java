@@ -17,12 +17,14 @@ import fr.bnia.facturation.domain.Acheteur;
 import fr.bnia.facturation.domain.Auteur;
 import fr.bnia.facturation.domain.CategorieAcheteur;
 import fr.bnia.facturation.domain.EtatPiece;
+import fr.bnia.facturation.domain.EtatZeendoc;
 import fr.bnia.facturation.domain.Facture;
 import fr.bnia.facturation.domain.LigneFacture;
 import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
 import fr.bnia.facturation.domain.LigneFacture.LigneGroupe;
 import fr.bnia.facturation.domain.LigneFacture.LigneInformative;
 import fr.bnia.facturation.domain.SensPiece;
+import fr.bnia.facturation.domain.SuiviZeendoc;
 import fr.bnia.facturation.domain.Totaux;
 import fr.bnia.facturation.domain.Vendeur;
 import java.math.BigDecimal;
@@ -108,6 +110,7 @@ class FactureJdbc implements FactureRepository {
         Totaux totaux = facture.totaux();
         Origine o = d.origine();
         DocumentDepose pdf = d.pdf();
+        SuiviZeendoc z = d.zeendoc();
         return new Ligne(d.id(), d.sens(), d.etat(),
                 o == null ? null : new OrigineLigne(o.source(), o.nature(), o.libelleNature(), o.identifiant(),
                         o.reference()),
@@ -115,6 +118,7 @@ class FactureJdbc implements FactureRepository {
                 d.bonDeCommande(), d.noteEntete(), d.notePied(), AcheteurLigne.de(d.acheteur()),
                 d.vendeur() == null ? null : VendeurLigne.de(d.vendeur()), d.numero(), d.dateEmission(), d.echeance(),
                 pdf == null ? null : pdf.cle(), pdf == null ? null : pdf.nom(), pdf == null ? null : pdf.taille(),
+                z == null ? null : z.etat(), z == null ? null : z.transmiseLe(), z == null ? null : z.payeeLe(),
                 totaux.ht(), totaux.tva(), totaux.ttc(), d.creeeLe(), d.creePar().utilisateur(), d.creePar().nom(),
                 aplatir(d.lignes()), d.id() == null ? null : d.version());
     }
@@ -143,6 +147,7 @@ class FactureJdbc implements FactureRepository {
                 vendeur(l.vendeur()), regrouper(l.lignes()), l.numero(),
                 l.dateEmission(), l.echeance(),
                 l.pdfDocumentId() == null ? null : new DocumentDepose(l.pdfDocumentId(), l.pdfNom(), PDF, l.pdfTaille()),
+                l.zeendoc() == null ? null : new SuiviZeendoc(l.zeendoc(), l.zeendocTransmiseLe(), l.zeendocPayeeLe()),
                 l.creeeLe(), new Auteur(l.creeeParId(), l.nomCreeePar()), l.version()));
     }
 
@@ -191,6 +196,9 @@ class FactureJdbc implements FactureRepository {
             Long pdfDocumentId,
             String pdfNom,
             Long pdfTaille,
+            EtatZeendoc zeendoc,
+            Instant zeendocTransmiseLe,
+            LocalDate zeendocPayeeLe,
             BigDecimal totalHt,
             BigDecimal totalTva,
             BigDecimal totalTtc,

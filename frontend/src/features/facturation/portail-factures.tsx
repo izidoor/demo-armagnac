@@ -33,6 +33,7 @@ import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { formatDate, formatEuros } from '@/features/declarations/format'
 import { cleFacturation, urlPdfMaFacture } from './api'
+import { BadgeZeendoc } from './badge-zeendoc'
 import { SENS } from './libelles'
 import { CarteNotePied, EntetePiece, Lignes } from './page-piece'
 
@@ -143,6 +144,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
               <TableHead className='text-right'>HT</TableHead>
               <TableHead className='text-right'>TVA</TableHead>
               <TableHead className='text-right'>TTC</TableHead>
+              <TableHead>Zeendoc</TableHead>
               <TableHead className='w-0' />
             </TableRow>
           </TableHeader>
@@ -150,7 +152,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
             {pieces.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className='text-muted-foreground h-16 text-center'
                 >
                   {listing.isPending ? 'Chargement…' : 'Aucune facture.'}
@@ -189,6 +191,9 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
                 </TableCell>
                 <TableCell className='text-right font-medium tabular-nums'>
                   {formatEuros(p.ttc)}
+                </TableCell>
+                <TableCell>
+                  <BadgeZeendoc piece={p} />
                 </TableCell>
                 <TableCell>
                   <Button
@@ -261,6 +266,7 @@ export function PageMaFacture({
             Retour
           </Button>
           {piece.origine && <span>{piece.origine.reference}</span>}
+          <BadgeZeendoc piece={piece} avecDates />
         </span>
       }
       actions={

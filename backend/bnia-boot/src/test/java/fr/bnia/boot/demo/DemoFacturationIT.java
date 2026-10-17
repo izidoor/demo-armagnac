@@ -23,7 +23,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Chargeur de démonstration de la facturation (spec 08 §7.1, lots 1, 2 et 5), après le personnel, les référentiels, les
+ * Chargeur de démonstration de la facturation (spec 08 §7.1, lots 1, 2, 5 et 6), après le personnel, les référentiels, les
  * opérateurs et les déclarations : relançable, et conforme à la spec.
  */
 class DemoFacturationIT extends AbstractIT {
@@ -67,6 +67,16 @@ class DemoFacturationIT extends AbstractIT {
             }
         }
         assertThat(pieces).filteredOn(p -> p.etat() == EtatPiece.BROUILLON).hasSize(1);
+        // Lot 6 : les factures émises il y a plus de deux mois sont transmises à Zeendoc et payées ; les autres non.
+        LocalDate ilYADeuxMois = LocalDate.now().minusMonths(2);
+        assertThat(emises).allSatisfy(p -> {
+            if (p.dateEmission().isBefore(ilYADeuxMois)) {
+                assertThat(p.zeendoc().etat()).isEqualTo(fr.bnia.facturation.domain.EtatZeendoc.PAYEE);
+                assertThat(p.zeendoc().payeeLe()).isAfter(p.dateEmission()).isBefore(LocalDate.now());
+            } else {
+                assertThat(p.zeendoc()).isNull();
+            }
+        });
         List<DsmLigne> validees = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm)
                 .filter(d -> d.etat() == EtatDsm.VALIDEE).toList();
         // Lot 2 : onze DSM validées (de la plus récente à la plus ancienne) : huit facturées (une note sur la

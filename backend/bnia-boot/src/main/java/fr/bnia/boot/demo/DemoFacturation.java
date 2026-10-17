@@ -11,13 +11,17 @@ import fr.bnia.facturation.application.Clients;
 import fr.bnia.facturation.application.DroitsFacturation;
 import fr.bnia.facturation.application.EditionPiece;
 import fr.bnia.facturation.application.EmettrePiece;
+import fr.bnia.facturation.application.EnregistrerReglement;
 import fr.bnia.facturation.application.FactureRepository;
 import fr.bnia.facturation.application.JournalFacturation;
 import fr.bnia.facturation.application.NumerotationRepository;
 import fr.bnia.facturation.application.ParametrerVendeur;
 import fr.bnia.facturation.application.PublicationEvenements;
+import fr.bnia.facturation.application.TransmettreAZeendoc;
 import fr.bnia.facturation.application.VendeurRepository;
+import fr.bnia.facturation.application.Zeendoc;
 import fr.bnia.facturation.domain.Adresse;
+import fr.bnia.facturation.domain.Facture;
 import fr.bnia.facturation.domain.Vendeur;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
@@ -41,7 +45,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Données de démonstration de la facturation (spec 08 §7.1, lots 1, 2 et 5), en profil {@code demo} seulement,
+ * Données de démonstration de la facturation (spec 08 §7.1, lots 1, 2, 5 et 6), en profil {@code demo} seulement,
  * après les déclarations :
  * <ul>
  * <li>le vendeur, le BNIA, tel qu'imprimé sur les factures d'exemple ;</li>
@@ -54,12 +58,15 @@ import org.springframework.stereotype.Component;
  * <li>les cinq négociants et dix producteurs ajoutés pour le volume ({@link OperateursFacturesDemo}) : chaque DSM
  * validée est facturée et émise à la fin du mois qui suit sa période, au plus tard la veille ;</li>
  * <li>le Domaine de Laubade ({@code 000003}), sans SIRET : sa DSM validée reste à facturer, et le refus nomme ce
- * qui manque.</li>
+ * qui manque ;</li>
+ * <li>Zeendoc (lot 6, simulé) : toute facture émise il y a plus de deux mois est transmise le lendemain de son
+ * émission, puis payée à son échéance, au plus tard la veille ; les plus récentes restent à transmettre.</li>
  * </ul>
  *
  * <p>Tout passe par les cas d'usage, au nom d'Anne Lamarque, ADMIN du BNIA. L'émission datée du passé passe par
  * une instance d'{@link EmettrePiece} propre à la démonstration, réglée sur une horloge qu'elle avance de date en
- * date, dans l'ordre chronologique (numéros continus), chaque émission dans sa transaction. Le vendeur déjà
+ * date, dans l'ordre chronologique (numéros continus), chaque émission dans sa transaction ; la transmission et le
+ * règlement de même. Le vendeur déjà
  * paramétré, rien n'est rechargé : le chargeur est relançable.
  */
 @Component
@@ -79,12 +86,15 @@ public class DemoFacturation implements ApplicationRunner {
     private final Transactions transactions;
     private final HorlogeReglable horloge;
     private final EmettrePiece emettreLe;
+    private final TransmettreAZeendoc transmettreLe;
+    private final EnregistrerReglement reglementLe;
+    private final FactureRepository factures;
 
     public DemoFacturation(ParametrerVendeur vendeur, FacturerDsm facturer, AnnoterPiece annoter, GererDsm dsms,
             OperateursLecture lecture, Transactions transactions, Clock horloge, FactureRepository factures,
             VendeurRepository vendeurs, NumerotationRepository numerotations, JournalFacturation journal,
             Clients clients, EditionPiece edition, StockageDocuments stockage, PublicationEvenements evenements,
-            DroitsFacturation droits) {
+            DroitsFacturation droits, Zeendoc zeendoc) {
         this.vendeur = vendeur;
         this.facturer = facturer;
         this.annoter = annoter;
@@ -94,6 +104,10 @@ public class DemoFacturation implements ApplicationRunner {
         this.horloge = new HorlogeReglable(horloge);
         this.emettreLe = new EmettrePiece(factures, vendeurs, numerotations, journal, clients, edition, stockage,
                 evenements, droits, this.horloge);
+        this.transmettreLe = new TransmettreAZeendoc(factures, journal, stockage, zeendoc, transactions, droits,
+                this.horloge);
+        this.reglementLe = new EnregistrerReglement(factures, journal, this.horloge);
+        this.factures = factures;
     }
 
     @Override
@@ -136,6 +150,23 @@ public class DemoFacturation implements ApplicationRunner {
                     .numero().orElseThrow();
             LOG.info("Démo : facture {} émise le {}.", numero, e.le());
         }
+        LocalDate veille = LocalDate.now(horloge.reelle()).minusDays(1);
+        LocalDate ilYADeuxMois = LocalDate.now(horloge.reelle()).minusMonths(2);
+        for (Emission e : emissions) {
+            if (!e.le().isBefore(ilYADeuxMois)) {
+                continue;
+            }
+            horloge.regler(e.le().plusDays(1));
+            transmettreLe.transmettre(emettrice, List.of(e.piece()));
+            LocalDate echeance = factures.parId(e.piece()).flatMap(Facture::echeance).orElseThrow();
+            LocalDate payeeLe = echeance.isAfter(veille) ? veille : echeance;
+            horloge.regler(payeeLe);
+            transactions.dansUneNouvelle(() -> {
+                reglementLe.enregistrer(e.piece(), payeeLe);
+                return null;
+            });
+        }
+        LOG.info("Démo : factures émises avant le {} transmises à Zeendoc et payées.", ilYADeuxMois);
         horloge.relacher();
         annoter.annoter(emettrice, brouillons.get(gascogne.getFirst().id()),
                 "Facture envoyée aussi par courrier, à la demande du service comptable.");

@@ -305,6 +305,21 @@ export type CompteRenduEmission = {
 };
 
 /**
+ * Le sort d'une pièce de la sélection transmise à Zeendoc : transmise, ou le motif du refus (RG-FAC-32)
+ */
+export type CompteRenduTransmission = {
+    id: number;
+    /**
+     * Vide si elle a été transmise
+     */
+    motif?: string;
+    /**
+     * Vide si la pièce est introuvable
+     */
+    numero?: string;
+};
+
+/**
  * Condition de paiement (spec 08 §3.6)
  */
 export type ConditionPaiement = {
@@ -699,7 +714,7 @@ export type EntreeJournalPiece = {
     cote: 'VENDEUR' | 'CLIENT';
     date: string;
     detail?: string;
-    evenement: 'DEMANDEE' | 'CREEE' | 'MODIFIEE' | 'EMISE' | 'CONSULTEE' | 'ANNULEE' | 'AVOIR_EMIS' | 'DEPOSEE' | 'REJETEE' | 'EN_ANOMALIE' | 'PAYEE' | 'NOTE';
+    evenement: 'DEMANDEE' | 'CREEE' | 'MODIFIEE' | 'EMISE' | 'CONSULTEE' | 'ANNULEE' | 'AVOIR_EMIS' | 'TRANSMISE' | 'PAYEE' | 'NOTE';
     libelle: string;
 };
 
@@ -1678,6 +1693,10 @@ export type Piece = {
      */
     origine?: OriginePiece;
     /**
+     * Vide tant que la pièce n'est pas payée
+     */
+    payeeLe?: string;
+    /**
      * Le PDF est disponible (pièce émise)
      */
     pdf: boolean;
@@ -1691,6 +1710,10 @@ export type Piece = {
     totalTtc: number;
     totalTva: number;
     /**
+     * Vide tant que la pièce n'est pas transmise
+     */
+    transmiseLe?: string;
+    /**
      * Recopié à l'émission ; vide en brouillon
      */
     vendeur?: VendeurFacturation;
@@ -1698,6 +1721,10 @@ export type Piece = {
      * Version de la pièce, renvoyée à la modification d'un brouillon (RG-FAC-17)
      */
     version: number;
+    /**
+     * État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)
+     */
+    zeendoc?: 'TRANSMISE' | 'PAYEE';
 };
 
 export type PieceCompatible = {
@@ -1736,10 +1763,22 @@ export type PieceListee = {
      * Vide pour un brouillon
      */
     numero?: string;
+    /**
+     * Vide tant que la pièce n'est pas payée
+     */
+    payeeLe?: string;
     reference?: string;
     sens: 'FACTURE' | 'AVOIR';
+    /**
+     * Vide tant que la pièce n'est pas transmise
+     */
+    transmiseLe?: string;
     ttc: number;
     tva: number;
+    /**
+     * État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)
+     */
+    zeendoc?: 'TRANSMISE' | 'PAYEE';
 };
 
 /**
@@ -3111,6 +3150,22 @@ export type EmettreBrouillonsResponses = {
 };
 
 export type EmettreBrouillonsResponse = EmettreBrouillonsResponses[keyof EmettreBrouillonsResponses];
+
+export type TransmettreAZeendocData = {
+    body: EmissionBrouillons;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/pieces/zeendoc';
+};
+
+export type TransmettreAZeendocResponses = {
+    /**
+     * OK
+     */
+    200: Array<CompteRenduTransmission>;
+};
+
+export type TransmettreAZeendocResponse = TransmettreAZeendocResponses[keyof TransmettreAZeendocResponses];
 
 export type AbandonnerBrouillonData = {
     body?: never;

@@ -43,6 +43,7 @@ public final class Facture {
     private LocalDate dateEmission;
     private LocalDate echeance;
     private DocumentDepose pdf;
+    private SuiviZeendoc zeendoc;
     private final Instant creeeLe;
     private final Auteur creePar;
     private final long version;
@@ -51,8 +52,8 @@ public final class Facture {
     public record Donnees(Long id, SensPiece sens, EtatPiece etat, Origine origine, LocalDate dateOperation,
             String libellePeriode, ConditionPaiement condition, String bonDeCommande, String noteEntete,
             String notePied, Acheteur acheteur, Vendeur vendeur, List<LigneFacture> lignes, String numero,
-            LocalDate dateEmission, LocalDate echeance, DocumentDepose pdf, Instant creeeLe, Auteur creePar,
-            long version) {
+            LocalDate dateEmission, LocalDate echeance, DocumentDepose pdf, SuiviZeendoc zeendoc, Instant creeeLe,
+            Auteur creePar, long version) {
     }
 
     private Facture(Donnees d) {
@@ -73,6 +74,7 @@ public final class Facture {
         this.dateEmission = d.dateEmission();
         this.echeance = d.echeance();
         this.pdf = d.pdf();
+        this.zeendoc = d.zeendoc();
         this.creeeLe = d.creeeLe();
         this.creePar = d.creePar();
         this.version = d.version();
@@ -99,7 +101,7 @@ public final class Facture {
         }
         return new Facture(new Donnees(null, SensPiece.FACTURE, EtatPiece.BROUILLON, origine, dateOperation,
                 libellePeriode, condition, bonDeCommande, noteEntete, notePied, acheteur, null,
-                ranger(lignes, 1, true), null, null, null, null, creeeLe, creePar, 0));
+                ranger(lignes, 1, true), null, null, null, null, null, creeeLe, creePar, 0));
     }
 
     public static Facture reconstituer(Donnees donnees) {
@@ -108,7 +110,8 @@ public final class Facture {
 
     public Donnees donnees() {
         return new Donnees(id, sens, etat, origine, dateOperation, libellePeriode, condition, bonDeCommande, noteEntete,
-                notePied, acheteur, vendeur, lignes, numero, dateEmission, echeance, pdf, creeeLe, creePar, version);
+                notePied, acheteur, vendeur, lignes, numero, dateEmission, echeance, pdf, zeendoc, creeeLe, creePar,
+                version);
     }
 
     /** L'en-tête modifiable d'un brouillon (RG-FAC-17) ; la date de l'opération et l'acheteur n'en sont pas. */
@@ -345,6 +348,33 @@ public final class Facture {
         pdf = document;
     }
 
+    /**
+     * RG-FAC-32 : seule une pièce émise se transmet à Zeendoc, et une seule fois : un rejeu ne crée jamais de second
+     * document.
+     */
+    public void transmettre(Instant le) {
+        if (etat != EtatPiece.EMISE) {
+            throw new RegleEnfreinte("RG-FAC-32", designation() + " n'est pas émise : elle ne se transmet pas à "
+                    + "Zeendoc.");
+        }
+        if (zeendoc != null) {
+            throw new RegleEnfreinte("RG-FAC-32", designation() + " est déjà transmise à Zeendoc.");
+        }
+        zeendoc = SuiviZeendoc.transmise(le);
+    }
+
+    /** RG-FAC-33 : le règlement relevé dans Zeendoc, d'une pièce transmise et non encore payée. */
+    public void enregistrerReglement(LocalDate le) {
+        if (zeendoc == null) {
+            throw new RegleEnfreinte("RG-FAC-33", designation() + " n'est pas transmise à Zeendoc : son règlement "
+                    + "ne s'y relève pas.");
+        }
+        if (zeendoc.etat() == EtatZeendoc.PAYEE) {
+            throw new RegleEnfreinte("RG-FAC-33", designation() + " est déjà payée.");
+        }
+        zeendoc = zeendoc.payee(le);
+    }
+
     /** Les lignes article, groupes dépliés, dans l'ordre d'impression. */
     public List<LigneArticle> lignesArticle() {
         List<LigneArticle> articles = new ArrayList<>();
@@ -465,6 +495,11 @@ public final class Facture {
 
     public Optional<DocumentDepose> pdf() {
         return Optional.ofNullable(pdf);
+    }
+
+    /** Vide tant que la pièce n'est pas transmise (RG-FAC-32). */
+    public Optional<SuiviZeendoc> zeendoc() {
+        return Optional.ofNullable(zeendoc);
     }
 
     public Instant creeeLe() {

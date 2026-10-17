@@ -134,7 +134,7 @@
 | Ligne de cotisation | `LigneCotisation` | Ligne du détail de la cotisation : sorties France (col. 14, 17, 18, 19, 21), sorties export (22, 23, 24), EDV pour un autre produit au marché intérieur (16) et à l'export (25) ; chacune avec son volume en hlAP, sa part non assujettie et sa part assujettie à la TVA. Sur la facture, chaque ligne de cotisation donne deux lignes article, l'une assujettie (S), l'autre non (E). | facture d'exemple, spec 05 RG-DEC-33, spec 08 §3.13 |
 | Facture, pièce | `Facture`, `SensPiece` | Pièce légale émise par la lib `facturation` : facture ou avoir (sens `FACTURE` ou `AVOIR`), d'abord brouillon, puis émise, numérotée et figée. Une facture a toujours une origine ; plus de type de facture. | p.44-46, 124-126 ; spec 08 §3.1 |
 | Avoir | `Facture` (sens `AVOIR`) | Pièce qui corrige des factures émises : de correction (rattaché à une ou plusieurs factures du même acheteur, ou au contrat du client sur une période, lignes libres, motif) ou d'annulation (une facture, ses lignes à l'identique, qui libère l'origine). Plus d'avoir « manuel » sans rattachement. | p.46, 125 ; spec 08 RG-FAC-22, 23 |
-| État de règlement | `EtatReglement` | Statut de traitement/paiement restitué par Zeendoc d'après le n° de facture (`EN_ATTENTE`, `PAYEE`), porté par la transmission. Zeendoc n'est jamais la source de vérité des factures. | p.46, 83, 139 |
+| État de règlement | `EtatZeendoc` | Statut de traitement/paiement restitué par Zeendoc d'après le n° de facture. Dans le prototype, « Payé » (`PAYEE`) d'une pièce transmise, porté par son suivi Zeendoc. Zeendoc n'est jamais la source de vérité des factures. | p.46, 83, 139 ; spec 08 §3.10 |
 | Brouillon | — | Facture ou avoir pas encore émis : tout s'y modifie, il s'abandonne (supprimé avec son journal), sans numéro. | spec 08 RG-FAC-17, 18 |
 | Facture vivante | — | Brouillon, ou facture émise non annulée ; une origine n'en a jamais plus d'une. | spec 08 RG-FAC-02 |
 | Demande de facture | `DemandeFacture`, `DemandeFactures` | Ce qu'une source envoie à `facturation` pour créer un brouillon : origine, client ou acheteur libre, date de l'opération, période, condition de paiement, notes, lignes. | spec 08 §3.11 |
@@ -148,7 +148,7 @@
 | Vendeur | `Vendeur` | Le BNIA, paramétré dans la facturation et recopié sur chaque pièce émise, avec ses mentions (pénalités, indemnité de 40 €, escompte). | spec 08 §3.7 |
 | Condition de paiement | `ConditionPaiement` | Nombre de jours, avec ou sans fin de mois (« 30 jours fin de mois »), d'où se calcule l'échéance à l'émission. | spec 08 §3.6 |
 | Journal de la pièce | — | Historique en ajout seul d'une facture ou d'un avoir, côté vendeur ou client (consultation au portail), avec les notes internes, jamais imprimées. | spec 08 §3.9 |
-| Transmission | `Transmission` | Suivi du dépôt d'une pièce émise dans Zeendoc (`EN_ATTENTE`, `DEPOSEE`, `REJETEE`, `EN_ANOMALIE`) et de son règlement. | p.83 ; spec 08 §3.10 |
+| Transmission | `SuiviZeendoc` | Suivi d'une pièce émise dans Zeendoc : transmise (« Transmis », une seule fois), puis payée (« Payé »). Simulé dans le prototype, porté par la pièce ; les états de dépôt `EN_ATTENTE`, `REJETEE`, `EN_ANOMALIE` sont hors prototype. | p.83 ; spec 08 §3.10 |
 | Vente directe | — | Vente saisie dans `boutique` hors commande du portail ; remplace la facture manuelle. | p.45 ; analyse `facturation` |
 | Ligne vendue | `LigneVendue` | Ligne article d'une pièce émise, vue par les ventes consolidées (avoir en négatif) et par `statistiques`. | spec 08 RG-FAC-30, 31 |
 

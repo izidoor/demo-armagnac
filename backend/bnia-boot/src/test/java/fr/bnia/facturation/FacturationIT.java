@@ -31,6 +31,7 @@ import fr.bnia.facturation.api.LigneDemandee.ArticleDemande;
 import fr.bnia.facturation.api.Origine;
 import fr.bnia.facturation.application.Clients;
 import fr.bnia.facturation.application.EmettrePiece;
+import fr.bnia.facturation.application.EnregistrerReglement;
 import fr.bnia.facturation.domain.Acheteur;
 import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
@@ -61,7 +62,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
- * Lots 1, 2, 3 et 5 de la spec 08 : facturer une DSM, de bout en bout, puis travailler son brouillon. La DSM validée d'un négociant aux volumes de la facture
+ * Lots 1, 2, 3, 5 et 6 de la spec 08 : facturer une DSM, de bout en bout, puis travailler son brouillon. La DSM validée d'un négociant aux volumes de la facture
  * d'exemple, facturée depuis {@code declarations}, émise par {@code facturation}, puis « facturée » dans la DSM.
  * La grille CVO, la classe de TVA de la CVO et le vendeur sont communs à la base des IT : on les assure.
  */
@@ -81,6 +82,7 @@ class FacturationIT extends AbstractIT {
     @Autowired DemandeFactures demandeFactures;
     @Autowired EmettrePiece emettrePiece;
     @Autowired FacturationLecture facturationLecture;
+    @Autowired EnregistrerReglement reglement;
 
     private fr.bnia.operateurs.domain.partage.Acteur admin;
     private long france;
@@ -534,6 +536,45 @@ class FacturationIT extends AbstractIT {
                 .expectBody().jsonPath("$[0].detail").isEqualTo("Envoyée par courrier")
                 .jsonPath("$[0].cote").isEqualTo("VENDEUR")
                 .jsonPath("$[2].detail").isEqualTo("Relancer le comptable");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-32, 33 : une sélection transmise à Zeendoc, état au listing, au détail, au journal et au portail ; ni brouillon ni retransmission ; refusé à un membre d'un négociant")
+    void rg_fac_32_zeendoc() {
+        long operateur = negociant(true);
+        long emise = brouillonDeDsm(operateur);
+        client.post().uri(PIECES + "/{id}/emission", emise).exchange().expectStatus().isOk();
+        long brouillon = brouillonDeDsm(negociant(true));
+
+        List<Map<String, Object>> comptesRendus = client.post().uri(PIECES + "/zeendoc")
+                .body(Map.of("ids", List.of(emise, brouillon))).exchange().expectStatus().isOk()
+                .expectBody(List.class).returnResult().getResponseBody();
+
+        assertThat(comptesRendus.getFirst().get("motif")).isNull();
+        assertThat((String) comptesRendus.getLast().get("motif")).contains("n'est pas émise");
+        client.get().uri(PIECES + "?client={client}", String.valueOf(operateur)).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].zeendoc").isEqualTo("TRANSMISE")
+                .jsonPath("$[0].transmiseLe").exists();
+        client.get().uri(PIECES + "/{id}/journal", emise).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].evenement").isEqualTo("TRANSMISE")
+                .jsonPath("$[0].cote").isEqualTo("VENDEUR");
+        client.post().uri(PIECES + "/zeendoc").body(Map.of("ids", List.of(emise))).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].motif").value(m -> assertThat((String) m).contains("déjà transmise"));
+
+        reglement.enregistrer(emise, LocalDate.of(2026, 11, 30));
+        client.get().uri(PIECES + "/{id}", emise).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.zeendoc").isEqualTo("PAYEE")
+                .jsonPath("$.payeeLe").isEqualTo("2026-11-30");
+        String email = emailUnique("observateur");
+        membre(operateur, Role.OBSERVATEUR, email);
+        RestTestClient observateur = connecte(email);
+        String factures = "/api/operateurs/" + operateur + "/factures";
+        observateur.get().uri(factures).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].zeendoc").isEqualTo("PAYEE");
+        observateur.get().uri(factures + "/{id}", emise).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.zeendoc").isEqualTo("PAYEE");
+        observateur.post().uri(PIECES + "/zeendoc").body(Map.of("ids", List.of(emise))).exchange()
+                .expectStatus().isForbidden();
     }
 
     @Test

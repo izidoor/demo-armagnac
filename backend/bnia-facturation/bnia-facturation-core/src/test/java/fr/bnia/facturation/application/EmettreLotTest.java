@@ -34,7 +34,7 @@ class EmettreLotTest {
         monde.factures.parId.computeIfPresent(ids.get(1), (id, d) -> new fr.bnia.facturation.domain.Facture.Donnees(
                 d.id(), d.sens(), d.etat(), d.origine(), d.dateOperation(), d.libellePeriode(), d.condition(),
                 d.bonDeCommande(), d.noteEntete(), d.notePied(), monde.acheteurs.get(autre), d.vendeur(), d.lignes(),
-                d.numero(), d.dateEmission(), d.echeance(), d.pdf(), d.creeeLe(), d.creePar(), d.version()));
+                d.numero(), d.dateEmission(), d.echeance(), d.pdf(), d.zeendoc(), d.creeeLe(), d.creePar(), d.version()));
 
         List<CompteRendu> comptesRendus = cas.emettre(GESTIONNAIRE, List.of(ids.get(2), ids.get(1), ids.get(0)));
 

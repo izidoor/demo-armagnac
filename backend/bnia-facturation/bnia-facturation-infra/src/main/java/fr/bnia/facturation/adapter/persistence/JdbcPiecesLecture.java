@@ -8,7 +8,9 @@ import fr.bnia.facturation.application.FiltrePieces;
 import fr.bnia.facturation.application.PieceLigne;
 import fr.bnia.facturation.application.PiecesLecture;
 import fr.bnia.facturation.domain.EtatPiece;
+import fr.bnia.facturation.domain.EtatZeendoc;
 import fr.bnia.facturation.domain.SensPiece;
+import fr.bnia.facturation.domain.SuiviZeendoc;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
@@ -30,7 +32,7 @@ class JdbcPiecesLecture implements PiecesLecture {
         return jdbcClient.sql("select id, sens, etat, numero, date_emission, acheteur_nom, acheteur_client_identifiant,"
                         + " acheteur_client_code, origine_source, origine_nature, origine_libelle_nature,"
                         + " origine_identifiant, origine_reference, libelle_periode, total_ht, total_tva, total_ttc,"
-                        + " creee_le from " + SCHEMA + ".facture"
+                        + " creee_le, zeendoc, zeendoc_transmise_le, zeendoc_payee_le from " + SCHEMA + ".facture"
                         + " where (cast(:numero as text) is null or numero like :numero || '%')"
                         + " and (cast(:sens as text) is null or sens = :sens)"
                         + " and (cast(:etat as text) is null or etat = :etat)"
@@ -62,7 +64,11 @@ class JdbcPiecesLecture implements PiecesLecture {
                                         rs.getString("origine_libelle_nature"), rs.getString("origine_identifiant"),
                                         rs.getString("origine_reference")),
                         rs.getString("libelle_periode"), rs.getBigDecimal("total_ht"), rs.getBigDecimal("total_tva"),
-                        rs.getBigDecimal("total_ttc"), rs.getTimestamp("creee_le").toInstant()))
+                        rs.getBigDecimal("total_ttc"), rs.getTimestamp("creee_le").toInstant(),
+                        rs.getString("zeendoc") == null ? null
+                                : new SuiviZeendoc(EtatZeendoc.valueOf(rs.getString("zeendoc")),
+                                        rs.getTimestamp("zeendoc_transmise_le").toInstant(),
+                                        rs.getObject("zeendoc_payee_le", LocalDate.class))))
                 .list();
     }
 

@@ -55,6 +55,8 @@ final class Monde {
     final Map<String, Article> articles = new HashMap<>();
     final List<Object> evenements = new ArrayList<>();
     final Stockage stockage = new Stockage();
+    /** Les numéros déposés dans Zeendoc, dans l'ordre. */
+    final List<String> deposes = new ArrayList<>();
 
     final Clients clients = client -> Optional.ofNullable(acheteurs.get(client));
     final DroitsFacturation droits = new DroitsFacturation() {
@@ -174,6 +176,15 @@ final class Monde {
         return new LectureFacturation(ventes);
     }
 
+    TransmettreAZeendoc transmettre() {
+        return new TransmettreAZeendoc(factures, journal, stockage, (numero, pdf) -> deposes.add(numero),
+                Supplier::get, droits, horloge);
+    }
+
+    EnregistrerReglement reglement() {
+        return new EnregistrerReglement(factures, journal, horloge);
+    }
+
     AnnoterPiece annoter() {
         return new AnnoterPiece(factures, journal, droits, horloge);
     }
@@ -189,7 +200,7 @@ final class Monde {
             long id = suivant++;
             Facture.Donnees enregistree = new Facture.Donnees(id, d.sens(), d.etat(), d.origine(), d.dateOperation(),
                     d.libellePeriode(), d.condition(), d.bonDeCommande(), d.noteEntete(), d.notePied(), d.acheteur(),
-                    d.vendeur(), d.lignes(), d.numero(), d.dateEmission(), d.echeance(), d.pdf(), d.creeeLe(),
+                    d.vendeur(), d.lignes(), d.numero(), d.dateEmission(), d.echeance(), d.pdf(), d.zeendoc(), d.creeeLe(),
                     d.creePar(), 0);
             parId.put(id, enregistree);
             return Facture.reconstituer(enregistree);
@@ -204,7 +215,7 @@ final class Monde {
             Facture.Donnees enregistree = new Facture.Donnees(d.id(), d.sens(), d.etat(), d.origine(),
                     d.dateOperation(), d.libellePeriode(), d.condition(), d.bonDeCommande(), d.noteEntete(),
                     d.notePied(), d.acheteur(), d.vendeur(), d.lignes(), d.numero(), d.dateEmission(), d.echeance(),
-                    d.pdf(), d.creeeLe(), d.creePar(), d.version() + 1);
+                    d.pdf(), d.zeendoc(), d.creeeLe(), d.creePar(), d.version() + 1);
             parId.put(d.id(), enregistree);
             return Facture.reconstituer(enregistree);
         }

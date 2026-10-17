@@ -9,9 +9,7 @@ public enum EvenementJournal {
     CONSULTEE("Consultée"),
     ANNULEE("Annulée"),
     AVOIR_EMIS("Avoir émis"),
-    DEPOSEE("Déposée dans Zeendoc"),
-    REJETEE("Rejetée par Zeendoc"),
-    EN_ANOMALIE("Dépôt en anomalie"),
+    TRANSMISE("Transmise à Zeendoc"),
     PAYEE("Payée"),
     NOTE("Note");
 

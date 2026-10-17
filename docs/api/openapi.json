@@ -876,6 +876,38 @@
         "tags" : [ "facturation" ]
       }
     },
+    "/api/facturation/pieces/zeendoc" : {
+      "post" : {
+        "operationId" : "transmettreAZeendoc",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/EmissionBrouillons"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CompteRenduTransmission"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Transmet une sélection de pièces émises à Zeendoc (simulé), chacune dans sa transaction ; compte rendu par pièce (RG-FAC-32)",
+        "tags" : [ "facturation" ]
+      }
+    },
     "/api/facturation/pieces/{id}" : {
       "delete" : {
         "operationId" : "abandonnerBrouillon",
@@ -8324,6 +8356,25 @@
         },
         "required" : [ "id" ]
       },
+      "CompteRenduTransmission" : {
+        "type" : "object",
+        "description" : "Le sort d'une pièce de la sélection transmise à Zeendoc : transmise, ou le motif du refus (RG-FAC-32)",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "motif" : {
+            "type" : "string",
+            "description" : "Vide si elle a été transmise"
+          },
+          "numero" : {
+            "type" : "string",
+            "description" : "Vide si la pièce est introuvable"
+          }
+        },
+        "required" : [ "id" ]
+      },
       "ConditionPaiement" : {
         "type" : "object",
         "description" : "Condition de paiement (spec 08 §3.6)",
@@ -8969,7 +9020,7 @@
           },
           "evenement" : {
             "type" : "string",
-            "enum" : [ "DEMANDEE", "CREEE", "MODIFIEE", "EMISE", "CONSULTEE", "ANNULEE", "AVOIR_EMIS", "DEPOSEE", "REJETEE", "EN_ANOMALIE", "PAYEE", "NOTE" ]
+            "enum" : [ "DEMANDEE", "CREEE", "MODIFIEE", "EMISE", "CONSULTEE", "ANNULEE", "AVOIR_EMIS", "TRANSMISE", "PAYEE", "NOTE" ]
           },
           "libelle" : {
             "type" : "string",
@@ -10698,6 +10749,11 @@
             "$ref" : "#/components/schemas/OriginePiece",
             "description" : "Vide pour un avoir"
           },
+          "payeeLe" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Vide tant que la pièce n'est pas payée"
+          },
           "pdf" : {
             "type" : "boolean",
             "description" : "Le PDF est disponible (pièce émise)"
@@ -10725,6 +10781,11 @@
           "totalTva" : {
             "type" : "number"
           },
+          "transmiseLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Vide tant que la pièce n'est pas transmise"
+          },
           "vendeur" : {
             "$ref" : "#/components/schemas/VendeurFacturation",
             "description" : "Recopié à l'émission ; vide en brouillon"
@@ -10733,6 +10794,11 @@
             "type" : "integer",
             "format" : "int64",
             "description" : "Version de la pièce, renvoyée à la modification d'un brouillon (RG-FAC-17)"
+          },
+          "zeendoc" : {
+            "type" : "string",
+            "description" : "État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)",
+            "enum" : [ "TRANSMISE", "PAYEE" ]
           }
         },
         "required" : [ "acheteur", "condition", "creeeLe", "creeePar", "dateOperation", "emettre", "empechements", "etat", "gerer", "id", "lignes", "pdf", "recapitulatifTva", "sens", "titre", "totalHt", "totalTtc", "totalTva", "version" ]
@@ -10805,6 +10871,11 @@
             "description" : "Vide pour un brouillon",
             "example" : "2026000001"
           },
+          "payeeLe" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Vide tant que la pièce n'est pas payée"
+          },
           "reference" : {
             "type" : "string",
             "example" : "DSM juillet 2026"
@@ -10813,11 +10884,21 @@
             "type" : "string",
             "enum" : [ "FACTURE", "AVOIR" ]
           },
+          "transmiseLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Vide tant que la pièce n'est pas transmise"
+          },
           "ttc" : {
             "type" : "number"
           },
           "tva" : {
             "type" : "number"
+          },
+          "zeendoc" : {
+            "type" : "string",
+            "description" : "État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)",
+            "enum" : [ "TRANSMISE", "PAYEE" ]
           }
         },
         "required" : [ "acheteur", "creeeLe", "etat", "ht", "id", "sens", "ttc", "tva" ]

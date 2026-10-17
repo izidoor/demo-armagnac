@@ -71,6 +71,7 @@ import {
   formatHectolitres,
 } from '@/features/declarations/format'
 import { cleFacturation, urlApercuPiece, urlPdfPiece } from './api'
+import { BadgeZeendoc } from './badge-zeendoc'
 import {
   EditionContenu,
   EditionFacture,
@@ -194,6 +195,7 @@ function VuePiece({ piece }: { piece: Piece }) {
             </Button>
           )}
           <Badge variant={VARIANTE_ETAT[piece.etat]}>{ETATS[piece.etat]}</Badge>
+          <BadgeZeendoc piece={piece} avecDates />
           {piece.origine && <span>{piece.origine.reference}</span>}
         </span>
       }

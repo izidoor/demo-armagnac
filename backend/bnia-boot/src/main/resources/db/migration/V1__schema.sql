@@ -889,6 +889,10 @@ create table facturation.facture (
     pdf_document_id                 bigint       unique references documents.document (id),
     pdf_nom                         text,
     pdf_taille                      bigint,
+    -- Suivi Zeendoc (§3.10, simulé) : vide tant que la pièce émise n'est pas transmise (RG-FAC-32, 33).
+    zeendoc                         text         check (zeendoc in ('TRANSMISE', 'PAYEE')),
+    zeendoc_transmise_le            timestamptz,
+    zeendoc_payee_le                date,
     total_ht                        numeric(14,2) not null,
     total_tva                       numeric(14,2) not null,
     total_ttc                       numeric(14,2) not null,
@@ -898,6 +902,8 @@ create table facturation.facture (
     version                         bigint       not null,
     -- Une facture a une origine (complète), un avoir n'en a pas (§3.1).
     check ((sens = 'FACTURE') = (origine_source is not null)),
+    check (zeendoc is null or etat = 'EMISE' and zeendoc_transmise_le is not null),
+    check ((zeendoc = 'PAYEE') = (zeendoc_payee_le is not null)),
     check (origine_source is null or (origine_nature is not null and origine_libelle_nature is not null
         and origine_identifiant is not null and origine_reference is not null)),
     -- RG-FAC-09, 12, 15 : une pièce émise a son numéro, ses dates, son vendeur et son PDF ; un brouillon, aucun.
@@ -955,7 +961,7 @@ create table facturation.journal (
     facture_id      bigint       not null references facturation.facture (id) on delete cascade,
     date            timestamptz  not null,
     evenement       text         not null check (evenement in ('DEMANDEE', 'CREEE', 'MODIFIEE', 'EMISE', 'CONSULTEE',
-                        'ANNULEE', 'AVOIR_EMIS', 'DEPOSEE', 'REJETEE', 'EN_ANOMALIE', 'PAYEE', 'NOTE')),
+                        'ANNULEE', 'AVOIR_EMIS', 'TRANSMISE', 'PAYEE', 'NOTE')),
     utilisateur_id  bigint,
     nom_acteur      text         not null,
     cote            text         not null check (cote in ('VENDEUR', 'CLIENT')),

@@ -1,6 +1,7 @@
 # 08 : facturation
 
-> Contexte `facturation` (étape 8 de `docs/contextes.md`). Statut : **terminée** (2026-10-14).
+> Contexte `facturation` (étape 8 de `docs/contextes.md`). Statut : **implémentée** (2026-10-17 ; spec terminée le
+> 2026-10-14). Lot 4 (avoirs) hors prototype ; lot 6 (Zeendoc) réduit à une simulation (§12).
 > Références : `p.N` = page du CDC v1.1, `AGI p.N` = page de la spec de reprise AGI.
 > `H-FAC-n` : hypothèse retenue, révisable. `Q-FAC-n` : question ouverte, suivie dans cette spec (§10).
 > Précédée de l'analyse du contexte ([analyse.md](analyse.md), terminée le 2026-10-14, citée « analyse »),
@@ -23,7 +24,7 @@
   - [3.7 Vendeur (`Vendeur`, agrégat de paramétrage, lot 1)](#37-vendeur-vendeur-agrégat-de-paramétrage-lot-1)
   - [3.8 Numérotation (`Numerotation`, agrégat, lot 1)](#38-numérotation-numerotation-agrégat-lot-1)
   - [3.9 Journal (`Journal`, hors agrégat de la pièce, en ajout seul, lot 1)](#39-journal-journal-hors-agrégat-de-la-pièce-en-ajout-seul-lot-1)
-  - [3.10 Transmission Zeendoc (`Transmission`, agrégat, lot 6)](#310-transmission-zeendoc-transmission-agrégat-lot-6)
+  - [3.10 Suivi Zeendoc (`SuiviZeendoc`, valeur de la pièce, lot 6, simulé)](#310-suivi-zeendoc-suivizeendoc-valeur-de-la-pièce-lot-6-simulé)
   - [3.11 Partie publiée et ports de l'hôte](#311-partie-publiée-et-ports-de-lhôte)
   - [3.12 Droits : le module « Facturation » (révision de la spec 02 §3.2.7)](#312-droits--le-module--facturation--révision-de-la-spec-02-327)
   - [3.13 Révisions de l'existant livrées par cette spec](#313-révisions-de-lexistant-livrées-par-cette-spec)
@@ -92,7 +93,7 @@ C.3.3.1 (DSM, p.107-111) · C.5.1.3 (code payeur, état de facturation, p.119) �
 | Pièce | Numérotation unique des factures et des avoirs, par année, sans trou ni doublon | `Numerotation` | C.8.3.1 p.124, analyse §3 |
 | Pièce | PDF au nouveau modèle, conservé dans la plateforme (ADR-018, ADR-020) | — | §4.9.8 p.46 |
 | Suivi | Journal de la pièce, en ajout seul, côté vendeur ou client, avec les notes internes | `Journal`, `EntreeJournal` | analyse §3 |
-| Zeendoc | Dépôt du PDF, rejeu sans doublon, relevé de l'état de règlement, historique des retours et anomalies | `Transmission` | §4.9.8 p.46, §6.2 p.83, annexe D p.139 |
+| Zeendoc | Transmission d'une sélection de pièces émises, une fois chacune, puis état de règlement ; simulé dans le prototype (décision du 2026-10-17 ; dépôt planifié, rejeu, historique des retours et anomalies hors prototype) | `SuiviZeendoc` | §4.9.8 p.46, §6.2 p.83, annexe D p.139 |
 | Lecture | Historique des factures et avoirs du BNIA (filtres : numéro, nature d'origine, acheteur ou client, période, date) | — | §4.9.1 p.44, §4.3.3 p.20, analyse UC-FAC-4 |
 | Lecture | Factures et avoirs de l'opérateur au portail, état de règlement | — | §5.10 p.74, analyse UC-FAC-5 |
 | Lecture | Tableau de tous les articles de tous les catalogues | — | §4.9.2 p.44, analyse UC-FAC-6 |
@@ -170,7 +171,7 @@ Facture et avoir partagent un même agrégat, distingués par leur sens (analyse
 
 **Écarts au CDC** : plus de type de facture, remplacé par l'origine ; plus de taux de cotisation ni de
 pourcentage d'exonération sur la facture, puisque chaque ligne porte son prix et sa catégorie de TVA
-(analyse §3). La date de dépôt et l'état Zeendoc passent dans `Transmission` (§3.10). L'identifiant BNIA
+(analyse §3). La date de transmission et l'état Zeendoc forment le suivi Zeendoc de la pièce (§3.10). L'identifiant BNIA
 et le numéro restent distincts.
 
 ### 3.2 Lignes (`LigneFacture`, entités de la pièce, lot 1)
@@ -279,20 +280,25 @@ Il y a une ligne par année : (année, dernier numéro). Un seul compteur sert a
 |---|---|---|
 | pièce | référence `Facture` | Supprimée avec un brouillon abandonné (RG-FAC-18) |
 | date | date-heure | — |
-| événement | `DEMANDEE` (facture), `CREEE` (avoir), `MODIFIEE`, `EMISE`, `CONSULTEE`, `ANNULEE`, `AVOIR_EMIS`, `DEPOSEE`, `REJETEE`, `EN_ANOMALIE`, `PAYEE`, `NOTE` | RG-FAC-20 |
+| événement | `DEMANDEE` (facture), `CREEE` (avoir), `MODIFIEE`, `EMISE`, `CONSULTEE`, `ANNULEE`, `AVOIR_EMIS`, `TRANSMISE` (« Transmise à Zeendoc »), `PAYEE`, `NOTE` | RG-FAC-20 |
 | acteur | `UTILISATEUR` (identifiant sans clé étrangère, copie du nom) ou `TRAITEMENT` (nom du traitement) | ADR-011 amendé |
 | côté | `VENDEUR`, `CLIENT` | Fixé par le cas d'usage (analyse §3) |
 | détail | texte long, facultatif | Texte de la note, motif d'un rejet, numéro de l'avoir |
 
-### 3.10 Transmission Zeendoc (`Transmission`, agrégat, lot 6)
+### 3.10 Suivi Zeendoc (`SuiviZeendoc`, valeur de la pièce, lot 6, simulé)
+
+Réduit pour le prototype (décision du 2026-10-17) : une démonstration simple, sans agrégat `Transmission`,
+sans traitement planifié ni historique des retours. Le suivi est porté par la pièce émise ; vide tant
+qu'elle n'est pas transmise.
 
 | Champ | Type | Règle | Source |
 |---|---|---|---|
-| pièce | référence `Facture` émise | Une seule par pièce | §6.2.3 p.83 |
-| dépôt | `EN_ATTENTE`, `DEPOSEE`, `REJETEE`, `EN_ANOMALIE` | RG-FAC-32 | §6.2.3 p.83 |
-| déposée le | date-heure | — | C.8.3.1 p.124 |
-| règlement | `EN_ATTENTE`, `PAYEE` | RG-FAC-33 | §5.10.3 p.74 |
-| historique | liste de (date, état reçu, message) | Chaque retour de Zeendoc | §6.2.3 p.83 |
+| état | `TRANSMISE` (« Transmis »), `PAYEE` (« Payé ») | RG-FAC-32, 33 | §6.2.3 p.83, §5.10.3 p.74 |
+| transmise le | date-heure | RG-FAC-32 | C.8.3.1 p.124 |
+| payée le | date | RG-FAC-33 | §5.10.3 p.74 |
+
+Hors prototype : les états de dépôt `EN_ATTENTE`, `REJETEE` et `EN_ANOMALIE`, le règlement `EN_ATTENTE`,
+l'historique des retours de Zeendoc.
 
 ### 3.11 Partie publiée et ports de l'hôte
 
@@ -307,10 +313,11 @@ le core de `facturation`, implémentés dans son infra (A-FAC-3).
 | `Article` | valeur | Source, code, désignation, unité, prix unitaire HT à la date, `CategorieTva` à la date, nature, code comptable facultatif, actif, lien d'administration | 1 |
 | `FactureEmise` | événement | Pièce, origine, client, numéro, date d'émission, HT, TVA, TTC | 1 |
 | `FactureAbandonnee` | événement | Pièce, origine, client, acteur qui l'a abandonné (pour le journal de la source, comme `FactureEmise`) | 2 |
-| `AvoirEmis` | événement | Pièce, numéro, date, annulation, factures rattachées (pièce, numéro, origine), HT, TVA, TTC | 4 |
+| `AvoirEmis` | événement | Pièce, numéro, date, annulation, factures rattachées (pièce, numéro, origine), HT, TVA, TTC | 4 (hors prototype) |
 | Lecture des ventes | partie publiée en lecture | `LigneVendue` d'une période, filtrée par nature d'origine (RG-FAC-31) | 5 |
 | `DroitsFacturation` | port de la lib, implémenté dans son infra sur `operateurs` | L'acteur gère-t-il la facturation ? Quels clients lit-il ? (RG-FAC-26) | 1 |
 | `Clients` | port de la lib, implémenté dans son infra sur `operateurs` | `acheteur(client)` : l'acheteur et ce qui lui manque pour être complet ; `rechercher(texte)` | 1 |
+| `Zeendoc` | port de la lib, adapter simulé dans son infra (bordure) | `deposer(numero, pdf)` : le numéro sert de clé d'idempotence (RG-FAC-32) | 6 |
 
 ### 3.12 Droits : le module « Facturation » (révision de la spec 02 §3.2.7)
 
@@ -371,9 +378,9 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | RG-FAC-19 | Une émission en lot émet chaque brouillon dans sa propre transaction, dans l'ordre de la sélection. Elle rend un compte rendu par brouillon : son numéro, ou le motif de son refus. Un brouillon refusé ne consomme pas de numéro. | décision du 2026-10-14 | 2 |
 | RG-FAC-20 | Le journal d'une pièce est en ajout seul. Il enregistre la demande d'une facture ou la création d'un avoir, chaque modification, l'émission, chaque consultation (côté client au portail, côté vendeur au back-office), l'annulation (avec le numéro de l'avoir), les avoirs émis, les retours de Zeendoc et les notes. Il est lu par le BNIA seulement. | CGI art. 289 VII, analyse §3 | 1 |
 | RG-FAC-21 | Une note est un texte interne, ajouté côté vendeur par un acteur qui gère la facturation, sur un brouillon comme sur une pièce émise. Elle n'est jamais imprimée ni transmise. | analyse §3 | 2 |
-| RG-FAC-22 | Un avoir de correction a un rattachement et un motif. Le rattachement désigne soit une ou plusieurs factures émises du même acheteur (même client, ou même SIREN), non annulées, soit un contrat et une période : le contrat est le n° BNIA du client de l'avoir, qui doit donc avoir un client, et la période vaut par défaut l'année civile en cours, modifiable (décision du 2026-10-14). L'acheteur de l'avoir est celui des factures visées, ou le client du contrat ; avec un client, il se lit selon RG-FAC-11. Ses lignes sont libres, préremplies au besoin depuis les factures visées. Si la somme des avoirs émis sur les factures visées dépasse leur total TTC, un avertissement s'affiche, sans blocage. | §4.9.7 p.46, BOFiP BOI-TVA-DECLA-30-20-20-20 §220 et §260 (analyse §3) | 4 |
-| RG-FAC-23 | Annuler une facture émise crée un avoir d'annulation qui la vise seule, avec ses lignes reprises à l'identique et non modifiables, et un motif. Une facture déjà annulée, ou qui a déjà des avoirs de correction, ne s'annule pas : le reste se corrige par avoir. Une fois l'avoir émis, la facture est annulée (journal `ANNULEE`) et son origine est libérée (RG-FAC-02). | C.8.4.1 p.125 (« Total ») ; décision du 2026-10-14 | 4 |
-| RG-FAC-24 | Un avoir suit le cycle d'une facture (RG-FAC-09 à 17) : même séquence de numéros, PDF titré « Avoir ». | analyse §3 | 4 |
+| RG-FAC-22 | Un avoir de correction a un rattachement et un motif. Le rattachement désigne soit une ou plusieurs factures émises du même acheteur (même client, ou même SIREN), non annulées, soit un contrat et une période : le contrat est le n° BNIA du client de l'avoir, qui doit donc avoir un client, et la période vaut par défaut l'année civile en cours, modifiable (décision du 2026-10-14). L'acheteur de l'avoir est celui des factures visées, ou le client du contrat ; avec un client, il se lit selon RG-FAC-11. Ses lignes sont libres, préremplies au besoin depuis les factures visées. Si la somme des avoirs émis sur les factures visées dépasse leur total TTC, un avertissement s'affiche, sans blocage. | §4.9.7 p.46, BOFiP BOI-TVA-DECLA-30-20-20-20 §220 et §260 (analyse §3) | 4 (hors prototype) |
+| RG-FAC-23 | Annuler une facture émise crée un avoir d'annulation qui la vise seule, avec ses lignes reprises à l'identique et non modifiables, et un motif. Une facture déjà annulée, ou qui a déjà des avoirs de correction, ne s'annule pas : le reste se corrige par avoir. Une fois l'avoir émis, la facture est annulée (journal `ANNULEE`) et son origine est libérée (RG-FAC-02). | C.8.4.1 p.125 (« Total ») ; décision du 2026-10-14 | 4 (hors prototype) |
+| RG-FAC-24 | Un avoir suit le cycle d'une facture (RG-FAC-09 à 17) : même séquence de numéros, PDF titré « Avoir ». | analyse §3 | 4 (hors prototype) |
 | RG-FAC-25 | Les événements sont publiés dans la transaction qui les cause : `FactureEmise` et `AvoirEmis` à l'émission, `FactureAbandonnee` à l'abandon. Ils ne portent que l'origine opaque, jamais l'objet de la source. | ADR-013, analyse §4 | 1 |
 | RG-FAC-26 | Seul un acteur qui gère la facturation (rôle `AGENT` ou `ADMIN` tenu dans l'opérateur BNIA, §3.12) demande, modifie, émet, abandonne, annule, crée un avoir, ajoute une note et paramètre le vendeur. Le personnel du BNIA lit toutes les pièces. Un rattachement actif lit les pièces émises dont son opérateur est le client, jamais les brouillons. | §4.2.5.1 p.15-16, ADR-016, analyse §2 | 1 |
 | RG-FAC-27 | L'historique du back-office filtre par numéro, sens, état, nature d'origine, client ou nom d'acheteur, libellé de la période, date d'émission (de… à). Il affiche le numéro, la date, l'acheteur, la nature et la référence d'origine, le HT, la TVA, le TTC et l'état, puis, à partir du lot 6, l'état de règlement. Un lien de la fiche opérateur l'ouvre filtré sur ce client. | §4.9.1 p.44, §4.3.3 p.20 | 1 |
@@ -381,8 +388,8 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | RG-FAC-29 | Le tableau des articles réunit, à la date du jour, les articles de tous les `CatalogueArticles`, actifs ou non : source, code, désignation, unité, prix, catégorie et taux de TVA, actif. Chaque ligne ouvre l'article chez sa source par son lien d'administration. | §4.9.2 p.44, analyse UC-FAC-6 | 5 |
 | RG-FAC-30 | Les ventes consolidées d'une période (date d'émission, du… au…, bornes comprises, la seconde postérieure ou égale à la première) sont faites des lignes article des pièces émises, à leur date d'émission ; celles d'un avoir comptent en négatif (quantité et HT). Elles se présentent ligne par ligne, dans une table triable, filtrable et regroupable, avec le total HT des lignes affichées. Les quantités ne se somment que par article : un regroupement qui mêle plusieurs articles n'a pas de quantité. La TVA ne se présente que par catégorie et taux, dans le récapitulatif du PDF : la somme des récapitulatifs des pièces, chaque TVA arrondie sur sa pièce (RG-FAC-05), puis les totaux HT, TVA et TTC. Export : un PDF de la période (synthèse par article, quantité dans son unité et HT ; récapitulatif de TVA ; totaux). Plus de tableau croisé dynamique ni d'export Excel (décision du 2026-10-16). | analyse UC-FAC-8 ; décisions du 2026-10-14, du 2026-10-15 et du 2026-10-16 | 5 |
 | RG-FAC-31 | La partie publiée rend les `LigneVendue` d'une période, filtrables par nature d'origine, pour `statistiques` (CVO facturée sur DSM, sur fin de travaux). | §4.10.3 p.48 ; décision du 2026-10-14 | 5 |
-| RG-FAC-32 | Chaque pièce émise a une transmission `EN_ATTENTE`. Un traitement planifié dépose son PDF dans Zeendoc avec son numéro comme clé d'idempotence ; le dépôt passe à `DEPOSEE`, `REJETEE` (refus de Zeendoc, motif conservé) ou `EN_ANOMALIE` (erreur technique). Un rejeu ne crée jamais de second document. Chaque retour est historisé et journalisé. Un échec n'empêche jamais de consulter la pièce. | §4.9.8 p.46, §6.2.3 p.83, ADR-019 | 6 |
-| RG-FAC-33 | Un traitement planifié relève auprès de Zeendoc l'état de règlement de chaque pièce déposée et non payée, par son numéro (`EN_ATTENTE`, `PAYEE`). Cet état s'affiche au back-office et au portail. | §4.9.8 p.46, §5.10.3 p.74, §6.2.2 p.83 | 6 |
+| RG-FAC-32 | Qui gère la facturation transmet à Zeendoc une sélection de pièces émises, chacune dans sa transaction, son numéro comme clé d'idempotence : la pièce devient « Transmis » (journal `TRANSMISE`, côté vendeur). Une pièce ne se transmet qu'une fois, et un brouillon jamais : le refus est rapporté sans arrêter les autres. Simulé dans le prototype, sans traitement planifié ni rejet (décision du 2026-10-17). | §4.9.8 p.46, §6.2.3 p.83 | 6 |
+| RG-FAC-33 | Le règlement relevé dans Zeendoc rend « Payé » une pièce transmise, une fois, à sa date (journal `PAYEE`, au nom de « Zeendoc »). L'état (« Transmis », « Payé ») s'affiche au back-office et au portail. Simulé dans le prototype : sans relevé planifié, seule la démonstration enregistre des règlements (décision du 2026-10-17). | §4.9.8 p.46, §5.10.3 p.74, §6.2.2 p.83 | 6 |
 
 ## 5. Cas d'usage
 
@@ -398,10 +405,10 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | UC-FAC-2 Abandonner un brouillon | `Facture`, `Journal` | 14, 18, 25, 26 | 2 |
 | UC-FAC-2 Émettre une sélection de brouillons | `Facture` | 19, et celles de l'émission | 2 |
 | Ajouter une note | `Journal` | 20, 21, 26 | 2 |
-| UC-FAC-3 Annuler une facture | `Facture` (avoir), `Journal` | 23, 24, 25, 26 | 4 |
-| UC-FAC-3 Créer un avoir de correction (brouillon), puis l'émettre | `Facture` (avoir), `Journal` | 04, 05, 06, 11, 20, 22, 24, 26 | 4 |
-| UC-FAC-7 Déposer les pièces émises dans Zeendoc (traitement planifié), rejouer un dépôt | `Transmission`, `Journal` | 32 | 6 |
-| UC-FAC-7 Relever les règlements (traitement planifié) | `Transmission`, `Journal` | 33 | 6 |
+| UC-FAC-3 Annuler une facture | `Facture` (avoir), `Journal` | 23, 24, 25, 26 | 4 (hors prototype) |
+| UC-FAC-3 Créer un avoir de correction (brouillon), puis l'émettre | `Facture` (avoir), `Journal` | 04, 05, 06, 11, 20, 22, 24, 26 | 4 (hors prototype) |
+| UC-FAC-7 Transmettre une sélection de pièces émises à Zeendoc (simulé) | `Facture`, `Journal` | 26, 32 | 6 |
+| UC-FAC-7 Enregistrer un règlement relevé dans Zeendoc (simulé, démonstration seulement) | `Facture`, `Journal` | 33 | 6 |
 
 ### 5.2 Lecture
 
@@ -433,10 +440,10 @@ son infra sur la partie publiée d'`operateurs` (analyse §4). Les articles lui 
   - l'en-tête (origine ou rattachement, acheteur, dates, période, condition, échéance, notes) ;
   - les lignes, groupées et ordonnées ; le récapitulatif de TVA ; les totaux ;
   - l'onglet *Journal*, avec l'ajout d'une note ;
-  - le PDF (après l'émission) ; l'état Zeendoc (lot 6) ;
+  - le PDF (après l'émission) ; l'état Zeendoc (lot 6) : badge « Transmis » ou « Payé » à côté de l'état, avec ses dates ;
   - les actions selon l'état :
     - brouillon : *Aperçu PDF* (RG-FAC-15 ; masqué tant qu'une carte est en saisie), *Émettre*, *Abandonner* ; *Modifier* est porté par chaque carte (ci-dessous) ;
-    - facture émise : *Annuler*, *Créer un avoir*, *Ajouter une note*.
+    - facture émise : *Ajouter une note* (*Annuler* et *Créer un avoir* : lot 4, hors prototype).
 
   Un brouillon affiche ce qui l'empêche d'être émis.
 - **Édition d'un brouillon** (lot 2) : la pièce se présente en quatre cartes, *Acheteur*, *Facture*, *Contenu* et *Note de pied*. En haut à droite de chacune, *Modifier* si elle se modifie, sinon un cadenas dont l'infobulle dit pourquoi (pièce émise, acheteur, consultation sans gestion). *Modifier* passe la seule carte en saisie, une carte à la fois ; *Enregistrer* enregistre le brouillon (une entrée `MODIFIEE`), *Annuler* n'écrit rien (décisions du 2026-10-15) :
@@ -447,7 +454,8 @@ son infra sur la partie publiée d'`operateurs` (analyse §4). Les articles lui 
 - **Abandonner** un brouillon (lot 2) : confirmation qui dit que l'origine redevient à facturer (« DSM juillet 2026 redeviendra à facturer ») ; retour à l'onglet *Brouillons*.
 - **Journal** (lot 2) : sans onglets : bouton *Historique* (à gauche de *PDF* ou d'*Aperçu PDF*) qui ouvre le journal dans un tiroir à droite, pour un brouillon comme pour une pièce émise. *Ajouter une note*, au-dessus des entrées, pour qui gère la facturation, sur un brouillon comme sur une pièce émise (RG-FAC-21).
 - **Brouillons** (lot 2) : cases à cocher et *Émettre la sélection (n)*, pour qui gère la facturation ; une confirmation, puis un compte rendu par brouillon : son numéro (lien vers la pièce), ou le motif de son écart (RG-FAC-19).
-- **Avoir** (lot 4) : choix des factures visées (même acheteur) ou du contrat du client (son n° BNIA) et d'une période, par défaut l'année civile en cours ; motif ; lignes préremplies depuis les factures ; avertissement de dépassement (RG-FAC-22).
+- **Émises** et **Payées** (lot 6, simulé) : l'historique a trois onglets, *Brouillons*, *Émises* (pièces émises non payées, transmises comprises ; leur nombre en pastille, comme les brouillons) et *Payées* (pièces payées, sans cases à cocher) ; colonne *Zeendoc* (badge « Transmis » ou « Payé », dates en infobulle), aussi dans l'onglet *Factures* de la fiche opérateur ; pour qui gère la facturation, cases à cocher (une pièce déjà transmise ne se coche pas) et *Transmettre à Zeendoc (n)*, sans confirmation : un loader « Transmission… » d'au moins 1,5 s, puis les badges « Transmis » et un message ; un refus éventuel est nommé (RG-FAC-32).
+- **Avoir** (lot 4, hors prototype) : choix des factures visées (même acheteur) ou du contrat du client (son n° BNIA) et d'une période, par défaut l'année civile en cours ; motif ; lignes préremplies depuis les factures ; avertissement de dépassement (RG-FAC-22).
 - **Paramètres de l'application > BNIA > Facturation** : le vendeur (§3.7), dans un cadre en lecture, éditable, sous la fiche et les contacts du BNIA (spec 02 §6.1).
 - **Écrans d'autres contextes** :
   - DSM : action *Facturer* sur la DSM, et sur une sélection de l'onglet *Validées* du listing ; lien vers la facture, ou vers le brouillon ;
@@ -459,7 +467,7 @@ son infra sur la partie publiée d'`operateurs` (analyse §4). Les articles lui 
 - en-tête, lignes et totaux ;
 - PDF ;
 - référence de l'origine ;
-- état de règlement (lot 6).
+- état Zeendoc (lot 6) : badge « Transmis » ou « Payé », en colonne de la liste et dans le détail, avec ses dates.
 
 Le module Facturation est lu par tout rattachement actif (§3.12).
 
@@ -476,9 +484,8 @@ Le module Facturation est lu par tout rattachement actif (§3.12).
   - une facture émise par opérateur à DSM validée, aux montants de la facture d'exemple ;
   - un brouillon en attente ;
   - dix DSM validées d'Armagnacs de Gascogne à facturer en lot (onze mois validés, le plus ancien facturé), une note au journal de la facture émise (lot 2) ; révisé au lot 5 : ses huit DSM les plus anciennes sont facturées et émises, chacune à la fin du mois qui suit sa période, la neuvième attend en brouillon, les deux dernières restent à facturer ; la DSM de la Maison Durand est émise de même, à la fin du mois qui suit sa campagne : les ventes s'étalent ainsi sur plusieurs mois et deux années civiles ; quinze opérateurs fictifs ajoutés pour le volume, facturables (destinataire des factures en adresse saisie, sans compte ; DSM saisies par un seul compte `saisie@demo.fr`, AGENT de chacun) : cinq négociants, toutes leurs DSM mensuelles de l'année validées, et dix producteurs, leur DSM de la dernière année déclarative close validée ; chaque DSM facturée et émise de même ;
-  - une facture annulée par avoir puis refacturée (lot 4) ;
-  - un avoir de correction partiel (lot 4) ;
-  - des transmissions dans chaque état (lot 6).
+  - Zeendoc (lot 6, simulé ; décision du 2026-10-17) : toute facture émise il y a plus de deux mois est transmise le lendemain de son émission, puis payée à son échéance, au plus tard la veille ; les plus récentes restent à transmettre ;
+  - pas d'avoir (lot 4 hors prototype).
 
 ### 7.2 Reprise AGI
 
@@ -498,7 +505,7 @@ alternatives : [architecture.md](architecture.md).
 | A-FAC-4 | **Lignes en une table** `facturation.ligne_facture` : colonne `sorte` (`ARTICLE`, `TEXTE`, `GROUPE`), `position`, `groupe` (référence à une ligne de la même pièce), colonnes de l'article facultatives, contrôlées par des contraintes `CHECK` selon la sorte ; mappées vers les trois classes du domaine dans `adapter.persistence`. | Une table par sorte ; lignes en `jsonb` | — (ADR-004) |
 | A-FAC-5 | **Numérotation par compteur verrouillé** : table `facturation.numerotation (annee, dernier)`, lue `FOR UPDATE` et incrémentée dans la transaction d'émission ; un rollback ne consomme pas le numéro. | Séquence PostgreSQL (trou au rollback) ; max + 1 sous contrainte d'unicité (collisions) | — |
 | A-FAC-6 | **Émission en lot** par un cas d'usage `EmettreLot` qui appelle `EmettrePiece` pour chaque brouillon à travers un port technique `Transactions` (« exécuter dans une nouvelle transaction »), défini dans `bnia-commun-core` et implémenté dans `bnia-commun-infra` (`TransactionTemplate`, `REQUIRES_NEW`). Le compte rendu (RG-FAC-19) est produit par le cas d'usage. | Boucle dans le controller (règle dans l'adapter REST) ; `@UseCase` non transactionnel | ADR-022 |
-| A-FAC-7 | **Zeendoc** : port `Zeendoc` (déposer un PDF avec son numéro, lire l'état d'une pièce) dans le core ; adapter simulé dans `adapter.integration` tant que l'API est inconnue (bordure) ; dépôt et relevé par deux traitements planifiés (`adapter.planification`), idempotents en base. | — | — (ADR-019) |
+| A-FAC-7 | **Zeendoc** : port `Zeendoc` (déposer un PDF avec son numéro, lire l'état d'une pièce) dans le core ; adapter simulé dans `adapter.integration` tant que l'API est inconnue (bordure) ; dépôt et relevé par deux traitements planifiés (`adapter.planification`), idempotents en base. Dans le prototype (2026-10-17) : port `Zeendoc.deposer` seul, adapter simulé, transmission à la demande, sans traitement planifié. | — | — (ADR-019) |
 | A-FAC-8 | **Références opaques** : `Origine` (source, nature, identifiant) et `ClientRef` (identifiant, code) stockés en texte, **sans clé étrangère** ; index sur (source, identifiant) pour RG-FAC-02 et sur le client pour l'historique et le portail. | Clé étrangère par source (la lib connaîtrait ses sources) | ADR-011 amendé le 2026-10-14 |
 | A-FAC-9 | **Module `FACTURATION`** dans `operateurs.domain.partage.Module` : lu par tout rattachement actif (ses pièces), géré par le seul rôle tenu dans l'opérateur BNIA, comme `PARAMETRAGE` pour la gestion (`Droits.gere`). | — | — (ADR-016) |
 | A-FAC-10 | **PDF** au gabarit Thymeleaf et OpenHTMLtoPDF dans `adapter.document`, stocké par `StockageDocuments` (`DocumentDepose`) à l'émission ; ventes en Excel par `fastexcel`. | — | — (ADR-018, ADR-020) |
@@ -555,8 +562,8 @@ Chaque RG-FAC-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2 | **Brouillons** | Modifier un brouillon (en-tête, changement de client, lignes, groupes, ordre), abandonner, émettre une sélection avec compte rendu, notes du journal. RG-FAC-17, 18, 19, 21. | Le BNIA facture dix DSM, corrige un libellé de période, ajoute une ligne de texte, abandonne un brouillon (la DSM redevient « à facturer »), émet les neuf autres d'un coup ; une note s'affiche au journal. |
 | 3 | **Portail** | Factures et avoirs de l'opérateur, détail, PDF, consultation journalisée côté client. RG-FAC-28. | Un négociant voit sa facture, télécharge le PDF ; le BNIA voit « consultée par » au journal. |
 | 5 | **Articles et ventes** | Tableau des articles ; ventes consolidées, regroupements, exports Excel et PDF ; lecture publiée pour `statistiques`. RG-FAC-29, 30, 31. | Le BNIA voit les huit articles de cotisation et ouvre la grille ; il consulte les ventes du trimestre par article et les exporte. |
-| 4 | **Avoirs** | Annuler une facture ; avoir de correction (factures visées ou contrat et période, motif, lignes) ; `AvoirEmis` ; montants nets et réouverture dans `declarations`. RG-FAC-22, 23, 24. | Le BNIA annule la facture d'une DSM, qui redevient « à facturer », puis la refacture ; il accorde un avoir partiel sur une autre : la DSM montre le net. |
-| 6 | **Zeendoc** | Transmission, dépôt et relevé par traitements planifiés, adapter simulé (bordure, `contextes.md` §1.1), rejeu sans doublon, état au back-office et au portail. RG-FAC-32, 33. | Une facture émise passe à « déposée », puis « payée » ; un dépôt rejeté se rejoue sans doublon ; le portail affiche « payée ». |
+| 4 | **Avoirs** (hors prototype, décision du 2026-10-17) | Annuler une facture ; avoir de correction (factures visées ou contrat et période, motif, lignes) ; `AvoirEmis` ; montants nets et réouverture dans `declarations`. RG-FAC-22, 23, 24. | Le BNIA annule la facture d'une DSM, qui redevient « à facturer », puis la refacture ; il accorde un avoir partiel sur une autre : la DSM montre le net. |
+| 6 | **Zeendoc** (réduit à une simulation, décision du 2026-10-17) | Transmission d'une sélection de pièces émises au back-office, une fois chacune, par un adapter simulé ; règlements enregistrés par la démonstration ; état au back-office et au portail. Sans traitement planifié, rejet, anomalie ni rejeu. RG-FAC-32, 33. | Le BNIA sélectionne deux factures récentes, *Transmettre à Zeendoc* : après le loader, elles sont « Transmis » ; les anciennes sont « Payé », au portail aussi. |
 
 ## Journal
 
@@ -585,3 +592,7 @@ Chaque RG-FAC-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-15 | Démonstration enrichie pour les ventes (demande de l'utilisateur, lot 5) : factures émises à des dates passées, la fin du mois qui suit la période de chaque DSM (au plus tard la veille), dans l'ordre des dates pour que les numéros les suivent ; huit pour Armagnacs de Gascogne, une pour la Maison Durand ; un brouillon et deux DSM à facturer restent pour les lots 1 et 2 (§7.1). La date d'émission vient d'une instance d'`EmettrePiece` propre au chargeur de démonstration, sur une horloge réglable ; le cas d'usage ne change pas et l'application émet toujours au jour même (RG-FAC-09). |
 | 2026-10-15 | Démonstration, volume (demande de l'utilisateur) : cinq négociants et dix producteurs fictifs, facturables, toutes leurs DSM validées, facturées et émises à des dates passées (§7.1). Décision en séance : un seul compte de saisie de leurs DSM, `saisie@demo.fr`, AGENT de chacun (la DSM se remplit par un membre de l'opérateur, RG-DEC-01) ; destinataire des factures en adresse saisie, sans compte. |
 | 2026-10-16 | Page *Ventes* (demande de l'utilisateur) : deux graphiques de démonstration, aux données fictives calculées dans le front, au-dessus des lignes vendues ; l'onglet *Analyse* (tableau croisé dynamique, son export Excel, récapitulatif de TVA à l'écran) est retiré, la page n'a plus d'onglets. Le PDF de la période garde sa synthèse et son récapitulatif de TVA. RG-FAC-30 révisée (§6.1). Code retiré : le tableau croisé des ventes (front) ; le récapitulatif de TVA et les totaux de la réponse de `GET /api/facturation/ventes`, qui ne rend plus que les lignes (le PDF calcule toujours les siens). |
+| 2026-10-17 | Lots restants (décisions en séance) : **lot 4 (avoirs) hors prototype**, pour ne pas charger les écrans ; l'essentiel est de facturer des DSM. RG-FAC-22 à 24, UC-FAC-3 et `AvoirEmis` restent décrits, marqués « hors prototype ». **Lot 6 réduit à une simulation de démonstration** : au back-office, onglet *Émises*, le BNIA sélectionne des factures émises et clique *Transmettre à Zeendoc* ; un loader, puis le badge « Transmis » ; des factures déjà « Payé » en démonstration (toute facture émise il y a plus de deux mois) ; état affiché au listing, au détail, dans l'onglet *Factures* de la fiche opérateur et au portail ; entrée au journal ; pas de retransmission ; ni `EN_ATTENTE`, `REJETEE`, `EN_ANOMALIE`, ni traitement planifié, ni historique des retours. §2.1, §3.9, §3.10, §3.11, RG-FAC-32 et 33 révisées, §5.1, §6.1, §6.2, §7.1, §12. |
+| 2026-10-17 | Lot 6 implémenté (simulé) : RG-FAC-32, 33 ; statut « implémentée ». Choix d'implémentation : pas d'agrégat `Transmission`, le suivi Zeendoc est une valeur de la pièce (`SuiviZeendoc` : état `EtatZeendoc`, transmise le, payée le ; colonnes `zeendoc`, `zeendoc_transmise_le`, `zeendoc_payee_le` de `facture`) ; `Facture.transmettre` et `Facture.enregistrerReglement` ; port `Zeendoc.deposer(numero, pdf)` et adapter `ZeendocSimule`, qui ne fait que tracer le dépôt ; cas d'usage `TransmettreAZeendoc` sur le modèle d'`EmettreLot` (une transaction par pièce, compte rendu par pièce) et `EnregistrerReglement`, sans acteur, appelé par la seule démonstration (pas d'endpoint) ; événement de journal `DEPOSEE` renommé `TRANSMISE`, `REJETEE` et `EN_ANOMALIE` retirés ; endpoint `POST /api/facturation/pieces/zeendoc` ; `zeendoc`, `transmiseLe`, `payeeLe` dans `PieceListee` et `Piece` (back-office et portail) ; délai de 1,5 s simulé dans le front, le serveur répond aussitôt ; pas de confirmation ; en démonstration, transmission le lendemain de l'émission et règlement à l'échéance, au plus tard la veille, sur l'horloge réglable du chargeur. |
+| 2026-10-17 | Écrans (demande de l'utilisateur) : troisième onglet *Payées* dans l'historique du back-office, qui reçoit les pièces payées ; *Émises* garde les pièces transmises et non transmises. Partage du listing des pièces émises dans le front, selon l'état Zeendoc, sans changement d'API (§6.1). |
+| 2026-10-17 | Écrans (demande de l'utilisateur) : l'onglet *Émises* compte ses pièces (émises non payées) dans une pastille, comme *Brouillons*, sans les filtres de saisie (seul le client de l'URL compte) (§6.1). |

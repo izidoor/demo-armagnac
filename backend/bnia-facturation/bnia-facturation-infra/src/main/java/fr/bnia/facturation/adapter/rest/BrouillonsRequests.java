@@ -4,6 +4,7 @@ import fr.bnia.facturation.api.Article;
 import fr.bnia.facturation.api.CategorieTva;
 import fr.bnia.facturation.api.NatureArticle;
 import fr.bnia.facturation.application.EmettreLot.CompteRendu;
+import fr.bnia.facturation.application.TransmettreAZeendoc;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,6 +28,18 @@ public final class BrouillonsRequests {
 
         static CompteRenduResponse de(CompteRendu c) {
             return new CompteRenduResponse(c.id(), c.numero(), c.motif());
+        }
+    }
+
+    @Schema(name = "CompteRenduTransmission",
+            description = "Le sort d'une pièce de la sélection transmise à Zeendoc : transmise, ou le motif du refus (RG-FAC-32)")
+    public record CompteRenduTransmissionResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long id,
+            @Schema(description = "Vide si la pièce est introuvable") String numero,
+            @Schema(description = "Vide si elle a été transmise") String motif) {
+
+        static CompteRenduTransmissionResponse de(TransmettreAZeendoc.CompteRendu c) {
+            return new CompteRenduTransmissionResponse(c.id(), c.numero(), c.motif());
         }
     }
 

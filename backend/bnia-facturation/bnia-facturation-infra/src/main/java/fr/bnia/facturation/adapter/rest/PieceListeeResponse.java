@@ -2,6 +2,7 @@ package fr.bnia.facturation.adapter.rest;
 
 import fr.bnia.facturation.application.PieceLigne;
 import fr.bnia.facturation.domain.EtatPiece;
+import fr.bnia.facturation.domain.EtatZeendoc;
 import fr.bnia.facturation.domain.SensPiece;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
@@ -26,7 +27,11 @@ public record PieceListeeResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal ht,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal tva,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal ttc,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Instant creeeLe) {
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Instant creeeLe,
+        @Schema(description = "État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)")
+        EtatZeendoc zeendoc,
+        @Schema(description = "Vide tant que la pièce n'est pas transmise") Instant transmiseLe,
+        @Schema(description = "Vide tant que la pièce n'est pas payée") LocalDate payeeLe) {
 
     static PieceListeeResponse de(PieceLigne p) {
         return new PieceListeeResponse(p.id(), p.sens(), p.etat(), p.numero(), p.dateEmission(), p.nomAcheteur(),
@@ -34,6 +39,8 @@ public record PieceListeeResponse(
                 p.origine() == null ? null : p.origine().nature(),
                 p.origine() == null ? null : p.origine().libelleNature(),
                 p.origine() == null ? null : p.origine().reference(), p.libellePeriode(), p.ht(), p.tva(), p.ttc(),
-                p.creeeLe());
+                p.creeeLe(), p.zeendoc() == null ? null : p.zeendoc().etat(),
+                p.zeendoc() == null ? null : p.zeendoc().transmiseLe(),
+                p.zeendoc() == null ? null : p.zeendoc().payeeLe());
     }
 }

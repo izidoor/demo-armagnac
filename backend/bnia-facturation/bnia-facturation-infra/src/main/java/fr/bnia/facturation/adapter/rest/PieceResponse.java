@@ -7,13 +7,15 @@ import fr.bnia.facturation.application.VuePiece;
 import fr.bnia.facturation.domain.Acheteur;
 import fr.bnia.facturation.domain.CategorieAcheteur;
 import fr.bnia.facturation.domain.EtatPiece;
+import fr.bnia.facturation.domain.EtatZeendoc;
 import fr.bnia.facturation.domain.Facture;
-import fr.bnia.facturation.domain.LigneFacture;
 import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
 import fr.bnia.facturation.domain.LigneFacture.LigneGroupe;
 import fr.bnia.facturation.domain.LigneFacture.LigneInformative;
+import fr.bnia.facturation.domain.LigneFacture;
 import fr.bnia.facturation.domain.NatureOperation;
 import fr.bnia.facturation.domain.SensPiece;
+import fr.bnia.facturation.domain.SuiviZeendoc;
 import fr.bnia.facturation.domain.Totaux;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
@@ -57,6 +59,10 @@ public record PieceResponse(
         boolean gerer,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Le PDF est disponible (pièce émise)")
         boolean pdf,
+        @Schema(description = "État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)")
+        EtatZeendoc zeendoc,
+        @Schema(description = "Vide tant que la pièce n'est pas transmise") Instant transmiseLe,
+        @Schema(description = "Vide tant que la pièce n'est pas payée") LocalDate payeeLe,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Instant creeeLe,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Copie du nom de l'auteur de la demande")
         String creeePar,
@@ -173,6 +179,8 @@ public record PieceResponse(
                 p.recapitulatifTva().stream().map(t -> new LigneTvaResponse(t.categorie().code(), t.categorie().taux(),
                         t.categorie().libelle(), t.categorie().motif(), t.base(), t.tva())).toList(),
                 totaux.ht(), totaux.tva(), totaux.ttc(), vue.empechements(), vue.emettre(), vue.gerer(),
-                p.pdf().isPresent(), p.creeeLe(), p.creePar().nom(), p.version());
+                p.pdf().isPresent(), p.zeendoc().map(SuiviZeendoc::etat).orElse(null),
+                p.zeendoc().map(SuiviZeendoc::transmiseLe).orElse(null),
+                p.zeendoc().map(SuiviZeendoc::payeeLe).orElse(null), p.creeeLe(), p.creePar().nom(), p.version());
     }
 }

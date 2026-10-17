@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ChevronRight, Send, X } from 'lucide-react'
+import { ChevronRight, CloudUpload, Loader2, Send, X } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   emettreBrouillons,
   listerPieces,
+  transmettreAZeendoc,
   type CompteRenduEmission,
   type PieceListee,
 } from '@/api/generated'
@@ -42,14 +44,20 @@ import {
 } from '@/features/declarations/format'
 import { useDroits, useMoi } from '@/features/session/session'
 import { cleFacturation } from './api'
+import { BadgeZeendoc } from './badge-zeendoc'
 import { SENS } from './libelles'
 
-type OngletPieces = 'emises' | 'brouillons'
+/** La transmission à Zeendoc est simulée : le loader dure au moins ce délai, pour la démonstration. */
+const DELAI_ZEENDOC = 1500
+
+type OngletPieces = 'brouillons' | 'emises' | 'payees'
 
 /**
  * Factures du back-office (spec 08 §6.1, UC-FAC-4) : l'historique des pièces émises, filtré par numéro, acheteur,
  * période et date d'émission (RG-FAC-27), et l'onglet « Brouillons », où qui gère la facturation sélectionne des
- * brouillons à émettre ensemble, avec un compte rendu par brouillon (RG-FAC-19). Filtrable sur un client par
+ * brouillons à émettre ensemble, avec un compte rendu par brouillon (RG-FAC-19) ; dans l'onglet « Émises », il
+ * sélectionne des pièces à transmettre à Zeendoc, une seule fois chacune (RG-FAC-32, simulé) ; les pièces payées
+ * passent dans l'onglet « Payées » (RG-FAC-33). Filtrable sur un client par
  * l'URL ; la fiche opérateur a son propre onglet « Factures ». Une ligne ouvre la pièce.
  */
 export function PagePieces({
@@ -91,7 +99,10 @@ export function PagePieces({
     queryFn: () =>
       listerPieces({ query: filtre, throwOnError: true }).then((r) => r.data),
   })
-  const pieces = listing.data ?? []
+  // « Émises » et « Payées » se partagent le listing des pièces émises, selon leur état Zeendoc.
+  const pieces = (listing.data ?? []).filter(
+    (p) => brouillons || (onglet === 'payees') === (p.zeendoc === 'PAYEE')
+  )
   // Le nombre de brouillons en attente, sans les filtres de saisie (seul le client de l'URL compte).
   const filtreBrouillons = { client, etat: 'BROUILLON' as const }
   const enAttente = useQuery({
@@ -101,10 +112,20 @@ export function PagePieces({
         (r) => r.data
       ),
   }).data?.length
-  // Seuls les brouillons affichés comptent : un filtre en masque, une émission en retire.
-  const selectionnes = brouillons
-    ? pieces.filter((p) => selection.has(p.id))
-    : []
+  // De même, le nombre de pièces émises non payées (onglet « Émises »).
+  const filtreEmises = { client, etat: 'EMISE' as const }
+  const nonPayees = useQuery({
+    queryKey: [...cleFacturation, 'pieces', filtreEmises],
+    queryFn: () =>
+      listerPieces({ query: filtreEmises, throwOnError: true }).then(
+        (r) => r.data
+      ),
+  }).data?.filter((p) => p.zeendoc !== 'PAYEE').length
+  // Seules les pièces affichées comptent : un filtre en masque, une émission en retire ; une pièce déjà transmise
+  // ne se retransmet pas.
+  const selectionnes = pieces.filter(
+    (p) => selection.has(p.id) && transmissible(p, brouillons)
+  )
   const emission = useMutation({
     mutationFn: () =>
       emettreBrouillons({
@@ -120,11 +141,35 @@ export function PagePieces({
     },
     onError: () => setConfirmation(false),
   })
-  const changerOnglet = (o: string) =>
+  const transmission = useMutation({
+    mutationFn: () =>
+      Promise.all([
+        transmettreAZeendoc({
+          body: { ids: selectionnes.map((p) => p.id) },
+          throwOnError: true,
+        }).then((r) => r.data),
+        new Promise((fini) => setTimeout(fini, DELAI_ZEENDOC)),
+      ]).then(([comptesRendus]) => comptesRendus),
+    onSuccess: (comptesRendus) => {
+      setSelection(new Set())
+      queryClient.invalidateQueries({ queryKey: cleFacturation })
+      const transmises = comptesRendus.filter((c) => !c.motif).length
+      if (transmises > 0)
+        toast.success(
+          transmises > 1
+            ? `${transmises} factures transmises à Zeendoc.`
+            : 'Facture transmise à Zeendoc.'
+        )
+      comptesRendus.forEach((c) => c.motif && toast.error(c.motif))
+    },
+  })
+  const changerOnglet = (o: string) => {
+    setSelection(new Set())
     navigate({
       to: '/bo/facturation',
       search: { client, onglet: o as OngletPieces },
     })
+  }
   const nomClient = pieces.find((p) => p.clientIdentifiant === client)
 
   return (
@@ -136,16 +181,13 @@ export function PagePieces({
         <TabsList>
           <TabsTrigger value='brouillons'>
             Brouillons
-            {enAttente != null && (
-              <Badge
-                variant={enAttente > 0 ? 'default' : 'secondary'}
-                className='ms-1 h-5 min-w-5 rounded-full px-1.5 tabular-nums'
-              >
-                {enAttente}
-              </Badge>
-            )}
+            <Compteur nombre={enAttente} />
           </TabsTrigger>
-          <TabsTrigger value='emises'>Émises</TabsTrigger>
+          <TabsTrigger value='emises'>
+            Émises
+            <Compteur nombre={nonPayees} />
+          </TabsTrigger>
+          <TabsTrigger value='payees'>Payées</TabsTrigger>
         </TabsList>
       </Tabs>
       <div className='mb-4 flex flex-wrap items-end gap-4'>
@@ -243,13 +285,37 @@ export function PagePieces({
           </Button>
         </div>
       )}
+      {onglet === 'emises' && gere && (
+        <div className='mb-2 flex justify-end'>
+          <Button
+            disabled={selectionnes.length === 0 || transmission.isPending}
+            onClick={() => transmission.mutate()}
+          >
+            {transmission.isPending ? (
+              <>
+                <Loader2 className='size-4 animate-spin' /> Transmission…
+              </>
+            ) : (
+              <>
+                <CloudUpload className='size-4' /> Transmettre à Zeendoc
+                {selectionnes.length > 0 && ` (${selectionnes.length})`}
+              </>
+            )}
+          </Button>
+        </div>
+      )}
       <TablePieces
         pieces={pieces}
         brouillons={brouillons}
         chargement={listing.isPending}
+        vide={onglet === 'payees' ? 'Aucune pièce payée.' : undefined}
         selection={
-          brouillons && gere
-            ? { ids: selection, changer: (ids) => setSelection(new Set(ids)) }
+          gere && onglet !== 'payees'
+            ? {
+                ids: selection,
+                changer: (ids) => setSelection(new Set(ids)),
+                possible: (p) => transmissible(p, brouillons),
+              }
             : undefined
         }
       />
@@ -272,6 +338,24 @@ export function PagePieces({
   )
 }
 
+/** Le nombre de pièces d'un onglet, en pastille ; mis en avant s'il y en a. */
+function Compteur({ nombre }: { nombre?: number }) {
+  if (nombre == null) return null
+  return (
+    <Badge
+      variant={nombre > 0 ? 'default' : 'secondary'}
+      className='ms-1 h-5 min-w-5 rounded-full px-1.5 tabular-nums'
+    >
+      {nombre}
+    </Badge>
+  )
+}
+
+/** Un brouillon s'émet ; une pièce émise se transmet à Zeendoc tant qu'elle ne l'est pas (RG-FAC-32). */
+function transmissible(p: PieceListee, brouillons: boolean) {
+  return brouillons || !p.zeendoc
+}
+
 /**
  * Les pièces, émises ou brouillons : une ligne ouvre la pièce. Sans acheteur dans l'onglet « Factures » de la
  * fiche opérateur, où il est toujours le même.
@@ -281,19 +365,28 @@ export function TablePieces({
   brouillons,
   chargement,
   avecAcheteur = true,
+  vide,
   selection,
 }: {
   pieces: PieceListee[]
   brouillons: boolean
   chargement: boolean
   avecAcheteur?: boolean
-  /** Des cases à cocher, pour émettre une sélection de brouillons (RG-FAC-19). */
-  selection?: { ids: Set<number>; changer: (ids: number[]) => void }
+  /** Le message d'une liste vide, si ce n'est « Aucune pièce émise. ». */
+  vide?: string
+  /**
+   * Des cases à cocher, pour émettre une sélection de brouillons (RG-FAC-19) ou transmettre des pièces émises à
+   * Zeendoc (RG-FAC-32) ; `possible` dit quelles lignes se cochent.
+   */
+  selection?: {
+    ids: Set<number>
+    changer: (ids: number[]) => void
+    possible: (p: PieceListee) => boolean
+  }
 }) {
   const navigate = useNavigate()
-  const coches = selection
-    ? pieces.filter((p) => selection.ids.has(p.id)).length
-    : 0
+  const cochables = selection ? pieces.filter(selection.possible) : []
+  const coches = cochables.filter((p) => selection?.ids.has(p.id)).length
   const { lignes, pagination } = usePagination(pieces, TAILLE_PAGE)
   return (
     <>
@@ -305,8 +398,9 @@ export function TablePieces({
                 <TableHead className='w-0'>
                   <Checkbox
                     aria-label='Tout sélectionner'
+                    disabled={cochables.length === 0}
                     checked={
-                      coches > 0 && coches === pieces.length
+                      coches > 0 && coches === cochables.length
                         ? true
                         : coches > 0
                           ? 'indeterminate'
@@ -314,7 +408,7 @@ export function TablePieces({
                     }
                     onCheckedChange={(v) =>
                       selection.changer(
-                        v === true ? pieces.map((p) => p.id) : []
+                        v === true ? cochables.map((p) => p.id) : []
                       )
                     }
                   />
@@ -334,6 +428,7 @@ export function TablePieces({
               <TableHead className='text-right'>HT</TableHead>
               <TableHead className='text-right'>TVA</TableHead>
               <TableHead className='text-right'>TTC</TableHead>
+              {!brouillons && <TableHead>Zeendoc</TableHead>}
               <TableHead className='w-0' />
             </TableRow>
           </TableHeader>
@@ -342,7 +437,7 @@ export function TablePieces({
               <TableRow>
                 <TableCell
                   colSpan={
-                    (brouillons ? 7 : 8) +
+                    (brouillons ? 7 : 9) +
                     (avecAcheteur ? 1 : 0) +
                     (selection ? 1 : 0)
                   }
@@ -352,7 +447,7 @@ export function TablePieces({
                     ? 'Chargement…'
                     : brouillons
                       ? 'Aucun brouillon.'
-                      : 'Aucune pièce émise.'}
+                      : (vide ?? 'Aucune pièce émise.')}
                 </TableCell>
               </TableRow>
             )}
@@ -370,8 +465,9 @@ export function TablePieces({
                 {selection && (
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
-                      aria-label={`Sélectionner ${p.reference ?? p.id}`}
-                      checked={selection.ids.has(p.id)}
+                      aria-label={`Sélectionner ${p.numero ?? p.reference ?? p.id}`}
+                      disabled={!selection.possible(p)}
+                      checked={selection.possible(p) && selection.ids.has(p.id)}
                       onCheckedChange={(v) =>
                         selection.changer(
                           v === true
@@ -421,6 +517,11 @@ export function TablePieces({
                 <TableCell className='text-right font-medium tabular-nums'>
                   {formatEuros(p.ttc)}
                 </TableCell>
+                {!brouillons && (
+                  <TableCell>
+                    <BadgeZeendoc piece={p} />
+                  </TableCell>
+                )}
                 <TableCell>
                   <Button
                     variant='ghost'

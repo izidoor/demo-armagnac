@@ -17,6 +17,7 @@ import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
 import fr.bnia.facturation.domain.LigneFacture.LigneGroupe;
 import fr.bnia.facturation.domain.LigneFacture.LigneInformative;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -263,5 +264,42 @@ class FactureTest {
 
         assertThatThrownBy(() -> facture.modifier(enTete(null), facture.lignes(), facture.version() + 1))
                 .isInstanceOf(ModificationConcurrente.class);
+    }
+
+    @Test
+    @DisplayName("RG-FAC-32 : seule une pièce émise se transmet à Zeendoc, une seule fois")
+    void rg_fac_32_transmission() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+        Instant le = Instant.parse("2026-10-08T09:00:00Z");
+        assertThatThrownBy(() -> facture.transmettre(le))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("n'est pas émise");
+
+        facture.emettre(new Numerotation(2026, 3), LocalDate.of(2026, 10, 7), Exemples.vendeur());
+        facture.transmettre(le);
+
+        assertThat(facture.zeendoc()).contains(new SuiviZeendoc(EtatZeendoc.TRANSMISE, le, null));
+        assertThatThrownBy(() -> facture.transmettre(le))
+                .isInstanceOf(RegleEnfreinte.class)
+                .hasMessage("La pièce 2026000003 est déjà transmise à Zeendoc.");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-33 : seule une pièce transmise et non payée enregistre son règlement")
+    void rg_fac_33_reglement() {
+        Facture facture = brouillon(Exemples.lignesDeLExemple());
+        facture.emettre(new Numerotation(2026, 4), LocalDate.of(2026, 10, 7), Exemples.vendeur());
+        LocalDate paye = LocalDate.of(2026, 11, 30);
+        assertThatThrownBy(() -> facture.enregistrerReglement(paye))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("n'est pas transmise");
+
+        Instant le = Instant.parse("2026-10-08T09:00:00Z");
+        facture.transmettre(le);
+        facture.enregistrerReglement(paye);
+
+        assertThat(facture.zeendoc()).contains(new SuiviZeendoc(EtatZeendoc.PAYEE, le, paye));
+        assertThatThrownBy(() -> facture.enregistrerReglement(paye))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("déjà payée");
+        assertThatThrownBy(() -> facture.transmettre(le))
+                .isInstanceOf(RegleEnfreinte.class).hasMessageContaining("déjà transmise");
     }
 }

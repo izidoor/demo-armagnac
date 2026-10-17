@@ -4,6 +4,7 @@ import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.commun.application.StockageDocuments.DocumentLu;
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.ArticleProposeResponse;
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.CompteRenduResponse;
+import fr.bnia.facturation.adapter.rest.BrouillonsRequests.CompteRenduTransmissionResponse;
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.EmissionRequest;
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.NoteRequest;
 import fr.bnia.facturation.application.AbandonnerBrouillon;
@@ -11,8 +12,9 @@ import fr.bnia.facturation.application.AnnoterPiece;
 import fr.bnia.facturation.application.ConsulterFactures;
 import fr.bnia.facturation.application.EmettreLot;
 import fr.bnia.facturation.application.EmettrePiece;
-import fr.bnia.facturation.application.ModifierBrouillon;
 import fr.bnia.facturation.application.FiltrePieces;
+import fr.bnia.facturation.application.ModifierBrouillon;
+import fr.bnia.facturation.application.TransmettreAZeendoc;
 import fr.bnia.facturation.application.VuePiece;
 import fr.bnia.facturation.domain.EtatPiece;
 import fr.bnia.facturation.domain.SensPiece;
@@ -26,9 +28,9 @@ import java.util.Optional;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,15 +57,18 @@ class PiecesController {
     private final ModifierBrouillon modifier;
     private final AbandonnerBrouillon abandonner;
     private final AnnoterPiece annoter;
+    private final TransmettreAZeendoc transmettre;
 
     PiecesController(ConsulterFactures consulter, EmettrePiece emettre, EmettreLot emettreLot,
-            ModifierBrouillon modifier, AbandonnerBrouillon abandonner, AnnoterPiece annoter) {
+            ModifierBrouillon modifier, AbandonnerBrouillon abandonner, AnnoterPiece annoter,
+            TransmettreAZeendoc transmettre) {
         this.consulter = consulter;
         this.emettre = emettre;
         this.emettreLot = emettreLot;
         this.modifier = modifier;
         this.abandonner = abandonner;
         this.annoter = annoter;
+        this.transmettre = transmettre;
     }
 
     @GetMapping
@@ -137,6 +142,15 @@ class PiecesController {
     List<CompteRenduResponse> emettreLot(Connecte connecte, @RequestBody EmissionRequest selection) {
         return emettreLot.emettre(Acteurs.de(connecte), selection.ids() == null ? List.of() : selection.ids()).stream()
                 .map(CompteRenduResponse::de).toList();
+    }
+
+    @PostMapping("/zeendoc")
+    @Operation(operationId = "transmettreAZeendoc",
+            summary = "Transmet une sélection de pièces émises à Zeendoc (simulé), chacune dans sa transaction ; "
+                    + "compte rendu par pièce (RG-FAC-32)")
+    List<CompteRenduTransmissionResponse> transmettre(Connecte connecte, @RequestBody EmissionRequest selection) {
+        return transmettre.transmettre(Acteurs.de(connecte), selection.ids() == null ? List.of() : selection.ids())
+                .stream().map(CompteRenduTransmissionResponse::de).toList();
     }
 
     @PutMapping("/{id}")
