@@ -32,11 +32,20 @@ import { CreationOperateur } from './creation-operateur'
 
 const TOUS = 'tous'
 
-/** Listing du back-office (§4.3.1 p.18, spec 02 §6.1) : recherche unique et filtres, ouverture de la fiche, export Excel (RG-OPE-38). */
-export function PageOperateurs() {
+/**
+ * Listing du back-office (§4.3.1 p.18, spec 02 §6.1) : recherche unique et filtres, ouverture de la fiche, export
+ * Excel (RG-OPE-38). Le type et la recherche peuvent venir de l'URL (accès préfiltré du tableau de bord, §4.1).
+ */
+export function PageOperateurs({
+  type: typeInitial,
+  recherche: rechercheInitiale,
+}: {
+  type?: TypeOperateur
+  recherche?: string
+}) {
   const navigate = useNavigate()
-  const [recherche, setRecherche] = useState('')
-  const [type, setType] = useState<string>(TOUS)
+  const [recherche, setRecherche] = useState(rechercheInitiale ?? '')
+  const [type, setType] = useState<string>(typeInitial ?? TOUS)
   const [etat, setEtat] = useState('actifs')
   const [completude, setCompletude] = useState(TOUS)
   const [creation, setCreation] = useState(false)

@@ -200,11 +200,11 @@ class PdfPiece implements EditionPiece, ApercuPiece {
                 "tva", euros(t.tva()));
     }
 
-    private static String euros(BigDecimal montant) {
+    static String euros(BigDecimal montant) {
         return nombre(montant, "#,##0.00") + " €";
     }
 
-    private static String nombre(BigDecimal valeur, String masque) {
+    static String nombre(BigDecimal valeur, String masque) {
         DecimalFormatSymbols symboles = DecimalFormatSymbols.getInstance(Locale.FRANCE);
         symboles.setGroupingSeparator(' ');
         return new DecimalFormat(masque, symboles).format(valeur);

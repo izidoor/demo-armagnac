@@ -31,11 +31,11 @@ public interface StocksLecture {
     List<LigneStock> stocksDeclares(Optional<Long> operateur, Optional<TypeDeclarant> type);
 
     /**
-     * RG-DEC-44 : toutes les lignes, stock nul compris, de toutes les DSM validées dont la période tient dans
-     * l'année, filtrées par opérateur et par type, dans l'ordre des lignes de chaque DSM.
+     * RG-DEC-44 : toutes les lignes, stock nul compris, des DSM validées de l'opérateur dont la période tient dans
+     * l'année, dans l'ordre des lignes de chaque DSM.
      */
-    List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, Optional<Long> operateur, Optional<TypeDeclarant> type);
+    List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, long operateur);
 
-    /** RG-DEC-44 : les années déclaratives qui ont au moins une DSM validée, de cet opérateur s'il est donné. */
-    Set<AnneeDeclarative> anneesDeclarees(Optional<Long> operateur);
+    /** RG-DEC-44 : les années déclaratives où l'opérateur a au moins une DSM validée. */
+    Set<AnneeDeclarative> anneesDeclarees(long operateur);
 }

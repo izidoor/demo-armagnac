@@ -122,6 +122,34 @@ public class DemoOperateurs implements ApplicationRunner {
         autre("000011", "Courtage Sud-Ouest", "Courtier", "47600", "Nérac");
         incomplete();
         inactive();
+        operateursFactures();
+    }
+
+    /**
+     * Cinq négociants et dix producteurs facturables, pour le volume de la facturation (spec 08 §7.1, lot 5) :
+     * SIRET et n° de TVA, destinataire des factures en adresse saisie (sans compte), un seul compte de saisie de
+     * leurs DSM, {@code saisie@demo.fr}, AGENT de chacun. Relançable : un opérateur existant est laissé tel quel.
+     */
+    private void operateursFactures() {
+        for (OperateursFacturesDemo.Operateur o : OperateursFacturesDemo.OPERATEURS) {
+            creerSiAbsent(saisie(o.type(), o.code(), o.raisonSociale(), null, null, o.negociant() ? "Zone d'activités"
+                    : "Lieu-dit " + o.raisonSociale().replace("Domaine ", "").replace("Château ", ""), o.codePostal(),
+                    o.ville(), null))
+                    .ifPresent(id -> {
+                        // RG-OPE-23 : le destinataire des factures, une adresse saisie ; la fiche est facturable.
+                        operateurs.designer(anne, id, new SaisieDesignations(null, null,
+                                "comptabilite@" + o.code().toLowerCase() + ".example", null));
+                        if (o.negociant()) {
+                            production(id, PeriodiciteDsm.MENSUELLE, o.region(), List.of(), Appellation.ARMAGNAC,
+                                    o.appellation());
+                        } else {
+                            production(id, PeriodiciteDsm.ANNUELLE, o.region(),
+                                    List.of(alambic(null, TypeAlambic.ARMAGNACAIS, "20")), o.appellation());
+                        }
+                        comptes.membre(anne, id, Role.AGENT, OperateursFacturesDemo.EMAIL_SAISIE, "Démo", "Saisie",
+                                "Saisie des DSM de démonstration");
+                    });
+        }
     }
 
     /**
@@ -301,7 +329,9 @@ public class DemoOperateurs implements ApplicationRunner {
             String groupe, String adresse, String codePostal, String ville, String telephone) {
         Long france = adresse == null ? null : referentiels.paysParCode("FR").map(p -> p.id()).orElse(null);
         String email = adresse == null ? null : "accueil@" + code.toLowerCase() + ".example";
-        String[] legal = IDENTIFIANTS_LEGAUX.getOrDefault(code, new String[2]);
+        String[] legal = IDENTIFIANTS_LEGAUX.containsKey(code) ? IDENTIFIANTS_LEGAUX.get(code)
+                : OperateursFacturesDemo.OPERATEURS.stream().filter(o -> o.code().equals(code)).findFirst()
+                        .map(OperateursFacturesDemo::identifiantsLegaux).orElse(new String[2]);
         return new SaisieOperateur(type, code, groupe, null, legal[0], legal[1], null, null, null, null, raisonSociale,
                 nomCommercial, adresse, null, null, codePostal, ville, france, telephone, null, null, email, null,
                 null, null, null, referentiels.membreBniaParCode(type == TypeOperateur.NEGOCIANT ? "NEGO" : "PROD")

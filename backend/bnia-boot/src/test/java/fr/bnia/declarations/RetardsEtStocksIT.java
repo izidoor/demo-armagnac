@@ -233,14 +233,6 @@ class RetardsEtStocksIT extends AbstractIT {
         });
         assertThat(((Map<?, ?>) lignes.getFirst()).get("au")).isEqualTo(fin.toString());
         assertThat(((Map<?, ?>) lignes.getFirst()).get("stock")).isEqualTo(1000.0);
-
-        agent.get().uri("/api/declarations/stocks/historique").exchange().expectStatus().isForbidden();
-        String observateur = emailUnique("observateur-bnia");
-        membre(operateurs.operateurBnia(), Role.OBSERVATEUR, observateur);
-        Map<?, ?> deTous = corps(connecte(observateur).get()
-                .uri("/api/declarations/stocks/historique?annee={a}&operateur={o}", annee, operateur).exchange()
-                .expectStatus().isOk());
-        assertThat((List<?>) deTous.get("lignes")).hasSameSizeAs(lignes);
-        assertThat((List<?>) deTous.get("anneesDisponibles")).isNotEmpty();
+        assertThat((List<?>) historique.get("anneesDisponibles")).isNotEmpty();
     }
 }

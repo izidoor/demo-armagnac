@@ -14,3 +14,6 @@ export function usePagination<T>(lignes: T[] | undefined, taille = 10) {
     pagination: { page, pages, total, setPage },
   }
 }
+
+/** Taille de page des listes de DSM et de factures : la barre de pagination n'apparaît qu'au-delà. */
+export const TAILLE_PAGE = 15

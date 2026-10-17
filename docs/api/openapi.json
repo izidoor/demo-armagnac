@@ -602,50 +602,6 @@
         "tags" : [ "declarations" ]
       }
     },
-    "/api/declarations/stocks/historique" : {
-      "get" : {
-        "operationId" : "historiqueStocksDeclares",
-        "parameters" : [ {
-          "in" : "query",
-          "name" : "annee",
-          "required" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }, {
-          "in" : "query",
-          "name" : "operateur",
-          "required" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "query",
-          "name" : "type",
-          "required" : false,
-          "schema" : {
-            "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/HistoriqueStocks"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Les stocks déclarés de tous les opérateurs à chaque fin de mois écoulée d'une année déclarative (l'année en cours par défaut), filtrés par opérateur et type (RG-DEC-01, 44)",
-        "tags" : [ "declarations" ]
-      }
-    },
     "/api/declarations/taux-cvo" : {
       "get" : {
         "operationId" : "listerTauxCvo",
@@ -766,6 +722,28 @@
         },
         "summary" : "Corriger le taux CVO qui commence à cette date (RG-DEC-30)",
         "tags" : [ "declarations" ]
+      }
+    },
+    "/api/facturation/articles" : {
+      "get" : {
+        "operationId" : "listerArticles",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ArticleCatalogue"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les articles de tous les catalogues à la date du jour, actifs ou non (RG-FAC-26, 29)",
+        "tags" : [ "facturation" ]
       }
     },
     "/api/facturation/pieces" : {
@@ -1210,6 +1188,81 @@
           }
         },
         "summary" : "Paramètre le vendeur ; les pièces émises gardent celui de leur émission (RG-FAC-16, 26)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/ventes" : {
+      "get" : {
+        "operationId" : "consulterVentes",
+        "parameters" : [ {
+          "description" : "Premier jour, inclus",
+          "in" : "query",
+          "name" : "du",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "Dernier jour, inclus",
+          "in" : "query",
+          "name" : "au",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Ventes"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les lignes vendues d'une période (date d'émission), avoirs déduits (RG-FAC-26, 30)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/ventes/pdf" : {
+      "get" : {
+        "operationId" : "exporterVentesPdf",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "du",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "au",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF des ventes d'une période : par article, récapitulatif de TVA, totaux (RG-FAC-30)",
         "tags" : [ "facturation" ]
       }
     },
@@ -7924,6 +7977,61 @@
         },
         "required" : [ "message", "niveau", "onglet", "type" ]
       },
+      "ArticleCatalogue" : {
+        "type" : "object",
+        "description" : "Un article d'un catalogue, à la date du jour (RG-FAC-29)",
+        "properties" : {
+          "actif" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "codeComptable" : {
+            "type" : "string"
+          },
+          "designation" : {
+            "type" : "string"
+          },
+          "lienAdministration" : {
+            "type" : "string",
+            "description" : "Chemin de l'écran où la source administre l'article",
+            "example" : "/bo/parametrage/taux-cvo"
+          },
+          "nature" : {
+            "type" : "string",
+            "enum" : [ "BIEN", "SERVICE" ]
+          },
+          "prixUnitaire" : {
+            "type" : "number",
+            "description" : "HT, 4 décimales"
+          },
+          "source" : {
+            "type" : "string",
+            "example" : "declarations"
+          },
+          "tvaCode" : {
+            "type" : "string",
+            "enum" : [ "S", "Z", "E", "O" ]
+          },
+          "tvaLibelle" : {
+            "type" : "string",
+            "example" : "20,00 %"
+          },
+          "tvaMotif" : {
+            "type" : "string",
+            "description" : "Motif d'exonération"
+          },
+          "tvaTaux" : {
+            "type" : "number",
+            "description" : "Vide hors champ"
+          },
+          "unite" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "actif", "code", "designation", "lienAdministration", "nature", "prixUnitaire", "source", "tvaCode", "tvaLibelle" ]
+      },
       "ArticlePropose" : {
         "type" : "object",
         "description" : "Un article actif d'un catalogue, à la date de l'opération du brouillon (RG-FAC-03)",
@@ -9910,6 +10018,86 @@
           }
         },
         "required" : [ "base", "code", "libelle", "tva" ]
+      },
+      "LigneVendue" : {
+        "type" : "object",
+        "description" : "Une ligne article d'une pièce émise, à sa date d'émission ; négative pour un avoir (RG-FAC-30)",
+        "properties" : {
+          "acheteur" : {
+            "type" : "string"
+          },
+          "avoir" : {
+            "type" : "boolean"
+          },
+          "clientCode" : {
+            "type" : "string",
+            "description" : "N° BNIA du client"
+          },
+          "clientIdentifiant" : {
+            "type" : "string",
+            "description" : "Identifiant du client (opérateur) ; vide pour un client libre"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "codeComptable" : {
+            "type" : "string"
+          },
+          "dateEmission" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "designation" : {
+            "type" : "string"
+          },
+          "montantHt" : {
+            "type" : "number",
+            "description" : "Signé"
+          },
+          "nature" : {
+            "type" : "string",
+            "enum" : [ "BIEN", "SERVICE" ]
+          },
+          "numero" : {
+            "type" : "string"
+          },
+          "origine" : {
+            "$ref" : "#/components/schemas/OriginePiece",
+            "description" : "Vide pour un avoir"
+          },
+          "piece" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "prixUnitaire" : {
+            "type" : "number",
+            "description" : "HT, 4 décimales"
+          },
+          "quantite" : {
+            "type" : "number",
+            "description" : "Signée, 4 décimales"
+          },
+          "source" : {
+            "type" : "string",
+            "example" : "declarations"
+          },
+          "tvaCode" : {
+            "type" : "string",
+            "enum" : [ "S", "Z", "E", "O" ]
+          },
+          "tvaLibelle" : {
+            "type" : "string",
+            "example" : "20,00 %"
+          },
+          "tvaTaux" : {
+            "type" : "number",
+            "description" : "Vide hors champ"
+          },
+          "unite" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "acheteur", "avoir", "code", "dateEmission", "designation", "montantHt", "nature", "numero", "piece", "prixUnitaire", "quantite", "source", "tvaCode", "tvaLibelle" ]
       },
       "ManqueDsm" : {
         "type" : "object",
@@ -12157,6 +12345,27 @@
           }
         },
         "required" : [ "bic", "email", "iban", "nom", "numeroTva", "siege", "siret", "telephone", "tvaSurDebits" ]
+      },
+      "Ventes" : {
+        "type" : "object",
+        "description" : "Les ventes consolidées d'une période, avoirs déduits (spec 08 RG-FAC-30)",
+        "properties" : {
+          "au" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "du" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneVendue"
+            }
+          }
+        },
+        "required" : [ "au", "du", "lignes" ]
       },
       "VisiteProposee" : {
         "type" : "object",

@@ -76,3 +76,10 @@ springdoc:
   # Sortie stable : le contrat exporté (docs/api/openapi.json) ne varie qu'avec l'API (ADR-007).
   writer-with-default-pretty-printer: true
   writer-with-order-by-keys: true
+
+# ADR-020 : OpenHTMLtoPDF (journal relayé par JournalPdfConfiguration) n'écrit que ses avertissements ; PDFBox se
+# tait sur la police de remplacement des polices standard Symbol et ZapfDingbats, sans effet sur les PDF.
+logging:
+  level:
+    com.openhtmltopdf: warn
+    org.apache.pdfbox.pdmodel.font.PDType1Font: error

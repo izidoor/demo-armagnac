@@ -47,10 +47,11 @@
     .bandeau { border: 1.5pt solid #b42318; color: #b42318; font-weight: bold; font-size: 10pt; text-align: center;
       padding: 2mm; margin-bottom: 5mm; letter-spacing: 1pt; }
     .bandeau .petit { color: #b42318; font-weight: normal; letter-spacing: 0; }
-    /* Répété sur chaque page (élément fixe) ; transparent pour laisser lire la pièce. */
+    /* Répété sur chaque page (élément fixe), derrière le texte. OpenHTMLtoPDF ignore opacity : la teinte pâle
+       vaut le rouge du bandeau à 12 % sur blanc. */
     .filigrane { position: fixed; top: 110mm; left: -20mm; width: 220mm; text-align: center; font-size: 44pt;
       white-space: nowrap;
-      font-weight: bold; color: #b42318; opacity: 0.12; transform: rotate(-35deg); }
+      font-weight: bold; color: #f6e5e3; z-index: -1; transform: rotate(-35deg); }
   </style>
 </head>
 <body>

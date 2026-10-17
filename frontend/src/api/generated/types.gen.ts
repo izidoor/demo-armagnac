@@ -98,6 +98,37 @@ export type AnomalieDsm = {
 };
 
 /**
+ * Un article d'un catalogue, à la date du jour (RG-FAC-29)
+ */
+export type ArticleCatalogue = {
+    actif: boolean;
+    code: string;
+    codeComptable?: string;
+    designation: string;
+    /**
+     * Chemin de l'écran où la source administre l'article
+     */
+    lienAdministration: string;
+    nature: 'BIEN' | 'SERVICE';
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire: number;
+    source: string;
+    tvaCode: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle: string;
+    /**
+     * Motif d'exonération
+     */
+    tvaMotif?: string;
+    /**
+     * Vide hors champ
+     */
+    tvaTaux?: number;
+    unite?: string;
+};
+
+/**
  * Un article actif d'un catalogue, à la date de l'opération du brouillon (RG-FAC-03)
  */
 export type ArticlePropose = {
@@ -1265,6 +1296,53 @@ export type LigneTvaPiece = {
      */
     taux?: number;
     tva: number;
+};
+
+/**
+ * Une ligne article d'une pièce émise, à sa date d'émission ; négative pour un avoir (RG-FAC-30)
+ */
+export type LigneVendue = {
+    acheteur: string;
+    avoir: boolean;
+    /**
+     * N° BNIA du client
+     */
+    clientCode?: string;
+    /**
+     * Identifiant du client (opérateur) ; vide pour un client libre
+     */
+    clientIdentifiant?: string;
+    code: string;
+    codeComptable?: string;
+    dateEmission: string;
+    designation: string;
+    /**
+     * Signé
+     */
+    montantHt: number;
+    nature: 'BIEN' | 'SERVICE';
+    numero: string;
+    /**
+     * Vide pour un avoir
+     */
+    origine?: OriginePiece;
+    piece: number;
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire: number;
+    /**
+     * Signée, 4 décimales
+     */
+    quantite: number;
+    source: string;
+    tvaCode: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle: string;
+    /**
+     * Vide hors champ
+     */
+    tvaTaux?: number;
+    unite?: string;
 };
 
 /**
@@ -2568,6 +2646,15 @@ export type VendeurFacturation = {
     tvaSurDebits: boolean;
 };
 
+/**
+ * Les ventes consolidées d'une période, avoirs déduits (spec 08 RG-FAC-30)
+ */
+export type Ventes = {
+    au: string;
+    du: string;
+    lignes: Array<LigneVendue>;
+};
+
 export type VisiteProposee = {
     commentaire?: string;
     /**
@@ -2878,26 +2965,6 @@ export type ExporterStocksDeclaresResponses = {
 
 export type ExporterStocksDeclaresResponse = ExporterStocksDeclaresResponses[keyof ExporterStocksDeclaresResponses];
 
-export type HistoriqueStocksDeclaresData = {
-    body?: never;
-    path?: never;
-    query?: {
-        annee?: number;
-        operateur?: number;
-        type?: 'PRODUCTEUR' | 'NEGOCIANT';
-    };
-    url: '/api/declarations/stocks/historique';
-};
-
-export type HistoriqueStocksDeclaresResponses = {
-    /**
-     * OK
-     */
-    200: HistoriqueStocks;
-};
-
-export type HistoriqueStocksDeclaresResponse = HistoriqueStocksDeclaresResponses[keyof HistoriqueStocksDeclaresResponses];
-
 export type ListerTauxCvoData = {
     body?: never;
     path?: never;
@@ -2965,6 +3032,22 @@ export type ModifierTauxCvoResponses = {
 };
 
 export type ModifierTauxCvoResponse = ModifierTauxCvoResponses[keyof ModifierTauxCvoResponses];
+
+export type ListerArticlesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/articles';
+};
+
+export type ListerArticlesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ArticleCatalogue>;
+};
+
+export type ListerArticlesResponse = ListerArticlesResponses[keyof ListerArticlesResponses];
 
 export type ListerPiecesData = {
     body?: never;
@@ -3222,6 +3305,50 @@ export type ParametrerVendeurResponses = {
 };
 
 export type ParametrerVendeurResponse = ParametrerVendeurResponses[keyof ParametrerVendeurResponses];
+
+export type ConsulterVentesData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Premier jour, inclus
+         */
+        du: string;
+        /**
+         * Dernier jour, inclus
+         */
+        au: string;
+    };
+    url: '/api/facturation/ventes';
+};
+
+export type ConsulterVentesResponses = {
+    /**
+     * OK
+     */
+    200: Ventes;
+};
+
+export type ConsulterVentesResponse = ConsulterVentesResponses[keyof ConsulterVentesResponses];
+
+export type ExporterVentesPdfData = {
+    body?: never;
+    path?: never;
+    query: {
+        du: string;
+        au: string;
+    };
+    url: '/api/facturation/ventes/pdf';
+};
+
+export type ExporterVentesPdfResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type ExporterVentesPdfResponse = ExporterVentesPdfResponses[keyof ExporterVentesPdfResponses];
 
 export type ConsulterInvitationParJetonData = {
     body?: never;

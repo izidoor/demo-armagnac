@@ -8,9 +8,11 @@ import {
   History,
   Landmark,
   LayoutDashboard,
+  Package,
   Percent,
   Receipt,
   Tags,
+  TrendingUp,
   UserCog,
   Users,
 } from 'lucide-react'
@@ -118,9 +120,13 @@ export const espaceBackOffice: Espace = {
       ],
     },
     {
-      // Spec 08, §6.1 : historique des factures et brouillons à émettre.
+      // Spec 08, §6.1 : historique des factures et brouillons à émettre, articles, ventes.
       title: 'Facturation',
-      items: [{ title: 'Factures', url: '/bo/facturation', icon: FileText }],
+      items: [
+        { title: 'Factures', url: '/bo/facturation', icon: FileText },
+        { title: 'Articles', url: '/bo/facturation/articles', icon: Package },
+        { title: 'Ventes', url: '/bo/facturation/ventes', icon: TrendingUp },
+      ],
     },
     {
       // Spec 02, §6.1 et spec 03, §6.2 : module Accès.

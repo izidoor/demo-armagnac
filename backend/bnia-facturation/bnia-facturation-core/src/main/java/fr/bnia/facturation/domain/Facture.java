@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -366,15 +365,8 @@ public final class Facture {
      * TVA = base × taux, au centime.
      */
     public List<LigneTva> recapitulatifTva() {
-        Map<String, List<LigneArticle>> parCategorie = new LinkedHashMap<>();
-        for (LigneArticle a : lignesArticle()) {
-            parCategorie.computeIfAbsent(a.tva().code() + "/" + a.tva().taux(), k -> new ArrayList<>()).add(a);
-        }
-        return parCategorie.values().stream().map(groupe -> {
-            CategorieTva categorie = groupe.getFirst().tva();
-            BigDecimal base = groupe.stream().map(LigneArticle::montantHt).reduce(Montants.ZERO, BigDecimal::add);
-            return new LigneTva(categorie, base, Montants.pourcentage(base, categorie.tauxApplique()));
-        }).toList();
+        return LigneTva.recapituler(
+                lignesArticle().stream().map(a -> new LigneTva.Montant(a.tva(), a.montantHt())).toList());
     }
 
     /** RG-FAC-05 : HT des lignes article, TVA du récapitulatif, TTC. */

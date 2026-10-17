@@ -24,6 +24,12 @@ export type Mesure<T> = {
   libelle: string
   valeur: (ligne: T) => number
   format: (valeur: number) => string
+  /**
+   * Des champs équivalents (le code et la désignation d'un article) à travers les valeurs desquels elle ne se
+   * somme pas, quand elle est affichée : une quantité ne se somme que par article, par exemple. Il suffit que
+   * l'un d'eux soit en lignes ou en colonnes ; sinon, le premier est réduit à une seule valeur.
+   */
+  nonCumulablePar?: string[]
 }
 
 export type Zone = 'lignes' | 'colonnes' | 'filtres'
@@ -78,6 +84,26 @@ export const affichageDe = <T>(champ: Champ<T>, valeur: string) =>
 /** Les valeurs distinctes d'un champ dans les données, dans son ordre. */
 export function valeursDe<T>(donnees: T[], champ: Champ<T>): string[] {
   return [...new Set(donnees.map(champ.valeur))].sort(ordreDe(champ))
+}
+
+/**
+ * Les champs tels que la mesure les voit, selon la composition : ceux qu'elle ne cumule pas et qui sont placés
+ * deviennent non cumulables ; si aucun ne l'est, le premier.
+ */
+export function selonMesure<T>(
+  champs: Champ<T>[],
+  mesure: Mesure<T>,
+  composition: Composition
+) {
+  const par = mesure.nonCumulablePar
+  if (!par?.length) return champs
+  const places = par.filter(
+    (id) => composition.lignes.includes(id) || composition.colonnes.includes(id)
+  )
+  const figes = places.length > 0 ? places : par.slice(0, 1)
+  return champs.map((c) =>
+    figes.includes(c.id) ? { ...c, nonCumulable: true } : c
+  )
 }
 
 /**

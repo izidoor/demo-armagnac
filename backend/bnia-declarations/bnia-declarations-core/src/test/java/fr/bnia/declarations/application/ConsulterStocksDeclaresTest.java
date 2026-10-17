@@ -102,8 +102,7 @@ class ConsulterStocksDeclaresTest {
         dsms.valider(AGENT_BNIA, NEGOCIANT, juillet.id(), null);
         dsms.initier(AGENT_NEGOCIANT, NEGOCIANT);
 
-        HistoriqueStocks historique = stocks.historique(OBSERVATEUR_BNIA, Optional.empty(), Optional.empty(),
-                Optional.empty());
+        HistoriqueStocks historique = stocks.historiqueDe(OBSERVATEUR_BNIA, NEGOCIANT, Optional.empty());
         assertThat(historique.annee()).isEqualTo(new AnneeDeclarative(2026));
         assertThat(historique.anneesDisponibles()).containsExactly(new AnneeDeclarative(2026));
         // Avril et mai : pas encore de DSM validée ; juin : 1 000 L de XO (le 2010, fini à 0, omis) ; juillet :
@@ -118,8 +117,7 @@ class ConsulterStocksDeclaresTest {
         assertThat(historique.lignes().getFirst().ligne().code()).isEqualTo("N7");
 
         assertThat(stocks.historiqueDe(OBSERVATEUR_NEGOCIANT, NEGOCIANT, Optional.empty()).lignes()).hasSize(4);
-        assertThat(stocks.historique(AGENT_BNIA, Optional.empty(), Optional.empty(),
-                Optional.of(TypeDeclarant.PRODUCTEUR)).lignes()).isEmpty();
+        assertThat(stocks.historiqueDe(AGENT_BNIA, PRODUCTEUR, Optional.empty()).lignes()).isEmpty();
         HistoriqueStocks precedente = stocks.historiqueDe(AGENT_BNIA, NEGOCIANT,
                 Optional.of(new AnneeDeclarative(2025)));
         assertThat(precedente.annee().libelle()).isEqualTo("2025-2026");
@@ -136,8 +134,6 @@ class ConsulterStocksDeclaresTest {
         assertThatThrownBy(() -> stocks.deLOperateur(Monde.INCONNU, NEGOCIANT)).isInstanceOf(AccesRefuse.class);
         assertThatThrownBy(() -> stocks.deLOperateur(OBSERVATEUR_NEGOCIANT, PRODUCTEUR))
                 .isInstanceOf(AccesRefuse.class);
-        assertThatThrownBy(() -> stocks.historique(AGENT_NEGOCIANT, Optional.empty(), Optional.empty(),
-                Optional.empty())).isInstanceOf(AccesRefuse.class).hasMessageContaining("personnel du BNIA");
         assertThatThrownBy(() -> stocks.historiqueDe(OBSERVATEUR_NEGOCIANT, PRODUCTEUR, Optional.empty()))
                 .isInstanceOf(AccesRefuse.class);
     }

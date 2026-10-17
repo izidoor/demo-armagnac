@@ -29,6 +29,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { PageMetier } from '@/components/metier/page-metier'
+import { Pagination } from '@/components/metier/pagination'
+import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { formatDate, formatEuros } from '@/features/declarations/format'
 import { cleFacturation, urlPdfMaFacture } from './api'
 import { SENS } from './libelles'
@@ -66,6 +68,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
       }).then((r) => r.data),
   })
   const pieces = listing.data ?? []
+  const { lignes, pagination } = usePagination(pieces, TAILLE_PAGE)
   const ouvrir = (id: number) =>
     navigate({ to: '/portail/factures/$id', params: { id: String(id) } })
 
@@ -154,7 +157,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
                 </TableCell>
               </TableRow>
             )}
-            {pieces.map((p) => (
+            {(lignes ?? []).map((p) => (
               <TableRow
                 key={p.id}
                 className='cursor-pointer'
@@ -208,6 +211,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
           </TableBody>
         </Table>
       </div>
+      <Pagination {...pagination} />
     </PageMetier>
   )
 }

@@ -31,9 +31,8 @@ export function colonnesLigneStock<T extends LigneDeStock>(): ColumnDef<
       id: 'article',
       accessorFn: (l) =>
         millesimee(l.cle) ? String(l.millesime ?? '') : (l.denomination ?? ''),
-      header: ({ column }) => (
-        <EnteteFiltrable column={column} titre='Millésime ou dénomination' />
-      ),
+      meta: { titre: 'Millésime ou dénomination' },
+      header: ({ column }) => <EnteteFiltrable column={column} />,
       sortingFn: (a, b, id) =>
         COLLATION.compare(a.getValue<string>(id), b.getValue<string>(id)),
       filterFn: filtreValeurs,
@@ -41,7 +40,8 @@ export function colonnesLigneStock<T extends LigneDeStock>(): ColumnDef<
     {
       id: 'cle',
       accessorFn: (l) => l.cle,
-      header: ({ column }) => <EnteteFiltrable column={column} titre='Clé' />,
+      meta: { titre: 'Clé' },
+      header: ({ column }) => <EnteteFiltrable column={column} />,
       cell: ({ getValue }) => (
         <span className='font-mono'>{getValue<string>()}</span>
       ),
@@ -50,12 +50,9 @@ export function colonnesLigneStock<T extends LigneDeStock>(): ColumnDef<
     {
       id: 'compte',
       accessorFn: (l) => l.compte,
+      meta: { titre: "Compte d'âge" },
       header: ({ column }) => (
-        <EnteteFiltrable
-          column={column}
-          titre="Compte d'âge"
-          ordre={comparerComptes}
-        />
+        <EnteteFiltrable column={column} ordre={comparerComptes} />
       ),
       sortingFn: (a, b, id) =>
         comparerComptes(a.getValue<string>(id), b.getValue<string>(id)),
@@ -64,11 +61,12 @@ export function colonnesLigneStock<T extends LigneDeStock>(): ColumnDef<
     {
       id: 'stock',
       accessorFn: (l) => l.stock,
-      header: ({ column }) => (
-        <EnteteFiltrable column={column} titre='Stock (L AP)' aDroite />
-      ),
+      meta: { titre: 'Stock (L AP)', format: formatLitres },
+      header: ({ column }) => <EnteteFiltrable column={column} aDroite />,
       cell: ({ getValue }) => formatLitres(getValue<number>()),
       enableColumnFilter: false,
+      enableGrouping: false,
+      aggregationFn: 'sum',
     },
   ]
 }

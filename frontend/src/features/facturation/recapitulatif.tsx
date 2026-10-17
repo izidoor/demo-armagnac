@@ -11,13 +11,18 @@ import {
 } from '@/components/ui/table'
 import { formatEuros } from '@/features/declarations/format'
 
-/** Le récapitulatif de TVA et les totaux d'une pièce (RG-FAC-05), enregistrés ou recalculés pendant l'édition. */
+/**
+ * Le récapitulatif de TVA et les totaux d'une pièce (RG-FAC-05), enregistrés ou recalculés pendant l'édition ; ou
+ * ceux des ventes d'une période, somme des récapitulatifs des pièces (RG-FAC-30).
+ */
 export function Recapitulatif({
+  titre = 'TVA et TOTAL',
   tva,
   totalHt,
   totalTva,
   totalTtc,
 }: {
+  titre?: string
   tva: LigneTvaPiece[]
   totalHt: number
   totalTva: number
@@ -26,7 +31,7 @@ export function Recapitulatif({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-base'>TVA et TOTAL</CardTitle>
+        <CardTitle className='text-base'>{titre}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className='flex flex-wrap justify-between gap-6'>

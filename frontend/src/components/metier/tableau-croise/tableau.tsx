@@ -21,9 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { FOND_EN_TETE } from '../table-donnees'
 import { type Croisement, type Noeud } from './calcul'
 
 const TOTAL = '__total'
+/** La colonne des libellés de lignes, épinglée à gauche : elle reste visible quand on fait défiler les colonnes. */
+const EPINGLEE =
+  'sticky left-0 z-[1] bg-background shadow-[inset_-1px_0_0_var(--border)]'
 
 const afficherAvec = (
   format: (valeur: number) => string,
@@ -32,7 +36,8 @@ const afficherAvec = (
 
 /**
  * Le tableau croisé : niveaux de lignes dépliables avec leurs sous-totaux, une colonne par valeur croisée,
- * total à droite et en bas quand ils se cumulent ; tri par en-tête, à chaque niveau.
+ * total à droite et en bas quand ils se cumulent ; tri par en-tête, à chaque niveau. La colonne des libellés
+ * est épinglée à gauche.
  */
 export function TableauCroiseVue({
   croisement,
@@ -156,7 +161,9 @@ export function TableauCroiseVue({
                       className={cn(
                         'whitespace-nowrap',
                         nombre && 'text-right',
-                        total && 'bg-muted/50'
+                        total && 'bg-muted/50',
+                        !nombre && EPINGLEE,
+                        !nombre && FOND_EN_TETE
                       )}
                       aria-sort={
                         sens === 'asc'
@@ -211,7 +218,12 @@ export function TableauCroiseVue({
                       key={cell.id}
                       className={cn(
                         nombre && 'text-right tabular-nums',
-                        total && 'bg-muted/50 font-medium'
+                        total && 'bg-muted/50 font-medium',
+                        !nombre && EPINGLEE,
+                        !nombre &&
+                          row.depth === 0 &&
+                          row.getCanExpand() &&
+                          'bg-muted'
                       )}
                     >
                       {flexRender(
@@ -227,7 +239,9 @@ export function TableauCroiseVue({
           {croisement.totaux && (
             <TableFooter>
               <TableRow>
-                <TableCell>Total</TableCell>
+                <TableCell className={cn(EPINGLEE, 'bg-muted')}>
+                  Total
+                </TableCell>
                 {croisement.colonnes.map((c) => (
                   <TableCell key={c.cle} className='text-right tabular-nums'>
                     {afficher(croisement.totaux?.valeurs[c.cle] ?? null)}

@@ -42,7 +42,7 @@ Elle reste en place comme modèle des contextes suivants et comme contrôle de b
 | application | `ConsulterInfoSysteme` (`@UseCase`), port `InfoBaseReader`, modèle `InfoSysteme` |
 | persistance | `JdbcInfoBaseReader` (`JdbcClient`) |
 | REST | `SystemeController`, `InfoSystemeResponse` |
-| front | `InfoSystemeCard`, sur l'accueil des deux espaces |
+| front | `InfoSystemeCard`, sur la page `/sonde`, hors menus, connexion exigée (décision du 2026-10-16 ; auparavant sur l'accueil des deux espaces) |
 
 ## Tests
 - `ConsulterInfoSystemeTest` (unitaire).

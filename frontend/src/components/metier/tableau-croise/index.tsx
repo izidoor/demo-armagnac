@@ -16,6 +16,7 @@ import {
   croiser,
   type Mesure,
   normaliser,
+  selonMesure,
   type Vue,
 } from './calcul'
 import { CompositionTableau } from './composition'
@@ -79,35 +80,41 @@ export function TableauCroise<T>({
     () => lire(cle) ?? vues[0].composition
   )
   const [graphique, setGraphique] = useState(true)
-  const composition = useMemo(
-    () => normaliser(brute, champs, donnees),
-    [brute, champs, donnees]
+  const mesure = mesures.find((m) => m.id === brute.mesure) ?? mesures[0]
+  // Une mesure peut rendre des champs non cumulables (une quantité ne se somme que par article).
+  const actifs = useMemo(
+    () => selonMesure(champs, mesure, brute),
+    [champs, mesure, brute]
   )
-  const mesure = mesures.find((m) => m.id === composition.mesure) ?? mesures[0]
+  const composition = useMemo(
+    () => normaliser(brute, actifs, donnees),
+    [brute, actifs, donnees]
+  )
   const croisement = useMemo(
-    () => croiser(donnees, champs, mesure, composition),
-    [donnees, champs, mesure, composition]
+    () => croiser(donnees, actifs, mesure, composition),
+    [donnees, actifs, mesure, composition]
   )
   const changer = (suivante: Composition) => {
     setBrute(suivante)
     retenir(cle, suivante)
   }
 
-  const parId = new Map(champs.map((c) => [c.id, c]))
-  const nonCumulable = (id: string | undefined) =>
-    !!id && !!parId.get(id)?.nonCumulable
+  const parId = new Map(actifs.map((c) => [c.id, c]))
+  // Une évolution (courbe) suit un champ non cumulable par nature (une date), pas un champ que la mesure fige.
+  const evolution = (id: string | undefined) =>
+    !!id && !!champs.find((c) => c.id === id)?.nonCumulable
   const titreLignes =
     composition.lignes.map((id) => parId.get(id)?.libelle).join(' / ') ||
     'Total'
   // Une vue se compare normalisée : un champ non cumulable qu'elle ne place pas est rangé d'office en filtre.
   const vue = vues.find((v) =>
-    memesZones(normaliser(v.composition, champs, donnees), composition)
+    memesZones(normaliser(v.composition, actifs, donnees), composition)
   )
 
   return (
     <div className='space-y-4'>
       <CompositionTableau
-        champs={champs}
+        champs={actifs}
         donnees={donnees}
         composition={composition}
         onChange={changer}
@@ -184,8 +191,8 @@ export function TableauCroise<T>({
       {graphique && (
         <GraphiqueCroise
           croisement={croisement}
-          evolutionEnColonnes={composition.colonnes.some(nonCumulable)}
-          evolutionEnLignes={nonCumulable(composition.lignes[0])}
+          evolutionEnColonnes={composition.colonnes.some(evolution)}
+          evolutionEnLignes={evolution(composition.lignes[0])}
           format={mesure.format}
         />
       )}

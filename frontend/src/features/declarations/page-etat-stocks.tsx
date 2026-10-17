@@ -78,6 +78,7 @@ function DonneesStock({ operateur }: { operateur: number }) {
         </p>
       )}
       <TableDonnees
+        cle='stocks-declares-portail'
         donnees={stock.data?.lignes ?? []}
         colonnes={COLONNES}
         chiffrees={['stock']}

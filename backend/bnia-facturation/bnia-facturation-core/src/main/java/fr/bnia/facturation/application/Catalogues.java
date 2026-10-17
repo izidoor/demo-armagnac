@@ -32,7 +32,12 @@ final class Catalogues {
 
     /** Les articles actifs de tous les catalogues à cette date, par source puis par code. */
     List<Article> actifs(LocalDate date) {
-        return parSource.values().stream().flatMap(c -> c.articles(date).stream()).filter(Article::actif)
+        return tous(date).stream().filter(Article::actif).toList();
+    }
+
+    /** Les articles de tous les catalogues à cette date, actifs ou non, par source puis par code (RG-FAC-29). */
+    List<Article> tous(LocalDate date) {
+        return parSource.values().stream().flatMap(c -> c.articles(date).stream())
                 .sorted(java.util.Comparator.comparing(Article::source).thenComparing(Article::code)).toList();
     }
 

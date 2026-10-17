@@ -33,25 +33,21 @@ final class StocksEnMemoire implements StocksLecture {
     }
 
     @Override
-    public List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, Optional<Long> operateur,
-            Optional<TypeDeclarant> type) {
+    public List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, long operateur) {
         return validees(operateur)
                 .filter(d -> annee.contient(d.periode()))
-                .filter(d -> type.map(t -> t == d.type()).orElse(true))
                 .flatMap(d -> toutes(d))
                 .toList();
     }
 
     @Override
-    public Set<AnneeDeclarative> anneesDeclarees(Optional<Long> operateur) {
+    public Set<AnneeDeclarative> anneesDeclarees(long operateur) {
         return validees(operateur).map(d -> AnneeDeclarative.contenant(d.periode().fin()))
                 .collect(Collectors.toSet());
     }
 
-    private Stream<DeclarationStocksMouvements> validees(Optional<Long> operateur) {
-        return List.of(Monde.NEGOCIANT, Monde.PRODUCTEUR, Monde.SOMMEIL).stream()
-                .filter(o -> operateur.map(o::equals).orElse(true))
-                .flatMap(o -> dsms.dsmsDe(o).stream().filter(d -> d.etat() == EtatDsm.VALIDEE))
+    private Stream<DeclarationStocksMouvements> validees(long operateur) {
+        return dsms.dsmsDe(operateur).stream().filter(d -> d.etat() == EtatDsm.VALIDEE)
                 .map(d -> dsms.parId(d.id()).orElseThrow());
     }
 

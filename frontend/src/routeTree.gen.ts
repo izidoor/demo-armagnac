@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SondeRouteImport } from './routes/sonde'
 import { Route as PortailRouteRouteImport } from './routes/portail/route'
 import { Route as BoRouteRouteImport } from './routes/bo/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -44,6 +45,8 @@ import { Route as BoParametrageQualificationRouteImport } from './routes/bo/para
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
 import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
 import { Route as BoParametrageBniaRouteImport } from './routes/bo/parametrage/bnia'
+import { Route as BoFacturationVentesRouteImport } from './routes/bo/facturation/ventes'
+import { Route as BoFacturationArticlesRouteImport } from './routes/bo/facturation/articles'
 import { Route as BoFacturationIdRouteImport } from './routes/bo/facturation/$id'
 import { Route as BoDeclarationsStocksRouteImport } from './routes/bo/declarations/stocks'
 import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
@@ -56,6 +59,11 @@ import { Route as BoAccesUtilisateursIdRouteImport } from './routes/bo/acces/uti
 import { Route as BoOperateursIdDsmDsmRouteImport } from './routes/bo/operateurs/$id/dsm/$dsm'
 import { Route as BoOperateursIdPersonnesGenrePersonneRouteImport } from './routes/bo/operateurs/$id/personnes/$genre/$personne'
 
+const SondeRoute = SondeRouteImport.update({
+  id: '/sonde',
+  path: '/sonde',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PortailRouteRoute = PortailRouteRouteImport.update({
   id: '/portail',
   path: '/portail',
@@ -235,6 +243,16 @@ const BoParametrageBniaRoute = BoParametrageBniaRouteImport.update({
   path: '/bnia',
   getParentRoute: () => BoParametrageRouteRoute,
 } as any)
+const BoFacturationVentesRoute = BoFacturationVentesRouteImport.update({
+  id: '/facturation/ventes',
+  path: '/facturation/ventes',
+  getParentRoute: () => BoRouteRoute,
+} as any)
+const BoFacturationArticlesRoute = BoFacturationArticlesRouteImport.update({
+  id: '/facturation/articles',
+  path: '/facturation/articles',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoFacturationIdRoute = BoFacturationIdRouteImport.update({
   id: '/facturation/$id',
   path: '/facturation/$id',
@@ -300,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bo': typeof BoRouteRouteWithChildren
   '/portail': typeof PortailRouteRouteWithChildren
+  '/sonde': typeof SondeRoute
   '/bo/parametrage': typeof BoParametrageRouteRouteWithChildren
   '/changement-email': typeof authChangementEmailRoute
   '/choix-operateur': typeof authChoixOperateurRoute
@@ -320,6 +339,8 @@ export interface FileRoutesByFullPath {
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
+  '/bo/facturation/articles': typeof BoFacturationArticlesRoute
+  '/bo/facturation/ventes': typeof BoFacturationVentesRoute
   '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
@@ -346,6 +367,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sonde': typeof SondeRoute
   '/changement-email': typeof authChangementEmailRoute
   '/choix-operateur': typeof authChoixOperateurRoute
   '/connexion': typeof authConnexionRoute
@@ -365,6 +387,8 @@ export interface FileRoutesByTo {
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
+  '/bo/facturation/articles': typeof BoFacturationArticlesRoute
+  '/bo/facturation/ventes': typeof BoFacturationVentesRoute
   '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
@@ -394,6 +418,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/bo': typeof BoRouteRouteWithChildren
   '/portail': typeof PortailRouteRouteWithChildren
+  '/sonde': typeof SondeRoute
   '/bo/parametrage': typeof BoParametrageRouteRouteWithChildren
   '/(auth)/changement-email': typeof authChangementEmailRoute
   '/(auth)/choix-operateur': typeof authChoixOperateurRoute
@@ -414,6 +439,8 @@ export interface FileRoutesById {
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
+  '/bo/facturation/articles': typeof BoFacturationArticlesRoute
+  '/bo/facturation/ventes': typeof BoFacturationVentesRoute
   '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
@@ -444,6 +471,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bo'
     | '/portail'
+    | '/sonde'
     | '/bo/parametrage'
     | '/changement-email'
     | '/choix-operateur'
@@ -464,6 +492,8 @@ export interface FileRouteTypes {
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
+    | '/bo/facturation/articles'
+    | '/bo/facturation/ventes'
     | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
@@ -490,6 +520,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/sonde'
     | '/changement-email'
     | '/choix-operateur'
     | '/connexion'
@@ -509,6 +540,8 @@ export interface FileRouteTypes {
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
+    | '/bo/facturation/articles'
+    | '/bo/facturation/ventes'
     | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
@@ -537,6 +570,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bo'
     | '/portail'
+    | '/sonde'
     | '/bo/parametrage'
     | '/(auth)/changement-email'
     | '/(auth)/choix-operateur'
@@ -557,6 +591,8 @@ export interface FileRouteTypes {
     | '/bo/acces/connexions'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
+    | '/bo/facturation/articles'
+    | '/bo/facturation/ventes'
     | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
     | '/bo/parametrage/geographie'
@@ -586,6 +622,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoRouteRoute: typeof BoRouteRouteWithChildren
   PortailRouteRoute: typeof PortailRouteRouteWithChildren
+  SondeRoute: typeof SondeRoute
   authChangementEmailRoute: typeof authChangementEmailRoute
   authChoixOperateurRoute: typeof authChoixOperateurRoute
   authConnexionRoute: typeof authConnexionRoute
@@ -601,6 +638,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sonde': {
+      id: '/sonde'
+      path: '/sonde'
+      fullPath: '/sonde'
+      preLoaderRoute: typeof SondeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/portail': {
       id: '/portail'
       path: '/portail'
@@ -846,6 +890,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageBniaRouteImport
       parentRoute: typeof BoParametrageRouteRoute
     }
+    '/bo/facturation/ventes': {
+      id: '/bo/facturation/ventes'
+      path: '/facturation/ventes'
+      fullPath: '/bo/facturation/ventes'
+      preLoaderRoute: typeof BoFacturationVentesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
+    '/bo/facturation/articles': {
+      id: '/bo/facturation/articles'
+      path: '/facturation/articles'
+      fullPath: '/bo/facturation/articles'
+      preLoaderRoute: typeof BoFacturationArticlesRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/facturation/$id': {
       id: '/bo/facturation/$id'
       path: '/facturation/$id'
@@ -958,6 +1016,8 @@ interface BoRouteRouteChildren {
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
   BoDeclarationsStocksRoute: typeof BoDeclarationsStocksRoute
   BoFacturationIdRoute: typeof BoFacturationIdRoute
+  BoFacturationArticlesRoute: typeof BoFacturationArticlesRoute
+  BoFacturationVentesRoute: typeof BoFacturationVentesRoute
   BoDeclarationsIndexRoute: typeof BoDeclarationsIndexRoute
   BoFacturationIndexRoute: typeof BoFacturationIndexRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
@@ -975,6 +1035,8 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
   BoDeclarationsStocksRoute: BoDeclarationsStocksRoute,
   BoFacturationIdRoute: BoFacturationIdRoute,
+  BoFacturationArticlesRoute: BoFacturationArticlesRoute,
+  BoFacturationVentesRoute: BoFacturationVentesRoute,
   BoDeclarationsIndexRoute: BoDeclarationsIndexRoute,
   BoFacturationIndexRoute: BoFacturationIndexRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
@@ -1023,6 +1085,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoRouteRoute: BoRouteRouteWithChildren,
   PortailRouteRoute: PortailRouteRouteWithChildren,
+  SondeRoute: SondeRoute,
   authChangementEmailRoute: authChangementEmailRoute,
   authChoixOperateurRoute: authChoixOperateurRoute,
   authConnexionRoute: authConnexionRoute,

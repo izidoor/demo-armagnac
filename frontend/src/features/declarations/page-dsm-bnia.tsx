@@ -44,11 +44,13 @@ import {
 } from '@/components/ui/tooltip'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { PageMetier } from '@/components/metier/page-metier'
+import { Pagination } from '@/components/metier/pagination'
+import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { RechercheOperateur } from '@/features/operateurs/portail/recherche-operateur'
 import { useDroits, useMoi } from '@/features/session/session'
 import { Echeance } from './echeance'
 import { formatDateHeure, formatEuros } from './format'
-import { TYPES_DECLARANT, VARIANTE_ETAT } from './libelles'
+import { GROUPES_ETATS, TYPES_DECLARANT, VARIANTE_ETAT } from './libelles'
 
 const TOUS = 'tous'
 
@@ -79,8 +81,15 @@ type Vue = 'en-cours' | 'validees' | 'facturees'
  * « absente » de l'onglet « En cours », qui ouvre l'onglet « Stocks & Mouvements » de sa fiche (RG-DEC-39, 40).
  * Spec 08 : dans « Validées », une sélection se facture d'un coup (RG-DEC-43) ; une DSM dont la facture est
  * demandée passe dans « Facturées », badge « Brouillon » (décision du 2026-10-14).
+ * Tableau de bord (CDC §4.1) : l'onglet et l'état, ou un regroupement d'états, peuvent venir de l'URL.
  */
-export function PageDsmBnia() {
+export function PageDsmBnia({
+  vue: vueInitiale,
+  etat: etatInitial,
+}: {
+  vue?: Vue
+  etat?: string
+}) {
   const navigate = useNavigate()
   const [operateur, setOperateur] = useState<ResultatRechercheOperateur | null>(
     null
@@ -88,8 +97,8 @@ export function PageDsmBnia() {
   const [recherche, setRecherche] = useState(false)
   const [type, setType] = useState<string>(TOUS)
   const [mois, setMois] = useState('')
-  const [vue, setVue] = useState<Vue>('en-cours')
-  const [etat, setEtat] = useState<string>(TOUS)
+  const [vue, setVue] = useState<Vue>(vueInitiale ?? 'en-cours')
+  const [etat, setEtat] = useState<string>(etatInitial ?? TOUS)
   const [enRetard, setEnRetard] = useState(false)
   const [selection, setSelection] = useState<Set<number>>(new Set())
   const { actif } = useMoi()
@@ -127,8 +136,17 @@ export function PageDsmBnia() {
       : vue === 'facturees'
         ? facturees
         : enCours
-            .filter((d) => etat === TOUS || etatDe(d) === etat)
+            .filter((d) => {
+              const e = etatDe(d)
+              return (
+                etat === TOUS ||
+                e === etat ||
+                (!!e && !!GROUPES_ETATS[etat]?.etats.includes(e))
+              )
+            })
             .filter((d) => !enRetard || d.enRetard)
+  // Pagination dans le navigateur, par 15 (au-delà seulement, la barre apparaît).
+  const { lignes: page, pagination } = usePagination(dsms, TAILLE_PAGE)
   const enCoursVue = vue === 'en-cours'
   const queryClient = useQueryClient()
   const ouvrir = (operateurId: number, id: number) =>
@@ -316,6 +334,11 @@ export function PageDsmBnia() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={TOUS}>Tous</SelectItem>
+                {Object.entries(GROUPES_ETATS).map(([valeur, g]) => (
+                  <SelectItem key={valeur} value={valeur}>
+                    {g.libelle}
+                  </SelectItem>
+                ))}
                 {Object.entries(EN_COURS).map(([valeur, libelle]) => (
                   <SelectItem key={valeur} value={valeur}>
                     {libelle}
@@ -405,7 +428,7 @@ export function PageDsmBnia() {
                 </TableCell>
               </TableRow>
             )}
-            {dsms.map((d) => (
+            {(page ?? []).map((d) => (
               <TableRow
                 key={d.id ?? `absente-${d.operateur}-${d.periode.debut}`}
                 className='cursor-pointer'
@@ -494,6 +517,7 @@ export function PageDsmBnia() {
           </TableBody>
         </Table>
       </div>
+      <Pagination {...pagination} />
       <ConfirmDialog
         open={exclusion}
         onOpenChange={setExclusion}

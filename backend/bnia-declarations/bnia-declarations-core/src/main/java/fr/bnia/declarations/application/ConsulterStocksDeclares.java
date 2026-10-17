@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 /**
  * Stocks déclarés (analyse UC-DEC-1, spec 05 §6.1) : celui d'un opérateur, pour sa fiche ; ceux de tous, pour le
- * BNIA, avec leur export Excel pour les douanes ; leur historique d'une année déclarative, mois par mois, pour le
- * tableau croisé. RG-DEC-01, 42, 44.
+ * BNIA, avec leur export Excel pour les douanes ; l'historique d'un opérateur sur une année déclarative, mois par
+ * mois, pour le tableau croisé du portail. RG-DEC-01, 42, 44.
  */
 @UseCase
 public class ConsulterStocksDeclares {
@@ -108,23 +108,11 @@ public class ConsulterStocksDeclares {
     }
 
     /**
-     * RG-DEC-01, 44 : l'historique des stocks déclarés de tous les opérateurs sur une année déclarative (l'année
-     * en cours par défaut), pour le personnel du BNIA, filtré par opérateur et par type.
+     * RG-DEC-01, 44 : l'historique des stocks déclarés d'un opérateur sur une année déclarative (l'année en cours
+     * par défaut), pour tout lecteur de ses déclarations.
      */
-    public HistoriqueStocks historique(Acteur acteur, Optional<AnneeDeclarative> annee, Optional<Long> operateur,
-            Optional<TypeDeclarant> type) {
-        autorisations.exigerLectureStocks(acteur);
-        return historique(annee, operateur, type);
-    }
-
-    /** RG-DEC-01, 44 : l'historique des stocks déclarés d'un opérateur, pour tout lecteur de ses déclarations. */
-    public HistoriqueStocks historiqueDe(Acteur acteur, long operateur, Optional<AnneeDeclarative> annee) {
+    public HistoriqueStocks historiqueDe(Acteur acteur, long operateur, Optional<AnneeDeclarative> demandee) {
         autorisations.exigerLecture(acteur, operateur);
-        return historique(annee, Optional.of(operateur), Optional.empty());
-    }
-
-    private HistoriqueStocks historique(Optional<AnneeDeclarative> demandee, Optional<Long> operateur,
-            Optional<TypeDeclarant> type) {
         LocalDate aujourdhui = LocalDate.now(horloge);
         AnneeDeclarative enCours = AnneeDeclarative.contenant(aujourdhui);
         AnneeDeclarative annee = demandee.orElse(enCours);
@@ -132,7 +120,7 @@ public class ConsulterStocksDeclares {
                 Comparator.comparingInt(AnneeDeclarative::debutAnnee).reversed());
         disponibles.addAll(stocks.anneesDeclarees(operateur));
         disponibles.add(enCours);
-        List<LigneStockListee> lignes = listees(stocks.stocksDeLAnnee(annee, operateur, type));
+        List<LigneStockListee> lignes = listees(stocks.stocksDeLAnnee(annee, operateur));
         return new HistoriqueStocks(annee, List.copyOf(disponibles), reporter(lignes, annee.finsDeMois(aujourdhui)));
     }
 

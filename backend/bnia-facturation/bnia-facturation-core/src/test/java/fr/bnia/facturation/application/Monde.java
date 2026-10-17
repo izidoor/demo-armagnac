@@ -8,12 +8,16 @@ import fr.bnia.facturation.api.Acteur;
 import fr.bnia.facturation.api.Article;
 import fr.bnia.facturation.api.CatalogueArticles;
 import fr.bnia.facturation.api.ClientRef;
+import fr.bnia.facturation.api.LigneVendue;
 import fr.bnia.facturation.api.NatureArticle;
 import fr.bnia.facturation.domain.Acheteur;
 import fr.bnia.facturation.domain.EntreeJournal;
+import fr.bnia.facturation.domain.EtatPiece;
 import fr.bnia.facturation.domain.Exemples;
 import fr.bnia.facturation.domain.Facture;
+import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
 import fr.bnia.facturation.domain.Numerotation;
+import fr.bnia.facturation.domain.SensPiece;
 import fr.bnia.facturation.domain.Vendeur;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -22,6 +26,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,6 +143,35 @@ final class Monde {
 
     ConsulterMesFactures mesFactures(PiecesLecture lecture) {
         return new ConsulterMesFactures(factures, lecture, journal, stockage, droits, horloge);
+    }
+
+    /** Les ventes des pièces émises en mémoire, comme la requête de l'infra (RG-FAC-30). */
+    final VentesLecture ventes = (du, au, nature) -> factures.parId.values().stream().map(Facture::reconstituer)
+            .filter(f -> f.etat() == EtatPiece.EMISE)
+            .filter(f -> !f.dateEmission().orElseThrow().isBefore(du) && !f.dateEmission().orElseThrow().isAfter(au))
+            .filter(f -> nature.isEmpty() || f.origine() != null && f.origine().nature().equals(nature.get()))
+            .sorted(Comparator.comparing(f -> f.numero().orElseThrow()))
+            .flatMap(f -> f.lignesArticle().stream().map(a -> vendue(f, a))).toList();
+
+    static LigneVendue vendue(Facture f, LigneArticle a) {
+        BigDecimal signe = f.sens() == SensPiece.AVOIR ? BigDecimal.ONE.negate() : BigDecimal.ONE;
+        return new LigneVendue(f.id(), f.numero().orElseThrow(), f.sens() == SensPiece.AVOIR,
+                f.dateEmission().orElseThrow(), f.acheteur().nom(), f.acheteur().client(), f.origine(), a.article(),
+                a.designation(), a.unite(), a.nature(), a.codeComptable(), a.tva(), a.quantite().multiply(signe),
+                a.prixUnitaire(), a.montantHt().multiply(signe));
+    }
+
+    ConsulterVentes consulterVentes() {
+        return new ConsulterVentes(ventes, (v, editeLe) -> ("%PDF-1.7 ventes " + v.lignes().size()).getBytes(),
+                droits, horloge);
+    }
+
+    ConsulterArticles consulterArticles() {
+        return new ConsulterArticles(List.of(catalogue), droits, horloge);
+    }
+
+    LectureFacturation lecture() {
+        return new LectureFacturation(ventes);
     }
 
     AnnoterPiece annoter() {

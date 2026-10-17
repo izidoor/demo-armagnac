@@ -110,3 +110,21 @@ export function identite(l: {
 }) {
   return `${l.cle} ${designation(l)}`
 }
+
+/**
+ * Regroupements d'états de l'onglet « En cours », filtrés comme un état : ce que l'opérateur doit saisir ou que
+ * le BNIA doit relancer, ce que le BNIA doit traiter (accès du tableau de bord, CDC §4.1).
+ */
+export const GROUPES_ETATS: Record<
+  string,
+  { libelle: string; etats: (Dsm['etat'] | 'ABSENTE')[] }
+> = {
+  A_SAISIR: {
+    libelle: 'À saisir ou relancer',
+    etats: ['ABSENTE', 'BROUILLON', 'COMPLEMENTS_DEMANDES'],
+  },
+  A_TRAITER: {
+    libelle: 'À traiter',
+    etats: ['ENVOYEE', 'EN_INSTRUCTION', 'COMPLEMENTS_RECUS'],
+  },
+}

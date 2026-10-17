@@ -78,8 +78,9 @@ export function GraphiqueCroise({
   if (points.length === 0 || series.length === 0) {
     return (
       <p className='text-muted-foreground py-8 text-center text-sm'>
-        Rien à représenter : un sous-total qui cumulerait des dates n&apos;est
-        pas calculé. Placez la date en colonnes ou au premier niveau des lignes.
+        Rien à représenter : un sous-total qui cumulerait un champ non cumulable
+        (une date, un article pour une quantité) n&apos;est pas calculé.
+        Placez-le en colonnes ou au premier niveau des lignes.
       </p>
     )
   }

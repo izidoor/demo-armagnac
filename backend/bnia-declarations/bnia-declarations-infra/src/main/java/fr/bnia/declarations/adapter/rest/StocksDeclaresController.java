@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Stocks déclarés (analyse UC-DEC-1, spec 05 §6.1, §6.2) : de tous, au back-office ; d'un opérateur, sur sa fiche
- * et au portail ; leur historique d'une année déclarative, pour le tableau croisé (RG-DEC-44).
+ * et au portail, avec, au portail, son historique d'une année déclarative pour le tableau croisé (RG-DEC-44).
  */
 @RestController
 @Tag(name = "declarations")
@@ -42,16 +42,6 @@ class StocksDeclaresController {
             @RequestParam(required = false) TypeDeclarant type) {
         return stocks.deTous(Acteurs.de(connecte), Optional.ofNullable(operateur), Optional.ofNullable(type)).stream()
                 .map(LigneStockDeclareResponse::depuis).toList();
-    }
-
-    @GetMapping("/api/declarations/stocks/historique")
-    @Operation(operationId = "historiqueStocksDeclares",
-            summary = "Les stocks déclarés de tous les opérateurs à chaque fin de mois écoulée d'une année déclarative (l'année en cours par défaut), filtrés par opérateur et type (RG-DEC-01, 44)")
-    HistoriqueStocksResponse historique(Connecte connecte,
-            @RequestParam(required = false) Integer annee, @RequestParam(required = false) Long operateur,
-            @RequestParam(required = false) TypeDeclarant type) {
-        return HistoriqueStocksResponse.depuis(stocks.historique(Acteurs.de(connecte), annee(annee),
-                Optional.ofNullable(operateur), Optional.ofNullable(type)));
     }
 
     @GetMapping(path = "/api/declarations/stocks/excel", produces = XLSX)

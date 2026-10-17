@@ -42,6 +42,7 @@ opérateur. Le sélecteur sous le titre de l'espace change d'opérateur actif.
 | `admin@larressingle.fr` | Marie Lacoste | Maison Larressingle (`N320002`) | `ADMIN` | Portail : DSM en compléments demandés, à corriger et renvoyer |
 | `admin@landes.fr` | Bernard Dufau | Négoce des Landes (`N400001`) | `ADMIN` | Portail : DSM en brouillon avec une anomalie |
 | `admin@laubade.fr` | Hélène Lassus | Domaine de Laubade (`000003`) | `ADMIN` | Portail d'un producteur en sommeil : DSM 2024-2025 validée, en attente d'un nouveau point de départ |
+| `saisie@demo.fr` | Saisie Démo | Les quinze opérateurs ajoutés pour la facturation (`N320010` à `N470010`, `000020` à `000029`) | `AGENT` de chacun | Compte technique qui a saisi leurs DSM ; sélecteur à quinze opérateurs |
 
 Sans compte :
 
@@ -54,6 +55,12 @@ Sans compte :
 Le BNIA (type `BNIA`, section « BNIA » des paramètres de l'application, roue crantée du back-office) et seize opérateurs du Gers, des Landes et du
 Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N320002`, `N400001`, deux
 `AUTRE` (`000010`, `000011`), une fiche incomplète (`000012`) et une fiche inactive (`000013`).
+
+S'y ajoutent, pour le volume de la facturation (spec 08 §7.1), quinze opérateurs fictifs, facturables (SIRET,
+n° de TVA, destinataire des factures `comptabilite@<code>.example`, sans compte) : cinq négociants (`N320010`,
+`N320011`, `N320012`, `N400010`, `N470010`), toutes leurs DSM mensuelles de l'année validées jusqu'au mois
+dernier ; dix producteurs (`000020` à `000029`), leur DSM de la dernière année déclarative close validée, avec
+ses DRM. Les uns exportent (avec un DAE), les autres non ; les volumes varient d'un mois à l'autre.
 
 ## Déclarations (spec 05, lots 1 à 8)
 
@@ -163,7 +170,7 @@ Scénario :
     filtres opérateur et type ; « Exporter en Excel » pour les douanes. La fiche de chacun en montre le
     sien, section « Stock déclaré ».
 
-## Facturation (spec 08, lots 1 et 2)
+## Facturation (spec 08, lots 1, 2, 3 et 5)
 
 - **Vendeur** (roue crantée « Paramètres de l'application », rubrique « BNIA > Facturation ») : le BNIA, tel qu'imprimé
   sur les factures d'exemple (11 place de la Liberté, Eauze ; SIRET 77699995500029 ; TVA FR55776999955 ;
@@ -171,24 +178,29 @@ Scénario :
 - **SIRET et n° de TVA** : Maison Durand (`000001`, `000002`) et les trois négociants ; un destinataire des
   factures `comptabilite@<code>.example` pour chaque négociant. Le Domaine de Laubade (`000003`), qui a une DSM
   validée, n'a pas de SIRET : il n'est pas facturable.
-- **Armagnacs de Gascogne** : la DSM validée la plus ancienne est **facturée** et sa facture **émise** par
-  Anne Lamarque (premier numéro de l'année, par exemple `2026000001`), 1 855,95 € HT, 296,95 € de TVA,
-  2 152,90 € TTC, comme la facture d'exemple, avec une **note** au journal ; les **dix** DSM suivantes restent
+- **Armagnacs de Gascogne** : ses **huit** DSM validées les plus anciennes sont **facturées** et leurs factures
+  **émises** par Anne Lamarque, chacune **à la fin du mois qui suit sa période** (DSM de novembre 2025 émise le
+  31 décembre 2025, etc.), numérotées dans l'ordre des dates (`2025000001`, puis `2026000001`…) ; chacune vaut
+  1 855,95 € HT, 296,95 € de TVA, 2 152,90 € TTC, comme la facture d'exemple ; une **note** au journal de la
+  première. La **neuvième** est demandée : un **brouillon** attend son émission. Les **deux** dernières restent
   **à facturer**.
-- **Maison Durand, Condom** : la facture de sa DSM validée est **demandée** : un brouillon attend son émission.
+- **Maison Durand, Condom** : sa DSM validée est facturée et émise à la fin du mois qui suit sa campagne
+  (30 avril).
+- **Les quinze opérateurs ajoutés** : chaque DSM validée est facturée et émise à la fin du mois qui suit sa
+  période (au plus tard la veille) ; les numéros suivent l'ordre des dates, tous opérateurs confondus.
 
 Scénario :
 
-1. `admin@bnia.fr`, menu « Facturation > Factures », onglet « Émises » : la facture d'Armagnacs de Gascogne.
-   L'ouvrir : acheteur, dates, échéance au dernier jour du mois suivant (« 30 jours fin de mois »), groupe
+1. `admin@bnia.fr`, menu « Facturation > Factures », onglet « Émises » : les factures d'Armagnacs de Gascogne
+   et de Maison Durand. Ouvrir une facture de Gascogne : acheteur, dates, échéance au dernier jour du mois suivant (« 30 jours fin de mois »), groupe
    « Commerce de l'Armagnac » avec quatre lignes (part assujettie à 20 %, part non assujettie exonérée),
    sous-total, récapitulatif de TVA, totaux. « PDF » : la facture au nouveau modèle ; bouton « Historique » :
    demandée, émise, puis consultée (ouverture, PDF).
-2. Onglet « Brouillons » : celui de Maison Durand, Condom. L'ouvrir : rien n'empêche son émission ;
+2. Onglet « Brouillons » : celui d'Armagnacs de Gascogne. L'ouvrir : rien n'empêche son émission ;
    « Émettre » : il prend le numéro suivant. Sa DSM (fiche de l'opérateur, onglet « Déclarations ») passe à
    « facturée », le numéro ouvre la facture.
-3. Menu « Déclarations > DSM », onglet « Validées » : la DSM restante d'Armagnacs de Gascogne et celle du
-   Domaine de Laubade. Ouvrir celle de Gascogne : « Facturer » ; on reste sur la DSM, « Brouillon de facture
+3. Menu « Déclarations > DSM », onglet « Validées » : les deux DSM restantes d'Armagnacs de Gascogne et celle
+   du Domaine de Laubade. Ouvrir une de Gascogne : « Facturer » ; on reste sur la DSM, « Brouillon de facture
    créé », puis « Facturation demandée : voir le brouillon ». Au listing, elle est passée dans « Facturées »,
    badge « Brouillon ».
 4. Revenir à « Validées », cocher la DSM du Domaine de Laubade, « Facturer la sélection » : refusé, « Domaine
@@ -199,8 +211,8 @@ Scénario :
 
 Brouillons (lot 2) :
 
-7. « Déclarations > DSM », onglet « Validées » : cocher les DSM d'Armagnacs de Gascogne, « Facturer la
-   sélection » : un brouillon par DSM.
+7. « Déclarations > DSM », onglet « Validées » : cocher la DSM restante d'Armagnacs de Gascogne, « Facturer la
+   sélection » : un brouillon par DSM (au besoin, abandonner d'abord quelques brouillons pour en avoir plusieurs).
 8. « Facturation > Factures », onglet « Brouillons » : en ouvrir un, « Modifier ». La date de l'opération et
    l'acheteur sont en lecture ; les lignes reçues de la DSM portent un cadenas (seule leur désignation change).
    Corriger la période, ajouter un texte « Régularisation suite au contrôle », le remonter en tête,
@@ -217,4 +229,15 @@ Portail (lot 3) :
     de Gascogne, sans les brouillons. Filtrer par numéro ou par période ; ouvrir la facture, puis « PDF ».
 13. `admin@bnia.fr`, la même facture, bouton « Historique » : « Consultée » par Thomas Barrère, côté « Client »
     (ouverture, puis PDF).
+
+Articles et ventes (lot 5) :
+
+14. `admin@bnia.fr`, menu « Facturation > Articles » : les huit articles de la cotisation (part assujettie à
+    20 %, part non assujettie exonérée, en hlAP) ; une ligne ouvre la grille CVO du Paramétrage.
+15. « Facturation > Ventes », période « Année en cours » : onglet « Données », les lignes des factures émises
+    cette année, total HT ; une ligne ouvre sa facture. Onglet « Analyse » : vue « Par mois » (article en
+    lignes, mois en colonnes), graphique ; mesure « Quantité » : l'article reste en lignes, un seul article
+    s'il passe en filtre ; vue « Par acheteur » : Gascogne et Maison Durand. Sous le tableau, le
+    récapitulatif de TVA de la période. « Exporter le tableau » (Excel du tableau affiché), « Exporter en PDF »
+    (synthèse par article, TVA, totaux). Période « Année précédente » : la facture de décembre 2025.
 

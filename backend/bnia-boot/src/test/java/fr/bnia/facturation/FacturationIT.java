@@ -25,6 +25,8 @@ import fr.bnia.facturation.api.ClientRef;
 import fr.bnia.facturation.api.ConditionPaiement;
 import fr.bnia.facturation.api.DemandeFacture;
 import fr.bnia.facturation.api.DemandeFactures;
+import fr.bnia.facturation.api.FacturationLecture;
+import fr.bnia.facturation.api.LigneVendue;
 import fr.bnia.facturation.api.LigneDemandee.ArticleDemande;
 import fr.bnia.facturation.api.Origine;
 import fr.bnia.facturation.application.Clients;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,10 +57,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
- * Lots 1 et 2 de la spec 08 : facturer une DSM, de bout en bout, puis travailler son brouillon. La DSM validée d'un négociant aux volumes de la facture
+ * Lots 1, 2, 3 et 5 de la spec 08 : facturer une DSM, de bout en bout, puis travailler son brouillon. La DSM validée d'un négociant aux volumes de la facture
  * d'exemple, facturée depuis {@code declarations}, émise par {@code facturation}, puis « facturée » dans la DSM.
  * La grille CVO, la classe de TVA de la CVO et le vendeur sont communs à la base des IT : on les assure.
  */
@@ -76,6 +80,7 @@ class FacturationIT extends AbstractIT {
     @Autowired Clients clients;
     @Autowired DemandeFactures demandeFactures;
     @Autowired EmettrePiece emettrePiece;
+    @Autowired FacturationLecture facturationLecture;
 
     private fr.bnia.operateurs.domain.partage.Acteur admin;
     private long france;
@@ -592,5 +597,85 @@ class FacturationIT extends AbstractIT {
         assertThat(acheteur.email()).isEqualTo("compta-" + operateur + "@negoce.example");
         assertThat(acheteur.manques()).isEmpty();
         assertThat(clients.acheteur(ClientRef.operateur(-1, "X"))).isEmpty();
+    }
+
+    @Test
+    @DisplayName("RG-FAC-29 : le tableau des articles réunit les huit articles de la cotisation, avec le lien vers la grille")
+    void rg_fac_29_articles() {
+        List<Map<String, Object>> articles = client.get().uri("/api/facturation/articles").exchange().expectStatus()
+                .isOk().expectBody(List.class).returnResult().getResponseBody();
+
+        assertThat(articles).filteredOn(a -> a.get("source").equals("declarations")).hasSize(8)
+                .allSatisfy(a -> assertThat(a.get("lienAdministration")).isEqualTo("/bo/parametrage/taux-cvo"))
+                .extracting(a -> a.get("code")).contains("CVO-SORTIES_FRANCE-S", "CVO-SORTIES_FRANCE-E");
+    }
+
+    @Test
+    @DisplayName("RG-FAC-30 : les ventes du jour reprennent les lignes de la facture émise ; une période antérieure ne les a pas ; PDF avec récapitulatif de TVA et totaux")
+    void rg_fac_30_ventes() throws IOException {
+        long operateur = negociant(true);
+        long brouillon = brouillonDeDsm(operateur);
+        String jour = LocalDate.now().toString();
+        String hier = LocalDate.now().minusDays(1).toString();
+        client.post().uri(PIECES + "/{id}/emission", brouillon).exchange().expectStatus().isOk();
+
+        Map<String, Object> ventes = corps(client.get().uri(u -> u.path("/api/facturation/ventes")
+                .queryParam("du", jour).queryParam("au", jour).build()).exchange().expectStatus().isOk());
+
+        List<Map<String, Object>> lignes = ((List<Map<String, Object>>) ventes.get("lignes")).stream()
+                .filter(l -> ((Number) l.get("piece")).longValue() == brouillon).toList();
+        assertThat(lignes).extracting(l -> l.get("montantHt")).containsExactly(402.77, 100.69, 1081.99, 270.5);
+        assertThat(lignes).allSatisfy(l -> {
+            assertThat(l.get("avoir")).isEqualTo(false);
+            assertThat(l.get("clientIdentifiant")).isEqualTo(Long.toString(operateur));
+            assertThat(((Map<String, Object>) l.get("origine")).get("nature")).isEqualTo("DSM");
+        });
+        client.get().uri(u -> u.path("/api/facturation/ventes").queryParam("du", hier).queryParam("au", hier).build())
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.lignes[?(@.piece == " + brouillon + ")]").isEmpty();
+        client.get().uri(u -> u.path("/api/facturation/ventes").queryParam("du", jour).queryParam("au", hier).build())
+                .exchange().expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-FAC-30");
+
+        byte[] pdf = client.get().uri(u -> u.path("/api/facturation/ventes/pdf").queryParam("du", jour)
+                .queryParam("au", jour).build()).exchange().expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_PDF).expectBody(byte[].class).returnResult()
+                .getResponseBody();
+        try (PDDocument document = Loader.loadPDF(pdf)) {
+            String texte = new PDFTextStripper().getText(document);
+            assertThat(texte).contains("Ventes du", "CVO-SORTIES_FRANCE-S", "Récapitulatif de TVA", "Total TTC");
+        }
+    }
+
+    @Test
+    @DisplayName("RG-FAC-31 : la lecture publiée rend les lignes vendues de la période, filtrées par nature d'origine")
+    void rg_fac_31_lecture_publiee() {
+        long operateur = negociant(true);
+        long brouillon = brouillonDeDsm(operateur);
+        client.post().uri(PIECES + "/{id}/emission", brouillon).exchange().expectStatus().isOk();
+        LocalDate jour = LocalDate.now();
+
+        assertThat(facturationLecture.ventes(jour, jour, Optional.of("DSM")))
+                .filteredOn(l -> l.piece() == brouillon).hasSize(4)
+                .extracting(LigneVendue::montantHt).containsExactly(new BigDecimal("402.77"),
+                        new BigDecimal("100.69"), new BigDecimal("1081.99"), new BigDecimal("270.50"));
+        assertThat(facturationLecture.ventes(jour, jour, Optional.of("FIN_DE_TRAVAUX")))
+                .noneMatch(l -> l.piece() == brouillon);
+    }
+
+    @Test
+    @DisplayName("RG-FAC-26 : les articles et les ventes sont refusés à un membre d'un négociant")
+    void rg_fac_26_ventes_et_articles() {
+        long operateur = negociant(true);
+        String email = emailUnique("admin");
+        membre(operateur, Role.ADMIN, email);
+        RestTestClient negociant = connecte(email);
+        String jour = LocalDate.now().toString();
+
+        negociant.get().uri("/api/facturation/articles").exchange().expectStatus().isForbidden();
+        negociant.get().uri(u -> u.path("/api/facturation/ventes").queryParam("du", jour).queryParam("au", jour)
+                .build()).exchange().expectStatus().isForbidden();
+        negociant.get().uri(u -> u.path("/api/facturation/ventes/pdf").queryParam("du", jour).queryParam("au", jour)
+                .build()).exchange().expectStatus().isForbidden();
     }
 }

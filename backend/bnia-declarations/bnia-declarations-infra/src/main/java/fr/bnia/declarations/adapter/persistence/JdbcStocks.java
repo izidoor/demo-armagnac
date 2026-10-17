@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Stocks déclarés (RG-DEC-42) : la dernière DSM validée de chaque opérateur, en une requête ; les DSM validées
- * d'une année déclarative, pour l'historique (RG-DEC-44).
+ * d'un opérateur sur une année déclarative, pour son historique (RG-DEC-44).
  */
 @Repository
 class JdbcStocks implements StocksLecture {
@@ -69,36 +69,21 @@ class JdbcStocks implements StocksLecture {
     }
 
     @Override
-    public List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, Optional<Long> operateur,
-            Optional<TypeDeclarant> type) {
-        Map<String, Object> parametres = new HashMap<>();
-        parametres.put("debut", annee.debut());
-        parametres.put("fin", annee.fin());
-        StringBuilder sql = new StringBuilder("select d.id, d.operateur_id, d.type, d.debut, d.fin, d.validee_le,"
-                + " l.cle, l.millesime, l.denomination, l.compte, " + STOCK_FIN + " as stock"
-                + " from " + SCHEMA + ".dsm d join " + SCHEMA + ".ligne_dsm l on l.dsm_id = d.id"
-                + " where d.etat = 'VALIDEE' and d.debut >= :debut and d.fin <= :fin");
-        operateur.ifPresent(o -> {
-            sql.append(" and d.operateur_id = :operateur");
-            parametres.put("operateur", o);
-        });
-        type.ifPresent(t -> {
-            sql.append(" and d.type = :type");
-            parametres.put("type", t.name());
-        });
-        sql.append(" order by d.operateur_id, d.fin, l.rang");
-        return jdbcClient.sql(sql.toString()).params(parametres).query((rs, n) -> ligne(rs)).list();
+    public List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, long operateur) {
+        return jdbcClient.sql("select d.id, d.operateur_id, d.type, d.debut, d.fin, d.validee_le,"
+                        + " l.cle, l.millesime, l.denomination, l.compte, " + STOCK_FIN + " as stock"
+                        + " from " + SCHEMA + ".dsm d join " + SCHEMA + ".ligne_dsm l on l.dsm_id = d.id"
+                        + " where d.etat = 'VALIDEE' and d.debut >= :debut and d.fin <= :fin"
+                        + " and d.operateur_id = :operateur order by d.fin, l.rang")
+                .param("debut", annee.debut()).param("fin", annee.fin()).param("operateur", operateur)
+                .query((rs, n) -> ligne(rs)).list();
     }
 
     @Override
-    public Set<AnneeDeclarative> anneesDeclarees(Optional<Long> operateur) {
-        Map<String, Object> parametres = new HashMap<>();
-        StringBuilder sql = new StringBuilder("select distinct fin from " + SCHEMA + ".dsm where etat = 'VALIDEE'");
-        operateur.ifPresent(o -> {
-            sql.append(" and operateur_id = :operateur");
-            parametres.put("operateur", o);
-        });
-        return jdbcClient.sql(sql.toString()).params(parametres)
+    public Set<AnneeDeclarative> anneesDeclarees(long operateur) {
+        return jdbcClient.sql("select distinct fin from " + SCHEMA + ".dsm where etat = 'VALIDEE'"
+                        + " and operateur_id = :operateur")
+                .param("operateur", operateur)
                 .query((rs, n) -> AnneeDeclarative.contenant(rs.getObject("fin", LocalDate.class)))
                 .list().stream().collect(Collectors.toSet());
     }

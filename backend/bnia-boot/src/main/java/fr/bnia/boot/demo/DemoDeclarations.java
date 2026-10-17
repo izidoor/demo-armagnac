@@ -122,6 +122,52 @@ public class DemoDeclarations implements ApplicationRunner {
         negoceDesLandes();
         maisonDurandCondom();
         domaineDeLaubade();
+        OperateursFacturesDemo.OPERATEURS.forEach(this::operateurFacture);
+    }
+
+    /**
+     * Volume de la facturation (spec 08 §7.1, lot 5), saisi par {@code saisie@demo.fr} : un négociant part du
+     * 1er janvier de l'année en cours, toutes ses DSM mensuelles jusqu'au mois dernier validées ; un producteur part
+     * du 1er avril, sa DSM de la dernière année déclarative close validée, avec ses douze DRM. L'export a son DAE
+     * (RG-DEC-29). Volumes variés d'un mois et d'un opérateur à l'autre.
+     */
+    private void operateurFacture(OperateursFacturesDemo.Operateur o) {
+        Long id = aCharger(o.code());
+        if (id == null) {
+            return;
+        }
+        int rang = OperateursFacturesDemo.rang(o);
+        Acteur saisie = membre(OperateursFacturesDemo.EMAIL_SAISIE);
+        LocalDate aujourdhui = LocalDate.now(horloge);
+        int annee = aujourdhui.getMonthValue() >= 4 ? aujourdhui.getYear() : aujourdhui.getYear() - 1;
+        LocalDate depart = o.negociant() ? moisCourant().withMonth(1) : LocalDate.of(annee - 1, Month.APRIL, 1);
+        String volume = o.negociant() ? "40000.00" : "6000.00";
+        points.fixer(anne, id, depart, List.of(
+                stock(CleConditionnement.NB, "VSOP", "5", volume),
+                stock(CleConditionnement.NB, "XO", "10", volume),
+                stock(CleConditionnement.MB, 2012 + rang % 5, null, volume)));
+        int nombre = o.negociant() ? moisCourant().getMonthValue() - 1 : 1;
+        for (int mois = 0; mois < nombre; mois++) {
+            Map<Integer, Map<ColonneDsm, String>> mouvements = o.export() == 0
+                    ? Map.of(0, Map.of(ColonneDsm.C17, OperateursFacturesDemo.litres(o.sortiesFrance(), rang, mois)))
+                    : Map.of(0, Map.of(ColonneDsm.C17, OperateursFacturesDemo.litres(o.sortiesFrance(), rang, mois)),
+                            1, Map.of(ColonneDsm.C22, OperateursFacturesDemo.litres(o.export(), rang, mois)));
+            DeclarationStocksMouvements dsm = remplir(saisie, id, mouvements).dsm();
+            if (!o.negociant()) {
+                for (YearMonth attendu : dsm.moisAttendus()) {
+                    pieces.deposerDrm(saisie, id, dsm.id(), attendu, pdf("drm-" + attendu + ".pdf"));
+                }
+            }
+            if (o.export() > 0) {
+                pieces.deposerJustificatif(saisie, id, dsm.id(), dsm.lignes().get(1).id(),
+                        TypeMouvement.VENTE_EXPORT, TypePiece.DAE,
+                        String.format("26FRA%013d", 500_000 + rang * 100 + mois), pdf("dae-export.pdf"));
+            }
+            dsms.envoyer(saisie, id, dsm.id(), null);
+            dsms.prendreEnInstruction(anne, id, dsm.id(), null);
+            dsms.valider(anne, id, dsm.id(), null);
+        }
+        LOG.info("Démo : {} DSM validée(s) pour {}.", nombre, o.raisonSociale());
     }
 
     /** La grille CVO (spec 05 §7.1) : chaque taux, s'il n'est pas déjà saisi (relançable). */

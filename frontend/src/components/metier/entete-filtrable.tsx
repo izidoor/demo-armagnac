@@ -1,5 +1,16 @@
 import { type Column } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown, Check, Filter } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Check,
+  EllipsisVertical,
+  Filter,
+  Group,
+  Pin,
+  PinOff,
+  Ungroup,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,6 +23,13 @@ import {
   CommandSeparator,
 } from '@/components/ui/command'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -21,8 +39,9 @@ const COLLATION = new Intl.Collator('fr', { numeric: true })
 
 /**
  * En-tête d'une colonne de TanStack Table, en français : un clic trie (croissant, décroissant, sans tri) ;
- * l'entonnoir filtre par valeurs, à cocher parmi celles des lignes (avec leur nombre), avec une recherche.
- * La colonne doit avoir `filterFn: filtreValeurs` et la table les modèles à facettes.
+ * l'entonnoir filtre par valeurs, à cocher parmi celles des lignes (avec leur nombre), avec une recherche ; le
+ * menu « ⋮ » épingle la colonne à gauche ou à droite, ou regroupe les lignes par ses valeurs, quand la table le
+ * permet. La colonne doit avoir `filterFn: filtreValeurs` et la table les modèles à facettes.
  */
 export function EnteteFiltrable<T>({
   column,
@@ -32,13 +51,15 @@ export function EnteteFiltrable<T>({
   aDroite = false,
 }: {
   column: Column<T, unknown>
-  titre: string
+  /** Le titre ; par défaut celui des métadonnées de la colonne (`meta.titre`). */
+  titre?: string
   /** Libellé d'une valeur dans la liste du filtre. */
   affichage?: (valeur: string) => string
   /** Ordre des valeurs dans la liste du filtre ; alphabétique par défaut. */
   ordre?: (a: string, b: string) => number
   aDroite?: boolean
 }) {
+  const libelle = titre ?? column.columnDef.meta?.titre ?? column.id
   const sens = column.getIsSorted()
   const filtrable = column.getCanFilter()
   const retenues = new Set((column.getFilterValue() as string[]) ?? [])
@@ -47,6 +68,9 @@ export function EnteteFiltrable<T>({
     .map((v) => String(v ?? ''))
     .filter((v, i, t) => t.indexOf(v) === i)
     .sort(ordre)
+  const epinglable = column.getCanPin()
+  const groupable = column.getCanGroup()
+  const epinglee = column.getIsPinned()
   const changer = (suivantes: Set<string>) =>
     column.setFilterValue(suivantes.size ? [...suivantes] : undefined)
 
@@ -63,7 +87,7 @@ export function EnteteFiltrable<T>({
         )}
         title='Trier'
       >
-        {titre}
+        {libelle}
         {sens === 'asc' ? (
           <ArrowUp className='size-3.5' />
         ) : sens === 'desc' ? (
@@ -84,7 +108,7 @@ export function EnteteFiltrable<T>({
                   ? 'text-primary'
                   : 'text-muted-foreground opacity-50 hover:opacity-100'
               )}
-              aria-label={`Filtrer « ${titre} »`}
+              aria-label={`Filtrer « ${libelle} »`}
             >
               <Filter className='size-3.5' />
             </Button>
@@ -145,6 +169,60 @@ export function EnteteFiltrable<T>({
             </Command>
           </PopoverContent>
         </Popover>
+      )}
+      {(epinglable || groupable) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant='ghost'
+              size='icon'
+              className={cn(
+                'size-6',
+                epinglee || column.getIsGrouped()
+                  ? 'text-primary'
+                  : 'text-muted-foreground opacity-50 hover:opacity-100'
+              )}
+              aria-label={`Options de la colonne « ${libelle} »`}
+            >
+              <EllipsisVertical className='size-3.5' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='start'>
+            {epinglable && (
+              <>
+                {epinglee !== 'left' && (
+                  <DropdownMenuItem onSelect={() => column.pin('left')}>
+                    <Pin className='size-4' /> Épingler à gauche
+                  </DropdownMenuItem>
+                )}
+                {epinglee !== 'right' && (
+                  <DropdownMenuItem onSelect={() => column.pin('right')}>
+                    <Pin className='size-4' /> Épingler à droite
+                  </DropdownMenuItem>
+                )}
+                {epinglee && (
+                  <DropdownMenuItem onSelect={() => column.pin(false)}>
+                    <PinOff className='size-4' /> Désépingler
+                  </DropdownMenuItem>
+                )}
+              </>
+            )}
+            {epinglable && groupable && <DropdownMenuSeparator />}
+            {groupable && (
+              <DropdownMenuItem onSelect={column.getToggleGroupingHandler()}>
+                {column.getIsGrouped() ? (
+                  <>
+                    <Ungroup className='size-4' /> Ne plus regrouper
+                  </>
+                ) : (
+                  <>
+                    <Group className='size-4' /> Regrouper par cette colonne
+                  </>
+                )}
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </div>
   )

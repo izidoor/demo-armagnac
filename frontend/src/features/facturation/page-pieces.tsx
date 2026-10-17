@@ -33,6 +33,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { PageMetier } from '@/components/metier/page-metier'
+import { Pagination } from '@/components/metier/pagination'
+import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import {
   formatDate,
   formatDateHeure,
@@ -292,150 +294,156 @@ export function TablePieces({
   const coches = selection
     ? pieces.filter((p) => selection.ids.has(p.id)).length
     : 0
+  const { lignes, pagination } = usePagination(pieces, TAILLE_PAGE)
   return (
-    <div className='rounded-md border'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {selection && (
-              <TableHead className='w-0'>
-                <Checkbox
-                  aria-label='Tout sélectionner'
-                  checked={
-                    coches > 0 && coches === pieces.length
-                      ? true
-                      : coches > 0
-                        ? 'indeterminate'
-                        : false
-                  }
-                  onCheckedChange={(v) =>
-                    selection.changer(v === true ? pieces.map((p) => p.id) : [])
-                  }
-                />
-              </TableHead>
-            )}
-            {brouillons ? (
-              <TableHead>Demandée le</TableHead>
-            ) : (
-              <>
-                <TableHead>Numéro</TableHead>
-                <TableHead>Date</TableHead>
-              </>
-            )}
-            {avecAcheteur && <TableHead>Acheteur</TableHead>}
-            <TableHead>Origine</TableHead>
-            <TableHead>Période</TableHead>
-            <TableHead className='text-right'>HT</TableHead>
-            <TableHead className='text-right'>TVA</TableHead>
-            <TableHead className='text-right'>TTC</TableHead>
-            <TableHead className='w-0' />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {pieces.length === 0 && (
+    <>
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell
-                colSpan={
-                  (brouillons ? 7 : 8) +
-                  (avecAcheteur ? 1 : 0) +
-                  (selection ? 1 : 0)
-                }
-                className='text-muted-foreground h-16 text-center'
-              >
-                {chargement
-                  ? 'Chargement…'
-                  : brouillons
-                    ? 'Aucun brouillon.'
-                    : 'Aucune pièce émise.'}
-              </TableCell>
-            </TableRow>
-          )}
-          {pieces.map((p) => (
-            <TableRow
-              key={p.id}
-              className='cursor-pointer'
-              onClick={() =>
-                navigate({
-                  to: '/bo/facturation/$id',
-                  params: { id: String(p.id) },
-                })
-              }
-            >
               {selection && (
-                <TableCell onClick={(e) => e.stopPropagation()}>
+                <TableHead className='w-0'>
                   <Checkbox
-                    aria-label={`Sélectionner ${p.reference ?? p.id}`}
-                    checked={selection.ids.has(p.id)}
+                    aria-label='Tout sélectionner'
+                    checked={
+                      coches > 0 && coches === pieces.length
+                        ? true
+                        : coches > 0
+                          ? 'indeterminate'
+                          : false
+                    }
                     onCheckedChange={(v) =>
                       selection.changer(
-                        v === true
-                          ? [...selection.ids, p.id]
-                          : [...selection.ids].filter((id) => id !== p.id)
+                        v === true ? pieces.map((p) => p.id) : []
                       )
                     }
                   />
-                </TableCell>
+                </TableHead>
               )}
               {brouillons ? (
-                <TableCell>{formatDateHeure(p.creeeLe)}</TableCell>
+                <TableHead>Demandée le</TableHead>
               ) : (
                 <>
-                  <TableCell className='font-mono font-medium'>
-                    {p.numero}
-                    {p.sens === 'AVOIR' && (
-                      <Badge variant='secondary' className='ms-2'>
-                        {SENS[p.sens]}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>{formatDate(p.dateEmission)}</TableCell>
+                  <TableHead>Numéro</TableHead>
+                  <TableHead>Date</TableHead>
                 </>
               )}
-              {avecAcheteur && (
-                <TableCell>
-                  {p.clientCode && (
-                    <span className='font-mono'>{p.clientCode} · </span>
-                  )}
-                  {p.acheteur}
-                </TableCell>
-              )}
-              <TableCell>
-                <span className='block'>{p.libelleNature ?? '—'}</span>
-                <span className='text-muted-foreground text-xs'>
-                  {p.reference}
-                </span>
-              </TableCell>
-              <TableCell>{p.libellePeriode}</TableCell>
-              <TableCell className='text-right tabular-nums'>
-                {formatEuros(p.ht)}
-              </TableCell>
-              <TableCell className='text-right tabular-nums'>
-                {formatEuros(p.tva)}
-              </TableCell>
-              <TableCell className='text-right font-medium tabular-nums'>
-                {formatEuros(p.ttc)}
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  asChild
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Link
-                    to='/bo/facturation/$id'
-                    params={{ id: String(p.id) }}
-                    aria-label={`Ouvrir la pièce ${p.numero ?? p.reference ?? p.id}`}
-                  >
-                    <ChevronRight className='size-4' />
-                  </Link>
-                </Button>
-              </TableCell>
+              {avecAcheteur && <TableHead>Acheteur</TableHead>}
+              <TableHead>Origine</TableHead>
+              <TableHead>Période</TableHead>
+              <TableHead className='text-right'>HT</TableHead>
+              <TableHead className='text-right'>TVA</TableHead>
+              <TableHead className='text-right'>TTC</TableHead>
+              <TableHead className='w-0' />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {pieces.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={
+                    (brouillons ? 7 : 8) +
+                    (avecAcheteur ? 1 : 0) +
+                    (selection ? 1 : 0)
+                  }
+                  className='text-muted-foreground h-16 text-center'
+                >
+                  {chargement
+                    ? 'Chargement…'
+                    : brouillons
+                      ? 'Aucun brouillon.'
+                      : 'Aucune pièce émise.'}
+                </TableCell>
+              </TableRow>
+            )}
+            {(lignes ?? []).map((p) => (
+              <TableRow
+                key={p.id}
+                className='cursor-pointer'
+                onClick={() =>
+                  navigate({
+                    to: '/bo/facturation/$id',
+                    params: { id: String(p.id) },
+                  })
+                }
+              >
+                {selection && (
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      aria-label={`Sélectionner ${p.reference ?? p.id}`}
+                      checked={selection.ids.has(p.id)}
+                      onCheckedChange={(v) =>
+                        selection.changer(
+                          v === true
+                            ? [...selection.ids, p.id]
+                            : [...selection.ids].filter((id) => id !== p.id)
+                        )
+                      }
+                    />
+                  </TableCell>
+                )}
+                {brouillons ? (
+                  <TableCell>{formatDateHeure(p.creeeLe)}</TableCell>
+                ) : (
+                  <>
+                    <TableCell className='font-mono font-medium'>
+                      {p.numero}
+                      {p.sens === 'AVOIR' && (
+                        <Badge variant='secondary' className='ms-2'>
+                          {SENS[p.sens]}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>{formatDate(p.dateEmission)}</TableCell>
+                  </>
+                )}
+                {avecAcheteur && (
+                  <TableCell>
+                    {p.clientCode && (
+                      <span className='font-mono'>{p.clientCode} · </span>
+                    )}
+                    {p.acheteur}
+                  </TableCell>
+                )}
+                <TableCell>
+                  <span className='block'>{p.libelleNature ?? '—'}</span>
+                  <span className='text-muted-foreground text-xs'>
+                    {p.reference}
+                  </span>
+                </TableCell>
+                <TableCell>{p.libellePeriode}</TableCell>
+                <TableCell className='text-right tabular-nums'>
+                  {formatEuros(p.ht)}
+                </TableCell>
+                <TableCell className='text-right tabular-nums'>
+                  {formatEuros(p.tva)}
+                </TableCell>
+                <TableCell className='text-right font-medium tabular-nums'>
+                  {formatEuros(p.ttc)}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    asChild
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Link
+                      to='/bo/facturation/$id'
+                      params={{ id: String(p.id) }}
+                      aria-label={`Ouvrir la pièce ${p.numero ?? p.reference ?? p.id}`}
+                    >
+                      <ChevronRight className='size-4' />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <Pagination {...pagination} />
+    </>
   )
 }
 

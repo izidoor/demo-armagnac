@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  PDF des ventes d'une période (spec 08, RG-FAC-30, A-FAC-10) : A4 portrait ; synthèse par article (quantité dans
+  l'unité de l'article, HT), récapitulatif de TVA (somme des récapitulatifs des pièces), totaux. Les lignes d'avoir
+  sont déjà déduites. XHTML bien formé (OpenHTMLtoPDF) : éléments vides fermés, aucune entité nommée. Les textes
+  arrivent mis en forme par PdfVentes (euros, quantités, dates).
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title th:text="'Ventes ' + ${periode}">Ventes</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 14mm 14mm 18mm 14mm;
+      @bottom-center { content: "Page " counter(page) " / " counter(pages); font: 7pt Helvetica, sans-serif; color: #666; }
+    }
+    body { font-family: Helvetica, sans-serif; font-size: 8.5pt; color: #111; }
+    h1 { font-size: 14pt; margin: 0 0 1mm 0; }
+    h2 { font-size: 10pt; margin: 6mm 0 2mm 0; }
+    .petit { color: #444; font-size: 7.5pt; margin-bottom: 5mm; }
+    table.lignes { width: 100%; border-collapse: collapse; -fs-table-paginate: paginate; }
+    table.lignes th, table.lignes td { border-bottom: 0.5pt solid #bbb; padding: 2pt 3pt; }
+    table.lignes thead th { background: #e8e8e8; text-align: left; }
+    .nombre { text-align: right; white-space: nowrap; }
+    table.totaux { border-collapse: collapse; margin-left: auto; margin-top: 4mm; }
+    table.totaux td { padding: 2pt 4pt; }
+    table.totaux tr.ttc td { font-weight: bold; font-size: 10pt; border-top: 1pt solid #111; }
+    p.vide { color: #555; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<h1 th:text="'Ventes ' + ${periode}">Ventes du 01/10/2026 au 31/12/2026</h1>
+<div class="petit">
+  Lignes article des factures et avoirs émis dans la période, à leur date d'émission ; les avoirs sont déduits.
+  <span th:text="${pieces} + ' pièce(s). Édité le ' + ${editeLe} + '.'">1 pièce(s). Édité le 07/10/2026.</span>
+</div>
+
+<h2>Par article</h2>
+<p class="vide" th:if="${#lists.isEmpty(articles)}">Aucune vente dans la période.</p>
+<table class="lignes" th:unless="${#lists.isEmpty(articles)}">
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Désignation</th>
+      <th class="nombre">Quantité</th>
+      <th class="nombre">Montant HT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="a : ${articles}">
+      <td th:text="${a.code}">CVO-SORTIES_FRANCE-S</td>
+      <td th:text="${a.designation}">Sorties France, part assujettie</td>
+      <td class="nombre" th:text="${a.quantite}">8,3911 hlAP</td>
+      <td class="nombre" th:text="${a.ht}">402,77 €</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Récapitulatif de TVA</h2>
+<table class="lignes" th:unless="${#lists.isEmpty(recapitulatif)}">
+  <thead>
+    <tr><th>TVA</th><th class="nombre">Base HT</th><th class="nombre">Montant</th></tr>
+  </thead>
+  <tbody>
+    <tr th:each="t : ${recapitulatif}">
+      <td th:text="${t.categorie}">20,00 %</td>
+      <td class="nombre" th:text="${t.base}">1 484,76 €</td>
+      <td class="nombre" th:text="${t.tva}">296,95 €</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="totaux">
+  <tr><td>Total HT</td><td class="nombre" th:text="${totaux.ht}">1 855,95 €</td></tr>
+  <tr><td>Total TVA</td><td class="nombre" th:text="${totaux.tva}">296,95 €</td></tr>
+  <tr class="ttc"><td>Total TTC</td><td class="nombre" th:text="${totaux.ttc}">2 152,90 €</td></tr>
+</table>
+
+</body>
+</html>
