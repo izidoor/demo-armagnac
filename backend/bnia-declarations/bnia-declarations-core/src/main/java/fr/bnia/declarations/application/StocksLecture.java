@@ -1,12 +1,14 @@
 package fr.bnia.declarations.application;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.domain.AnneeDeclarative;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /** Port de lecture des stocks déclarés (RG-DEC-42, UC-DEC-1, spec 05 §3.6). */
 public interface StocksLecture {
@@ -27,4 +29,13 @@ public interface StocksLecture {
      * opérateur et par type, dans l'ordre des lignes de chaque DSM.
      */
     List<LigneStock> stocksDeclares(Optional<Long> operateur, Optional<TypeDeclarant> type);
+
+    /**
+     * RG-DEC-44 : toutes les lignes, stock nul compris, des DSM validées de l'opérateur dont la période tient dans
+     * l'année, dans l'ordre des lignes de chaque DSM.
+     */
+    List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, long operateur);
+
+    /** RG-DEC-44 : les années déclaratives où l'opérateur a au moins une DSM validée. */
+    Set<AnneeDeclarative> anneesDeclarees(long operateur);
 }

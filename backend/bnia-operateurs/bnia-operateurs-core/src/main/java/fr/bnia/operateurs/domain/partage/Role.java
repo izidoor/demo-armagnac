@@ -23,8 +23,9 @@ public enum Role {
     /** Tableau rôles × modules (spec 02 §3.2.7) : tout rôle lit ; qui gère dépend du module. */
     public boolean gere(Module module) {
         return switch (module) {
-            case CONTACTS, PARAMETRAGE, DECLARATIONS -> this != OBSERVATEUR;
+            case CONTACTS, PARAMETRAGE, DECLARATIONS, FACTURATION -> this != OBSERVATEUR;
             case ACCES -> this == ADMIN;
+            case MESSAGERIE -> true;
         };
     }
 }

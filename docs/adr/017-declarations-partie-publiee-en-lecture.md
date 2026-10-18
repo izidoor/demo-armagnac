@@ -1,6 +1,6 @@
 # ADR-017 : `declarations`, partie publiée en lecture
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-14 (factures, ADR-021)
 - Date : 2026-10-13
 - Étend : l'exception des ADR-008 et ADR-012 (partie publiée en lecture), réservée jusqu'ici à
   `referentiels` et `operateurs`
@@ -63,3 +63,17 @@ Options écartées :
   ne se corrige que par un nouvel événement (avoir).
 - Les types des événements reçus de `contratsarmagnac` et `distillation` sont fixés par la spec 05 (§5.2)
   et confirmés par les specs 06 et 09, qui peuvent les compléter.
+
+## Amendement du 2026-10-14 (spec 08, ADR-021)
+- **Sens inversé** : `declarations` dépend désormais de `facturation`, par son infra et le module
+  `bnia-facturation-api`. `facturation` ne lit plus `declarations`.
+- **Types retirés** de la partie publiée de `declarations` : `FactureEmise` et `AvoirEmis` (publiés
+  par `facturation`, dans son API, avec l'`Origine` au lieu de la DSM, et `FactureAbandonnee` en plus) ;
+  `CotisationDsmVue` (plus lue : `declarations` envoie une demande de facture et expose ses articles de
+  cotisation par `CatalogueArticles`).
+- **Projection des factures conservée**, alimentée par les événements de `facturation`, écoutés dans
+  `adapter.evenement`. Elle est enrichie de « facturation demandée » et de « facture annulée » (spec 05,
+  RG-DEC-34 révisée).
+- Dépendances : `contratsarmagnac`, `distillation`, `notifications` et `statistiques` → `declarations` ;
+  `declarations-infra` → `facturation-api` ; `facturation` → `operateurs` → `referentiels` → `commun`.
+  Aucun cycle.

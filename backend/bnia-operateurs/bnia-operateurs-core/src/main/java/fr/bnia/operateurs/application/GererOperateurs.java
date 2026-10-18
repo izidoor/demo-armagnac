@@ -17,6 +17,7 @@ import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
 import fr.bnia.operateurs.domain.Invitation;
 import fr.bnia.operateurs.domain.NumeroAccise;
+import fr.bnia.operateurs.domain.NumeroTva;
 import fr.bnia.operateurs.domain.Operateur;
 import fr.bnia.operateurs.domain.Production;
 import fr.bnia.operateurs.domain.ProfilOperateur;
@@ -93,20 +94,23 @@ public class GererOperateurs {
         return listing.lister(filtre);
     }
 
-    /** La fiche, avec ce qu'elle signale (RG-OPE-02, 05, 09, 23) et les droits du lecteur (RG-OPE-31). */
+    /** La fiche, avec ce qu'elle signale (RG-OPE-02, 05, 06, 09, 23) et les droits du lecteur (RG-OPE-31). */
     public FicheOperateur fiche(Acteur acteur, long id) {
         Droits droits = habilitations.exigerLecture(acteur, id, Module.CONTACTS);
         Operateur operateur = personnes.operateur(id);
         Optional<SerieCode> serieAttendue = operateur.serieAttendueSiCodeNonConforme(
                 enFrance(operateur.identite().adresse().pays()));
         String groupe = operateur.identite().groupeNormalise();
+        Optional<String> emailFacturation = emailFacturation(operateur);
         return new FicheOperateur(
                 operateur,
-                operateur.champsManquants(),
+                operateur.manquePourFacturer(emailFacturation.isPresent()),
+                operateur.manquePourCertifier(),
+                operateur.identite().tvaDiscordante(),
                 serieAttendue.isEmpty(),
                 serieAttendue.flatMap(this::suivant),
                 groupe == null || operateur.estBnia() ? List.of() : listing.duGroupe(groupe, id),
-                emailFacturation(operateur),
+                emailFacturation,
                 droits);
     }
 
@@ -366,6 +370,7 @@ public class GererOperateurs {
                 s.groupe(),
                 Cvi.facultatif(s.cvi()),
                 Siret.facultatif(s.siret()),
+                NumeroTva.facultatif(s.numeroTva()),
                 NumeroAccise.facultatif(s.accise()),
                 s.bureauDouanes(),
                 s.identifiantOdg(),

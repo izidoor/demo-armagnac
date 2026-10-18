@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.bnia</groupId>
+        <artifactId>bnia-messagerie</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>bnia-messagerie-api</artifactId>
+    <name>BNIA : messagerie, API</name>
+    <description>Contexte messagerie : ce que les contextes métier appellent (Conversations) et implémentent (ObjetsConversables), Java pur (ADR-023). Seul module de messagerie dont dépendent les autres contextes, par leur infra.</description>
+    <!-- Java pur (ADR-023) : le noyau commun seul, pour ses exceptions métier. -->
+    <dependencies>
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-commun-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

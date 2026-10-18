@@ -151,14 +151,44 @@ public final class Operateur {
     }
 
     /**
-     * RG-OPE-02 : ce qui manque pour facturer ou certifier ; une fiche à laquelle il manque quelque chose
-     * est « incomplète », mais s'enregistre. Sans objet pour l'opérateur BNIA (RG-OPE-39).
+     * RG-OPE-02 : ce qui manque pour que la fiche soit facturable (acheteur légalement complet, spec 08
+     * RG-FAC-10) ; une fiche non facturable s'enregistre. Sans objet pour l'opérateur BNIA (RG-OPE-39).
+     *
+     * @param destinataireResolu le destinataire des factures donne une adresse e-mail (RG-OPE-23)
      */
-    public List<String> champsManquants() {
+    public List<String> manquePourFacturer(boolean destinataireResolu) {
         List<String> manquants = new ArrayList<>();
         if (estBnia()) {
             return manquants;
         }
+        if (identite.siret() == null) {
+            manquants.add("SIRET");
+        }
+        manquants.addAll(manqueDansLAdresse());
+        if (!destinataireResolu) {
+            manquants.add("destinataire des factures");
+        }
+        return manquants;
+    }
+
+    /**
+     * RG-OPE-02 : ce qui manque pour que la fiche soit certifiable (certificats d'export) ; une fiche non
+     * certifiable s'enregistre. Sans objet pour l'opérateur BNIA (RG-OPE-39).
+     */
+    public List<String> manquePourCertifier() {
+        List<String> manquants = new ArrayList<>();
+        if (estBnia()) {
+            return manquants;
+        }
+        manquants.addAll(manqueDansLAdresse());
+        if (production.region() == null) {
+            manquants.add("région");
+        }
+        return manquants;
+    }
+
+    private List<String> manqueDansLAdresse() {
+        List<String> manquants = new ArrayList<>();
         Adresse adresse = identite.adresse();
         if (adresse.ligne1() == null) {
             manquants.add("adresse");
@@ -171,9 +201,6 @@ public final class Operateur {
         }
         if (adresse.pays() == null) {
             manquants.add("pays");
-        }
-        if (production.region() == null) {
-            manquants.add("région");
         }
         return manquants;
     }

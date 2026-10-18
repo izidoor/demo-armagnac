@@ -1,6 +1,6 @@
 # ADR-014 : Un module parent par contexte, sous-modules -core et -infra
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-14 (sous-module `-api`, ADR-021)
 - Date : 2026-10-08
 - Remplace : la structure en modules de l'ADR-010 (un module par contexte, couches en packages)
 
@@ -39,3 +39,12 @@ pour son nombre de poms ; deux sous-modules suffisent à sortir Spring du cœur.
 - Chaque nouveau contexte demande trois poms (parent, `-core`, `-infra`), une entrée dans les
   `<modules>` du pom racine, une dépendance de `bnia-boot` vers son `-infra` et un schéma dans
   `spring.flyway.schemas`.
+
+## Amendement du 2026-10-14 (spec 08, ADR-021)
+- **Sous-module `-api`** : un contexte que d'autres appellent ou dont ils implémentent un port (au-delà
+  d'une lecture) publie un troisième sous-module, `bnia-<contexte>-api`, en Java pur : interfaces,
+  types échangés, événements. Son `-core` en dépend. Premier cas : `bnia-facturation-api`.
+- **Dépendances** : l'**infra** d'un contexte peut dépendre du `-api` d'un autre, son core jamais
+  (hexagonale stricte). Un `-infra` ne dépend toujours d'aucun autre `-infra` que `bnia-commun-infra`.
+- Les dépendances de `-core` à `-core` restent celles des parties publiées en lecture (ADR-008, 012,
+  017).

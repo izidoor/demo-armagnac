@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,9 +11,9 @@ import {
   type FicheOperateur,
 } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
+import { CadreEditable } from '@/components/metier/cadre-editable'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { type Espace } from '../commun/api'
@@ -44,6 +44,7 @@ const schema = z.object({
   groupe: z.string(),
   cvi: z.string(),
   siret: z.string(),
+  numeroTva: z.string(),
   accise: z.string(),
   bureauDouanes: z.string(),
   identifiantOdg: z.string(),
@@ -78,6 +79,7 @@ function depuis(f: FicheOperateur): Saisie {
     groupe: versTexte(f.groupe),
     cvi: versTexte(f.cvi),
     siret: versTexte(f.siret),
+    numeroTva: versTexte(f.numeroTva),
     accise: versTexte(f.accise),
     bureauDouanes: versTexte(f.bureauDouanes),
     identifiantOdg: versTexte(f.identifiantOdg),
@@ -136,6 +138,7 @@ function versIdentite(s: Saisie, version: number) {
     groupe: texte(s.groupe),
     cvi: texte(s.cvi),
     siret: texte(s.siret),
+    numeroTva: texte(s.numeroTva),
     accise: texte(s.accise),
     bureauDouanes: texte(s.bureauDouanes),
     identifiantOdg: texte(s.identifiantOdg),
@@ -143,6 +146,20 @@ function versIdentite(s: Saisie, version: number) {
     membreBnia: identifiant(s.membreBnia),
     commentaireInterne: texte(s.commentaireInterne),
   }
+}
+
+/** Le cadre en édition ; un seul à la fois, chacun enregistrant toute la fiche. */
+type Cadre = 'identite' | 'coordonnees' | 'designations'
+
+/** Une adresse web, cliquable. */
+function lien(url?: string | null) {
+  return (
+    url && (
+      <a href={url} target='_blank' rel='noreferrer' className='underline'>
+        {url}
+      </a>
+    )
+  )
 }
 
 type OngletGeneralProps = {
@@ -153,9 +170,10 @@ type OngletGeneralProps = {
 
 /**
  * Onglet Général : identité, coordonnées, membre BNIA, accord de diffusion, commentaire interne ; puis
- * contact principal et destinataire des factures. Hors du personnel du BNIA, seuls les champs de
- * RG-OPE-36 se modifient, et le commentaire interne n'apparaît pas ; sans la gestion du module
- * Contacts, tout est en lecture.
+ * contact principal et destinataire des factures. Chaque cadre s'affiche en lecture ; « Éditer » le
+ * passe en saisie, un cadre à la fois. Hors du personnel du BNIA, seuls les champs de RG-OPE-36 se
+ * modifient, et le commentaire interne n'apparaît pas ; sans la gestion du module Contacts, pas
+ * d'« Éditer ».
  */
 export function OngletGeneral({
   espace,
@@ -164,6 +182,7 @@ export function OngletGeneral({
 }: OngletGeneralProps) {
   const bo = fiche.droits.personnelBnia
   const gestion = fiche.droits.contacts === 'GESTION'
+  const [cadre, setCadre] = useState<Cadre | null>(null)
   const titres = useListe('titres')
   const pays = useListe('pays')
   const membres = useListe('membresBnia')
@@ -192,6 +211,11 @@ export function OngletGeneral({
     enabled: bo,
   })
 
+  const annuler = () => {
+    form.reset(depuis(fiche))
+    setCadre(null)
+  }
+
   const mutation = useMutation({
     mutationFn: (s: Saisie) =>
       bo
@@ -206,7 +230,10 @@ export function OngletGeneral({
             throwOnError: true,
           }),
     meta: { erreurAffichee: true },
-    onSuccess: onEnregistre,
+    onSuccess: () => {
+      setCadre(null)
+      onEnregistre()
+    },
     onError: (error) =>
       afficherErreur(form, error, {
         'RG-OPE-01': 'type',
@@ -224,6 +251,19 @@ export function OngletGeneral({
     ) : (
       <Lecture label={label} valeur={valeur} />
     )
+  const cadreDe = (cle: Cadre) => ({
+    edition: cadre === cle,
+    modifiable: gestion,
+    bloque: cadre != null,
+    onEditer: () => setCadre(cle),
+    onAnnuler: annuler,
+    enregistrement: mutation.isPending,
+  })
+  const tvaDiscordante = fiche.tvaDiscordante && (
+    <p className='text-sm text-amber-700 dark:text-amber-400'>
+      Le n° de TVA ne concorde pas avec le SIRET.
+    </p>
+  )
 
   return (
     <div className='space-y-4'>
@@ -233,12 +273,9 @@ export function OngletGeneral({
           className='space-y-4'
         >
           <ErreurRacine errors={form.formState.errors} />
-          <fieldset disabled={!gestion} className='space-y-4'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Identité</CardTitle>
-              </CardHeader>
-              <CardContent className='grid gap-4 md:grid-cols-3'>
+          <CadreEditable titre='Identité' {...cadreDe('identite')}>
+            {cadre === 'identite' ? (
+              <div className='grid gap-4 md:grid-cols-3'>
                 {bo && fiche.type !== 'BNIA' ? (
                   <ChampChoix
                     control={c}
@@ -309,6 +346,14 @@ export function OngletGeneral({
                   <AlerteDoublons doublons={doublons} champ='SIRET' />
                 </div>
                 <div className='space-y-1'>
+                  {ouvert(
+                    'N° de TVA intracommunautaire',
+                    'numeroTva',
+                    fiche.numeroTva
+                  )}
+                  {tvaDiscordante}
+                </div>
+                <div className='space-y-1'>
                   {ouvert("N° d'accise", 'accise', fiche.accise)}
                   <AlerteDoublons doublons={doublons} champ='ACCISE' />
                 </div>
@@ -339,13 +384,47 @@ export function OngletGeneral({
                     valeur={membres.libelle(fiche.membreBnia)}
                   />
                 )}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Coordonnées</CardTitle>
-              </CardHeader>
-              <CardContent className='grid gap-4 md:grid-cols-3'>
+              </div>
+            ) : (
+              <div className='grid gap-4 md:grid-cols-3'>
+                <Lecture label='Type' valeur={TYPES[fiche.type]} />
+                <Lecture label='Code' valeur={fiche.code} />
+                <Lecture label='Groupe' valeur={fiche.groupe} />
+                <Lecture label='Titre' valeur={titres.libelle(fiche.titre)} />
+                <Lecture
+                  label='Raison sociale'
+                  valeur={fiche.raisonSociale}
+                  className='md:col-span-2'
+                />
+                <Lecture label='Nom commercial' valeur={fiche.nomCommercial} />
+                <Lecture label='CVI' valeur={fiche.cvi} />
+                <Lecture label='SIRET' valeur={fiche.siret} />
+                <div className='space-y-1'>
+                  <Lecture
+                    label='N° de TVA intracommunautaire'
+                    valeur={fiche.numeroTva}
+                  />
+                  {tvaDiscordante}
+                </div>
+                <Lecture label="N° d'accise" valeur={fiche.accise} />
+                <Lecture
+                  label='Bureau des douanes'
+                  valeur={fiche.bureauDouanes}
+                />
+                <Lecture
+                  label='Identifiant tiers ODG'
+                  valeur={fiche.identifiantOdg}
+                />
+                <Lecture
+                  label='Membre BNIA'
+                  valeur={membres.libelle(fiche.membreBnia)}
+                />
+              </div>
+            )}
+          </CadreEditable>
+          <CadreEditable titre='Coordonnées' {...cadreDe('coordonnees')}>
+            {cadre === 'coordonnees' ? (
+              <div className='grid gap-4 md:grid-cols-3'>
                 <ChampTexte control={c} name='adresseLigne1' label='Adresse' />
                 <ChampTexte
                   control={c}
@@ -413,16 +492,49 @@ export function OngletGeneral({
                     className='md:col-span-3'
                   />
                 )}
-              </CardContent>
-            </Card>
-          </fieldset>
-          {gestion && (
-            <div className='flex justify-end'>
-              <Button type='submit' disabled={mutation.isPending}>
-                Enregistrer
-              </Button>
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className='grid gap-4 md:grid-cols-3'>
+                <Lecture label='Adresse' valeur={fiche.adresseLigne1} />
+                <Lecture label='Complément' valeur={fiche.adresseLigne2} />
+                <Lecture
+                  label='Complément (suite)'
+                  valeur={fiche.adresseLigne3}
+                />
+                <Lecture label='Code postal' valeur={fiche.codePostal} />
+                <Lecture label='Ville' valeur={fiche.ville} />
+                <Lecture label='Pays' valeur={pays.libelle(fiche.pays)} />
+                <Lecture label='Téléphone 1' valeur={fiche.telephone1} />
+                <Lecture label='Téléphone 2' valeur={fiche.telephone2} />
+                <Lecture label='Portable' valeur={fiche.portable} />
+                <Lecture label='E-mail général' valeur={fiche.emailGeneral} />
+                <Lecture label='Site web' valeur={lien(fiche.siteWeb)} />
+                <Lecture
+                  label='Site commercial'
+                  valeur={lien(fiche.siteCommercial)}
+                />
+                <Lecture label='Latitude' valeur={fiche.latitude} />
+                <Lecture label='Longitude' valeur={fiche.longitude} />
+                <Lecture
+                  label='Accord de diffusion général'
+                  valeur={fiche.accordDiffusionGeneral ? 'Oui' : 'Non'}
+                />
+                {bo && (
+                  <Lecture
+                    label='Commentaire interne'
+                    valeur={
+                      fiche.commentaireInterne && (
+                        <span className='whitespace-pre-line'>
+                          {fiche.commentaireInterne}
+                        </span>
+                      )
+                    }
+                    className='md:col-span-3'
+                  />
+                )}
+              </div>
+            )}
+          </CadreEditable>
         </form>
       </Form>
 
@@ -451,6 +563,10 @@ export function OngletGeneral({
       <Designations
         key={fiche.version}
         fiche={fiche}
+        edition={cadre === 'designations'}
+        bloque={cadre != null}
+        onEditer={() => setCadre('designations')}
+        onFermer={() => setCadre(null)}
         onEnregistre={onEnregistre}
       />
     </div>

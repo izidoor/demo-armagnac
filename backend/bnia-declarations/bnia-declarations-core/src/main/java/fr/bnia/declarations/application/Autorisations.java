@@ -67,15 +67,6 @@ final class Autorisations {
     }
 
     /**
-     * RG-DEC-01, 24 : écrire un commentaire, comme l'opérateur (son propre rôle) ou, à défaut, comme le BNIA.
-     *
-     * @return le côté de l'auteur
-     */
-    Cote exigerCommentaire(Acteur acteur, long operateur) {
-        return exigerCote(acteur, operateur, "commenter les");
-    }
-
-    /**
      * RG-DEC-01, 28 : déposer ou supprimer une pièce, comme l'opérateur ou comme le BNIA ; l'état permis
      * dépend du côté.
      *
@@ -104,6 +95,17 @@ final class Autorisations {
      */
     static Cote cote(Droits droits) {
         return droits.local().isPresent() ? Cote.OPERATEUR : Cote.BNIA;
+    }
+
+    /**
+     * RG-DEC-43 : facturer une DSM, réservé à qui gère la facturation au BNIA (spec 08 §3.12) ; {@code facturation}
+     * revérifie.
+     */
+    void exigerFacturation(Acteur acteur) {
+        if (!droits(acteur, operateurs.operateurBnia()).gere(Module.FACTURATION)) {
+            throw new AccesRefuse("RG-DEC-43",
+                    "Facturer une DSM est réservé au personnel du BNIA qui gère le module « Facturation ».");
+        }
     }
 
     /** RG-DEC-01 : lire les DSM de tous les opérateurs (listing du BNIA, UC-DEC-7). */

@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
-@Schema(name = "FicheOperateur", description = "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur")
+@Schema(name = "FicheOperateur", description = "Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 06, 09) et les droits du lecteur")
 public record FicheOperateurResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) long id,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) TypeOperateur type,
@@ -25,6 +25,7 @@ public record FicheOperateurResponse(
         String groupe,
         String cvi,
         String siret,
+        @Schema(description = "N° de TVA intracommunautaire (RG-OPE-06)") String numeroTva,
         String accise,
         String bureauDouanes,
         String identifiantOdg,
@@ -66,8 +67,12 @@ public record FicheOperateurResponse(
         @Schema(description = "Fiche professionnelle du destinataire des factures (RG-OPE-23)") Long destinataireFacturesFiche,
         @Schema(description = "Adresse saisie du destinataire des factures (RG-OPE-23)") String destinataireFacturesEmail,
         @Schema(description = "Adresse qui en résulte, lue par la facturation (RG-OPE-23)") String emailFacturation,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète")
-        List<String> champsManquants,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Ce qui manque pour facturer (RG-OPE-02) ; vide si la fiche est facturable")
+        List<String> manquePourFacturer,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Ce qui manque pour certifier (RG-OPE-02) ; vide si la fiche est certifiable")
+        List<String> manquePourCertifier,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Le n° de TVA ne concorde pas avec le SIRET : avertissement (RG-OPE-06)")
+        boolean tvaDiscordante,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Faux si le code n'a plus la forme de son type ou de son département (RG-OPE-05)")
         boolean codeConforme,
         @Schema(description = "Si le code n'est plus conforme : le code qu'« attribuer un nouveau code » donnerait") String codePropose,
@@ -87,9 +92,9 @@ public record FicheOperateurResponse(
         IdentiteOperateur i = o.identite();
         var a = i.adresse();
         return new FicheOperateurResponse(o.id(), o.type(), o.code().valeur(), i.groupe(), texte(i.cvi()),
-                texte(i.siret()), texte(i.accise()), i.bureauDouanes(), i.identifiantOdg(), i.titre(),
-                i.raisonSociale(), i.nomCommercial(), a.ligne1(), a.ligne2(), a.ligne3(), a.codePostal(), a.ville(),
-                a.pays(), i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral()), texte(i.siteWeb()),
+                texte(i.siret()), texte(i.numeroTva()), texte(i.accise()), i.bureauDouanes(), i.identifiantOdg(),
+                i.titre(), i.raisonSociale(), i.nomCommercial(), a.ligne1(), a.ligne2(), a.ligne3(), a.codePostal(),
+                a.ville(), a.pays(), i.telephone1(), i.telephone2(), i.portable(), texte(i.emailGeneral()), texte(i.siteWeb()),
                 texte(i.siteCommercial()), i.gps() == null ? null : i.gps().latitude(),
                 i.gps() == null ? null : i.gps().longitude(), i.membreBnia(), i.accordDiffusionGeneral(),
                 bnia ? i.commentaireInterne() : null, o.declaratif().periodicite(),
@@ -103,7 +108,8 @@ public record FicheOperateurResponse(
                 o.destinataireFactures().map(DestinataireFactures::fiche).orElse(null),
                 o.destinataireFactures().map(d -> texte(d.adresse())).orElse(null),
                 fiche.emailFacturation().orElse(null),
-                fiche.champsManquants(), fiche.codeConforme(),
+                fiche.manquePourFacturer(), fiche.manquePourCertifier(), fiche.tvaDiscordante(),
+                fiche.codeConforme(),
                 bnia ? fiche.codePropose().map(CodeOperateur::valeur).orElse(null) : null,
                 bnia ? fiche.autresDuGroupe().stream().map(OperateurResumeResponse::depuis).toList() : List.of(),
                 o.version(), DroitsResponse.depuis(fiche.droits()));

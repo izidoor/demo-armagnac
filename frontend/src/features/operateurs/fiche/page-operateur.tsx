@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, TriangleAlert } from 'lucide-react'
@@ -12,33 +12,30 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { OngletDeclarations } from '@/features/declarations/onglet-declarations'
+import { OngletFactures } from '@/features/facturation/onglet-factures'
 import { apiOperateur, cleOperateur, type Espace } from '../commun/api'
 import { TYPES } from '../commun/libelles'
 import { OngletAnnuaire } from '../personnes/annuaire'
-import { OngletJournal } from '../personnes/journal'
 import { OngletDiffusion } from './onglet-diffusion'
 import { OngletGeneral } from './onglet-general'
 import { OngletProduction } from './onglet-production'
-import {
-  SectionMarques,
-  SectionOenotourisme,
-  SectionVisitesLabels,
-} from './presentation'
+import { SectionOenotourisme } from './presentation'
 import { usePresentation } from './use-presentation'
 
 type Action = 'desactiver' | 'reactiver' | 'supprimer'
 
 /**
  * Fiche opérateur par onglets (spec 02, §6.1), ouverte sans changer d'opérateur actif ; au portail,
- * « Mon entreprise » (§6.2), dans les mêmes onglets, l'annuaire ayant son propre menu. Pour l'opérateur
- * BNIA, une fiche réduite : identité, coordonnées et annuaire (RG-OPE-39). Ce que l'on peut faire suit
+ * « Mon entreprise » (§6.2), dans les mêmes onglets, l'annuaire ayant son propre menu. La fiche réduite de
+ * l'opérateur BNIA (RG-OPE-39) est dans les paramètres de l'application (`SectionBnia`). Ce que l'on peut faire suit
  * les droits renvoyés avec la fiche (RG-OPE-31, 32, 36). Au back-office, un producteur ou un négociant a
- * l'onglet « Déclarations », fourni par {@code declarations} (spec 05 §6.1).
+ * l'onglet « Stocks & Mouvements », fourni par {@code declarations} (spec 05 §6.1).
  */
 export function PageOperateur({
   espace,
@@ -104,7 +101,6 @@ export function PageOperateur({
     )
   }
 
-  const bnia = fiche.type === 'BNIA'
   const droits = fiche.droits
   const avecAnnuaire = bo
   const avecDeclarations =
@@ -116,7 +112,7 @@ export function PageOperateur({
       }
       description={
         <span className='flex flex-wrap items-center gap-2'>
-          {bo && !bnia && (
+          {bo && (
             <Button
               variant='link'
               className='h-auto p-0'
@@ -132,8 +128,7 @@ export function PageOperateur({
         </span>
       }
       actions={
-        droits.adminBnia &&
-        !bnia && (
+        droits.adminBnia && (
           <div className='flex gap-2'>
             <Button
               variant='outline'
@@ -154,18 +149,27 @@ export function PageOperateur({
       }
     >
       <div className='mb-4 space-y-2'>
-        {!bnia && fiche.champsManquants.length > 0 && (
-          <Alert>
+        {fiche.manquePourFacturer.length > 0 && (
+          <Alert variant='warning'>
             <TriangleAlert />
-            <AlertTitle>Fiche incomplète</AlertTitle>
+            <AlertTitle>Impossible de facturer</AlertTitle>
             <AlertDescription>
-              Il manque, pour facturer ou certifier :{' '}
-              {fiche.champsManquants.join(', ')}.
+              La fiche de l'opérateur n'est pas correctement renseignée. Il
+              manque : {fiche.manquePourFacturer.join(', ')}.
+            </AlertDescription>
+          </Alert>
+        )}
+        {fiche.manquePourCertifier.length > 0 && (
+          <Alert variant='warning'>
+            <TriangleAlert />
+            <AlertTitle>Non certifiable</AlertTitle>
+            <AlertDescription>
+              Il manque : {fiche.manquePourCertifier.join(', ')}.
             </AlertDescription>
           </Alert>
         )}
         {droits.personnelBnia && !fiche.codeConforme && (
-          <Alert>
+          <Alert variant='warning'>
             <TriangleAlert />
             <AlertTitle>Code non conforme</AlertTitle>
             <AlertDescription className='flex flex-wrap items-center gap-2'>
@@ -185,31 +189,31 @@ export function PageOperateur({
         )}
       </div>
       <Tabs defaultValue={onglet}>
-        <TabsList className='flex-wrap'>
-          <TabsTrigger value='general'>
-            {bnia ? 'Fiche' : 'Général'}
-          </TabsTrigger>
-          {!bnia && (
-            <>
-              <TabsTrigger value='production'>Production</TabsTrigger>
-              <TabsTrigger value='diffusion'>
-                Diffusion et statistiques
-              </TabsTrigger>
-              <TabsTrigger value='marques'>Marques</TabsTrigger>
-              <TabsTrigger value='visites'>Visites et labels</TabsTrigger>
-              <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
-            </>
+        {/* Au back-office, deux groupes d'onglets : la fiche, qui décrit l'opérateur, et son activité. Au portail,
+            la fiche seule, sans libellé : l'activité a ses propres menus (déclarations, factures). */}
+        <div className='flex flex-wrap items-end gap-x-8 gap-y-4'>
+          <GroupeOnglets libelle={bo ? "Fiche de l'opérateur" : undefined}>
+            <TabsTrigger value='general'>Général</TabsTrigger>
+            {avecAnnuaire && (
+              <TabsTrigger value='annuaire'>Contacts</TabsTrigger>
+            )}
+            <TabsTrigger value='production'>Production</TabsTrigger>
+            <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
+            <TabsTrigger value='diffusion'>Statistiques</TabsTrigger>
+          </GroupeOnglets>
+          {bo && (
+            <GroupeOnglets libelle='Suivi des activités'>
+              {avecDeclarations && (
+                <TabsTrigger value='declarations'>
+                  Stocks & Mouvements
+                </TabsTrigger>
+              )}
+              <TabsTrigger value='contrats'>Contrats</TabsTrigger>
+              <TabsTrigger value='exportations'>Exportations</TabsTrigger>
+              <TabsTrigger value='factures'>Factures</TabsTrigger>
+            </GroupeOnglets>
           )}
-          {avecDeclarations && (
-            <TabsTrigger value='declarations'>Déclarations</TabsTrigger>
-          )}
-          {avecAnnuaire && (
-            <>
-              <TabsTrigger value='annuaire'>Annuaire</TabsTrigger>
-              <TabsTrigger value='journal'>Journal</TabsTrigger>
-            </>
-          )}
-        </TabsList>
+        </div>
         <TabsContent value='general'>
           <OngletGeneral
             espace={espace}
@@ -217,32 +221,26 @@ export function PageOperateur({
             onEnregistre={enregistre(rafraichir)}
           />
         </TabsContent>
-        {!bnia && (
-          <>
-            <TabsContent value='production'>
-              <OngletProduction
-                fiche={fiche}
-                onEnregistre={enregistre(rafraichir)}
-              />
-            </TabsContent>
-            <TabsContent value='diffusion'>
-              <OngletDiffusion
-                key={`${fiche.version}`}
-                fiche={fiche}
-                onEnregistre={enregistre(rafraichir)}
-              />
-            </TabsContent>
-            <TabsContent value='marques'>
-              <SectionMarques presentation={presentation} />
-            </TabsContent>
-            <TabsContent value='visites'>
-              <SectionVisitesLabels presentation={presentation} />
-            </TabsContent>
-            <TabsContent value='oenotourisme'>
-              <SectionOenotourisme presentation={presentation} />
-            </TabsContent>
-          </>
-        )}
+        <TabsContent value='production'>
+          <OngletProduction
+            fiche={fiche}
+            presentation={presentation}
+            onEnregistre={enregistre(rafraichir)}
+          />
+        </TabsContent>
+        <TabsContent value='diffusion'>
+          <OngletDiffusion
+            key={`${fiche.version}`}
+            fiche={fiche}
+            onEnregistre={enregistre(rafraichir)}
+          />
+        </TabsContent>
+        <TabsContent value='oenotourisme'>
+          <SectionOenotourisme
+            presentation={presentation}
+            modifiable={droits.contacts === 'GESTION'}
+          />
+        </TabsContent>
         {avecDeclarations && (
           <TabsContent value='declarations'>
             <OngletDeclarations
@@ -253,14 +251,25 @@ export function PageOperateur({
           </TabsContent>
         )}
         {avecAnnuaire && (
-          <>
-            <TabsContent value='annuaire'>
-              <OngletAnnuaire espace={espace} operateur={id} droits={droits} />
-            </TabsContent>
-            <TabsContent value='journal'>
-              <OngletJournal operateur={id} />
-            </TabsContent>
-          </>
+          <TabsContent value='annuaire'>
+            <OngletAnnuaire
+              espace={espace}
+              operateur={id}
+              droits={droits}
+              avecJournal
+            />
+          </TabsContent>
+        )}
+        <TabsContent value='contrats'>
+          <AVenir titre='Contrats' />
+        </TabsContent>
+        <TabsContent value='exportations'>
+          <AVenir titre='Exportations' />
+        </TabsContent>
+        {bo && (
+          <TabsContent value='factures'>
+            <OngletFactures operateur={id} />
+          </TabsContent>
         )}
       </Tabs>
       <ConfirmDialog
@@ -293,6 +302,38 @@ export function PageOperateur({
         handleConfirm={() => action && etat.mutate(action)}
       />
     </PageMetier>
+  )
+}
+
+/** Une barre d'onglets, sous le libellé de son groupe. */
+function GroupeOnglets({
+  libelle,
+  children,
+}: {
+  libelle?: string
+  children: ReactNode
+}) {
+  return (
+    <div className='space-y-1.5'>
+      {libelle && (
+        <div className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
+          {libelle}
+        </div>
+      )}
+      <TabsList className='flex-wrap'>{children}</TabsList>
+    </div>
+  )
+}
+
+/** Un onglet réservé à un contexte pas encore livré (contrats, suivis de sortie export). */
+function AVenir({ titre }: { titre: string }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{titre}</CardTitle>
+      </CardHeader>
+      <CardContent className='text-muted-foreground'>À venir.</CardContent>
+    </Card>
   )
 }
 

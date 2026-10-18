@@ -14,10 +14,21 @@ type AppTitleProps = {
   espace: Espace
 }
 
-/** Titre de l'espace et bouton du menu ; l'opérateur actif se choisit dans l'en-tête (`SelecteurOperateur`). */
+/**
+ * Titre de l'espace et bouton du menu ; l'opérateur actif se choisit dans l'en-tête (`SelecteurOperateur`).
+ * Repliée en icônes, la sidebar ne montre que le bouton : c'est le seul, l'en-tête n'en a que sur mobile.
+ */
 export function AppTitle({ espace }: AppTitleProps) {
-  const { setOpenMobile } = useSidebar()
+  const { setOpenMobile, state, isMobile } = useSidebar()
 
+  if (state === 'collapsed' && !isMobile)
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <ToggleSidebar />
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
   return (
     <SidebarMenu>
       <SidebarMenuItem>

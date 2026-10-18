@@ -47,9 +47,10 @@ porte ce suivi :
 - la **déclaration de stocks et mouvements** (DSM) : l'opérateur l'initie pour la période qui suit sa
   dernière DSM validée (ou son point de départ fixé par le BNIA), la remplit au portail par saisie ou
   import Excel, y joint justificatifs et, s'il est producteur, ses DRM, puis l'envoie ; le BNIA
-  l'instruit (commentaires, demande de compléments) et la valide, ce qui la fige (analyse §2) ;
+  l'instruit (messages, notes internes, demande de compléments) et la valide, ce qui la fige (analyse §2) ;
 - la **cotisation** de la DSM (`CVO`) : assiette selon le type de déclarant, taux daté administré par
-  le BNIA, détail transmis à `facturation`, qui émet la facture ;
+  le BNIA ; le BNIA **facture** les DSM validées en demandant leurs factures à `facturation`, qui les émet
+  (révision de la spec 08 §3.13) ;
 - les **stocks** : le stock déclaré (fin de la dernière DSM validée), livré maintenant ; le stock
   estimé, les engagements, le stock disponible et le bilan prévisionnel d'un contrat, spécifiés ici
   comme contrat d'interface et livrés avec `contratsarmagnac` et `distillation` (décision du
@@ -87,16 +88,17 @@ statut de déclaration, p.101-102) · C.8.3.1 (DSM liée à la facture, p.124) �
 | Contrôles | Contrôles de cohérence (calculs, reprise, unicité, continuité), bloquants à l'envoi ; pièces, bloquantes à la validation | — | §4.4.7 p.26-27, §5.4.7 p.65-66, analyse §2 |
 | Pièces | Justificatif : fichier déposé, type de pièce, référence DAE/DAI facultative, rattaché à la DSM ou à une ligne (décision du 2026-10-13) | `Justificatif` | §4.4.5 p.25-26, C.3.3.1 p.111 |
 | Pièces | DRM d'un producteur, une par mois de la période ; supprimée puis redéposée tant que la DSM est modifiable (décision du 2026-10-13) | `Drm` | §4.4.6 p.26, §5.4.6 p.65, C.3.4.1 p.111 |
-| Instruction | Commentaire d'instruction (DSM ou ligne), demande de compléments, validation | `Commentaire` | §4.4.5 p.26, C.3.3.1 p.111, analyse §2 |
+| Instruction | Note interne (DSM ou ligne), demande de compléments, validation ; les échanges avec l'opérateur sont des messages (`messagerie`, spec 15) | `NoteInterne` | §4.4.5 p.26, C.3.3.1 p.111, analyse §2, spec 15 |
 | Instruction | Journal des actions de la DSM, en ajout seul, sans valeurs avant et après (décision du 2026-10-13) | `JournalDeclarations` | §4.4.10 p.29 |
 | Suivi | DSM en retard ou absentes, détectées par un traitement planifié ; événements pour `notifications` | — | §4.4.8 p.27, analyse UC-DEC-11 |
 | Cotisation | Grille des taux `CVO` datés, administrée par le BNIA dans le menu Paramétrage (décision du 2026-10-13) | `GrilleCotisation`, `TauxCotisation` | §4.11.2 p.52, C.10.3 p.128 |
 | Cotisation | Calcul : assiette selon le type de déclarant, taux en vigueur en fin de période, détail par ligne de facture | `PolitiqueCotisation` | §4.4.9 p.27-28, §4.9.3 p.44-45, analyse §3 |
 | Stocks | Stock déclaré : fin de la dernière DSM validée, par ligne, livré maintenant | — | analyse UC-DEC-1, §4.10.5 p.49 |
 | Stocks | Stock estimé, engagements, stock disponible, bilan prévisionnel : contrat d'interface, livré avec 6 et 9 (décision du 2026-10-13) | — | analyse UC-DEC-2 et §4.3 |
-| Lecture publiée | Cotisation d'une DSM (`facturation`), stock déclaré et dernière DSM d'un opérateur (fiche opérateur) ; étendue par les specs consommatrices (décision du 2026-10-13) | `DeclarationsLecture` | analyse §4.2, ADR-012, A-DEC-1 |
-| Lecture publiée | Types des événements émis et reçus (`contratsarmagnac`, `distillation`, `facturation`) | `DsmEnvoyee`, `ContratValide`, `FactureEmise`… | analyse §4.3, ADR-013, A-DEC-1 |
-| Projection | Factures et avoirs des DSM (numéro, date, montants), reçus de `facturation` par événements (A-DEC-4) | `FactureDsm` | analyse §4.2, A-DEC-4 |
+| Lecture publiée | Stock déclaré et dernière DSM d'un opérateur (fiche opérateur) ; étendue par les specs consommatrices (décision du 2026-10-13) ; la cotisation n'y est plus (spec 08 §3.13) | `DeclarationsLecture` | analyse §4.2, ADR-012, A-DEC-1 |
+| Lecture publiée | Types des événements émis et reçus (`contratsarmagnac`, `distillation`) ; ceux de `facturation` sont dans son API (ADR-021) | `DsmEnvoyee`, `ContratValide`… | analyse §4.3, ADR-013, A-DEC-1 |
+| Facturation | Facturer une DSM ou une sélection de DSM validées (UC-DEC-10) : une demande de facture par DSM, par le port `Facturation` ; articles de cotisation publiés par `CatalogueArticles` | `FacturerDsm`, `ArticlesCotisation` | spec 08 §3.13, ADR-021 |
+| Projection | Facture demandée (brouillon), factures et avoirs des DSM (numéro, date, montants), reçus de `facturation` par événements (A-DEC-4) | `FactureDsm` | analyse §4.2, A-DEC-4, spec 08 §3.13 |
 | Droits | Module « Déclarations » du tableau rôles × modules | `Module.DECLARATIONS` | ADR-016, analyse §2 |
 
 ### 2.2 Hors du contexte
@@ -112,7 +114,7 @@ statut de déclaration, p.101-102) · C.8.3.1 (DSM liée à la facture, p.124) �
 | Pointage des fabrications Floc avec les données ODG (§4.4.5 p.25) | en attente du BNIA | Aucune source ODG pour le Floc (Q-DEC-1, décision du 2026-10-13) |
 | Remplacement d'une DRM avec trace (§4.4.6 p.26) | remplacé | Suppression et nouveau dépôt tant que la DSM est modifiable ; la trace est au journal (décision du 2026-10-13) |
 | Fin de travaux de distillation, volume produit pour le propriétaire, taux de fin de travaux (§4.11.2 p.52) | `distillation` | Informe `declarations` par événement (analyse §4.3) ; le taux fin de travaux lui appartient (`contextes.md`, 2026-10-12) |
-| Création de la facture, unicité par DSM, TVA, date et pièce de facturation (§4.4.9 p.28, C.3.1.1 p.108, §4.9.3 p.44-45) | `facturation` | UC-DEC-10 porté et livré par `facturation` (analyse §4.2) |
+| Émission de la facture, numérotation, TVA, PDF (§4.4.9 p.28, C.3.1.1 p.108, §4.9.3 p.44-45) | `facturation` | `declarations` demande la facture (UC-DEC-10, RG-DEC-43), `facturation` l'émet (spec 08 §3.13) |
 | Envoi des relances et des notifications ; alertes et relances (C.3.5.1 p.111-112) | `notifications` | `declarations` détecte et publie, `notifications` envoie (analyse UC-DEC-11) |
 | Statistiques sur les DSM et état des stocks (§4.10.3 à §4.10.6 p.48-50) | `statistiques` | Lectures ajoutées à la partie publiée par la spec `statistiques` (décision du 2026-10-13) |
 | Indicateurs DSM des tableaux de bord (§4.1 p.12, §5.2 p.61), dernière DSM de la fiche opérateur (§4.3.3 p.20) | compositions de lecture | `contextes.md` §3 ; `declarations` fournit le listing filtré et la dernière DSM |
@@ -180,18 +182,19 @@ lignes de cotisation H-DEC-3 ; justificatifs §4.4.5 p.25-26 et H-DEC-13. Colonn
 | lignes | liste de `LigneDsm` (§3.2.1) | Uniques (RG-DEC-11) | §4.4.3 p.23 |
 | justificatifs | liste de `Justificatif` (§3.2.2) | Lot 3 (RG-DEC-26, 28) | §4.4.5 p.25-26, C.3.3.1 p.111 |
 | DRM | liste de `Drm` (§3.2.3) | Producteur seulement ; lot 3 (RG-DEC-27, 28) | §4.4.6 p.26, C.3.4.1 p.111 |
-| commentaires | liste de `Commentaire` (§3.2.4) | Lot 2 (RG-DEC-24, 25) | analyse §3, C.3.3.1 p.111 |
+| notes internes | liste de `NoteInterne` (§3.2.4), à part de la DSM | Spec 15, lot 1 (RG-DEC-24) ; les messages sont dans `messagerie` (RG-DEC-25) | analyse §3, C.3.3.1 p.111, spec 15 |
 | envoyée le | date-heure | Dernier envoi (RG-DEC-20) ; sert au listing et au retard | analyse §2 |
 | validée le, validée par | date-heure ; identifiant et copie du nom | À la validation (RG-DEC-20) ; daté du stock déclaré | analyse §2 |
 | version | entier | Verrou optimiste (`ModificationConcurrente`) | `commun.domain` |
 
 La DSM ne porte **ni montant de cotisation ni état de facturation** (analyse §3) : la cotisation se
-calcule (§3.6), « à facturer » et « facturée » se lisent dans la projection locale des factures, alimentée
-par les événements de `facturation` (§5.2, A-DEC-4).
+calcule (§3.6), « à facturer », « facturation demandée » et « facturée » se lisent dans la projection
+locale des factures, alimentée par la demande de facture et les événements de `facturation` (§5.2,
+A-DEC-4, RG-DEC-43).
 
 **Écarts au CDC.** Plus de « mode d'alimentation », de « date de saisie », « saisi par », « dernière
 modification », « date d'édition » : le journal les porte (§3.4, H-DEC-12). Plus d'« observation
-générale » ni de « note » de transfert ou de contrôle : ce sont des commentaires (H-DEC-12, analyse).
+générale » ni de « note » de transfert ou de contrôle : l'observation est un message, la note de contrôle une note interne, la note de transfert est supprimée (H-DEC-12, spec 15).
 Plus de « pièce de facturation liée » ni de « date de facturation » : la facture référence la DSM
 (analyse §3). Plus de signature (§2.2).
 
@@ -234,16 +237,18 @@ le stock de fin calculé peut être négatif (anomalie, RG-DEC-18).
 | document | `DocumentDepose` | PDF (RG-DEC-27) | §4.4.6 p.26 |
 | déposé par, déposé le | identifiant et copie du nom ; date-heure | Automatiques | §4.4.6 p.26 |
 
-#### 3.2.4 Commentaire (entité `Commentaire`, lot 2)
+#### 3.2.4 Note interne (entité `NoteInterne`, révision de la spec 15, lot 1)
+
+Révisée le 2026-10-17 (spec 15 §3.7) : le `Commentaire` est retiré. Les échanges avec l'opérateur sont les
+**messages** de la conversation de la DSM, dans `messagerie` (RG-DEC-25) ; ce que le BNIA garde pour lui est une
+**note interne**, dans un carnet distinct.
 
 | Champ | Type | Règle | Source |
 |---|---|---|---|
-| ligne | référence `LigneDsm` | Facultative : vide, le commentaire porte sur la DSM (RG-DEC-24) | analyse §3 |
-| auteur | identifiant et copie du nom ; côté `BNIA` ou `OPERATEUR` | Automatique | analyse §3 |
-| écrit le, modifié le | date-heure | « modifié » affiché si renseigné (RG-DEC-25) | H-DEC-19 |
+| ligne | référence `LigneDsm` | Facultative : vide, la note porte sur la DSM ; une ligne supprimée laisse la note sur la DSM, avec son libellé (RG-DEC-24) | §4.4.5 p.26, C.3.2.1 p.108 |
+| auteur | identifiant et copie du nom | Automatique ; personnel du BNIA | spec 15 §3.7 |
+| écrite le, modifiée le | date-heure | « modifiée » affiché si renseigné (RG-DEC-24) | spec 15 §3.7 |
 | texte | texte long | Obligatoire, non vide | C.3.3.1 p.111 |
-| interne | booléen | Faux par défaut ; vrai seulement côté BNIA, invisible de l'opérateur (RG-DEC-24) | C.3.3.1 p.111, H-DEC-19 |
-| motif de compléments | booléen | Vrai pour le motif d'une demande de compléments ; non supprimable (RG-DEC-20, 25) | H-DEC-19 |
 
 ### 3.3 Point de départ déclaratif (agrégat `PointDeDepartDeclaratif`, lot 1)
 
@@ -272,8 +277,8 @@ interruption (H-DEC-10, H-DEC-14, décision du 2026-10-13).
 | action | liste fermée (RG-DEC-23) | |
 | détail | texte court | Nom de fichier, mois de DRM, type de pièce, format d'édition… ; jamais de valeurs avant et après |
 
-L'historique d'une DSM (panneau latéral) affiche ses entrées ; l'onglet « Déclarations » de la fiche
-opérateur, toutes les siennes (décision du 2026-10-13).
+L'historique d'une DSM (panneau latéral) affiche ses entrées ; l'onglet « Stocks & Mouvements » de la
+fiche opérateur, toutes les siennes (décision du 2026-10-13).
 
 ### 3.5 Grille de cotisation (agrégat `GrilleCotisation`, lot 4)
 
@@ -297,24 +302,26 @@ que la `CVO`, toujours en €/hlAP ; le taux de fin de travaux appartient à `di
 | `Vieillissement` | Compte d'âge au début d'une période, fusion des lignes devenues identiques (RG-DEC-12, 14) | 1, 2 |
 | `ControleCoherence` | Anomalies de calcul, bloquantes à l'envoi ; pièces manquantes, bloquantes à la validation, avec le niveau exact (RG-DEC-18, 29) | 1, 3 |
 | `PolitiqueCotisation` | Détail de la cotisation : une ligne par ligne de cotisation (§3.1), volume en hlAP, part non assujettie, part assujettie, total HT (RG-DEC-31 à 34) | 4 |
-| Projection `FactureDsm` | Factures et avoirs des DSM reçus de `facturation` : numéro, date, HT, TVA, TTC (RG-DEC-34, A-DEC-4) | 4 |
-| Vue de la DSM | DSM, anomalies, cotisation, « à facturer » ou « facturée » lus dans la projection des factures, TVA indicative (RG-DEC-34, A-DEC-4) | 1, 4 |
+| Projection `FactureDsm` | Brouillon demandé (pièce de `facturation`), puis factures et avoirs reçus de `facturation` : pièce, numéro, date, HT, TVA, TTC (RG-DEC-34, 43, A-DEC-4) | 4, spec 08 |
+| Articles de cotisation | Deux articles par ligne de cotisation, `CVO-<ligne>-S` (part assujettie, classe de TVA de la `CVO`) et `CVO-<ligne>-E` (part non assujettie, exonérée), au taux CVO en vigueur à une date ; publiés à `facturation` (spec 08 §3.13, H-FAC-1, H-FAC-2) | spec 08 |
+| Vue de la DSM | DSM, anomalies, cotisation, « à facturer », « facturation demandée » (avec la pièce du brouillon) ou « facturée » lus dans la projection des factures, TVA indicative (RG-DEC-34, 43, A-DEC-4) | 1, 4, spec 08 |
 | Listing des DSM | Filtres : opérateur, type, période, état, en retard, absente (RG-DEC-40) | 2, 7 |
 | Stock déclaré | Colonne 26 de la dernière DSM validée de chaque opérateur, par ligne, datée de sa fin de période (RG-DEC-42) | 8 |
+| Historique des stocks déclarés | Stock déclaré de chaque opérateur à chaque fin de mois écoulée d'une année déclarative, par ligne, avec sa DSM d'origine (RG-DEC-44) | 8 (révision) |
 
 Le stock estimé, les engagements, le stock disponible et le bilan prévisionnel (analyse UC-DEC-2, §4.3)
 sont livrés avec `contratsarmagnac` et `distillation` ; leur contrat d'interface est décrit en §5.2.
 
 ### 3.7 Droits : le module « Déclarations » (révision de la spec 02 §3.2.7)
 
-| Rôle | Déclarations (DSM, pièces, commentaires, point de départ, stocks déclarés) |
+| Rôle | Déclarations (DSM, pièces, notes internes, point de départ, stocks déclarés) |
 |---|---|
 | `OBSERVATEUR` | lecture |
 | `AGENT` | gestion |
 | `ADMIN` | gestion |
 
 Un rôle de l'opérateur BNIA vaut pour tous les opérateurs (RG-OPE-32). Les actions du BNIA (point de
-départ, instruction, validation, commentaire interne, dépôt pendant l'instruction) exigent la gestion
+départ, instruction, validation, note interne, dépôt pendant l'instruction) exigent la gestion
 du module **dans l'opérateur BNIA** (RG-DEC-01) ; les stocks de tous les opérateurs se lisent par tout le
 personnel du BNIA (décision du 2026-10-14). La grille relève du
 module Paramétrage (décision du 2026-10-13).
@@ -324,7 +331,7 @@ module Paramétrage (décision du 2026-10-13).
 | Id | Règle | Source | Lot |
 |---|---|---|---|
 | **Droits et déclarants** | | | |
-| RG-DEC-01 | Lire les DSM, le point de départ et les stocks d'un opérateur exige la lecture du module « Déclarations » sur cet opérateur ; agir exige sa gestion. Réservés à l'opérateur BNIA (gestion) : fixer ou modifier un point de départ, prendre en instruction, demander des compléments, valider, écrire un commentaire interne, déposer une pièce pendant l'instruction. L'opérateur ne voit jamais les commentaires internes. Les stocks déclarés de tous les opérateurs se lisent par tout le personnel du BNIA, comme le listing de toutes les DSM (décision du 2026-10-14). | ADR-016, analyse §2, RG-OPE-32 | 1 |
+| RG-DEC-01 | Lire les DSM, le point de départ et les stocks d'un opérateur exige la lecture du module « Déclarations » sur cet opérateur ; agir exige sa gestion. Réservés à l'opérateur BNIA (gestion) : fixer ou modifier un point de départ, prendre en instruction, demander des compléments, valider, écrire une note interne, déposer une pièce pendant l'instruction. Les notes internes se lisent par tout le personnel du BNIA ; l'opérateur ne les voit jamais (spec 15 §3.7). Les stocks déclarés de tous les opérateurs se lisent par tout le personnel du BNIA, comme le listing de toutes les DSM (décision du 2026-10-14). | ADR-016, analyse §2, RG-OPE-32 | 1 |
 | RG-DEC-02 | Seul un opérateur `PRODUCTEUR` ou `NEGOCIANT` au statut de déclaration `OUI` peut initier une DSM. Le type de déclarant est celui de l'opérateur à l'initiation, et ne change plus. Une DSM en cours quand le statut change va à son terme. | RG-OPE-01, RG-OPE-11, analyse §3, H-DEC-10 | 1 |
 | **Calendrier** | | | |
 | RG-DEC-03 | La période d'un producteur va du 1er avril au 31 mars ; celle d'un négociant est un mois civil. La périodicité de la fiche opérateur n'est pas lue. | §4.4.10 p.28, H-DEC-5, décision du 2026-10-13 (§2.2) | 1 |
@@ -350,11 +357,11 @@ module Paramétrage (décision du 2026-10-13).
 | **Cycle de la DSM** | | | |
 | RG-DEC-20 | Transitions : l'opérateur envoie une DSM `BROUILLON` (`ENVOYEE`) ou la renvoie depuis `COMPLEMENTS_DEMANDES` (`COMPLEMENTS_RECUS`), si elle n'a aucune anomalie de calcul ; le BNIA prend en instruction une DSM `ENVOYEE` (`EN_INSTRUCTION`) ; depuis `EN_INSTRUCTION` ou `COMPLEMENTS_RECUS`, sans nouvelle prise en instruction, il demande des compléments avec un motif obligatoire (`COMPLEMENTS_DEMANDES`) ou la valide (`VALIDEE`) si aucune pièce ne manque (RG-DEC-29). Aucune transition ne sort de `VALIDEE`. Publiés à chaque transition : `DsmEnvoyee`, `ComplementsDemandes` (avec le motif), `DsmValidee`. | analyse §2 et §4.1, H-DEC-17, H-DEC-19 | 2 |
 | RG-DEC-21 | Les lignes, les volumes et la date de DIA ne se modifient, et l'import ne s'applique, qu'en `BROUILLON` ou `COMPLEMENTS_DEMANDES`, par l'opérateur. | analyse §2, H-DEC-15 | 2 |
-| RG-DEC-22 | Seule une DSM `BROUILLON` se supprime, par l'opérateur ou par le BNIA, avec ses lignes, pièces, commentaires et entrées de journal ; une entrée « brouillon supprimé » reste au journal de l'opérateur. | H-DEC-16 | 1 |
-| RG-DEC-23 | Le journal s'écrit en ajout seul, sans valeurs avant et après. Actions : DSM initiée, enregistrée, importée (nom du fichier), envoyée, prise en instruction, compléments demandés, validée, éditée (format), brouillon supprimé ; justificatif déposé ou supprimé (type, nom) ; DRM déposée ou supprimée (mois) ; commentaire supprimé ; point de départ fixé, modifié, importé. | §4.4.10 p.29, décision du 2026-10-13, H-DEC-12 | 1 |
+| RG-DEC-22 | Seule une DSM `BROUILLON` se supprime, par l'opérateur ou par le BNIA, avec ses lignes, pièces, notes internes, sa conversation (`messagerie`, RG-MSG-07) et ses entrées de journal ; une entrée « brouillon supprimé » reste au journal de l'opérateur. | H-DEC-16 | 1 |
+| RG-DEC-23 | Le journal s'écrit en ajout seul, sans valeurs avant et après. Actions : DSM initiée, enregistrée, importée (nom du fichier), envoyée, prise en instruction, compléments demandés, validée, éditée (format), brouillon supprimé ; justificatif déposé ou supprimé (type, nom) ; DRM déposée ou supprimée (mois) ; point de départ fixé, modifié, importé. Ni les messages ni les notes internes n'y entrent (l'opérateur lit le journal). | §4.4.10 p.29, décision du 2026-10-13, H-DEC-12 | 1 |
 | **Instruction** | | | |
-| RG-DEC-24 | L'opérateur et le BNIA commentent la DSM ou une ligne, dans tout état, y compris validée. Un commentaire interne ne s'écrit que côté BNIA et n'est jamais montré à l'opérateur. | analyse §3, C.3.3.1 p.111, H-DEC-19 | 2 |
-| RG-DEC-25 | L'auteur modifie son commentaire (« modifié » affiché) ou le supprime (trace au journal). Le motif d'une demande de compléments ne se supprime pas. | H-DEC-19 | 2 |
+| RG-DEC-24 | Le personnel du BNIA lit le carnet de notes internes d'une DSM ; qui gère les Déclarations au BNIA y écrit, dans tout état, y compris validée, sur la DSM ou une ligne. Une note n'est jamais montrée à l'opérateur. Son auteur la modifie (« modifiée » affiché) ou la supprime. La note d'une ligne supprimée passe sur la DSM avec le libellé de la ligne. Révisée le 2026-10-17 (spec 15 §3.7). | §4.4.5 p.26, C.3.2.1 p.108, C.3.3.1 p.111, H-DEC-19, spec 15 H-MSG-3 | spec 15, lot 1 |
+| RG-DEC-25 | Les échanges avec l'opérateur sur une DSM sont les messages de sa conversation (`messagerie`, spec 15) : dans tout état, sur la DSM entière ; le motif d'une demande de compléments y est déposé, protégé (RG-MSG-08). Révisée le 2026-10-17 (spec 15). | spec 15 RG-MSG-01 à 10 | spec 15, lot 2 |
 | **Pièces** | | | |
 | RG-DEC-26 | Un justificatif est un PDF, rattaché à la DSM ou à une de ses lignes, avec un type de mouvement et un type de pièce compatibles : achat, vente négoce, vente export : facture ou DAE ; réintégration : avoir ou DAE ; autres fabrications : déclaration de fabrication douanes. Plusieurs par type de mouvement. | §4.4.5 p.25-26, C.3.3.1 p.111, H-DEC-13 | 3 |
 | RG-DEC-27 | Une DSM producteur attend une DRM par mois de sa période ; une DRM est un PDF, pour un mois de la période ; un second dépôt pour le même mois est refusé tant que le premier n'est pas supprimé. Une DSM négociant n'a pas de DRM. | §4.4.6 p.26, C.3.4.1 p.111, H-DEC-18 | 3 |
@@ -365,7 +372,7 @@ module Paramétrage (décision du 2026-10-13).
 | RG-DEC-31 | L'assiette d'une DSM est le volume des colonnes 14, 16 à 19 et 21 à 25 (§3.1), colonnes grisées exclues : de fait 14, 16, 17, 18, 21, 22 et 23 pour un producteur. | §4.4.9 p.27-28, §4.9.3 p.44-45, H-DEC-1, H-DEC-2 | 4 |
 | RG-DEC-32 | Le taux appliqué est celui en vigueur à la fin de la période. Sans taux à cette date, la cotisation est « non calculable » et le signale. | analyse §3 | 4 |
 | RG-DEC-33 | Le détail de la cotisation a une ligne par ligne de cotisation (§3.1) : volume en hlAP = litres ÷ 100 ; part non assujettie = volume × montant × pourcentage ; part assujettie = volume × montant × (1 − pourcentage) ; chaque part arrondie au centime, demi supérieur. Total HT = somme des parts arrondies. | facture `FACTURE-CVO-Armagnac_2026000700.pdf`, H-DEC-3, H-DEC-4, H-DEC-20 | 4 |
-| RG-DEC-34 | La cotisation se calcule à la volée tant que la DSM n'est pas facturée ; facturée, la vue montre les montants de la facture. « À facturer » = validée et sans facture. La facture d'une DSM est lue dans la projection locale alimentée par `FactureEmise` et `AvoirEmis` (A-DEC-4). La TVA d'une DSM non facturée est indicative : part assujettie × taux de la classe de TVA de la `CVO` (paramètre de l'application, lue dans `referentiels`) en vigueur à la date du jour ; TTC = HT + TVA. | analyse §3, A-DEC-4, H-DEC-22, facture `FACTURE-CVO-Armagnac_2026000700.pdf` | 4 |
+| RG-DEC-34 | La cotisation se calcule à la volée tant que la DSM n'est pas facturée ; facturée, la vue montre les montants de la facture. « À facturer » = validée et sans facture **vivante** (ni brouillon demandé, ni facture émise). La facture d'une DSM est lue dans la projection locale : le brouillon y entre à la demande (RG-DEC-43), la facture et les avoirs y entrent par les événements de `facturation` (A-DEC-4) ; la facture émise remplace le brouillon ; un brouillon abandonné dans `facturation` (`FactureAbandonnee`) en sort, et la DSM redevient à facturer (journal « Facturation abandonnée », spec 08 lot 2). La TVA d'une DSM non facturée est indicative : part assujettie × taux de la classe de TVA de la `CVO` (paramètre de l'application, lue dans `referentiels`) en vigueur à la date du jour ; TTC = HT + TVA. | analyse §3, A-DEC-4, H-DEC-22, facture `FACTURE-CVO-Armagnac_2026000700.pdf` ; révisée par la spec 08 §3.13 | 4, spec 08 |
 | **Éditions et import** | | | |
 | RG-DEC-35 | Le PDF d'une DSM présente le format unique, un onglet par page, avec l'en-tête (opérateur, période, échéance, date de DIA), les totaux, le détail de la cotisation, l'état et la date de validation ; colonnes grisées visibles comme telles. Avant validation : « Document provisoire, DSM non validée ». Sans commentaires, pièces ni journal. | §4.4.4 p.25, H-DEC-21 | 5 |
 | RG-DEC-36 | L'édition Excel reprend la matrice négociant : 5 onglets, 26 colonnes numérotées, cellules en litres au format `#0\.00.00`, ligne « base cotisation », colonnes grisées grisées et vides pour un producteur, en-tête de RG-DEC-35, et un 6e onglet « Cotisation ». Celle d'un brouillon sert de modèle pré-rempli. | §4.4.4 p.25, §4.4.10 p.28, H-DEC-21 | 6 |
@@ -377,6 +384,9 @@ module Paramétrage (décision du 2026-10-13).
 | RG-DEC-41 | Un traitement planifié quotidien publie `DeclarationEnRetard` une seule fois par période en retard, le lendemain de l'échéance. | §4.4.8 p.27, analyse §4.1, H-DEC-6 | 7 |
 | **Stocks** | | | |
 | RG-DEC-42 | Le stock déclaré d'un opérateur est le stock de fin (colonne 26) de sa dernière DSM validée, ligne par ligne, daté de la fin de sa période ; sans DSM validée, il n'en a pas. | analyse UC-DEC-1, §4.10.5 p.49 | 8 |
+| RG-DEC-44 | Au portail, l'opérateur interroge ses stocks déclarés par année déclarative (du 1er avril au 31 mars), l'année en cours par défaut, une seule à la fois : ils ne se cumulent jamais d'une année à l'autre. À chaque fin de mois écoulée de l'année, un opérateur compte pour le stock de fin de sa dernière DSM validée de cette année finie à cette date, lignes nulles omises : un négociant sans DSM validée pour le mois garde celui du mois précédent, un producteur n'apparaît qu'au 31 mars. Seuls les stocks déclarés comptent, sans vieillissement ni prévision. Un stock à une date ne s'additionne pas avec celui d'une autre date : la date du stock est une dimension du tableau croisé, ou réduite à une seule date. Le back-office n'a pas ce tableau croisé : sa page *Stocks déclarés* présente le listing de RG-DEC-42 sous deux graphiques de démonstration (§6.1). | décisions du 2026-10-15 et du 2026-10-16 | 8 (révision) |
+| **Facturation** | | | |
+| RG-DEC-43 | Facturer une DSM, ou une sélection de DSM, est réservé à qui gère la facturation au BNIA (spec 08 §3.12). Chaque DSM est validée, sans facture vivante (RG-DEC-34), d'un opérateur facturable (RG-OPE-02), et sa cotisation est calculable et non nulle ; sinon le refus nomme la DSM et la raison (pour un opérateur non facturable, ce qui lui manque). Une sélection se facture toute ou pas du tout. L'écran l'annonce avant : le listing marque l'opérateur non facturable, la DSM dit ce qui lui manque et désactive « Facturer », et une sélection qui en compte n'en facture, après confirmation, que les autres (décision du 2026-10-15). Chaque DSM devient une demande de facture (spec 08 §3.13) : origine `declarations`/`DSM` (« DSM juillet 2026 »), client = l'opérateur, date de l'opération = fin de période, « 30 jours fin de mois » (H-FAC-3), un groupe par famille de lignes de cotisation, deux lignes article par ligne de volume non nul (H-FAC-5), note de pied (H-FAC-6). Le brouillon rendu entre dans la projection ; journal « Facturation demandée », puis « Facture émise » à la réception de `FactureEmise`. | spec 08 §3.13, UC-DEC-10 ; décision du 2026-10-14 | spec 08 |
 
 ## 5. Cas d'usage
 
@@ -396,13 +406,15 @@ l'analyse ; les autres lignes sont des cas secondaires.
 | Initier la DSM suivante, avec reprise et vieillissement (UC-DEC-4) | `DeclarationStocksMouvements` | 01 à 05, 12, 14, 23 | 2 |
 | Envoyer, renvoyer après compléments (UC-DEC-6) | `DeclarationStocksMouvements` | 01, 18, 20, 23 | 2 |
 | Prendre en instruction (UC-DEC-8, BNIA) | `DeclarationStocksMouvements` | 01, 20, 23 | 2 |
-| Demander des compléments, avec motif (UC-DEC-8, BNIA) | `DeclarationStocksMouvements`, `Commentaire` | 01, 20, 24, 23 | 2 |
+| Demander des compléments, avec motif déposé dans la conversation (UC-DEC-8, BNIA) | `DeclarationStocksMouvements` ; `messagerie` | 01, 20, 25, 23 | 2 |
 | Valider (UC-DEC-9, BNIA) ; contrôle des pièces au lot 3 | `DeclarationStocksMouvements` | 01, 20, 23 ; 29 | 2 ; 3 |
-| Commenter, modifier ou supprimer son commentaire | `Commentaire` | 01, 24, 25, 23 | 2 |
+| Annoter la DSM ou une ligne, modifier ou supprimer sa note (BNIA) | `NoteInterne` | 01, 24 | spec 15, lot 1 |
 | Déposer, supprimer un justificatif | `Justificatif` | 01, 26, 28, 23 | 3 |
 | Déposer, supprimer une DRM | `Drm` | 01, 27, 28, 23 | 3 |
 | Ajouter, modifier, supprimer un taux CVO (module Paramétrage) | `GrilleCotisation` | 30 | 4 |
-| Enregistrer une facture ou un avoir reçu de `facturation` (écouteur de `FactureEmise`, `AvoirEmis`) | projection `FactureDsm` | 34 | 4 |
+| Enregistrer une facture reçue de `facturation` (écouteur de `FactureEmise`, filtré sur l'origine `declarations`/`DSM`), puis un avoir (`AvoirEmis`, spec 08 lot 4) | projection `FactureDsm` | 23, 34 | 4, spec 08 |
+| Facturer une DSM, ou une sélection de l'onglet *Validées* (UC-DEC-10, BNIA) | projection `FactureDsm`, port `Facturation` | 23, 34, 43 | spec 08 |
+| Articles de cotisation à une date, pour le `CatalogueArticles` de `facturation` (sans acteur) | grille CVO | 30, 33 | spec 08 |
 | Éditer une DSM en PDF | `DeclarationStocksMouvements` | 01, 23, 35 | 5 |
 | Éditer une DSM en Excel | `DeclarationStocksMouvements` | 01, 23, 36 | 6 |
 | Importer le modèle Excel dans une DSM (UC-DEC-5) | `DeclarationStocksMouvements` | 01, 21, 23, 37, 38 | 6 |
@@ -415,8 +427,8 @@ l'analyse ; les autres lignes sont des cas secondaires.
 | *Lecture* : le stock déclaré d'un opérateur ou de tous, export Excel (UC-DEC-1, BNIA) | stock déclaré | 01, 42 | 8 |
 
 Hors des lots de ce contexte : UC-DEC-2 (stock estimé, avec `contratsarmagnac` et `distillation`),
-UC-DEC-10 (facturation, porté par `facturation`), UC-DEC-11 (notifications, envoyées par
-`notifications` à partir des événements publiés ici).
+UC-DEC-11 (notifications, envoyées par `notifications` à partir des événements publiés ici). UC-DEC-10
+(facturer) est livré par les lots de la spec 08, qui révise ce contexte (§3.13).
 
 ### 5.2 Lecture
 
@@ -432,13 +444,14 @@ sociale), les opérateurs à `OUI` (`declarantsAttendus()`), les droits et le no
 
 | Besoin | Consommateur | Lot |
 |---|---|---|
-| Cotisation d'une DSM : opérateur, état, fin de période, détail par ligne de cotisation (catégorie, volume en hlAP, part non assujettie, part assujettie), total HT | `facturation` | 4 |
 | Dernière DSM d'un opérateur (période, état) et son stock déclaré : `derniereDsm`, `stockDeclare` (`DerniereDsmVue`, `StockDeclareVue`) | fiche opérateur (composition, `contextes.md` §3) | 8 |
 
-**Factures des DSM** (A-DEC-4, écart à l'analyse §4.2 qui proposait un port implémenté par
-`facturation`) : `facturation` publie `FactureEmise` et `AvoirEmis` (DSM, numéro, date, HT, TVA, TTC),
-dont les types sont dans la partie publiée de `declarations` ; `declarations` en tient une projection
-locale. Tant que `facturation` n'existe pas, elle est vide (lot 4).
+**Factures des DSM** (A-DEC-4, révisée par la spec 08 §3.13 et ADR-021) : `declarations` demande les
+factures par son port `Facturation`, implémenté dans son infra sur l'API de `facturation`
+(`DemandeFactures`) ; son infra publie aussi le catalogue des articles de cotisation
+(`CatalogueArticles`). `facturation` publie `FactureEmise` (pièce, origine, client, numéro, date, HT, TVA,
+TTC, auteur), puis `AvoirEmis` (lot 4 de la spec 08), dont les types sont dans l'API de `facturation` ;
+`declarations` en tient une projection locale, avec le brouillon demandé.
 
 **Événements publiés** (ADR-013 ; sans écouteur tant que `notifications` n'existe pas)
 
@@ -476,33 +489,60 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
 
 - **Menu « Déclarations »**, nouveau groupe :
   - *DSM* (UC-DEC-7) : listing de toutes les DSM, en trois onglets : *En cours* (brouillon, envoyée, en
-    instruction, compléments demandés ; filtre d'état, « tous » par défaut), *Validées*, *Facturées*
+    instruction, compléments demandés ; filtre d'état, « tous » par défaut, avec deux regroupements :
+    « À saisir ou relancer », périodes absentes, brouillons et compléments demandés ; « À traiter »,
+    envoyées, en instruction et compléments reçus ; l'onglet et l'état se passent aussi dans l'URL, pour
+    les accès du tableau de bord, décision du 2026-10-16), *Validées*, *Facturées*
     (rempli au lot 4) ; filtres opérateur (recherche par code ou raison sociale), type de déclarant,
     période ; colonnes opérateur, type, période, état, puis, en cours, modifiée le (dernière action au
     journal) et « Prendre en charge » sur une DSM à prendre en charge, qui la passe en instruction puis l'ouvre, ailleurs envoyée le et validée
     le ; ouverture de la DSM, dont le retour ramène au listing (lot 2). Puis total HT sur chaque ligne ; *Validées* ne montre que les DSM sans facture, donc à facturer, et *Facturées* celles qui en ont une (lot 4) ; échéance, « en retard »,
-    « absente » (lot 7) : une période absente apparaît comme une ligne sans DSM.
-  - *Stocks déclarés* (UC-DEC-1) : par opérateur et par ligne (clé, millésime ou dénomination, compte
-    d'âge, stock, fin de période), filtres opérateur et type, total ; export Excel pour les douanes
-    (lot 8).
-- **Fiche opérateur, nouvel onglet « Déclarations »** (producteur ou négociant ; remplace les blocs
-  « dernière DSM » et « historique des DSM » annoncés par la spec 02 §6.1) :
-  - *Point de départ* : début et lignes de stock initial ; fixer, modifier tant qu'il n'est pas figé
-    (lot 1), importer depuis le modèle Excel (lot 6) ; points de départ précédents en lecture et « fixer
-    un nouveau point de départ » (lot 7) ;
+    « absente » (lot 7) : une période absente apparaît comme une ligne sans DSM. Spec 08 : dans
+    *Validées*, une sélection et « Facturer la sélection » (RG-DEC-43) ; on reste sur le listing, avec le
+    message « N brouillons de facture créés » et un lien vers les brouillons ; une DSM dont la facture
+    est demandée passe dans *Facturées*, badge « Brouillon », total HT calculé (décisions du 2026-10-14).
+    Un opérateur non facturable (RG-OPE-02) porte une icône « attention » à côté de son nom, dans tous
+    les onglets ; si la sélection compte de ses DSM, un dialogue les nomme, annonce qu'elles ne seront pas
+    facturées, et « Facturer N DSM » ne facture que les autres (rien si aucune ne l'est) (décision du
+    2026-10-15).
+  - *Stocks déclarés* (UC-DEC-1), sans onglets (décision du 2026-10-16 ; l'onglet *Analyse*, tableau
+    croisé dynamique de RG-DEC-44, est retiré du back-office) :
+    - en tête, deux graphiques de démonstration côte à côte (données fictives, badge « Démonstration ») :
+      stock total déclaré en histogramme ; stock par tranche de compte d'âge en courbes (00 et 0, 1 à 3,
+      4 à 9, 10 à 19, 20+), tous déclarants, négociants ou producteurs, courbes à choisir ; vues 5 dernières
+      années déclaratives (stock au 31 mars), 12 mois glissants, année déclarative précédente, celle-ci
+      comparable à l'année en cours ;
+    - sous un trait de séparation, « Liste des stocks déclarés » : le listing du lot 8, par opérateur et par
+      ligne (clé, millésime ou dénomination, compte d'âge, stock, fin de période) ; recherche, tri et filtre
+      par valeurs sur chaque colonne, total des lignes affichées ; une ligne ouvre sa DSM ; export Excel
+      pour les douanes, de toutes les lignes (RG-DEC-42).
+- **Fiche opérateur, nouvel onglet « Stocks & Mouvements »** (producteur ou négociant ; remplace les
+  blocs « dernière DSM » et « historique des DSM » annoncés par la spec 02 §6.1 ; nommé « Déclarations »
+  jusqu'au 2026-10-15), chaque partie dans un cadre, dans cet ordre (décision du 2026-10-15) :
   - *DSM* : les DSM de l'opérateur, du plus récent au plus ancien, avec état ; ouverture (lot 1) ;
-  - *Journal* : toutes les entrées de l'opérateur, brouillons supprimés compris (lot 1) ;
-  - *Stock déclaré* : celui de l'opérateur (lot 8).
+  - « Stocks déclarés » : celui de l'opérateur (lot 8) ;
+  - « Stock initial » (le point de départ) : début et lignes de stock initial ; fixer, modifier tant
+    qu'il n'est pas figé (lot 1), importer depuis le modèle Excel (lot 6) ; « Stocks initiaux
+    précédents » en lecture et « Fixer un nouveau stock initial » (lot 7) ;
+  - « Journal des déclarations de stocks et mouvements », cadre dépliable, fermé par défaut : toutes
+    les entrées de l'opérateur, brouillons supprimés compris (lot 1).
 - **Menu « Paramétrage »**, nouvelle entrée *Cotisation > Taux CVO* : liste des taux (début, fin
   calculée, montant, pourcentage exonéré), ajout, modification, suppression ; module Paramétrage (lot 4).
 
 ### 6.2 Portail (opérateur actif : producteur ou négociant)
 
-- **Menu « Déclarations »**, entrée *Mes DSM* : les DSM de l'opérateur actif (période, état, envoyée le,
-  validée le ; total HT au lot 4) ; bouton « Initier la DSM de <période> », ou la raison qui l'empêche
-  (pas de point de départ, DSM précédente non validée, période pas commencée, statut de déclaration) ;
-  le point de départ en lecture ; bandeau de l'échéance et du retard (lot 7).
-- **Écran d'une DSM** (§6.3), sans commentaires internes ni actions du BNIA.
+- **Menu « Déclarations »**, entrée *DSM* (« Mes DSM » jusqu'au 2026-10-15) : les DSM de l'opérateur
+  actif (période, état, envoyée le, validée le ; total HT au lot 4), dans un cadre « Mes déclarations » ;
+  bouton « Initier la DSM de <période> », ou la raison qui l'empêche (pas de point de départ, DSM
+  précédente non validée, période pas commencée, statut de déclaration) ; le point de départ en lecture,
+  dans un cadre dépliable « Stock initial », fermé par défaut ; bandeau de l'échéance et du retard
+  (lot 7).
+- **Menu « Déclarations »**, entrée *Stocks déclarés* (décision du 2026-10-15), pour tout lecteur des
+  déclarations de l'opérateur actif (RG-DEC-01), en deux onglets indépendants : *Données*, son stock
+  déclaré, ligne par ligne (RG-DEC-42), avec un lien vers sa DSM, en table triable et filtrable comme au
+  back-office ; *Analyse*, le tableau croisé et le graphique du back-office
+  (§6.1), réduits à l'opérateur (sans les champs opérateur et type ; RG-DEC-44).
+- **Écran d'une DSM** (§6.3), sans notes internes ni actions du BNIA.
 
 ### 6.3 Écran d'une DSM (commun)
 
@@ -524,21 +564,28 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
   pour un manque (§4.4.7 p.27). Les manques sont recalculés avec la vue provisoire.
 - **Onglet *Pièces*** (lot 3), après les cinq du format unique, avec le nombre de manques : justificatifs,
   groupés par type de mouvement (avec ses colonnes et ses types de pièce, « pièce attendue » s'il en
-  manque une), avec leur rattachement (DSM, ligne, ou « ligne supprimée » : comme un commentaire, la
+  manque une), avec leur rattachement (DSM, ligne, ou « ligne supprimée » : comme une note interne, la
   pièce d'une ligne ajoutée puis supprimée passe sur la DSM avec le libellé de la ligne) ; dépôt (type
   de mouvement, type de pièce filtré selon lui, ligne facultative, référence DAE/DAI, PDF), ouverture
   du PDF dans un nouvel onglet, suppression confirmée ; pour un producteur, les mois de la période avec
   l'état de leur DRM (déposée ou attendue), dépôt, ouverture, suppression. Une pièce déposée ne change
   pas la version de la DSM.
-- **Section *Commentaires*** (lot 2), sous le classeur et hors des onglets (elle ne fait pas partie de
-  la saisie, décision du 2026-10-13) : le fil, du plus ancien au plus récent ; un commentaire peut viser
-  une ligne (lien vers elle) ; « interne » à cocher côté BNIA, signalé par un badge ; « modifié »
-  affiché ; modifier ou supprimer les siens. Une ligne de la grille porteuse de commentaires a une
-  pastille qui y mène. Les commentaires d'une ligne ajoutée puis supprimée passent sur la DSM, avec le
-  libellé de la ligne.
+- **Section *Messages*** (spec 15, lot 2), sous le classeur et hors des onglets (elle ne fait pas partie
+  de la saisie, décision du 2026-10-13) : la conversation de la DSM avec l'autre côté, la même que dans la
+  messagerie ; le fil, du plus ancien au plus récent, sur la DSM entière ; « modifié » affiché ; modifier
+  ou supprimer les siens ; le motif des compléments, protégé ; « marquer non lu ». L'afficher la lit.
+- **Section *Notes internes*** (spec 15, lot 1), au back-office seulement, sous les messages : fond
+  distinct, cadenas, « Visible du BNIA seulement » ; une note vise la DSM ou une ligne (lien vers elle) ;
+  modifier ou supprimer les siennes. Une ligne de la grille porteuse de notes a une pastille qui y mène.
+  Les notes d'une ligne ajoutée puis supprimée passent sur la DSM, avec le libellé de la ligne.
 - **Onglet *Cotisation*** (lot 4) : le détail par ligne de cotisation (volume en hlAP, parts non
   assujettie et assujettie, total), le taux et le pourcentage appliqués ; « facturée » ou « à
-  facturer », TVA et TTC indicatifs, puis ceux de la facture.
+  facturer », TVA et TTC indicatifs, puis ceux de la facture. Spec 08 : après « Facturer », on reste
+  sur la DSM, avec le message « Brouillon de facture créé » ; elle affiche « Facturation demandée » et
+  un lien vers le brouillon ; au back-office, le numéro d'une facture ouvre sa pièce (décision du
+  2026-10-14). Si l'opérateur n'est pas facturable (RG-OPE-02), un bandeau en tête de la DSM, comme les
+  erreurs de saisie, dit ce qui manque à sa fiche, avec un lien vers elle, et « Facturer » est désactivé
+  (décision du 2026-10-15).
 - **Historique** (lot 1) : le journal de la DSM, hors des onglets (ce n'est pas une partie de la
   saisie), dans un panneau latéral ouvert depuis l'en-tête.
 - **Actions**, selon l'état et le côté :
@@ -550,6 +597,7 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
 | `EN_INSTRUCTION` | — | demander des compléments (motif obligatoire), valider |
 | `COMPLEMENTS_DEMANDES` | enregistrer, importer, déposer des pièces, renvoyer | — |
 | `COMPLEMENTS_RECUS` | — | demander des compléments, valider |
+| `VALIDEE` | — | facturer, sans facture vivante, par qui gère la facturation (RG-DEC-43, spec 08) |
 | tous | commenter, éditer en PDF (lot 5) et Excel (lot 6) | commenter, éditer, déposer des pièces sauf `VALIDEE` (lot 3) |
 
   L'envoi et la validation désactivés montrent leur motif (anomalies, manques). La confirmation d'envoi
@@ -568,6 +616,7 @@ lot ajoute ses données et son scénario à `docs/demo.md`.
 | Opérateur | Données | Montre | Lot |
 |---|---|---|---|
 | Armagnacs de Gascogne (`N320001`, négociant) | Point de départ au 1er du mois courant (1er octobre 2026), stock fixé par le BNIA au dernier jour du mois précédent, six lignes (`NB` « XO » 12, `NB` « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`) ; DSM d'octobre envoyée, qui reproduit la facture d'exemple (sorties France 839,11 L, export 2 254,15 L) ; un commentaire de l'opérateur, un commentaire interne du BNIA | Saisie, colonnes ; cycle, file d'attente du BNIA ; puis cotisation de l'exemple (lot 4) | 1, 2 |
+| Armagnacs de Gascogne (révision de la spec 08 §7.1, lots 1 et 2) | Point de départ avancé au 1er du mois **onze mois avant** (1er novembre 2025), stock relevé d'autant ; DSM de novembre 2025 à septembre 2026 validées, aux volumes de la facture d'exemple (sorties France 839,11 L en colonne 17, export 2 254,15 L en colonne 22, avec un DAE) ; celle d'octobre comme ci-dessus | DSM à facturer, au total de la facture d'exemple ; les huit plus anciennes sont facturées et émises par la démonstration de `facturation`, chacune à la fin du mois qui suit sa période, la neuvième attend en brouillon, les deux dernières restent à facturer (spec 08 §7.1, révisé au lot 5) | spec 08 |
 | Maison Durand, Condom (producteur) | Point de départ au 1er avril 2025 ; DSM 2025-2026 validée, avec `NB` « Hors d'âge » 19 et `20+`, `MB` 2015 ; DSM 2026-2027 à initier | Reprise, vieillissement au 1er avril, fusion à `20+`, colonnes grisées du producteur | 2 |
 | Maison Durand, Condom | Douze DRM et des justificatifs (PDF de démonstration) sur la DSM validée | Pièces, mois attendus | 3 |
 | Maison Larressingle (`N320002`, négociant) | Point de départ au 1er du mois **précédent** (décision du 2026-10-14) ; DSM de septembre en compléments demandés, motif « DAE manquants pour l'export » | Compléments ; retard dès le 6 du mois (lot 7) | 2, 7 |
@@ -619,14 +668,14 @@ BNIA**.
 | H-DEC-9 | Le compte d'âge d'une ligne de DSM va de `00` à `20+`. `MB` : calculé depuis le millésime (annexe B), non saisi. `MV` : saisi, figé, au plus égal au compte calculé du millésime (sinon l'envoi est bloqué). `NB`, `NV` : saisis. Au 1er avril, le compte d'âge `MB` est recalculé depuis son millésime et `NB` prend +1, bornés à `20+` ; les lignes devenues identiques sont fusionnées dans le stock de début, volumes additionnés. | Borne : §4.7 p.39-40 (« la borne définie sur les DSM de `20+` »). Règle de calcul : annexe B p.98-99. Seul le fût vieillit (analyse). Une ligne `MV` ne peut être plus vieille que son millésime en fût. Deux lignes `NB` de compte 19 et `20+` deviennent identiques au 1er avril. |
 | H-DEC-10 | Seul un opérateur au statut de déclaration `OUI` peut initier une DSM et peut être en retard ; une DSM en cours quand le statut change va à son terme. Après un statut autre que `OUI`, la reprise passe par un nouveau point de départ fixé par le BNIA ; le stock initial proposé est le stock de fin de la dernière DSM validée, vieilli, modifiable ; le trou est tracé au journal. | Sens des statuts : H-OPE-2 (spec 02), non confirmé (Q-OPE-7) ; RG-OPE-11 : seul `OUI` rend une DSM attendue, toutes les transitions permises. Sans mouvement pendant le sommeil, le rattrapage période par période (une DSM non validée à la fois) imposerait autant de cycles d'envoi et de validation vides, en retard dès la reprise. |
 | H-DEC-11 | À l'initiation, seules les lignes de la dernière DSM validée dont le stock de fin est strictement positif sont reprises (colonne 1 = ancien stock de fin, compte d'âge vieilli). Une ligne ajoutée commence à 0 et peut être supprimée tant que la DSM est modifiable ; une ligne reprise ne se supprime pas, et son identité (clé, millésime ou dénomination) ne se modifie pas : un changement passe par les colonnes 12 et 6. | §4.4.3 p.23 et §4.4.3.1 p.23 : stock de début repris, en lecture seule ; le CDC ne dit rien des lignes à reprendre, ni de l'ajout ou de la suppression. Reprendre les lignes à 0 allongerait la DSM sans fin ; supprimer une ligne reprise ferait disparaître du volume. |
-| H-DEC-12 | La DSM porte une date de DIA facultative, reprise dans les éditions en tête de la colonne 10. La note de transfert en région (colonne 13) et l'observation générale ne sont pas des champs : ce sont des commentaires, sur la ligne ou sur la DSM. Le mode d'alimentation n'est pas un attribut : le journal trace chaque saisie et chaque import, avec le nom du fichier. | Modèles Excel : « Pertes inventaire DIA du …/…/… » ; le CDC n'a pas de champ de date (C.3.2.5 p.109 dit « DAI »). Note de transfert : C.3.2.5 p.110 ; observation générale et mode d'alimentation : C.3.1.1 p.107. Un seul fil de commentaires (analyse). Une DSM importée puis corrigée à la main n'a pas un mode unique. |
+| H-DEC-12 | La DSM porte une date de DIA facultative, reprise dans les éditions en tête de la colonne 10. L'observation générale n'est pas un champ : c'est un message de la conversation de la DSM ; la note de transfert en région (colonne 13) est supprimée, absente des deux matrices (révision de la spec 15, 2026-10-17). Le mode d'alimentation n'est pas un attribut : le journal trace chaque saisie et chaque import, avec le nom du fichier. | Modèles Excel : « Pertes inventaire DIA du …/…/… » ; le CDC n'a pas de champ de date (C.3.2.5 p.109 dit « DAI »). Note de transfert : C.3.2.5 p.110 ; observation générale et mode d'alimentation : C.3.1.1 p.107. Un seul fil d'échange (analyse ; spec 15). Une DSM importée puis corrigée à la main n'a pas un mode unique. |
 | H-DEC-13 | Justificatifs attendus par type de mouvement : achats (2, 3), autres fabrications (16), ventes négoce (20, 21), ventes export (22 à 25), réintégrations (9) ; le Floc (15) n'appelle rien de bloquant (Q-DEC-1). Le contrôle se fait sur la DSM : dès que le total d'un type de mouvement est non nul, au moins une pièce de ce type, rattachée à la DSM ou à l'une de ses lignes. Il bloque la validation, pas l'envoi. | §4.4.5 p.25-26 ; rattachement à la DSM ou à une ligne : C.3.3.1 p.111, §4.4.8 p.27. Une pièce (DAE, facture) couvre souvent plusieurs lignes ; un contrôle par ligne alourdirait la saisie sans lire le PDF ; le BNIA vérifie le contenu à l'instruction. |
 | H-DEC-14 | Point de départ : date de début et lignes de stock initial (règles des lignes de DSM, aucune ligne permise), saisies à l'écran ou importées du modèle Excel du BNIA (colonne 26). Modifiable tant que la première DSM qui en est issue n'est pas validée : la colonne 1 de la DSM en cours suit, une ligne retirée y reste comme ligne ajoutée à 0. Un nouveau point de départ est possible quand l'opérateur n'a aucune DSM en cours, à une date postérieure à sa dernière DSM validée, avec pour stock proposé le stock de fin de celle-ci, vieilli ; le précédent reste consultable, le trou est tracé au journal. | Analyse UC-DEC-3 (amendement). `operateurs` ne garde pas l'historique des statuts : la reprise après sommeil (H-DEC-10) ne peut pas s'en déduire. Corriger le stock initial pendant l'instruction de la première DSM sans perdre les mouvements saisis. |
 | H-DEC-15 | Import du modèle Excel (format de la matrice négociant, 5 onglets, cellules en litres affichées au masque `#0\.00.00`) sur une DSM modifiable seulement, tout ou rien : clé inconnue, volume négatif ou non numérique, ligne en double, valeur en colonne grisée ou mois différent de la période refusent le fichier, erreurs situées (onglet, ligne, colonne). L'import remplace les colonnes 2 à 25 ; les lignes se rapprochent par leur identité ; une ligne reprise absente du fichier reste à 0, une ligne ajoutée absente est supprimée. Colonnes 1, 26 et compte `MB` ignorés, écarts signalés en avertissement. Le journal trace l'import et le nom du fichier ; le fichier n'est pas conservé. | §4.4.10 p.28-29 : la matrice négociant, base du format d'import, intègre le grisage ; contrôles quel que soit le mode. §4.4.3.2 p.25 : colonne grisée non alimentée par un import. §5.4.4 p.64 : préremplissage. Formats numériques du modèle négociant (`xl/styles.xml`). Un import partiel laisserait l'opérateur ignorer ce qui est passé. |
-| H-DEC-16 | Seule une DSM en brouillon se supprime, par l'opérateur ou par le BNIA (module Déclarations en gestion), avec ses lignes, pièces, commentaires et journal ; une trace de la suppression subsiste dans l'historique des DSM de l'opérateur. Une DSM envoyée ou validée ne se supprime pas. | Le CDC ne parle pas de suppression. Un brouillon n'a jamais été transmis ; le BNIA doit pouvoir lever un brouillon abandonné avant un nouveau point de départ (H-DEC-14). Une DSM envoyée se corrige par les compléments demandés. |
+| H-DEC-16 | Seule une DSM en brouillon se supprime, par l'opérateur ou par le BNIA (module Déclarations en gestion), avec ses lignes, pièces, notes internes, conversation et journal ; une trace de la suppression subsiste dans l'historique des DSM de l'opérateur. Une DSM envoyée ou validée ne se supprime pas. | Le CDC ne parle pas de suppression. Un brouillon n'a jamais été transmis ; le BNIA doit pouvoir lever un brouillon abandonné avant un nouveau point de départ (H-DEC-14). Une DSM envoyée se corrige par les compléments demandés. |
 | H-DEC-17 | Une DSM validée ne se rouvre pas. Une erreur de stock se régularise dans la DSM suivante (colonne 10 pour un stock trop haut, colonne 9 pour un stock trop bas, négociant seulement), justifiée par commentaire, ou par un nouveau point de départ (H-DEC-14) ; une erreur de ventilation reste dans la DSM, documentée par un commentaire du BNIA ; la cotisation facturée se corrige par un avoir (`facturation`). | Analyse : la validation fige la DSM. Le CDC ne prévoit pas de DSM rectificative ; colonne 9 « réintégrations après annulation, retour ou régularisation » (C.3.2.4 p.109), colonne 10 « pertes d'inventaire ou ajustements » (C.3.2.5 p.109). La dévalidation exigerait un événement de plus pour `facturation` et les statistiques. |
 | H-DEC-18 | DRM et justificatifs : l'opérateur dépose et supprime quand la DSM est chez lui (brouillon, compléments demandés) ; le BNIA, dans tout état non validé ; rien après validation. Exactement un PDF par mois de DRM ; plusieurs pièces par type de mouvement. | §4.4.6 p.26 : le BNIA peut « déposer une DRM manquante depuis le back-office » ; §5.4.6 p.65 ; C.3.4.1 p.111 : un « document déposé » par mois. Pièces reçues par courrier ou e-mail : sans aller-retour de compléments. |
-| H-DEC-19 | Instruction : le BNIA prend explicitement une DSM envoyée en instruction ; la demande de compléments exige un motif (commentaire sur la DSM, non supprimable) ; au renvoi, la DSM passe à « compléments reçus » (« compléments envoyés » pour l'opérateur), que le BNIA valide ou renvoie sans la reprendre en instruction (revue du 2026-10-13). Les deux parties commentent dans tous les états, y compris après validation ; le BNIA peut marquer un commentaire « interne », invisible de l'opérateur ; l'auteur modifie (mention « modifié ») ou supprime (trace au journal) son commentaire. | Cycle et `Commentaire` : analyse. C.3.3.1 p.111 : « commentaire interne ». Le geste explicite sépare la file d'attente du travail en cours. |
+| H-DEC-19 | Instruction : le BNIA prend explicitement une DSM envoyée en instruction ; la demande de compléments exige un motif (message protégé de la conversation de la DSM, spec 15) ; au renvoi, la DSM passe à « compléments reçus » (« compléments envoyés » pour l'opérateur), que le BNIA valide ou renvoie sans la reprendre en instruction (revue du 2026-10-13). Les deux parties échangent des messages dans tous les états, y compris après validation ; le BNIA tient un carnet de notes internes, invisible de l'opérateur (révision de la spec 15, 2026-10-17). | Cycle : analyse. C.3.3.1 p.111 : « commentaire interne », devenu note interne (spec 15). Le geste explicite sépare la file d'attente du travail en cours. |
 | H-DEC-20 | Grille CVO en chaîne continue : un nouveau taux clôt le précédent la veille de son début ; seul le dernier est sans fin ; ni trou ni chevauchement. Montant en €/hlAP et pourcentage non assujetti, 2 décimales chacun. La cotisation se calcule à la volée tant que la DSM n'est pas facturée ; la facture la fige (analyse §3) ; un taux se modifie ou se supprime librement, seules les DSM non facturées en dépendent. Part non assujettie = taux × pourcentage, part assujettie = le reste ; chaque montant se calcule et s'arrondit séparément. | §4.11.2 p.52 : « sans remettre en cause l'historique des calculs déjà produits ». C.10.3.1 p.128. Pas de chevauchement : par analogie avec la TVA (§4.11.1 p.52). Un trou bloquerait des DSM sans que l'opérateur y puisse rien. Facture d'exemple : 402,77 € et non 402,78 €. |
 | H-DEC-21 | L'édition Excel reprend la matrice négociant (5 onglets, 26 colonnes, format de cellule, ligne « base cotisation », colonnes grisées pour le producteur), avec l'en-tête (opérateur, période, échéance, date de DIA) et un 6e onglet « Cotisation » ignoré à l'import ; elle se réimporte, et celle d'un brouillon sert de modèle pré-rempli. Le PDF présente le même contenu, un onglet par page, avec l'état et la date de validation, sans commentaires, pièces ni journal. Édition possible dans tous les états, « Document provisoire, DSM non validée » avant validation ; chaque édition est inscrite au journal. | §4.4.4 p.25 : Excel ou PDF, format unique, colonnes grisées visibles. §4.4.10 p.28 : import au même format que l'édition, matrice négociant pour base. C.3.1.1 p.108 : date d'édition. |
 | H-DEC-22 | La TVA indicative d'une DSM non facturée vaut la part assujettie × le taux de la classe de TVA de la `CVO`, paramètre de l'application, lu dans `referentiels` à la date du jour ; TTC = HT + TVA. | Le CDC ne dit pas quelle classe de TVA s'applique à la cotisation. Facture d'exemple : TVA à 20 % sur la seule part assujettie (402,77 € × 20 % = 80,55 €). Projection des factures : A-DEC-4. |
@@ -652,14 +701,14 @@ de déclaration).
 | Q-DEC-10 | **Au BNIA** : confirmer la borne `20+` des DSM, le compte `MB` calculé depuis le millésime, le contrôle du compte `MV` et la fusion des lignes `NB` qui atteignent `20+` (H-DEC-9). | Saisie des lignes, reprise du stock de début | 1 |
 | Q-DEC-11 | **Au BNIA** : confirmer qu'à la reprise après un sommeil ou une clôture, l'opérateur repart d'un nouveau point de départ, sans déclarer les périodes d'inactivité (H-DEC-10 ; dépend de Q-OPE-7). | Initiation, retard et point de départ ; rattrapage période par période si la réponse est non | 7 |
 | Q-DEC-12 | **Au BNIA** : confirmer que les lignes finies à 0 ne sont pas reprises et qu'une ligne reprise garde son identité, un changement passant par les colonnes 12 et 6 (H-DEC-11). | Initiation de la DSM, saisie des lignes | 1 |
-| Q-DEC-13 | **Au BNIA** : confirmer la date de DIA facultative, la note de transfert et l'observation générale portées par des commentaires, et l'absence de mode d'alimentation, remplacé par le journal (H-DEC-12). | Champs de la DSM et des éditions | 1 |
+| Q-DEC-13 | **Au BNIA** : confirmer la date de DIA facultative, l'observation générale portée par un message, la note de transfert supprimée, et l'absence de mode d'alimentation, remplacé par le journal (H-DEC-12). | Champs de la DSM et des éditions | 1 |
 | Q-DEC-14 | **Au BNIA** : confirmer la correspondance entre types de mouvement et colonnes, et que la présence des justificatifs se contrôle par type de mouvement sur la DSM, non ligne par ligne (H-DEC-13). | Contrôle avant validation ; rattachement d'une pièce à plusieurs lignes si la réponse est non | 3 |
 | Q-DEC-15 | **Au BNIA** : confirmer le point de départ fixé par le BNIA, modifiable jusqu'à la validation de la première DSM, et renouvelable après une interruption (H-DEC-14). | Démarrage d'un opérateur, reprise après sommeil | 1 |
 | Q-DEC-16 | **Au BNIA** : confirmer le format d'import (matrice négociant, cellules en litres) et son comportement : tout ou rien, refus d'une valeur en colonne grisée, colonnes calculées ignorées avec avertissement (H-DEC-15). | Import Excel au portail et au back-office | 6 |
 | Q-DEC-17 | **Au BNIA** : confirmer que seul un brouillon se supprime, par l'opérateur ou par le BNIA (H-DEC-16). | Suppression ; rejet d'une DSM envoyée si la réponse est non | 1 |
 | Q-DEC-18 | **Au BNIA** : confirmer qu'une DSM validée n'est jamais rouverte et que les erreurs se régularisent dans la DSM suivante, par un nouveau point de départ ou par un avoir (H-DEC-17). | Correction après validation ; dévalidation et événement associé si la réponse est non | 2 |
 | Q-DEC-19 | **Au BNIA** : confirmer que le BNIA dépose DRM et justificatifs pendant l'instruction, que l'opérateur ne le fait que quand la DSM est chez lui, et qu'une DRM tient en un seul PDF par mois (H-DEC-18). | Dépôt des pièces ; plusieurs fichiers par mois si la réponse est non | 3 |
-| Q-DEC-20 | **Au BNIA** : confirmer la prise en instruction explicite, le motif obligatoire des compléments et les commentaires internes au BNIA (H-DEC-19). | Cycle de la DSM, écran d'instruction | 2 |
+| Q-DEC-20 | **Au BNIA** : confirmer la prise en instruction explicite, le motif obligatoire des compléments et les notes internes au BNIA (H-DEC-19). | Cycle de la DSM, écran d'instruction | 2 |
 | Q-DEC-21 | **Au BNIA** : confirmer la grille CVO sans trou, la cotisation figée par la facture, et le calcul séparé des deux parts (H-DEC-20). | Grille de cotisation, calcul et historique des montants | 4 |
 | Q-DEC-22 | **Au BNIA** : confirmer le contenu des éditions Excel (matrice négociant réimportable, onglet « Cotisation ») et PDF, et leur disponibilité dans tous les états avec mention provisoire (H-DEC-21). | Éditions et modèle d'import | 5 |
 | Q-DEC-23 | **Au BNIA** : quelle classe de TVA s'applique à la `CVO` ? Confirmer la TVA indicative sur la seule part assujettie (H-DEC-22). | TVA et TTC indicatifs avant facturation | 4 |
@@ -702,7 +751,7 @@ RG qui portent son numéro (§4) ; il s'appuie sur les lots précédents, jamais
 | 5 | **Édition PDF** | PDF de la DSM, dans tous les états. RG-DEC-35. | L'opérateur et le BNIA téléchargent le PDF d'une DSM provisoire puis validée. |
 | 6 | **Excel : édition et import** | Édition Excel réimportable ; import tout ou rien sur une DSM et sur un stock initial. RG-DEC-36 à 38. | L'opérateur télécharge son brouillon en Excel, le remplit, le réimporte ; un fichier erroné est refusé avec ses erreurs. |
 | 7 | **Échéances et retards** | Échéances, période attendue, DSM absentes et en retard dans le listing ; traitement planifié et `DeclarationEnRetard` ; nouveau point de départ après une interruption. RG-DEC-09, 39 à 41. | Le listing montre les opérateurs en retard ; l'événement part le lendemain de l'échéance ; un opérateur sorti de sommeil repart d'un nouveau point de départ. |
-| 8 | **Stocks déclarés** | Stock déclaré d'un opérateur et de tous (UC-DEC-1) ; lecture publiée de la dernière DSM et du stock déclaré (fiche opérateur). RG-DEC-42. | Le BNIA exporte l'état des stocks déclarés pour les douanes. |
+| 8 | **Stocks déclarés** | Stock déclaré d'un opérateur et de tous (UC-DEC-1) ; lecture publiée de la dernière DSM et du stock déclaré (fiche opérateur). RG-DEC-42 ; révision du 2026-10-15 : historique par année déclarative en tableau croisé dynamique, au back-office et au portail, RG-DEC-44. | Le BNIA exporte l'état des stocks déclarés pour les douanes ; il compose l'évolution mois par mois du stock par compte d'âge et l'exporte. |
 
 Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsarmagnac` et
 `distillation`), facturation (UC-DEC-10, avec `facturation`), envoi des notifications (avec
@@ -731,3 +780,11 @@ Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsa
 | 2026-10-13 | Implémentation, lots 4 et 5 (ensemble) : décisions en séance. L'onglet *Validées* du listing ne montre que les DSM sans facture, donc à facturer, sous ce même libellé ; *Facturées*, celles qui ont une facture (§6.1). L'échéance n'entre au PDF qu'au lot 7, avec RG-DEC-39. Aucune facture simulée en démonstration : la projection reste vide tant que `facturation` n'existe pas. Choix d'implémentation : classe de TVA de la CVO en configuration (`bnia.declarations.classe-tva-cvo`, `NORMAL`), taux lu à la date du jour, TVA et TTC « non disponibles » sans taux ; grille enregistrée d'un bloc, sans verrou optimiste, un taux désigné par son début ; lue par le personnel du BNIA, gérée avec le module Paramétrage ; détail sans les lignes de cotisation nulles. Facturée : dès une facture ; l'onglet *Cotisation* liste alors factures et avoirs au lieu du détail ; total HT facturé = factures moins avoirs ; un document reçu deux fois n'est gardé qu'une fois. Total HT des listings calculé à partir des totaux de l'assiette lus dans la requête du listing, grille chargée une fois. Partie publiée : `DeclarationsLecture.cotisation` rend `CotisationDsmVue` avec `validee` et `facturee` au lieu de l'état (écart au §5.2 : `EtatDsm` dépend de `Cote`, non publiée). PDF : OpenHTMLtoPDF 1.1.28 et Thymeleaf 3.1 (moteur seul) ; ouvert dans un nouvel onglet, édité par tout lecteur, observateur compris, inscrit au journal (« PDF ») ; A4 paysage, un onglet par page puis la cotisation, volumes au masque hl.l,cl, cellules nulles laissées vides hors totaux, colonnes grisées sur fond gris ; police de base Helvetica (pas de « Σ »). |
 | 2026-10-13 | Implémentation, lot 6 : décisions en séance. Date de début du stock initial importé : au choix dans la boîte d'import, par défaut le lendemain de la période du fichier ; une autre date est permise, avec un avertissement. La date de DIA n'est pas importée, celle de la DSM est gardée (Q-DEC-27). Choix d'implémentation : classeur reconstruit case pour case sur la matrice négociant (noms d'onglets, période en A8 du récapitulatif, numéros de colonne en ligne 17 du récapitulatif, 8 des autres onglets, 7 de l'export), lignes déclarées au récapitulatif et reprises par formule dans les autres onglets, copies des colonnes 12 et 11 en K et L des entrées, masquées comme dans le modèle, totaux et colonne 26 en formules, 250 rangées au moins ; la lecture repère les numéros de colonne, ce qui lit aussi le modèle vierge du BNIA. Volume à plus de deux décimales arrondi au centilitre ; texte « 1 000,50 » lu comme un nombre. Erreurs situées (onglet, ligne et lettre de colonne du classeur) dans la réponse 422, propriété `erreurs` ; un fichier illisible ou sans les cinq onglets est refusé d'un message. Import d'une DSM par l'opérateur seul, comme l'enregistrement ; les commentaires et justificatifs d'une ligne supprimée passent sur la DSM. Stock initial : stock de fin calculé sur les colonnes 1 à 25 du fichier, lignes finies à 0 non reprises, ligne finie en négatif refusée, vieillissement au 1er avril (RG-DEC-14) ; l'import fixe le point de départ s'il n'y en a pas, le modifie sinon (RG-DEC-08). Excel téléchargé (pièce jointe), édité par tout lecteur, inscrit au journal (« Excel »). |
 | 2026-10-14 | Implémentation, lots 7 et 8 (ensemble) : décisions en séance. Démonstration du retard : Maison Larressingle part du mois précédent, en retard dès le 6 du mois ; Négoce des Landes reste au mois courant (échéance à venir) (§7.1). Nouveau point de départ : une ligne `NB` prend +1 par 1er avril franchi depuis la fin de la dernière DSM validée ; le compte d'âge `MB` est recalculé depuis son millésime à la nouvelle date, le millésime ne change pas (RG-DEC-09). Stocks déclarés de tous les opérateurs : lus par tout le personnel du BNIA, comme le listing (RG-DEC-01 amendée). Choix d'implémentation : une période n'est absente qu'une fois commencée ; une ligne « absente » du listing (onglet *En cours*, état « Absente », filtre « En retard seulement ») ouvre l'onglet « Déclarations » de la fiche opérateur ; échéance et retard sur la DSM, la situation du portail (bandeau, masqué quand la DSM attend le BNIA), les listings et les éditions PDF et Excel (RG-DEC-35, reporté du lot 5). `DetecterRetards` sans acteur (seul le planificateur l'appelle, cron `bnia.declarations.detection-retards`, 6 h, coupé dans les IT), table `retard_signale` ; l'événement cite la DSM en brouillon ou en compléments demandés. Nouveau point de départ : « Fixer un nouveau point de départ » sur la fiche quand le point en vigueur est figé et qu'aucune DSM n'est en cours ; le stock proposé se recalcule à la date choisie ; l'import Excel du stock initial fixe aussi un nouveau point dans ce cas ; le journal note l'interruption (« après une interruption du … au … »). Stocks déclarés : lignes finies à 0 omises ; export Excel (une ligne par ligne de stock, opérateur, fin de période, volumes au masque hl.l,cl, total en formule) ; section « Stock déclaré » de la fiche ; une ligne du listing ouvre la DSM dont elle est tirée. `EtatDsm`, `Cote` et `CleConditionnement` passent dans la partie publiée (`domain.partage`) pour `DerniereDsmVue` et `StockDeclareVue` (lève l'écart du lot 4) ; `CotisationsPubliees` devient `DeclarationsPubliees`. |
+| 2026-10-14 | Révision par la spec 08 (lot 1b) : UC-DEC-10 livré dans ce contexte (RG-DEC-43, nouvelle) ; RG-DEC-34 révisée (facture vivante, brouillon demandé dans la projection) ; articles de cotisation publiés à `facturation` ; port `Facturation` ; `FactureEmise`, `AvoirEmis` et `CotisationDsmVue` retirés de la partie publiée, `DeclarationsLecture.cotisation` supprimée (ADR-021) ; journal « Facturation demandée », « Facture émise » ; action « Facturer » sur la DSM, sélection dans *Validées*, badge « Brouillon » dans *Facturées* ; démonstration : deux DSM validées pour Armagnacs de Gascogne. Choix d'implémentation : le refus d'une DSM la désigne par « opérateur, DSM période » ; une cotisation nulle se refuse (rien à facturer) ; le libellé de période élide « de » devant une voyelle (« DSM d'octobre 2026 ») ; un avoir reçu s'enregistre par le cas d'usage, son écouteur viendra avec `AvoirEmis` (spec 08 lot 4). |
+| 2026-10-15 | Revue de l'utilisateur (RG-DEC-43) : l'écran annonce un opérateur non facturable avant le refus du serveur. Listing : `operateurFacturable` sur chaque ligne (lecture groupée `OperateursLecture.facturables`, une requête de plus), icône « attention » ; sélection qui en compte : dialogue, seules les autres sont facturées (la règle « toute ou rien » du serveur ne change pas). Vue de la DSM : `manquePourFacturer`, rempli seulement quand « Facturer » est offert ; bandeau et bouton désactivé. |
+| 2026-10-15 | Écrans (demande de l'utilisateur) : l'onglet « Déclarations » de la fiche opérateur devient « Stocks & Mouvements » ; point de départ, points précédents, stock déclaré et DSM chacun dans un cadre ; le journal dans un cadre dépliable, fermé par défaut, « Journal des déclarations de stocks et mouvements » (§6.1). Ordre : DSM, « Stocks déclarés », « Stock initial » (titre du cadre du point de départ ; le terme du glossaire ne change pas), « Stocks initiaux précédents », journal ; les boutons et les titres de leurs dialogues disent aussi « stock initial » (« Fixer le stock initial », « Modifier le stock initial », « Fixer un nouveau stock initial »). |
+| 2026-10-15 | Révision par la spec 08 (lot 2) : RG-DEC-34 complétée (brouillon abandonné dans `facturation`, reçu par `FactureAbandonnee` : il quitte la projection, la DSM redevient à facturer) ; action de journal « Facturation abandonnée » ; démonstration : onze DSM validées pour Armagnacs de Gascogne, dix à facturer. |
+| 2026-10-15 | Révision des stocks déclarés (demande de l'utilisateur, avant le lot 5 de la spec 08) : tableau croisé dynamique et graphique au back-office et au portail (§6.1, §6.2), RG-DEC-44. Décisions en séance : composant maison sur TanStack Table et Recharts, réutilisé pour les ventes de la facturation ; composition par glisser-déposer, à la Excel ; vues prédéfinies et dernière composition retenue par le navigateur, rien côté serveur ; seuls les stocks déclarés (certains), sans vieillissement ni prévision ; interrogation par année déclarative (1er avril – 31 mars), jamais de cumul d'une année à l'autre ; à chaque fin de mois, le stock de la dernière DSM validée de l'année finie à cette date. Choix d'implémentation : `AnneeDeclarative` (domaine ; « campagne » désigne au glossaire la campagne de distillation) ; endpoints `GET /api/declarations/stocks/historique` (BO, filtres année, opérateur, type) et `GET /api/operateurs/{operateur}/stock-declare/historique` (portail), réponse `HistoriqueStocks` avec les années disponibles (celles qui ont une DSM validée, et l'année en cours) ; le report est calculé par le cas d'usage ; la date du stock est un champ non cumulable (en lignes, en colonnes, ou réduite à une date, la dernière par défaut) ; export du tableau affiché écrit dans le navigateur (`write-excel-file`) ; deux onglets indépendants, chacun avec ses filtres, au back-office comme au portail : *Données* (le listing du lot 8, ou le stock de la dernière DSM validée au portail, avec l'export pour les douanes au back-office) et *Analyse* (le tableau croisé). Menu du portail : « Mes DSM » devient « DSM », entrée « Stocks déclarés » ajoutée. |
+| 2026-10-16 | Page *Stocks déclarés* (demande de l'utilisateur) : deux graphiques de démonstration, aux données fictives calculées dans le front, au-dessus du listing de l'onglet *Données*, comme sur la page *Ventes* (spec 08) ; l'onglet *Analyse* (tableau croisé dynamique, RG-DEC-44) est retiré du back-office, la page n'a plus d'onglets ; le tableau croisé reste au portail (*Stocks déclarés* de l'opérateur, §6.2) ; le service de l'historique de tous les opérateurs (`GET /api/declarations/stocks/historique`) est supprimé, celui d'un opérateur (`GET /api/operateurs/{operateur}/stock-declare/historique`) reste. RG-DEC-44 révisée (§6.1). |
+| 2026-10-16 | Tableau de bord du back-office (demande de l'utilisateur, CDC §4.1 p.12) : compteurs « DSM en attente de saisie » (absentes, brouillons, compléments demandés), « DSM en attente de validation » (envoyées, en instruction, compléments reçus) et « DSM à facturer » (onglet *Validées*), chacun ouvrant le listing préfiltré ; le filtre d'état du listing gagne les deux regroupements, et l'onglet et l'état se passent dans l'URL (§6.1). |
+| 2026-10-17 | Révision par la spec 15 (`messagerie`, lots 1 et 2) : `Commentaire` retiré. Les échanges sont les messages de la conversation de la DSM (`messagerie`), le motif des compléments y est déposé, protégé, par le port `Messagerie` (RG-DEC-20) ; la conversation est supprimée avec le brouillon (RG-DEC-22). Le carnet de **notes internes** (`NoteInterne`, §3.2.4) remplace le commentaire interne, la note de contrôle d'une ligne et le commentaire de contrôle d'un justificatif (RG-DEC-24 réécrite) ; plus de commentaire de ligne côté opérateur. RG-DEC-23 sans « commentaire supprimé » (la suppression d'une note n'est pas journalisée : l'opérateur lit le journal) ; RG-DEC-25 réécrite. H-DEC-12 : l'observation générale est un message, la note de transfert en région est supprimée ; H-DEC-19 : notes internes au lieu des commentaires internes. Actions de la DSM : `COMMENTER` retiré (la messagerie dit qui écrit), `COMMENTER_INTERNE` devient `ANNOTER`. L'infra implémente `ObjetsConversables` (type `DSM`, ADR-023). |

@@ -60,6 +60,8 @@ public record CotisationResponse(
 
     @Schema(name = "FactureDsm", description = "Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)")
     public record FactureResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Identifiant de la pièce chez facturation")
+            long piece,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED) FactureDsm.Type type,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String numero,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED) LocalDate date,
@@ -75,7 +77,7 @@ public record CotisationResponse(
                     null, null, null, null, List.of());
             case Facturee f -> new CotisationResponse(Statut.FACTUREE, finPeriode, null, List.of(), null, null,
                     f.totalHt(), null, null, f.documents().stream()
-                    .map(d -> new FactureResponse(d.type(), d.numero(), d.date(), d.ht(), d.tva(), d.ttc())).toList());
+                    .map(d -> new FactureResponse(d.piece(), d.type(), d.numero(), d.date(), d.ht(), d.tva(), d.ttc())).toList());
         };
     }
 

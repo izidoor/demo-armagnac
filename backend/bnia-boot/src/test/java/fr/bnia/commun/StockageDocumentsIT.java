@@ -3,6 +3,7 @@ package fr.bnia.commun;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import fr.bnia.commun.application.FormatDocument;
 import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.domain.DocumentDepose;
 import fr.bnia.commun.domain.DocumentRefuse;
@@ -47,5 +48,21 @@ class StockageDocumentsIT extends AbstractIT {
         byte[] gros = Arrays.copyOf(PDF, (int) StockageDocuments.TAILLE_MAXIMALE + 1);
         assertThatThrownBy(() -> stockage.deposerPdf("gros.pdf", gros))
                 .isInstanceOf(DocumentRefuse.class).hasMessage("Le fichier « gros.pdf » dépasse 10 Mo.");
+    }
+
+    @Test
+    void reconnait_les_formats_admis_par_leur_signature() {
+        byte[] png = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0};
+        byte[] xlsx = {'P', 'K', 0x03, 0x04, 0};
+        java.util.Set<FormatDocument> tous = java.util.EnumSet.allOf(FormatDocument.class);
+        assertThat(stockage.deposer("ecran.png", png, tous).type()).isEqualTo("image/png");
+        assertThat(stockage.deposer("matrice.xlsx", xlsx, tous).type())
+                .isEqualTo("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        assertThat(stockage.deposer("attestation.pdf", PDF, tous).type()).isEqualTo("application/pdf");
+        assertThatThrownBy(() -> stockage.deposer("outil.exe", new byte[] {'M', 'Z'}, tous))
+                .isInstanceOf(DocumentRefuse.class).hasMessage("Le fichier « outil.exe » n'est pas un PDF, ni une image"
+                        + " PNG, ni une image JPEG, ni un classeur Excel (.xlsx).");
+        assertThatThrownBy(() -> stockage.deposerPdf("ecran.pdf", png)).isInstanceOf(DocumentRefuse.class)
+                .hasMessage("Le fichier « ecran.pdf » n'est pas un PDF.");
     }
 }

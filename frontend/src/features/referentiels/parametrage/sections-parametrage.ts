@@ -4,6 +4,8 @@ import { type SectionPage } from '@/components/layout/page-sections'
 
 /** En-tête de chaque section, par adresse (familles de la spec 01 §2.1). */
 const descriptions: Record<string, string> = {
+  '/bo/parametrage/bnia':
+    'Fiche, contacts et facturation du BNIA (spec 02 §6.1, spec 08 §6.1).',
   '/bo/parametrage/geographie':
     'Continents et zones commerciales, pays et régions (§4.11.3).',
   '/bo/parametrage/qualification':

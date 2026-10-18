@@ -3,14 +3,14 @@ package fr.bnia.boot.demo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
-import fr.bnia.declarations.application.CommenterDsm;
+import fr.bnia.declarations.application.AnnoterDsm;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.application.GererGrilleCotisation;
 import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
 import fr.bnia.declarations.domain.ColonneDsm;
-import fr.bnia.declarations.domain.Commentaire;
+import fr.bnia.declarations.domain.NoteInterne;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.Manque;
 import fr.bnia.declarations.domain.TypeAnomalie;
@@ -37,7 +37,8 @@ class DemoDeclarationsIT extends AbstractIT {
 
     @Autowired GererPointDeDepart points;
     @Autowired GererDsm dsms;
-    @Autowired CommenterDsm commentaires;
+    @Autowired AnnoterDsm notes;
+    @Autowired fr.bnia.messagerie.application.Converser converser;
     @Autowired GererPieces pieces;
     @Autowired GererGrilleCotisation grille;
     @Autowired ApplicationContext contexte;
@@ -76,14 +77,24 @@ class DemoDeclarationsIT extends AbstractIT {
 
         long gascogne = id("N320001");
         assertThat(points.consulter(anne, gascogne).orElseThrow().point().lignes()).hasSize(6);
-        var envoyee = dsms.consulter(anne, gascogne, seule("N320001", EtatDsm.ENVOYEE, mois).id());
+        // Spec 08 §7.1 : onze mois validés, à facturer, avant celui qui attend le BNIA.
+        List<DsmLigne> declarations = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
+        List<org.assertj.core.groups.Tuple> attendues = new java.util.ArrayList<>();
+        attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.ENVOYEE, mois));
+        for (int m = 1; m <= 11; m++) {
+            attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(m)));
+        }
+        assertThat(declarations).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactlyElementsOf(attendues);
+        assertThat(dsms.consulter(anne, gascogne, declarations.get(1).id()).cotisation().ht())
+                .contains(new BigDecimal("1855.95"));
+        var envoyee = dsms.consulter(anne, gascogne, declarations.getFirst().id());
         assertThat(envoyee.anomalies()).isEmpty();
         List<LigneDsm> lignes = envoyee.dsm().lignes();
         assertThat(somme(lignes, ColonneDsm.C14, ColonneDsm.C17, ColonneDsm.C18, ColonneDsm.C19, ColonneDsm.C21))
                 .isEqualTo("839.11");
         assertThat(somme(lignes, ColonneDsm.C22, ColonneDsm.C23, ColonneDsm.C24)).isEqualTo("2254.15");
-        assertThat(commentaires.lister(anne, gascogne, envoyee.dsm().id())).extracting(Commentaire::interne)
-                .containsExactly(false, true);
+        assertThat(notes.lister(anne, gascogne, envoyee.dsm().id())).extracting(NoteInterne::ligne)
+                .containsExactly(null, envoyee.dsm().lignes().getFirst().id());
         assertThat(envoyee.manques()).extracting(Manque::typeMouvement)
                 .containsExactly(TypeMouvement.VENTE_NEGOCE, TypeMouvement.VENTE_EXPORT);
         // La facture d'exemple : 1 855,95 € HT à 60 €/hlAP, 20 % exonérés.
@@ -96,8 +107,12 @@ class DemoDeclarationsIT extends AbstractIT {
         assertThat(dsms.consulter(anne, larressingle, complements.id()).enRetard())
                 .as("en retard dès le 6 du mois").isEqualTo(LocalDate.now().getDayOfMonth() > 5);
         assertThat(dsms.consulter(anne, gascogne, envoyee.dsm().id()).enRetard()).as("attend le BNIA").isFalse();
-        assertThat(commentaires.lister(anne, larressingle, complements.id())).singleElement()
-                .satisfies(c -> assertThat(c.texte()).isEqualTo("DAE manquants pour l'export"));
+        assertThat(converser.consulterObjet(new fr.bnia.messagerie.api.Acteur(anne.utilisateur()),
+                fr.bnia.messagerie.api.ObjetRef.de(fr.bnia.messagerie.api.TypeObjet.DSM, complements.id())).messages())
+                .singleElement().satisfies(m -> {
+                    assertThat(m.message().texte()).isEqualTo("DAE manquants pour l'export");
+                    assertThat(m.message().protege()).isTrue();
+                });
 
         var brouillon = dsms.consulter(anne, id("N400001"), seule("N400001", EtatDsm.BROUILLON, mois).id());
         assertThat(brouillon.anomalies()).extracting(a -> a.type())

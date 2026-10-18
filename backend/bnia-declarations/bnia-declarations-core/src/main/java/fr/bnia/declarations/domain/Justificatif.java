@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Justificatif d'une DSM (entité, spec 05 §3.2.2) : un PDF déposé, rattaché à la DSM ou à une de ses lignes,
  * avec un type de mouvement et un type de pièce compatibles (RG-DEC-26). Enregistré à part de la DSM, comme
- * les commentaires : un dépôt ne change pas sa version.
+ * les notes internes : un dépôt ne change pas sa version.
  */
 public final class Justificatif {
 
@@ -51,7 +51,7 @@ public final class Justificatif {
                 deposePar, deposeLe);
     }
 
-    /** Comme un commentaire : quand sa ligne est supprimée, la pièce passe sur la DSM et garde le libellé. */
+    /** Comme une note interne : quand sa ligne est supprimée, la pièce passe sur la DSM et garde le libellé. */
     public void detacher(String libelleLigne) {
         this.ligne = null;
         this.ligneSupprimee = libelleLigne;

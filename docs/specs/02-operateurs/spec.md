@@ -63,7 +63,7 @@ facturé, p.123) · §4.10, §5.11 (statistiques, p.47-51 et 75) · §5.1 et C.1
 
 | Famille | Élément | Code (ADR-001) | Source |
 |---|---|---|---|
-| Identité | Opérateur : type, code, groupe, CVI, SIRET, accise, bureau des douanes (texte), identifiant tiers ODG, titre, raison sociale, nom commercial, contact principal, adresse, pays, téléphones, e-mail général, destinataire des factures, sites, coordonnées GPS, membre BNIA, accord de diffusion général, commentaire interne, état actif | `Operateur` | §4.3.2 p.18, C.1.1.1 p.100-101, C.8.1.1 p.123 |
+| Identité | Opérateur : type, code, groupe, CVI, SIRET, n° de TVA intracommunautaire, accise, bureau des douanes (texte), identifiant tiers ODG, titre, raison sociale, nom commercial, contact principal, adresse, pays, téléphones, e-mail général, destinataire des factures, sites, coordonnées GPS, membre BNIA, accord de diffusion général, commentaire interne, état actif | `Operateur` | §4.3.2 p.18, C.1.1.1 p.100-101, C.8.1.1 p.123 |
 | | Type d'opérateur, liste fermée | `TypeOperateur` | C.1.1.1 p.100, spec 01 §2.2 |
 | | Code opérateur BNIA, attribué automatiquement | `CodeOperateur` | §4.3.5 p.21 |
 | Déclaratif | Périodicité DSM | `PeriodiciteDsm` | C.1.1.1 p.101, §4.4.10 p.28 |
@@ -160,6 +160,7 @@ de `commun.domain` (A-OPE-4).
 | code | texte | Obligatoire, unique, proposé à la création, modifiable (RG-OPE-03 à 05) | §4.3.5 p.21 |
 | groupe | texte | Facultatif, comparé normalisé (RG-OPE-09, H-OPE-1) | C.1.1.1 |
 | CVI, SIRET, n° d'accise | texte | Facultatifs, format contrôlé (RG-OPE-06) | C.1.1.1 |
+| n° de TVA intracommunautaire | texte | Facultatif ; `FR`, une clé de 2 chiffres, le SIREN ; clé contrôlée (RG-OPE-06) | spec 08 §3.13 (révision du 2026-10-14) |
 | bureau des douanes | texte | Facultatif, libre | C.1.1.1, décision du 2026-10-06 |
 | identifiant tiers ODG | texte | Facultatif, unique (RG-OPE-07) | C.1.1.1, décision du 2026-10-06 |
 | titre | référence `Titre` | Facultatif (RG-OPE-21) | C.1.1.1 |
@@ -315,11 +316,11 @@ rattachement (RG-OPE-29) ; ses informations professionnelles, par une fiche dans
 
 **3.2.7 Rôles et modules** (liste fermée, définie par l'application, vision §2.5)
 
-| Rôle | Contacts (contacts, fiches professionnelles, fiche et présentation de l'opérateur) | Accès (invitations, rôles, suspensions, retraits) | Paramétrage (référentiels ; opérateur BNIA seulement) | Déclarations (DSM, pièces, commentaires, point de départ, stocks déclarés ; spec 05 §3.7) |
-|---|---|---|---|---|
-| `OBSERVATEUR` | lecture | lecture | lecture | lecture |
-| `AGENT` | gestion | lecture | gestion | gestion |
-| `ADMIN` | gestion | gestion | gestion | gestion |
+| Rôle | Contacts (contacts, fiches professionnelles, fiche et présentation de l'opérateur) | Accès (invitations, rôles, suspensions, retraits) | Paramétrage (référentiels ; opérateur BNIA seulement) | Déclarations (DSM, pièces, notes internes, point de départ, stocks déclarés ; spec 05 §3.7) | Facturation (factures et avoirs ; gestion par l'opérateur BNIA seulement ; spec 08 §3.12) | Messagerie (conversations libres ; spec 15 §3.6) |
+|---|---|---|---|---|---|---|
+| `OBSERVATEUR` | lecture | lecture | lecture | lecture | lecture | gestion |
+| `AGENT` | gestion | lecture | gestion | gestion | gestion | gestion |
+| `ADMIN` | gestion | gestion | gestion | gestion | gestion | gestion |
 
 Gérer un module permet d'y tout faire (créer, modifier, supprimer). Un rôle tenu dans l'opérateur BNIA
 vaut pour tous les opérateurs (RG-OPE-32). Un nouveau module (DSM, contrats…) ajoute une colonne.
@@ -345,11 +346,11 @@ factures désignent une fiche professionnelle.
 | Id | Règle | Source |
 |---|---|---|
 | RG-OPE-01 | Le type d'opérateur est obligatoire : `BNIA`, `PRODUCTEUR`, `NEGOCIANT` ou `AUTRE`. Une fiche `AUTRE` ou `BNIA` ne déclare pas : pas de périodicité, statut de déclaration `NON`. Le type `BNIA` ne se choisit pas (RG-OPE-39). | §4.3 p.18, C.1.1.1 p.100, décisions du 2026-10-06 et du 2026-10-08 |
-| RG-OPE-02 | Type, code et raison sociale sont obligatoires ; le pays vaut France par défaut. Une fiche à laquelle manque l'adresse ligne 1, le code postal, la ville, le pays ou la région est « incomplète » : elle s'enregistre, et l'écran nomme ce qui manque pour facturer ou certifier. | Décision du 2026-10-06 ; C.8.1.1 p.123, §4.8.4 p.42 |
+| RG-OPE-02 | Type, code et raison sociale sont obligatoires ; le pays vaut France par défaut. Deux indicateurs, chacun nommant ce qui manque, sans empêcher l'enregistrement : une fiche est **facturable** si elle a un SIRET, une adresse (ligne 1, code postal, ville, pays) et un destinataire des factures qui donne un e-mail (RG-OPE-23) ; elle est **certifiable** si elle a une adresse (ligne 1, code postal, ville, pays) et une région. L'opérateur BNIA est toujours l'un et l'autre (RG-OPE-39). | Décision du 2026-10-06 ; C.8.1.1 p.123, §4.8.4 p.42 ; révision du 2026-10-14 (spec 08 §3.13) |
 | RG-OPE-03 | À la création, un code est proposé. Producteur et `AUTRE` : le plus grand numéro existant à 6 chiffres, plus un (séquence commune). Négociant : `N`, le département tiré du code postal français (deux premiers chiffres ; `2A` de 20000 à 20199 et `2B` de 20200 à 20699 ; trois chiffres pour 971 à 976), puis le plus grand numéro sur 4 chiffres de ce département, plus un. Sans code postal français, aucun code n'est proposé : l'agent le saisit. Aucun code n'est proposé pour l'opérateur BNIA (RG-OPE-39). | §4.3.5 p.21, décision du 2026-10-06 |
 | RG-OPE-04 | Le code est unique, sans distinction de casse ni d'espaces en tête et en fin, à la création comme à la modification. Il peut toujours être saisi ou corrigé à la main. Les autres contextes référencent l'opérateur par son identifiant technique. | §4.3.5 p.21, ADR-011, décision du 2026-10-06 (code non partagé avec l'ODG) |
 | RG-OPE-05 | Changer le type ou le code postal ne change pas le code. Si le code n'a plus la forme du type (ou du département pour un négociant), la fiche le signale et propose d'attribuer un nouveau code selon RG-OPE-03. | Décision du 2026-10-06 |
-| RG-OPE-06 | CVI, SIRET et n° d'accise sont facultatifs. Renseignés, leur format est contrôlé et bloquant : SIRET sur 14 chiffres avec clé de Luhn, CVI sur 10 caractères alphanumériques, accise `FR` suivi de 11 caractères alphanumériques. Une valeur déjà portée par une autre fiche donne un avertissement non bloquant qui nomme cette fiche. | C.1.1.1 p.101, décision du 2026-10-06 |
+| RG-OPE-06 | CVI, SIRET et n° d'accise sont facultatifs. Renseignés, leur format est contrôlé et bloquant : SIRET sur 14 chiffres avec clé de Luhn, CVI sur 10 caractères alphanumériques, accise `FR` suivi de 11 caractères alphanumériques, n° de TVA `FR`, une clé de 2 chiffres et le SIREN, avec une clé juste (clé = (12 + 3 × (SIREN modulo 97)) modulo 97). Un n° de TVA dont le SIREN n'est pas celui du SIRET donne un avertissement non bloquant. Une valeur déjà portée par une autre fiche donne un avertissement non bloquant qui nomme cette fiche. | C.1.1.1 p.101, décision du 2026-10-06 ; n° de TVA : révision du 2026-10-14 (spec 08 §3.13) |
 | RG-OPE-07 | L'identifiant tiers ODG est facultatif et, s'il est renseigné, unique (bloquant), pour que la passerelle ODG rattache un flux sans ambiguïté. | C.1.1.1 p.101, §6.1.4 p.81, décision du 2026-10-06 |
 | RG-OPE-08 | Une raison sociale déjà portée par une autre fiche (à la casse, aux accents et aux espaces près) donne un avertissement non bloquant qui nomme cette fiche. | Décision du 2026-10-06 |
 | RG-OPE-09 | Deux fiches sont du même groupe si leurs groupes sont égaux à la casse, aux accents et aux espaces près. À la saisie, les groupes existants sont proposés. La fiche liste les autres fiches de son groupe. | §4.3.2 p.18, §4.3.3 p.20, H-OPE-1 |
@@ -374,15 +375,15 @@ factures désignent une fiche professionnelle.
 | RG-OPE-28 | L'e-mail d'un contact respecte le format d'une adresse e-mail et est unique parmi les contacts de son opérateur, à la casse près. S'il est celui d'un membre de l'opérateur ou d'une invitation en attente de l'opérateur, l'écran avertit sans bloquer. Aucune recherche n'est faite dans les autres opérateurs : un même e-mail déclaré comme contact dans deux opérateurs donne deux contacts indépendants. | §5.13.3 p.79, vision UC-10 et §2.4, décision du 2026-10-08 |
 | RG-OPE-29 | Un e-mail correspond à au plus un utilisateur, à la casse près. Dans un opérateur, une personne est un contact ou un membre (rattachement), jamais les deux ; un utilisateur a au plus un rattachement par opérateur. | §5.1.4 et 5.1.6 p.60, §5.13.3 p.79, vision §2.1 principe 1 et §2.2 |
 | RG-OPE-30 | Chaque contact et chaque rattachement a exactement une fiche professionnelle, du même opérateur, de type `CONTACT` ou `RATTACHEMENT` selon son porteur. Quand la personne passe de contact à membre (RG-OPE-42) ou inverse (RG-OPE-44), la fiche reste la même ligne : seul son type change ; elle n'est jamais recopiée. | Vision §2.1 principe 5, §2.2 |
-| RG-OPE-31 | Les droits sont ceux du rôle d'un rattachement `ACTIF` dans un opérateur actif (tableau §3.2.7), évalués à chaque requête, jamais portés par la session. Tout rattachement `ACTIF` lit tout ce qui concerne son opérateur, et seulement lui. Gérer un module permet d'y créer, modifier et supprimer. Le module Contacts couvre les contacts, les fiches professionnelles et la fiche et la présentation de l'opérateur (dans la limite de RG-OPE-36) ; Accès, les invitations, les rôles, les suspensions et les retraits ; Paramétrage, les référentiels (spec 01), dans l'opérateur BNIA seulement. | §4.2.6 p.17, §5.1.4 p.60, vision §2.5, décision du 2026-10-08 |
+| RG-OPE-31 | Les droits sont ceux du rôle d'un rattachement `ACTIF` dans un opérateur actif (tableau §3.2.7), évalués à chaque requête, jamais portés par la session. Tout rattachement `ACTIF` lit tout ce qui concerne son opérateur, et seulement lui. Gérer un module permet d'y créer, modifier et supprimer. Le module Contacts couvre les contacts, les fiches professionnelles et la fiche et la présentation de l'opérateur (dans la limite de RG-OPE-36) ; Accès, les invitations, les rôles, les suspensions et les retraits ; Paramétrage, les référentiels (spec 01), dans l'opérateur BNIA seulement ; Facturation, les factures et avoirs (spec 08), lus par tout rattachement `ACTIF` et gérés par le seul rôle tenu dans l'opérateur BNIA ; Messagerie, les conversations libres avec le BNIA (spec 15), gérées par les trois rôles. Exception (spec 15, RG-MSG-02) : une conversation libre n'est lue, côté opérateur, que par son auteur, `ADMIN` compris exclu. | §4.2.6 p.17, §5.1.4 p.60, vision §2.5, décision du 2026-10-08 |
 | RG-OPE-32 | Un rôle tenu dans l'opérateur BNIA vaut aussi pour tous les autres opérateurs. Sont de plus réservés à l'opérateur BNIA : lister et exporter tous les opérateurs, modifier les champs réservés de RG-OPE-36 et voir le commentaire interne (Contacts, lecture ou gestion selon le cas), créer un opérateur (Contacts, gestion), inviter un premier ADMIN à la création, désactiver, réactiver ou supprimer un opérateur, bloquer ou débloquer un utilisateur (ADMIN), consulter les utilisateurs et le journal des connexions (Accès, lecture). | Vision §2.5 point 7, UC-01 à 05, décision du 2026-10-08 |
 | RG-OPE-33 | Sans rôle particulier, tout utilisateur qui a un rattachement `ACTIF` gère son profil (RG-OPE-47), son e-mail (RG-OPE-48), son mot de passe (spec 03) et son opérateur actif (RG-OPE-49), et modifie sa propre fiche professionnelle dans un opérateur où son rattachement est `ACTIF` (RG-OPE-46). Il ne peut pas quitter un opérateur de lui-même (RG-OPE-44). | Vision §2.4 règles 1 et 7, §2.5 point 6 |
 | RG-OPE-34 | Chaque action du contexte sur les personnes et les accès est journalisée : création, modification et suppression d'un contact ou d'une fiche ; création, relance, annulation, expiration et acceptation d'une invitation ; changement de rôle, suspension, réactivation et retrait d'un rattachement ; changement de profil et d'e-mail, blocage, déblocage et suppression d'un utilisateur. Chaque ligne porte la date, l'acteur (identifiant et copie de son nom), l'opérateur, l'action, la cible (copie de son nom) et, pour une modification, chaque champ changé avec ses valeurs avant et après. Le journal survit à la suppression de l'acteur et de la cible. | §4.2.4 p.15, §4.2.6 p.17, §5.13.3 p.79, C.2.3 p.107, vision §2.4 règle 5, décision du 2026-10-08 |
 | RG-OPE-35 | Un opérateur peut n'avoir aucun ADMIN (créé sans invitation, ou invitation non acceptée). Dès qu'il a un rattachement `ACTIF` de rôle `ADMIN`, aucun de ses membres ne peut retirer, suspendre ou rétrograder le dernier ; un ADMIN de l'opérateur BNIA le peut, après un avertissement « l'opérateur n'aura plus d'ADMIN », puis invite un remplaçant. Pour l'opérateur BNIA, la règle est absolue. | Vision §2.2 règle 4, §2.5 point 5, décision du 2026-10-08 |
-| RG-OPE-36 | Par le module Contacts, un rôle d'un opérateur autre que BNIA modifie dans la fiche : titre, nom commercial, adresse et pays, téléphones, e-mail général, sites, GPS, contact principal, destinataire des factures, marques et circuits, visites et labels, œnotourisme, médailles, diffusion des millésimes, accord de diffusion général. Les autres champs (type, code, raison sociale, groupe, CVI, SIRET, accise, bureau des douanes, identifiant ODG, membre BNIA, périodicité, statut de déclaration, région, appellations, alambics, accès aux statistiques) ne se modifient que par un rôle de l'opérateur BNIA. Le commentaire interne n'est visible que de l'opérateur BNIA. | §5.13.1 p.78, C.1.1.1 p.101, §5.11.1 p.75, décisions du 2026-10-06 et du 2026-10-08 |
+| RG-OPE-36 | Par le module Contacts, un rôle d'un opérateur autre que BNIA modifie dans la fiche : titre, nom commercial, adresse et pays, téléphones, e-mail général, sites, GPS, contact principal, destinataire des factures, marques et circuits, visites et labels, œnotourisme, médailles, diffusion des millésimes, accord de diffusion général. Les autres champs (type, code, raison sociale, groupe, CVI, SIRET, n° de TVA, accise, bureau des douanes, identifiant ODG, membre BNIA, périodicité, statut de déclaration, région, appellations, alambics, accès aux statistiques) ne se modifient que par un rôle de l'opérateur BNIA. Le commentaire interne n'est visible que de l'opérateur BNIA. | §5.13.1 p.78, C.1.1.1 p.101, §5.11.1 p.75, décisions du 2026-10-06 et du 2026-10-08 |
 | RG-OPE-37 | Au portail, la recherche d'un autre opérateur ne porte que sur les opérateurs actifs, exige au moins trois caractères (code, raison sociale ou nom commercial), renvoie au plus vingt résultats, et n'affiche que le code, la raison sociale, le nom commercial et la ville. | §5.5.2 p.67, décision du 2026-10-06 |
 | RG-OPE-38 | Au back-office, le listing filtré s'exporte au format Excel, avec ses colonnes affichées. | §4.2.6 p.17, décision du 2026-10-06 |
-| RG-OPE-39 | Il existe un seul opérateur de type `BNIA`, l'interprofession, créé par l'application (migration ou démonstration), jamais par la création d'un opérateur ; aucun type ne devient ni ne cesse d'être `BNIA`. Il n'a ni déclaratif (RG-OPE-01) ni code proposé ; il n'apparaît ni dans le listing des opérateurs, ni dans la recherche du portail, ni dans les lectures destinées aux DSM et aux statistiques. Il ne se désactive ni ne se supprime. Sa fiche se réduit à l'identité et aux coordonnées (menu « BNIA »). | Vision §1 et §2.2 règle 7, décision du 2026-10-08 |
+| RG-OPE-39 | Il existe un seul opérateur de type `BNIA`, l'interprofession, créé par l'application (migration ou démonstration), jamais par la création d'un opérateur ; aucun type ne devient ni ne cesse d'être `BNIA`. Il n'a ni déclaratif (RG-OPE-01) ni code proposé ; il n'apparaît ni dans le listing des opérateurs, ni dans la recherche du portail, ni dans les lectures destinées aux DSM et aux statistiques. Il ne se désactive ni ne se supprime. Sa fiche se réduit à l'identité et aux coordonnées (section *BNIA* des paramètres de l'application). | Vision §1 et §2.2 règle 7, décision du 2026-10-08 |
 | RG-OPE-40 | Inviter (module Accès, gestion) part d'un contact de l'opérateur ou d'une personne nouvelle (titre, nom, prénom, fonction, téléphone professionnel), avec un e-mail obligatoire et un rôle. L'invitation est refusée si une invitation en attente existe déjà pour ce contact ou pour cet e-mail dans l'opérateur (on la relance), ou si l'e-mail est celui d'un membre de l'opérateur. Partant d'un contact, son e-mail est mis à jour s'il diffère. Une personne nouvelle dont l'e-mail est celui d'un contact de l'opérateur est invitée depuis ce contact : l'identité, la fonction et le téléphone saisis sont ignorés, et l'écran le signale dès la saisie de l'e-mail (RG-OPE-29). Aucun utilisateur, rattachement ni contact n'est créé. Le jeton est aléatoire, conservé haché, à usage unique, valable 7 jours et pour cet e-mail seulement. L'e-mail part après la validation de la transaction ; un échec d'envoi n'annule rien et se reprend par une relance. À la création d'un opérateur, un ADMIN BNIA peut inviter un premier ADMIN dans le même formulaire. | §5.1.2 p.59, §5.13.3 p.79, vision UC-01, 02, 12 et §2.4 règles 2 et 3, décisions du 2026-10-08 |
 | RG-OPE-41 | Relancer une invitation en attente remplace son jeton (l'ancien devient invalide) et repousse son expiration de 7 jours ; un nouvel e-mail part. L'annuler la passe à `ANNULEE`. Une invitation dont l'expiration est dépassée passe à `EXPIREE`. Dans tous les cas, le contact dont elle partait reste inchangé. | Vision UC-13 |
 | RG-OPE-42 | Accepter une invitation : le jeton doit correspondre à une invitation `EN_ATTENTE` non expirée. Si son e-mail est celui d'un utilisateur, la personne se connecte (spec 03) ; sinon elle confirme nom et prénom (préremplis) et définit son mot de passe. Puis, en une transaction : trouver ou créer l'utilisateur (`authentification` crée alors son compte, sans mot de passe, que la personne pose aussitôt : spec 03 RG-AUT-11 et 15) ; refuser s'il a déjà un rattachement dans l'opérateur ; si l'invitation part d'un contact, ou à défaut si un contact de l'opérateur a l'e-mail de l'invitation (déclaré pendant l'attente, RG-OPE-28), supprimer ce contact et passer sa fiche au type `RATTACHEMENT` (RG-OPE-29), sinon créer une fiche d'après l'invitation ; créer le rattachement `ACTIF` avec le rôle de l'invitation ; passer l'invitation à `ACCEPTEE`. Un utilisateur existant garde ses nom et prénom. S'il n'avait pas d'opérateur actif, celui de l'invitation le devient. Tout échec annule tout. Une invitation adressée à un e-mail qu'un utilisateur a quitté depuis (RG-OPE-48) ne peut plus être acceptée. | §5.1.2 p.59, vision UC-20 et §2.4 |
@@ -407,7 +408,7 @@ journalise (RG-OPE-34) et envoie ses e-mails après la validation de la transact
 
 | Cas d'usage | Objets | RG |
 |---|---|---|
-| Lister et rechercher les opérateurs : type ; une seule recherche dans le code, la raison sociale, le nom commercial, le code postal et la ville (§4.3.1 p.18, décision du 2026-10-12) ; actif, incomplet ; export Excel (opérateur BNIA) | `Operateur` | 02, 32, 38, 39 |
+| Lister et rechercher les opérateurs : type ; une seule recherche dans le code, la raison sociale, le nom commercial, le code postal et la ville (§4.3.1 p.18, décision du 2026-10-12) ; actif, facturable, certifiable ; export Excel (opérateur BNIA) | `Operateur` | 02, 32, 38, 39 |
 | Proposer un code pour un type et un code postal | `Operateur` | 03 |
 | Créer un opérateur, en invitant éventuellement un premier ADMIN (opérateur BNIA) | `Operateur`, `Invitation` | 01 à 12, 14, 15, 20, 21, 24, 32, 39, 40 |
 | Modifier l'identité, le déclaratif, la production | `Operateur` | 01 à 13, 20, 21, 24, 36, 51 |
@@ -450,7 +451,8 @@ Presque tous les contextes lisent un opérateur. Ils le font par une **partie pu
 | Un opérateur par identifiant ODG, puis par CVI ou SIRET | `distillation`, `contratsvin` (passerelle ODG) |
 | Type, périodicité, statut de déclaration ; opérateurs à `OUI` (sans l'opérateur BNIA, RG-OPE-39) | `declarations` (initiation par l'opérateur, retards, colonnes grisées, assiette de cotisation ; la périodicité n'est pas lue dans le prototype, spec 05 §2.2) |
 | Type | `statistiques` |
-| Adresse, pays, e-mail résolu du destinataire des factures | `facturation` (figés sur la facture), `boutique` |
+| Adresse, pays, e-mail résolu du destinataire des factures | `boutique` |
+| L'opérateur vu comme acheteur : raison sociale, SIRET, n° de TVA, adresse, e-mail résolu du destinataire des factures, ce qui manque pour le facturer (`AcheteurVue`, RG-OPE-02) | `facturation` (port `Clients`, spec 08 §3.11), qui le recopie sur la facture |
 | Raison sociale et adresse de l'expéditeur | `exportation` (certificat, figées) |
 | Région (et « en région délimitée » via `referentiels`), appellations, diffusion des millésimes, accès aux statistiques | `statistiques` |
 | L'utilisateur peut-il se connecter (non bloqué, un rattachement utilisable) ; utilisateur d'un e-mail | `authentification` (RG-AUT-04, 09) |
@@ -474,33 +476,55 @@ deux espaces. Les entrées de menu et les actions s'affichent selon les droits (
 - **Menu « Opérateurs »** (tous rôles BNIA) : listing de tous les opérateurs sauf l'opérateur BNIA
   (RG-OPE-39) ; filtre type et un seul champ de recherche, trouvé dans le code, la raison sociale, le nom
   commercial, le code postal ou la ville (les cinq filtres texte du §4.3.1 p.18 réunis, décision du
-  2026-10-12), plus actif / inactif et « fiche incomplète » ; colonnes type, code, raison sociale, nom commercial, code
+  2026-10-12), plus actif / inactif et facturable / certifiable ; badges « Non facturable » et « Non certifiable » ; colonnes type, code, raison sociale, nom commercial, code
   postal, ville, téléphone 1, e-mail général ; ouverture directe de la fiche ; création (Contacts,
-  gestion) ; export Excel (RG-OPE-38).
+  gestion) ; export Excel (RG-OPE-38). Le type et la recherche se passent aussi dans l'URL, pour les accès
+  préfiltrés du tableau de bord (CDC §4.1 p.12, décision du 2026-10-16).
 - **Création** : type d'abord, puis code postal ; le code proposé se remplit (RG-OPE-03) et reste
   modifiable ; avertissements de doublon affichés sans bloquer ; bloc facultatif « inviter un premier
   ADMIN » (nom, prénom, e-mail), pour un ADMIN BNIA (RG-OPE-40).
-- **Fiche opérateur**, consultation et édition par onglets, ouverte sans changer d'opérateur actif :
+- **Fiche opérateur**, consultation et édition par onglets, ouverte sans changer d'opérateur actif ; deux
+  barres côte à côte, libellées : « Fiche de l'opérateur » (de *Général* à *Œnotourisme*) et « Suivi des activités » (de *Stocks &
+  Mouvements* à *Exportations*) ; la fiche du BNIA n'a qu'une barre, sans libellé (décision du 2026-10-15) :
   - *Général* : identité (dont titre), coordonnées, e-mail général, destinataire des factures (bascule
     « une personne de l'annuaire » / « une adresse »), contact principal (une personne de l'annuaire),
-    membre BNIA, accord de diffusion général, commentaire interne ; indicateur d'incomplétude ; alerte de
+    membre BNIA, accord de diffusion général, commentaire interne ; n° de TVA, avec un avertissement s'il ne concorde pas avec le SIRET ; alertes « Impossible de facturer » (« La fiche de l'opérateur n'est pas correctement renseignée. Il manque : … », décision du 2026-10-15) et « Non certifiable », chacune nommant ce qui manque, en avertissement orangé ; alerte de
     code non conforme avec « attribuer un nouveau code » (RG-OPE-05) ; autres fiches du groupe
-    (RG-OPE-09) ;
-  - *Production*, *Diffusion*, *Marques*, *Visites et labels*, *Œnotourisme* (dont médailles),
-    *Statistiques* : inchangés ;
-  - *Annuaire* : la liste de RG-OPE-52 (nom, fonction, e-mail, téléphone, état : contact, rôle,
+    (RG-OPE-09) ; trois cadres (identité, coordonnées, contact principal et destinataire des
+    factures), chacun en lecture, « Éditer » le passant en saisie avec « Annuler » et « Enregistrer »,
+    un cadre à la fois (décision du 2026-10-15) ;
+  - *Production* : cadres déclaratif, alambics, marques et circuits France, marques et circuits Export,
+    labels ; chacun en lecture (une liste vide le dit : « Aucune marque », « Aucun circuit de
+    distribution », « Aucun label », « Aucun alambic », « Aucune appellation »), « Éditer » le passant
+    en saisie, un cadre à la fois (décision du 2026-10-15) ;
+  - *Œnotourisme* : cadres accueil, visites, langues parlées, produits commercialisés, présentation du
+    domaine, médailles et concours ; en lecture (« Aucune visite », « Aucune langue », « Aucun produit
+    commercialisé », « Aucune médaille »), « Éditer » le passant en saisie (décision du 2026-10-15) ;
+    un seul cadre de présentation en édition à la fois, d'un onglet à l'autre (*Production* et
+    *Œnotourisme* enregistrent la même présentation) ;
+  - *Statistiques* (anciennement *Diffusion et statistiques*), dernier de la barre « Fiche de
+    l'opérateur » : cadres « Diffusion des millésimes » (niveau d'accord, millésimes diffusables en accord
+    partiel, « Aucun millésime ») et « Accès aux statistiques du portail » (personnel du BNIA), en lecture,
+    « Éditer » le passant en saisie, un cadre à la fois ; plus d'onglets *Marques* ni *Visites et labels*
+    (décisions du 2026-10-15) ;
+  - *Contacts* (anciennement *Annuaire*, second onglet, décision du 2026-10-15) : la liste de RG-OPE-52 (nom, fonction, e-mail, téléphone, état : contact, rôle,
     « accès suspendu », « invitation envoyée ») ; déclarer un contact ; inviter ; ouvrir une personne ;
     invitations en attente (relancer, annuler) ;
-  - *Journal* : actions sur les personnes et les accès de l'opérateur (RG-OPE-34) ;
-  - *Déclarations* (producteur ou négociant), fourni par `declarations` : point de départ, DSM,
-    journal, stock déclaré (spec 05 §6.1) ;
+    sous la liste, un cadre dépliable, fermé par défaut, « Journal des accès utilisateurs » : actions sur les personnes et les
+    accès de l'opérateur (RG-OPE-34) ; plus d'onglet *Journal* (décision du 2026-10-15) ;
+  - *Stocks & Mouvements* (producteur ou négociant ; nommé *Déclarations* jusqu'au 2026-10-15), fourni
+    par `declarations` : point de départ, DSM, journal, stock déclaré (spec 05 §6.1) ;
+  - *Contrats* et *Exportations*, réservés aux contextes à venir : un cadre « À venir » en attendant ;
+    puis, au back-office, *Factures*, fourni par `facturation` (spec 08 §6.1) (décisions du 2026-10-15) ;
   - blocs ajoutés par les étapes suivantes : factures, contrats (§4.3.3, §2.2).
 - **Actions sur l'opérateur** (ADMIN BNIA) : désactiver, réactiver, supprimer (refusée si l'opérateur est
   utilisé : le message propose de désactiver), avec la liste des effets sur les accès (RG-OPE-25, 26).
-- **Menu « BNIA »** : l'opérateur BNIA, en deux onglets : *Fiche* réduite (identité et coordonnées, sans
-  déclaratif ni présentation, RG-OPE-39), dont les coordonnées servent aussi à l'assistance du portail
-  (§5.2.2 p.61) ; *Annuaire* (personnel, invitations), avec les mêmes écrans que l'annuaire d'un
-  opérateur.
+- **Section « BNIA » des paramètres de l'application** (roue crantée de l'en-tête, en tête des sections ;
+  plus de menu « BNIA » dans la barre latérale) : l'opérateur BNIA, en trois sous-sections l'une sous
+  l'autre : *Fiche* réduite (identité et coordonnées, sans déclaratif ni présentation, RG-OPE-39), dont les
+  coordonnées servent aussi à l'assistance du portail (§5.2.2 p.61) ; *Contacts* (personnel, invitations,
+  journal des accès), avec les mêmes écrans que l'annuaire d'un opérateur ; *Facturation* (le vendeur,
+  spec 08 §3.7). L'adresse de la fiche opérateur du BNIA y renvoie.
 - **Menu « Accès »** : *Utilisateurs* (RG-OPE-53 : liste, filtres nom, e-mail, statut, opérateur ;
   blocage avec motif et déblocage pour un ADMIN BNIA, RG-OPE-50) ; *Journal des connexions* (spec 03).
 - **Menu « Paramétrage »** : écrans de la spec 01, selon le module Paramétrage.
@@ -541,7 +565,8 @@ Des données plausibles, présentées comme telles, sur les référentiels de d�
 - un groupe « Maison Durand » de deux chais (Condom et Eauze) ;
 - des alambics des deux types, une diffusion partielle (quelques millésimes), des marques France et
   Export, des visites, labels et médailles ;
-- une fiche incomplète (sans adresse) et une fiche inactive ;
+- une fiche ni facturable ni certifiable (sans adresse) et une fiche inactive ;
+- SIRET et n° de TVA sur les producteurs Maison Durand et les trois négociants, chaque négociant avec un destinataire des factures ; le Domaine de Laubade, qui a une DSM validée, reste sans SIRET (non facturable, spec 08 §7.1) ;
 - des personnes et des accès (décision du 2026-10-08), mot de passe `demo-armagnac` et code `000000`
   (spec 03), listés dans `docs/demo.md` :
 
@@ -691,3 +716,8 @@ Chaque RG-OPE-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-13 | Révision demandée par la spec 05 (`declarations`) : colonne « Déclarations » du tableau rôles × modules (§3.2.7) ; onglet « Déclarations » de la fiche opérateur (§6.1) ; périodicité sans effet sur les DSM dans le prototype (RG-OPE-10) ; « génération » remplacée par l'initiation par l'opérateur (§5.2, Q-OPE-7) ; un producteur `SOMMEIL` en démonstration (§7.1). |
 | 2026-10-13 | Correction (anomalie signalée par l'utilisateur : un contact et le membre invité au même e-mail figuraient tous deux dans l'annuaire, contre RG-OPE-29). Décision de l'utilisateur : RG-OPE-40, une personne nouvelle à l'e-mail d'un contact est invitée depuis ce contact (identité saisie ignorée, signalée à l'écran) ; RG-OPE-42, à l'acceptation, le contact déclaré pendant l'attente avec l'e-mail de l'invitation est repris de même. Alternatives écartées : reprise à l'acceptation seulement (deux lignes pendant l'attente) ; refus à l'envoi. |
 | 2026-10-13 | Écrans (demande de l'utilisateur) : le menu du profil, en haut à droite, affiche sous l'opérateur actif le rôle qu'y tient l'utilisateur (« Rôle : Observateur », « Agent » ou « Admin »). |
+| 2026-10-14 | Révision demandée par la spec 08 (`facturation`), implémentée au lot 1a de la spec 08 : n° de TVA intracommunautaire (RG-OPE-06) ; « fiche incomplète » remplacée par deux indicateurs, facturable et certifiable (RG-OPE-02), au listing (filtre, badges) et sur la fiche ; module Facturation (§3.2.7, RG-OPE-31), dont la gestion est réservée au rôle tenu dans l'opérateur BNIA ; acheteur publié pour `facturation` (§5.2) ; SIRET et n° de TVA en démonstration (§7.1). |
+| 2026-10-15 | Écrans (demande de l'utilisateur) : onglet *Général* et fiche du BNIA en lecture, édition par cadre (« Éditer », puis « Annuler » ou « Enregistrer »), un cadre à la fois, au back-office comme au portail. Fiche opérateur : marques, circuits et labels dans *Production* ; visites dans *Œnotourisme* ; onglets *Marques* et *Visites et labels* supprimés ; onglets *Contrats* et *Exportations* ajoutés en dernier, « À venir » ; onglets en deux barres libellées, « Fiche de l'opérateur » et « Suivi des activités » ; onglet *Factures* en fin de barre « Suivi des activités » (back-office), le bouton *Factures* de l'en-tête retiré ; onglet *Annuaire* renommé *Contacts*, placé en second : la liste dans un cadre « Personnes », le journal dans un cadre dépliable en dessous, « Journal des accès utilisateurs », l'onglet *Journal* supprimé (le portail garde son onglet *Journal* dans « Annuaire »). *Production*, *Œnotourisme* et *Statistiques* (anciennement *Diffusion et statistiques*, placé en dernier de sa barre) en cadres éditables, comme *Général* ; une liste vide se dit (« Aucune marque »…) ; un cadre de présentation annulé reprend ses seuls champs enregistrés, son enregistrement porte toute la présentation (un seul agrégat). |
+| 2026-10-15 | Écrans (demande de l'utilisateur) : le menu « BNIA » quitte la barre latérale ; la fiche réduite et les contacts du BNIA deviennent la section *BNIA* des paramètres de l'application, avec le vendeur des factures (spec 08). |
+| 2026-10-16 | Tableau de bord du back-office (demande de l'utilisateur, CDC §4.1 p.12) : le listing des opérateurs accepte le type et la recherche dans l'URL ; ses compteurs Producteurs et Négociants ouvrent le listing préfiltré, sa recherche rapide ouvre une fiche, ou le listing filtré par le texte (§6.1). |
+| 2026-10-17 | Révision demandée par la spec 15 (`messagerie`), livrée par son lot 2 : module « Messagerie » (`Module.MESSAGERIE`, §3.2.7), géré par les trois rôles, `OBSERVATEUR` compris ; exception à RG-OPE-31 : une conversation libre n'est lue, côté opérateur, que par son auteur ; module Déclarations : « commentaires » remplacés par « notes internes ». |

@@ -17,7 +17,7 @@ import fr.bnia.declarations.application.GererDsm.DsmImportee;
 import fr.bnia.declarations.application.GererPointDeDepart.PointImporte;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
 import fr.bnia.declarations.domain.ColonneDsm;
-import fr.bnia.declarations.domain.Commentaire;
+import fr.bnia.declarations.domain.NoteInterne;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.Fichiers;
 import fr.bnia.declarations.domain.ImportRefuse;
@@ -81,7 +81,7 @@ class ImporterExcelTest {
     }
 
     @Test
-    @DisplayName("RG-DEC-38, 23 : l'opérateur importe ; lignes rapprochées, ajout absent supprimé avec ses commentaires "
+    @DisplayName("RG-DEC-38, 23 : l'opérateur importe ; lignes rapprochées, ajout absent supprimé avec ses notes internes "
             + "passés sur la DSM ; le journal garde le nom du fichier")
     void rg_dec_38_importer_dsm() {
         List<SaisieLigneDsm> lignes = new ArrayList<>();
@@ -95,7 +95,7 @@ class ImporterExcelTest {
         DeclarationStocksMouvements saisie = gerer.enregistrer(AGENT_NEGOCIANT, NEGOCIANT, dsm.id(),
                 new SaisieDsm(null, lignes), null).dsm();
         long ajoutee = saisie.lignes().getLast().id();
-        Commentaire commentaire = monde.commenterDsm().ecrire(AGENT_NEGOCIANT, NEGOCIANT, dsm.id(), ajoutee, "Assemblage", false);
+        NoteInterne note = monde.annoterDsm().ecrire(AGENT_BNIA, NEGOCIANT, dsm.id(), ajoutee, "Assemblage");
 
         DsmImportee importee = gerer.importer(AGENT_NEGOCIANT, NEGOCIANT, dsm.id(), fichier("juin.xlsx", Fichiers.du(JUIN)
                 .ligne("XO", "NB", "12", Map.of(17, 300))
@@ -109,8 +109,8 @@ class ImporterExcelTest {
                         tuple("« dénomination Blanche, clé NB, compte d'âge 00 »", OrigineLigne.AJOUT, VolumeAlcoolPur.litres("50")));
         assertThat(importee.avertissements()).containsExactly("Ligne 19 du fichier (« dénomination Blanche, clé NB, compte"
                 + " d'âge 00 ») : stock de fin 40,00 L dans le fichier, 50,00 L calculé ; le calcul prévaut.");
-        assertThat(monde.commentaires.deLaDsm(dsm.id())).singleElement().satisfies(c -> {
-            assertThat(c.id()).isEqualTo(commentaire.id());
+        assertThat(monde.notes.deLaDsm(dsm.id())).singleElement().satisfies(c -> {
+            assertThat(c.id()).isEqualTo(note.id());
             assertThat(c.ligne()).isNull();
         });
         assertThat(monde.journal.deLaDsm(dsm.id()).getFirst()).satisfies(e -> {

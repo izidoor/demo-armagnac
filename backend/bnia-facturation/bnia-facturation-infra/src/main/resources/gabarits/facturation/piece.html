@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!--
+  PDF d'une pièce émise (spec 08, RG-FAC-15, A-FAC-10), ou aperçu d'un brouillon (projet : bandeau, filigrane,
+  sans numéro) : A4 portrait, d'après la facture d'exemple
+  FACTURE-CVO-Armagnac_2026000700.pdf. XHTML bien formé (OpenHTMLtoPDF) : éléments vides fermés, aucune entité
+  nommée. Les textes arrivent mis en forme par PdfPiece (euros, quantités, dates).
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title th:text="${projet} ?: (${titre} + ' ' + ${numero})">Facture</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 14mm 14mm 18mm 14mm;
+      @bottom-center { content: "Page " counter(page) " / " counter(pages); font: 7pt Helvetica, sans-serif; color: #666; }
+    }
+    body { font-family: Helvetica, sans-serif; font-size: 8.5pt; color: #111; }
+    table.parties { width: 100%; border-collapse: collapse; margin-bottom: 8mm; }
+    table.parties td { vertical-align: top; width: 50%; }
+    .vendeur .nom { font-size: 11pt; font-weight: bold; }
+    .acheteur { border: 0.5pt solid #999; padding: 3mm; }
+    .acheteur .nom { font-weight: bold; font-size: 10pt; }
+    .petit { color: #444; font-size: 7.5pt; }
+    h1 { font-size: 14pt; margin: 0 0 1mm 0; }
+    .numero { font-size: 11pt; margin-bottom: 4mm; }
+    table.infos { border-collapse: collapse; margin-bottom: 4mm; }
+    table.infos td { padding: 0.5pt 6pt 0.5pt 0; }
+    table.infos td.cle { color: #555; }
+    p.note { white-space: pre-line; margin: 2mm 0 4mm 0; }
+    table.lignes { width: 100%; border-collapse: collapse; -fs-table-paginate: paginate; margin-bottom: 4mm; }
+    table.lignes th, table.lignes td { border-bottom: 0.5pt solid #bbb; padding: 2pt 3pt; }
+    table.lignes thead th { background: #e8e8e8; text-align: left; }
+    table.lignes .nombre { text-align: right; white-space: nowrap; }
+    table.lignes tr.groupe td { font-weight: bold; background: #f3f3f3; }
+    table.lignes tr.sous-total td { font-style: italic; }
+    table.lignes td.retrait { padding-left: 10pt; }
+    table.bas { width: 100%; border-collapse: collapse; }
+    table.bas > tbody > tr > td { vertical-align: top; }
+    table.recapitulatif, table.totaux { border-collapse: collapse; }
+    table.recapitulatif th, table.recapitulatif td { border-bottom: 0.5pt solid #bbb; padding: 2pt 4pt; }
+    table.recapitulatif th { background: #e8e8e8; text-align: left; }
+    table.totaux td { padding: 2pt 4pt; }
+    table.totaux tr.ttc td { font-weight: bold; font-size: 10pt; border-top: 1pt solid #111; }
+    .nombre { text-align: right; white-space: nowrap; }
+    .mentions { margin-top: 6mm; color: #444; font-size: 7.5pt; }
+    .bandeau { border: 1.5pt solid #b42318; color: #b42318; font-weight: bold; font-size: 10pt; text-align: center;
+      padding: 2mm; margin-bottom: 5mm; letter-spacing: 1pt; }
+    .bandeau .petit { color: #b42318; font-weight: normal; letter-spacing: 0; }
+    /* Répété sur chaque page (élément fixe), derrière le texte. OpenHTMLtoPDF ignore opacity : la teinte pâle
+       vaut le rouge du bandeau à 12 % sur blanc. */
+    .filigrane { position: fixed; top: 110mm; left: -20mm; width: 220mm; text-align: center; font-size: 44pt;
+      white-space: nowrap;
+      font-weight: bold; color: #f6e5e3; z-index: -1; transform: rotate(-35deg); }
+  </style>
+</head>
+<body>
+
+<div class="filigrane" th:if="${projet}" th:text="${projet}">PROJET DE FACTURE</div>
+<div class="bandeau" th:if="${projet}">
+  <span th:text="'BROUILLON · ' + ${projet}">BROUILLON · PROJET DE FACTURE</span>
+  <div class="petit">Document sans valeur comptable : la pièce n'est ni numérotée ni émise.</div>
+</div>
+
+<table class="parties">
+  <tr>
+    <td class="vendeur">
+      <div class="nom" th:text="${vendeur.nom}">Bureau National Interprofessionnel de l'Armagnac</div>
+      <div class="petit" th:each="l : ${vendeur.lignes}" th:text="${l}">11 place de la Liberté</div>
+    </td>
+    <td class="acheteur">
+      <div class="nom" th:text="${acheteur.nom}">Armagnacs de Gascogne</div>
+      <div th:each="l : ${acheteur.lignes}" th:text="${l}">32100 Condom</div>
+    </td>
+  </tr>
+</table>
+
+<h1 th:text="${titre}">Cotisation interprofessionnelle Armagnac</h1>
+<div class="numero" th:if="${numero}"><span th:text="${sens}">Facture</span> n° <strong th:text="${numero}">2026000001</strong></div>
+<div class="numero" th:unless="${numero}"><span th:text="${sens}">Facture</span> n° <strong>attribué à l'émission</strong></div>
+
+<table class="infos">
+  <tr th:each="i : ${informations}">
+    <td class="cle" th:text="${i.key}">Date d'émission</td>
+    <td th:text="${i.value}">07/10/2026</td>
+  </tr>
+</table>
+
+<p class="note" th:if="${noteEntete}" th:text="${noteEntete}">Note d'en-tête</p>
+
+<table class="lignes">
+  <thead>
+    <tr>
+      <th>Désignation</th>
+      <th class="nombre">Quantité</th>
+      <th class="nombre">Prix unitaire HT</th>
+      <th class="nombre">Montant HT</th>
+      <th class="nombre">TVA</th>
+    </tr>
+  </thead>
+  <tbody>
+    <th:block th:each="l : ${lignes}">
+      <tr th:if="${l.sorte == 'groupe'}" class="groupe">
+        <td colspan="5" th:text="${l.texte}">Commerce de l'Armagnac</td>
+      </tr>
+      <tr th:if="${l.sorte == 'article'}">
+        <td th:classappend="${l.retrait} ? 'retrait'" th:text="${l.texte}">Sorties France, part assujettie</td>
+        <td class="nombre" th:text="${l.quantite}">8,3911 hlAP</td>
+        <td class="nombre" th:text="${l.prix}">48,00 €</td>
+        <td class="nombre" th:text="${l.ht}">402,77 €</td>
+        <td class="nombre" th:text="${l.tva}">20,00 %</td>
+      </tr>
+      <tr th:if="${l.sorte == 'texte'}">
+        <td colspan="5" th:classappend="${l.retrait} ? 'retrait'" th:text="${l.texte}">Texte</td>
+      </tr>
+      <tr th:if="${l.sorte == 'sous-total'}" class="sous-total">
+        <td colspan="3" th:text="${l.texte}">Sous-total</td>
+        <td class="nombre" th:text="${l.ht}">1 855,95 €</td>
+        <td></td>
+      </tr>
+    </th:block>
+  </tbody>
+</table>
+
+<table class="bas">
+  <tr>
+    <td>
+      <table class="recapitulatif">
+        <thead>
+          <tr><th>TVA</th><th class="nombre">Base HT</th><th class="nombre">Montant</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="t : ${recapitulatif}">
+            <td th:text="${t.categorie}">20,00 %</td>
+            <td class="nombre" th:text="${t.base}">1 484,76 €</td>
+            <td class="nombre" th:text="${t.tva}">296,95 €</td>
+          </tr>
+        </tbody>
+      </table>
+    </td>
+    <td style="text-align: right;">
+      <table class="totaux" style="margin-left: auto;">
+        <tr><td>Total HT</td><td class="nombre" th:text="${totaux.ht}">1 855,95 €</td></tr>
+        <tr><td>Total TVA</td><td class="nombre" th:text="${totaux.tva}">296,95 €</td></tr>
+        <tr class="ttc"><td>Total TTC</td><td class="nombre" th:text="${totaux.ttc}">2 152,90 €</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p class="note" th:if="${notePied}" th:text="${notePied}">Note de pied</p>
+
+<div class="mentions">
+  <div th:if="${reglement}" th:text="${reglement}">IBAN · BIC</div>
+  <div th:each="m : ${mentions}" th:text="${m}">Mention</div>
+</div>
+
+</body>
+</html>

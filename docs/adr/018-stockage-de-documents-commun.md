@@ -1,6 +1,6 @@
 # ADR-018 : Stockage de documents commun
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-17 (formats de documents)
 - Date : 2026-10-13
 - Spec : `docs/specs/05-declarations/spec.md` (décision A-DEC-5)
 
@@ -38,3 +38,13 @@ Options écartées :
 - Passer à S3 ne touche que l'adapter (et un nettoyage des orphelins) : ni le domaine ni les cas
   d'usage ne changent.
 - La suppression d'une référence supprime le document dans la même transaction.
+
+## Amendement du 2026-10-17 (spec 15, décision A-MSG-7)
+- **Formats admis au choix de l'appelant.** Les pièces jointes d'une conversation libre (`messagerie`)
+  sont des PDF, des images PNG ou JPEG, ou des classeurs `.xlsx`. Le port gagne
+  `deposer(nom, contenu, formats admis)`, avec `FormatDocument` (`PDF`, `PNG`, `JPEG`, `XLSX`) dans
+  `bnia-commun-core` ; l'adapter reconnaît chaque format par sa signature (`%PDF`, en-tête PNG, en-tête
+  JPEG, archive ZIP) et enregistre son type MIME. `deposerPdf` demeure : justificatifs et DRM restent en
+  PDF seul. La limite de 10 Mo est inchangée.
+- Écartés : un stockage propre à `messagerie` (deux stockages) ; tout type de fichier, contrôlé sur la
+  taille seule (contenu non vérifié, souvent illisible dans le navigateur).

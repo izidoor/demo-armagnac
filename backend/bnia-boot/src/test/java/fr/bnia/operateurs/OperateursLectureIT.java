@@ -3,6 +3,7 @@ package fr.bnia.operateurs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.bnia.operateurs.application.partage.OperateursLecture;
+import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Droits;
 import fr.bnia.operateurs.domain.partage.EtatConnexion;
 import fr.bnia.operateurs.domain.partage.Module;
@@ -48,6 +49,32 @@ class OperateursLectureIT extends AbstractIT {
         assertThat(lecture.operateursParSiret("352 439 873 00014")).extracting(OperateurVue::id).contains(id);
         assertThat(lecture.declarantsAttendus()).extracting(OperateurVue::id).contains(id);
         assertThat(lecture.operateur(-1)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("RG-OPE-02 : l'acheteur publié pour la facturation, avec ce qui manque pour le facturer")
+    void rg_ope_02_acheteur() {
+        var saisie = saisie("T" + suffixe(), "Domaine " + suffixe());
+        saisie.put("siret", "35243987300014");
+        saisie.put("numeroTva", "FR37352439873");
+        saisie.put("adresseLigne1", "1 route d'Auch");
+        saisie.put("codePostal", "32100");
+        long id = creer(URL, saisie);
+
+        AcheteurVue acheteur = lecture.acheteur(id).orElseThrow();
+        assertThat(acheteur.siret()).contains("35243987300014");
+        assertThat(acheteur.numeroTva()).contains("FR37352439873");
+        assertThat(acheteur.adresse().ligne1()).isPresent();
+        assertThat(acheteur.facturable()).isFalse();
+        assertThat(acheteur.manquePourFacturer()).contains("destinataire des factures").doesNotContain("SIRET");
+
+        client.put().uri(URL + "/{id}/designations", id)
+                .body(Map.of("destinataireFacturesEmail", "compta@domaine.example"))
+                .exchange().expectStatus().isOk();
+        acheteur = lecture.acheteur(id).orElseThrow();
+        assertThat(acheteur.emailFacturation()).contains("compta@domaine.example");
+        assertThat(acheteur.manquePourFacturer()).doesNotContain("destinataire des factures");
+        assertThat(lecture.acheteur(-1)).isEmpty();
     }
 
     @Test

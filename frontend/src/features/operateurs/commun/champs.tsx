@@ -220,3 +220,31 @@ export function Lecture({
     </div>
   )
 }
+
+/** Une liste en lecture, une valeur par ligne ; vide, un texte qui le dit (« Aucune marque »). */
+export function LectureListe({
+  label,
+  valeurs,
+  vide,
+  className,
+}: {
+  label?: string
+  valeurs: ReactNode[]
+  vide: string
+  className?: string
+}) {
+  return (
+    <div className={cn('space-y-1', className)}>
+      {label && <div className='text-sm font-medium'>{label}</div>}
+      {valeurs.length === 0 ? (
+        <div className='text-muted-foreground text-sm italic'>{vide}</div>
+      ) : (
+        <ul className='text-muted-foreground space-y-1 text-sm'>
+          {valeurs.map((v, i) => (
+            <li key={i}>{v}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}

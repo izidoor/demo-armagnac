@@ -16,7 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
- * Lot 2 de la spec 05 : envoi, instruction, validation, commentaires, listing du BNIA, DSM suivante. Les
+ * Lot 2 de la spec 05 : envoi, instruction, validation, notes internes (spec 15, lot 1), listing du BNIA, DSM
+ * suivante. Les
  * événements publiés sont vérifiés par les tests des cas d'usage (le serveur des IT tourne sur ses fils).
  */
 class InstructionDsmIT extends AbstractIT {
@@ -90,20 +91,19 @@ class InstructionDsmIT extends AbstractIT {
     void rg_dec_20_cycle_complet() {
         Map<?, ?> dsm = negociantAvecDsm();
         Object id = id(dsm);
-        assertThat(dsm.get("actions")).isEqualTo(List.of("ENREGISTRER", "ENVOYER", "SUPPRIMER", "COMMENTER",
-                "DEPOSER_PIECES"));
+        assertThat(dsm.get("actions")).isEqualTo(List.of("ENREGISTRER", "ENVOYER", "SUPPRIMER", "DEPOSER_PIECES"));
 
         Map<?, ?> envoyee = transition(agent, id, "envoi", Map.of("version", 0));
         assertThat(envoyee.get("etat")).isEqualTo("ENVOYEE");
         assertThat(envoyee.get("envoyeeLe")).isNotNull();
         assertThat(envoyee.get("libelleEtat")).isEqualTo("Envoyée");
-        assertThat(envoyee.get("actions")).isEqualTo(List.of("COMMENTER"));
+        assertThat(envoyee.get("actions")).isEqualTo(List.of());
         agent.put().uri(dsms + "/{id}", id).body(saisie(envoyee, Map.of())).exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
                 .expectBody().jsonPath("$.regle").isEqualTo("RG-DEC-21");
         client.get().uri(dsms + "/{id}", id).exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$.actions").isEqualTo(List.of("PRENDRE_EN_INSTRUCTION", "COMMENTER",
-                        "COMMENTER_INTERNE", "DEPOSER_PIECES"));
+                .expectBody().jsonPath("$.actions").isEqualTo(List.of("PRENDRE_EN_INSTRUCTION", "ANNOTER",
+                        "DEPOSER_PIECES"));
 
         transition(client, id, "prise-en-instruction", Map.of("version", 1));
         client.post().uri(dsms + "/{id}/complements", id).body(Map.of("motif", " ", "version", 2)).exchange()
@@ -124,9 +124,11 @@ class InstructionDsmIT extends AbstractIT {
         client.post().uri(dsms + "/{id}/validation", id).body(Map.of()).exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
                 .expectBody().jsonPath("$.regle").isEqualTo("RG-DEC-20");
-        agent.get().uri(dsms + "/{id}/commentaires", id).exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$[*].texte").isEqualTo(List.of("DAE manquants pour l'export"))
-                .jsonPath("$[0].motif").isEqualTo(true);
+        // RG-MSG-08 : le motif, protégé, dans la conversation de la DSM.
+        agent.get().uri("/api/messagerie/objets/DSM/{id}", id).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.messages[*].texte").isEqualTo(List.of("DAE manquants pour l'export"))
+                .jsonPath("$.messages[0].protege").isEqualTo(true)
+                .jsonPath("$.messages[0].cote").isEqualTo("BNIA");
         agent.get().uri(dsms + "/{id}/journal", id).exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$[*].action").isEqualTo(List.of("DSM_VALIDEE", "DSM_ENVOYEE",
                         "COMPLEMENTS_DEMANDES", "DSM_PRISE_EN_INSTRUCTION", "DSM_ENVOYEE", "DSM_INITIEE"));
@@ -151,43 +153,34 @@ class InstructionDsmIT extends AbstractIT {
     }
 
     @Test
-    @DisplayName("RG-DEC-24, 25 : commentaires sur la DSM ou une ligne ; interne invisible au portail ; l'auteur seul modifie")
-    void rg_dec_24_25_commentaires() {
+    @DisplayName("RG-DEC-24 : notes internes du BNIA sur la DSM ou une ligne ; invisibles du portail ; l'auteur seul modifie")
+    void rg_dec_24_notes_internes() {
         Map<?, ?> dsm = negociantAvecDsm();
         Object id = id(dsm);
-        String commentaires = dsms + "/" + id + "/commentaires";
+        String notes = dsms + "/" + id + "/notes";
         Object ligne = ((Map<?, ?>) ((List<?>) dsm.get("lignes")).getFirst()).get("id");
         Map<String, Object> surLigne = new HashMap<>();
         surLigne.put("ligne", ligne);
-        surLigne.put("texte", "Transfert vers Eauze");
-        Map<?, ?> deLAgent = corps(agent.post().uri(commentaires).body(surLigne).exchange().expectStatus().isCreated());
-        assertThat(deLAgent.get("cote")).isEqualTo("OPERATEUR");
-        assertThat(deLAgent.get("deLUtilisateur")).isEqualTo(true);
-        agent.post().uri(commentaires).body(Map.of("texte", "Interne ?", "interne", true)).exchange()
+        surLigne.put("texte", "Sorties export à rapprocher des DAE");
+        Map<?, ?> note = corps(client.post().uri(notes).body(surLigne).exchange().expectStatus().isCreated());
+        assertThat(note.get("ligne")).isEqualTo(ligne);
+        assertThat(note.get("deLUtilisateur")).isEqualTo(true);
+
+        agent.get().uri(notes).exchange().expectStatus().isForbidden();
+        agent.post().uri(notes).body(Map.of("texte", "Note")).exchange().expectStatus().isForbidden();
+        client.get().uri(notes).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[*].texte").isEqualTo(List.of("Sorties export à rapprocher des DAE"));
+
+        String autre = emailUnique("agent-bnia");
+        membre(operateurs.operateurBnia(), Role.AGENT, autre);
+        connecte(autre).put().uri(notes + "/{n}", id(note)).body(Map.of("texte", "Autre")).exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
                 .expectBody().jsonPath("$.regle").isEqualTo("RG-DEC-24");
-        Map<?, ?> interne = corps(client.post().uri(commentaires).body(Map.of("texte", "À vérifier", "interne", true))
-                .exchange().expectStatus().isCreated());
-
-        agent.get().uri(commentaires).exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$[*].texte").isEqualTo(List.of("Transfert vers Eauze"));
-        client.get().uri(commentaires).exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$.length()").isEqualTo(2)
-                .jsonPath("$[0].deLUtilisateur").isEqualTo(false);
-
-        client.put().uri(commentaires + "/{c}", id(deLAgent)).body(Map.of("texte", "Autre")).exchange()
-                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
-                .expectBody().jsonPath("$.regle").isEqualTo("RG-DEC-25");
-        agent.put().uri(commentaires + "/{c}", id(deLAgent)).body(Map.of("texte", "Transfert vers Eauze, 12 juin"))
-                .exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$.modifieLe").isNotEmpty();
-        client.delete().uri(commentaires + "/{c}", id(interne)).exchange().expectStatus().isNoContent();
-        client.get().uri(dsms + "/{id}/journal", id).exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$[0].action").isEqualTo("COMMENTAIRE_SUPPRIME");
-
-        String email = emailUnique("observateur");
-        membre(operateur, Role.OBSERVATEUR, email);
-        connecte(email).post().uri(commentaires).body(Map.of("texte", "Note")).exchange().expectStatus().isForbidden();
+        client.put().uri(notes + "/{n}", id(note)).body(Map.of("texte", "DAE reçus, conforme")).exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.modifieeLe").isNotEmpty();
+        client.delete().uri(notes + "/{n}", id(note)).exchange().expectStatus().isNoContent();
+        client.get().uri(notes).exchange().expectStatus().isOk().expectBody().jsonPath("$.length()").isEqualTo(0);
     }
 
     @Test

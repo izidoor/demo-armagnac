@@ -26,6 +26,8 @@
         <module>bnia-operateurs</module>
         <module>bnia-authentification</module>
         <module>bnia-declarations</module>
+        <module>bnia-facturation</module>
+        <module>bnia-messagerie</module>
         <module>bnia-boot</module>
     </modules>
 
@@ -100,6 +102,36 @@
             <dependency>
                 <groupId>fr.bnia</groupId>
                 <artifactId>bnia-declarations-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-facturation-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-facturation-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-facturation-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-messagerie-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-messagerie-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-messagerie-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

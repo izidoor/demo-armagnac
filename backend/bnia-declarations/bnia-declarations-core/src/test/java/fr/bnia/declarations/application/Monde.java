@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import fr.bnia.operateurs.application.partage.OperateursLecture;
+import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.AdresseVue;
 import fr.bnia.operateurs.domain.partage.Droits;
@@ -62,7 +63,8 @@ final class Monde {
     final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
     final PointsEnMemoire points = new PointsEnMemoire();
     final JournalEnMemoire journal = new JournalEnMemoire();
-    final CommentairesEnMemoire commentaires = new CommentairesEnMemoire();
+    final NotesEnMemoire notes = new NotesEnMemoire();
+    final MessagerieCapturee messagerie = new MessagerieCapturee();
     final PiecesEnMemoire pieces = new PiecesEnMemoire();
     final StockageEnMemoire stockage = new StockageEnMemoire();
     final ClasseursEnMemoire classeurs = new ClasseursEnMemoire();
@@ -71,6 +73,7 @@ final class Monde {
     final RetardsEnMemoire retards = new RetardsEnMemoire();
     final StocksEnMemoire stocks = new StocksEnMemoire(dsms);
     final EditionsStocksCapturees editionsStocks = new EditionsStocksCapturees();
+    final FacturationCapturee facturation = new FacturationCapturee();
     private final Map<Long, OperateurVue> vues = new HashMap<>();
 
     Monde() {
@@ -89,6 +92,14 @@ final class Monde {
                 .map(v -> new ResultatRecherche(v.id(), v.code(), v.raisonSociale(), Optional.empty(), Optional.empty()))
                 .toList());
         when(operateurs.droits(anyLong(), anyLong())).thenAnswer(i -> droits(i.getArgument(0), i.getArgument(1)));
+        // RG-OPE-02 : le négociant est facturable, le producteur n'a pas de SIRET.
+        when(operateurs.acheteur(anyLong())).thenAnswer(i -> Optional.ofNullable(vues.get(i.<Long>getArgument(0)))
+                .map(v -> new AcheteurVue(v.id(), v.code(), v.raisonSociale(),
+                        v.id() == NEGOCIANT ? Optional.of("77699995500029") : Optional.empty(), Optional.empty(),
+                        v.adresse(), Optional.of("compta@exemple.fr"),
+                        v.id() == NEGOCIANT ? java.util.List.of() : java.util.List.of("SIRET"), true)));
+        when(operateurs.facturables(anyCollection())).thenAnswer(i -> i.<Collection<Long>>getArgument(0).stream()
+                .filter(id -> id == NEGOCIANT).collect(java.util.stream.Collectors.toSet()));
         // La classe de TVA de la CVO : 20 % depuis 2014.
         when(referentiels.classeTvaParCode("NORMAL")).thenReturn(Optional.of(new ValeurVue(5, "NORMAL", "Normal", true)));
         when(referentiels.tauxTva(anyLong(), any())).thenAnswer(i -> i.<Long>getArgument(0) == 5
@@ -123,12 +134,12 @@ final class Monde {
     }
 
     GererDsm gererDsm() {
-        return new GererDsm(dsms, points, dsms, journal, commentaires, pieces, stockage, classeurs, grilles, factures,
+        return new GererDsm(dsms, points, dsms, journal, notes, messagerie, pieces, stockage, classeurs, grilles, factures,
                 evenements, operateurs, referentiels, PARAMETRES, HORLOGE);
     }
 
-    CommenterDsm commenterDsm() {
-        return new CommenterDsm(dsms, commentaires, journal, operateurs, HORLOGE);
+    AnnoterDsm annoterDsm() {
+        return new AnnoterDsm(dsms, notes, journal, operateurs, HORLOGE);
     }
 
     GererPieces gererPieces() {
@@ -144,11 +155,19 @@ final class Monde {
     }
 
     EnregistrerFactures enregistrerFactures() {
-        return new EnregistrerFactures(factures);
+        return new EnregistrerFactures(factures, dsms, journal, operateurs, HORLOGE);
     }
 
     DeclarationsPubliees declarationsPubliees() {
-        return new DeclarationsPubliees(dsms, dsms, stocks, grilles, factures);
+        return new DeclarationsPubliees(dsms, stocks);
+    }
+
+    FacturerDsm facturerDsm() {
+        return new FacturerDsm(dsms, factures, grilles, facturation, journal, operateurs, HORLOGE);
+    }
+
+    ArticlesCotisation articlesCotisation() {
+        return new ArticlesCotisation(grilles, referentiels, PARAMETRES);
     }
 
     DetecterRetards detecterRetards(Clock horloge) {

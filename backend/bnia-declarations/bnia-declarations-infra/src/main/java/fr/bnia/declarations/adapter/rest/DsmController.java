@@ -1,6 +1,7 @@
 package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
+import fr.bnia.declarations.application.FacturerDsm;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.domain.partage.Cote;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 class DsmController {
 
     private final GererDsm gerer;
+    private final FacturerDsm facturer;
 
-    DsmController(GererDsm gerer) {
+    DsmController(GererDsm gerer, FacturerDsm facturer) {
         this.gerer = gerer;
+        this.facturer = facturer;
     }
 
     @GetMapping("/dsm")
@@ -95,7 +98,7 @@ class DsmController {
 
     @PostMapping("/dsm/{id}/complements")
     @Operation(operationId = "demanderComplementsDsm",
-            summary = "Le BNIA demande des compléments, avec un motif écrit en commentaire de la DSM (RG-DEC-20, 24)")
+            summary = "Le BNIA demande des compléments, avec un motif déposé dans la conversation de la DSM (RG-DEC-20, RG-MSG-08)")
     DsmResponse demanderComplements(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
             @RequestBody ComplementsDsmRequest requete) {
         return DsmResponse.depuis(gerer.demanderComplements(Acteurs.de(connecte), operateur, id, requete.motif(),
@@ -109,10 +112,18 @@ class DsmController {
         return DsmResponse.depuis(gerer.valider(Acteurs.de(connecte), operateur, id, requete.version()));
     }
 
+    @PostMapping("/dsm/{id}/facturation")
+    @Operation(operationId = "facturerDsm",
+            summary = "Le BNIA demande la facture d'une DSM validée : un brouillon de facture est créé (RG-DEC-43)")
+    DsmResponse facturer(Connecte connecte, @PathVariable long operateur, @PathVariable long id) {
+        facturer.facturer(Acteurs.de(connecte), operateur, id);
+        return DsmResponse.depuis(gerer.consulter(Acteurs.de(connecte), operateur, id));
+    }
+
     @DeleteMapping("/dsm/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "supprimerDsm",
-            summary = "Supprimer un brouillon, par l'opérateur ou le BNIA ; commentaires et journal avec lui (RG-DEC-01, 22)")
+            summary = "Supprimer un brouillon, par l'opérateur ou le BNIA ; notes internes, conversation et journal avec lui (RG-DEC-01, 22)")
     void supprimer(Connecte connecte, @PathVariable long operateur, @PathVariable long id) {
         gerer.supprimer(Acteurs.de(connecte), operateur, id);
     }

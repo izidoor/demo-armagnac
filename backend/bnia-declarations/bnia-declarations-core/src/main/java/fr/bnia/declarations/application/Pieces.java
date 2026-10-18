@@ -8,7 +8,7 @@ import java.util.Optional;
 
 /**
  * Port d'écriture des pièces d'une DSM, justificatifs et DRM (spec 05 §3.2.2, §3.2.3), enregistrées à part de
- * la DSM comme les commentaires : un dépôt ne change pas sa version. Chaque lecture d'une DSM tient en une
+ * la DSM comme les notes internes : un dépôt ne change pas sa version. Chaque lecture d'une DSM tient en une
  * requête.
  */
 public interface Pieces {

@@ -9,7 +9,8 @@ import java.util.Set;
 
 /**
  * Les actions qu'un acteur peut faire sur une DSM, selon son état et son côté (spec 05 §6.3, RG-DEC-01, 20 à
- * 22, 24, 28) : l'écran n'affiche que celles-là. Les cas d'usage revérifient chacune.
+ * 22, 24, 28, 43) : l'écran n'affiche que celles-là. Écrire dans la conversation de la DSM relève de
+ * {@code messagerie}, qui dit elle-même si l'acteur y écrit (RG-MSG-01). Les cas d'usage revérifient chacune.
  */
 public enum ActionDsm {
 
@@ -19,15 +20,16 @@ public enum ActionDsm {
     PRENDRE_EN_INSTRUCTION,
     DEMANDER_COMPLEMENTS,
     VALIDER,
-    COMMENTER,
-    COMMENTER_INTERNE,
-    DEPOSER_PIECES;
+    /** RG-DEC-24 : tenir le carnet de notes internes (personnel du BNIA qui gère le module). */
+    ANNOTER,
+    DEPOSER_PIECES,
+    /** RG-DEC-43 : DSM validée sans facture vivante, acteur qui gère la facturation au BNIA. */
+    FACTURER;
 
     static Set<ActionDsm> permises(DeclarationStocksMouvements dsm, Droits droits) {
         Set<ActionDsm> actions = EnumSet.noneOf(ActionDsm.class);
         EtatDsm etat = dsm.etat();
         if (droits.local().map(r -> r.gere(Module.DECLARATIONS)).orElse(false)) {
-            actions.add(COMMENTER);
             if (etat.modifiable()) {
                 actions.add(ENREGISTRER);
                 actions.add(ENVOYER);
@@ -37,8 +39,7 @@ public enum ActionDsm {
                 actions.add(SUPPRIMER);
             }
         } else if (droits.bnia().map(r -> r.gere(Module.DECLARATIONS)).orElse(false)) {
-            actions.add(COMMENTER);
-            actions.add(COMMENTER_INTERNE);
+            actions.add(ANNOTER);
             if (etat != EtatDsm.VALIDEE) {
                 actions.add(DEPOSER_PIECES);
             }

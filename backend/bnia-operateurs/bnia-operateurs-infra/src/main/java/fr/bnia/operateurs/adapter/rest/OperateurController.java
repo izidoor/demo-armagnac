@@ -63,8 +63,11 @@ class OperateurController {
             @Parameter(description = "Contenu dans le code, la raison sociale, le nom commercial, le code postal ou la ville")
             @RequestParam(required = false) String recherche,
             @Parameter(description = "Absent : actifs et inactifs") @RequestParam(required = false) Boolean actif,
-            @Parameter(description = "Vrai : fiches incomplètes seulement (RG-OPE-02)") @RequestParam(required = false) Boolean incomplet) {
-        var filtre = new FiltreOperateurs(type, recherche, actif, incomplet);
+            @Parameter(description = "Vrai : fiches facturables seulement ; faux : les autres (RG-OPE-02)")
+            @RequestParam(required = false) Boolean facturable,
+            @Parameter(description = "Vrai : fiches certifiables seulement ; faux : les autres (RG-OPE-02)")
+            @RequestParam(required = false) Boolean certifiable) {
+        var filtre = new FiltreOperateurs(type, recherche, actif, facturable, certifiable);
         return gerer.lister(Acteurs.de(connecte), filtre).stream().map(OperateurLigneResponse::depuis).toList();
     }
 
@@ -77,8 +80,9 @@ class OperateurController {
             @RequestParam(required = false) TypeOperateur type,
             @RequestParam(required = false) String recherche,
             @RequestParam(required = false) Boolean actif,
-            @RequestParam(required = false) Boolean incomplet) {
-        var filtre = new FiltreOperateurs(type, recherche, actif, incomplet);
+            @RequestParam(required = false) Boolean facturable,
+            @RequestParam(required = false) Boolean certifiable) {
+        var filtre = new FiltreOperateurs(type, recherche, actif, facturable, certifiable);
         String fichier = "operateurs-" + LocalDate.now(horloge) + ".xlsx";
         return ResponseEntity.ok()
                 .contentType(XLSX)

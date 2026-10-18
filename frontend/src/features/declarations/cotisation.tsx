@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
 import { type CotisationDsm, type Dsm } from '@/api/generated'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -24,7 +25,14 @@ import {
  * taux CVO en vigueur à la fin de la période (RG-DEC-31 à 33), avec la TVA et le TTC indicatifs (RG-DEC-34) ;
  * facturée, ses factures et avoirs.
  */
-export function OngletCotisation({ dsm }: { dsm: Dsm }) {
+export function OngletCotisation({
+  dsm,
+  liens = false,
+}: {
+  dsm: Dsm
+  /** Au back-office : les factures ouvrent leur pièce (spec 08 §6.1). */
+  liens?: boolean
+}) {
   const cotisation = dsm.cotisation
   switch (cotisation.statut) {
     case 'NON_CALCULABLE':
@@ -40,24 +48,35 @@ export function OngletCotisation({ dsm }: { dsm: Dsm }) {
         </Alert>
       )
     case 'FACTUREE':
-      return <Factures cotisation={cotisation} />
+      return <Factures cotisation={cotisation} liens={liens} />
     case 'CALCULEE':
-      return <Detail cotisation={cotisation} validee={dsm.etat === 'VALIDEE'} />
+      return (
+        <Detail
+          cotisation={cotisation}
+          validee={dsm.etat === 'VALIDEE'}
+          demandee={dsm.brouillonFacture != null}
+        />
+      )
   }
 }
 
 function Detail({
   cotisation,
   validee,
+  demandee,
 }: {
   cotisation: CotisationDsm
   validee: boolean
+  /** RG-DEC-43 : la facture est demandée, pas encore émise. */
+  demandee: boolean
 }) {
   const taux = cotisation.taux
   return (
     <div className='space-y-4'>
       <div className='flex flex-wrap items-center gap-2 text-sm'>
-        {validee ? (
+        {demandee ? (
+          <Badge variant='outline'>Facturation demandée</Badge>
+        ) : validee ? (
           <Badge>À facturer</Badge>
         ) : (
           <Badge variant='outline'>Provisoire</Badge>
@@ -166,7 +185,13 @@ function Detail({
   )
 }
 
-function Factures({ cotisation }: { cotisation: CotisationDsm }) {
+function Factures({
+  cotisation,
+  liens,
+}: {
+  cotisation: CotisationDsm
+  liens: boolean
+}) {
   return (
     <div className='space-y-4'>
       <Badge variant='secondary'>Facturée</Badge>
@@ -188,7 +213,19 @@ function Factures({ cotisation }: { cotisation: CotisationDsm }) {
                 <TableCell>
                   {f.type === 'FACTURE' ? 'Facture' : 'Avoir'}
                 </TableCell>
-                <TableCell className='font-mono'>{f.numero}</TableCell>
+                <TableCell className='font-mono'>
+                  {liens ? (
+                    <Link
+                      to='/bo/facturation/$id'
+                      params={{ id: String(f.piece) }}
+                      className='underline-offset-4 hover:underline'
+                    >
+                      {f.numero}
+                    </Link>
+                  ) : (
+                    f.numero
+                  )}
+                </TableCell>
                 <TableCell>{formatDate(f.date)}</TableCell>
                 <TableCell className='text-right tabular-nums'>
                   {f.type === 'AVOIR' && '− '}

@@ -1,5 +1,6 @@
 package fr.bnia.operateurs.application.partage;
 
+import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Droits;
 import fr.bnia.operateurs.domain.partage.EtatConnexion;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
@@ -8,6 +9,7 @@ import fr.bnia.operateurs.domain.partage.ResultatRecherche;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Lecture des opérateurs, de leurs personnes et des droits par les autres contextes (ADR-012, amendé par
@@ -19,6 +21,9 @@ public interface OperateursLecture {
 
     /** Actif ou non, pour l'afficher là où il est référencé. */
     Optional<OperateurVue> operateur(long id);
+
+    /** {@code facturation} : l'opérateur vu comme acheteur, avec ce qui manque pour le facturer (RG-OPE-02, 23). */
+    Optional<AcheteurVue> acheteur(long id);
 
     /** Imports Excel, dont les fichiers portent des codes. */
     Optional<OperateurVue> operateurParCode(String code);
@@ -46,6 +51,12 @@ public interface OperateursLecture {
      * les listings d'autres contextes ; un identifiant inconnu est ignoré.
      */
     List<ResultatRecherche> identites(Collection<Long> ids);
+
+    /**
+     * RG-OPE-02 : ceux de ces opérateurs qui sont facturables, en une seule lecture, pour les listings d'autres
+     * contextes ; un identifiant inconnu est ignoré.
+     */
+    Set<Long> facturables(Collection<Long> ids);
 
     /** RG-OPE-39 : l'identifiant de l'opérateur BNIA. */
     long operateurBnia();

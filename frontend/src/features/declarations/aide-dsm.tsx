@@ -200,8 +200,8 @@ export function AideDsm({
               </li>
               <li>
                 <strong>Compléments demandés</strong> : le BNIA vous la renvoie
-                avec un motif, en commentaire. Vous la corrigez, puis « Renvoyer
-                ».
+                avec un motif, dans ses messages. Vous la corrigez, puis «
+                Renvoyer ».
               </li>
               <li>
                 <strong>Compléments envoyés</strong> : vos corrections attendent
@@ -295,17 +295,16 @@ export function AideDsm({
               enregistrées de l'écran sont perdues.
             </p>
           </Section>
-          <Section titre='Commentaires'>
+          <Section titre='Messages'>
             <p>
-              Sous le classeur, le fil des échanges avec le BNIA, dans tous les
-              états de la DSM, même validée. Un commentaire porte sur la DSM ou
-              sur une ligne ; une ligne commentée porte une pastille dans la
-              grille, qui mène à ses commentaires.
+              Sous le classeur, la conversation avec le BNIA sur la DSM, dans
+              tous ses états, même validée ; elle se retrouve aussi dans la
+              messagerie. Tous les utilisateurs de votre entreprise la lisent.
             </p>
             <p>
-              Vous modifiez ou supprimez vos propres commentaires ; le motif
-              d'une demande de compléments ne se supprime pas. Les commentaires
-              internes du BNIA ne vous sont pas montrés.
+              Vous modifiez ou supprimez vos propres messages ; le motif d'une
+              demande de compléments ne se supprime pas. Un message lu peut être
+              remis « non lu ».
             </p>
           </Section>
 

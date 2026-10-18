@@ -6,9 +6,19 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 type HeaderProps = React.HTMLAttributes<HTMLElement> & {
   fixed?: boolean
   ref?: React.Ref<HTMLElement>
+  /** Le titre de la page, en petit, montré quand celui de la page est passé sous l'en-tête. */
+  titre?: React.ReactNode
+  titreVisible?: boolean
 }
 
-export function Header({ className, fixed, children, ...props }: HeaderProps) {
+export function Header({
+  className,
+  fixed,
+  titre,
+  titreVisible = false,
+  children,
+  ...props
+}: HeaderProps) {
   const [offset, setOffset] = useState(0)
 
   useEffect(() => {
@@ -41,8 +51,20 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
             'after:bg-background/20 after:absolute after:inset-0 after:-z-10 after:backdrop-blur-lg'
         )}
       >
-        <SidebarTrigger variant='outline' className='max-md:scale-125' />
-        <Separator orientation='vertical' className='h-6' />
+        {/* Sur écran large, le bouton du menu est dans la sidebar (AppTitle). */}
+        <SidebarTrigger variant='outline' className='scale-125 md:hidden' />
+        <Separator orientation='vertical' className='h-6 md:hidden' />
+        {titre && (
+          <span
+            aria-hidden={!titreVisible}
+            className={cn(
+              'min-w-0 truncate text-base font-semibold transition-opacity duration-200',
+              titreVisible ? 'opacity-100' : 'pointer-events-none opacity-0'
+            )}
+          >
+            {titre}
+          </span>
+        )}
         {children}
       </div>
     </header>

@@ -194,7 +194,7 @@ final class Memoire {
     }
 
     static IdentiteOperateur identite(String raisonSociale) {
-        return new IdentiteOperateur(null, null, null, null, null, null, null, raisonSociale, null,
+        return new IdentiteOperateur(null, null, null, null, null, null, null, null, raisonSociale, null,
                 new Adresse("1 route d'Auch", null, null, "32100", "Condom", FRANCE), null, null, null, null, null, null,
                 null, null, false, null);
     }

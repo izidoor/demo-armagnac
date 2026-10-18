@@ -2,7 +2,7 @@ package fr.bnia.boot.demo;
 
 import fr.bnia.commun.domain.Appellation;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
-import fr.bnia.declarations.application.CommenterDsm;
+import fr.bnia.declarations.application.AnnoterDsm;
 import fr.bnia.declarations.application.FichierDepose;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.application.GererGrilleCotisation.SaisieTauxCvo;
@@ -56,8 +56,10 @@ import org.springframework.stereotype.Component;
  * <li>les négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier jour du
  * mois précédent ; leur première DSM est celle du mois courant :
  * <ul>
- * <li>Armagnacs de Gascogne ({@code N320001}) : envoyée, sorties France 839,11 L et export 2 254,15 L (la
- * facture d'exemple), un commentaire de l'opérateur et un commentaire interne du BNIA ; elle attend le BNIA,
+ * <li>Armagnacs de Gascogne ({@code N320001}) : part de onze mois avant le mois courant (spec 08 §7.1, lots 1
+ * et 2) ; ses DSM de ces onze mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L,
+ * export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle du mois courant est envoyée, avec les
+ * mêmes totaux, deux notes internes du BNIA (sur la DSM et sur sa première ligne) ; elle attend le BNIA,
  * l'opérateur n'est pas en retard ;</li>
  * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
  * 2026-10-14), DSM en compléments demandés, motif « DAE manquants pour l'export » : en retard dès le 6 du
@@ -75,7 +77,7 @@ import org.springframework.stereotype.Component;
  * 20 % exonérés de TVA ; la DSM de Gascogne y vaut 1 855,95 € HT, comme la facture d'exemple.</li>
  * </ul>
  *
- * <p>Tout passe par les cas d'usage : points de départ, instruction et commentaire interne au nom d'Anne
+ * <p>Tout passe par les cas d'usage : points de départ, instruction et notes internes au nom d'Anne
  * Lamarque, ADMIN du BNIA ; saisies au nom d'un membre de chaque opérateur. Un opérateur qui a déjà un point
  * de départ n'est pas rechargé : le chargeur est relançable.
  */
@@ -88,7 +90,7 @@ public class DemoDeclarations implements ApplicationRunner {
 
     private final GererPointDeDepart points;
     private final GererDsm dsms;
-    private final CommenterDsm commentaires;
+    private final AnnoterDsm notes;
     private final GererPieces pieces;
     private final GererGrilleCotisation grille;
     private final GererOperateurs operateurs;
@@ -97,12 +99,12 @@ public class DemoDeclarations implements ApplicationRunner {
     private final Clock horloge;
     private Acteur anne;
 
-    public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, CommenterDsm commentaires, GererPieces pieces,
+    public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, AnnoterDsm notes, GererPieces pieces,
             GererGrilleCotisation grille, GererOperateurs operateurs, OperateursLecture lecture,
             ReferentielsLecture referentiels, Clock horloge) {
         this.points = points;
         this.dsms = dsms;
-        this.commentaires = commentaires;
+        this.notes = notes;
         this.pieces = pieces;
         this.grille = grille;
         this.operateurs = operateurs;
@@ -120,6 +122,52 @@ public class DemoDeclarations implements ApplicationRunner {
         negoceDesLandes();
         maisonDurandCondom();
         domaineDeLaubade();
+        OperateursFacturesDemo.OPERATEURS.forEach(this::operateurFacture);
+    }
+
+    /**
+     * Volume de la facturation (spec 08 §7.1, lot 5), saisi par {@code saisie@demo.fr} : un négociant part du
+     * 1er janvier de l'année en cours, toutes ses DSM mensuelles jusqu'au mois dernier validées ; un producteur part
+     * du 1er avril, sa DSM de la dernière année déclarative close validée, avec ses douze DRM. L'export a son DAE
+     * (RG-DEC-29). Volumes variés d'un mois et d'un opérateur à l'autre.
+     */
+    private void operateurFacture(OperateursFacturesDemo.Operateur o) {
+        Long id = aCharger(o.code());
+        if (id == null) {
+            return;
+        }
+        int rang = OperateursFacturesDemo.rang(o);
+        Acteur saisie = membre(OperateursFacturesDemo.EMAIL_SAISIE);
+        LocalDate aujourdhui = LocalDate.now(horloge);
+        int annee = aujourdhui.getMonthValue() >= 4 ? aujourdhui.getYear() : aujourdhui.getYear() - 1;
+        LocalDate depart = o.negociant() ? moisCourant().withMonth(1) : LocalDate.of(annee - 1, Month.APRIL, 1);
+        String volume = o.negociant() ? "40000.00" : "6000.00";
+        points.fixer(anne, id, depart, List.of(
+                stock(CleConditionnement.NB, "VSOP", "5", volume),
+                stock(CleConditionnement.NB, "XO", "10", volume),
+                stock(CleConditionnement.MB, 2012 + rang % 5, null, volume)));
+        int nombre = o.negociant() ? moisCourant().getMonthValue() - 1 : 1;
+        for (int mois = 0; mois < nombre; mois++) {
+            Map<Integer, Map<ColonneDsm, String>> mouvements = o.export() == 0
+                    ? Map.of(0, Map.of(ColonneDsm.C17, OperateursFacturesDemo.litres(o.sortiesFrance(), rang, mois)))
+                    : Map.of(0, Map.of(ColonneDsm.C17, OperateursFacturesDemo.litres(o.sortiesFrance(), rang, mois)),
+                            1, Map.of(ColonneDsm.C22, OperateursFacturesDemo.litres(o.export(), rang, mois)));
+            DeclarationStocksMouvements dsm = remplir(saisie, id, mouvements).dsm();
+            if (!o.negociant()) {
+                for (YearMonth attendu : dsm.moisAttendus()) {
+                    pieces.deposerDrm(saisie, id, dsm.id(), attendu, pdf("drm-" + attendu + ".pdf"));
+                }
+            }
+            if (o.export() > 0) {
+                pieces.deposerJustificatif(saisie, id, dsm.id(), dsm.lignes().get(1).id(),
+                        TypeMouvement.VENTE_EXPORT, TypePiece.DAE,
+                        String.format("26FRA%013d", 500_000 + rang * 100 + mois), pdf("dae-export.pdf"));
+            }
+            dsms.envoyer(saisie, id, dsm.id(), null);
+            dsms.prendreEnInstruction(anne, id, dsm.id(), null);
+            dsms.valider(anne, id, dsm.id(), null);
+        }
+        LOG.info("Démo : {} DSM validée(s) pour {}.", nombre, o.raisonSociale());
     }
 
     /** La grille CVO (spec 05 §7.1) : chaque taux, s'il n'est pas déjà saisi (relançable). */
@@ -149,21 +197,38 @@ public class DemoDeclarations implements ApplicationRunner {
         return new Acteur(lecture.utilisateurParEmail(email).orElseThrow());
     }
 
-    /** DSM envoyée, qui reproduit les volumes de la facture d'exemple ; la file d'attente du BNIA. */
+    /** Mois validés d'Armagnacs de Gascogne, à facturer : une facture émise, dix à facturer en lot (spec 08 §7.1). */
+    private static final int MOIS_VALIDES_GASCOGNE = 11;
+
+    /**
+     * Onze DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM envoyée du mois
+     * courant, aux mêmes totaux : la file d'attente du BNIA. Le stock de départ couvre les sorties des onze mois et
+     * laisse au mois courant le même reliquat qu'avec deux.
+     */
     private void armagnacsDeGascogne() {
         Long id = aCharger("N320001");
         if (id == null) {
             LOG.info("Démo : déclarations déjà chargées.");
             return;
         }
-        points.fixer(anne, id, moisCourant(), List.of(
-                stock(CleConditionnement.NB, "XO", "12", "1520.40"),
-                stock(CleConditionnement.NB, "VSOP", "5", "2310.75"),
+        points.fixer(anne, id, moisCourant().minusMonths(MOIS_VALIDES_GASCOGNE), List.of(
+                stock(CleConditionnement.NB, "XO", "12", "10750.61"),
+                stock(CleConditionnement.NB, "VSOP", "5", "27106.40"),
                 stock(CleConditionnement.NV, "VSOP", "5", "865.20"),
                 stock(CleConditionnement.MB, 2010, null, "642.10"),
                 stock(CleConditionnement.MV, 2015, "6", "318.60"),
                 stock(CleConditionnement.NB, "Blanche", "00", "1250.00")));
         Acteur julie = membre("agent@negociant.fr");
+        for (int mois = 0; mois < MOIS_VALIDES_GASCOGNE; mois++) {
+            DeclarationStocksMouvements validee = remplir(julie, id, Map.of(
+                    0, Map.of(ColonneDsm.C17, "839.11"),
+                    1, Map.of(ColonneDsm.C22, "2254.15"))).dsm();
+            pieces.deposerJustificatif(julie, id, validee.id(), validee.lignes().get(1).id(), TypeMouvement.VENTE_EXPORT,
+                    TypePiece.DAE, "26FRA00000000" + (98765 + mois), pdf("dae-export.pdf"));
+            dsms.envoyer(julie, id, validee.id(), null);
+            dsms.prendreEnInstruction(anne, id, validee.id(), null);
+            dsms.valider(anne, id, validee.id(), null);
+        }
         // Sorties France (14, 17, 18, 19, 21) : 839,11 L ; export (22 à 24) : 2 254,15 L.
         VueDsm vue = remplir(julie, id, Map.of(
                 0, Map.of(ColonneDsm.C12, "40.00", ColonneDsm.C17, "118.35", ColonneDsm.C21, "120.00",
@@ -173,11 +238,11 @@ public class DemoDeclarations implements ApplicationRunner {
                 4, Map.of(ColonneDsm.C22, "297.35"),
                 5, Map.of(ColonneDsm.C04, "310.00", ColonneDsm.C10, "2.50")));
         DeclarationStocksMouvements dsm = vue.dsm();
-        commentaires.ecrire(julie, id, dsm.id(), dsm.lignes().getFirst().id(),
-                "40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6).", false);
         dsms.envoyer(julie, id, dsm.id(), null);
-        commentaires.ecrire(anne, id, dsm.id(), null,
-                "Volumes export cohérents avec les DAE reçus par courrier ; à confirmer à l'instruction.", true);
+        notes.ecrire(anne, id, dsm.id(), null,
+                "Volumes export cohérents avec les DAE reçus par courrier ; à confirmer à l'instruction.");
+        notes.ecrire(anne, id, dsm.id(), dsm.lignes().getFirst().id(),
+                "Sorties export à rapprocher des DAE.");
         LOG.info("Démo : DSM de {} d'Armagnacs de Gascogne envoyée.", dsm.periode().libelle());
     }
 

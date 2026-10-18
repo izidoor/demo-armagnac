@@ -34,6 +34,22 @@ class DroitsTest {
     }
 
     @Test
+    @DisplayName("RG-OPE-31 : la Facturation est lue par tout rattachement actif, gérée par le seul rôle tenu au BNIA")
+    void rg_ope_31_module_facturation() {
+        assertThat(Role.OBSERVATEUR.gere(Module.FACTURATION)).isFalse();
+        assertThat(Role.AGENT.gere(Module.FACTURATION)).isTrue();
+        assertThat(Role.ADMIN.gere(Module.FACTURATION)).isTrue();
+
+        Droits adminLocal = new Droits(5, Optional.of(Role.ADMIN), Optional.empty());
+        assertThat(adminLocal.lit(Module.FACTURATION)).as("ses factures").isTrue();
+        assertThat(adminLocal.gere(Module.FACTURATION)).as("un ADMIN d'un négociant ne facture pas").isFalse();
+        Droits agentBnia = new Droits(5, Optional.empty(), Optional.of(Role.AGENT));
+        assertThat(agentBnia.gere(Module.FACTURATION)).isTrue();
+        Droits observateurBnia = new Droits(5, Optional.of(Role.ADMIN), Optional.of(Role.OBSERVATEUR));
+        assertThat(observateurBnia.gere(Module.FACTURATION)).isFalse();
+    }
+
+    @Test
     @DisplayName("RG-OPE-31 : sans rattachement actif, aucun droit ; le Paramétrage n'est qu'au BNIA")
     void rg_ope_31_sans_acces() {
         Droits aucun = Droits.aucun(5);
@@ -78,5 +94,16 @@ class DroitsTest {
                 .hasMessageContaining("dernier ADMIN du BNIA");
         Rattachement agent = Rattachement.creer(5, 9, Role.AGENT, 3, Instant.EPOCH);
         assertThatCode(() -> DernierAdmin.verifier(agent, 0, adminLocal, false, "x")).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("RG-OPE-31 : la Messagerie (conversations libres) est gérée par les trois rôles, observateur compris")
+    void rg_ope_31_module_messagerie() {
+        assertThat(Role.OBSERVATEUR.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Role.AGENT.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Role.ADMIN.gere(Module.MESSAGERIE)).isTrue();
+        Droits observateurLocal = new Droits(5, Optional.of(Role.OBSERVATEUR), Optional.empty());
+        assertThat(observateurLocal.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Droits.aucun(5).gere(Module.MESSAGERIE)).isFalse();
     }
 }

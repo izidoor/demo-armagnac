@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.bnia</groupId>
+        <artifactId>bnia-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>bnia-facturation</artifactId>
+    <packaging>pom</packaging>
+    <name>BNIA : facturation</name>
+    <description>Contexte facturation (spec 08), lib en aval : les sources lui demandent des factures par son module d'API (ADR-021).</description>
+    <!-- Trois modules (ADR-014 amendé par ADR-021) : -api, seul visible des autres contextes ; -core en Java pur ; -infra pour les adapters. -->
+    <modules>
+        <module>bnia-facturation-api</module>
+        <module>bnia-facturation-core</module>
+        <module>bnia-facturation-infra</module>
+    </modules>
+</project>

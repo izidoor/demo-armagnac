@@ -70,9 +70,13 @@ class DemoOperateursIT extends AbstractIT {
         assertThat(operateurs.operateurParCode("N400001")).isPresent();
         assertThat(operateurs.operateurParCode("000010").orElseThrow().periodicite()).isEmpty();
         assertThat(operateurs.operateurParCode("000013").orElseThrow().actif()).isFalse();
-        assertThat(gerer.fiche(anne, operateurs.operateurParCode("000012").orElseThrow().id()).champsManquants())
+        assertThat(gerer.fiche(anne, operateurs.operateurParCode("000012").orElseThrow().id()).manquePourCertifier())
                 .contains("adresse", "région");
-        assertThat(gerer.fiche(anne, condom.id()).champsManquants()).isEmpty();
+        assertThat(gerer.fiche(anne, condom.id()).manquePourCertifier()).isEmpty();
+        assertThat(gerer.fiche(anne, condom.id()).manquePourFacturer()).as("RG-OPE-02 : facturable").isEmpty();
+        assertThat(gerer.fiche(anne, negociant).manquePourFacturer()).isEmpty();
+        assertThat(operateurs.acheteur(operateurs.operateurParCode("000003").orElseThrow().id()).orElseThrow()
+                .manquePourFacturer()).as("Laubade, sans SIRET, montre le refus").contains("SIRET");
         assertThat(presentation.consulter(anne, condom.id()).medailles()).hasSize(2);
 
         var session = anonyme();

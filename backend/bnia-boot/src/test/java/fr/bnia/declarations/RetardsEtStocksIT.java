@@ -210,4 +210,29 @@ class RetardsEtStocksIT extends AbstractIT {
             assertThat(rangees.get(8).getCellText(0)).isEqualTo("Total");
         }
     }
+
+    @Test
+    @DisplayName("RG-DEC-44 : historique d'une année déclarative, stock reporté à chaque fin de mois ; lecture réservée")
+    void rg_dec_44_historique() {
+        negociant();
+        Object dsm = dsmValidee();
+        LocalDate fin = DEBUT.plusMonths(1).minusDays(1);
+        int annee = fin.getMonthValue() >= 4 ? fin.getYear() : fin.getYear() - 1;
+
+        Map<?, ?> historique = corps(agent.get()
+                .uri("/api/operateurs/{o}/stock-declare/historique?annee={a}", operateur, annee).exchange()
+                .expectStatus().isOk());
+        assertThat(((Map<?, ?>) historique.get("annee")).get("libelle")).isEqualTo(annee + "-" + (annee + 1));
+        List<?> lignes = (List<?>) historique.get("lignes");
+        // Deux lignes (XO, 2010) à la fin de la DSM, puis reportées à chaque fin de mois écoulée de l'année.
+        assertThat(lignes).hasSizeGreaterThanOrEqualTo(2).hasSize(lignes.size() / 2 * 2);
+        assertThat(lignes).allSatisfy(l -> {
+            Map<?, ?> ligne = (Map<?, ?>) l;
+            assertThat(ligne.get("dsm")).isEqualTo(dsm);
+            assertThat(LocalDate.parse((String) ligne.get("au"))).isAfterOrEqualTo(fin).isBefore(LocalDate.now());
+        });
+        assertThat(((Map<?, ?>) lignes.getFirst()).get("au")).isEqualTo(fin.toString());
+        assertThat(((Map<?, ?>) lignes.getFirst()).get("stock")).isEqualTo(1000.0);
+        assertThat((List<?>) historique.get("anneesDisponibles")).isNotEmpty();
+    }
 }

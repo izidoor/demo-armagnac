@@ -23,6 +23,14 @@ export const CLES: Record<CleConditionnement, string> = {
 export const millesimee = (cle: CleConditionnement) =>
   cle === 'MB' || cle === 'MV'
 
+/** Ordre de la grille des comptes d'âge : 00, 0, 1… 20+ ; un compte inattendu va à la fin. */
+export function rangCompte(compte: string) {
+  if (compte === '00') return -1
+  if (compte.endsWith('+')) return Number(compte.slice(0, -1)) + 0.5
+  const n = Number(compte)
+  return Number.isNaN(n) ? 1000 : n
+}
+
 export const TYPES_DECLARANT: Record<Dsm['type'], string> = {
   PRODUCTEUR: 'Producteur',
   NEGOCIANT: 'Négociant',
@@ -101,4 +109,22 @@ export function identite(l: {
   denomination?: string | null
 }) {
   return `${l.cle} ${designation(l)}`
+}
+
+/**
+ * Regroupements d'états de l'onglet « En cours », filtrés comme un état : ce que l'opérateur doit saisir ou que
+ * le BNIA doit relancer, ce que le BNIA doit traiter (accès du tableau de bord, CDC §4.1).
+ */
+export const GROUPES_ETATS: Record<
+  string,
+  { libelle: string; etats: (Dsm['etat'] | 'ABSENTE')[] }
+> = {
+  A_SAISIR: {
+    libelle: 'À saisir ou relancer',
+    etats: ['ABSENTE', 'BROUILLON', 'COMPLEMENTS_DEMANDES'],
+  },
+  A_TRAITER: {
+    libelle: 'À traiter',
+    etats: ['ENVOYEE', 'EN_INSTRUCTION', 'COMPLEMENTS_RECUS'],
+  },
 }

@@ -8,9 +8,13 @@ import static fr.bnia.declarations.application.Monde.OBSERVATEUR_NEGOCIANT;
 import static fr.bnia.declarations.application.Monde.PRODUCTEUR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
+import fr.bnia.declarations.application.ConsulterStocksDeclares.HistoriqueStocks;
+import fr.bnia.declarations.application.ConsulterStocksDeclares.StockALaDate;
+import fr.bnia.declarations.domain.AnneeDeclarative;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.LigneDsm;
@@ -87,6 +91,40 @@ class ConsulterStocksDeclaresTest {
     }
 
     @Test
+    @DisplayName("RG-DEC-44 : à chaque fin de mois écoulée de l'année, le stock de la dernière DSM validée finie à cette date, reporté")
+    void rg_dec_44_historique() {
+        juinValidee();
+        DeclarationStocksMouvements juillet = dsms.initier(AGENT_NEGOCIANT, NEGOCIANT).dsm();
+        dsms.enregistrer(AGENT_NEGOCIANT, NEGOCIANT, juillet.id(), new SaisieDsm(null, List.of(
+                telle(juillet.lignes().getFirst(), Map.of(ColonneDsm.C17, VolumeAlcoolPur.litres("100"))))), null);
+        dsms.envoyer(AGENT_NEGOCIANT, NEGOCIANT, juillet.id(), null);
+        dsms.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, juillet.id(), null);
+        dsms.valider(AGENT_BNIA, NEGOCIANT, juillet.id(), null);
+        dsms.initier(AGENT_NEGOCIANT, NEGOCIANT);
+
+        HistoriqueStocks historique = stocks.historiqueDe(OBSERVATEUR_BNIA, NEGOCIANT, Optional.empty());
+        assertThat(historique.annee()).isEqualTo(new AnneeDeclarative(2026));
+        assertThat(historique.anneesDisponibles()).containsExactly(new AnneeDeclarative(2026));
+        // Avril et mai : pas encore de DSM validée ; juin : 1 000 L de XO (le 2010, fini à 0, omis) ; juillet :
+        // 900 L ; août et septembre, sans DSM validée : juillet reporté ; octobre, en cours, n'y est pas.
+        assertThat(historique.lignes()).extracting(StockALaDate::au, l -> l.ligne().ligne().stock())
+                .containsExactly(
+                        tuple(LocalDate.of(2026, 6, 30), VolumeAlcoolPur.litres("1000")),
+                        tuple(LocalDate.of(2026, 7, 31), VolumeAlcoolPur.litres("900")),
+                        tuple(LocalDate.of(2026, 8, 31), VolumeAlcoolPur.litres("900")),
+                        tuple(LocalDate.of(2026, 9, 30), VolumeAlcoolPur.litres("900")));
+        assertThat(historique.lignes().getLast().ligne().ligne().dsm()).isEqualTo(juillet.id());
+        assertThat(historique.lignes().getFirst().ligne().code()).isEqualTo("N7");
+
+        assertThat(stocks.historiqueDe(OBSERVATEUR_NEGOCIANT, NEGOCIANT, Optional.empty()).lignes()).hasSize(4);
+        assertThat(stocks.historiqueDe(AGENT_BNIA, PRODUCTEUR, Optional.empty()).lignes()).isEmpty();
+        HistoriqueStocks precedente = stocks.historiqueDe(AGENT_BNIA, NEGOCIANT,
+                Optional.of(new AnneeDeclarative(2025)));
+        assertThat(precedente.annee().libelle()).isEqualTo("2025-2026");
+        assertThat(precedente.lignes()).as("rien d'une autre année").isEmpty();
+    }
+
+    @Test
     @DisplayName("RG-DEC-01 : tout le personnel du BNIA lit les stocks de tous ; un opérateur, les siens seulement")
     void rg_dec_01_refus() {
         assertThatThrownBy(() -> stocks.deTous(AGENT_NEGOCIANT, Optional.empty(), Optional.empty()))
@@ -95,6 +133,8 @@ class ConsulterStocksDeclaresTest {
                 .isInstanceOf(AccesRefuse.class);
         assertThatThrownBy(() -> stocks.deLOperateur(Monde.INCONNU, NEGOCIANT)).isInstanceOf(AccesRefuse.class);
         assertThatThrownBy(() -> stocks.deLOperateur(OBSERVATEUR_NEGOCIANT, PRODUCTEUR))
+                .isInstanceOf(AccesRefuse.class);
+        assertThatThrownBy(() -> stocks.historiqueDe(OBSERVATEUR_NEGOCIANT, PRODUCTEUR, Optional.empty()))
                 .isInstanceOf(AccesRefuse.class);
     }
 

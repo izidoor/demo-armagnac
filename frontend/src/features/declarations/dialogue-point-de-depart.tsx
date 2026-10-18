@@ -97,10 +97,10 @@ export function DialoguePointDeDepart({
         <DialogHeader>
           <DialogTitle>
             {proposition
-              ? 'Fixer un nouveau point de départ'
+              ? 'Fixer un nouveau stock initial'
               : point
-                ? 'Modifier le point de départ'
-                : 'Fixer le point de départ'}
+                ? 'Modifier le stock initial'
+                : 'Fixer le stock initial'}
           </DialogTitle>
           <DialogDescription>
             Début de la première période et stock initial, en litres d'alcool

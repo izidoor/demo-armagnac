@@ -69,7 +69,8 @@ class OperateurIT extends AbstractIT {
                 .expectBody()
                 .jsonPath("$.pays").isEqualTo(france)
                 .jsonPath("$.actif").isEqualTo(true)
-                .jsonPath("$.champsManquants").isEqualTo(List.of("région"))
+                .jsonPath("$.manquePourFacturer").isEqualTo(List.of("SIRET", "destinataire des factures"))
+                .jsonPath("$.manquePourCertifier").isEqualTo(List.of("région"))
                 .jsonPath("$.codeConforme").isEqualTo(true)
                 .jsonPath("$.periodicite").isEqualTo("ANNUELLE")
                 .jsonPath("$.statutDeclarationStock").isEqualTo("OUI")
@@ -221,14 +222,18 @@ class OperateurIT extends AbstractIT {
     }
 
     @Test
-    @DisplayName("RG-OPE-02 : listing filtré, fiches incomplètes comprises")
+    @DisplayName("RG-OPE-02 : fiches facturables et certifiables, au listing et sur la fiche")
     void rg_ope_02_listing() {
         String ville = "Ville" + suffixe();
         var complete = saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100");
         complete.put("ville", ville);
+        complete.put("siret", "41234567800012");
         long idComplete = creer(URL, complete);
         client.put().uri(URL + "/{id}/production", idComplete).body(production("MENSUELLE", "OUI", region(), List.of()))
-                .exchange().expectStatus().isOk().expectBody().jsonPath("$.champsManquants").isEmpty();
+                .exchange().expectStatus().isOk().expectBody().jsonPath("$.manquePourCertifier").isEmpty();
+        client.put().uri(URL + "/{id}/designations", idComplete)
+                .body(Map.of("destinataireFacturesEmail", "compta@negoce.example"))
+                .exchange().expectStatus().isOk().expectBody().jsonPath("$.manquePourFacturer").isEmpty();
         var incomplete = saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100");
         incomplete.put("ville", ville);
         incomplete.remove("adresseLigne1");
@@ -238,16 +243,42 @@ class OperateurIT extends AbstractIT {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody().jsonPath("$.length()").isEqualTo(2);
-        client.get().uri(u -> u.path(URL).queryParam("recherche", ville).queryParam("incomplet", true).build())
+        client.get().uri(u -> u.path(URL).queryParam("recherche", ville).queryParam("facturable", false).build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$[*].id").isEqualTo(List.of((int) idIncomplete))
-                .jsonPath("$[0].incomplet").isEqualTo(true);
+                .jsonPath("$[0].facturable").isEqualTo(false)
+                .jsonPath("$[0].certifiable").isEqualTo(false);
+        client.get().uri(u -> u.path(URL).queryParam("recherche", ville).queryParam("facturable", true)
+                        .queryParam("certifiable", true).build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$[*].id").isEqualTo(List.of((int) idComplete));
         client.get().uri(URL + "/{id}", idIncomplete)
                 .exchange()
-                .expectBody().jsonPath("$.champsManquants").isEqualTo(List.of("adresse", "région"));
-        assertThat(idComplete).isNotEqualTo(idIncomplete);
+                .expectBody()
+                .jsonPath("$.manquePourFacturer").isEqualTo(List.of("SIRET", "adresse", "destinataire des factures"))
+                .jsonPath("$.manquePourCertifier").isEqualTo(List.of("adresse", "région"));
+    }
+
+    @Test
+    @DisplayName("RG-OPE-06 : n° de TVA contrôlé ; s'il ne concorde pas avec le SIRET, la fiche avertit sans bloquer")
+    void rg_ope_06_numero_tva() {
+        var saisie = saisie("NEGOCIANT", "T" + suffixe(), "Négoce " + suffixe(), "32100");
+        saisie.put("numeroTva", "FR56776999955");
+        client.post().uri(URL).body(saisie).exchange()
+                .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-OPE-06");
+
+        saisie.put("numeroTva", "fr 55 776 999 955");
+        saisie.put("siret", "41234567800012");
+        long id = creer(URL, saisie);
+        client.get().uri(URL + "/{id}", id)
+                .exchange()
+                .expectBody()
+                .jsonPath("$.numeroTva").isEqualTo("FR55776999955")
+                .jsonPath("$.tvaDiscordante").isEqualTo(true);
     }
 
     @Test

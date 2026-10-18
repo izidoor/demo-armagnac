@@ -12,10 +12,67 @@ export type Acceptation = {
     operateur: number;
 };
 
+/**
+ * L'acheteur recopié sur la pièce (spec 08 §3.5)
+ */
+export type AcheteurPiece = {
+    adresseFacturation: AdresseFacturation;
+    adresseLivraison?: AdresseFacturation;
+    categorie: 'PROFESSIONNEL' | 'PARTICULIER';
+    /**
+     * N° BNIA du client
+     */
+    clientCode?: string;
+    /**
+     * Identifiant du client chez l'hôte ; vide pour un client libre
+     */
+    clientIdentifiant?: string;
+    email?: string;
+    /**
+     * Ce qui manque pour qu'il soit complet (RG-FAC-10)
+     */
+    manques: Array<string>;
+    nom?: string;
+    numeroTva?: string;
+    siren?: string;
+    siret?: string;
+};
+
+/**
+ * Adresse d'un acheteur ou du vendeur (spec 08 §3.5, §3.7)
+ */
+export type AdresseFacturation = {
+    /**
+     * Code ISO du pays
+     */
+    codePays?: string;
+    codePostal?: string;
+    ligne1?: string;
+    ligne2?: string;
+    /**
+     * Nom du pays, imprimé
+     */
+    pays?: string;
+    ville?: string;
+};
+
 export type Alambic = {
     capacite?: number;
     numeroAgrement?: string;
     type: 'ARMAGNACAIS' | 'DOUBLE_CHAUFFE';
+};
+
+/**
+ * Du 1er avril au 31 mars (RG-DEC-44)
+ */
+export type AnneeDeclarative = {
+    debut: string;
+    /**
+     * Année de son 1er avril
+     */
+    debutAnnee: number;
+    fin: string;
+    libelle: string;
 };
 
 /**
@@ -38,6 +95,62 @@ export type AnomalieDsm = {
     niveau: 'DSM' | 'ONGLET' | 'LIGNE';
     onglet: 'RECAPITULATIF' | 'MOUVEMENTS_ENTREE' | 'MOUVEMENTS_SORTIE' | 'VENTES_FRANCE' | 'VENTES_EXPORT';
     type: 'STOCK_FIN_NEGATIF' | 'ASSEMBLAGES_DESEQUILIBRES' | 'PASSAGES_SOUS_BOIS_DESEQUILIBRES' | 'COMPTE_MV_TROP_VIEUX';
+};
+
+/**
+ * Un article d'un catalogue, à la date du jour (RG-FAC-29)
+ */
+export type ArticleCatalogue = {
+    actif: boolean;
+    code: string;
+    codeComptable?: string;
+    designation: string;
+    /**
+     * Chemin de l'écran où la source administre l'article
+     */
+    lienAdministration: string;
+    nature: 'BIEN' | 'SERVICE';
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire: number;
+    source: string;
+    tvaCode: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle: string;
+    /**
+     * Motif d'exonération
+     */
+    tvaMotif?: string;
+    /**
+     * Vide hors champ
+     */
+    tvaTaux?: number;
+    unite?: string;
+};
+
+/**
+ * Un article actif d'un catalogue, à la date de l'opération du brouillon (RG-FAC-03)
+ */
+export type ArticlePropose = {
+    code: string;
+    designation: string;
+    nature: 'BIEN' | 'SERVICE';
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire: number;
+    source: string;
+    tvaCode: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle: string;
+    /**
+     * Motif d'exonération
+     */
+    tvaMotif?: string;
+    /**
+     * Vide hors champ
+     */
+    tvaTaux?: number;
+    unite?: string;
 };
 
 export type Blocage = {
@@ -128,52 +241,67 @@ export type ColonneDsm = {
 };
 
 /**
- * Commentaire d'instruction d'une DSM (spec 05 §3.2.4)
- */
-export type CommentaireDsm = {
-    /**
-     * Copie du nom de l'auteur
-     */
-    auteur: string;
-    cote: 'BNIA' | 'OPERATEUR';
-    /**
-     * Écrit par l'utilisateur connecté : il le modifie ou le supprime
-     */
-    deLUtilisateur: boolean;
-    ecritLe: string;
-    id: number;
-    interne: boolean;
-    /**
-     * Ligne visée ; vide pour la DSM
-     */
-    ligne?: number;
-    /**
-     * Libellé de la ligne visée, supprimée depuis ; le commentaire porte alors sur la DSM
-     */
-    ligneSupprimee?: string;
-    /**
-     * Renseigné si modifié (« modifié » affiché)
-     */
-    modifieLe?: string;
-    /**
-     * Motif d'une demande de compléments : ne se supprime pas
-     */
-    motif: boolean;
-    texte: string;
-};
-
-/**
  * Demande de compléments sur une DSM en instruction (RG-DEC-20)
  */
 export type ComplementsDsm = {
     /**
-     * Motif, écrit en commentaire de la DSM
+     * Motif, déposé dans la conversation de la DSM, protégé (RG-MSG-08)
      */
     motif: string;
     /**
      * Version lue (verrou optimiste)
      */
     version?: number;
+};
+
+/**
+ * Le sort d'un brouillon de la sélection : son numéro, ou le motif du refus (RG-FAC-19)
+ */
+export type CompteRenduEmission = {
+    id: number;
+    /**
+     * Vide s'il a été émis
+     */
+    motif?: string;
+    /**
+     * Vide si le brouillon a été refusé
+     */
+    numero?: string;
+};
+
+/**
+ * Le sort d'une pièce de la sélection transmise à Zeendoc : transmise, ou le motif du refus (RG-FAC-32)
+ */
+export type CompteRenduTransmission = {
+    id: number;
+    /**
+     * Vide si elle a été transmise
+     */
+    motif?: string;
+    /**
+     * Vide si la pièce est introuvable
+     */
+    numero?: string;
+};
+
+/**
+ * Condition de paiement (spec 08 §3.6)
+ */
+export type ConditionPaiement = {
+    finDeMois: boolean;
+    jours: number;
+    libelle: string;
+};
+
+/**
+ * Condition de paiement (spec 08 §3.6, RG-FAC-13)
+ */
+export type ConditionPaiementSaisie = {
+    finDeMois: boolean;
+    /**
+     * De 0 à 60 ; 45 au plus avec fin de mois
+     */
+    jours: number;
 };
 
 export type ConfirmationEmail = {
@@ -232,6 +360,79 @@ export type Contenance = {
      * Volume en litres, unique
      */
     volume: number;
+};
+
+/**
+ * Une conversation telle que l'utilisateur la voit (spec 15 §6)
+ */
+export type Conversation = {
+    /**
+     * Auteur du sujet libre ; vide pour un objet
+     */
+    auteur?: string;
+    /**
+     * Sujet libre dont l'auteur n'est plus membre de l'opérateur (RG-MSG-13)
+     */
+    auteurParti: boolean;
+    /**
+     * Mon côté (RG-MSG-03)
+     */
+    cote: 'BNIA' | 'OPERATEUR';
+    /**
+     * Vide pour un objet qui n'a pas encore de conversation (RG-MSG-04)
+     */
+    id?: number;
+    /**
+     * Pourquoi je n'y écris pas ; vide si j'écris
+     */
+    lectureSeule?: string;
+    /**
+     * Du plus ancien au plus récent
+     */
+    messages: Array<Message>;
+    /**
+     * L'objet métier ; vide pour un sujet libre
+     */
+    objet?: ObjetConversation;
+    operateur: OperateurConversation;
+    peutEcrire: boolean;
+    /**
+     * Titre du sujet libre ; vide pour un objet
+     */
+    titre?: string;
+};
+
+/**
+ * Une conversation de « Mes conversations » (RG-MSG-15, 16)
+ */
+export type ConversationListee = {
+    /**
+     * Auteur du sujet libre
+     */
+    auteur?: string;
+    /**
+     * Date du dernier message
+     */
+    dernierMessage?: string;
+    /**
+     * Le message le plus récent qui correspond à la recherche, ou le dernier ; tronqué
+     */
+    extrait: string;
+    id: number;
+    /**
+     * Libellé de l'objet ou titre du sujet libre
+     */
+    intitule: string;
+    messages: number;
+    /**
+     * Non lus de mon côté
+     */
+    nonLus: number;
+    /**
+     * L'objet ; vide pour un sujet libre
+     */
+    objet?: ObjetConversation;
+    operateur: OperateurConversation;
 };
 
 /**
@@ -316,6 +517,10 @@ export type Droits = {
      * DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)
      */
     declarations: 'AUCUN' | 'LECTURE' | 'GESTION';
+    /**
+     * Factures et avoirs (spec 08 §3.12)
+     */
+    facturation: 'AUCUN' | 'LECTURE' | 'GESTION';
     operateur: number;
     parametrage: 'AUCUN' | 'LECTURE' | 'GESTION';
     /**
@@ -339,8 +544,12 @@ export type Dsm = {
     /**
      * Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)
      */
-    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE' | 'DEPOSER_PIECES'>;
+    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'ANNOTER' | 'DEPOSER_PIECES' | 'FACTURER'>;
     anomalies: Array<AnomalieDsm>;
+    /**
+     * Facture demandée, pas encore émise : la pièce du brouillon chez facturation (RG-DEC-43)
+     */
+    brouillonFacture?: number;
     codeOperateur: string;
     colonnes: Array<ColonneDsm>;
     cotisation: CotisationDsm;
@@ -365,6 +574,10 @@ export type Dsm = {
     libelleEtat: string;
     lignes: Array<LigneDsm>;
     /**
+     * Quand « Facturer » est offert, ce qui manque à l'opérateur pour le facturer : non vide, la facturation sera refusée (RG-OPE-02, RG-DEC-43) ; vide sinon
+     */
+    manquePourFacturer: Array<string>;
+    /**
      * Pièces manquantes, bloquantes à la validation, pas à l'envoi (RG-DEC-29)
      */
     manques: Array<ManqueDsm>;
@@ -382,6 +595,17 @@ export type Dsm = {
      */
     valideePar?: string;
     version: number;
+};
+
+/**
+ * La facture demandée d'une DSM : son brouillon chez facturation
+ */
+export type DsmFacturee = {
+    /**
+     * Identifiant de la pièce
+     */
+    brouillon: number;
+    dsm: number;
 };
 
 /**
@@ -415,6 +639,10 @@ export type DsmListee = {
      */
     etat?: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     /**
+     * Sa facture est demandée, pas encore émise : un brouillon (RG-DEC-43)
+     */
+    facturationDemandee: boolean;
+    /**
      * A au moins une facture (RG-DEC-34)
      */
     facturee: boolean;
@@ -431,6 +659,10 @@ export type DsmListee = {
      */
     modifieeLe?: string;
     operateur: number;
+    /**
+     * Rien ne manque à l'opérateur pour le facturer (RG-OPE-02, RG-DEC-43)
+     */
+    operateurFacturable: boolean;
     periode: PeriodeDeclaration;
     /**
      * L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)
@@ -478,6 +710,13 @@ export type DsmResume = {
 };
 
 /**
+ * Les brouillons à émettre, dans l'ordre de la sélection (RG-FAC-19)
+ */
+export type EmissionBrouillons = {
+    ids: Array<number>;
+};
+
+/**
  * Action sur une DSM ou le point de départ, sans valeurs avant et après (RG-DEC-23)
  */
 export type EntreeJournalDeclarations = {
@@ -485,7 +724,7 @@ export type EntreeJournalDeclarations = {
      * Copie du nom de l'acteur
      */
     acteur: string;
-    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE';
+    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE' | 'FACTURATION_ABANDONNEE';
     date: string;
     /**
      * Nom de fichier, mois, format…
@@ -500,6 +739,21 @@ export type EntreeJournalDeclarations = {
      * Copie de la période de la DSM
      */
     periode?: string;
+};
+
+/**
+ * Entrée du journal d'une pièce (spec 08 §3.9, RG-FAC-20)
+ */
+export type EntreeJournalPiece = {
+    /**
+     * Copie du nom de l'utilisateur, ou nom du traitement
+     */
+    acteur: string;
+    cote: 'VENDEUR' | 'CLIENT';
+    date: string;
+    detail?: string;
+    evenement: 'DEMANDEE' | 'CREEE' | 'MODIFIEE' | 'EMISE' | 'CONSULTEE' | 'ANNULEE' | 'AVOIR_EMIS' | 'TRANSMISE' | 'PAYEE' | 'NOTE';
+    libelle: string;
 };
 
 /**
@@ -545,19 +799,30 @@ export type EtatSession = {
 };
 
 /**
+ * Les DSM à facturer ensemble (RG-DEC-43)
+ */
+export type FacturationDsm = {
+    dsms: Array<number>;
+};
+
+/**
  * Facture ou avoir d'une DSM, reçu de facturation (A-DEC-4)
  */
 export type FactureDsm = {
     date: string;
     ht: number;
     numero: string;
+    /**
+     * Identifiant de la pièce chez facturation
+     */
+    piece: number;
     ttc: number;
     tva: number;
-    type: 'FACTURE' | 'AVOIR';
+    type: 'BROUILLON' | 'FACTURE' | 'AVOIR';
 };
 
 /**
- * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 09) et les droits du lecteur
+ * Un opérateur, avec ce que sa fiche signale (RG-OPE-02, 05, 06, 09) et les droits du lecteur
  */
 export type FicheOperateur = {
     accesStatistiques: boolean;
@@ -574,10 +839,6 @@ export type FicheOperateur = {
      */
     autresDuGroupe: Array<OperateurResume>;
     bureauDouanes?: string;
-    /**
-     * Ce qui manque pour facturer ou certifier (RG-OPE-02) ; vide si la fiche est complète
-     */
-    champsManquants: Array<string>;
     code: string;
     /**
      * Faux si le code n'a plus la forme de son type ou de son département (RG-OPE-05)
@@ -621,6 +882,14 @@ export type FicheOperateur = {
     latitude?: number;
     longitude?: number;
     /**
+     * Ce qui manque pour certifier (RG-OPE-02) ; vide si la fiche est certifiable
+     */
+    manquePourCertifier: Array<string>;
+    /**
+     * Ce qui manque pour facturer (RG-OPE-02) ; vide si la fiche est facturable
+     */
+    manquePourFacturer: Array<string>;
+    /**
      * Identifiant du membre BNIA
      */
     membreBnia?: number;
@@ -630,6 +899,10 @@ export type FicheOperateur = {
     millesimesDiffusables: Array<number>;
     niveauDiffusion: 'REFUS' | 'PARTIEL' | 'TOTAL';
     nomCommercial?: string;
+    /**
+     * N° de TVA intracommunautaire (RG-OPE-06)
+     */
+    numeroTva?: string;
     /**
      * Identifiant du pays
      */
@@ -658,6 +931,10 @@ export type FicheOperateur = {
      * Identifiant du titre
      */
     titre?: number;
+    /**
+     * Le n° de TVA ne concorde pas avec le SIRET : avertissement (RG-OPE-06)
+     */
+    tvaDiscordante: boolean;
     type: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
     /**
      * À renvoyer avec chaque modification (RG-OPE-51)
@@ -697,6 +974,18 @@ export type FicheProfessionnelle = {
      */
     version: number;
     ville?: string;
+};
+
+/**
+ * Les stocks déclarés d'une année déclarative, à chaque fin de mois écoulée (RG-DEC-44)
+ */
+export type HistoriqueStocks = {
+    annee: AnneeDeclarative;
+    /**
+     * Les années qui ont une DSM validée, et l'année en cours, de la plus récente à la plus ancienne
+     */
+    anneesDisponibles: Array<AnneeDeclarative>;
+    lignes: Array<StockALaDate>;
 };
 
 /**
@@ -894,6 +1183,90 @@ export type LigneJournal = {
     nomCible: string;
 };
 
+/**
+ * Une ligne de la pièce : article, texte, ou groupe et ses lignes (spec 08 §3.2, RG-FAC-04)
+ */
+export type LignePiece = {
+    /**
+     * Article : code dans sa source
+     */
+    code?: string;
+    /**
+     * Groupe : ses lignes ; vide sinon
+     */
+    lignes: Array<LignePiece>;
+    /**
+     * Article : HT de la ligne ; groupe : sous-total HT
+     */
+    montantHt?: number;
+    nature?: 'BIEN' | 'SERVICE';
+    /**
+     * Identité stable de la ligne dans la pièce
+     */
+    numero: number;
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire?: number;
+    quantite?: number;
+    /**
+     * Reçue de la source : seules sa désignation et sa position se modifient (RG-FAC-17)
+     */
+    recue: boolean;
+    sorte: 'ARTICLE' | 'TEXTE' | 'GROUPE';
+    /**
+     * Article : source
+     */
+    source?: string;
+    /**
+     * Désignation d'un article, texte, ou titre d'un groupe
+     */
+    texte: string;
+    tvaCode?: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle?: string;
+    tvaTaux?: number;
+    unite?: string;
+};
+
+/**
+ * Une ligne saisie ; numéro vide pour une ligne nouvelle (RG-FAC-17)
+ */
+export type LigneSaisie = {
+    /**
+     * Article nouveau : code dans sa source
+     */
+    code?: string;
+    /**
+     * Groupe : ses lignes
+     */
+    lignes?: Array<LigneSaisie>;
+    /**
+     * Numéro d'une ligne existante ; vide pour une ligne nouvelle
+     */
+    numero?: number;
+    /**
+     * Article : HT ; facultatif pour un article nouveau (celui du catalogue)
+     */
+    prixUnitaire?: number;
+    /**
+     * Article : non nulle (RG-FAC-06)
+     */
+    quantite?: number;
+    sorte: 'ARTICLE' | 'TEXTE' | 'GROUPE';
+    /**
+     * Article nouveau : source
+     */
+    source?: string;
+    /**
+     * Désignation d'un article (facultative pour un article nouveau), texte, ou titre d'un groupe
+     */
+    texte?: string;
+    /**
+     * Article
+     */
+    unite?: string;
+};
+
 export type LigneStock = {
     cle: 'MB' | 'MV' | 'NB' | 'NV';
     compte: string;
@@ -958,6 +1331,71 @@ export type LigneStockInitial = {
      * Litres d'alcool pur
      */
     volume: number;
+};
+
+/**
+ * Une ligne du récapitulatif de TVA (RG-FAC-05)
+ */
+export type LigneTvaPiece = {
+    base: number;
+    code: 'S' | 'Z' | 'E' | 'O';
+    libelle: string;
+    /**
+     * Motif d'exonération
+     */
+    motif?: string;
+    /**
+     * Vide hors champ
+     */
+    taux?: number;
+    tva: number;
+};
+
+/**
+ * Une ligne article d'une pièce émise, à sa date d'émission ; négative pour un avoir (RG-FAC-30)
+ */
+export type LigneVendue = {
+    acheteur: string;
+    avoir: boolean;
+    /**
+     * N° BNIA du client
+     */
+    clientCode?: string;
+    /**
+     * Identifiant du client (opérateur) ; vide pour un client libre
+     */
+    clientIdentifiant?: string;
+    code: string;
+    codeComptable?: string;
+    dateEmission: string;
+    designation: string;
+    /**
+     * Signé
+     */
+    montantHt: number;
+    nature: 'BIEN' | 'SERVICE';
+    numero: string;
+    /**
+     * Vide pour un avoir
+     */
+    origine?: OriginePiece;
+    piece: number;
+    /**
+     * HT, 4 décimales
+     */
+    prixUnitaire: number;
+    /**
+     * Signée, 4 décimales
+     */
+    quantite: number;
+    source: string;
+    tvaCode: 'S' | 'Z' | 'E' | 'O';
+    tvaLibelle: string;
+    /**
+     * Vide hors champ
+     */
+    tvaTaux?: number;
+    unite?: string;
 };
 
 /**
@@ -1035,6 +1473,56 @@ export type Membre = {
 };
 
 /**
+ * Message d'une conversation (spec 15 §3.4)
+ */
+export type Message = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    cote: 'BNIA' | 'OPERATEUR';
+    /**
+     * Écrit par l'utilisateur connecté : il le modifie ou le supprime
+     */
+    deLUtilisateur: boolean;
+    ecritLe: string;
+    id: number;
+    /**
+     * Renseigné si modifié (« modifié » affiché, RG-MSG-06)
+     */
+    modifieLe?: string;
+    /**
+     * Non lu de mon côté avant cet affichage, à mettre en évidence (RG-MSG-10)
+     */
+    nonLu: boolean;
+    pieces: Array<PieceJointeMessage>;
+    /**
+     * Motif d'une demande de compléments : ne se supprime pas (RG-MSG-06, 08)
+     */
+    protege: boolean;
+    texte: string;
+};
+
+/**
+ * Un brouillon tel que saisi, enregistré d'un coup ; date de l'opération et acheteur n'en sont pas (RG-FAC-17)
+ */
+export type ModificationBrouillon = {
+    bonDeCommande?: string;
+    condition: ConditionPaiementSaisie;
+    libellePeriode?: string;
+    /**
+     * Dans l'ordre d'impression
+     */
+    lignes: Array<LigneSaisie>;
+    noteEntete?: string;
+    notePied?: string;
+    /**
+     * Version de la pièce affichée
+     */
+    version: number;
+};
+
+/**
  * L'utilisateur connecté et ses rattachements (RG-OPE-49)
  */
 export type Moi = {
@@ -1079,8 +1567,102 @@ export type MoisDrm = {
     mois: string;
 };
 
+/**
+ * Note interne du BNIA sur une DSM, jamais montrée à l'opérateur (spec 15 §3.7)
+ */
+export type NoteInterneDsm = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    /**
+     * Écrite par l'utilisateur connecté : il la modifie ou la supprime
+     */
+    deLUtilisateur: boolean;
+    ecriteLe: string;
+    id: number;
+    /**
+     * Ligne visée ; vide pour la DSM
+     */
+    ligne?: number;
+    /**
+     * Libellé de la ligne visée, supprimée depuis ; la note porte alors sur la DSM
+     */
+    ligneSupprimee?: string;
+    /**
+     * Renseigné si modifiée (« modifiée » affiché)
+     */
+    modifieeLe?: string;
+    texte: string;
+};
+
+/**
+ * Une note interne, jamais imprimée ni transmise (RG-FAC-21)
+ */
+export type NotePiece = {
+    texte: string;
+};
+
+/**
+ * Un message non lu, en vue tronquée (RG-MSG-11)
+ */
+export type NouveauMessage = {
+    auteur: string;
+    conversation: number;
+    /**
+     * Première ligne, tronquée
+     */
+    debut: string;
+    ecritLe: string;
+    id: number;
+    /**
+     * Libellé de l'objet ou titre du sujet libre
+     */
+    intitule: string;
+    /**
+     * L'objet de la conversation ; vide pour un sujet libre
+     */
+    objet?: ObjetConversation;
+    operateur: OperateurConversation;
+};
+
+/**
+ * Les messages non lus de mon côté (RG-MSG-11)
+ */
+export type NouveauxMessages = {
+    /**
+     * Du plus récent au plus ancien
+     */
+    messages: Array<NouveauMessage>;
+    /**
+     * Le nombre du tableau de bord
+     */
+    nombre: number;
+};
+
+/**
+ * L'objet métier d'une conversation (spec 15 §3.2)
+ */
+export type ObjetConversation = {
+    /**
+     * Identifiant chez son contexte
+     */
+    identifiant: string;
+    libelle: string;
+    type: 'DSM' | 'FACTURE';
+};
+
 export type OperateurActif = {
     operateur: number;
+};
+
+/**
+ * L'opérateur d'une conversation
+ */
+export type OperateurConversation = {
+    code: string;
+    id: number;
+    raisonSociale: string;
 };
 
 /**
@@ -1088,14 +1670,18 @@ export type OperateurActif = {
  */
 export type OperateurLigne = {
     actif: boolean;
+    /**
+     * Rien ne manque pour certifier (RG-OPE-02)
+     */
+    certifiable: boolean;
     code: string;
     codePostal?: string;
     emailGeneral?: string;
-    id: number;
     /**
-     * Fiche incomplète (RG-OPE-02)
+     * Rien ne manque pour facturer (RG-OPE-02)
      */
-    incomplet: boolean;
+    facturable: boolean;
+    id: number;
     nomCommercial?: string;
     raisonSociale: string;
     telephone1?: string;
@@ -1112,6 +1698,34 @@ export type OperateurResume = {
     id: number;
     raisonSociale: string;
     ville?: string;
+};
+
+/**
+ * Ce qu'une facture facture, fourni par la source (spec 08 §3.4)
+ */
+export type OriginePiece = {
+    /**
+     * Identifiant opaque chez la source
+     */
+    identifiant: string;
+    libelleNature: string;
+    nature: string;
+    reference: string;
+    source: string;
+};
+
+/**
+ * Paramétrage de la facturation (spec 08 §6.1)
+ */
+export type ParametrageFacturation = {
+    /**
+     * L'utilisateur connecté peut le modifier (RG-FAC-26)
+     */
+    modifiable: boolean;
+    /**
+     * Vide tant qu'il n'est pas paramétré : l'émission est alors refusée (RG-FAC-09)
+     */
+    vendeur?: VendeurFacturation;
 };
 
 export type Pays = {
@@ -1183,9 +1797,163 @@ export type PersonneAnnuaire = {
     titre?: number;
 };
 
+/**
+ * Une facture ou un avoir, avec ses lignes, son récapitulatif de TVA et ses totaux (spec 08 §3.1, §6.1)
+ */
+export type Piece = {
+    acheteur: AcheteurPiece;
+    bonDeCommande?: string;
+    condition: ConditionPaiement;
+    creeeLe: string;
+    /**
+     * Copie du nom de l'auteur de la demande
+     */
+    creeePar: string;
+    /**
+     * Vide pour un brouillon
+     */
+    dateEmission?: string;
+    dateOperation: string;
+    /**
+     * Calculée à l'émission (RG-FAC-13)
+     */
+    echeance?: string;
+    /**
+     * Brouillon que l'utilisateur connecté peut modifier, émettre ou abandonner (RG-FAC-26)
+     */
+    emettre: boolean;
+    /**
+     * Ce qui empêche l'émission d'un brouillon (RG-FAC-09) ; vide sinon
+     */
+    empechements: Array<string>;
+    etat: 'BROUILLON' | 'EMISE';
+    /**
+     * L'utilisateur connecté gère la facturation : il annote la pièce (RG-FAC-21, 26)
+     */
+    gerer: boolean;
+    id: number;
+    libellePeriode?: string;
+    lignes: Array<LignePiece>;
+    /**
+     * RG-FAC-08 ; vide sans ligne article
+     */
+    natureOperation?: 'BIENS' | 'SERVICES' | 'LES_DEUX';
+    noteEntete?: string;
+    notePied?: string;
+    /**
+     * Vide pour un brouillon
+     */
+    numero?: string;
+    /**
+     * Vide pour un avoir
+     */
+    origine?: OriginePiece;
+    /**
+     * Vide tant que la pièce n'est pas payée
+     */
+    payeeLe?: string;
+    /**
+     * Le PDF est disponible (pièce émise)
+     */
+    pdf: boolean;
+    recapitulatifTva: Array<LigneTvaPiece>;
+    sens: 'FACTURE' | 'AVOIR';
+    /**
+     * Libellé de la nature d'origine, ou « Avoir »
+     */
+    titre: string;
+    totalHt: number;
+    totalTtc: number;
+    totalTva: number;
+    /**
+     * Vide tant que la pièce n'est pas transmise
+     */
+    transmiseLe?: string;
+    /**
+     * Recopié à l'émission ; vide en brouillon
+     */
+    vendeur?: VendeurFacturation;
+    /**
+     * Version de la pièce, renvoyée à la modification d'un brouillon (RG-FAC-17)
+     */
+    version: number;
+    /**
+     * État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)
+     */
+    zeendoc?: 'TRANSMISE' | 'PAYEE';
+};
+
 export type PieceCompatible = {
     libelle: string;
     type: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
+/**
+ * Pièce jointe d'un message de conversation libre (RG-MSG-14)
+ */
+export type PieceJointeMessage = {
+    /**
+     * Clé du document
+     */
+    cle: number;
+    nom: string;
+    /**
+     * Taille en octets
+     */
+    taille: number;
+    /**
+     * Type MIME
+     */
+    type: string;
+};
+
+/**
+ * Une pièce de l'historique (RG-FAC-27)
+ */
+export type PieceListee = {
+    acheteur: string;
+    /**
+     * N° BNIA du client
+     */
+    clientCode?: string;
+    /**
+     * Identifiant du client chez l'hôte (opérateur) ; vide pour un client libre
+     */
+    clientIdentifiant?: string;
+    creeeLe: string;
+    /**
+     * Vide pour un brouillon
+     */
+    dateEmission?: string;
+    etat: 'BROUILLON' | 'EMISE';
+    ht: number;
+    id: number;
+    libelleNature?: string;
+    libellePeriode?: string;
+    /**
+     * Nature d'origine ; vide pour un avoir
+     */
+    nature?: string;
+    /**
+     * Vide pour un brouillon
+     */
+    numero?: string;
+    /**
+     * Vide tant que la pièce n'est pas payée
+     */
+    payeeLe?: string;
+    reference?: string;
+    sens: 'FACTURE' | 'AVOIR';
+    /**
+     * Vide tant que la pièce n'est pas transmise
+     */
+    transmiseLe?: string;
+    ttc: number;
+    tva: number;
+    /**
+     * État dans Zeendoc ; vide tant que la pièce n'est pas transmise (RG-FAC-32, 33)
+     */
+    zeendoc?: 'TRANSMISE' | 'PAYEE';
 };
 
 /**
@@ -1396,21 +2164,6 @@ export type SaisieCode = {
      * Faire confiance à ce navigateur 30 jours (RG-AUT-06)
      */
     faireConfiance: boolean;
-};
-
-/**
- * Commentaire écrit ou modifié (RG-DEC-24, 25)
- */
-export type SaisieCommentaireDsm = {
-    /**
-     * Interne au BNIA, invisible de l'opérateur ; côté BNIA seulement. Faux par défaut
-     */
-    interne?: boolean;
-    /**
-     * Ligne visée ; vide pour la DSM. Ignorée à la modification
-     */
-    ligne?: number;
-    texte: string;
 };
 
 export type SaisieConnexion = {
@@ -1642,6 +2395,24 @@ export type SaisieLigneStockInitial = {
 };
 
 /**
+ * Message écrit ou modifié (RG-MSG-05, 06)
+ */
+export type SaisieMessage = {
+    texte: string;
+};
+
+/**
+ * Note interne écrite ou modifiée (RG-DEC-24)
+ */
+export type SaisieNoteInterneDsm = {
+    /**
+     * Ligne visée ; vide pour la DSM. Ignorée à la modification
+     */
+    ligne?: number;
+    texte: string;
+};
+
+/**
  * Un nouveau mot de passe, avec le jeton du lien reçu
  */
 export type SaisieNouveauMotDePasse = {
@@ -1694,6 +2465,10 @@ export type SaisieOperateur = {
      */
     membreBnia?: number;
     nomCommercial?: string;
+    /**
+     * FR, une clé de 2 chiffres, le SIREN (RG-OPE-06)
+     */
+    numeroTva?: string;
     /**
      * Identifiant du pays ; absent à la création : la France (RG-OPE-02)
      */
@@ -1918,6 +2693,43 @@ export type SituationDsm = {
 };
 
 /**
+ * Une ligne du stock déclaré d'un opérateur à une fin de mois : celle de sa dernière DSM validée finie à cette date (RG-DEC-44)
+ */
+export type StockALaDate = {
+    /**
+     * La fin de mois
+     */
+    au: string;
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    codeOperateur: string;
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * La DSM dont la ligne est tirée
+     */
+    dsm: number;
+    /**
+     * Fin de la période de la DSM
+     */
+    finDsm: string;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    operateur: number;
+    periodeDsm: string;
+    raisonSociale: string;
+    /**
+     * Litres d'alcool pur
+     */
+    stock: number;
+    type: 'PRODUCTEUR' | 'NEGOCIANT';
+};
+
+/**
  * Le stock déclaré d'un opérateur : le stock de fin de sa dernière DSM validée, ligne par ligne, lignes nulles omises (RG-DEC-42)
  */
 export type StockDeclare = {
@@ -2015,6 +2827,49 @@ export type ValeurSimple = {
      */
     id: number;
     libelle: string;
+};
+
+/**
+ * Le vendeur, le BNIA, recopié sur chaque pièce à son émission (spec 08 §3.7, RG-FAC-16)
+ */
+export type VendeurFacturation = {
+    /**
+     * Si elle diffère du siège
+     */
+    adresseFacturation?: AdresseFacturation;
+    bic: string;
+    email: string;
+    /**
+     * Défaut : « Pas d'escompte pour paiement anticipé »
+     */
+    escompte?: string;
+    iban: string;
+    nom: string;
+    numeroTva: string;
+    /**
+     * Défaut : « trois fois le taux d'intérêt légal »
+     */
+    penalites?: string;
+    siege: AdresseFacturation;
+    /**
+     * Tiré du SIRET s'il est vide
+     */
+    siren?: string;
+    siret: string;
+    telephone: string;
+    /**
+     * Option pour la TVA d'après les débits
+     */
+    tvaSurDebits: boolean;
+};
+
+/**
+ * Les ventes consolidées d'une période, avoirs déduits (spec 08 RG-FAC-30)
+ */
+export type Ventes = {
+    au: string;
+    du: string;
+    lignes: Array<LigneVendue>;
 };
 
 export type VisiteProposee = {
@@ -2273,6 +3128,22 @@ export type ListerToutesDsmResponses = {
 
 export type ListerToutesDsmResponse = ListerToutesDsmResponses[keyof ListerToutesDsmResponses];
 
+export type FacturerSelectionDsmData = {
+    body: FacturationDsm;
+    path?: never;
+    query?: never;
+    url: '/api/declarations/facturation';
+};
+
+export type FacturerSelectionDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<DsmFacturee>;
+};
+
+export type FacturerSelectionDsmResponse = FacturerSelectionDsmResponses[keyof FacturerSelectionDsmResponses];
+
 export type ListerStocksDeclaresData = {
     body?: never;
     path?: never;
@@ -2379,6 +3250,339 @@ export type ModifierTauxCvoResponses = {
 
 export type ModifierTauxCvoResponse = ModifierTauxCvoResponses[keyof ModifierTauxCvoResponses];
 
+export type ListerArticlesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/articles';
+};
+
+export type ListerArticlesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ArticleCatalogue>;
+};
+
+export type ListerArticlesResponse = ListerArticlesResponses[keyof ListerArticlesResponses];
+
+export type ListerPiecesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Début du numéro
+         */
+        numero?: string;
+        sens?: 'FACTURE' | 'AVOIR';
+        etat?: 'BROUILLON' | 'EMISE';
+        /**
+         * Nature d'origine
+         */
+        nature?: string;
+        /**
+         * Identifiant du client (opérateur)
+         */
+        client?: string;
+        /**
+         * Contenu dans le nom de l'acheteur ou le n° BNIA du client
+         */
+        acheteur?: string;
+        /**
+         * Contenu dans le libellé de la période
+         */
+        periode?: string;
+        /**
+         * Date d'émission au plus tôt
+         */
+        du?: string;
+        /**
+         * Date d'émission au plus tard
+         */
+        au?: string;
+    };
+    url: '/api/facturation/pieces';
+};
+
+export type ListerPiecesResponses = {
+    /**
+     * OK
+     */
+    200: Array<PieceListee>;
+};
+
+export type ListerPiecesResponse = ListerPiecesResponses[keyof ListerPiecesResponses];
+
+export type EmettreBrouillonsData = {
+    body: EmissionBrouillons;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/pieces/emission';
+};
+
+export type EmettreBrouillonsResponses = {
+    /**
+     * OK
+     */
+    200: Array<CompteRenduEmission>;
+};
+
+export type EmettreBrouillonsResponse = EmettreBrouillonsResponses[keyof EmettreBrouillonsResponses];
+
+export type TransmettreAZeendocData = {
+    body: EmissionBrouillons;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/pieces/zeendoc';
+};
+
+export type TransmettreAZeendocResponses = {
+    /**
+     * OK
+     */
+    200: Array<CompteRenduTransmission>;
+};
+
+export type TransmettreAZeendocResponse = TransmettreAZeendocResponses[keyof TransmettreAZeendocResponses];
+
+export type AbandonnerBrouillonData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}';
+};
+
+export type AbandonnerBrouillonResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type AbandonnerBrouillonResponse = AbandonnerBrouillonResponses[keyof AbandonnerBrouillonResponses];
+
+export type ConsulterPieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}';
+};
+
+export type ConsulterPieceResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type ConsulterPieceResponse = ConsulterPieceResponses[keyof ConsulterPieceResponses];
+
+export type ModifierBrouillonData = {
+    body: ModificationBrouillon;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}';
+};
+
+export type ModifierBrouillonResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type ModifierBrouillonResponse = ModifierBrouillonResponses[keyof ModifierBrouillonResponses];
+
+export type ApercuPdfBrouillonData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/apercu';
+};
+
+export type ApercuPdfBrouillonResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type ApercuPdfBrouillonResponse = ApercuPdfBrouillonResponses[keyof ApercuPdfBrouillonResponses];
+
+export type ListerArticlesProposesData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/articles';
+};
+
+export type ListerArticlesProposesResponses = {
+    /**
+     * OK
+     */
+    200: Array<ArticlePropose>;
+};
+
+export type ListerArticlesProposesResponse = ListerArticlesProposesResponses[keyof ListerArticlesProposesResponses];
+
+export type EmettrePieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/emission';
+};
+
+export type EmettrePieceResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type EmettrePieceResponse = EmettrePieceResponses[keyof EmettrePieceResponses];
+
+export type ConsulterJournalPieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/journal';
+};
+
+export type ConsulterJournalPieceResponses = {
+    /**
+     * OK
+     */
+    200: Array<EntreeJournalPiece>;
+};
+
+export type ConsulterJournalPieceResponse = ConsulterJournalPieceResponses[keyof ConsulterJournalPieceResponses];
+
+export type AnnoterPieceData = {
+    body: NotePiece;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/notes';
+};
+
+export type AnnoterPieceResponses = {
+    /**
+     * OK
+     */
+    200: EntreeJournalPiece;
+};
+
+export type AnnoterPieceResponse = AnnoterPieceResponses[keyof AnnoterPieceResponses];
+
+export type TelechargerPdfPieceData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{id}/pdf';
+};
+
+export type TelechargerPdfPieceResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerPdfPieceResponse = TelechargerPdfPieceResponses[keyof TelechargerPdfPieceResponses];
+
+export type ConsulterVendeurData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/vendeur';
+};
+
+export type ConsulterVendeurResponses = {
+    /**
+     * OK
+     */
+    200: ParametrageFacturation;
+};
+
+export type ConsulterVendeurResponse = ConsulterVendeurResponses[keyof ConsulterVendeurResponses];
+
+export type ParametrerVendeurData = {
+    body: VendeurFacturation;
+    path?: never;
+    query?: never;
+    url: '/api/facturation/vendeur';
+};
+
+export type ParametrerVendeurResponses = {
+    /**
+     * OK
+     */
+    200: VendeurFacturation;
+};
+
+export type ParametrerVendeurResponse = ParametrerVendeurResponses[keyof ParametrerVendeurResponses];
+
+export type ConsulterVentesData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Premier jour, inclus
+         */
+        du: string;
+        /**
+         * Dernier jour, inclus
+         */
+        au: string;
+    };
+    url: '/api/facturation/ventes';
+};
+
+export type ConsulterVentesResponses = {
+    /**
+     * OK
+     */
+    200: Ventes;
+};
+
+export type ConsulterVentesResponse = ConsulterVentesResponses[keyof ConsulterVentesResponses];
+
+export type ExporterVentesPdfData = {
+    body?: never;
+    path?: never;
+    query: {
+        du: string;
+        au: string;
+    };
+    url: '/api/facturation/ventes/pdf';
+};
+
+export type ExporterVentesPdfResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type ExporterVentesPdfResponse = ExporterVentesPdfResponses[keyof ExporterVentesPdfResponses];
+
 export type ConsulterInvitationParJetonData = {
     body?: never;
     path: {
@@ -2416,6 +3620,203 @@ export type AccepterInvitationResponses = {
 };
 
 export type AccepterInvitationResponse = AccepterInvitationResponses[keyof AccepterInvitationResponses];
+
+export type ListerConversationsBniaData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        /**
+         * Type d'objet
+         */
+        type?: 'DSM' | 'FACTURE';
+        /**
+         * Sujets libres seulement
+         */
+        libres?: boolean;
+        nonLues?: boolean;
+        /**
+         * Texte cherché, sans casse ni accents
+         */
+        recherche?: string;
+    };
+    url: '/api/messagerie/conversations';
+};
+
+export type ListerConversationsBniaResponses = {
+    /**
+     * OK
+     */
+    200: Array<ConversationListee>;
+};
+
+export type ListerConversationsBniaResponse = ListerConversationsBniaResponses[keyof ListerConversationsBniaResponses];
+
+export type ConsulterConversationData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/conversations/{id}';
+};
+
+export type ConsulterConversationResponses = {
+    /**
+     * OK
+     */
+    200: Conversation;
+};
+
+export type ConsulterConversationResponse = ConsulterConversationResponses[keyof ConsulterConversationResponses];
+
+export type RepondreConversationData = {
+    body?: {
+        pieces?: Array<Blob | File>;
+        texte: string;
+    };
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/conversations/{id}/messages';
+};
+
+export type RepondreConversationResponses = {
+    /**
+     * Created
+     */
+    201: Message;
+};
+
+export type RepondreConversationResponse = RepondreConversationResponses[keyof RepondreConversationResponses];
+
+export type TelechargerPieceJointeData = {
+    body?: never;
+    path: {
+        id: number;
+        cle: number;
+    };
+    query?: never;
+    url: '/api/messagerie/conversations/{id}/pieces/{cle}';
+};
+
+export type TelechargerPieceJointeResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerPieceJointeResponse = TelechargerPieceJointeResponses[keyof TelechargerPieceJointeResponses];
+
+export type SupprimerMessageData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/messages/{id}';
+};
+
+export type SupprimerMessageResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerMessageResponse = SupprimerMessageResponses[keyof SupprimerMessageResponses];
+
+export type ModifierMessageData = {
+    body: SaisieMessage;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/messages/{id}';
+};
+
+export type ModifierMessageResponses = {
+    /**
+     * OK
+     */
+    200: Message;
+};
+
+export type ModifierMessageResponse = ModifierMessageResponses[keyof ModifierMessageResponses];
+
+export type MarquerMessageNonLuData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/messages/{id}/non-lu';
+};
+
+export type MarquerMessageNonLuResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type MarquerMessageNonLuResponse = MarquerMessageNonLuResponses[keyof MarquerMessageNonLuResponses];
+
+export type ListerNouveauxMessagesBniaData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/messagerie/nouveaux';
+};
+
+export type ListerNouveauxMessagesBniaResponses = {
+    /**
+     * OK
+     */
+    200: NouveauxMessages;
+};
+
+export type ListerNouveauxMessagesBniaResponse = ListerNouveauxMessagesBniaResponses[keyof ListerNouveauxMessagesBniaResponses];
+
+export type ConsulterConversationObjetData = {
+    body?: never;
+    path: {
+        type: 'DSM' | 'FACTURE';
+        identifiant: string;
+    };
+    query?: never;
+    url: '/api/messagerie/objets/{type}/{identifiant}';
+};
+
+export type ConsulterConversationObjetResponses = {
+    /**
+     * OK
+     */
+    200: Conversation;
+};
+
+export type ConsulterConversationObjetResponse = ConsulterConversationObjetResponses[keyof ConsulterConversationObjetResponses];
+
+export type EcrireMessageObjetData = {
+    body: SaisieMessage;
+    path: {
+        type: 'DSM' | 'FACTURE';
+        identifiant: string;
+    };
+    query?: never;
+    url: '/api/messagerie/objets/{type}/{identifiant}/messages';
+};
+
+export type EcrireMessageObjetResponses = {
+    /**
+     * Created
+     */
+    201: Message;
+};
+
+export type EcrireMessageObjetResponse = EcrireMessageObjetResponses[keyof EcrireMessageObjetResponses];
 
 export type ConsulterMoiData = {
     body?: never;
@@ -2495,9 +3896,13 @@ export type ListerOperateursData = {
          */
         actif?: boolean;
         /**
-         * Vrai : fiches incomplètes seulement (RG-OPE-02)
+         * Vrai : fiches facturables seulement ; faux : les autres (RG-OPE-02)
          */
-        incomplet?: boolean;
+        facturable?: boolean;
+        /**
+         * Vrai : fiches certifiables seulement ; faux : les autres (RG-OPE-02)
+         */
+        certifiable?: boolean;
     };
     url: '/api/operateurs';
 };
@@ -2582,7 +3987,8 @@ export type ExporterOperateursData = {
         type?: 'BNIA' | 'PRODUCTEUR' | 'NEGOCIANT' | 'AUTRE';
         recherche?: string;
         actif?: boolean;
-        incomplet?: boolean;
+        facturable?: boolean;
+        certifiable?: boolean;
     };
     url: '/api/operateurs/export.xlsx';
 };
@@ -3074,84 +4480,6 @@ export type ConsulterSituationDsmResponses = {
 
 export type ConsulterSituationDsmResponse = ConsulterSituationDsmResponses[keyof ConsulterSituationDsmResponses];
 
-export type ListerCommentairesDsmData = {
-    body?: never;
-    path: {
-        operateur: number;
-        dsm: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
-};
-
-export type ListerCommentairesDsmResponses = {
-    /**
-     * OK
-     */
-    200: Array<CommentaireDsm>;
-};
-
-export type ListerCommentairesDsmResponse = ListerCommentairesDsmResponses[keyof ListerCommentairesDsmResponses];
-
-export type EcrireCommentaireDsmData = {
-    body: SaisieCommentaireDsm;
-    path: {
-        operateur: number;
-        dsm: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
-};
-
-export type EcrireCommentaireDsmResponses = {
-    /**
-     * Created
-     */
-    201: CommentaireDsm;
-};
-
-export type EcrireCommentaireDsmResponse = EcrireCommentaireDsmResponses[keyof EcrireCommentaireDsmResponses];
-
-export type SupprimerCommentaireDsmData = {
-    body?: never;
-    path: {
-        operateur: number;
-        dsm: number;
-        id: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
-};
-
-export type SupprimerCommentaireDsmResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type SupprimerCommentaireDsmResponse = SupprimerCommentaireDsmResponses[keyof SupprimerCommentaireDsmResponses];
-
-export type ModifierCommentaireDsmData = {
-    body: SaisieCommentaireDsm;
-    path: {
-        operateur: number;
-        dsm: number;
-        id: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
-};
-
-export type ModifierCommentaireDsmResponses = {
-    /**
-     * OK
-     */
-    200: CommentaireDsm;
-};
-
-export type ModifierCommentaireDsmResponse = ModifierCommentaireDsmResponses[keyof ModifierCommentaireDsmResponses];
-
 export type SupprimerDrmData = {
     body?: never;
     path: {
@@ -3279,6 +4607,84 @@ export type TelechargerJustificatifDsmResponses = {
 };
 
 export type TelechargerJustificatifDsmResponse = TelechargerJustificatifDsmResponses[keyof TelechargerJustificatifDsmResponses];
+
+export type ListerNotesInternesDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes';
+};
+
+export type ListerNotesInternesDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<NoteInterneDsm>;
+};
+
+export type ListerNotesInternesDsmResponse = ListerNotesInternesDsmResponses[keyof ListerNotesInternesDsmResponses];
+
+export type EcrireNoteInterneDsmData = {
+    body: SaisieNoteInterneDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes';
+};
+
+export type EcrireNoteInterneDsmResponses = {
+    /**
+     * Created
+     */
+    201: NoteInterneDsm;
+};
+
+export type EcrireNoteInterneDsmResponse = EcrireNoteInterneDsmResponses[keyof EcrireNoteInterneDsmResponses];
+
+export type SupprimerNoteInterneDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes/{id}';
+};
+
+export type SupprimerNoteInterneDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerNoteInterneDsmResponse = SupprimerNoteInterneDsmResponses[keyof SupprimerNoteInterneDsmResponses];
+
+export type ModifierNoteInterneDsmData = {
+    body: SaisieNoteInterneDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes/{id}';
+};
+
+export type ModifierNoteInterneDsmResponses = {
+    /**
+     * OK
+     */
+    200: NoteInterneDsm;
+};
+
+export type ModifierNoteInterneDsmResponse = ModifierNoteInterneDsmResponses[keyof ModifierNoteInterneDsmResponses];
 
 export type ConsulterPiecesDsmData = {
     body?: never;
@@ -3432,6 +4838,25 @@ export type EditerDsmExcelResponses = {
 
 export type EditerDsmExcelResponse = EditerDsmExcelResponses[keyof EditerDsmExcelResponses];
 
+export type FacturerDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{id}/facturation';
+};
+
+export type FacturerDsmResponses = {
+    /**
+     * OK
+     */
+    200: Dsm;
+};
+
+export type FacturerDsmResponse = FacturerDsmResponses[keyof FacturerDsmResponses];
+
 export type ImporterDsmData = {
     body?: {
         fichier: Blob | File;
@@ -3539,6 +4964,84 @@ export type ValiderDsmResponses = {
 };
 
 export type ValiderDsmResponse = ValiderDsmResponses[keyof ValiderDsmResponses];
+
+export type ListerMesFacturesData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        /**
+         * Début du numéro
+         */
+        numero?: string;
+        sens?: 'FACTURE' | 'AVOIR';
+        /**
+         * Nature d'origine
+         */
+        nature?: string;
+        /**
+         * Contenu dans le libellé de la période
+         */
+        periode?: string;
+        /**
+         * Date d'émission au plus tôt
+         */
+        du?: string;
+        /**
+         * Date d'émission au plus tard
+         */
+        au?: string;
+    };
+    url: '/api/operateurs/{operateur}/factures';
+};
+
+export type ListerMesFacturesResponses = {
+    /**
+     * OK
+     */
+    200: Array<PieceListee>;
+};
+
+export type ListerMesFacturesResponse = ListerMesFacturesResponses[keyof ListerMesFacturesResponses];
+
+export type ConsulterMaFactureData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/factures/{id}';
+};
+
+export type ConsulterMaFactureResponses = {
+    /**
+     * OK
+     */
+    200: Piece;
+};
+
+export type ConsulterMaFactureResponse = ConsulterMaFactureResponses[keyof ConsulterMaFactureResponses];
+
+export type TelechargerPdfMaFactureData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/factures/{id}/pdf';
+};
+
+export type TelechargerPdfMaFactureResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerPdfMaFactureResponse = TelechargerPdfMaFactureResponses[keyof TelechargerPdfMaFactureResponses];
 
 export type ConsulterFicheData = {
     body?: never;
@@ -3767,6 +5270,78 @@ export type SuspendreMembreResponses = {
 
 export type SuspendreMembreResponse = SuspendreMembreResponses[keyof SuspendreMembreResponses];
 
+export type ListerMesConversationsData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        /**
+         * Type d'objet
+         */
+        type?: 'DSM' | 'FACTURE';
+        /**
+         * Sujets libres seulement
+         */
+        libres?: boolean;
+        nonLues?: boolean;
+        /**
+         * Texte cherché, sans casse ni accents
+         */
+        recherche?: string;
+    };
+    url: '/api/operateurs/{operateur}/messagerie/conversations';
+};
+
+export type ListerMesConversationsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ConversationListee>;
+};
+
+export type ListerMesConversationsResponse = ListerMesConversationsResponses[keyof ListerMesConversationsResponses];
+
+export type OuvrirConversationData = {
+    body?: {
+        pieces?: Array<Blob | File>;
+        texte: string;
+        titre: string;
+    };
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/messagerie/conversations';
+};
+
+export type OuvrirConversationResponses = {
+    /**
+     * Created
+     */
+    201: Conversation;
+};
+
+export type OuvrirConversationResponse = OuvrirConversationResponses[keyof OuvrirConversationResponses];
+
+export type ListerMesNouveauxMessagesData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/messagerie/nouveaux';
+};
+
+export type ListerMesNouveauxMessagesResponses = {
+    /**
+     * OK
+     */
+    200: NouveauxMessages;
+};
+
+export type ListerMesNouveauxMessagesResponse = ListerMesNouveauxMessagesResponses[keyof ListerMesNouveauxMessagesResponses];
+
 export type ConsulterPointDeDepartData = {
     body?: never;
     path: {
@@ -3948,6 +5523,26 @@ export type ConsulterStockDeclareResponses = {
 };
 
 export type ConsulterStockDeclareResponse = ConsulterStockDeclareResponses[keyof ConsulterStockDeclareResponses];
+
+export type HistoriqueStockDeclareData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        annee?: number;
+    };
+    url: '/api/operateurs/{operateur}/stock-declare/historique';
+};
+
+export type HistoriqueStockDeclareResponses = {
+    /**
+     * OK
+     */
+    200: HistoriqueStocks;
+};
+
+export type HistoriqueStockDeclareResponse = HistoriqueStockDeclareResponses[keyof HistoriqueStockDeclareResponses];
 
 export type ListerCentresInteretData = {
     body?: never;

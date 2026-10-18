@@ -13,8 +13,18 @@ public enum Module {
     ACCES("Accès"),
     /** Référentiels (spec 01) : opérateur BNIA seulement. */
     PARAMETRAGE("Paramétrage"),
-    /** DSM, pièces, commentaires, point de départ, stocks déclarés (spec 05 §3.7). */
-    DECLARATIONS("Déclarations");
+    /** DSM, pièces, notes internes, point de départ, stocks déclarés (spec 05 §3.7). */
+    DECLARATIONS("Déclarations"),
+    /**
+     * Factures et avoirs (spec 08 §3.12) : lus par tout rattachement actif (ceux dont son opérateur est le
+     * client) ; gérés par le seul rôle tenu dans l'opérateur BNIA, comme le Paramétrage.
+     */
+    FACTURATION("Facturation"),
+    /**
+     * Conversations libres avec le BNIA (spec 15 §3.6) : gérées par les trois rôles, {@code OBSERVATEUR} compris ;
+     * une conversation libre n'est lue, côté opérateur, que par son auteur (RG-MSG-02, exception à RG-OPE-31).
+     */
+    MESSAGERIE("Messagerie");
 
     private final String libelle;
 

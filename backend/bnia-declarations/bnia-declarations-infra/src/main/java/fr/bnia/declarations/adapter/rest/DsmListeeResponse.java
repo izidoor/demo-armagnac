@@ -38,8 +38,14 @@ public record DsmListeeResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "A au moins une facture (RG-DEC-34)")
         boolean facturee,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Sa facture est demandée, pas encore émise : un brouillon (RG-DEC-43)")
+        boolean facturationDemandee,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)")
-        boolean prendreEnInstruction) {
+        boolean prendreEnInstruction,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Rien ne manque à l'opérateur pour le facturer (RG-OPE-02, RG-DEC-43)")
+        boolean operateurFacturable) {
 
     static DsmListeeResponse depuis(DsmListee listee) {
         Optional<DsmLigne> dsm = listee.dsm();
@@ -49,6 +55,7 @@ public record DsmListeeResponse(
                 dsm.map(d -> d.etat().libelle(Cote.BNIA)).orElse("Absente"), listee.absente(), listee.echeance(),
                 listee.enRetard(), dsm.map(DsmLigne::envoyeeLe).orElse(null), dsm.map(DsmLigne::valideeLe).orElse(null),
                 dsm.map(DsmLigne::modifieeLe).orElse(null), listee.totalHt().orElse(null),
-                dsm.map(DsmLigne::facturee).orElse(false), listee.prendreEnInstruction());
+                dsm.map(DsmLigne::facturee).orElse(false), dsm.map(DsmLigne::facturationDemandee).orElse(false),
+                listee.prendreEnInstruction(), listee.operateurFacturable());
     }
 }

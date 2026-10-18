@@ -8,8 +8,11 @@ import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.Adresse;
 import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
+import fr.bnia.operateurs.domain.NumeroTva;
 import fr.bnia.operateurs.domain.Operateur;
+import fr.bnia.operateurs.domain.Siret;
 import fr.bnia.operateurs.domain.Textes;
+import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.AdresseVue;
 import fr.bnia.operateurs.domain.partage.Droits;
@@ -67,6 +70,18 @@ class JdbcOperateursLecture implements OperateursLecture {
     }
 
     @Override
+    public Optional<AcheteurVue> acheteur(long id) {
+        return repository.parId(id).map(o -> {
+            IdentiteOperateur i = o.identite();
+            Optional<String> email = emailFacturation(o);
+            return new AcheteurVue(o.id(), o.code().valeur(), i.raisonSociale(),
+                    Optional.ofNullable(i.siret()).map(Siret::valeur),
+                    Optional.ofNullable(i.numeroTva()).map(NumeroTva::valeur), adresse(i.adresse()), email,
+                    o.manquePourFacturer(email.isPresent()), o.estActif());
+        });
+    }
+
+    @Override
     public Optional<OperateurVue> operateurParCode(String code) {
         return premier("lower(code) = lower(:valeur)", Textes.facultatif(code));
     }
@@ -121,6 +136,17 @@ class JdbcOperateursLecture implements OperateursLecture {
                         rs.getString("raison_sociale"), Optional.ofNullable(rs.getString("nom_commercial")),
                         Optional.ofNullable(rs.getString("ville"))))
                 .list();
+    }
+
+    @Override
+    public Set<Long> facturables(Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return Set.of();
+        }
+        return Set.copyOf(jdbcClient.sql("select o.id from " + TABLE + " o where o.id in (:ids) and " + Sql.FACTURABLE)
+                .param("ids", List.copyOf(ids))
+                .query(Long.class)
+                .list());
     }
 
     @Override
@@ -215,21 +241,26 @@ class JdbcOperateursLecture implements OperateursLecture {
         return valeur == null ? null : valeur.replaceAll("\\s+", "").toUpperCase(Locale.ROOT);
     }
 
-    /** RG-OPE-23 : l'adresse de facturation est celle saisie, ou l'e-mail de la personne désignée. */
     private OperateurVue vue(Operateur o) {
         IdentiteOperateur i = o.identite();
-        Adresse a = i.adresse();
-        Optional<String> emailFacturation = o.destinataireFactures().flatMap(d -> d.adresse() != null
-                ? Optional.of(d.adresse().valeur()) : emailDeFiche(d.fiche()));
         return new OperateurVue(o.id(), o.code().valeur(), o.type(), i.raisonSociale(),
-                Optional.ofNullable(i.nomCommercial()),
-                new AdresseVue(Optional.ofNullable(a.ligne1()), Optional.ofNullable(a.ligne2()),
-                        Optional.ofNullable(a.ligne3()), Optional.ofNullable(a.codePostal()),
-                        Optional.ofNullable(a.ville()), Optional.ofNullable(a.pays())),
+                Optional.ofNullable(i.nomCommercial()), adresse(i.adresse()),
                 Optional.ofNullable(o.declaratif().periodicite()), o.declaratif().statut(),
                 Optional.ofNullable(o.production().region()), o.production().appellations(),
-                o.diffusion().niveau(), o.diffusion().millesimes(), o.accesStatistiques(), emailFacturation,
+                o.diffusion().niveau(), o.diffusion().millesimes(), o.accesStatistiques(), emailFacturation(o),
                 o.estActif());
+    }
+
+    /** RG-OPE-23 : l'adresse saisie, ou l'e-mail de la personne désignée. */
+    private Optional<String> emailFacturation(Operateur o) {
+        return o.destinataireFactures().flatMap(d -> d.adresse() != null
+                ? Optional.of(d.adresse().valeur()) : emailDeFiche(d.fiche()));
+    }
+
+    private static AdresseVue adresse(Adresse a) {
+        return new AdresseVue(Optional.ofNullable(a.ligne1()), Optional.ofNullable(a.ligne2()),
+                Optional.ofNullable(a.ligne3()), Optional.ofNullable(a.codePostal()), Optional.ofNullable(a.ville()),
+                Optional.ofNullable(a.pays()));
     }
 
     private Optional<String> emailDeFiche(long fiche) {

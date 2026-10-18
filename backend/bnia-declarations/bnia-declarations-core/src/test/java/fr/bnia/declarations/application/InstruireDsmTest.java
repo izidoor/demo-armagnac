@@ -17,7 +17,7 @@ import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.ListerDsm.DsmListee;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
 import fr.bnia.declarations.domain.ColonneDsm;
-import fr.bnia.declarations.domain.Commentaire;
+import fr.bnia.declarations.domain.NoteInterne;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.OrigineLigne;
@@ -44,7 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Envoi, instruction, validation, commentaires, listing du BNIA, DSM suivante (spec 05, lot 2). */
+/** Envoi, instruction, validation, notes internes, listing du BNIA, DSM suivante (spec 05, lot 2 ; spec 15, lot 1). */
 class InstruireDsmTest {
 
     private static final FiltreDsm TOUT = new FiltreDsm(Optional.empty(), Optional.empty(), Optional.empty(),
@@ -52,7 +52,7 @@ class InstruireDsmTest {
 
     private final Monde monde = new Monde();
     private final GererDsm cas = monde.gererDsm();
-    private final CommenterDsm commenter = monde.commenterDsm();
+    private final AnnoterDsm annoter = monde.annoterDsm();
     private long id;
 
     @BeforeEach
@@ -100,7 +100,7 @@ class InstruireDsmTest {
     }
 
     @Test
-    @DisplayName("RG-DEC-20 : cycle complet, compléments reçus validés sans reprise, journal, événements, motif en commentaire")
+    @DisplayName("RG-DEC-20, RG-DEC-25 : cycle complet, compléments reçus validés sans reprise, journal, événements, motif déposé")
     void rg_dec_20_cycle_complet() {
         assertThat(cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, 0L).dsm().etat()).isEqualTo(EtatDsm.ENVOYEE);
         cas.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, id, 1L);
@@ -128,9 +128,8 @@ class InstruireDsmTest {
                 new ComplementsDemandes(id, NEGOCIANT, juin, fin, "DAE manquants pour l'export"),
                 new DsmEnvoyee(id, NEGOCIANT, juin, fin, true),
                 new DsmValidee(id, NEGOCIANT, juin, fin));
-        assertThat(commenter.lister(AGENT_NEGOCIANT, NEGOCIANT, id)).singleElement()
-                .satisfies(c -> assertThat(c.motif()).isTrue())
-                .satisfies(c -> assertThat(c.cote()).isEqualTo(Cote.BNIA));
+        assertThat(monde.messagerie.motifs).containsExactly(
+                new MessagerieCapturee.Motif(id, AGENT_BNIA.utilisateur(), "DAE manquants pour l'export"));
     }
 
     @Test
@@ -152,16 +151,14 @@ class InstruireDsmTest {
     @DisplayName("RG-DEC-01 : les actions de la vue suivent l'état et le côté")
     void rg_dec_01_actions() {
         assertThat(cas.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).actions()).containsExactlyInAnyOrder(
-                ActionDsm.ENREGISTRER, ActionDsm.ENVOYER, ActionDsm.SUPPRIMER, ActionDsm.COMMENTER,
-                ActionDsm.DEPOSER_PIECES);
+                ActionDsm.ENREGISTRER, ActionDsm.ENVOYER, ActionDsm.SUPPRIMER, ActionDsm.DEPOSER_PIECES);
         assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT, id).actions()).containsExactlyInAnyOrder(
-                ActionDsm.SUPPRIMER, ActionDsm.COMMENTER, ActionDsm.COMMENTER_INTERNE, ActionDsm.DEPOSER_PIECES);
+                ActionDsm.SUPPRIMER, ActionDsm.ANNOTER, ActionDsm.DEPOSER_PIECES);
         assertThat(cas.consulter(OBSERVATEUR_NEGOCIANT, NEGOCIANT, id).actions()).isEmpty();
         cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, null);
-        assertThat(cas.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).actions()).containsExactly(ActionDsm.COMMENTER);
+        assertThat(cas.consulter(AGENT_NEGOCIANT, NEGOCIANT, id).actions()).isEmpty();
         assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT, id).actions()).containsExactlyInAnyOrder(
-                ActionDsm.PRENDRE_EN_INSTRUCTION, ActionDsm.COMMENTER, ActionDsm.COMMENTER_INTERNE,
-                ActionDsm.DEPOSER_PIECES);
+                ActionDsm.PRENDRE_EN_INSTRUCTION, ActionDsm.ANNOTER, ActionDsm.DEPOSER_PIECES);
         cas.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, id, null);
         assertThat(cas.consulter(AGENT_BNIA, NEGOCIANT, id).actions()).contains(ActionDsm.DEMANDER_COMPLEMENTS,
                 ActionDsm.VALIDER);
@@ -192,80 +189,69 @@ class InstruireDsmTest {
     }
 
     @Test
-    @DisplayName("RG-DEC-01 : tout lecteur lit les commentaires ; l'opérateur ne voit pas les internes ; l'observateur n'écrit pas")
-    void rg_dec_01_commentaires() {
-        commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, null, "Transfert prévu", false);
-        commenter.ecrire(AGENT_BNIA, NEGOCIANT, id, null, "À vérifier avec les douanes", true);
-        assertThat(commenter.lister(OBSERVATEUR_NEGOCIANT, NEGOCIANT, id)).extracting(Commentaire::texte)
-                .containsExactly("Transfert prévu");
-        assertThat(commenter.lister(OBSERVATEUR_BNIA, NEGOCIANT, id)).hasSize(2);
-        refuse(() -> commenter.lister(INCONNU, NEGOCIANT, id));
-        refuse(() -> commenter.ecrire(OBSERVATEUR_NEGOCIANT, NEGOCIANT, id, null, "Note", false));
-        refuse(() -> commenter.ecrire(OBSERVATEUR_BNIA, NEGOCIANT, id, null, "Note", false));
+    @DisplayName("RG-DEC-01, 24 : les notes internes se lisent par le personnel du BNIA, s'écrivent par qui gère au BNIA")
+    void rg_dec_01_notes_internes() {
+        annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, null, "À vérifier avec les douanes");
+        assertThat(annoter.lister(OBSERVATEUR_BNIA, NEGOCIANT, id)).extracting(NoteInterne::texte)
+                .containsExactly("À vérifier avec les douanes");
+        assertThatThrownBy(() -> annoter.lister(AGENT_NEGOCIANT, NEGOCIANT, id)).isInstanceOf(AccesRefuse.class)
+                .hasMessage("Les notes internes sont réservées au personnel du BNIA.");
+        refuse(() -> annoter.lister(INCONNU, NEGOCIANT, id));
+        refuse(() -> annoter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, null, "Note"));
+        refuse(() -> annoter.ecrire(OBSERVATEUR_BNIA, NEGOCIANT, id, null, "Note"));
     }
 
     @Test
-    @DisplayName("RG-DEC-24 : un commentaire vise la DSM ou une de ses lignes, dans tout état ; l'opérateur n'écrit pas d'interne")
-    void rg_dec_24_commenter() {
+    @DisplayName("RG-DEC-24 : une note vise la DSM ou une de ses lignes, dans tout état ; son auteur seul la modifie ou la supprime")
+    void rg_dec_24_annoter() {
         long ligne = dsm().lignes().getFirst().id();
-        Commentaire surLigne = commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, ligne, "Transfert vers Eauze", false);
+        NoteInterne surLigne = annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, ligne, "Sorties export à rapprocher des DAE");
         assertThat(surLigne.ligne()).isEqualTo(ligne);
-        assertThat(surLigne.cote()).isEqualTo(Cote.OPERATEUR);
-        enfreint("RG-DEC-24", () -> commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, null, "Note", true));
-        assertThatThrownBy(() -> commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, 9999L, "Note", false))
+        assertThatThrownBy(() -> annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, 9999L, "Note"))
                 .isInstanceOf(ElementIntrouvable.class);
         cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, null);
         cas.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, id, null);
         cas.valider(AGENT_BNIA, NEGOCIANT, id, null);
-        commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, null, "Merci", false);
-        assertThat(commenter.lister(AGENT_NEGOCIANT, NEGOCIANT, id)).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("RG-DEC-25 : l'auteur modifie ou supprime le sien, trace au journal ; le motif reste")
-    void rg_dec_25_modifier_supprimer() {
-        long commentaire = commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, null, "Note", false).id();
-        enfreint("RG-DEC-25", () -> commenter.modifier(AGENT_BNIA, NEGOCIANT, id, commentaire, "Autre", false));
-        assertThat(commenter.modifier(AGENT_NEGOCIANT, NEGOCIANT, id, commentaire, "Note corrigée", false).modifieLe())
+        annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, null, "Validée après rapprochement");
+        assertThat(annoter.lister(AGENT_BNIA, NEGOCIANT, id)).hasSize(2);
+        assertThat(annoter.modifier(AGENT_BNIA, NEGOCIANT, id, surLigne.id(), "DAE reçus, conforme").modifieeLe())
                 .isNotNull();
-        enfreint("RG-DEC-25", () -> commenter.supprimer(AGENT_BNIA, NEGOCIANT, id, commentaire));
-        commenter.supprimer(AGENT_NEGOCIANT, NEGOCIANT, id, commentaire);
-        assertThat(commenter.lister(AGENT_NEGOCIANT, NEGOCIANT, id)).isEmpty();
-        assertThat(monde.journal.deLaDsm(id).getFirst().action()).isEqualTo(ActionJournalDeclarations.COMMENTAIRE_SUPPRIME);
-
-        cas.envoyer(AGENT_NEGOCIANT, NEGOCIANT, id, null);
-        cas.prendreEnInstruction(AGENT_BNIA, NEGOCIANT, id, null);
-        cas.demanderComplements(AGENT_BNIA, NEGOCIANT, id, "DAE manquants", null);
-        long motif = commenter.lister(AGENT_BNIA, NEGOCIANT, id).getFirst().id();
-        enfreint("RG-DEC-25", () -> commenter.supprimer(AGENT_BNIA, NEGOCIANT, id, motif));
+        annoter.supprimer(AGENT_BNIA, NEGOCIANT, id, surLigne.id());
+        assertThat(annoter.lister(AGENT_BNIA, NEGOCIANT, id)).singleElement()
+                .satisfies(n -> assertThat(n.texte()).isEqualTo("Validée après rapprochement"));
+        assertThat(monde.journal.deLaDsm(id)).as("le journal, que l'opérateur lit, ignore les notes")
+                .extracting(EntreeJournal::action).containsExactly(ActionJournalDeclarations.DSM_VALIDEE,
+                        ActionJournalDeclarations.DSM_PRISE_EN_INSTRUCTION, ActionJournalDeclarations.DSM_ENVOYEE,
+                        ActionJournalDeclarations.DSM_INITIEE);
     }
 
     @Test
-    @DisplayName("RG-DEC-22 : supprimer un brouillon efface ses commentaires")
-    void rg_dec_22_commentaires_supprimes() {
-        commenter.ecrire(AGENT_NEGOCIANT, NEGOCIANT, id, null, "Note", false);
+    @DisplayName("RG-DEC-22 : supprimer un brouillon efface ses notes internes et sa conversation")
+    void rg_dec_22_notes_et_conversation_supprimees() {
+        annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, null, "Note");
         cas.supprimer(AGENT_NEGOCIANT, NEGOCIANT, id);
-        assertThat(monde.commentaires.deLaDsm(id)).isEmpty();
+        assertThat(monde.notes.deLaDsm(id)).isEmpty();
+        assertThat(monde.messagerie.supprimees).containsExactly(id);
     }
 
     @Test
-    void les_commentaires_d_une_ligne_supprimee_passent_sur_la_dsm() {
+    void les_notes_d_une_ligne_supprimee_passent_sur_la_dsm() {
         List<SaisieLigneDsm> lignes = new ArrayList<>(dsm().lignes().stream().map(l -> telle(l, Map.of())).toList());
         lignes.add(new SaisieLigneDsm(null, CleConditionnement.NB, null, "Réserve", "8", Map.of()));
         DeclarationStocksMouvements avecAjout = cas.enregistrer(AGENT_NEGOCIANT, NEGOCIANT, id,
                 new SaisieDsm(null, lignes), null).dsm();
         long ajoutee = avecAjout.lignes().getLast().id();
         long gardee = avecAjout.lignes().getFirst().id();
-        commenter.ecrire(AGENT_BNIA, NEGOCIANT, id, ajoutee, "Quelle origine ?", false);
-        commenter.ecrire(AGENT_BNIA, NEGOCIANT, id, gardee, "Vu", false);
+        annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, ajoutee, "Quelle origine ?");
+        annoter.ecrire(AGENT_BNIA, NEGOCIANT, id, gardee, "Vu");
 
         cas.enregistrer(AGENT_NEGOCIANT, NEGOCIANT, id, new SaisieDsm(null, lignes.subList(0, 2).stream()
                 .map(s -> telle(avecAjout.lignes().get(lignes.indexOf(s)), Map.of())).toList()), null);
 
-        List<Commentaire> fil = commenter.lister(AGENT_BNIA, NEGOCIANT, id);
-        assertThat(fil.get(0).ligne()).isNull();
-        assertThat(fil.get(0).ligneSupprimee()).isEqualTo("« dénomination Réserve, clé NB, compte d'âge 8 »");
-        assertThat(fil.get(1).ligne()).isEqualTo(gardee);
+        List<NoteInterne> carnet = annoter.lister(AGENT_BNIA, NEGOCIANT, id);
+        assertThat(carnet.get(0).ligne()).isNull();
+        assertThat(carnet.get(0).ligneSupprimee()).isEqualTo("« dénomination Réserve, clé NB, compte d'âge 8 »");
+        assertThat(carnet.get(1).ligne()).isEqualTo(gardee);
     }
 
     @Test

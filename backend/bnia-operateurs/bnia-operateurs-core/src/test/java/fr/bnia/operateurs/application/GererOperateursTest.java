@@ -319,14 +319,14 @@ class GererOperateursTest {
     }
 
     static SaisieOperateur saisie(TypeOperateur type, String code, String raisonSociale, String codePostal, Long pays) {
-        return new SaisieOperateur(type, code, null, null, null, null, null, null, null, raisonSociale, null,
+        return new SaisieOperateur(type, code, null, null, null, null, null, null, null, null, raisonSociale, null,
                 "1 route d'Auch", null, null, codePostal, "Condom", pays, null, null, null, null, null, null, null,
                 null, null, false, null, null);
     }
 
     private static SaisieOperateur copie(SaisieOperateur s, String groupe, String siret, String odg, Long titre, Long version) {
-        return new SaisieOperateur(s.type(), s.code(), groupe, s.cvi(), siret, s.accise(), s.bureauDouanes(),
-                odg, titre, s.raisonSociale(), s.nomCommercial(), s.adresseLigne1(),
+        return new SaisieOperateur(s.type(), s.code(), groupe, s.cvi(), siret, s.numeroTva(), s.accise(),
+                s.bureauDouanes(), odg, titre, s.raisonSociale(), s.nomCommercial(), s.adresseLigne1(),
                 s.adresseLigne2(), s.adresseLigne3(), s.codePostal(), s.ville(), s.pays(), s.telephone1(),
                 s.telephone2(), s.portable(), s.emailGeneral(), s.siteWeb(), s.siteCommercial(), s.latitude(),
                 s.longitude(), s.membreBnia(), s.accordDiffusionGeneral(), s.commentaireInterne(), version);

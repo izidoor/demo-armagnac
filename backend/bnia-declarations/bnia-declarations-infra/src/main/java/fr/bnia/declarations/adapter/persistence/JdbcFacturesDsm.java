@@ -9,7 +9,10 @@ import java.util.List;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-/** Projection des factures et avoirs des DSM (A-DEC-4) ; un document reçu deux fois n'est gardé qu'une fois. */
+/**
+ * Projection des documents de facturation des DSM (A-DEC-4) : brouillons demandés, factures et avoirs reçus ; un
+ * document reçu deux fois n'est gardé qu'une fois.
+ */
 @Repository
 class JdbcFacturesDsm implements FacturesDsm {
 
@@ -20,27 +23,36 @@ class JdbcFacturesDsm implements FacturesDsm {
     }
 
     @Override
-    public void inserer(FactureDsm facture) {
-        jdbcClient.sql("insert into " + SCHEMA + ".facture_dsm (dsm_id, type, numero, date, ht, tva, ttc)"
-                        + " values (:dsm, :type, :numero, :date, :ht, :tva, :ttc) on conflict (type, numero) do nothing")
+    public boolean inserer(FactureDsm facture) {
+        return jdbcClient.sql("insert into " + SCHEMA + ".facture_dsm (dsm_id, piece, type, numero, date, ht, tva, ttc)"
+                        + " values (:dsm, :piece, :type, :numero, :date, :ht, :tva, :ttc) on conflict do nothing")
                 .param("dsm", facture.dsm())
+                .param("piece", facture.piece())
                 .param("type", facture.type().name())
                 .param("numero", facture.numero())
                 .param("date", facture.date())
                 .param("ht", facture.ht())
                 .param("tva", facture.tva())
                 .param("ttc", facture.ttc())
+                .update() == 1;
+    }
+
+    @Override
+    public void retirerBrouillon(long piece) {
+        jdbcClient.sql("delete from " + SCHEMA + ".facture_dsm where piece = :piece and type = 'BROUILLON'")
+                .param("piece", piece)
                 .update();
     }
 
     @Override
     public List<FactureDsm> deLaDsm(long dsm) {
-        return jdbcClient.sql("select dsm_id, type, numero, date, ht, tva, ttc from " + SCHEMA + ".facture_dsm"
-                        + " where dsm_id = :dsm order by date, type desc, numero")
+        return jdbcClient.sql("select dsm_id, piece, type, numero, date, ht, tva, ttc from " + SCHEMA + ".facture_dsm"
+                        + " where dsm_id = :dsm order by date nulls first, type desc, numero")
                 .param("dsm", dsm)
-                .query((rs, n) -> new FactureDsm(rs.getLong("dsm_id"), FactureDsm.Type.valueOf(rs.getString("type")),
-                        rs.getString("numero"), rs.getObject("date", LocalDate.class), rs.getBigDecimal("ht"),
-                        rs.getBigDecimal("tva"), rs.getBigDecimal("ttc")))
+                .query((rs, n) -> new FactureDsm(rs.getLong("dsm_id"), rs.getLong("piece"),
+                        FactureDsm.Type.valueOf(rs.getString("type")), rs.getString("numero"),
+                        rs.getObject("date", LocalDate.class), rs.getBigDecimal("ht"), rs.getBigDecimal("tva"),
+                        rs.getBigDecimal("ttc")))
                 .list();
     }
 }

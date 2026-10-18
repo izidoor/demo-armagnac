@@ -2,10 +2,11 @@ package fr.bnia.declarations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import fr.bnia.declarations.application.partage.DeclarationsLecture;
-import fr.bnia.declarations.domain.partage.AvoirEmis;
-import fr.bnia.declarations.domain.partage.CotisationDsmVue;
-import fr.bnia.declarations.domain.partage.FactureEmise;
+import fr.bnia.declarations.application.EnregistrerFactures;
+import fr.bnia.facturation.api.Acteur;
+import fr.bnia.facturation.api.ClientRef;
+import fr.bnia.facturation.api.FactureEmise;
+import fr.bnia.facturation.api.Origine;
 import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.referentiels.application.partage.ReferentielsLecture;
 import fr.bnia.referentiels.domain.partage.ValeurVue;
@@ -25,8 +26,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
- * Lot 4 de la spec 05 : grille CVO, cotisation de la DSM, total HT des listings, projection des factures,
- * lecture publiée. La grille est commune à toute la base des IT : on y assure les deux taux de la
+ * Lot 4 de la spec 05 : grille CVO, cotisation de la DSM, total HT des listings, projection des factures (reçues
+ * de facturation, spec 08). La grille est commune à toute la base des IT : on y assure les deux taux de la
  * démonstration, et l'on n'y ajoute ou retire que des taux lointains.
  */
 @SuppressWarnings("unchecked")
@@ -35,7 +36,7 @@ class CotisationDsmIT extends AbstractIT {
     private static final String GRILLE = "/api/declarations/taux-cvo";
 
     @Autowired ApplicationEventPublisher evenements;
-    @Autowired DeclarationsLecture lecture;
+    @Autowired EnregistrerFactures enregistrer;
     @Autowired ReferentielsLecture referentiels;
 
     private long operateur;
@@ -165,22 +166,25 @@ class CotisationDsmIT extends AbstractIT {
         assertThat(cotisation.get("statut")).isEqualTo("NON_CALCULABLE");
         assertThat(cotisation.get("finPeriode")).isEqualTo("2020-06-30");
         assertThat(cotisation.get("totalHt")).isNull();
-        assertThat(lecture.cotisation(((Number) dsm.get("id")).longValue()).orElseThrow().montant()).isEmpty();
     }
 
     @Test
-    @DisplayName("RG-DEC-34 : FactureEmise et AvoirEmis reçus, une seule fois chacun ; la DSM est facturée, au listing et à l'écran")
+    @DisplayName("RG-DEC-34 : FactureEmise de facturation et un avoir reçus, une seule fois chacun ; la DSM est facturée, au listing et à l'écran")
     void rg_dec_34_facturee() {
         Map<?, ?> dsm = dsmDeLExemple(LocalDate.now().withDayOfMonth(1));
         long id = ((Number) dsm.get("id")).longValue();
         String numero = "F" + unique();
-        FactureEmise facture = new FactureEmise(id, numero, LocalDate.now(), new BigDecimal("1855.95"),
-                new BigDecimal("296.95"), new BigDecimal("2152.90"));
+        long piece = Math.abs(numero.hashCode());
+        FactureEmise facture = new FactureEmise(piece, new Origine("declarations", "DSM", "Cotisation", Long.toString(id),
+                "DSM"), ClientRef.operateur(operateur, "T"), numero, LocalDate.now(), new BigDecimal("1855.95"),
+                new BigDecimal("296.95"), new BigDecimal("2152.90"), new Acteur(operateurs.utilisateurParEmail(ADMIN_BNIA)
+                .orElseThrow()));
 
         evenements.publishEvent(facture);
         evenements.publishEvent(facture);
-        evenements.publishEvent(new AvoirEmis(id, "A" + unique(), LocalDate.now(), new BigDecimal("100.00"),
-                new BigDecimal("20.00"), new BigDecimal("120.00")));
+        enregistrer.avoirEmis(new EnregistrerFactures.PieceRecue(id, piece + 1, "A" + unique(), LocalDate.now(),
+                new BigDecimal("100.00"), new BigDecimal("20.00"), new BigDecimal("120.00"),
+                new fr.bnia.operateurs.domain.partage.Acteur(1)));
 
         Map<?, ?> cotisation = (Map<?, ?>) corps(agent.get().uri(dsms + "/{id}", id).exchange().expectStatus().isOk())
                 .get("cotisation");
@@ -191,19 +195,5 @@ class CotisationDsmIT extends AbstractIT {
         client.get().uri("/api/declarations/dsm?operateur=" + operateur).exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$[0].facturee").isEqualTo(true)
                 .jsonPath("$[0].totalHt").isEqualTo(1755.95);
-    }
-
-    @Test
-    @DisplayName("RG-DEC-31 à 33 : la cotisation publiée pour facturation")
-    void rg_dec_31_lecture_publiee() {
-        Map<?, ?> dsm = dsmDeLExemple(LocalDate.now().withDayOfMonth(1));
-
-        CotisationDsmVue vue = lecture.cotisation(((Number) dsm.get("id")).longValue()).orElseThrow();
-
-        assertThat(vue.operateur()).isEqualTo(operateur);
-        assertThat(vue.validee()).isFalse();
-        assertThat(vue.lignes()).hasSize(2);
-        assertThat(vue.totalHt()).isEqualByComparingTo("1855.95");
-        assertThat(lecture.cotisation(-1)).isEmpty();
     }
 }

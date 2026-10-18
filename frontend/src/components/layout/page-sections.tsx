@@ -25,7 +25,7 @@ export type SectionPage = {
 
 type PageSectionsProps = {
   titre: string
-  description: ReactNode
+  description?: ReactNode
   sections: SectionPage[]
   active?: string
   onChoisir?: (cle: string) => void
@@ -70,7 +70,9 @@ export function PageSections({
           <h1 className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'>
             {titre}
           </h1>
-          <p className='text-muted-foreground'>{description}</p>
+          {description && (
+            <p className='text-muted-foreground'>{description}</p>
+          )}
         </div>
         <Separator className='my-4 lg:my-6' />
         <div className='relative flex flex-1 flex-col space-y-2 overflow-hidden md:flex-row md:space-y-0 md:space-x-12'>

@@ -11,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Pagination } from '@/components/metier/pagination'
+import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { type Espace } from './api'
 import { formatDate, formatDateHeure, formatEuros } from './format'
 import { VARIANTE_ETAT } from './libelles'
@@ -39,68 +41,74 @@ export function ListeDsm({
           to: '/portail/declarations/$dsm',
           params: { dsm: String(id) },
         })
+  const { lignes, pagination } = usePagination(dsms, TAILLE_PAGE)
   return (
-    <div className='rounded-md border'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Période</TableHead>
-            <TableHead>État</TableHead>
-            <TableHead>Échéance</TableHead>
-            <TableHead>Envoyée le</TableHead>
-            <TableHead>Validée le</TableHead>
-            <TableHead className='text-right'>Total HT</TableHead>
-            <TableHead className='w-0' />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {dsms.length === 0 && (
+    <>
+      <div className='rounded-md border'>
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell
-                colSpan={7}
-                className='text-muted-foreground h-16 text-center'
-              >
-                Aucune DSM.
-              </TableCell>
+              <TableHead>Période</TableHead>
+              <TableHead>État</TableHead>
+              <TableHead>Échéance</TableHead>
+              <TableHead>Envoyée le</TableHead>
+              <TableHead>Validée le</TableHead>
+              <TableHead className='text-right'>Total HT</TableHead>
+              <TableHead className='w-0' />
             </TableRow>
-          )}
-          {dsms.map((d) => (
-            <TableRow
-              key={d.id}
-              className='cursor-pointer'
-              onClick={() => ouvrir(d.id)}
-            >
-              <TableCell className='font-medium'>{d.periode.libelle}</TableCell>
-              <TableCell>
-                <Badge variant={VARIANTE_ETAT[d.etat]}>{d.libelleEtat}</Badge>
-              </TableCell>
-              <TableCell>{formatDate(d.echeance)}</TableCell>
-              <TableCell>{formatDateHeure(d.envoyeeLe)}</TableCell>
-              <TableCell>{formatDateHeure(d.valideeLe)}</TableCell>
-              <TableCell className='text-right tabular-nums'>
-                {formatEuros(d.totalHt)}
-                {d.facturee && (
-                  <Badge variant='secondary' className='ms-2'>
-                    Facturée
-                  </Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    ouvrir(d.id)
-                  }}
+          </TableHeader>
+          <TableBody>
+            {dsms.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className='text-muted-foreground h-16 text-center'
                 >
-                  Ouvrir <ChevronRight className='size-4' />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+                  Aucune DSM.
+                </TableCell>
+              </TableRow>
+            )}
+            {(lignes ?? []).map((d) => (
+              <TableRow
+                key={d.id}
+                className='cursor-pointer'
+                onClick={() => ouvrir(d.id)}
+              >
+                <TableCell className='font-medium'>
+                  {d.periode.libelle}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={VARIANTE_ETAT[d.etat]}>{d.libelleEtat}</Badge>
+                </TableCell>
+                <TableCell>{formatDate(d.echeance)}</TableCell>
+                <TableCell>{formatDateHeure(d.envoyeeLe)}</TableCell>
+                <TableCell>{formatDateHeure(d.valideeLe)}</TableCell>
+                <TableCell className='text-right tabular-nums'>
+                  {formatEuros(d.totalHt)}
+                  {d.facturee && (
+                    <Badge variant='secondary' className='ms-2'>
+                      Facturée
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      ouvrir(d.id)
+                    }}
+                  >
+                    Ouvrir <ChevronRight className='size-4' />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <Pagination {...pagination} />
+    </>
   )
 }

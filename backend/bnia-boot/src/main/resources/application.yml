@@ -9,7 +9,7 @@ spring:
     locations: classpath:db/migration
     # Un schéma PostgreSQL par contexte, créé par Flyway avant V1 ; nécessaire aussi pour que le
     # vidage de la base de dev (profil dev) les couvre tous. Historique dans public.
-    schemas: public,referentiels,operateurs,authentification,documents,declarations
+    schemas: public,referentiels,operateurs,authentification,documents,declarations,facturation,messagerie
   # Fichiers déposés (ADR-018) : 10 Mo au plus, au lieu du 1 Mo par défaut.
   servlet:
     multipart:
@@ -76,3 +76,10 @@ springdoc:
   # Sortie stable : le contrat exporté (docs/api/openapi.json) ne varie qu'avec l'API (ADR-007).
   writer-with-default-pretty-printer: true
   writer-with-order-by-keys: true
+
+# ADR-020 : OpenHTMLtoPDF (journal relayé par JournalPdfConfiguration) n'écrit que ses avertissements ; PDFBox se
+# tait sur la police de remplacement des polices standard Symbol et ZapfDingbats, sans effet sur les PDF.
+logging:
+  level:
+    com.openhtmltopdf: warn
+    org.apache.pdfbox.pdmodel.font.PDType1Font: error
