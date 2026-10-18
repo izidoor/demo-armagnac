@@ -38,6 +38,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { GraphiqueComptes } from '@/features/declarations/graphiques-stocks'
 import { GROUPES_ETATS } from '@/features/declarations/libelles'
+import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
 import { useDroits, useMoi } from '@/features/session/session'
 import { GraphiqueExportations } from './graphique-exportations'
 
@@ -49,7 +50,6 @@ const DEMO = {
   certificatsExport: 7,
   contrats: 4,
   commandesBoutique: 9,
-  messages: 12,
 }
 
 const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
@@ -65,8 +65,8 @@ const lit = (droits: Droits | undefined, module: Module) =>
  * de chaque type, recherche rapide d'un opérateur), les activités à traiter, puis deux graphiques. Chaque
  * indicateur ouvre le listing préfiltré correspondant. Les blocs suivent les droits de l'utilisateur sur
  * l'opérateur BNIA : seuls ceux des modules qu'il lit s'affichent, et leurs lectures ne partent qu'alors. Les
- * chiffres viennent de la base quand le contexte existe (opérateurs, DSM, factures) ; les certificats export,
- * contrats, commandes boutique, messages et les graphiques sont des données de démonstration, marquées comme
+ * chiffres viennent de la base quand le contexte existe (opérateurs, DSM, factures, messages) ; les certificats export,
+ * contrats, commandes boutique et les graphiques sont des données de démonstration, marquées comme
  * telles.
  */
 export function TableauDeBordBnia() {
@@ -121,12 +121,7 @@ export function TableauDeBordBnia() {
             valeur={DEMO.commandesBoutique}
             demo
           />
-          <Activite
-            libelle='Nouveaux messages'
-            icone={Mail}
-            valeur={DEMO.messages}
-            demo
-          />
+          <NouveauxMessages />
         </div>
       </Section>
       <Section titre='Évolutions'>
@@ -321,6 +316,19 @@ function RechercheRapide() {
         </ul>
       </CardContent>
     </Card>
+  )
+}
+
+/** Spec 15 §6.1, RG-MSG-11 : les messages non lus du BNIA ; un clic ouvre la messagerie, non lues en gras. */
+function NouveauxMessages() {
+  const { data } = useNouveauxMessages()
+  return (
+    <Activite
+      libelle='Nouveaux messages'
+      icone={Mail}
+      valeur={data?.nombre}
+      lien={{ to: '/bo/messagerie' }}
+    />
   )
 }
 

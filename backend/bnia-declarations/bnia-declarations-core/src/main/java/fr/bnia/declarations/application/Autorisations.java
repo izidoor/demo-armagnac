@@ -67,15 +67,6 @@ final class Autorisations {
     }
 
     /**
-     * RG-DEC-01, 24 : écrire un commentaire, comme l'opérateur (son propre rôle) ou, à défaut, comme le BNIA.
-     *
-     * @return le côté de l'auteur
-     */
-    Cote exigerCommentaire(Acteur acteur, long operateur) {
-        return exigerCote(acteur, operateur, "commenter les");
-    }
-
-    /**
      * RG-DEC-01, 28 : déposer ou supprimer une pièce, comme l'opérateur ou comme le BNIA ; l'état permis
      * dépend du côté.
      *

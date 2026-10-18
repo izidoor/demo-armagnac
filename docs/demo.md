@@ -74,8 +74,8 @@ par Anne Lamarque : leur première DSM est celle de ce mois.
   précédents **validées**, aux volumes de la facture d'exemple (sorties France 839,11 L, export 2 254,15 L,
   avec le DAE de l'export) : à facturer (voir « Facturation »). DSM du mois
   **envoyée** par Julie Darrigade : 40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6), sorties
-  France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; un commentaire de Julie sur
-  la ligne XO, un commentaire **interne** d'Anne Lamarque. Aucune pièce : il manque un justificatif pour
+  France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; un message de Julie et la
+  réponse de Luc Dubos (messagerie), deux notes **internes** d'Anne Lamarque (sur la DSM et la ligne XO). Aucune pièce : il manque un justificatif pour
   les ventes négoce et un pour l'export.
 - **Maison Larressingle (`N320002`, négociant)** : DSM du mois précédent envoyée par Marie Lacoste, prise en
   instruction puis en **compléments demandés** par Anne Lamarque, motif « DAE manquants pour l'export » :
@@ -106,11 +106,12 @@ Scénario :
    ligne « NB VSOP » à la place des 50 L (onglet « Mouvements en entrée ») : l'anomalie disparaît aussitôt
    (vue provisoire). « Envoyer » : la saisie est enregistrée puis envoyée.
 2. `admin@bnia.fr`, menu « Déclarations > DSM » : onglet « En cours », état « À prendre en charge » : la file d'attente montre
-   Armagnacs de Gascogne et Négoce des Landes. Ouvrir la DSM d'Armagnacs de Gascogne : commentaires
-   sous le classeur, dont l'interne ; la pastille de la ligne XO y mène. « Prendre en charge », puis
-   « Demander des compléments » avec un motif.
-3. `agent@negociant.fr` : la DSM est en compléments demandés, le motif en commentaire ; le commentaire
-   interne n'apparaît pas. Corriger, répondre en commentaire ; onglet « Pièces », déposer une facture
+   Armagnacs de Gascogne et Négoce des Landes. Ouvrir la DSM d'Armagnacs de Gascogne : sous le classeur,
+   les messages échangés avec Gascogne, puis le carnet de notes internes (deux notes d'Anne Lamarque) ; la
+   pastille de la ligne XO mène à sa note. « Prendre en charge », puis « Demander des compléments » avec un
+   motif : il s'ajoute aux messages, protégé.
+3. `agent@negociant.fr` : la DSM est en compléments demandés, le motif dans ses messages ; les notes
+   internes n'apparaissent pas. Corriger, répondre par un message ; onglet « Pièces », déposer une facture
    pour les ventes négoce et un DAE pour l'export (n'importe quel PDF) ; « Renvoyer » : la DSM est en
    « Compléments envoyés ». Puis `admin@bnia.fr` : elle est en « Compléments reçus » ; « Valider »
    directement, sans la reprendre en instruction ; la DSM est figée. Sans les pièces, « Valider » reste
@@ -241,3 +242,32 @@ Articles et ventes (lot 5) :
     récapitulatif de TVA de la période. « Exporter le tableau » (Excel du tableau affiché), « Exporter en PDF »
     (synthèse par article, TVA, totaux). Période « Année précédente » : la facture de décembre 2025.
 
+## Messagerie (spec 15, lots 1 à 6)
+
+- **Armagnacs de Gascogne**, DSM envoyée du mois courant : un message de Julie Darrigade et la réponse de Luc Dubos,
+  non lue pour Gascogne ; deux notes internes d'Anne Lamarque (sur la DSM et sur la ligne XO).
+- **Maison Larressingle** : le motif des compléments (« DAE manquants pour l'export ») dans la conversation de sa DSM,
+  protégé.
+- **Conversations libres de Gascogne** : « Import de la matrice refusé », de Julie Darrigade, l'Excel de sa DSM en
+  pièce jointe, avec la réponse du BNIA ; « Accès aux statistiques du marché », de Thomas Barrère, que ni Julie ni
+  Henri Castex (l'ADMIN) ne voient.
+- **Dernière facture émise de Gascogne** : la question d'Henri Castex sur le volume facturé, non lue pour le BNIA.
+
+Scénario :
+
+1. `admin@bnia.fr`, tableau de bord : « Nouveaux messages » compte les non lus du BNIA ; un clic ouvre la messagerie :
+   les conversations non lues ressortent en gras, avec leur nombre de non lus. Ouvrir la question d'Henri Castex : la
+   conversation de la facture s'affiche sur le premier message non lu, le compteur baisse et la ligne perd son gras ; « Ouvrir la facture » mène à la pièce, qui
+   montre la même conversation dans sa section « Messages ». Répondre.
+2. Sur un message, menu « … », « Marquer non lu » : il est de nouveau compté au tableau de bord, jusqu'à la prochaine
+   ouverture de sa conversation.
+3. Cocher « Non lues seulement » : les lues disparaissent ; décocher. Filtrer par opérateur (Gascogne), par type (DSM, Factures, Sujets libres), « Non lues
+   seulement » ; chercher « debit » ou « DAE » (sans tenir compte des accents ni de la casse). Ouvrir « Import de la
+   matrice refusé » : la pièce jointe Excel se télécharge.
+4. `agent@negociant.fr` (Julie Darrigade), tableau de bord : la carte « Messagerie » compte la réponse de Luc Dubos.
+   Menu « Messagerie » : la conversation de la DSM, celle de la facture, et sa conversation
+   libre, pas celle de Thomas Barrère. « Nouvelle conversation » : un titre, un message, une capture d'écran (PNG) ;
+   seuls Julie et le BNIA la voient.
+5. `admin@negociant.fr` (Henri Castex) : ni la conversation libre de Julie, ni celle de Thomas Barrère ; la
+   conversation de la DSM et celle de la facture, oui. `observateur@negociant.fr` lit la conversation de la DSM sans
+   y écrire, mais écrit dans celle de la facture et dans ses conversations libres.

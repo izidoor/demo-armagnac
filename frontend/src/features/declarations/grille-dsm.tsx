@@ -5,7 +5,7 @@ import {
   ArrowUpDown,
   Ban,
   Calculator,
-  MessageSquare,
+  NotebookPen,
   Plus,
   Trash2,
 } from 'lucide-react'
@@ -128,8 +128,8 @@ export function GrilleDsm({
   onVolume,
   onAjouter,
   onSupprimer,
-  commentaires,
-  onCommentaires,
+  notes: notesParLigne,
+  onNotes,
 }: {
   onglet: Onglet
   colonnes: ColonneDsm[]
@@ -145,10 +145,10 @@ export function GrilleDsm({
   /** Ajout d'une ligne, depuis n'importe quel onglet : les lignes sont communes aux cinq. */
   onAjouter?: () => void
   onSupprimer: (ligne: number) => void
-  /** Nombre de commentaires d'une ligne enregistrée, par son identifiant (spec 05 §6.3). */
-  commentaires?: Map<number, number>
-  /** La pastille d'une ligne commentée mène à ses commentaires. */
-  onCommentaires?: (ligne: number) => void
+  /** Nombre de notes internes d'une ligne enregistrée, par son identifiant (spec 15 §3.7), au back-office. */
+  notes?: Map<number, number>
+  /** La pastille d'une ligne annotée mène à ses notes. */
+  onNotes?: (ligne: number) => void
 }) {
   const recap = onglet === 'RECAPITULATIF'
   const visibles = colonnes.filter((c) => c.onglet === onglet)
@@ -282,15 +282,15 @@ export function GrilleDsm({
                         ajoutée
                       </span>
                     )}
-                    {l.id != null && (commentaires?.get(l.id) ?? 0) > 0 && (
+                    {l.id != null && (notesParLigne?.get(l.id) ?? 0) > 0 && (
                       <button
                         type='button'
-                        className='bg-primary/10 text-primary hover:bg-primary/20 ml-2 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 align-middle text-xs font-semibold'
-                        aria-label={`${commentaires?.get(l.id)} commentaire(s) sur la ligne ${identite(l)}`}
-                        onClick={() => onCommentaires?.(l.id!)}
+                        className='ml-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 align-middle text-xs font-semibold text-amber-800 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-300'
+                        aria-label={`${notesParLigne?.get(l.id)} note(s) interne(s) sur la ligne ${identite(l)}`}
+                        onClick={() => onNotes?.(l.id!)}
                       >
-                        <MessageSquare className='size-3' />
-                        {commentaires?.get(l.id)}
+                        <NotebookPen className='size-3' />
+                        {notesParLigne?.get(l.id)}
                       </button>
                     )}
                   </TableCell>

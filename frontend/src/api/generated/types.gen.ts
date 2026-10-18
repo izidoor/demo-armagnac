@@ -241,46 +241,11 @@ export type ColonneDsm = {
 };
 
 /**
- * Commentaire d'instruction d'une DSM (spec 05 §3.2.4)
- */
-export type CommentaireDsm = {
-    /**
-     * Copie du nom de l'auteur
-     */
-    auteur: string;
-    cote: 'BNIA' | 'OPERATEUR';
-    /**
-     * Écrit par l'utilisateur connecté : il le modifie ou le supprime
-     */
-    deLUtilisateur: boolean;
-    ecritLe: string;
-    id: number;
-    interne: boolean;
-    /**
-     * Ligne visée ; vide pour la DSM
-     */
-    ligne?: number;
-    /**
-     * Libellé de la ligne visée, supprimée depuis ; le commentaire porte alors sur la DSM
-     */
-    ligneSupprimee?: string;
-    /**
-     * Renseigné si modifié (« modifié » affiché)
-     */
-    modifieLe?: string;
-    /**
-     * Motif d'une demande de compléments : ne se supprime pas
-     */
-    motif: boolean;
-    texte: string;
-};
-
-/**
  * Demande de compléments sur une DSM en instruction (RG-DEC-20)
  */
 export type ComplementsDsm = {
     /**
-     * Motif, écrit en commentaire de la DSM
+     * Motif, déposé dans la conversation de la DSM, protégé (RG-MSG-08)
      */
     motif: string;
     /**
@@ -398,6 +363,79 @@ export type Contenance = {
 };
 
 /**
+ * Une conversation telle que l'utilisateur la voit (spec 15 §6)
+ */
+export type Conversation = {
+    /**
+     * Auteur du sujet libre ; vide pour un objet
+     */
+    auteur?: string;
+    /**
+     * Sujet libre dont l'auteur n'est plus membre de l'opérateur (RG-MSG-13)
+     */
+    auteurParti: boolean;
+    /**
+     * Mon côté (RG-MSG-03)
+     */
+    cote: 'BNIA' | 'OPERATEUR';
+    /**
+     * Vide pour un objet qui n'a pas encore de conversation (RG-MSG-04)
+     */
+    id?: number;
+    /**
+     * Pourquoi je n'y écris pas ; vide si j'écris
+     */
+    lectureSeule?: string;
+    /**
+     * Du plus ancien au plus récent
+     */
+    messages: Array<Message>;
+    /**
+     * L'objet métier ; vide pour un sujet libre
+     */
+    objet?: ObjetConversation;
+    operateur: OperateurConversation;
+    peutEcrire: boolean;
+    /**
+     * Titre du sujet libre ; vide pour un objet
+     */
+    titre?: string;
+};
+
+/**
+ * Une conversation de « Mes conversations » (RG-MSG-15, 16)
+ */
+export type ConversationListee = {
+    /**
+     * Auteur du sujet libre
+     */
+    auteur?: string;
+    /**
+     * Date du dernier message
+     */
+    dernierMessage?: string;
+    /**
+     * Le message le plus récent qui correspond à la recherche, ou le dernier ; tronqué
+     */
+    extrait: string;
+    id: number;
+    /**
+     * Libellé de l'objet ou titre du sujet libre
+     */
+    intitule: string;
+    messages: number;
+    /**
+     * Non lus de mon côté
+     */
+    nonLus: number;
+    /**
+     * L'objet ; vide pour un sujet libre
+     */
+    objet?: ObjetConversation;
+    operateur: OperateurConversation;
+};
+
+/**
  * Cotisation CVO d'une DSM (spec 05 §6.3, RG-DEC-31 à 34)
  */
 export type CotisationDsm = {
@@ -506,7 +544,7 @@ export type Dsm = {
     /**
      * Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)
      */
-    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'COMMENTER' | 'COMMENTER_INTERNE' | 'DEPOSER_PIECES' | 'FACTURER'>;
+    actions: Array<'ENREGISTRER' | 'ENVOYER' | 'SUPPRIMER' | 'PRENDRE_EN_INSTRUCTION' | 'DEMANDER_COMPLEMENTS' | 'VALIDER' | 'ANNOTER' | 'DEPOSER_PIECES' | 'FACTURER'>;
     anomalies: Array<AnomalieDsm>;
     /**
      * Facture demandée, pas encore émise : la pièce du brouillon chez facturation (RG-DEC-43)
@@ -686,7 +724,7 @@ export type EntreeJournalDeclarations = {
      * Copie du nom de l'acteur
      */
     acteur: string;
-    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'COMMENTAIRE_SUPPRIME' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE' | 'FACTURATION_ABANDONNEE';
+    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE' | 'FACTURATION_ABANDONNEE';
     date: string;
     /**
      * Nom de fichier, mois, format…
@@ -1435,6 +1473,37 @@ export type Membre = {
 };
 
 /**
+ * Message d'une conversation (spec 15 §3.4)
+ */
+export type Message = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    cote: 'BNIA' | 'OPERATEUR';
+    /**
+     * Écrit par l'utilisateur connecté : il le modifie ou le supprime
+     */
+    deLUtilisateur: boolean;
+    ecritLe: string;
+    id: number;
+    /**
+     * Renseigné si modifié (« modifié » affiché, RG-MSG-06)
+     */
+    modifieLe?: string;
+    /**
+     * Non lu de mon côté avant cet affichage, à mettre en évidence (RG-MSG-10)
+     */
+    nonLu: boolean;
+    pieces: Array<PieceJointeMessage>;
+    /**
+     * Motif d'une demande de compléments : ne se supprime pas (RG-MSG-06, 08)
+     */
+    protege: boolean;
+    texte: string;
+};
+
+/**
  * Un brouillon tel que saisi, enregistré d'un coup ; date de l'opération et acheteur n'en sont pas (RG-FAC-17)
  */
 export type ModificationBrouillon = {
@@ -1499,14 +1568,101 @@ export type MoisDrm = {
 };
 
 /**
+ * Note interne du BNIA sur une DSM, jamais montrée à l'opérateur (spec 15 §3.7)
+ */
+export type NoteInterneDsm = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    /**
+     * Écrite par l'utilisateur connecté : il la modifie ou la supprime
+     */
+    deLUtilisateur: boolean;
+    ecriteLe: string;
+    id: number;
+    /**
+     * Ligne visée ; vide pour la DSM
+     */
+    ligne?: number;
+    /**
+     * Libellé de la ligne visée, supprimée depuis ; la note porte alors sur la DSM
+     */
+    ligneSupprimee?: string;
+    /**
+     * Renseigné si modifiée (« modifiée » affiché)
+     */
+    modifieeLe?: string;
+    texte: string;
+};
+
+/**
  * Une note interne, jamais imprimée ni transmise (RG-FAC-21)
  */
 export type NotePiece = {
     texte: string;
 };
 
+/**
+ * Un message non lu, en vue tronquée (RG-MSG-11)
+ */
+export type NouveauMessage = {
+    auteur: string;
+    conversation: number;
+    /**
+     * Première ligne, tronquée
+     */
+    debut: string;
+    ecritLe: string;
+    id: number;
+    /**
+     * Libellé de l'objet ou titre du sujet libre
+     */
+    intitule: string;
+    /**
+     * L'objet de la conversation ; vide pour un sujet libre
+     */
+    objet?: ObjetConversation;
+    operateur: OperateurConversation;
+};
+
+/**
+ * Les messages non lus de mon côté (RG-MSG-11)
+ */
+export type NouveauxMessages = {
+    /**
+     * Du plus récent au plus ancien
+     */
+    messages: Array<NouveauMessage>;
+    /**
+     * Le nombre du tableau de bord
+     */
+    nombre: number;
+};
+
+/**
+ * L'objet métier d'une conversation (spec 15 §3.2)
+ */
+export type ObjetConversation = {
+    /**
+     * Identifiant chez son contexte
+     */
+    identifiant: string;
+    libelle: string;
+    type: 'DSM' | 'FACTURE';
+};
+
 export type OperateurActif = {
     operateur: number;
+};
+
+/**
+ * L'opérateur d'une conversation
+ */
+export type OperateurConversation = {
+    code: string;
+    id: number;
+    raisonSociale: string;
 };
 
 /**
@@ -1730,6 +1886,25 @@ export type Piece = {
 export type PieceCompatible = {
     libelle: string;
     type: 'FACTURE' | 'DAE' | 'AVOIR' | 'DECLARATION_FABRICATION_DOUANES';
+};
+
+/**
+ * Pièce jointe d'un message de conversation libre (RG-MSG-14)
+ */
+export type PieceJointeMessage = {
+    /**
+     * Clé du document
+     */
+    cle: number;
+    nom: string;
+    /**
+     * Taille en octets
+     */
+    taille: number;
+    /**
+     * Type MIME
+     */
+    type: string;
 };
 
 /**
@@ -1991,21 +2166,6 @@ export type SaisieCode = {
     faireConfiance: boolean;
 };
 
-/**
- * Commentaire écrit ou modifié (RG-DEC-24, 25)
- */
-export type SaisieCommentaireDsm = {
-    /**
-     * Interne au BNIA, invisible de l'opérateur ; côté BNIA seulement. Faux par défaut
-     */
-    interne?: boolean;
-    /**
-     * Ligne visée ; vide pour la DSM. Ignorée à la modification
-     */
-    ligne?: number;
-    texte: string;
-};
-
 export type SaisieConnexion = {
     email: string;
     motDePasse: string;
@@ -2232,6 +2392,24 @@ export type SaisieLigneStockInitial = {
      * Litres d'alcool pur
      */
     volume: number;
+};
+
+/**
+ * Message écrit ou modifié (RG-MSG-05, 06)
+ */
+export type SaisieMessage = {
+    texte: string;
+};
+
+/**
+ * Note interne écrite ou modifiée (RG-DEC-24)
+ */
+export type SaisieNoteInterneDsm = {
+    /**
+     * Ligne visée ; vide pour la DSM. Ignorée à la modification
+     */
+    ligne?: number;
+    texte: string;
 };
 
 /**
@@ -3443,6 +3621,203 @@ export type AccepterInvitationResponses = {
 
 export type AccepterInvitationResponse = AccepterInvitationResponses[keyof AccepterInvitationResponses];
 
+export type ListerConversationsBniaData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        /**
+         * Type d'objet
+         */
+        type?: 'DSM' | 'FACTURE';
+        /**
+         * Sujets libres seulement
+         */
+        libres?: boolean;
+        nonLues?: boolean;
+        /**
+         * Texte cherché, sans casse ni accents
+         */
+        recherche?: string;
+    };
+    url: '/api/messagerie/conversations';
+};
+
+export type ListerConversationsBniaResponses = {
+    /**
+     * OK
+     */
+    200: Array<ConversationListee>;
+};
+
+export type ListerConversationsBniaResponse = ListerConversationsBniaResponses[keyof ListerConversationsBniaResponses];
+
+export type ConsulterConversationData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/conversations/{id}';
+};
+
+export type ConsulterConversationResponses = {
+    /**
+     * OK
+     */
+    200: Conversation;
+};
+
+export type ConsulterConversationResponse = ConsulterConversationResponses[keyof ConsulterConversationResponses];
+
+export type RepondreConversationData = {
+    body?: {
+        pieces?: Array<Blob | File>;
+        texte: string;
+    };
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/conversations/{id}/messages';
+};
+
+export type RepondreConversationResponses = {
+    /**
+     * Created
+     */
+    201: Message;
+};
+
+export type RepondreConversationResponse = RepondreConversationResponses[keyof RepondreConversationResponses];
+
+export type TelechargerPieceJointeData = {
+    body?: never;
+    path: {
+        id: number;
+        cle: number;
+    };
+    query?: never;
+    url: '/api/messagerie/conversations/{id}/pieces/{cle}';
+};
+
+export type TelechargerPieceJointeResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type TelechargerPieceJointeResponse = TelechargerPieceJointeResponses[keyof TelechargerPieceJointeResponses];
+
+export type SupprimerMessageData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/messages/{id}';
+};
+
+export type SupprimerMessageResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerMessageResponse = SupprimerMessageResponses[keyof SupprimerMessageResponses];
+
+export type ModifierMessageData = {
+    body: SaisieMessage;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/messages/{id}';
+};
+
+export type ModifierMessageResponses = {
+    /**
+     * OK
+     */
+    200: Message;
+};
+
+export type ModifierMessageResponse = ModifierMessageResponses[keyof ModifierMessageResponses];
+
+export type MarquerMessageNonLuData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/messagerie/messages/{id}/non-lu';
+};
+
+export type MarquerMessageNonLuResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type MarquerMessageNonLuResponse = MarquerMessageNonLuResponses[keyof MarquerMessageNonLuResponses];
+
+export type ListerNouveauxMessagesBniaData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/messagerie/nouveaux';
+};
+
+export type ListerNouveauxMessagesBniaResponses = {
+    /**
+     * OK
+     */
+    200: NouveauxMessages;
+};
+
+export type ListerNouveauxMessagesBniaResponse = ListerNouveauxMessagesBniaResponses[keyof ListerNouveauxMessagesBniaResponses];
+
+export type ConsulterConversationObjetData = {
+    body?: never;
+    path: {
+        type: 'DSM' | 'FACTURE';
+        identifiant: string;
+    };
+    query?: never;
+    url: '/api/messagerie/objets/{type}/{identifiant}';
+};
+
+export type ConsulterConversationObjetResponses = {
+    /**
+     * OK
+     */
+    200: Conversation;
+};
+
+export type ConsulterConversationObjetResponse = ConsulterConversationObjetResponses[keyof ConsulterConversationObjetResponses];
+
+export type EcrireMessageObjetData = {
+    body: SaisieMessage;
+    path: {
+        type: 'DSM' | 'FACTURE';
+        identifiant: string;
+    };
+    query?: never;
+    url: '/api/messagerie/objets/{type}/{identifiant}/messages';
+};
+
+export type EcrireMessageObjetResponses = {
+    /**
+     * Created
+     */
+    201: Message;
+};
+
+export type EcrireMessageObjetResponse = EcrireMessageObjetResponses[keyof EcrireMessageObjetResponses];
+
 export type ConsulterMoiData = {
     body?: never;
     path?: never;
@@ -4105,84 +4480,6 @@ export type ConsulterSituationDsmResponses = {
 
 export type ConsulterSituationDsmResponse = ConsulterSituationDsmResponses[keyof ConsulterSituationDsmResponses];
 
-export type ListerCommentairesDsmData = {
-    body?: never;
-    path: {
-        operateur: number;
-        dsm: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
-};
-
-export type ListerCommentairesDsmResponses = {
-    /**
-     * OK
-     */
-    200: Array<CommentaireDsm>;
-};
-
-export type ListerCommentairesDsmResponse = ListerCommentairesDsmResponses[keyof ListerCommentairesDsmResponses];
-
-export type EcrireCommentaireDsmData = {
-    body: SaisieCommentaireDsm;
-    path: {
-        operateur: number;
-        dsm: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires';
-};
-
-export type EcrireCommentaireDsmResponses = {
-    /**
-     * Created
-     */
-    201: CommentaireDsm;
-};
-
-export type EcrireCommentaireDsmResponse = EcrireCommentaireDsmResponses[keyof EcrireCommentaireDsmResponses];
-
-export type SupprimerCommentaireDsmData = {
-    body?: never;
-    path: {
-        operateur: number;
-        dsm: number;
-        id: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
-};
-
-export type SupprimerCommentaireDsmResponses = {
-    /**
-     * No Content
-     */
-    204: void;
-};
-
-export type SupprimerCommentaireDsmResponse = SupprimerCommentaireDsmResponses[keyof SupprimerCommentaireDsmResponses];
-
-export type ModifierCommentaireDsmData = {
-    body: SaisieCommentaireDsm;
-    path: {
-        operateur: number;
-        dsm: number;
-        id: number;
-    };
-    query?: never;
-    url: '/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}';
-};
-
-export type ModifierCommentaireDsmResponses = {
-    /**
-     * OK
-     */
-    200: CommentaireDsm;
-};
-
-export type ModifierCommentaireDsmResponse = ModifierCommentaireDsmResponses[keyof ModifierCommentaireDsmResponses];
-
 export type SupprimerDrmData = {
     body?: never;
     path: {
@@ -4310,6 +4607,84 @@ export type TelechargerJustificatifDsmResponses = {
 };
 
 export type TelechargerJustificatifDsmResponse = TelechargerJustificatifDsmResponses[keyof TelechargerJustificatifDsmResponses];
+
+export type ListerNotesInternesDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes';
+};
+
+export type ListerNotesInternesDsmResponses = {
+    /**
+     * OK
+     */
+    200: Array<NoteInterneDsm>;
+};
+
+export type ListerNotesInternesDsmResponse = ListerNotesInternesDsmResponses[keyof ListerNotesInternesDsmResponses];
+
+export type EcrireNoteInterneDsmData = {
+    body: SaisieNoteInterneDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes';
+};
+
+export type EcrireNoteInterneDsmResponses = {
+    /**
+     * Created
+     */
+    201: NoteInterneDsm;
+};
+
+export type EcrireNoteInterneDsmResponse = EcrireNoteInterneDsmResponses[keyof EcrireNoteInterneDsmResponses];
+
+export type SupprimerNoteInterneDsmData = {
+    body?: never;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes/{id}';
+};
+
+export type SupprimerNoteInterneDsmResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerNoteInterneDsmResponse = SupprimerNoteInterneDsmResponses[keyof SupprimerNoteInterneDsmResponses];
+
+export type ModifierNoteInterneDsmData = {
+    body: SaisieNoteInterneDsm;
+    path: {
+        operateur: number;
+        dsm: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/dsm/{dsm}/notes/{id}';
+};
+
+export type ModifierNoteInterneDsmResponses = {
+    /**
+     * OK
+     */
+    200: NoteInterneDsm;
+};
+
+export type ModifierNoteInterneDsmResponse = ModifierNoteInterneDsmResponses[keyof ModifierNoteInterneDsmResponses];
 
 export type ConsulterPiecesDsmData = {
     body?: never;
@@ -4894,6 +5269,78 @@ export type SuspendreMembreResponses = {
 };
 
 export type SuspendreMembreResponse = SuspendreMembreResponses[keyof SuspendreMembreResponses];
+
+export type ListerMesConversationsData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: {
+        /**
+         * Type d'objet
+         */
+        type?: 'DSM' | 'FACTURE';
+        /**
+         * Sujets libres seulement
+         */
+        libres?: boolean;
+        nonLues?: boolean;
+        /**
+         * Texte cherché, sans casse ni accents
+         */
+        recherche?: string;
+    };
+    url: '/api/operateurs/{operateur}/messagerie/conversations';
+};
+
+export type ListerMesConversationsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ConversationListee>;
+};
+
+export type ListerMesConversationsResponse = ListerMesConversationsResponses[keyof ListerMesConversationsResponses];
+
+export type OuvrirConversationData = {
+    body?: {
+        pieces?: Array<Blob | File>;
+        texte: string;
+        titre: string;
+    };
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/messagerie/conversations';
+};
+
+export type OuvrirConversationResponses = {
+    /**
+     * Created
+     */
+    201: Conversation;
+};
+
+export type OuvrirConversationResponse = OuvrirConversationResponses[keyof OuvrirConversationResponses];
+
+export type ListerMesNouveauxMessagesData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/messagerie/nouveaux';
+};
+
+export type ListerMesNouveauxMessagesResponses = {
+    /**
+     * OK
+     */
+    200: NouveauxMessages;
+};
+
+export type ListerMesNouveauxMessagesResponse = ListerMesNouveauxMessagesResponses[keyof ListerMesNouveauxMessagesResponses];
 
 export type ConsulterPointDeDepartData = {
     body?: never;

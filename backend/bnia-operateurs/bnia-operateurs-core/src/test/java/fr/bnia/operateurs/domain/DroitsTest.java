@@ -95,4 +95,15 @@ class DroitsTest {
         Rattachement agent = Rattachement.creer(5, 9, Role.AGENT, 3, Instant.EPOCH);
         assertThatCode(() -> DernierAdmin.verifier(agent, 0, adminLocal, false, "x")).doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("RG-OPE-31 : la Messagerie (conversations libres) est gérée par les trois rôles, observateur compris")
+    void rg_ope_31_module_messagerie() {
+        assertThat(Role.OBSERVATEUR.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Role.AGENT.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Role.ADMIN.gere(Module.MESSAGERIE)).isTrue();
+        Droits observateurLocal = new Droits(5, Optional.of(Role.OBSERVATEUR), Optional.empty());
+        assertThat(observateurLocal.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Droits.aucun(5).gere(Module.MESSAGERIE)).isFalse();
+    }
 }

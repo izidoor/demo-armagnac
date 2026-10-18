@@ -51,6 +51,7 @@ import {
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { OngletsClasseur } from '@/components/metier/onglets-classeur'
 import { PageMetier } from '@/components/metier/page-metier'
+import { SectionMessages } from '@/features/messagerie/section-messages'
 import { AideDsm } from './aide-dsm'
 import {
   apiDeclarations,
@@ -66,7 +67,6 @@ import {
   sommes,
 } from './brouillon'
 import { ListeDenominations } from './champs-identite'
-import { SectionCommentaires } from './commentaires'
 import { OngletCotisation } from './cotisation'
 import { DialogueLigne } from './dialogue-ligne'
 import { Echeance } from './echeance'
@@ -80,12 +80,13 @@ import {
   TYPES_DECLARANT,
   VARIANTE_ETAT,
 } from './libelles'
+import { SectionNotesInternes } from './notes-internes'
 import { OngletPieces } from './pieces'
 
 /**
  * Écran d'une DSM, commun au back-office et au portail (spec 05 §6.3) : en-tête, cinq onglets du format
  * unique, les onglets des pièces et de la cotisation en classeur, panneau des anomalies et des manques,
- * commentaires sous le classeur ; l'historique, hors du formulaire, dans un panneau latéral ; le PDF dans un
+ * messages et, au back-office, notes internes sous le classeur (spec 15) ; l'historique, hors du formulaire, dans un panneau latéral ; le PDF dans un
  * nouvel onglet du navigateur, l'Excel téléchargé ; l'import du modèle Excel (lot 6). Les actions viennent du serveur,
  * selon l'état et le côté de l'utilisateur (RG-DEC-01, 20 à 22, 24, 28) : l'opérateur saisit et envoie tant
  * que la DSM est chez lui ; le BNIA l'instruit ; l'un ou l'autre supprime un brouillon et dépose des pièces.
@@ -203,7 +204,7 @@ function EditeurDsm({
   const [aideOuverte, setAideOuverte] = useState(false)
   const [transition, setTransition] = useState<Transition | null>(null)
   const [motif, setMotif] = useState('')
-  const [ligneCommentee, setLigneCommentee] = useState<number | null>(null)
+  const [ligneAnnotee, setLigneAnnotee] = useState<number | null>(null)
 
   // Vue provisoire (décision du 2026-10-13) : 300 ms après la dernière frappe, le serveur recalcule.
   useEffect(() => {
@@ -224,17 +225,19 @@ function EditeurDsm({
     queryFn: api.denominations,
     enabled: saisissable,
   })
-  const commentaires = useQuery({
-    queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'commentaires'],
-    queryFn: () => api.commentaires(dsm.id),
+  // Spec 15 §3.7 : le carnet de notes internes, au personnel du BNIA seulement.
+  const notes = useQuery({
+    queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'notes'],
+    queryFn: () => api.notes(dsm.id),
+    enabled: espace === 'bo',
   })
   const parLigne = useMemo(() => {
     const compte = new Map<number, number>()
-    for (const c of commentaires.data ?? []) {
-      if (c.ligne != null) compte.set(c.ligne, (compte.get(c.ligne) ?? 0) + 1)
+    for (const n of notes.data ?? []) {
+      if (n.ligne != null) compte.set(n.ligne, (compte.get(n.ligne) ?? 0) + 1)
     }
     return compte
-  }, [commentaires.data])
+  }, [notes.data])
   const pieces = usePiecesDsm(operateur, dsm.id)
   const historique = useQuery({
     queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'journal'],
@@ -396,10 +399,10 @@ function EditeurDsm({
       50
     )
   }
-  const montrerCommentaires = (ligne: number) => {
-    setLigneCommentee(ligne)
+  const montrerNotes = (ligne: number) => {
+    setLigneAnnotee(ligne)
     document
-      .getElementById('commentaires')
+      .getElementById('notes-internes')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -728,8 +731,8 @@ function EditeurDsm({
                   lignes: brouillon.lignes.filter((_, i) => i !== ligne),
                 })
               }
-              commentaires={parLigne}
-              onCommentaires={montrerCommentaires}
+              notes={parLigne}
+              onNotes={montrerNotes}
             />
           </TabsContent>
         ))}
@@ -759,19 +762,29 @@ function EditeurDsm({
           <OngletCotisation dsm={vue} liens={espace === 'bo'} />
         </TabsContent>
       </OngletsClasseur>
-      <SectionCommentaires
-        dsm={dsm}
-        commentaires={commentaires.data ?? []}
-        peutCommenter={permis('COMMENTER')}
-        peutInterne={permis('COMMENTER_INTERNE')}
-        ligneCiblee={ligneCommentee}
-        onMontrerLigne={montrerLigne}
-        onChange={() =>
-          queryClient.invalidateQueries({
-            queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id],
-          })
+      <SectionMessages
+        type='DSM'
+        identifiant={String(dsm.id)}
+        description={
+          espace === 'bo'
+            ? `Les échanges avec ${dsm.raisonSociale} sur cette DSM, dans tous ses états ; aussi dans la messagerie.`
+            : 'Vos échanges avec le BNIA sur cette DSM, dans tous ses états ; aussi dans la messagerie.'
         }
       />
+      {espace === 'bo' && (
+        <SectionNotesInternes
+          dsm={dsm}
+          notes={notes.data ?? []}
+          peutAnnoter={permis('ANNOTER')}
+          ligneCiblee={ligneAnnotee}
+          onMontrerLigne={montrerLigne}
+          onChange={() =>
+            queryClient.invalidateQueries({
+              queryKey: [...cleDeclarations(operateur), 'dsm', dsm.id, 'notes'],
+            })
+          }
+        />
+      )}
       <AideDsm open={aideOuverte} onOpenChange={setAideOuverte} />
       <Sheet open={historiqueOuvert} onOpenChange={setHistoriqueOuvert}>
         <SheetContent className='w-full overflow-y-auto sm:max-w-2xl'>
@@ -814,7 +827,7 @@ function EditeurDsm({
         open={suppression}
         onOpenChange={setSuppression}
         title='Supprimer la DSM'
-        desc={`Le brouillon de ${dsm.periode.libelle} sera supprimé avec ses lignes, ses commentaires et son historique ; la suppression reste tracée au journal de l'opérateur. La période pourra être réinitiée.`}
+        desc={`Le brouillon de ${dsm.periode.libelle} sera supprimé avec ses lignes, ses messages, ses notes internes et son historique ; la suppression reste tracée au journal de l'opérateur. La période pourra être réinitiée.`}
         confirmText='Supprimer'
         cancelBtnText='Annuler'
         destructive
@@ -845,7 +858,7 @@ function EditeurDsm({
         open={transition === 'complements'}
         onOpenChange={(open) => !open && setTransition(null)}
         title='Demander des compléments'
-        desc={`La DSM de ${dsm.periode.libelle} revient à ${dsm.raisonSociale}, qui la corrige puis la renvoie. Le motif est écrit en commentaire de la DSM, visible de l'opérateur.`}
+        desc={`La DSM de ${dsm.periode.libelle} revient à ${dsm.raisonSociale}, qui la corrige puis la renvoie. Le motif est déposé dans les messages de la DSM, visible de l'opérateur.`}
         confirmText='Demander'
         cancelBtnText='Annuler'
         disabled={motif.trim() === ''}

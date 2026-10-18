@@ -36,7 +36,7 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
     idempotence en base (ADR-019). `document` : PDF (OpenHTMLtoPDF, gabarits Thymeleaf) et Excel
     (`fastexcel`), en écriture comme en lecture (ADR-020).
 - `bnia-<contexte>-api` (ADR-021, amendement d'ADR-014) : pour un contexte que d'autres appellent ou dont
-  ils implémentent un port (premier cas : `bnia-facturation-api`). Java pur : interfaces, types échangés,
+  ils implémentent un port (`bnia-facturation-api`, puis `bnia-messagerie-api`, ADR-023). Java pur : interfaces, types échangés,
   événements ; son `-core` en dépend. Seule l'**infra** d'un autre contexte en dépend, jamais son core :
   le core a son propre port, implémenté par un adapter sur l'API.
 - `bnia-commun` : noyau partagé. `bnia-commun-core` : concepts transverses (ADR-009, dont
@@ -51,11 +51,12 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
   passer par des ports ou des événements. Quatre exceptions : `fr.bnia.commun.domain`, noyau de concepts
   transverses (ADR-009), et les parties publiées en lecture de `referentiels`
   (`fr.bnia.referentiels.*.partage`, ADR-008), de `operateurs` (`fr.bnia.operateurs.*.partage`,
-  ADR-012) et de `declarations` (`fr.bnia.declarations.*.partage`, ADR-017). S'y ajoute le module
-  `bnia-facturation-api` (ADR-021), importé par l'infra des sources seulement. Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
+  ADR-012) et de `declarations` (`fr.bnia.declarations.*.partage`, ADR-017). S'y ajoutent les modules
+  `bnia-facturation-api` (ADR-021) et `bnia-messagerie-api` (ADR-023), importés par l'infra des contextes appelants seulement. Référence entre contextes par identifiant technique `bigint`, avec clé étrangère (ADR-011).
   Exceptions sans clé étrangère : l'auteur d'une action (identifiant de l'utilisateur et copie de son nom,
   l'utilisateur pouvant être supprimé), le compte de connexion de `authentification` (ADR-011 amendé),
-  l'origine et le client d'une facture (`Origine`, `ClientRef`, opaques ; ADR-011 amendé le 2026-10-14).
+  l'origine et le client d'une facture (`Origine`, `ClientRef`, opaques ; ADR-011 amendé le 2026-10-14),
+  l'objet d'une conversation (`ObjetMetier`, opaque ; ADR-011 amendé le 2026-10-17).
 - Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
   par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée (ou le module `-api`) du
   contexte dont l'autre dépend, jamais de cycle (ADR-013). Jamais de secret (mot de passe) dans un événement.

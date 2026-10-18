@@ -2,7 +2,7 @@ package fr.bnia.boot.demo;
 
 import fr.bnia.commun.domain.Appellation;
 import fr.bnia.commun.domain.VolumeAlcoolPur;
-import fr.bnia.declarations.application.CommenterDsm;
+import fr.bnia.declarations.application.AnnoterDsm;
 import fr.bnia.declarations.application.FichierDepose;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.application.GererGrilleCotisation.SaisieTauxCvo;
@@ -59,7 +59,7 @@ import org.springframework.stereotype.Component;
  * <li>Armagnacs de Gascogne ({@code N320001}) : part de onze mois avant le mois courant (spec 08 §7.1, lots 1
  * et 2) ; ses DSM de ces onze mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L,
  * export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle du mois courant est envoyée, avec les
- * mêmes totaux, un commentaire de l'opérateur et un commentaire interne du BNIA ; elle attend le BNIA,
+ * mêmes totaux, deux notes internes du BNIA (sur la DSM et sur sa première ligne) ; elle attend le BNIA,
  * l'opérateur n'est pas en retard ;</li>
  * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
  * 2026-10-14), DSM en compléments demandés, motif « DAE manquants pour l'export » : en retard dès le 6 du
@@ -77,7 +77,7 @@ import org.springframework.stereotype.Component;
  * 20 % exonérés de TVA ; la DSM de Gascogne y vaut 1 855,95 € HT, comme la facture d'exemple.</li>
  * </ul>
  *
- * <p>Tout passe par les cas d'usage : points de départ, instruction et commentaire interne au nom d'Anne
+ * <p>Tout passe par les cas d'usage : points de départ, instruction et notes internes au nom d'Anne
  * Lamarque, ADMIN du BNIA ; saisies au nom d'un membre de chaque opérateur. Un opérateur qui a déjà un point
  * de départ n'est pas rechargé : le chargeur est relançable.
  */
@@ -90,7 +90,7 @@ public class DemoDeclarations implements ApplicationRunner {
 
     private final GererPointDeDepart points;
     private final GererDsm dsms;
-    private final CommenterDsm commentaires;
+    private final AnnoterDsm notes;
     private final GererPieces pieces;
     private final GererGrilleCotisation grille;
     private final GererOperateurs operateurs;
@@ -99,12 +99,12 @@ public class DemoDeclarations implements ApplicationRunner {
     private final Clock horloge;
     private Acteur anne;
 
-    public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, CommenterDsm commentaires, GererPieces pieces,
+    public DemoDeclarations(GererPointDeDepart points, GererDsm dsms, AnnoterDsm notes, GererPieces pieces,
             GererGrilleCotisation grille, GererOperateurs operateurs, OperateursLecture lecture,
             ReferentielsLecture referentiels, Clock horloge) {
         this.points = points;
         this.dsms = dsms;
-        this.commentaires = commentaires;
+        this.notes = notes;
         this.pieces = pieces;
         this.grille = grille;
         this.operateurs = operateurs;
@@ -238,11 +238,11 @@ public class DemoDeclarations implements ApplicationRunner {
                 4, Map.of(ColonneDsm.C22, "297.35"),
                 5, Map.of(ColonneDsm.C04, "310.00", ColonneDsm.C10, "2.50")));
         DeclarationStocksMouvements dsm = vue.dsm();
-        commentaires.ecrire(julie, id, dsm.id(), dsm.lignes().getFirst().id(),
-                "40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6).", false);
         dsms.envoyer(julie, id, dsm.id(), null);
-        commentaires.ecrire(anne, id, dsm.id(), null,
-                "Volumes export cohérents avec les DAE reçus par courrier ; à confirmer à l'instruction.", true);
+        notes.ecrire(anne, id, dsm.id(), null,
+                "Volumes export cohérents avec les DAE reçus par courrier ; à confirmer à l'instruction.");
+        notes.ecrire(anne, id, dsm.id(), dsm.lignes().getFirst().id(),
+                "Sorties export à rapprocher des DAE.");
         LOG.info("Démo : DSM de {} d'Armagnacs de Gascogne envoyée.", dsm.periode().libelle());
     }
 

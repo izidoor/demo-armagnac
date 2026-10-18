@@ -10,7 +10,7 @@ import java.time.LocalDate;
  * @param operateur identifiant de l'opérateur déclarant
  * @param debut     début de la période déclarée
  * @param fin       fin de la période déclarée
- * @param motif     le motif de la demande, commentaire de la DSM
+ * @param motif     le motif de la demande, déposé dans la conversation de la DSM
  */
 public record ComplementsDemandes(long dsm, long operateur, LocalDate debut, LocalDate fin, String motif) {
 }

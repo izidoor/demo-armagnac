@@ -29,6 +29,11 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-referentiels-core</artifactId>
         </dependency>
+        <!-- Spec 15, ADR-023 : les pièces émises, objets conversables de la messagerie. -->
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-messagerie-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

@@ -25,6 +25,11 @@
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-facturation-api</artifactId>
         </dependency>
+        <!-- ADR-023 : conversation de la DSM (Conversations appelée, ObjetsConversables implémentée). -->
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-messagerie-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>

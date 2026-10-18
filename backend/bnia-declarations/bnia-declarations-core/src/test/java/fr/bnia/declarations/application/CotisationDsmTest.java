@@ -128,7 +128,7 @@ class CotisationDsmTest {
     @DisplayName("RG-DEC-34 : sans taux pour la classe de TVA de la CVO, ni TVA ni TTC ; le HT reste")
     void rg_dec_34_tva_indisponible() {
         grille.ajouter(AGENT_BNIA, taux("60", "20", LocalDate.of(2024, 1, 1)));
-        GererDsm sansTva = new GererDsm(monde.dsms, monde.points, monde.dsms, monde.journal, monde.commentaires,
+        GererDsm sansTva = new GererDsm(monde.dsms, monde.points, monde.dsms, monde.journal, monde.notes, monde.messagerie,
                 monde.pieces, monde.stockage, monde.classeurs, monde.grilles, monde.factures, monde.evenements, monde.operateurs,
                 monde.referentiels, new ParametresDeclarations("INCONNUE"), Monde.HORLOGE);
 

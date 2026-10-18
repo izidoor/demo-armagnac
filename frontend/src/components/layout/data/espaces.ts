@@ -8,6 +8,7 @@ import {
   History,
   Landmark,
   LayoutDashboard,
+  Mail,
   Package,
   Percent,
   Receipt,
@@ -100,7 +101,11 @@ export const espaceBackOffice: Espace = {
   navGroups: [
     {
       title: 'Général',
-      items: [{ title: 'Accueil', url: '/bo', icon: LayoutDashboard }],
+      items: [
+        { title: 'Accueil', url: '/bo', icon: LayoutDashboard },
+        // Spec 15 §6.1 : les échanges avec les opérateurs.
+        { title: 'Messagerie', url: '/bo/messagerie', icon: Mail },
+      ],
     },
     {
       // Spec 02, §6.1.
@@ -151,7 +156,11 @@ export const espacePortail: Espace = {
   navGroups: [
     {
       title: 'Général',
-      items: [{ title: 'Accueil', url: '/portail', icon: LayoutDashboard }],
+      items: [
+        { title: 'Accueil', url: '/portail', icon: LayoutDashboard },
+        // Spec 15 §6.2 : les échanges avec le BNIA.
+        { title: 'Messagerie', url: '/portail/messagerie', icon: Mail },
+      ],
     },
     {
       // Spec 02, §6.2.

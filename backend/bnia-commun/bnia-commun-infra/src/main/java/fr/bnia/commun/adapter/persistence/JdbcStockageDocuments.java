@@ -1,5 +1,6 @@
 package fr.bnia.commun.adapter.persistence;
 
+import fr.bnia.commun.application.FormatDocument;
 import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.domain.DocumentDepose;
 import fr.bnia.commun.domain.DocumentRefuse;
@@ -10,18 +11,25 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 /**
  * Stockage des documents en base (ADR-018) : table {@code documents.document}, contenu en {@code bytea}, dans la
- * transaction de l'appelant. Garde-fous : 10 Mo au plus, PDF vérifié par sa signature.
+ * transaction de l'appelant. Garde-fous : 10 Mo au plus, format vérifié par sa signature.
  */
 @Repository
 class JdbcStockageDocuments implements StockageDocuments {
 
-    private static final String PDF = "application/pdf";
-    private static final byte[] SIGNATURE_PDF = "%PDF".getBytes(StandardCharsets.US_ASCII);
+    /** Signature de chaque format (ADR-018 amendé) : un {@code .xlsx} est une archive ZIP. */
+    private static final Map<FormatDocument, byte[]> SIGNATURES = Map.of(
+            FormatDocument.PDF, "%PDF".getBytes(StandardCharsets.US_ASCII),
+            FormatDocument.PNG, new byte[] {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A},
+            FormatDocument.JPEG, new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF},
+            FormatDocument.XLSX, new byte[] {'P', 'K', 0x03, 0x04});
 
     private final JdbcClient jdbcClient;
     private final Clock horloge;
@@ -32,27 +40,32 @@ class JdbcStockageDocuments implements StockageDocuments {
     }
 
     @Override
-    public DocumentDepose deposerPdf(String nom, byte[] contenu) {
+    public DocumentDepose deposer(String nom, byte[] contenu, Set<FormatDocument> admis) {
         if (contenu.length == 0) {
             throw new DocumentRefuse("Le fichier « " + nom + " » est vide.");
         }
         if (contenu.length > TAILLE_MAXIMALE) {
             throw new DocumentRefuse("Le fichier « " + nom + " » dépasse 10 Mo.");
         }
-        if (contenu.length < SIGNATURE_PDF.length
-                || !Arrays.equals(contenu, 0, SIGNATURE_PDF.length, SIGNATURE_PDF, 0, SIGNATURE_PDF.length)) {
-            throw new DocumentRefuse("Le fichier « " + nom + " » n'est pas un PDF.");
-        }
+        FormatDocument format = admis.stream().sorted().filter(f -> commencePar(contenu, SIGNATURES.get(f)))
+                .findFirst()
+                .orElseThrow(() -> new DocumentRefuse("Le fichier « " + nom + " » n'est pas " + admis.stream().sorted()
+                        .map(FormatDocument::designation).collect(Collectors.joining(", ni ")) + "."));
         long cle = jdbcClient.sql("insert into documents.document (nom, type, taille, contenu, depose_le)"
                         + " values (:nom, :type, :taille, :contenu, :deposeLe) returning id")
                 .param("nom", nom)
-                .param("type", PDF)
+                .param("type", format.type())
                 .param("taille", contenu.length)
                 .param("contenu", contenu)
                 .param("deposeLe", Timestamp.from(horloge.instant()))
                 .query(Long.class)
                 .single();
-        return new DocumentDepose(cle, nom, PDF, contenu.length);
+        return new DocumentDepose(cle, nom, format.type(), contenu.length);
+    }
+
+    private static boolean commencePar(byte[] contenu, byte[] signature) {
+        return contenu.length >= signature.length
+                && Arrays.equals(contenu, 0, signature.length, signature, 0, signature.length);
     }
 
     @Override

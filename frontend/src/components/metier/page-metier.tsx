@@ -10,6 +10,11 @@ type PageMetierProps = {
   complement?: string
   description: ReactNode
   actions?: ReactNode
+  /**
+   * La page occupe exactement la hauteur de l'écran, sans défilement : son contenu remplit la place restante et
+   * défile par panneaux (la messagerie). Sur écran étroit, la page défile normalement.
+   */
+  pleineHauteur?: boolean
   children: ReactNode
 }
 
@@ -22,6 +27,7 @@ export function PageMetier({
   complement,
   description,
   actions,
+  pleineHauteur = false,
   children,
 }: PageMetierProps) {
   const imbriquee = useContext(PageImbriquee)
@@ -39,7 +45,7 @@ export function PageMetier({
   )
   const contenu = (
     <>
-      <div className='mb-4 flex flex-wrap items-end justify-between gap-2'>
+      <div className='mb-4 flex shrink-0 flex-wrap items-end justify-between gap-2'>
         <div>
           {imbriquee ? (
             <h4 className='text-base font-semibold'>{titreComplet}</h4>
@@ -63,7 +69,11 @@ export function PageMetier({
         </div>
         {actions}
       </div>
-      {children}
+      {pleineHauteur ? (
+        <div className='flex min-h-0 flex-1 flex-col'>{children}</div>
+      ) : (
+        children
+      )}
     </>
   )
   if (imbriquee) return contenu
@@ -76,7 +86,13 @@ export function PageMetier({
       >
         <ActionsEntete />
       </Header>
-      <Main>{contenu}</Main>
+      {pleineHauteur ? (
+        <Main fixed className='max-lg:overflow-y-auto'>
+          {contenu}
+        </Main>
+      ) : (
+        <Main>{contenu}</Main>
+      )}
     </>
   )
 }

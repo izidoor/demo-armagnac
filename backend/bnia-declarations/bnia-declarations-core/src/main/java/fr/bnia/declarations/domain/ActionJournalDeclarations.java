@@ -19,7 +19,6 @@ public enum ActionJournalDeclarations {
     JUSTIFICATIF_SUPPRIME("Justificatif supprimé"),
     DRM_DEPOSEE("DRM déposée"),
     DRM_SUPPRIMEE("DRM supprimée"),
-    COMMENTAIRE_SUPPRIME("Commentaire supprimé"),
     POINT_DE_DEPART_FIXE("Point de départ fixé"),
     POINT_DE_DEPART_MODIFIE("Point de départ modifié"),
     POINT_DE_DEPART_IMPORTE("Point de départ importé"),

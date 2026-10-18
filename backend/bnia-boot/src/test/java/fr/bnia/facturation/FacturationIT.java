@@ -719,4 +719,31 @@ class FacturationIT extends AbstractIT {
         negociant.get().uri(u -> u.path("/api/facturation/ventes/pdf").queryParam("du", jour).queryParam("au", jour)
                 .build()).exchange().expectStatus().isForbidden();
     }
+
+    @Test
+    @DisplayName("RG-MSG-01, 17 (spec 15) : une pièce émise d'un client est conversable ; le client, en lecture seule, y écrit")
+    void rg_msg_17_conversation_d_une_facture() {
+        long operateur = negociant(true);
+        long brouillon = brouillonDeDsm(operateur);
+        String conversation = "/api/messagerie/objets/FACTURE/" + brouillon;
+        client.get().uri(conversation).exchange().expectStatus().isNotFound();
+        String numero = (String) corps(client.post().uri(PIECES + "/{id}/emission", brouillon).exchange()
+                .expectStatus().isOk()).get("numero");
+
+        String email = emailUnique("observateur");
+        membre(operateur, Role.OBSERVATEUR, email);
+        RestTestClient observateur = connecte(email);
+        observateur.get().uri(conversation).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.objet.libelle").isEqualTo("Facture " + numero)
+                .jsonPath("$.peutEcrire").isEqualTo(true);
+        observateur.post().uri(conversation + "/messages").body(Map.of("texte", "Le volume facturé est-il juste ?"))
+                .exchange().expectStatus().isCreated()
+                .expectBody().jsonPath("$.cote").isEqualTo("OPERATEUR");
+        client.get().uri(conversation).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.messages[0].nonLu").isEqualTo(true)
+                .jsonPath("$.operateur.id").isEqualTo(operateur);
+        String autre = emailUnique("autre");
+        membre(negociant(true), Role.ADMIN, autre);
+        connecte(autre).get().uri(conversation).exchange().expectStatus().isForbidden();
+    }
 }

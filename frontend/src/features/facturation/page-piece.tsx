@@ -70,6 +70,7 @@ import {
   formatEuros,
   formatHectolitres,
 } from '@/features/declarations/format'
+import { SectionMessages } from '@/features/messagerie/section-messages'
 import { cleFacturation, urlApercuPiece, urlPdfPiece } from './api'
 import { BadgeZeendoc } from './badge-zeendoc'
 import {
@@ -389,6 +390,14 @@ function ContenuPiece({
         (piece.notePied || !verrou(piece, 'note')) && (
           <CarteNotePied piece={piece} action={action('note')} />
         )
+      )}
+      {/* Spec 15, RG-MSG-17 : une pièce émise d'un client opérateur a sa conversation. */}
+      {piece.etat === 'EMISE' && piece.acheteur.clientIdentifiant && (
+        <SectionMessages
+          type='FACTURE'
+          identifiant={String(piece.id)}
+          description={`Les échanges avec ${piece.acheteur.nom} sur cette pièce ; aussi dans la messagerie.`}
+        />
       )}
     </div>
   )

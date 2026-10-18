@@ -63,7 +63,8 @@ final class Monde {
     final ReferentielsLecture referentiels = mock(ReferentielsLecture.class);
     final PointsEnMemoire points = new PointsEnMemoire();
     final JournalEnMemoire journal = new JournalEnMemoire();
-    final CommentairesEnMemoire commentaires = new CommentairesEnMemoire();
+    final NotesEnMemoire notes = new NotesEnMemoire();
+    final MessagerieCapturee messagerie = new MessagerieCapturee();
     final PiecesEnMemoire pieces = new PiecesEnMemoire();
     final StockageEnMemoire stockage = new StockageEnMemoire();
     final ClasseursEnMemoire classeurs = new ClasseursEnMemoire();
@@ -133,12 +134,12 @@ final class Monde {
     }
 
     GererDsm gererDsm() {
-        return new GererDsm(dsms, points, dsms, journal, commentaires, pieces, stockage, classeurs, grilles, factures,
+        return new GererDsm(dsms, points, dsms, journal, notes, messagerie, pieces, stockage, classeurs, grilles, factures,
                 evenements, operateurs, referentiels, PARAMETRES, HORLOGE);
     }
 
-    CommenterDsm commenterDsm() {
-        return new CommenterDsm(dsms, commentaires, journal, operateurs, HORLOGE);
+    AnnoterDsm annoterDsm() {
+        return new AnnoterDsm(dsms, notes, journal, operateurs, HORLOGE);
     }
 
     GererPieces gererPieces() {

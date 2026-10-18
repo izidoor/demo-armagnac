@@ -1369,6 +1369,361 @@
         "tags" : [ "acceptation" ]
       }
     },
+    "/api/messagerie/conversations" : {
+      "get" : {
+        "operationId" : "listerConversationsBnia",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "description" : "Type d'objet",
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "DSM", "FACTURE" ]
+          }
+        }, {
+          "description" : "Sujets libres seulement",
+          "in" : "query",
+          "name" : "libres",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "nonLues",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché, sans casse ni accents",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ConversationListee"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Back-office : les conversations de tous les opérateurs, filtrées et cherchées (RG-MSG-15, 16)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/conversations/{id}" : {
+      "get" : {
+        "operationId" : "consulterConversation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une conversation ; affichée, elle est lue pour mon côté (RG-MSG-01, 02, 10)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/conversations/{id}/messages" : {
+      "post" : {
+        "operationId" : "repondreConversation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "pieces" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string",
+                      "format" : "binary"
+                    }
+                  },
+                  "texte" : {
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "texte" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Répondre dans une conversation ; pièces jointes en conversation libre (RG-MSG-01, 02, 05, 13, 14)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/conversations/{id}/pieces/{cle}" : {
+      "get" : {
+        "operationId" : "telechargerPieceJointe",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "cle",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une pièce jointe d'une conversation que je peux lire (RG-MSG-14)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/messages/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerMessage",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "L'auteur supprime son message, sauf un message protégé ; sa conversation, s'il était le dernier (RG-MSG-06)",
+        "tags" : [ "messagerie" ]
+      },
+      "put" : {
+        "operationId" : "modifierMessage",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieMessage"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'auteur modifie son message (RG-MSG-06)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/messages/{id}/non-lu" : {
+      "post" : {
+        "operationId" : "marquerMessageNonLu",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Remettre un message non lu pour mon côté, jusqu'au prochain affichage (RG-MSG-10)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/nouveaux" : {
+      "get" : {
+        "operationId" : "listerNouveauxMessagesBnia",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NouveauxMessages"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Back-office : les messages non lus du BNIA, de tous les opérateurs (RG-MSG-11)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/objets/{type}/{identifiant}" : {
+      "get" : {
+        "operationId" : "consulterConversationObjet",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "type",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "DSM", "FACTURE" ]
+          }
+        }, {
+          "in" : "path",
+          "name" : "identifiant",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La conversation d'un objet, vide s'il n'en a pas encore ; affichée, elle est lue (RG-MSG-01, 04, 10)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/messagerie/objets/{type}/{identifiant}/messages" : {
+      "post" : {
+        "operationId" : "ecrireMessageObjet",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "type",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "DSM", "FACTURE" ]
+          }
+        }, {
+          "in" : "path",
+          "name" : "identifiant",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieMessage"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Message"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Écrire sur un objet ; sa conversation naît au premier message (RG-MSG-01, 04, 05)",
+        "tags" : [ "messagerie" ]
+      }
+    },
     "/api/moi" : {
       "get" : {
         "operationId" : "consulterMoi",
@@ -2575,178 +2930,6 @@
         "tags" : [ "declarations" ]
       }
     },
-    "/api/operateurs/{operateur}/dsm/{dsm}/commentaires" : {
-      "get" : {
-        "operationId" : "listerCommentairesDsm",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "dsm",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "type" : "array",
-                  "items" : {
-                    "$ref" : "#/components/schemas/CommentaireDsm"
-                  }
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Le fil des commentaires, du plus ancien au plus récent ; sans les internes pour l'opérateur (RG-DEC-24)",
-        "tags" : [ "declarations" ]
-      },
-      "post" : {
-        "operationId" : "ecrireCommentaireDsm",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "dsm",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieCommentaireDsm"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "201" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CommentaireDsm"
-                }
-              }
-            },
-            "description" : "Created"
-          }
-        },
-        "summary" : "Commenter la DSM ou une de ses lignes (RG-DEC-24)",
-        "tags" : [ "declarations" ]
-      }
-    },
-    "/api/operateurs/{operateur}/dsm/{dsm}/commentaires/{id}" : {
-      "delete" : {
-        "operationId" : "supprimerCommentaireDsm",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "dsm",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "responses" : {
-          "204" : {
-            "description" : "No Content"
-          }
-        },
-        "summary" : "L'auteur supprime son commentaire, sauf un motif de compléments (RG-DEC-25)",
-        "tags" : [ "declarations" ]
-      },
-      "put" : {
-        "operationId" : "modifierCommentaireDsm",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "dsm",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/SaisieCommentaireDsm"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/CommentaireDsm"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "L'auteur modifie son commentaire (RG-DEC-25)",
-        "tags" : [ "declarations" ]
-      }
-    },
     "/api/operateurs/{operateur}/dsm/{dsm}/drm/{mois}" : {
       "delete" : {
         "operationId" : "supprimerDrm",
@@ -3042,6 +3225,178 @@
         "tags" : [ "declarations" ]
       }
     },
+    "/api/operateurs/{operateur}/dsm/{dsm}/notes" : {
+      "get" : {
+        "operationId" : "listerNotesInternesDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/NoteInterneDsm"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les notes internes de la DSM, du plus ancien au plus récent ; personnel du BNIA (RG-DEC-24)",
+        "tags" : [ "declarations" ]
+      },
+      "post" : {
+        "operationId" : "ecrireNoteInterneDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieNoteInterneDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NoteInterneDsm"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Annoter la DSM ou une de ses lignes (RG-DEC-24)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/dsm/{dsm}/notes/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerNoteInterneDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "L'auteur supprime sa note (RG-DEC-24)",
+        "tags" : [ "declarations" ]
+      },
+      "put" : {
+        "operationId" : "modifierNoteInterneDsm",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "dsm",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieNoteInterneDsm"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NoteInterneDsm"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'auteur modifie sa note (RG-DEC-24)",
+        "tags" : [ "declarations" ]
+      }
+    },
     "/api/operateurs/{operateur}/dsm/{dsm}/pieces" : {
       "get" : {
         "operationId" : "consulterPiecesDsm",
@@ -3103,7 +3458,7 @@
             "description" : "No Content"
           }
         },
-        "summary" : "Supprimer un brouillon, par l'opérateur ou le BNIA ; commentaires et journal avec lui (RG-DEC-01, 22)",
+        "summary" : "Supprimer un brouillon, par l'opérateur ou le BNIA ; notes internes, conversation et journal avec lui (RG-DEC-01, 22)",
         "tags" : [ "declarations" ]
       },
       "get" : {
@@ -3273,7 +3628,7 @@
             "description" : "OK"
           }
         },
-        "summary" : "Le BNIA demande des compléments, avec un motif écrit en commentaire de la DSM (RG-DEC-20, 24)",
+        "summary" : "Le BNIA demande des compléments, avec un motif déposé dans la conversation de la DSM (RG-DEC-20, RG-MSG-08)",
         "tags" : [ "declarations" ]
       }
     },
@@ -4245,6 +4600,148 @@
         },
         "summary" : "Suspendre l'accès d'un membre à cet opérateur (RG-OPE-35, 43)",
         "tags" : [ "membres" ]
+      }
+    },
+    "/api/operateurs/{operateur}/messagerie/conversations" : {
+      "get" : {
+        "operationId" : "listerMesConversations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "description" : "Type d'objet",
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "DSM", "FACTURE" ]
+          }
+        }, {
+          "description" : "Sujets libres seulement",
+          "in" : "query",
+          "name" : "libres",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "nonLues",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "description" : "Texte cherché, sans casse ni accents",
+          "in" : "query",
+          "name" : "recherche",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ConversationListee"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Portail : les conversations de l'opérateur actif que je peux lire, filtrées et cherchées (RG-MSG-15, 16)",
+        "tags" : [ "messagerie" ]
+      },
+      "post" : {
+        "operationId" : "ouvrirConversation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "pieces" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string",
+                      "format" : "binary"
+                    }
+                  },
+                  "texte" : {
+                    "type" : "string"
+                  },
+                  "titre" : {
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "texte", "titre" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Portail : ouvrir une conversation libre avec le BNIA, que je suis seul à voir dans mon opérateur (RG-MSG-02, 05, 12, 14)",
+        "tags" : [ "messagerie" ]
+      }
+    },
+    "/api/operateurs/{operateur}/messagerie/nouveaux" : {
+      "get" : {
+        "operationId" : "listerMesNouveauxMessages",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NouveauxMessages"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Portail : les messages non lus de l'opérateur actif que je peux lire (RG-MSG-11)",
+        "tags" : [ "messagerie" ]
       }
     },
     "/api/operateurs/{operateur}/point-de-depart" : {
@@ -8269,64 +8766,13 @@
         },
         "required" : [ "grisee", "libelle", "libelleOnglet", "numero", "onglet", "saisissable", "sens" ]
       },
-      "CommentaireDsm" : {
-        "type" : "object",
-        "description" : "Commentaire d'instruction d'une DSM (spec 05 §3.2.4)",
-        "properties" : {
-          "auteur" : {
-            "type" : "string",
-            "description" : "Copie du nom de l'auteur"
-          },
-          "cote" : {
-            "type" : "string",
-            "enum" : [ "BNIA", "OPERATEUR" ]
-          },
-          "deLUtilisateur" : {
-            "type" : "boolean",
-            "description" : "Écrit par l'utilisateur connecté : il le modifie ou le supprime"
-          },
-          "ecritLe" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "id" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "interne" : {
-            "type" : "boolean"
-          },
-          "ligne" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "Ligne visée ; vide pour la DSM"
-          },
-          "ligneSupprimee" : {
-            "type" : "string",
-            "description" : "Libellé de la ligne visée, supprimée depuis ; le commentaire porte alors sur la DSM"
-          },
-          "modifieLe" : {
-            "type" : "string",
-            "format" : "date-time",
-            "description" : "Renseigné si modifié (« modifié » affiché)"
-          },
-          "motif" : {
-            "type" : "boolean",
-            "description" : "Motif d'une demande de compléments : ne se supprime pas"
-          },
-          "texte" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "auteur", "cote", "deLUtilisateur", "ecritLe", "id", "interne", "motif", "texte" ]
-      },
       "ComplementsDsm" : {
         "type" : "object",
         "description" : "Demande de compléments sur une DSM en instruction (RG-DEC-20)",
         "properties" : {
           "motif" : {
             "type" : "string",
-            "description" : "Motif, écrit en commentaire de la DSM",
+            "description" : "Motif, déposé dans la conversation de la DSM, protégé (RG-MSG-08)",
             "example" : "DAE manquants pour l'export"
           },
           "version" : {
@@ -8506,6 +8952,100 @@
         },
         "required" : [ "actif", "id", "libelle", "volume" ]
       },
+      "Conversation" : {
+        "type" : "object",
+        "description" : "Une conversation telle que l'utilisateur la voit (spec 15 §6)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string",
+            "description" : "Auteur du sujet libre ; vide pour un objet"
+          },
+          "auteurParti" : {
+            "type" : "boolean",
+            "description" : "Sujet libre dont l'auteur n'est plus membre de l'opérateur (RG-MSG-13)"
+          },
+          "cote" : {
+            "type" : "string",
+            "description" : "Mon côté (RG-MSG-03)",
+            "enum" : [ "BNIA", "OPERATEUR" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Vide pour un objet qui n'a pas encore de conversation (RG-MSG-04)"
+          },
+          "lectureSeule" : {
+            "type" : "string",
+            "description" : "Pourquoi je n'y écris pas ; vide si j'écris"
+          },
+          "messages" : {
+            "type" : "array",
+            "description" : "Du plus ancien au plus récent",
+            "items" : {
+              "$ref" : "#/components/schemas/Message"
+            }
+          },
+          "objet" : {
+            "$ref" : "#/components/schemas/ObjetConversation",
+            "description" : "L'objet métier ; vide pour un sujet libre"
+          },
+          "operateur" : {
+            "$ref" : "#/components/schemas/OperateurConversation"
+          },
+          "peutEcrire" : {
+            "type" : "boolean"
+          },
+          "titre" : {
+            "type" : "string",
+            "description" : "Titre du sujet libre ; vide pour un objet"
+          }
+        },
+        "required" : [ "auteurParti", "cote", "messages", "operateur", "peutEcrire" ]
+      },
+      "ConversationListee" : {
+        "type" : "object",
+        "description" : "Une conversation de « Mes conversations » (RG-MSG-15, 16)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string",
+            "description" : "Auteur du sujet libre"
+          },
+          "dernierMessage" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Date du dernier message"
+          },
+          "extrait" : {
+            "type" : "string",
+            "description" : "Le message le plus récent qui correspond à la recherche, ou le dernier ; tronqué"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "intitule" : {
+            "type" : "string",
+            "description" : "Libellé de l'objet ou titre du sujet libre"
+          },
+          "messages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nonLus" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Non lus de mon côté"
+          },
+          "objet" : {
+            "$ref" : "#/components/schemas/ObjetConversation",
+            "description" : "L'objet ; vide pour un sujet libre"
+          },
+          "operateur" : {
+            "$ref" : "#/components/schemas/OperateurConversation"
+          }
+        },
+        "required" : [ "extrait", "id", "intitule", "messages", "nonLus", "operateur" ]
+      },
       "CotisationDsm" : {
         "type" : "object",
         "description" : "Cotisation CVO d'une DSM (spec 05 §6.3, RG-DEC-31 à 34)",
@@ -8661,7 +9201,7 @@
             "description" : "Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)",
             "items" : {
               "type" : "string",
-              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "COMMENTER", "COMMENTER_INTERNE", "DEPOSER_PIECES", "FACTURER" ]
+              "enum" : [ "ENREGISTRER", "ENVOYER", "SUPPRIMER", "PRENDRE_EN_INSTRUCTION", "DEMANDER_COMPLEMENTS", "VALIDER", "ANNOTER", "DEPOSER_PIECES", "FACTURER" ]
             }
           },
           "anomalies" : {
@@ -8972,7 +9512,7 @@
           },
           "action" : {
             "type" : "string",
-            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "COMMENTAIRE_SUPPRIME", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE", "FACTURATION_DEMANDEE", "FACTURE_EMISE", "FACTURATION_ABANDONNEE" ]
+            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE", "FACTURATION_DEMANDEE", "FACTURE_EMISE", "FACTURATION_ABANDONNEE" ]
           },
           "date" : {
             "type" : "string",
@@ -10289,6 +10829,55 @@
         },
         "required" : [ "bloqueParBnia", "contactPrincipal", "depuis", "dernierAdmin", "destinataireFactures", "email", "fiche", "id", "nom", "nomComplet", "operateur", "prenom", "role", "statut", "utilisateur" ]
       },
+      "Message" : {
+        "type" : "object",
+        "description" : "Message d'une conversation (spec 15 §3.4)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur"
+          },
+          "cote" : {
+            "type" : "string",
+            "enum" : [ "BNIA", "OPERATEUR" ]
+          },
+          "deLUtilisateur" : {
+            "type" : "boolean",
+            "description" : "Écrit par l'utilisateur connecté : il le modifie ou le supprime"
+          },
+          "ecritLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modifieLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Renseigné si modifié (« modifié » affiché, RG-MSG-06)"
+          },
+          "nonLu" : {
+            "type" : "boolean",
+            "description" : "Non lu de mon côté avant cet affichage, à mettre en évidence (RG-MSG-10)"
+          },
+          "pieces" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PieceJointeMessage"
+            }
+          },
+          "protege" : {
+            "type" : "boolean",
+            "description" : "Motif d'une demande de compléments : ne se supprime pas (RG-MSG-06, 08)"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "auteur", "cote", "deLUtilisateur", "ecritLe", "id", "nonLu", "pieces", "protege", "texte" ]
+      },
       "ModificationBrouillon" : {
         "type" : "object",
         "description" : "Un brouillon tel que saisi, enregistré d'un coup ; date de l'opération et acheteur n'en sont pas (RG-FAC-17)",
@@ -10399,6 +10988,46 @@
         },
         "required" : [ "libelle", "mois" ]
       },
+      "NoteInterneDsm" : {
+        "type" : "object",
+        "description" : "Note interne du BNIA sur une DSM, jamais montrée à l'opérateur (spec 15 §3.7)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur"
+          },
+          "deLUtilisateur" : {
+            "type" : "boolean",
+            "description" : "Écrite par l'utilisateur connecté : il la modifie ou la supprime"
+          },
+          "ecriteLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Ligne visée ; vide pour la DSM"
+          },
+          "ligneSupprimee" : {
+            "type" : "string",
+            "description" : "Libellé de la ligne visée, supprimée depuis ; la note porte alors sur la DSM"
+          },
+          "modifieeLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Renseigné si modifiée (« modifiée » affiché)"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "auteur", "deLUtilisateur", "ecriteLe", "id", "texte" ]
+      },
       "NotePiece" : {
         "type" : "object",
         "description" : "Une note interne, jamais imprimée ni transmise (RG-FAC-21)",
@@ -10409,6 +11038,81 @@
         },
         "required" : [ "texte" ]
       },
+      "NouveauMessage" : {
+        "type" : "object",
+        "description" : "Un message non lu, en vue tronquée (RG-MSG-11)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string"
+          },
+          "conversation" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "debut" : {
+            "type" : "string",
+            "description" : "Première ligne, tronquée"
+          },
+          "ecritLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "intitule" : {
+            "type" : "string",
+            "description" : "Libellé de l'objet ou titre du sujet libre"
+          },
+          "objet" : {
+            "$ref" : "#/components/schemas/ObjetConversation",
+            "description" : "L'objet de la conversation ; vide pour un sujet libre"
+          },
+          "operateur" : {
+            "$ref" : "#/components/schemas/OperateurConversation"
+          }
+        },
+        "required" : [ "auteur", "conversation", "debut", "ecritLe", "id", "intitule", "operateur" ]
+      },
+      "NouveauxMessages" : {
+        "type" : "object",
+        "description" : "Les messages non lus de mon côté (RG-MSG-11)",
+        "properties" : {
+          "messages" : {
+            "type" : "array",
+            "description" : "Du plus récent au plus ancien",
+            "items" : {
+              "$ref" : "#/components/schemas/NouveauMessage"
+            }
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Le nombre du tableau de bord"
+          }
+        },
+        "required" : [ "messages", "nombre" ]
+      },
+      "ObjetConversation" : {
+        "type" : "object",
+        "description" : "L'objet métier d'une conversation (spec 15 §3.2)",
+        "properties" : {
+          "identifiant" : {
+            "type" : "string",
+            "description" : "Identifiant chez son contexte"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "DSM octobre 2026"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "DSM", "FACTURE" ]
+          }
+        },
+        "required" : [ "identifiant", "libelle", "type" ]
+      },
       "OperateurActif" : {
         "type" : "object",
         "properties" : {
@@ -10418,6 +11122,23 @@
           }
         },
         "required" : [ "operateur" ]
+      },
+      "OperateurConversation" : {
+        "type" : "object",
+        "description" : "L'opérateur d'une conversation",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "id", "raisonSociale" ]
       },
       "OperateurLigne" : {
         "type" : "object",
@@ -10815,6 +11536,30 @@
           }
         },
         "required" : [ "libelle", "type" ]
+      },
+      "PieceJointeMessage" : {
+        "type" : "object",
+        "description" : "Pièce jointe d'un message de conversation libre (RG-MSG-14)",
+        "properties" : {
+          "cle" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Clé du document"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "taille" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Taille en octets"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "Type MIME"
+          }
+        },
+        "required" : [ "cle", "nom", "taille", "type" ]
       },
       "PieceListee" : {
         "type" : "object",
@@ -11291,25 +12036,6 @@
         },
         "required" : [ "code", "faireConfiance" ]
       },
-      "SaisieCommentaireDsm" : {
-        "type" : "object",
-        "description" : "Commentaire écrit ou modifié (RG-DEC-24, 25)",
-        "properties" : {
-          "interne" : {
-            "type" : "boolean",
-            "description" : "Interne au BNIA, invisible de l'opérateur ; côté BNIA seulement. Faux par défaut"
-          },
-          "ligne" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "Ligne visée ; vide pour la DSM. Ignorée à la modification"
-          },
-          "texte" : {
-            "type" : "string"
-          }
-        },
-        "required" : [ "texte" ]
-      },
       "SaisieConnexion" : {
         "type" : "object",
         "properties" : {
@@ -11665,6 +12391,31 @@
           }
         },
         "required" : [ "cle", "volume" ]
+      },
+      "SaisieMessage" : {
+        "type" : "object",
+        "description" : "Message écrit ou modifié (RG-MSG-05, 06)",
+        "properties" : {
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "texte" ]
+      },
+      "SaisieNoteInterneDsm" : {
+        "type" : "object",
+        "description" : "Note interne écrite ou modifiée (RG-DEC-24)",
+        "properties" : {
+          "ligne" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Ligne visée ; vide pour la DSM. Ignorée à la modification"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "texte" ]
       },
       "SaisieNouveauMotDePasse" : {
         "type" : "object",

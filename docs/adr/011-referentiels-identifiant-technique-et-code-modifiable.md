@@ -1,7 +1,7 @@
 # ADR-011 : Référentiels, identifiant technique et code modifiable
 
-- Statut : accepté ; amendé le 2026-10-08 (auteur d'une action, identifiants `bigint` confirmés) et le
-  2026-10-14 (références opaques de `facturation`)
+- Statut : accepté ; amendé le 2026-10-08 (auteur d'une action, identifiants `bigint` confirmés) le
+  2026-10-14 (références opaques de `facturation`) et le 2026-10-17 (objet d'une conversation)
 - Date : 2026-10-06
 - Remplace : la « référence par code métier » de l'ADR-008 (décision A-REF-1 de la spec 01)
 - Spec : `docs/specs/01-referentiels/spec.md` (A-REF-1, RG-REF-02, RG-REF-04)
@@ -74,3 +74,12 @@ Options écartées :
   `facturation` ne protège pas l'opérateur facturé contre la suppression.
 - Écartée : une clé étrangère par source (une colonne par type d'objet), qui ferait dépendre la lib de
   chacune de ses sources.
+
+## Amendement du 2026-10-17 (spec 15, décision A-MSG-5)
+- **Exception : l'objet d'une conversation.** `messagerie` est une lib en aval (ADR-023) : l'objet métier
+  d'une conversation (`ObjetMetier` : type, identifiant de l'objet chez son contexte, libellé copié) est
+  stocké en texte, **sans clé étrangère** ; un index unique sur (type, identifiant) porte l'unicité d'une
+  conversation par objet. Le contexte de l'objet supprime la conversation avec lui (`Conversations`).
+- L'opérateur d'une conversation garde, lui, sa clé étrangère : `messagerie` dépend d'`operateurs`, et un
+  opérateur qui a des conversations ne se supprime pas, comme avec ses DSM.
+- Écartée : une clé étrangère par type d'objet, qui ferait dépendre la lib de chaque contexte métier.

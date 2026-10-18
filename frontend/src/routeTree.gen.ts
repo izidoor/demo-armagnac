@@ -15,8 +15,10 @@ import { Route as BoRouteRouteImport } from './routes/bo/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortailIndexRouteImport } from './routes/portail/index'
 import { Route as BoIndexRouteImport } from './routes/bo/index'
+import { Route as PortailMessagerieRouteImport } from './routes/portail/messagerie'
 import { Route as PortailEntrepriseRouteImport } from './routes/portail/entreprise'
 import { Route as PortailCompteRouteImport } from './routes/portail/compte'
+import { Route as BoMessagerieRouteImport } from './routes/bo/messagerie'
 import { Route as BoCompteRouteImport } from './routes/bo/compte'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
@@ -89,6 +91,11 @@ const BoIndexRoute = BoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const PortailMessagerieRoute = PortailMessagerieRouteImport.update({
+  id: '/messagerie',
+  path: '/messagerie',
+  getParentRoute: () => PortailRouteRoute,
+} as any)
 const PortailEntrepriseRoute = PortailEntrepriseRouteImport.update({
   id: '/entreprise',
   path: '/entreprise',
@@ -98,6 +105,11 @@ const PortailCompteRoute = PortailCompteRouteImport.update({
   id: '/compte',
   path: '/compte',
   getParentRoute: () => PortailRouteRoute,
+} as any)
+const BoMessagerieRoute = BoMessagerieRouteImport.update({
+  id: '/messagerie',
+  path: '/messagerie',
+  getParentRoute: () => BoRouteRoute,
 } as any)
 const BoCompteRoute = BoCompteRouteImport.update({
   id: '/compte',
@@ -332,8 +344,10 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/bo/compte': typeof BoCompteRoute
+  '/bo/messagerie': typeof BoMessagerieRoute
   '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
+  '/portail/messagerie': typeof PortailMessagerieRoute
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
@@ -380,8 +394,10 @@ export interface FileRoutesByTo {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/bo/compte': typeof BoCompteRoute
+  '/bo/messagerie': typeof BoMessagerieRoute
   '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
+  '/portail/messagerie': typeof PortailMessagerieRoute
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
@@ -432,8 +448,10 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/bo/compte': typeof BoCompteRoute
+  '/bo/messagerie': typeof BoMessagerieRoute
   '/portail/compte': typeof PortailCompteRoute
   '/portail/entreprise': typeof PortailEntrepriseRoute
+  '/portail/messagerie': typeof PortailMessagerieRoute
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
@@ -485,8 +503,10 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/bo/compte'
+    | '/bo/messagerie'
     | '/portail/compte'
     | '/portail/entreprise'
+    | '/portail/messagerie'
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
@@ -533,8 +553,10 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/bo/compte'
+    | '/bo/messagerie'
     | '/portail/compte'
     | '/portail/entreprise'
+    | '/portail/messagerie'
     | '/bo'
     | '/portail'
     | '/bo/acces/connexions'
@@ -584,8 +606,10 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/bo/compte'
+    | '/bo/messagerie'
     | '/portail/compte'
     | '/portail/entreprise'
+    | '/portail/messagerie'
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
@@ -680,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/portail/messagerie': {
+      id: '/portail/messagerie'
+      path: '/messagerie'
+      fullPath: '/portail/messagerie'
+      preLoaderRoute: typeof PortailMessagerieRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
     '/portail/entreprise': {
       id: '/portail/entreprise'
       path: '/entreprise'
@@ -693,6 +724,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/portail/compte'
       preLoaderRoute: typeof PortailCompteRouteImport
       parentRoute: typeof PortailRouteRoute
+    }
+    '/bo/messagerie': {
+      id: '/bo/messagerie'
+      path: '/messagerie'
+      fullPath: '/bo/messagerie'
+      preLoaderRoute: typeof BoMessagerieRouteImport
+      parentRoute: typeof BoRouteRoute
     }
     '/bo/compte': {
       id: '/bo/compte'
@@ -1012,6 +1050,7 @@ const BoParametrageRouteRouteWithChildren =
 interface BoRouteRouteChildren {
   BoParametrageRouteRoute: typeof BoParametrageRouteRouteWithChildren
   BoCompteRoute: typeof BoCompteRoute
+  BoMessagerieRoute: typeof BoMessagerieRoute
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
   BoDeclarationsStocksRoute: typeof BoDeclarationsStocksRoute
@@ -1031,6 +1070,7 @@ interface BoRouteRouteChildren {
 const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoParametrageRouteRoute: BoParametrageRouteRouteWithChildren,
   BoCompteRoute: BoCompteRoute,
+  BoMessagerieRoute: BoMessagerieRoute,
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
   BoDeclarationsStocksRoute: BoDeclarationsStocksRoute,
@@ -1054,6 +1094,7 @@ const BoRouteRouteWithChildren =
 interface PortailRouteRouteChildren {
   PortailCompteRoute: typeof PortailCompteRoute
   PortailEntrepriseRoute: typeof PortailEntrepriseRoute
+  PortailMessagerieRoute: typeof PortailMessagerieRoute
   PortailIndexRoute: typeof PortailIndexRoute
   PortailDeclarationsDsmRoute: typeof PortailDeclarationsDsmRoute
   PortailDeclarationsStocksRoute: typeof PortailDeclarationsStocksRoute
@@ -1067,6 +1108,7 @@ interface PortailRouteRouteChildren {
 const PortailRouteRouteChildren: PortailRouteRouteChildren = {
   PortailCompteRoute: PortailCompteRoute,
   PortailEntrepriseRoute: PortailEntrepriseRoute,
+  PortailMessagerieRoute: PortailMessagerieRoute,
   PortailIndexRoute: PortailIndexRoute,
   PortailDeclarationsDsmRoute: PortailDeclarationsDsmRoute,
   PortailDeclarationsStocksRoute: PortailDeclarationsStocksRoute,

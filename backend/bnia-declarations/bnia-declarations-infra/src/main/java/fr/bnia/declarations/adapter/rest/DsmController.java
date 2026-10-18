@@ -98,7 +98,7 @@ class DsmController {
 
     @PostMapping("/dsm/{id}/complements")
     @Operation(operationId = "demanderComplementsDsm",
-            summary = "Le BNIA demande des compléments, avec un motif écrit en commentaire de la DSM (RG-DEC-20, 24)")
+            summary = "Le BNIA demande des compléments, avec un motif déposé dans la conversation de la DSM (RG-DEC-20, RG-MSG-08)")
     DsmResponse demanderComplements(Connecte connecte, @PathVariable long operateur, @PathVariable long id,
             @RequestBody ComplementsDsmRequest requete) {
         return DsmResponse.depuis(gerer.demanderComplements(Acteurs.de(connecte), operateur, id, requete.motif(),
@@ -123,7 +123,7 @@ class DsmController {
     @DeleteMapping("/dsm/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "supprimerDsm",
-            summary = "Supprimer un brouillon, par l'opérateur ou le BNIA ; commentaires et journal avec lui (RG-DEC-01, 22)")
+            summary = "Supprimer un brouillon, par l'opérateur ou le BNIA ; notes internes, conversation et journal avec lui (RG-DEC-01, 22)")
     void supprimer(Connecte connecte, @PathVariable long operateur, @PathVariable long id) {
         gerer.supprimer(Acteurs.de(connecte), operateur, id);
     }

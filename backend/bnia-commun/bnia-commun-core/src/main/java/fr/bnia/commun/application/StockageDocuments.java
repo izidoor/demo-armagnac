@@ -2,6 +2,7 @@ package fr.bnia.commun.application;
 
 import fr.bnia.commun.domain.DocumentDepose;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Stockage des fichiers déposés, commun à tous les contextes (ADR-018). Chaque opération s'exécute dans la
@@ -14,11 +15,21 @@ public interface StockageDocuments {
     long TAILLE_MAXIMALE = 10L * 1024 * 1024;
 
     /**
+     * Dépose un fichier de l'un des formats admis, reconnu par sa signature et non par son extension (ADR-018 amendé
+     * le 2026-10-17) ; son type MIME est celui du format reconnu.
+     *
+     * @throws fr.bnia.commun.domain.DocumentRefuse si le fichier est vide, trop gros ou d'aucun format admis
+     */
+    DocumentDepose deposer(String nom, byte[] contenu, Set<FormatDocument> admis);
+
+    /**
      * Dépose un PDF, vérifié par sa signature {@code %PDF} et non par son extension.
      *
      * @throws fr.bnia.commun.domain.DocumentRefuse si le fichier est vide, trop gros ou n'est pas un PDF
      */
-    DocumentDepose deposerPdf(String nom, byte[] contenu);
+    default DocumentDepose deposerPdf(String nom, byte[] contenu) {
+        return deposer(nom, contenu, Set.of(FormatDocument.PDF));
+    }
 
     /** @throws fr.bnia.commun.domain.ElementIntrouvable si le document n'existe pas */
     DocumentLu lire(long cle);

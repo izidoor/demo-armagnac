@@ -194,7 +194,7 @@ public final class DeclarationStocksMouvements {
 
     /**
      * RG-DEC-20 : le BNIA demande des compléments sur une DSM en instruction, ou de nouveau après des
-     * compléments reçus ; le motif est un commentaire.
+     * compléments reçus ; le motif est un message de sa conversation (RG-MSG-08).
      */
     public void demanderComplements(Long versionLue) {
         exigerEtat(EtatDsm.EN_INSTRUCTION, EtatDsm.COMPLEMENTS_RECUS, "renvoyée pour compléments");

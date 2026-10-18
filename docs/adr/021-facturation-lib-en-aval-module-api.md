@@ -1,6 +1,6 @@
 # ADR-021 : `facturation`, lib en aval : module d'API et hexagonale stricte
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-17 (second cas : `messagerie`, ADR-023)
 - Date : 2026-10-14
 - Amende : ADR-014 (troisième sous-module `-api`), ADR-017 (types de facture retirés de `declarations`)
 - Spec : `docs/specs/08-facturation/spec.md` (décisions A-FAC-1, A-FAC-2, A-FAC-3) ; schémas :
@@ -76,3 +76,9 @@ Options écartées :
   `CatalogueArticles`.
 - Les parties publiées de `referentiels`, `operateurs` et `declarations` ne suivent pas ce principe.
   Les aligner reste une interrogation ouverte (`contextes.md` §5).
+
+## Amendement du 2026-10-17 (spec 15, ADR-023)
+- La lib en aval devient une forme générale : `messagerie` publie `bnia-messagerie-api` (`Conversations`
+  appelée, `ObjetsConversables` implémentée par les contextes métier), sur le même modèle : port propre dans
+  le core de l'appelant, adapter dans son infra, implémentations injectées et indexées, ports de l'hôte
+  implémentés dans l'infra de la lib.

@@ -32,6 +32,7 @@ import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { formatDate, formatEuros } from '@/features/declarations/format'
+import { SectionMessages } from '@/features/messagerie/section-messages'
 import { cleFacturation, urlPdfMaFacture } from './api'
 import { BadgeZeendoc } from './badge-zeendoc'
 import { SENS } from './libelles'
@@ -288,6 +289,12 @@ export function PageMaFacture({
         <EntetePiece piece={piece} portail />
         <Lignes piece={piece} />
         {piece.notePied && <CarteNotePied piece={piece} />}
+        {/* Spec 15, RG-MSG-17 : poser une question au BNIA sur cette pièce. */}
+        <SectionMessages
+          type='FACTURE'
+          identifiant={String(piece.id)}
+          description='Vos échanges avec le BNIA sur cette pièce ; aussi dans la messagerie.'
+        />
       </div>
     </PageMetier>
   )

@@ -11,7 +11,7 @@ import {
   demanderComplementsDsm,
   deposerDrm,
   deposerJustificatifDsm,
-  ecrireCommentaireDsm,
+  ecrireNoteInterneDsm,
   enregistrerDsm,
   envoyerDsm,
   facturerDsm,
@@ -20,19 +20,19 @@ import {
   importerDsm,
   importerPointDeDepart,
   initierDsm,
-  listerCommentairesDsm,
+  listerNotesInternesDsm,
   listerDenominations,
   listerDsm,
-  modifierCommentaireDsm,
+  modifierNoteInterneDsm,
   modifierPointDeDepart,
   prendreDsmEnInstruction,
   proposerPointDeDepart,
-  supprimerCommentaireDsm,
+  supprimerNoteInterneDsm,
   supprimerDrm,
   supprimerDsm,
   supprimerJustificatifDsm,
   validerDsm,
-  type SaisieCommentaireDsm,
+  type SaisieNoteInterneDsm,
   type DeposerJustificatifDsmData,
   type SaisieDsm,
   type SaisiePointDeDepart,
@@ -149,29 +149,26 @@ export function apiDeclarations(operateur: number) {
         body: { version },
         throwOnError: true,
       }).then((r) => r.data),
-    commentaires: (dsm: number) =>
-      listerCommentairesDsm({
+    /** Carnet de notes internes (spec 15 §3.7) : personnel du BNIA seulement. */
+    notes: (dsm: number) =>
+      listerNotesInternesDsm({
         path: { operateur, dsm },
         throwOnError: true,
       }).then((r) => r.data),
-    commenter: (dsm: number, body: SaisieCommentaireDsm) =>
-      ecrireCommentaireDsm({
+    annoter: (dsm: number, body: SaisieNoteInterneDsm) =>
+      ecrireNoteInterneDsm({
         path: { operateur, dsm },
         body,
         throwOnError: true,
       }).then((r) => r.data),
-    modifierCommentaire: (
-      dsm: number,
-      id: number,
-      body: SaisieCommentaireDsm
-    ) =>
-      modifierCommentaireDsm({
+    modifierNote: (dsm: number, id: number, body: SaisieNoteInterneDsm) =>
+      modifierNoteInterneDsm({
         path: { operateur, dsm, id },
         body,
         throwOnError: true,
       }).then((r) => r.data),
-    supprimerCommentaire: (dsm: number, id: number) =>
-      supprimerCommentaireDsm({
+    supprimerNote: (dsm: number, id: number) =>
+      supprimerNoteInterneDsm({
         path: { operateur, dsm, id },
         throwOnError: true,
       }),

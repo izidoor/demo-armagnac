@@ -3,10 +3,10 @@ package fr.bnia.declarations.application;
 import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.ElementIntrouvable;
+import fr.bnia.commun.domain.RegleEnfreinte;
 import fr.bnia.declarations.domain.ActionJournalDeclarations;
 import fr.bnia.declarations.domain.CalendrierDeclaratif.Situation;
 import fr.bnia.declarations.domain.CalendrierDeclaratif;
-import fr.bnia.declarations.domain.Commentaire;
 import fr.bnia.declarations.domain.ControlePieces;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.GrilleCotisation;
@@ -16,6 +16,7 @@ import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.LigneStockInitial;
 import fr.bnia.declarations.domain.Manque;
+import fr.bnia.declarations.domain.NoteInterne;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
 import fr.bnia.declarations.domain.SaisieDsm;
@@ -54,7 +55,8 @@ public class GererDsm {
     private final PointDeDepartRepository points;
     private final DsmLecture lecture;
     private final JournalDeclarations journal;
-    private final Commentaires commentaires;
+    private final NotesInternes notes;
+    private final Messagerie messagerie;
     private final Pieces pieces;
     private final StockageDocuments stockage;
     private final ClasseursDsm classeurs;
@@ -65,7 +67,7 @@ public class GererDsm {
     private final Cotisations cotisations;
 
     public GererDsm(DsmRepository dsms, PointDeDepartRepository points, DsmLecture lecture,
-            JournalDeclarations journal, Commentaires commentaires, Pieces pieces, StockageDocuments stockage,
+            JournalDeclarations journal, NotesInternes notes, Messagerie messagerie, Pieces pieces, StockageDocuments stockage,
             ClasseursDsm classeurs, GrilleCotisationRepository grilles, FacturesDsm factures, PublicationEvenements evenements,
             OperateursLecture operateurs, ReferentielsLecture referentiels, ParametresDeclarations parametres,
             Clock horloge) {
@@ -73,7 +75,8 @@ public class GererDsm {
         this.points = points;
         this.lecture = lecture;
         this.journal = journal;
-        this.commentaires = commentaires;
+        this.notes = notes;
+        this.messagerie = messagerie;
         this.pieces = pieces;
         this.stockage = stockage;
         this.classeurs = classeurs;
@@ -141,7 +144,7 @@ public class GererDsm {
 
     /**
      * RG-DEC-01, 10 à 13, 15 à 19, 21, 23 : l'opérateur enregistre sa saisie ; les anomalies ne l'empêchent pas.
-     * Les commentaires et les justificatifs d'une ligne supprimée passent sur la DSM (décision du 2026-10-13).
+     * Les notes internes et les justificatifs d'une ligne supprimée passent sur la DSM (décision du 2026-10-13).
      */
     public VueDsm enregistrer(Acteur acteur, long operateur, long id, SaisieDsm saisie, Long version) {
         OperateurVue vue = autorisations.exigerOperateur(acteur, operateur);
@@ -161,7 +164,7 @@ public class GererDsm {
 
     /**
      * RG-DEC-01, 21, 23, 37, 38 (UC-DEC-5) : l'opérateur importe le modèle Excel dans sa DSM modifiable. Tout ou
-     * rien : un fichier en erreur est refusé avec ses erreurs ({@link ImportRefuse}). Les commentaires et les
+     * rien : un fichier en erreur est refusé avec ses erreurs ({@link ImportRefuse}). Les notes internes et les
      * justificatifs d'une ligne supprimée passent sur la DSM ; le journal garde le nom du fichier, pas le fichier.
      */
     public DsmImportee importer(Acteur acteur, long operateur, long id, FichierDepose fichier, Long version) {
@@ -179,16 +182,16 @@ public class GererDsm {
         return new DsmImportee(vue(acteur, importee, vue), List.copyOf(avertissements));
     }
 
-    /** Les commentaires et les justificatifs d'une ligne supprimée passent sur la DSM (décision du 2026-10-13). */
+    /** Les notes internes et les justificatifs d'une ligne supprimée passent sur la DSM (décision du 2026-10-13). */
     private void detacherLesSupprimees(Map<Long, LigneDsm> avant, DeclarationStocksMouvements apres) {
         long id = apres.id();
         apres.lignes().forEach(l -> avant.remove(l.id()));
         if (!avant.isEmpty()) {
-            for (Commentaire commentaire : commentaires.deLaDsm(id)) {
-                LigneDsm supprimee = commentaire.ligne() == null ? null : avant.get(commentaire.ligne());
+            for (NoteInterne note : notes.deLaDsm(id)) {
+                LigneDsm supprimee = note.ligne() == null ? null : avant.get(note.ligne());
                 if (supprimee != null) {
-                    commentaire.detacher(supprimee.identite().libelle());
-                    commentaires.mettreAJour(commentaire);
+                    note.detacher(supprimee.identite().libelle());
+                    notes.mettreAJour(note);
                 }
             }
             for (Justificatif justificatif : pieces.justificatifsDe(id)) {
@@ -224,19 +227,21 @@ public class GererDsm {
     }
 
     /**
-     * RG-DEC-01, 20, 23, 24 : le BNIA demande des compléments, avec un motif obligatoire, écrit en commentaire
-     * de la DSM ; elle revient à l'opérateur.
+     * RG-DEC-01, 20, 23 : le BNIA demande des compléments, avec un motif obligatoire, déposé dans la conversation
+     * de la DSM, protégé (RG-MSG-08) ; elle revient à l'opérateur.
      */
     public VueDsm demanderComplements(Acteur acteur, long operateur, long id, String motif, Long version) {
         OperateurVue vue = autorisations.exigerBnia(acteur, operateur);
         DeclarationStocksMouvements dsm = dsm(operateur, id);
-        Commentaire commentaire = Commentaire.motif(id, journaliste.auteur(acteur), motif, journaliste.maintenant());
+        if (motif == null || motif.isBlank()) {
+            throw new RegleEnfreinte("RG-DEC-20", "Une demande de compléments porte un motif.");
+        }
         dsm.demanderComplements(version);
         DeclarationStocksMouvements renvoyee = dsms.mettreAJour(dsm);
-        commentaires.inserer(commentaire);
+        messagerie.deposerMotif(id, acteur, motif.strip());
         journaliste.noter(acteur, renvoyee, ActionJournalDeclarations.COMPLEMENTS_DEMANDES, null);
         evenements.publier(new ComplementsDemandes(id, operateur, renvoyee.periode().debut(),
-                renvoyee.periode().fin(), commentaire.texte()));
+                renvoyee.periode().fin(), motif.strip()));
         return vue(acteur, renvoyee, vue);
     }
 
@@ -252,7 +257,8 @@ public class GererDsm {
     }
 
     /**
-     * RG-DEC-01, 22, 23 : seul un brouillon se supprime, par l'opérateur ou par le BNIA, avec ses commentaires,
+     * RG-DEC-01, 22, 23 : seul un brouillon se supprime, par l'opérateur ou par le BNIA, avec ses notes internes et
+     * sa conversation,
      * ses pièces et leurs documents, et son journal ; une entrée « brouillon supprimé » reste au journal de
      * l'opérateur.
      */
@@ -261,7 +267,8 @@ public class GererDsm {
         DeclarationStocksMouvements dsm = dsm(operateur, id);
         dsm.exigerSupprimable();
         journal.supprimerDeLaDsm(id);
-        commentaires.supprimerDeLaDsm(id);
+        notes.supprimerDeLaDsm(id);
+        messagerie.supprimerConversation(id);
         List<Long> documents = Stream.concat(
                 pieces.justificatifsDe(id).stream().map(j -> j.document().cle()),
                 pieces.drmsDe(id).stream().map(d -> d.document().cle())).toList();

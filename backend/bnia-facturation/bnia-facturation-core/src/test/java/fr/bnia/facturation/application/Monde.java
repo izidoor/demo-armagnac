@@ -1,5 +1,6 @@
 package fr.bnia.facturation.application;
 
+import fr.bnia.commun.application.FormatDocument;
 import fr.bnia.commun.application.StockageDocuments;
 import fr.bnia.commun.domain.DocumentDepose;
 import fr.bnia.commun.domain.ElementIntrouvable;
@@ -288,7 +289,7 @@ final class Monde {
         private long suivant = 100;
 
         @Override
-        public DocumentDepose deposerPdf(String nom, byte[] contenu) {
+        public DocumentDepose deposer(String nom, byte[] contenu, java.util.Set<FormatDocument> admis) {
             DocumentDepose document = new DocumentDepose(suivant++, nom, "application/pdf", contenu.length);
             documents.put(document.cle(), new DocumentLu(document, contenu));
             return document;

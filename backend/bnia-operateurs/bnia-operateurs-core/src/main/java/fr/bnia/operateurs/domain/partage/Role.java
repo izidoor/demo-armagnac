@@ -25,6 +25,7 @@ public enum Role {
         return switch (module) {
             case CONTACTS, PARAMETRAGE, DECLARATIONS, FACTURATION -> this != OBSERVATEUR;
             case ACCES -> this == ADMIN;
+            case MESSAGERIE -> true;
         };
     }
 }
