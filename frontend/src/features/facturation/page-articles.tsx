@@ -44,16 +44,6 @@ const COLONNES = [
   colonne.accessor('tvaLibelle', {
     meta: { titre: 'TVA' },
     header: ({ column }) => <EnteteFiltrable column={column} />,
-    cell: ({ row }) => (
-      <>
-        {row.original.tvaLibelle}
-        {row.original.tvaMotif && (
-          <span className='text-muted-foreground block text-xs'>
-            {row.original.tvaMotif}
-          </span>
-        )}
-      </>
-    ),
     filterFn: filtreValeurs,
   }),
   colonne.accessor((a) => (a.actif ? 'Actif' : 'Inactif'), {

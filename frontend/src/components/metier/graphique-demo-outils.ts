@@ -39,12 +39,12 @@ export function basculer(ensemble: Set<string>, cle: string) {
 }
 
 /** Les vues d'un graphique sur l'année civile. */
-export type VueCivile = 'annees' | 'glissants' | 'annee-precedente'
+export type VueCivile = 'annees' | 'glissants' | 'annee-en-cours'
 
 export const VUES_CIVILES: { id: VueCivile; libelle: string }[] = [
   { id: 'annees', libelle: '5 dernières années' },
   { id: 'glissants', libelle: '12 mois glissants' },
-  { id: 'annee-precedente', libelle: 'Année dernière' },
+  { id: 'annee-en-cours', libelle: 'Année en cours' },
 ]
 
 /** Une période : son libellé et ses mois. */
@@ -53,7 +53,10 @@ export type Periode = {
   mois: { annee: number; mois: number }[]
 }
 
-/** Les périodes d'une vue, au jour du navigateur ; un mois n'y entre qu'une fois terminé. */
+/**
+ * Les périodes d'une vue, au jour du navigateur ; un mois n'y entre qu'une fois terminé. Sur l'année en cours,
+ * ses douze mois sont en abscisse, et ceux qui ne sont pas terminés n'ont pas de mois (pas de valeur).
+ */
 export function periodesCiviles(vue: VueCivile, jour = new Date()): Periode[] {
   const annee = jour.getFullYear()
   const moisCourant = jour.getMonth() + 1
@@ -75,7 +78,7 @@ export function periodesCiviles(vue: VueCivile, jour = new Date()): Periode[] {
     })
   }
   return Array.from({ length: 12 }, (_, i) => ({
-    libelle: libelleMois(annee - 1, i + 1, false),
-    mois: [{ annee: annee - 1, mois: i + 1 }],
+    libelle: libelleMois(annee, i + 1, false),
+    mois: i + 1 < moisCourant ? [{ annee, mois: i + 1 }] : [],
   }))
 }

@@ -101,23 +101,25 @@ const formatInfobulle = (v: unknown) =>
   typeof v === 'number' ? formatEuros(v) : String(v)
 
 /**
- * Chiffre d'affaires total HT, en histogramme, sur l'une des trois vues ; sur l'année dernière, ses mois
- * peuvent être placés à côté de ceux de cette année.
+ * Chiffre d'affaires total HT, en histogramme, sur l'une des trois vues ; sur l'année en cours (la vue par
+ * défaut), ses mois sont placés à côté de ceux de l'année précédente, sauf si l'on ôte la comparaison.
  */
 function GraphiqueChiffreAffaires() {
-  const [vue, setVue] = useState<Vue>('annees')
-  const [comparer, setComparer] = useState(false)
+  const [vue, setVue] = useState<Vue>('annee-en-cours')
+  const [comparer, setComparer] = useState(true)
   const jour = new Date()
   const annee = jour.getFullYear()
-  const comparaison = vue === 'annee-precedente' && comparer
+  const comparaison = vue === 'annee-en-cours' && comparer
   const points = periodes(vue, jour).map((p, i) => ({
     x: p.libelle,
-    total: somme(SECTEURS, p),
-    // Cette année : les mois terminés seulement.
-    courant:
-      comparaison && i + 1 < jour.getMonth() + 1
-        ? somme(SECTEURS, { libelle: '', mois: [{ annee, mois: i + 1 }] })
-        : undefined,
+    // Les mois terminés seulement.
+    total: p.mois.length ? somme(SECTEURS, p) : undefined,
+    precedente: comparaison
+      ? somme(SECTEURS, {
+          libelle: '',
+          mois: [{ annee: annee - 1, mois: i + 1 }],
+        })
+      : undefined,
   }))
   return (
     <Card>
@@ -128,10 +130,10 @@ function GraphiqueChiffreAffaires() {
       <CardContent className='space-y-3'>
         <div className='flex flex-wrap items-center gap-3'>
           <SelecteurVue vues={VUES} vue={vue} onChange={setVue} />
-          {vue === 'annee-precedente' && (
+          {vue === 'annee-en-cours' && (
             <Option
               id='ca-comparer'
-              libelle={`Comparer avec ${annee}`}
+              libelle='Comparer avec année précédente'
               valeur={comparer}
               onChange={setComparer}
             />
@@ -157,20 +159,20 @@ function GraphiqueChiffreAffaires() {
                 contentStyle={STYLE_INFOBULLE}
               />
               {comparaison && <Legend wrapperStyle={{ fontSize: 12 }} />}
-              <Bar
-                dataKey='total'
-                name={comparaison ? String(annee - 1) : "Chiffre d'affaires"}
-                fill={comparaison ? 'var(--chart-3)' : 'var(--chart-1)'}
-                radius={[4, 4, 0, 0]}
-              />
               {comparaison && (
                 <Bar
-                  dataKey='courant'
-                  name={String(annee)}
-                  fill='var(--chart-1)'
+                  dataKey='precedente'
+                  name={String(annee - 1)}
+                  fill='var(--chart-3)'
                   radius={[4, 4, 0, 0]}
                 />
               )}
+              <Bar
+                dataKey='total'
+                name={comparaison ? String(annee) : "Chiffre d'affaires"}
+                fill='var(--chart-1)'
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -242,7 +244,7 @@ const DETAIL = COTISATIONS as string[]
  * masque ou s'affiche.
  */
 function GraphiqueSecteurs() {
-  const [vue, setVue] = useState<Vue>('annees')
+  const [vue, setVue] = useState<Vue>('annee-en-cours')
   const [detailler, setDetailler] = useState(false)
   const [masquees, setMasquees] = useState<Set<string>>(new Set())
   const proposees = COURBES.filter((c) =>
@@ -251,7 +253,8 @@ function GraphiqueSecteurs() {
   const affichees = proposees.filter((c) => !masquees.has(c.cle))
   const points = periodes(vue).map((p) => {
     const point: Record<string, number | string> = { x: p.libelle }
-    affichees.forEach((c) => (point[c.cle] = somme(c.secteurs, p)))
+    if (p.mois.length)
+      affichees.forEach((c) => (point[c.cle] = somme(c.secteurs, p)))
     return point
   })
   return (

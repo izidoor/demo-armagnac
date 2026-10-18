@@ -122,7 +122,7 @@ export function GraphiqueExportations() {
   const affiches = MARCHES.filter((m) => !masquees.has(m.cle))
   const points = periodesCiviles(vue).map((p) => {
     const point: Record<string, number | string> = { x: p.libelle }
-    affiches.forEach((m) => (point[m.cle] = somme(m, p)))
+    if (p.mois.length) affiches.forEach((m) => (point[m.cle] = somme(m, p)))
     return point
   })
   return (

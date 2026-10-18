@@ -24,10 +24,10 @@ export function Accueil({ espace, children, tableauDeBord }: AccueilProps) {
       <Main>
         <div className='mb-4'>
           <h1 className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'>
-            {espace.nom}
+            {tableauDeBord ? 'Tableau de bord' : espace.nom}
           </h1>
           <p className='text-muted-foreground'>
-            {tableauDeBord ? 'Tableau de bord' : 'Accueil'}
+            {tableauDeBord ? espace.nom : 'Accueil'}
           </p>
         </div>
         {tableauDeBord && <div className='mb-10'>{tableauDeBord}</div>}

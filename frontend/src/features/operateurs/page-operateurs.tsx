@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
-import { Download, EllipsisVertical, Plus } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { ChevronRight, Download, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { exporterOperateurs, listerOperateurs } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -31,6 +31,10 @@ import { TYPES, TYPES_CHOISIS, type TypeOperateur } from './commun/libelles'
 import { CreationOperateur } from './creation-operateur'
 
 const TOUS = 'tous'
+
+/** Avertissement léger : la fiche manque d'une donnée pour facturer ou certifier (RG-OPE-02). */
+const BADGE_INCOMPLET =
+  'ms-2 border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
 
 /**
  * Listing du back-office (§4.3.1 p.18, spec 02 §6.1) : recherche unique et filtres, ouverture de la fiche, export
@@ -168,7 +172,6 @@ export function PageOperateurs({
             <TableRow>
               <TableHead>Code</TableHead>
               <TableHead>Raison sociale</TableHead>
-              <TableHead>Nom commercial</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Code postal</TableHead>
               <TableHead>Ville</TableHead>
@@ -179,7 +182,7 @@ export function PageOperateurs({
             </TableRow>
           </TableHeader>
           <TableBody>
-            <LignesEtat requete={requete} colonnes={10} />
+            <LignesEtat requete={requete} colonnes={9} />
             {requete.data?.map((o) => (
               <TableRow
                 key={o.id}
@@ -190,17 +193,16 @@ export function PageOperateurs({
                 <TableCell>
                   {o.raisonSociale}
                   {!o.facturable && (
-                    <Badge variant='outline' className='ms-2'>
+                    <Badge variant='outline' className={BADGE_INCOMPLET}>
                       Non facturable
                     </Badge>
                   )}
                   {!o.certifiable && (
-                    <Badge variant='outline' className='ms-2'>
+                    <Badge variant='outline' className={BADGE_INCOMPLET}>
                       Non certifiable
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell>{o.nomCommercial}</TableCell>
                 <TableCell>
                   <Badge variant='secondary'>{TYPES[o.type]}</Badge>
                 </TableCell>
@@ -214,16 +216,17 @@ export function PageOperateurs({
                 <TableCell>
                   <Button
                     variant='ghost'
-                    size='icon'
-                    className='size-8'
-                    aria-label='Ouvrir la fiche'
-                    title='Ouvrir la fiche'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      ouvrir(o.id)
-                    }}
+                    size='sm'
+                    asChild
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <EllipsisVertical />
+                    <Link
+                      to='/bo/operateurs/$id'
+                      params={{ id: String(o.id) }}
+                      aria-label={`Ouvrir la fiche de ${o.raisonSociale}`}
+                    >
+                      <ChevronRight className='size-4' />
+                    </Link>
                   </Button>
                 </TableCell>
               </TableRow>

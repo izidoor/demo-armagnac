@@ -32,12 +32,12 @@ import {
  * instantané : celui d'une période est le stock à la fin de son dernier mois.
  */
 
-type Vue = 'annees' | 'glissants' | 'annee-precedente'
+type Vue = 'annees' | 'glissants' | 'annee-en-cours'
 
 const VUES: { id: Vue; libelle: string }[] = [
   { id: 'annees', libelle: '5 dernières années' },
   { id: 'glissants', libelle: '12 mois glissants' },
-  { id: 'annee-precedente', libelle: 'Année déclarative précédente' },
+  { id: 'annee-en-cours', libelle: 'Année en cours' },
 ]
 
 type Type = 'NEGOCIANT' | 'PRODUCTEUR'
@@ -90,7 +90,8 @@ const total = (
   )
 
 type FinDeMois = { annee: number; mois: number }
-type Instant = { libelle: string; fin: FinDeMois }
+/** Un instant de l'abscisse ; sans fin de mois s'il n'est pas encore passé (pas de valeur). */
+type Instant = { libelle: string; fin?: FinDeMois }
 
 const moisApres = (annee: number, mois: number, decalage: number) => {
   const d = new Date(annee, mois - 1 + decalage, 1)
@@ -103,8 +104,8 @@ const anneeDeclarative = (jour: Date) =>
 
 /**
  * Les instants d'une vue, au jour du navigateur, chacun une fin de mois terminé : le 31 mars des cinq
- * dernières années déclaratives closes, les douze dernières fins de mois, ou celles de l'année déclarative
- * précédente.
+ * dernières années déclaratives closes, les douze dernières fins de mois, ou les douze de l'année déclarative
+ * en cours, celles à venir sans valeur.
  */
 function instants(vue: Vue, jour = new Date()): Instant[] {
   const courante = anneeDeclarative(jour)
@@ -123,9 +124,13 @@ function instants(vue: Vue, jour = new Date()): Instant[] {
       return { libelle: libelleMois(fin.annee, fin.mois), fin }
     })
   }
+  const aujourdhui = jour.getFullYear() * 12 + jour.getMonth() + 1
   return Array.from({ length: 12 }, (_, i) => {
-    const fin = moisApres(courante - 1, 4, i)
-    return { libelle: libelleMois(fin.annee, fin.mois, false), fin }
+    const fin = moisApres(courante, 4, i)
+    return {
+      libelle: libelleMois(fin.annee, fin.mois, false),
+      fin: fin.annee * 12 + fin.mois < aujourdhui ? fin : undefined,
+    }
   })
 }
 
@@ -138,28 +143,22 @@ const formatInfobulle = (v: unknown) =>
 const libelleAnnee = (debut: number) => `${debut}-${String(debut + 1).slice(2)}`
 
 /**
- * Stock total déclaré, en histogramme, sur l'une des trois vues ; sur l'année déclarative précédente, ses fins
- * de mois peuvent être placées à côté de celles de l'année en cours.
+ * Stock total déclaré, en histogramme, sur l'une des trois vues ; sur l'année déclarative en cours (la vue par
+ * défaut), ses fins de mois sont placées à côté de celles de l'année précédente, sauf si l'on ôte la comparaison.
  */
 function GraphiqueStockTotal() {
-  const [vue, setVue] = useState<Vue>('annees')
-  const [comparer, setComparer] = useState(false)
+  const [vue, setVue] = useState<Vue>('annee-en-cours')
+  const [comparer, setComparer] = useState(true)
   const jour = new Date()
   const courante = anneeDeclarative(jour)
-  const comparaison = vue === 'annee-precedente' && comparer
-  const aujourdhui = jour.getFullYear() * 12 + jour.getMonth() + 1
-  const points = instants(vue, jour).map((p, i) => {
-    const fin = moisApres(courante, 4, i)
-    return {
-      x: p.libelle,
-      stock: total(TYPES, TRANCHES, p.fin),
-      // L'année en cours : les mois terminés seulement.
-      courant:
-        comparaison && fin.annee * 12 + fin.mois < aujourdhui
-          ? total(TYPES, TRANCHES, fin)
-          : undefined,
-    }
-  })
+  const comparaison = vue === 'annee-en-cours' && comparer
+  const points = instants(vue, jour).map((p, i) => ({
+    x: p.libelle,
+    stock: p.fin && total(TYPES, TRANCHES, p.fin),
+    precedente: comparaison
+      ? total(TYPES, TRANCHES, moisApres(courante - 1, 4, i))
+      : undefined,
+  }))
   return (
     <Card>
       <EnteteDemo
@@ -169,10 +168,10 @@ function GraphiqueStockTotal() {
       <CardContent className='space-y-3'>
         <div className='flex flex-wrap items-center gap-3'>
           <SelecteurVue vues={VUES} vue={vue} onChange={setVue} />
-          {vue === 'annee-precedente' && (
+          {vue === 'annee-en-cours' && (
             <Option
               id='stock-comparer'
-              libelle={`Comparer avec ${libelleAnnee(courante)}`}
+              libelle='Comparer avec année précédente'
               valeur={comparer}
               onChange={setComparer}
             />
@@ -198,20 +197,20 @@ function GraphiqueStockTotal() {
                 contentStyle={STYLE_INFOBULLE}
               />
               {comparaison && <Legend wrapperStyle={{ fontSize: 12 }} />}
-              <Bar
-                dataKey='stock'
-                name={comparaison ? libelleAnnee(courante - 1) : 'Stock'}
-                fill={comparaison ? 'var(--chart-3)' : 'var(--chart-1)'}
-                radius={[4, 4, 0, 0]}
-              />
               {comparaison && (
                 <Bar
-                  dataKey='courant'
-                  name={libelleAnnee(courante)}
-                  fill='var(--chart-1)'
+                  dataKey='precedente'
+                  name={libelleAnnee(courante - 1)}
+                  fill='var(--chart-3)'
                   radius={[4, 4, 0, 0]}
                 />
               )}
+              <Bar
+                dataKey='stock'
+                name={comparaison ? libelleAnnee(courante) : 'Stock'}
+                fill='var(--chart-1)'
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -242,14 +241,16 @@ const CHOIX_TYPES: { id: ChoixType; libelle: string }[] = [
  * déclarants ou un type ; chaque courbe se masque ou s'affiche.
  */
 export function GraphiqueComptes() {
-  const [vue, setVue] = useState<Vue>('annees')
+  const [vue, setVue] = useState<Vue>('annee-en-cours')
   const [type, setType] = useState<ChoixType>('tous')
   const [masquees, setMasquees] = useState<Set<string>>(new Set())
   const types = type === 'tous' ? TYPES : [type]
   const affichees = COURBES.filter((c) => !masquees.has(c.cle))
   const points = instants(vue).map((p) => {
     const point: Record<string, number | string> = { x: p.libelle }
-    affichees.forEach((c) => (point[c.cle] = total(types, [c.cle], p.fin)))
+    const fin = p.fin
+    if (fin)
+      affichees.forEach((c) => (point[c.cle] = total(types, [c.cle], fin)))
     return point
   })
   return (

@@ -510,8 +510,9 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
     - en tête, deux graphiques de démonstration côte à côte (données fictives, badge « Démonstration ») :
       stock total déclaré en histogramme ; stock par tranche de compte d'âge en courbes (00 et 0, 1 à 3,
       4 à 9, 10 à 19, 20+), tous déclarants, négociants ou producteurs, courbes à choisir ; vues 5 dernières
-      années déclaratives (stock au 31 mars), 12 mois glissants, année déclarative précédente, celle-ci
-      comparable à l'année en cours ;
+      années déclaratives (stock au 31 mars), 12 mois glissants, année en cours (année déclarative, mois
+      terminés), vue par défaut, comparée par défaut à l'année précédente (« Comparer avec année
+      précédente ») ;
     - sous un trait de séparation, « Liste des stocks déclarés » : le listing du lot 8, par opérateur et par
       ligne (clé, millésime ou dénomination, compte d'âge, stock, fin de période) ; recherche, tri et filtre
       par valeurs sur chaque colonne, total des lignes affichées ; une ligne ouvre sa DSM ; export Excel
