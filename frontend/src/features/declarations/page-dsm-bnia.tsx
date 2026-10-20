@@ -8,7 +8,6 @@ import {
   type DsmListee,
   facturerSelectionDsm,
   listerToutesDsm,
-  prendreDsmEnInstruction,
   type ResultatRechercheOperateur,
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
@@ -43,6 +42,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { BadgePlein } from '@/components/metier/badge-statut'
 import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
@@ -50,7 +50,7 @@ import { RechercheOperateur } from '@/features/operateurs/portail/recherche-oper
 import { useDroits, useMoi } from '@/features/session/session'
 import { Echeance } from './echeance'
 import { formatDateHeure, formatEuros } from './format'
-import { GROUPES_ETATS, TYPES_DECLARANT, VARIANTE_ETAT } from './libelles'
+import { GROUPES_ETATS, STATUT_ETAT, TYPES_DECLARANT } from './libelles'
 
 const TOUS = 'tous'
 
@@ -163,24 +163,6 @@ export function PageDsmBnia({
           search: { onglet: 'declarations' },
         })
       : ouvrir(d.operateur, d.id)
-  // RG-DEC-20 : la prise en instruction se fait aussi depuis le listing ; la DSM prise en charge s'ouvre ensuite.
-  const priseEnInstruction = useMutation({
-    mutationFn: (d: DsmListee) =>
-      prendreDsmEnInstruction({
-        path: { operateur: d.operateur, id: d.id! },
-        body: {},
-        throwOnError: true,
-      }),
-    meta: { erreurAffichee: true },
-    onSuccess: (_, d) => {
-      toast.success(
-        `DSM de ${d.periode.libelle} de ${d.raisonSociale} prise en charge.`
-      )
-      queryClient.invalidateQueries({ queryKey: ['declarations'] })
-      ouvrirLigne(d)
-    },
-  })
-
   const facturation = useMutation({
     mutationFn: (ids: number[]) =>
       facturerSelectionDsm({ body: { dsms: ids }, throwOnError: true }).then(
@@ -405,7 +387,6 @@ export function PageDsmBnia({
               {enCoursVue ? (
                 <>
                   <TableHead>Modifiée le</TableHead>
-                  <TableHead />
                 </>
               ) : (
                 <>
@@ -421,7 +402,7 @@ export function PageDsmBnia({
             {dsms.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={selectionnable ? 10 : 9}
+                  colSpan={(selectionnable ? 9 : 8) + (enCoursVue ? 0 : 1)}
                   className='text-muted-foreground h-16 text-center'
                 >
                   {listing.isPending ? 'Chargement…' : 'Aucune DSM.'}
@@ -453,12 +434,21 @@ export function PageDsmBnia({
                   {d.periode.libelle}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={d.etat ? VARIANTE_ETAT[d.etat] : 'outline'}
-                    className={d.absente ? 'border-dashed' : undefined}
-                  >
-                    {d.libelleEtat}
-                  </Badge>
+                  {d.etat ? (
+                    <BadgePlein
+                      statut={STATUT_ETAT[d.etat]}
+                      className={d.absente ? 'border-dashed' : undefined}
+                    >
+                      {d.libelleEtat}
+                    </BadgePlein>
+                  ) : (
+                    <Badge
+                      variant='outline'
+                      className={d.absente ? 'border-dashed' : undefined}
+                    >
+                      {d.libelleEtat}
+                    </Badge>
+                  )}
                   {d.facturationDemandee && (
                     <Badge variant='outline' className='ms-1'>
                       Brouillon
@@ -471,20 +461,6 @@ export function PageDsmBnia({
                 {enCoursVue ? (
                   <>
                     <TableCell>{formatDateHeure(d.modifieeLe)}</TableCell>
-                    <TableCell className='py-1'>
-                      {d.prendreEnInstruction && (
-                        <Button
-                          size='sm'
-                          disabled={priseEnInstruction.isPending}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            priseEnInstruction.mutate(d)
-                          }}
-                        >
-                          Prendre en charge
-                        </Button>
-                      )}
-                    </TableCell>
                   </>
                 ) : (
                   <>
@@ -569,7 +545,7 @@ function NonFacturable() {
         <span
           tabIndex={0}
           aria-label='Opérateur non facturable'
-          className='ms-1 inline-flex align-middle text-amber-600'
+          className='text-warning-foreground ms-1 inline-flex align-middle'
           onClick={(e) => e.stopPropagation()}
         >
           <TriangleAlert className='size-4' />

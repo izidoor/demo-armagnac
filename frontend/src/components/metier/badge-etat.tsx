@@ -1,14 +1,10 @@
-import { Badge } from '@/components/ui/badge'
+import { BadgePoint } from './badge-statut'
 
-/** Fond clair en mode clair, foncé en mode sombre ; texte contrasté dans les deux. */
+/** Actif ou inactif, en point coloré (succès, danger). */
 export function BadgeEtat({ actif }: { actif: boolean }) {
-  return actif ? (
-    <Badge className='bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'>
-      Actif
-    </Badge>
-  ) : (
-    <Badge className='bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'>
-      Inactif
-    </Badge>
+  return (
+    <BadgePoint statut={actif ? 'success' : 'danger'}>
+      {actif ? 'Actif' : 'Inactif'}
+    </BadgePoint>
   )
 }

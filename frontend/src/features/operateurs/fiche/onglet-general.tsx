@@ -260,7 +260,7 @@ export function OngletGeneral({
     enregistrement: mutation.isPending,
   })
   const tvaDiscordante = fiche.tvaDiscordante && (
-    <p className='text-sm text-amber-700 dark:text-amber-400'>
+    <p className='text-warning-foreground text-sm'>
       Le n° de TVA ne concorde pas avec le SIRET.
     </p>
   )

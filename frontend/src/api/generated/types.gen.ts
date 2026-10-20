@@ -675,10 +675,6 @@ export type DsmListee = {
      */
     operateurFacturable: boolean;
     periode: PeriodeDeclaration;
-    /**
-     * L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)
-     */
-    prendreEnInstruction: boolean;
     raisonSociale: string;
     /**
      * Facturé (factures moins avoirs) ou calculé ; absent si non calculable (RG-DEC-32, 34) ou sans DSM

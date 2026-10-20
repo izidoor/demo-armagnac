@@ -266,10 +266,6 @@ class InstruireDsmTest {
         FiltreDsm enCours = new FiltreDsm(Optional.empty(), Optional.empty(), Optional.empty(),
                 Set.of(EtatDsm.BROUILLON, EtatDsm.ENVOYEE));
         assertThat(lister.lister(AGENT_BNIA, enCours)).extracting(d -> d.dsm().orElseThrow().id()).containsExactly(id);
-        assertThat(lister.lister(AGENT_BNIA, enCours)).singleElement()
-                .satisfies(d -> assertThat(d.prendreEnInstruction()).isTrue());
-        assertThat(lister.lister(OBSERVATEUR_BNIA, enCours)).singleElement()
-                .satisfies(d -> assertThat(d.prendreEnInstruction()).as("un observateur n'instruit pas").isFalse());
         FiltreDsm validees = new FiltreDsm(Optional.empty(), Optional.empty(), Optional.empty(),
                 Set.of(EtatDsm.VALIDEE));
         assertThat(lister.lister(AGENT_BNIA, validees)).isEmpty();

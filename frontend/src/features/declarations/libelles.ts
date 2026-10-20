@@ -7,6 +7,7 @@ import {
   Store,
 } from 'lucide-react'
 import { type Dsm, type LigneDsm } from '@/api/generated'
+import { type Statut } from '@/components/metier/badge-statut'
 
 type EtatDsm = Dsm['etat']
 export type CleConditionnement = LigneDsm['cle']
@@ -80,17 +81,17 @@ export const ONGLETS: {
   },
 ]
 
-/** Variante du badge d'état d'une DSM. */
-export const VARIANTE_ETAT: Record<
-  EtatDsm,
-  'default' | 'secondary' | 'outline' | 'destructive'
-> = {
-  BROUILLON: 'outline',
-  ENVOYEE: 'secondary',
-  EN_INSTRUCTION: 'secondary',
-  COMPLEMENTS_DEMANDES: 'destructive',
-  COMPLEMENTS_RECUS: 'secondary',
-  VALIDEE: 'default',
+/**
+ * Couleur du badge plein de l'état d'une DSM : chez le BNIA en bleu-vert, chez l'opérateur (compléments
+ * demandés) en orange, validée en vert.
+ */
+export const STATUT_ETAT: Record<EtatDsm, Statut> = {
+  BROUILLON: 'neutre',
+  ENVOYEE: 'info',
+  EN_INSTRUCTION: 'info',
+  COMPLEMENTS_DEMANDES: 'warning',
+  COMPLEMENTS_RECUS: 'info',
+  VALIDEE: 'success',
 }
 
 /** Le millésime ou la dénomination d'une ligne, selon sa clé (RG-DEC-10) : « 2010 », « XO ». */

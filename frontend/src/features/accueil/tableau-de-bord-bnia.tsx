@@ -85,7 +85,7 @@ export function TableauDeBordBnia() {
               type='PRODUCTEUR'
               libelle='Producteurs'
               icone={Grape}
-              couleur='var(--chart-1)'
+              couleur='var(--chart-5)'
               stock={declarations}
             />
             <CarteType

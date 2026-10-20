@@ -9471,10 +9471,6 @@
           "periode" : {
             "$ref" : "#/components/schemas/PeriodeDeclaration"
           },
-          "prendreEnInstruction" : {
-            "type" : "boolean",
-            "description" : "L'utilisateur connecté peut la prendre en instruction depuis le listing (RG-DEC-20)"
-          },
           "raisonSociale" : {
             "type" : "string"
           },
@@ -9492,7 +9488,7 @@
             "format" : "date-time"
           }
         },
-        "required" : [ "absente", "codeOperateur", "echeance", "enRetard", "facturationDemandee", "facturee", "libelleEtat", "operateur", "operateurFacturable", "periode", "prendreEnInstruction", "raisonSociale", "type" ]
+        "required" : [ "absente", "codeOperateur", "echeance", "enRetard", "facturationDemandee", "facturee", "libelleEtat", "operateur", "operateurFacturable", "periode", "raisonSociale", "type" ]
       },
       "DsmResume" : {
         "type" : "object",

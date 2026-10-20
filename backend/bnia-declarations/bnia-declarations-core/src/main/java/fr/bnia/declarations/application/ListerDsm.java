@@ -5,10 +5,8 @@ import fr.bnia.declarations.application.PeriodesAttendues.Attendue;
 import fr.bnia.declarations.domain.GrilleCotisation;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.TypeDeclarant;
-import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.partage.Acteur;
-import fr.bnia.operateurs.domain.partage.Module;
 import fr.bnia.operateurs.domain.partage.ResultatRecherche;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -58,12 +56,11 @@ public class ListerDsm {
      * @param dsm                  vide pour une période absente
      * @param echeance             RG-DEC-39
      * @param enRetard             RG-DEC-40
-     * @param prendreEnInstruction l'acteur peut la prendre en instruction depuis le listing (RG-DEC-01, 20)
      * @param totalHt              facturé ou calculé ; absent si non calculable (RG-DEC-32, 34) ou sans DSM
      * @param operateurFacturable  rien ne manque à l'opérateur pour le facturer (RG-OPE-02, RG-DEC-43)
      */
     public record DsmListee(Optional<DsmLigne> dsm, long operateur, TypeDeclarant type, PeriodeDeclaration periode,
-            String code, String raisonSociale, LocalDate echeance, boolean enRetard, boolean prendreEnInstruction,
+            String code, String raisonSociale, LocalDate echeance, boolean enRetard,
             Optional<BigDecimal> totalHt, boolean operateurFacturable) {
 
         /** RG-DEC-40 : la période attendue, sans DSM. */
@@ -80,8 +77,6 @@ public class ListerDsm {
      */
     public List<DsmListee> lister(Acteur acteur, FiltreDsm filtre) {
         autorisations.exigerLectureBnia(acteur);
-        boolean instruit = autorisations.droits(acteur, operateurs.operateurBnia()).bnia()
-                .map(r -> r.gere(Module.DECLARATIONS)).orElse(false);
         LocalDate aujourdhui = LocalDate.now(horloge);
         List<DsmLigne> dsms = lecture.rechercher(filtre);
         List<Attendue> attendues = PeriodesAttendues.de(operateurs, calendriers, aujourdhui);
@@ -101,7 +96,7 @@ public class ListerDsm {
             ResultatRecherche identite = identites.get(d.operateur());
             listing.add(new DsmListee(Optional.of(d), d.operateur(), d.type(), d.periode(), code(identite),
                     raisonSociale(identite, d.operateur()), d.periode().echeance(d.type()), enRetard.contains(d.id()),
-                    instruit && d.etat() == EtatDsm.ENVOYEE, Cotisations.totalHt(d, grille),
+                    Cotisations.totalHt(d, grille),
                     facturables.contains(d.operateur())));
         }
         for (Attendue a : absentes) {
@@ -109,7 +104,7 @@ public class ListerDsm {
             ResultatRecherche identite = identites.get(operateur);
             listing.add(new DsmListee(Optional.empty(), operateur, TypeDeclarant.de(a.operateur().type()),
                     a.situation().periode().orElseThrow(), code(identite), raisonSociale(identite, operateur),
-                    a.situation().echeance().orElseThrow(), a.situation().enRetard(), false, Optional.empty(),
+                    a.situation().echeance().orElseThrow(), a.situation().enRetard(), Optional.empty(),
                     facturables.contains(operateur)));
         }
         listing.sort(Comparator.comparing((DsmListee l) -> l.periode().debut()).reversed()

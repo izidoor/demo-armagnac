@@ -16,6 +16,14 @@ const badgeVariants = cva(
           'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline:
           'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+        // Statuts, couleurs du thème (index.css) : contour seul, bordure et texte de la couleur du statut.
+        success:
+          'border-success-foreground/60 bg-transparent text-success-foreground',
+        warning:
+          'border-warning-foreground/60 bg-transparent text-warning-foreground',
+        danger:
+          'border-danger-foreground/60 bg-transparent text-danger-foreground',
+        info: 'border-info-foreground/60 bg-transparent text-info-foreground',
       },
     },
     defaultVariants: {

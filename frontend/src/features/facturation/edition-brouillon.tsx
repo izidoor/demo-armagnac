@@ -699,7 +699,7 @@ function BoutonsAjout({
             size='sm'
             className={
               dansGroupe
-                ? 'border-secondary/40 bg-secondary/10 text-secondary hover:bg-secondary/20 hover:text-secondary'
+                ? 'border-info-border bg-info text-info-foreground hover:bg-info-border/60 hover:text-info-foreground'
                 : TEINTE
             }
           >
@@ -1001,7 +1001,7 @@ function ChoixArticle({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <Command className='[&_[cmdk-group-heading]]:text-secondary [&_[cmdk-item][data-selected=true]]:bg-primary/10 **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group]]:px-3 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5'>
+        <Command className='[&_[cmdk-group-heading]]:text-info-foreground [&_[cmdk-item][data-selected=true]]:bg-primary/10 **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group]]:px-3 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5'>
           <CommandInput placeholder='Code ou désignation…' />
           <div
             className={cn(
@@ -1045,7 +1045,7 @@ function ChoixArticle({
                           // Un taux (normal, réduit ou zéro) en gris ; exonérée ou hors champ en couleur.
                           a.tvaCode === 'S' || a.tvaCode === 'Z'
                             ? 'bg-muted text-foreground'
-                            : 'bg-secondary/15 text-secondary'
+                            : 'bg-info text-info-foreground'
                         )}
                       >
                         {a.tvaLibelle}

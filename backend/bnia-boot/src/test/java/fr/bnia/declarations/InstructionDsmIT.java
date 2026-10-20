@@ -195,8 +195,7 @@ class InstructionDsmIT extends AbstractIT {
         client.get().uri("/api/declarations/dsm?etats=BROUILLON,ENVOYEE&operateur={op}", operateur).exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$[*].id").isEqualTo(List.of(((Number) id).intValue()))
                 .jsonPath("$[0].codeOperateur").isNotEmpty()
-                .jsonPath("$[0].modifieeLe").isNotEmpty()
-                .jsonPath("$[0].prendreEnInstruction").isEqualTo(true);
+                .jsonPath("$[0].modifieeLe").isNotEmpty();
         client.get().uri("/api/declarations/dsm?mois={m}&operateur={op}", DEBUT.plusMonths(1).toString().substring(0, 7),
                 operateur).exchange().expectStatus().isOk().expectBody().jsonPath("$.length()").isEqualTo(0);
         agent.get().uri("/api/declarations/dsm").exchange().expectStatus().isForbidden();

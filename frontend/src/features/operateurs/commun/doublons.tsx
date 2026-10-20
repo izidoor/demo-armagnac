@@ -14,7 +14,7 @@ export function AlerteDoublons({
   const concernes = doublons.filter((d) => d.champ === champ)
   if (concernes.length === 0) return null
   return (
-    <p className='flex items-start gap-1 text-sm text-amber-700 dark:text-amber-400'>
+    <p className='text-warning-foreground flex items-start gap-1 text-sm'>
       <TriangleAlert className='mt-0.5 size-4 shrink-0' />
       <span>
         {CHAMPS_DOUBLON[champ]} déjà porté par{' '}

@@ -23,7 +23,7 @@ export function LienObjet({
   const icone = <ExternalLink className='size-4' />
   if (objet.type === 'DSM') {
     return (
-      <Button variant='outline' size='sm' asChild>
+      <Button size='sm' asChild>
         {espace === 'bo' ? (
           <Link
             to='/bo/operateurs/$id/dsm/$dsm'
@@ -43,7 +43,7 @@ export function LienObjet({
     )
   }
   return (
-    <Button variant='outline' size='sm' asChild>
+    <Button size='sm' asChild>
       {espace === 'bo' ? (
         <Link to='/bo/facturation/$id' params={{ id: objet.identifiant }}>
           {icone} {libelle}

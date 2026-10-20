@@ -419,7 +419,7 @@ function MessageDuFil({
             className={
               bnia
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100'
+                : 'bg-warning-border text-warning-foreground'
             }
           />
         )}

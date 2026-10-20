@@ -49,6 +49,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { BadgePlein } from '@/components/metier/badge-statut'
 import { OngletsClasseur } from '@/components/metier/onglets-classeur'
 import { PageMetier } from '@/components/metier/page-metier'
 import { SectionMessages } from '@/features/messagerie/section-messages'
@@ -74,12 +75,7 @@ import { formatDateHeure, formatEuros } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
 import { DialogueImportExcel } from './import-excel'
 import { TableJournalDeclarations } from './journal'
-import {
-  ONGLETS,
-  type Onglet,
-  TYPES_DECLARANT,
-  VARIANTE_ETAT,
-} from './libelles'
+import { ONGLETS, type Onglet, TYPES_DECLARANT, STATUT_ETAT } from './libelles'
 import { SectionNotesInternes } from './notes-internes'
 import { OngletPieces } from './pieces'
 
@@ -457,7 +453,9 @@ function EditeurDsm({
             {dsm.raisonSociale}
           </span>
           <Badge variant='secondary'>{TYPES_DECLARANT[dsm.type]}</Badge>
-          <Badge variant={VARIANTE_ETAT[dsm.etat]}>{dsm.libelleEtat}</Badge>
+          <BadgePlein statut={STATUT_ETAT[dsm.etat]}>
+            {dsm.libelleEtat}
+          </BadgePlein>
           {/* RG-DEC-39, 40 : l'échéance, et le retard tant que la DSM est chez l'opérateur. */}
           <span className='inline-flex items-center gap-1'>
             Échéance{' '}

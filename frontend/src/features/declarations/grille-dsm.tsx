@@ -28,8 +28,8 @@ import { designation, identite, type Onglet } from './libelles'
 type Sommes = ReturnType<typeof sommes>
 
 /** Fond des cellules calculées (colonnes 1 et 26, entrées et sorties du récapitulatif). */
-const CALCULEE = 'bg-sky-50 dark:bg-sky-950/40'
-const ENTETE_CALCULEE = 'bg-sky-100/80 dark:bg-sky-950/70'
+const CALCULEE = 'bg-info/60'
+const ENTETE_CALCULEE = 'bg-info'
 /** Fond hachuré des colonnes sans objet pour un producteur (RG-DEC-16). */
 const SANS_OBJET =
   'bg-muted bg-[image:repeating-linear-gradient(135deg,transparent_0_6px,var(--border)_6px_7px)]'
@@ -271,9 +271,7 @@ export function GrilleDsm({
                 <TableRow
                   key={l.id ?? `nouvelle-${i}`}
                   id={`ligne-${onglet}-${i}`}
-                  className={cn(
-                    ligneEnEvidence === i && 'bg-amber-100 dark:bg-amber-950'
-                  )}
+                  className={cn(ligneEnEvidence === i && 'bg-warning')}
                 >
                   <TableCell className='bg-background sticky left-0 font-medium whitespace-nowrap'>
                     {designation(l)}
@@ -285,7 +283,7 @@ export function GrilleDsm({
                     {l.id != null && (notesParLigne?.get(l.id) ?? 0) > 0 && (
                       <button
                         type='button'
-                        className='ml-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-1.5 py-0.5 align-middle text-xs font-semibold text-amber-800 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-300'
+                        className='bg-warning text-warning-foreground hover:bg-warning-border ml-2 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 align-middle text-xs font-semibold'
                         aria-label={`${notesParLigne?.get(l.id)} note(s) interne(s) sur la ligne ${identite(l)}`}
                         onClick={() => onNotes?.(l.id!)}
                       >
@@ -525,7 +523,7 @@ function EnteteTriable({
 /** La mention d'une colonne non modifiable, sous son numéro. */
 function Marque({ nature }: { nature: 'calculee' | 'sans-objet' }) {
   return nature === 'calculee' ? (
-    <span className='inline-flex items-center gap-1 text-xs font-normal text-sky-700 dark:text-sky-300'>
+    <span className='text-info-foreground inline-flex items-center gap-1 text-xs font-normal'>
       <Calculator className='size-3' /> calculée
     </span>
   ) : (

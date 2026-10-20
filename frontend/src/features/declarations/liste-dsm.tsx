@@ -11,11 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { BadgePlein } from '@/components/metier/badge-statut'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { type Espace } from './api'
 import { formatDate, formatDateHeure, formatEuros } from './format'
-import { VARIANTE_ETAT } from './libelles'
+import { STATUT_ETAT } from './libelles'
 
 /**
  * Les DSM d'un opérateur, de la plus récente à la plus ancienne, avec leur échéance (RG-DEC-39) et leur total
@@ -78,7 +79,9 @@ export function ListeDsm({
                   {d.periode.libelle}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={VARIANTE_ETAT[d.etat]}>{d.libelleEtat}</Badge>
+                  <BadgePlein statut={STATUT_ETAT[d.etat]}>
+                    {d.libelleEtat}
+                  </BadgePlein>
                 </TableCell>
                 <TableCell>{formatDate(d.echeance)}</TableCell>
                 <TableCell>{formatDateHeure(d.envoyeeLe)}</TableCell>

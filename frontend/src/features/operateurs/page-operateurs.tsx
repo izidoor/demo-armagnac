@@ -33,8 +33,6 @@ import { CreationOperateur } from './creation-operateur'
 const TOUS = 'tous'
 
 /** Avertissement léger : la fiche manque d'une donnée pour facturer ou certifier (RG-OPE-02). */
-const BADGE_INCOMPLET =
-  'ms-2 border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
 
 /**
  * Listing du back-office (§4.3.1 p.18, spec 02 §6.1) : recherche unique et filtres, ouverture de la fiche, export
@@ -193,12 +191,12 @@ export function PageOperateurs({
                 <TableCell>
                   {o.raisonSociale}
                   {!o.facturable && (
-                    <Badge variant='outline' className={BADGE_INCOMPLET}>
+                    <Badge variant='warning' className='ms-2'>
                       Non facturable
                     </Badge>
                   )}
                   {!o.certifiable && (
-                    <Badge variant='outline' className={BADGE_INCOMPLET}>
+                    <Badge variant='warning' className='ms-2'>
                       Non certifiable
                     </Badge>
                   )}

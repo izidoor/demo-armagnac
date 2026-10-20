@@ -17,7 +17,11 @@ export function Echeance({
   return (
     <span className='inline-flex items-center gap-2 whitespace-nowrap'>
       {formatDate(echeance)}
-      {enRetard && <Badge variant='destructive'>En retard</Badge>}
+      {enRetard && (
+        <Badge variant='danger'>
+          <AlarmClock /> En retard
+        </Badge>
+      )}
     </span>
   )
 }

@@ -58,7 +58,6 @@ class RetardsTest {
             assertThat(l.echeance()).isEqualTo(LocalDate.of(2026, 7, 5));
             assertThat(l.enRetard()).isTrue();
             assertThat(l.totalHt()).isEmpty();
-            assertThat(l.prendreEnInstruction()).isFalse();
         });
         assertThat(lister.lister(AGENT_BNIA, new FiltreDsm(Optional.empty(), Optional.of(TypeDeclarant.PRODUCTEUR),
                 Optional.empty(), Set.of()))).as("filtre de type").isEmpty();
