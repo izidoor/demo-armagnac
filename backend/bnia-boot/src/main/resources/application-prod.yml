@@ -4,6 +4,14 @@ spring:
     url: ${BNIA_DB_URL}
     username: ${BNIA_DB_USER}
     password: ${BNIA_DB_PASSWORD}
+    hikari:
+      # Plafonné par le plan de la base (une dizaine de connexions sur une base Scalingo Sandbox).
+      maximum-pool-size: ${BNIA_DB_POOL:10}
+
+server:
+  port: ${PORT:8080}
+  # Derrière le routeur de l'hébergeur (TLS terminé en amont) : schéma et hôte d'origine pris des en-têtes.
+  forward-headers-strategy: framework
 
 springdoc:
   swagger-ui:

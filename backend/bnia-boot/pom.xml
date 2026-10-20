@@ -115,4 +115,77 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Front embarqué dans le jar (déploiement, docs/deploiement-scalingo.md) : build de frontend/ avec
+             Node et pnpm téléchargés, puis copie de frontend/dist dans static/, servi par FrontConfiguration. -->
+        <profile>
+            <id>front</id>
+            <properties>
+                <front.dir>${project.basedir}/../../frontend</front.dir>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>1.15.1</version>
+                        <configuration>
+                            <workingDirectory>${front.dir}</workingDirectory>
+                            <installDirectory>${project.build.directory}</installDirectory>
+                            <nodeVersion>v22.16.0</nodeVersion>
+                            <pnpmVersion>10.12.1</pnpmVersion>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>installer-node-et-pnpm</id>
+                                <goals>
+                                    <goal>install-node-and-pnpm</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>pnpm-install</id>
+                                <goals>
+                                    <goal>pnpm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>install --frozen-lockfile</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>pnpm-build</id>
+                                <goals>
+                                    <goal>pnpm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>build</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copier-le-front</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${front.dir}/dist</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

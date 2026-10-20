@@ -1,6 +1,11 @@
 # Profil de démonstration : réservé aux chargeurs de données de démo (ADR-005).
 # Les données de démonstration ne figurent jamais dans la migration Flyway.
 
+spring:
+  flyway:
+    # Base de démonstration recréée si V1 a changé (MigrationDevConfiguration), comme en dev.
+    clean-disabled: false
+
 bnia:
   authentification:
     # RG-AUT-01 : en démo, le code de connexion vaut toujours 000000 ; mots de passe dans docs/demo.md.
