@@ -14,6 +14,7 @@ Une seule application Scalingo : le jar de `bnia-boot` embarque le front (profil
 | `Procfile` | Lance `bin/demarrer-scalingo.sh` |
 | `bin/demarrer-scalingo.sh` | Convertit `SCALINGO_POSTGRESQL_URL` en `BNIA_DB_URL`, `BNIA_DB_USER`, `BNIA_DB_PASSWORD`, puis lance le jar |
 | `backend/bnia-boot/pom.xml`, profil `front` | Télécharge Node et pnpm, construit `frontend/`, copie `dist/` dans `static/` |
+| `scalingo-reset.sh` | Remise à zéro volontaire de la démonstration hébergée (voir plus bas) |
 
 ## Première mise en place
 
@@ -51,6 +52,61 @@ scalingo --app bnia-demo logs -f
 ```
 
 Puis https://bnia-demo.osc-fr1.scalingo.io/connexion, avec les comptes de `docs/demo.md`.
+
+Chaque `git push scalingo main` reconstruit et redéploie. L'ancien conteneur reste en service jusqu'à ce que
+le nouveau ait démarré ; si le build ou le démarrage échoue, l'ancienne version reste en ligne.
+
+## Ce que devient la base à chaque démarrage
+
+Au démarrage, l'application compare `V1__schema.sql` à celle qui a créé la base (somme de contrôle de Flyway) :
+
+| Situation | Effet sur la base |
+|---|---|
+| V1 inchangée (cas courant : code ou front modifiés) | Conservée : tout ce qui a été saisi en ligne reste. Les chargeurs du profil `demo` voient leurs données déjà là et ne les rechargent pas ; des données de démonstration modifiées n'apparaissent donc qu'après une remise à zéro |
+| V1 modifiée | Vidée, recréée, puis rechargée avec la démonstration : tout ce qui a été saisi en ligne est perdu |
+| Remise à zéro demandée (`scalingo-reset.sh`) | Vidée, recréée, rechargée, même si V1 n'a pas changé |
+
+Le vidage n'est possible qu'en profil `dev` ou `demo` (`spring.flyway.clean-disabled: false`, posé dans
+`application-dev.yml` et `application-demo.yml`). Une installation en `prod` seul n'est jamais vidée.
+
+## Remettre la démonstration à zéro
+
+Pour retrouver la démonstration d'origine (après des essais, avant de montrer le prototype), depuis la racine
+du dépôt :
+
+```bash
+./scalingo-reset.sh              # application bnia-demo
+./scalingo-reset.sh autre-app    # une autre application
+```
+
+Le script demande de retaper le nom de l'application, puis :
+
+1. **Lance un conteneur ponctuel** (`scalingo run`), à côté de l'application en ligne. Il démarre le même jar,
+   avec les mêmes variables, et deux arguments en plus :
+   - `--bnia.demo.reinitialisation=true` : `MigrationDevConfiguration` vide la base (`flyway clean`) et la
+     recrée depuis V1, sans regarder si V1 a changé ;
+   - `--server.port=0` : port quelconque, ce conteneur ne reçoit aucune requête.
+
+   Les chargeurs du profil `demo` remplissent ensuite la base. Une fois tout chargé, `ReinitialisationDemo`
+   arrête l'application et le conteneur disparaît. Compter une minute environ ; son journal s'affiche dans le
+   terminal.
+2. **Redémarre l'application en ligne** (`scalingo restart`) pour qu'elle reparte proprement sur la base
+   neuve. Les sessions étaient en base : chacun doit se reconnecter.
+
+Pendant l'opération, l'application en ligne reste accessible, mais ses données disparaissent puis
+réapparaissent : à éviter pendant une présentation. Si le conteneur ponctuel échoue (journal en erreur),
+l'étape 2 n'est pas lancée ; relancer le script une fois la cause corrigée.
+
+Sans le script, à la main :
+
+```bash
+scalingo --app bnia-demo run \
+  "bash bin/demarrer-scalingo.sh --bnia.demo.reinitialisation=true --server.port=0"
+scalingo --app bnia-demo restart
+```
+
+Ne jamais poser `bnia.demo.reinitialisation` en variable d'environnement de l'application : chaque
+redémarrage viderait la base, puis arrêterait l'application.
 
 ## Essayer en local avant de pousser
 

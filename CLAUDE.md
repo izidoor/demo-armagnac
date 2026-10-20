@@ -107,5 +107,6 @@ Ensuite, lancement habituel (IntelliJ ou `pnpm dev`), sans variable à passer.
 
 Racine :
 - Remise à zéro volontaire de la base de dev : `./dev-reset.sh` (automatique si V1 a changé)
-- Déploiement du prototype (Scalingo, front embarqué, profils `prod,demo`) : `docs/deploiement-scalingo.md`
+- Déploiement du prototype (Scalingo, front embarqué, profils `prod,demo`) : `docs/deploiement-scalingo.md` ;
+  remise à zéro de la démonstration hébergée : `./scalingo-reset.sh`
 - Ports propres à un worktree : `./worktree-env.sh`

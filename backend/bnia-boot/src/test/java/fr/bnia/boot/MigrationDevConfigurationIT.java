@@ -45,6 +45,21 @@ class MigrationDevConfigurationIT extends AbstractIT {
     }
 
     @Test
+    void une_remise_a_zero_demandee_recree_une_base_a_jour() {
+        Flyway flywayDev = Flyway.configure()
+                .configuration(flyway.getConfiguration())
+                .cleanDisabled(false)
+                .load();
+        jdbcClient.sql("insert into referentiels.zone_commerciale (code, libelle) values ('RAZ', 'Avant')").update();
+
+        MigrationDevConfiguration.migrer(flywayDev, true);
+
+        assertThat(flywayDev.validateWithResult().validationSuccessful).isTrue();
+        assertThat(jdbcClient.sql("select count(*) from referentiels.zone_commerciale where code = 'RAZ'")
+                .query(Integer.class).single()).isZero();
+    }
+
+    @Test
     void une_base_a_jour_est_conservee() {
         jdbcClient.sql("insert into referentiels.zone_commerciale (code, libelle) values ('GARDE', 'Gardée')").update();
 

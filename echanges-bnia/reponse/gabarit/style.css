@@ -97,6 +97,7 @@ a { color: var(--ambre-fonce); text-decoration: none; }
 .colonnes h2 + ul { margin-top: 0; }
 .colonnes ul + h2 { margin-top: 6pt; }
 .colonnes .sous-titre { font-size: 8.2pt; font-style: italic; color: var(--ambre-fonce); margin: -2pt 0 4pt; }
+.renvoi { font-size: 8.5pt; font-style: italic; color: var(--discret); margin-top: 8pt; }
 .mentions { margin-top: 8pt; font-size: 7.5pt; color: var(--discret); }
 
 /* ---- Éléments communs ---- */

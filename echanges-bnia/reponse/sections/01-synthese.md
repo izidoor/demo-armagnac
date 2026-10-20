@@ -24,7 +24,7 @@ Le BNIA serait le premier client de mon entreprise, celui sur lequel elle se con
 
 <div class="encadre">
 <h3>Le prototype</h3>
-<p>Accessible à l’adresse : <span class="a-completer">lien à venir</span>. Je l’ai réalisé avant même d’être retenu, pour trois raisons :</p>
+<p>Accessible à l’adresse : <a href="https://bnia-demo.osc-fr1.scalingo.io">bnia-demo.osc-fr1.scalingo.io</a>. Je l’ai réalisé avant même d’être retenu, pour trois raisons :</p>
 <ul>
 <li><strong>Démontrer mon sérieux et ma capacité à faire</strong>, ainsi que mon intérêt réel pour l’interprofession, et montrer au BNIA comment je travaille.</li>
 <li><strong>Éprouver le cahier des charges.</strong> Le prototype est développé à partir de lui. Ce que j’en retiens : c’est une description orientée données plutôt que métier. Une bonne base de départ, à laquelle il manque des informations essentielles pour en faire un véritable outil, qui réponde aux besoins des utilisateurs en tenant compte de leurs contraintes métier (voir en annexe l’exemple de spécifications détaillées, paragraphe « Questions au BNIA »).</li>
