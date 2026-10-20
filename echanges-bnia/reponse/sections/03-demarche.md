@@ -1,0 +1,56 @@
+<div class="surtitre">La démarche de mise en œuvre</div>
+
+# Construire avec le BNIA, module par module
+
+<p class="accroche">La plateforme se construit module par module, en associant fortement les utilisateurs. Pendant la réalisation, les décideurs du BNIA fixent le cap ; ses agents et des opérateurs éprouvent et valident chaque module au fur et à mesure.</p>
+
+## Définitions
+
+<div class="definitions">
+<div>
+<h3>Plateforme de production</h3>
+<p>C'est la vraie plateforme, celle qui fait l'objet de la commande. Elle remplace Integraal et pro.armagnac.fr. N'y entrent que des fonctionnalités essayées puis validées depuis la plateforme de recette.</p>
+</div>
+
+<div>
+<h3>Plateforme de recette</h3>
+<p>C'est une copie, réservée exclusivement aux tests. Chaque module/fonctionnalité développée y est essayée sur des données réelles par de vrais utilisateurs (BNIA et opérateurs). Après validation, la fonctionnalité est déployée dans la plateforme de production.</p>
+</div>
+
+<div>
+<h3>Déploiement (ou livraison)</h3>
+<p>C'est l'installation d'un module/fonctionnalité sur une plateforme. En recette, elle permet l'essai et les tests. Le prestataire décide des déploiements en recette. Le BNIA décide des déploiements en production.</p>
+</div>
+</div>
+
+## Gestion du projet
+
+<div class="deux-colonnes">
+<div>
+<h3>Le comité de pilotage</h3>
+<p>Il pilote la réalisation, définit les priorités et valide la chronologie des livraisons.</p>
+<ul>
+<li><strong>Composition</strong> : les décideurs du BNIA et les agents experts de l'utilisation d'Integraal et de pro.armagnac.fr.</li>
+<li><strong>Rythme</strong> : une réunion de suivi que j'anime chaque semaine, ou une semaine sur deux selon les besoins du moment.</li>
+</ul>
+</div>
+<div>
+<h3>Le groupe d'adoption</h3>
+<p>Ses membres sont les premiers à essayer chaque nouveau module sur la plateforme de recette. Leurs retours sont essentiels pour adapter la soution aux besoins et contraintes du terrain.</p>
+<ul>
+<li><strong>Composition</strong> : les agents du BNIA, 2 à 3 négociants et 2 à 3 producteurs.</li>
+<li><strong>Rythme</strong> : une réunion que j'anime environ tous les deux mois.</li>
+</ul>
+</div>
+</div>
+
+## Le chemin de chaque module
+
+1. **Spécifications détaillées.** J'écris, pour chaque module, un document établi à partir des prescriptions du cahier
+   des charges et des réponses du BNIA à mes questions. Il réunit les spécifications fonctionnelles détaillées (règles
+   de gestion, écrans, cas particuliers) et les spécifications techniques détaillées (données, échanges avec les applications externes). Un exemple est donné en annexe.
+2. **Réalisation et livraison en recette**, conformément au document.
+3. **Essai par le groupe d'adoption**, dont les retours sont pris en compte avant l'ouverture.
+4. **Validation par le comité de pilotage, puis livraison en production.**
+
+<p class="encadre"><strong>Tout appartient au BNIA.</strong> Les spécifications et toute la documentation sont sa propriété, au même titre que le code source : il peut les transmettre à tout autre prestataire.</p>

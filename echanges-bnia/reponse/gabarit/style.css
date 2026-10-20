@@ -1,0 +1,179 @@
+/* Gabarit d'impression de la réponse à l'appel d'offres BNIA. */
+
+:root {
+  --encre: #241f1b;
+  --texte: #3a332e;
+  --discret: #7a6f66;
+  --ambre: #9a5b1e;
+  --ambre-fonce: #6e3f12;
+  --ambre-pale: #f7efe5;
+  --filet: #e6dccf;
+  --a-completer: #fff3a8;
+  --serif: 'Source Serif 4 Variable', Georgia, serif;
+  --sans: 'Inter Variable', 'Noto Sans', sans-serif;
+}
+
+@page {
+  size: A4;
+  margin: 18mm 18mm 20mm;
+  @bottom-left {
+    content: 'Pierre-Yves Pollet · Observatoire de la filière Armagnac';
+    font: 7.5pt var(--sans);
+    color: #7a6f66;
+  }
+  @bottom-right {
+    content: counter(page) ' / ' counter(pages);
+    font: 7.5pt var(--sans);
+    color: #7a6f66;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--texte);
+  font: 9.5pt/1.5 var(--sans);
+  hyphens: auto;
+}
+
+/* Aperçu à l'écran : simule les feuilles A4. */
+@media screen {
+  body { background: #e9e5e0; padding: 24px 0; }
+  .section { width: 210mm; min-height: 297mm; margin: 0 auto 24px; padding: 18mm; background: #fff;
+             box-shadow: 0 1px 4px rgb(0 0 0 / .15); }
+}
+
+.section { break-before: page; }
+.section:first-child { break-before: auto; }
+
+h1, h2, h3 { font-family: var(--serif); color: var(--encre); line-height: 1.2; margin: 0; }
+h1 { font-size: 22pt; font-weight: 600; }
+h2 { font-size: 14pt; font-weight: 600; margin: 22pt 0 7pt; }
+h3 { font-size: 10.5pt; font-weight: 650; font-family: var(--sans); margin: 10pt 0 4pt; }
+p { margin: 0 0 6pt; }
+ul { margin: 0 0 6pt; padding-left: 14pt; }
+li { margin-bottom: 2pt; }
+strong { color: var(--encre); font-weight: 650; }
+a { color: var(--ambre-fonce); text-decoration: none; }
+
+.surtitre { font: 600 8pt var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ambre); margin-bottom: 4pt; }
+.a-completer { background: var(--a-completer); padding: 0 2pt; }
+
+/* ---- Page de profil ---- */
+
+.profil-entete { display: flex; justify-content: space-between; align-items: flex-end; gap: 16pt;
+                 border-bottom: 2px solid var(--ambre); padding-bottom: 8pt; margin-bottom: 10pt; }
+.profil-entete h1 { font-size: 24pt; }
+.profil-entete .titre { font-size: 10.5pt; color: var(--ambre-fonce); font-weight: 550; margin: 2pt 0 0; }
+.profil-entete .coordonnees { text-align: right; font-size: 7.8pt; white-space: nowrap; line-height: 1.55; color: var(--discret); }
+.profil-entete .coordonnees strong { color: var(--texte); }
+
+.accroche { font-family: var(--serif); font-size: 11pt; line-height: 1.4; color: var(--encre); margin: 0 0 9pt; }
+
+.trois-places { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin-bottom: 9pt; }
+.place { border: 1px solid var(--filet); border-radius: 6pt; padding: 9pt 10pt 8pt; display: flex; flex-direction: column; }
+.place .role { font: 650 7.5pt var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ambre); }
+.place .logos { height: 32pt; display: flex; align-items: center; gap: 8pt; margin: 4pt 0; }
+.place .logos img { max-height: 30pt; max-width: 46%; object-fit: contain; }
+.place h3 { margin: 2pt 0 1pt; font-size: 9.5pt; }
+.place .periode { font-size: 8pt; color: var(--discret); margin-bottom: 5pt; }
+.place ul { font-size: 8pt; line-height: 1.35; padding-left: 11pt; margin: 0; }
+.place .apport { margin-top: auto; padding-top: 5pt; border-top: 1px dashed var(--filet); font-size: 8.5pt;
+                 font-style: italic; color: var(--ambre-fonce); }
+
+.bandeau { background: var(--ambre-pale); border-radius: 6pt; padding: 7pt 12pt; margin-bottom: 8pt; }
+.bandeau ul { font-size: 8.6pt; line-height: 1.4; }
+.bandeau h2 { margin-top: 0; font-size: 11.5pt; }
+.bandeau ul { columns: 2; column-gap: 18pt; margin: 0; }
+.bandeau li { break-inside: avoid; }
+
+.colonnes { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14pt; }
+.colonnes h2 { font-size: 11pt; margin-top: 0; }
+.colonnes ul { font-size: 8.2pt; line-height: 1.4; margin-bottom: 4pt; }
+.colonnes h2 + ul { margin-top: 0; }
+.colonnes ul + h2 { margin-top: 6pt; }
+.colonnes .sous-titre { font-size: 8.2pt; font-style: italic; color: var(--ambre-fonce); margin: -2pt 0 4pt; }
+.mentions { margin-top: 8pt; font-size: 7.5pt; color: var(--discret); }
+
+/* ---- Éléments communs ---- */
+
+.section > h1 { margin-bottom: 8pt; }
+.saut { break-before: page; }
+.insecable { break-inside: avoid; }
+@media screen { .saut { border-top: 1px dashed var(--filet); margin: 18mm -18mm; } }
+
+.chiffres { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8pt; margin: 4pt 0 10pt; }
+.chiffre { background: var(--ambre-pale); border-radius: 6pt; padding: 8pt 10pt; display: flex; flex-direction: column; gap: 3pt; }
+.chiffre .valeur { font: 600 15pt/1.1 var(--serif); color: var(--ambre-fonce); }
+.chiffre .libelle { font-size: 7.8pt; line-height: 1.35; color: var(--texte); }
+
+.deux-colonnes { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+.deux-colonnes h3 { margin-top: 0; color: var(--ambre-fonce); }
+.deux-colonnes ul { font-size: 8.8pt; }
+
+table { width: 100%; border-collapse: collapse; margin: 4pt 0 8pt; font-size: 8.6pt; line-height: 1.4; }
+th, td { text-align: left; vertical-align: top; padding: 4pt 6pt; border-bottom: 1px solid var(--filet); }
+th { font-weight: 650; color: var(--encre); border-bottom: 1.5px solid var(--ambre); }
+tr { break-inside: avoid; }
+
+.schema { margin: 4pt 0 10pt; break-inside: avoid; }
+.schema img { width: 100%; display: block; }
+
+/* Pas de titre orphelin en bas de page, pas de tableau coupé. */
+h1, h2, h3, .surtitre { break-after: avoid; }
+table { break-inside: avoid; }
+p:has(+ table), p:has(+ .livraisons) { break-after: avoid; }
+
+.encadre {
+  background: var(--ambre-pale);
+  border-left: 3pt solid var(--ambre);
+  padding: 8pt 11pt;
+  break-inside: avoid;
+  margin: 0 0 10pt;
+}
+.encadre h3 { margin-top: 0; }
+.encadre ul { margin-bottom: 0; }
+
+/* ---- Page de garde ---- */
+
+@page :first {
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+.garde { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+.garde-haut { border-left: 4pt solid var(--ambre); padding: 30mm 0 0 14pt; }
+.garde-haut h1 { font-size: 34pt; line-height: 1.1; }
+.garde-sous-titre { font-family: var(--serif); font-size: 14pt; color: var(--encre); margin: 10pt 0 18pt; }
+.garde-nature { font: 600 10pt var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ambre-fonce); }
+.garde-sommaire { padding-left: 18pt; }
+.garde-sommaire h2 { font-size: 12pt; margin-top: 0; }
+.garde-sommaire ol { font-size: 10pt; padding-left: 16pt; margin-bottom: 6pt; }
+.garde-sommaire li { margin-bottom: 4pt; }
+.garde-annexes { color: var(--discret); font-size: 9pt; }
+.garde-bas { display: grid; grid-template-columns: 1.1fr 1.5fr .6fr; gap: 16pt; border-top: 1px solid var(--filet);
+             padding-top: 10pt; font-size: 8.5pt; line-height: 1.5; }
+.garde-etiquette { font: 600 7.5pt var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ambre); margin-bottom: 3pt; }
+
+/* ---- Définitions (section démarche) ---- */
+
+.definitions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 4pt 0 10pt; }
+.definitions > div { background: var(--ambre-pale); border-radius: 6pt; padding: 8pt 10pt; }
+.definitions h3 { margin: 0 0 3pt; font-size: 9pt; color: var(--ambre-fonce); }
+.definitions p { margin: 0; font-size: 8.3pt; line-height: 1.4; }
+
+/* ---- Livraisons d'une phase : production et recette (calendrier) ---- */
+
+.livraisons { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; margin: 0 0 10pt; break-inside: avoid; }
+.livraison { padding: 8pt 11pt; border-radius: 0 6pt 6pt 0; break-inside: avoid; }
+.livraison h3 { margin: 0 0 8pt; color: var(--ambre-fonce); }
+.livraison p, .livraison ul { margin: 0; font-size: 8.8pt; }
+.livraison p + ul { margin-top: 3pt; }
+.livraison ul + p { margin-top: 10pt; }
+.livraison-production { background: #f0dfc8; border-left: 3pt solid var(--ambre); }
+.livraison-recette { background: #faf6f0; border-left: 3pt dashed #c9a27a; }
+.livraison-arret { background: #efebe6; border-left: 3pt solid #7a6f66; }
+.livraison-arret h3 { color: var(--encre); }
