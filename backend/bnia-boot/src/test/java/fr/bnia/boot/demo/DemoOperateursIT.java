@@ -82,9 +82,8 @@ class DemoOperateursIT extends AbstractIT {
         var session = anonyme();
         session.post().uri("/api/authentification/connexion")
                 .body(Map.of("email", "admin@producteur.fr", "motDePasse", "demo-armagnac"))
-                .exchange().expectStatus().isOk();
-        session.post().uri("/api/authentification/code").body(Map.of("code", "000000", "faireConfiance", false))
-                .exchange().expectStatus().isOk();
+                .exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.etape").isEqualTo("CONNECTE");
         session.get().uri("/api/moi").exchange()
                 .expectBody().jsonPath("$.operateurOuvert").isEqualTo(condom.id());
         session.get().uri("/api/utilisateurs").exchange().expectStatus().isEqualTo(HttpStatus.FORBIDDEN);

@@ -91,13 +91,20 @@ public abstract class AbstractIT {
         return nouveau;
     }
 
-    /** Ouvre une session : e-mail, mot de passe, puis le code, qui vaut 000000 dans les tests (RG-AUT-01). */
+    /**
+     * Ouvre une session : e-mail, mot de passe, puis, si la double authentification est activée (RG-AUT-16),
+     * le code, qui vaut 000000 dans les tests (RG-AUT-01).
+     */
     protected RestTestClient connecte(String email) {
         RestTestClient session = anonyme();
-        session.post().uri("/api/authentification/connexion").body(Map.of("email", email, "motDePasse", MOT_DE_PASSE))
-                .exchange().expectStatus().isOk();
-        session.post().uri("/api/authentification/code").body(Map.of("code", "000000", "faireConfiance", false))
-                .exchange().expectStatus().isOk();
+        String etape = session.post().uri("/api/authentification/connexion")
+                .body(Map.of("email", email, "motDePasse", MOT_DE_PASSE))
+                .exchange().expectStatus().isOk()
+                .expectBody(Map.class).returnResult().getResponseBody().get("etape").toString();
+        if (etape.equals("CODE_REQUIS")) {
+            session.post().uri("/api/authentification/code").body(Map.of("code", "000000", "faireConfiance", false))
+                    .exchange().expectStatus().isOk();
+        }
         return session;
     }
 

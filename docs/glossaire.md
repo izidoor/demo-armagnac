@@ -36,7 +36,7 @@
 | ~~Module portail~~ | ~~`ModulePortail`~~ | Remplacé le 2026-10-08 : plus de droits par module sur la personne ; voir *Rôle* et *Module*. | p.78-79 |
 | ~~Compte portail~~ | ~~`ComptePortail`~~ | Remplacé le 2026-10-08 par *Utilisateur* (identité, `operateurs`) et *Compte de connexion* (preuve d'identité, `authentification`). | p.60 |
 | Compte de connexion | `CompteConnexion` | Dans `authentification` : identifiant de connexion (l'e-mail de l'utilisateur), mot de passe haché, blocage temporaire. Ni nom ni droit. Créé, renommé et supprimé avec l'utilisateur. | p.17, 135, spec 03 |
-| Double authentification | — | Code à 6 chiffres envoyé par e-mail à chaque connexion, pour tous (`000000` en dev et démo), sauf sur un *navigateur de confiance*. Pas de TOTP. | p.17, 60, spec 03 |
+| Double authentification | — | Code à 6 chiffres envoyé par e-mail à chaque connexion, pour tous (`000000` en dev et démo), sauf sur un *navigateur de confiance*. Pas de TOTP. Activée ou désactivée pour toute l'application par un ADMIN du BNIA ; désactivée au départ (RG-AUT-16). | p.17, 60, spec 03 |
 | Navigateur de confiance | — | Navigateur dispensé de code pendant 30 jours pour un compte ; invalidé par un changement de mot de passe. | p.17, spec 03 |
 | Blocage temporaire | — | Refus de toute connexion pendant 30 minutes après 3 échecs (mot de passe ou code faux) ; levé par « mot de passe oublié ». | p.17, 59, spec 03 |
 | Opérateur actif | — | Opérateur dans lequel l'utilisateur travaille, attribut de l'utilisateur ; il décide de l'espace (BNIA : back-office ; autre : portail) et filtre ce qui est visible. Remplace « compte opérateur actif » (C.13.2). | p.60-62, vision UC-21 |

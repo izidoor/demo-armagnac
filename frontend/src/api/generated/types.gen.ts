@@ -495,6 +495,17 @@ export type DocumentDsm = {
 };
 
 /**
+ * Réglage de la double authentification (RG-AUT-16)
+ */
+export type DoubleAuthentification = {
+    active: boolean;
+    /**
+     * L'utilisateur est ADMIN du BNIA
+     */
+    modifiable: boolean;
+};
+
+/**
  * Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)
  */
 export type Doublon = {
@@ -1104,7 +1115,7 @@ export type LigneConnexion = {
     adresseIp?: string;
     date: string;
     detail?: string;
-    evenement: 'CONNEXION_REUSSIE' | 'ECHEC_MOT_DE_PASSE' | 'ECHEC_CODE' | 'BLOCAGE_DECLENCHE' | 'CONNEXION_REFUSEE' | 'DECONNEXION' | 'MOT_DE_PASSE_DEFINI' | 'MOT_DE_PASSE_CHANGE' | 'REINITIALISATION_DEMANDEE' | 'MOT_DE_PASSE_REINITIALISE' | 'NAVIGATEUR_DE_CONFIANCE';
+    evenement: 'CONNEXION_REUSSIE' | 'ECHEC_MOT_DE_PASSE' | 'ECHEC_CODE' | 'BLOCAGE_DECLENCHE' | 'CONNEXION_REFUSEE' | 'DECONNEXION' | 'MOT_DE_PASSE_DEFINI' | 'MOT_DE_PASSE_CHANGE' | 'REINITIALISATION_DEMANDEE' | 'MOT_DE_PASSE_REINITIALISE' | 'NAVIGATEUR_DE_CONFIANCE' | 'DOUBLE_AUTHENTIFICATION_ACTIVEE' | 'DOUBLE_AUTHENTIFICATION_DESACTIVEE';
     identifiantSaisi: string;
     libelle: string;
     navigateur?: string;
@@ -2257,6 +2268,10 @@ export type SaisieDiffusion = {
     version?: number;
 };
 
+export type SaisieDoubleAuthentification = {
+    active: boolean;
+};
+
 /**
  * Toute la saisie d'une DSM : lignes, volumes, date de DIA (RG-DEC-10 à 19)
  */
@@ -2962,12 +2977,44 @@ export type SeDeconnecterResponses = {
 
 export type SeDeconnecterResponse = SeDeconnecterResponses[keyof SeDeconnecterResponses];
 
+export type ConsulterDoubleAuthentificationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/double-authentification';
+};
+
+export type ConsulterDoubleAuthentificationResponses = {
+    /**
+     * OK
+     */
+    200: DoubleAuthentification;
+};
+
+export type ConsulterDoubleAuthentificationResponse = ConsulterDoubleAuthentificationResponses[keyof ConsulterDoubleAuthentificationResponses];
+
+export type DefinirDoubleAuthentificationData = {
+    body: SaisieDoubleAuthentification;
+    path?: never;
+    query?: never;
+    url: '/api/authentification/double-authentification';
+};
+
+export type DefinirDoubleAuthentificationResponses = {
+    /**
+     * OK
+     */
+    200: DoubleAuthentification;
+};
+
+export type DefinirDoubleAuthentificationResponse = DefinirDoubleAuthentificationResponses[keyof DefinirDoubleAuthentificationResponses];
+
 export type ListerConnexionsData = {
     body?: never;
     path?: never;
     query?: {
         utilisateur?: number;
-        evenement?: 'CONNEXION_REUSSIE' | 'ECHEC_MOT_DE_PASSE' | 'ECHEC_CODE' | 'BLOCAGE_DECLENCHE' | 'CONNEXION_REFUSEE' | 'DECONNEXION' | 'MOT_DE_PASSE_DEFINI' | 'MOT_DE_PASSE_CHANGE' | 'REINITIALISATION_DEMANDEE' | 'MOT_DE_PASSE_REINITIALISE' | 'NAVIGATEUR_DE_CONFIANCE';
+        evenement?: 'CONNEXION_REUSSIE' | 'ECHEC_MOT_DE_PASSE' | 'ECHEC_CODE' | 'BLOCAGE_DECLENCHE' | 'CONNEXION_REFUSEE' | 'DECONNEXION' | 'MOT_DE_PASSE_DEFINI' | 'MOT_DE_PASSE_CHANGE' | 'REINITIALISATION_DEMANDEE' | 'MOT_DE_PASSE_REINITIALISE' | 'NAVIGATEUR_DE_CONFIANCE' | 'DOUBLE_AUTHENTIFICATION_ACTIVEE' | 'DOUBLE_AUTHENTIFICATION_DESACTIVEE';
         /**
          * Inclus
          */

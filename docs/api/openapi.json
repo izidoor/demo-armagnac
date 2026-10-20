@@ -219,6 +219,52 @@
         "tags" : [ "authentification" ]
       }
     },
+    "/api/authentification/double-authentification" : {
+      "get" : {
+        "operationId" : "consulterDoubleAuthentification",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DoubleAuthentification"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Double authentification activée ou non, pour toute l'application ; personnel du BNIA (RG-AUT-16)",
+        "tags" : [ "authentification" ]
+      },
+      "put" : {
+        "operationId" : "definirDoubleAuthentification",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieDoubleAuthentification"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DoubleAuthentification"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Activer ou désactiver la double authentification pour toute l'application ; ADMIN du BNIA (RG-AUT-12, 16)",
+        "tags" : [ "authentification" ]
+      }
+    },
     "/api/authentification/journal" : {
       "get" : {
         "operationId" : "listerConnexions",
@@ -236,7 +282,7 @@
           "required" : false,
           "schema" : {
             "type" : "string",
-            "enum" : [ "CONNEXION_REUSSIE", "ECHEC_MOT_DE_PASSE", "ECHEC_CODE", "BLOCAGE_DECLENCHE", "CONNEXION_REFUSEE", "DECONNEXION", "MOT_DE_PASSE_DEFINI", "MOT_DE_PASSE_CHANGE", "REINITIALISATION_DEMANDEE", "MOT_DE_PASSE_REINITIALISE", "NAVIGATEUR_DE_CONFIANCE" ]
+            "enum" : [ "CONNEXION_REUSSIE", "ECHEC_MOT_DE_PASSE", "ECHEC_CODE", "BLOCAGE_DECLENCHE", "CONNEXION_REFUSEE", "DECONNEXION", "MOT_DE_PASSE_DEFINI", "MOT_DE_PASSE_CHANGE", "REINITIALISATION_DEMANDEE", "MOT_DE_PASSE_REINITIALISE", "NAVIGATEUR_DE_CONFIANCE", "DOUBLE_AUTHENTIFICATION_ACTIVEE", "DOUBLE_AUTHENTIFICATION_DESACTIVEE" ]
           }
         }, {
           "description" : "Inclus",
@@ -9123,6 +9169,20 @@
         },
         "required" : [ "deposeLe", "deposePar", "nom", "taille" ]
       },
+      "DoubleAuthentification" : {
+        "type" : "object",
+        "description" : "Réglage de la double authentification (RG-AUT-16)",
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          },
+          "modifiable" : {
+            "type" : "boolean",
+            "description" : "L'utilisateur est ADMIN du BNIA"
+          }
+        },
+        "required" : [ "active", "modifiable" ]
+      },
       "Doublon" : {
         "type" : "object",
         "description" : "Valeur déjà portée par une autre fiche : avertissement non bloquant (RG-OPE-06, 08)",
@@ -10213,7 +10273,7 @@
           },
           "evenement" : {
             "type" : "string",
-            "enum" : [ "CONNEXION_REUSSIE", "ECHEC_MOT_DE_PASSE", "ECHEC_CODE", "BLOCAGE_DECLENCHE", "CONNEXION_REFUSEE", "DECONNEXION", "MOT_DE_PASSE_DEFINI", "MOT_DE_PASSE_CHANGE", "REINITIALISATION_DEMANDEE", "MOT_DE_PASSE_REINITIALISE", "NAVIGATEUR_DE_CONFIANCE" ]
+            "enum" : [ "CONNEXION_REUSSIE", "ECHEC_MOT_DE_PASSE", "ECHEC_CODE", "BLOCAGE_DECLENCHE", "CONNEXION_REFUSEE", "DECONNEXION", "MOT_DE_PASSE_DEFINI", "MOT_DE_PASSE_CHANGE", "REINITIALISATION_DEMANDEE", "MOT_DE_PASSE_REINITIALISE", "NAVIGATEUR_DE_CONFIANCE", "DOUBLE_AUTHENTIFICATION_ACTIVEE", "DOUBLE_AUTHENTIFICATION_DESACTIVEE" ]
           },
           "identifiantSaisi" : {
             "type" : "string"
@@ -12179,6 +12239,15 @@
           }
         },
         "required" : [ "accesStatistiques", "niveau" ]
+      },
+      "SaisieDoubleAuthentification" : {
+        "type" : "object",
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "active" ]
       },
       "SaisieDsm" : {
         "type" : "object",

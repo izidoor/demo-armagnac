@@ -19,7 +19,7 @@ import { useEtatSession } from './use-etat-session'
 
 /**
  * Connexion unique de tous les utilisateurs (RG-AUT-01) : e-mail et mot de passe, puis le code reçu par
- * e-mail, sauf sur un navigateur de confiance (RG-AUT-06). L'opérateur actif décide ensuite de l'espace
+ * e-mail si la double authentification est activée (RG-AUT-16), sauf sur un navigateur de confiance (RG-AUT-06). L'opérateur actif décide ensuite de l'espace
  * (RG-OPE-49).
  */
 export function Connexion({ redirect }: { redirect?: string }) {

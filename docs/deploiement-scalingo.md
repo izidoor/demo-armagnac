@@ -1,8 +1,8 @@
 # Déploiement du prototype sur Scalingo
 
 Une seule application Scalingo : le jar de `bnia-boot` embarque le front (profil Maven `front`) et le sert
-(`FrontConfiguration`), sous les profils Spring `prod,demo`. Données de démonstration et code de connexion
-`000000` comme en local (`docs/demo.md`) ; base recréée au démarrage si `V1__schema.sql` a changé
+(`FrontConfiguration`), sous les profils Spring `prod,demo`. Données de démonstration, double authentification désactivée
+au départ et code de connexion `000000` une fois activée, comme en local (`docs/demo.md`) ; base recréée au démarrage si `V1__schema.sql` a changé
 (`MigrationDevConfiguration`), ce qui remet la démonstration à zéro.
 
 ## Fichiers en jeu

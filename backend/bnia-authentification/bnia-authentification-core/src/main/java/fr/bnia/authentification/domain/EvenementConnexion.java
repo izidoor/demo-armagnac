@@ -13,7 +13,9 @@ public enum EvenementConnexion {
     MOT_DE_PASSE_CHANGE("Mot de passe changé"),
     REINITIALISATION_DEMANDEE("Réinitialisation demandée"),
     MOT_DE_PASSE_REINITIALISE("Mot de passe réinitialisé"),
-    NAVIGATEUR_DE_CONFIANCE("Navigateur de confiance");
+    NAVIGATEUR_DE_CONFIANCE("Navigateur de confiance"),
+    DOUBLE_AUTHENTIFICATION_ACTIVEE("Double authentification activée"),
+    DOUBLE_AUTHENTIFICATION_DESACTIVEE("Double authentification désactivée");
 
     private final String libelle;
 

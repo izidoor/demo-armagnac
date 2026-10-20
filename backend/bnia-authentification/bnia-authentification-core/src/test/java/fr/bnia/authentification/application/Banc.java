@@ -23,7 +23,8 @@ import java.util.Optional;
 
 /**
  * Le contexte en mémoire, pour les tests de cas d'usage : comptes, journal, e-mails et sessions fermées
- * retenus, hachage factice, horloge réglable ; {@code operateurs} simulé.
+ * retenus, hachage factice, horloge réglable ; {@code operateurs} simulé. La double authentification est
+ * activée (RG-AUT-16), pour exercer le code.
  */
 final class Banc {
 
@@ -35,6 +36,7 @@ final class Banc {
     final Journal journal = new Journal();
     final List<Courriel> courriels = new ArrayList<>();
     final List<Long> sessionsFermees = new ArrayList<>();
+    final Reglage reglage = new Reglage();
     final OperateursLecture operateurs = mock(OperateursLecture.class);
     final HachageMotDePasse hachage = new HachageMotDePasse() {
         @Override
@@ -52,7 +54,7 @@ final class Banc {
             "https://bnia.example");
 
     SeConnecter seConnecter() {
-        return new SeConnecter(comptes, hachage, operateurs, journal, courriels::add, parametres, horloge);
+        return new SeConnecter(comptes, hachage, operateurs, reglage, journal, courriels::add, parametres, horloge);
     }
 
     GererMotDePasse gererMotDePasse() {
@@ -62,6 +64,11 @@ final class Banc {
 
     GererComptes gererComptes() {
         return new GererComptes(comptes, sessionsFermees::add);
+    }
+
+    GererDoubleAuthentification gererDoubleAuthentification() {
+        return new GererDoubleAuthentification(reglage, comptes, operateurs, journal, courriels::add, parametres,
+                horloge);
     }
 
     ConsulterConnexions consulterConnexions() {
@@ -116,6 +123,21 @@ final class Banc {
         @Override
         public Instant instant() {
             return maintenant;
+        }
+    }
+
+    static final class Reglage implements ReglageConnexion {
+
+        boolean doubleAuthentification = true;
+
+        @Override
+        public boolean doubleAuthentification() {
+            return doubleAuthentification;
+        }
+
+        @Override
+        public void definirDoubleAuthentification(boolean active) {
+            doubleAuthentification = active;
         }
     }
 

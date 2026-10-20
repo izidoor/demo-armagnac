@@ -16,6 +16,8 @@ const descriptions: Record<string, string> = {
     'Classes de TVA et historique de leurs taux (§4.11.1).',
   '/bo/parametrage/taux-cvo':
     'Grille des taux de la cotisation CVO des DSM (§4.11.2).',
+  '/bo/parametrage/securite':
+    'Double authentification, pour toute l’application (spec 03, RG-AUT-16).',
 }
 
 /** Une entrée par section ; tous les référentiels d'une section mènent à la même page. */

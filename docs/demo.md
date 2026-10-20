@@ -18,8 +18,10 @@ puis, depuis `frontend/`, `pnpm dev`, et ouvrir http://localhost:5173.
 Une seule page de connexion pour tous (RG-AUT-01), http://localhost:5173/connexion :
 
 - mot de passe de tous les comptes : `demo-armagnac` ;
-- code de vérification : toujours `000000` en `dev` et en `demo` (propriété
-  `bnia.authentification.code-fixe`) ; il part aussi par e-mail ;
+- double authentification désactivée au départ : la session s'ouvre après le mot de passe. Un ADMIN
+  du BNIA l'active dans les paramètres de l'application, section Sécurité (RG-AUT-16) ;
+- code de vérification, une fois la double authentification activée : toujours `000000` en `dev` et en
+  `demo` (propriété `bnia.authentification.code-fixe`) ; il part aussi par e-mail ;
 - e-mails (codes, invitations, liens de mot de passe et de changement d'e-mail) : boîte Mailpit,
   http://localhost:8025, démarrée avec la base par `backend/compose.yaml`.
 

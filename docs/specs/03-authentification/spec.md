@@ -18,6 +18,7 @@
   - [3.4 Navigateur de confiance](#34-navigateur-de-confiance)
   - [3.5 Session](#35-session)
   - [3.6 Journal des connexions (hors agrégat, en ajout seul)](#36-journal-des-connexions-hors-agrégat-en-ajout-seul)
+  - [3.7 Réglage de la connexion](#37-réglage-de-la-connexion-une-seule-valeur-pour-toute-lapplication)
 - [4. Règles de gestion](#4-règles-de-gestion)
 - [5. Cas d'usage](#5-cas-dusage)
   - [5.1 Écriture](#51-écriture)
@@ -67,7 +68,7 @@ et authentification au premier lot, p.92) · C.1.1.1 (code d'accès Internet his
 | | Mot de passe oublié : demande, lien, réinitialisation | | §4.2.6 p.17, §5.1.2 p.59 |
 | | Report d'un changement d'e-mail sur l'identifiant de connexion | | vision UC-24 |
 | Connexion | Connexion, déconnexion, session | | §4.2.6 p.17, §5.1.1 p.59 |
-| | Double authentification par code envoyé par e-mail, pour **tous** les utilisateurs | | §4.2.7 p.17, §5.1.3 p.60, décision du 2026-10-08 |
+| | Double authentification par code envoyé par e-mail, pour **tous** les utilisateurs, activée ou désactivée pour toute l'application par un ADMIN du BNIA | `ReglageConnexion` | §4.2.6 p.17, §4.2.7 p.17, §5.1.3 p.60, décisions du 2026-10-08 et du 2026-10-20 |
 | | Blocage temporaire de 30 minutes après 3 échecs de connexion | | §4.2.6 p.17, §5.1.1 p.59 |
 | | Refus de connexion et coupure des sessions d'un utilisateur bloqué ou sans rattachement actif | | §5.1.6 p.60, vision UC-05, UC-15, UC-21 |
 | Traçabilité | Journal des connexions : réussies, échouées, blocages, double authentification, réinitialisations | `JournalConnexion` | §4.2.4 p.15, C.2.3 p.107, §5.1.6 p.60 |
@@ -171,9 +172,15 @@ L'opérateur actif est un attribut de l'utilisateur, dans `operateurs` (vision �
 | date | date-heure | | C.2.3.1 p.107 |
 | identifiant saisi | texte | Tel que saisi, même s'il ne correspond à aucun compte | C.2.3.1 |
 | utilisateur | identifiant, sans clé étrangère | Vide si l'identifiant est inconnu ; survit à la suppression du compte | C.2.3.1 |
-| événement | `CONNEXION_REUSSIE`, `ECHEC_MOT_DE_PASSE`, `ECHEC_CODE`, `BLOCAGE_DECLENCHE`, `CONNEXION_REFUSEE`, `DECONNEXION`, `MOT_DE_PASSE_DEFINI`, `MOT_DE_PASSE_CHANGE`, `REINITIALISATION_DEMANDEE`, `MOT_DE_PASSE_REINITIALISE`, `NAVIGATEUR_DE_CONFIANCE` | RG-AUT-12 | §4.2.4 p.15, C.2.3.1 |
-| détail | texte | Motif d'un refus (`BLOQUE_TEMPORAIREMENT`, `UTILISATEUR_BLOQUE`, `AUCUN_ACCES_ACTIF`) ; « navigateur de confiance » pour une connexion sans code | C.2.3.1 |
+| événement | `CONNEXION_REUSSIE`, `ECHEC_MOT_DE_PASSE`, `ECHEC_CODE`, `BLOCAGE_DECLENCHE`, `CONNEXION_REFUSEE`, `DECONNEXION`, `MOT_DE_PASSE_DEFINI`, `MOT_DE_PASSE_CHANGE`, `REINITIALISATION_DEMANDEE`, `MOT_DE_PASSE_REINITIALISE`, `NAVIGATEUR_DE_CONFIANCE`, `DOUBLE_AUTHENTIFICATION_ACTIVEE`, `DOUBLE_AUTHENTIFICATION_DESACTIVEE` | RG-AUT-12, 16 | §4.2.4 p.15, C.2.3.1 |
+| détail | texte | Motif d'un refus (`BLOQUE_TEMPORAIREMENT`, `UTILISATEUR_BLOQUE`, `AUCUN_ACCES_ACTIF`) ; pour une connexion sans code, « navigateur de confiance » ou « double authentification désactivée » | C.2.3.1 |
 | adresse IP, navigateur | texte | | décision du 2026-10-08 |
+
+### 3.7 Réglage de la connexion (une seule valeur, pour toute l'application)
+
+| Champ | Type | Règle | Source |
+|---|---|---|---|
+| double authentification | booléen, faux au départ | Modifiable par un ADMIN du BNIA (RG-AUT-16) | §4.2.6 p.17, décision du 2026-10-20 |
 
 Les actions sur les personnes et les accès (création, rôle, suspension, blocage par le BNIA) vont au
 journal de `operateurs` (décision du 2026-10-08 : un journal par contexte).
@@ -182,7 +189,7 @@ journal de `operateurs` (décision du 2026-10-08 : un journal par contexte).
 
 | Id | Règle | Source |
 |---|---|---|
-| RG-AUT-01 | **Un seul écran de connexion, à une seule adresse, pour tous les utilisateurs** : personnel BNIA et membres des opérateurs ; pas d'entrée distincte pour le back-office. Après connexion, l'opérateur actif décide de l'espace (spec 02 RG-OPE-49). Se connecter demande l'e-mail (sans distinction de casse) et le mot de passe, puis un code à 6 chiffres envoyé à cet e-mail, **pour tout utilisateur**. En profils `dev` et `demo`, le code vaut toujours `000000`. | §4.2.3, 4.2.6-4.2.7 p.14-17, §5.1.1 et 5.1.3 p.59-60, décision du 2026-10-08 (écart : le CDC décrit deux accès) |
+| RG-AUT-01 | **Un seul écran de connexion, à une seule adresse, pour tous les utilisateurs** : personnel BNIA et membres des opérateurs ; pas d'entrée distincte pour le back-office. Après connexion, l'opérateur actif décide de l'espace (spec 02 RG-OPE-49). Se connecter demande l'e-mail (sans distinction de casse) et le mot de passe, puis, si la double authentification est activée (RG-AUT-16), un code à 6 chiffres envoyé à cet e-mail, **pour tout utilisateur**. En profils `dev` et `demo`, le code vaut toujours `000000`. | §4.2.3, 4.2.6-4.2.7 p.14-17, §5.1.1 et 5.1.3 p.59-60, décision du 2026-10-08 (écart : le CDC décrit deux accès) |
 | RG-AUT-02 | Les messages de connexion sont explicites : « aucun compte pour cet e-mail » si l'e-mail est inconnu, « mot de passe incorrect » sinon. | Décision du 2026-10-08 (H-AUT-1 écartée) |
 | RG-AUT-03 | Trois échecs consécutifs (mot de passe ou code faux) bloquent le compte 30 minutes : toute tentative est refusée, même juste, avec « compte bloqué jusqu'à HH:MM » et le lien « mot de passe oublié ». Une connexion réussie remet le compteur à zéro. | §4.2.6 p.17, §5.1.1 p.59, H-AUT-2 validée |
 | RG-AUT-04 | Une fois le mot de passe vérifié, la connexion n'est acceptée que si `operateurs` répond que l'utilisateur peut se connecter : non bloqué par le BNIA, au moins un rattachement actif dans un opérateur actif. Sinon : « compte bloqué, contactez le BNIA » ou « aucun accès actif », et aucun code n'est envoyé. | §5.1.6 p.60, vision UC-05 et UC-21, spec 02 |
@@ -196,6 +203,7 @@ journal de `operateurs` (décision du 2026-10-08 : un journal par contexte).
 | RG-AUT-12 | Sont journalisés : connexion réussie, échec, blocage, refus, déconnexion, premier mot de passe, changement, demande et réinitialisation du mot de passe, mise en confiance d'un navigateur ; avec la date, l'identifiant saisi, l'utilisateur, l'événement, le détail, l'adresse IP et le navigateur. Jamais de mot de passe ni de code. Le journal est en ajout seul et survit à la suppression du compte. | §4.2.4 p.15, §4.2.6 p.17, C.2.3 p.107, §5.1.6 p.60 |
 | RG-AUT-13 | Un rôle de l'opérateur BNIA (module Accès, en lecture au moins) consulte tout le journal, filtré par utilisateur, événement et période. Chaque utilisateur consulte ses propres connexions dans « Mon compte ». | §4.2.4 p.15, §5.1.1 p.59, décision du 2026-10-08 |
 | RG-AUT-14 | Durées et seuils (validité du code, du lien de réinitialisation, de la confiance d'un navigateur ; inactivité de la session ; nombre d'échecs et durée du blocage ; longueur du mot de passe) sont des valeurs de configuration, non modifiables à l'écran. | Décision du 2026-10-08 |
+| RG-AUT-16 | La double authentification (code par e-mail, RG-AUT-01, 05, 06) vaut pour toute l'application, ou pour personne : un ADMIN du BNIA l'active ou la désactive ; le personnel du BNIA voit son état. Elle est **désactivée au départ**. Désactivée, la connexion s'ouvre après le mot de passe (et RG-AUT-04), sans code ; le journal le note dans le détail. Chaque changement est journalisé (RG-AUT-12). Écart assumé : le CDC laisse le BNIA imposer la double authentification à certains profils ou comptes ; ici, un seul interrupteur. | §4.2.6 p.17, §4.2.7 p.17, C.2.1.1 p.106, décision du 2026-10-20 (prototype : fluidité de la démonstration) |
 | RG-AUT-15 | Premier mot de passe : avec le jeton de l'invitation qu'il vient d'accepter et un mot de passe conforme à RG-AUT-07, le nouvel utilisateur pose son mot de passe, si l'invitation a été acceptée depuis moins d'une heure et que son compte n'en a pas ; la session s'ouvre alors, sans code (l'e-mail vient d'être prouvé par le lien). Sinon, il passe par « mot de passe oublié ». | A-AUT-2, décision du 2026-10-08 |
 
 ## 5. Cas d'usage
@@ -204,7 +212,7 @@ journal de `operateurs` (décision du 2026-10-08 : un journal par contexte).
 
 | Cas d'usage | Objets | RG |
 |---|---|---|
-| Se connecter : vérifier e-mail et mot de passe, interroger `operateurs`, envoyer le code (sauf navigateur de confiance) | compte, code | 01 à 04, 06, 12, 14 |
+| Se connecter : vérifier e-mail et mot de passe, interroger `operateurs`, envoyer le code (sauf double authentification désactivée ou navigateur de confiance) | compte, code | 01 à 04, 06, 12, 14, 16 |
 | Vérifier le code ; faire confiance au navigateur | code, navigateur de confiance | 03, 05, 06, 12, 14 |
 | Renvoyer le code | code | 05 |
 | Se déconnecter | session | 09, 12 |
@@ -214,6 +222,7 @@ journal de `operateurs` (décision du 2026-10-08 : un journal par contexte).
 | Changer l'identifiant de connexion (à l'événement `EmailUtilisateurModifie`) | compte | 10 |
 | Supprimer le compte (à l'événement `UtilisateurSupprime`) | compte | 11 |
 | Poser le premier mot de passe (après l'acceptation d'une invitation) | compte | 07, 12, 15 |
+| Activer ou désactiver la double authentification (ADMIN du BNIA) ; consulter son état (personnel du BNIA) | réglage | 12, 16 |
 | *Lecture* : consulter le journal des connexions (back-office) ; ses propres connexions (« Mon compte ») | journal | 12, 13 |
 
 ### 5.2 Lecture
@@ -253,6 +262,9 @@ de l'espace (spec 02 RG-OPE-49). Le gabarit distingue back-office et portail ; i
 
 - **Journal des connexions** (menu Accès, rôles de l'opérateur BNIA) : liste filtrable par utilisateur,
   événement et période ; colonnes date, identifiant saisi, utilisateur, événement, détail, adresse IP.
+- **Paramètres de l'application, section Sécurité** (roue crantée de l'en-tête,
+  `/bo/parametrage/securite`) : la double authentification, son état pour le personnel du BNIA,
+  l'interrupteur pour un ADMIN du BNIA (RG-AUT-16).
 - **Utilisateurs** (écran de `operateurs`) : affiche aussi le blocage temporaire en cours et la dernière
   connexion, lus ici.
 
@@ -261,7 +273,8 @@ de l'espace (spec 02 RG-OPE-49). Le gabarit distingue back-office et portail ; i
 ### 7.1 Démonstration (profil `demo`)
 
 Les utilisateurs et rattachements de démonstration sont décrits dans la spec 02 (§7.1). Chacun reçoit un
-compte de mot de passe `demo-armagnac` ; le code vaut `000000` (RG-AUT-01). Les comptes sont listés dans
+compte de mot de passe `demo-armagnac` ; la double authentification est désactivée au départ (RG-AUT-16),
+et, une fois activée, le code vaut `000000` (RG-AUT-01). Les comptes sont listés dans
 `docs/demo.md`, avec leur opérateur et leur rôle. Le journal des connexions part vide.
 
 ### 7.2 Reprise AGI
@@ -298,7 +311,7 @@ Chaque RG-AUT-nn a au moins un test qui porte son identifiant (CLAUDE.md).
   08 (effets d'une réinitialisation).
 - **Tests de cas d'usage**, avec repositories simulés, puis IT (Spring Security, session) : RG-AUT-01,
   02, 03, 04 (refus selon `operateurs`), 08, 09 (effet immédiat d'un blocage ou d'une suspension), 10, 11
-  (événements, annulation de la transaction de `operateurs`), 12, 13, 14, 15.
+  (événements, annulation de la transaction de `operateurs`), 12, 13, 14, 15, 16.
 
 ## Journal
 
@@ -313,3 +326,4 @@ Chaque RG-AUT-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-08 | Spec validée, statut « terminée ». Prochaine étape : ADR, puis implémentation avec la révision de la spec 02. |
 | 2026-10-08 | Phase H : ADR-015 (authentification, contexte d'infrastructure) rédigé ; ADR-011 (auteur d'une action, compte de connexion sans clé étrangère, `bigint` confirmé) et ADR-013 (événements) amendés ; `CLAUDE.md` mis à jour. |
 | 2026-10-08 | Implémentée, avec la révision de la spec 02. Choix faits pendant l'implémentation, sans question : module Maven `bnia-authentification` (`-core`, `-infra`), schéma `authentification` ; identité de la requête par un `Connecte` (identifiant de l'utilisateur) résolu dans `bnia-commun-infra` et masqué dans le contrat OpenAPI, sans session 401 ; Spring Security avec `csrf.spa()` (cookie `XSRF-TOKEN`, en-tête `X-XSRF-TOKEN`), routes publiques limitées à la connexion, au code, au mot de passe oublié, à la réinitialisation, au premier mot de passe et aux liens reçus ; RG-AUT-09 par un filtre qui ferme la session quand `operateurs` ne l'autorise plus ; les résultats de connexion (code envoyé, connecté, refus) sont renvoyés et non levés, pour que le compteur d'échecs soit enregistré ; cookie `BNIA_CONFIANCE` (`HttpOnly`, `SameSite=Lax`) ; code fixe par `bnia.authentification.code-fixe` (`000000` en `dev`, `demo` et dans les tests d'intégration) ; Mailpit dans `backend/compose.yaml`. Front : écrans `/connexion` (e-mail et mot de passe, puis code), `/mot-de-passe-oublie`, `/reinitialisation`, premier mot de passe dans `/invitation`, « Mon compte » (mot de passe, mes connexions), journal des connexions (menu Accès) ; chaque écran public appelle d'abord l'état de la session, qui pose le jeton CSRF. Chaque RG-AUT-01 à 15 a au moins un test qui porte son identifiant. |
+| 2026-10-20 | Double authentification réglable (RG-AUT-16, §3.7) : un interrupteur pour toute l'application, dans la section Sécurité des paramètres, tenu par un ADMIN du BNIA, désactivé au départ, pour la fluidité de la démonstration ; RG-AUT-01 révisée ; deux événements au journal. |

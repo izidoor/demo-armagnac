@@ -42,7 +42,12 @@ export function PanneauDemo() {
         <dt className='text-neutral-600'>Tous les mots de passe :</dt>
         <dd className='font-mono'>demo-armagnac</dd>
         <dt className='text-neutral-600'>Tous les codes de vérification :</dt>
-        <dd className='font-mono'>000000</dd>
+        <dd>
+          <span className='font-mono'>000000</span>{' '}
+          <span className='text-xs text-neutral-600'>
+            (double authentification désactivée au départ)
+          </span>
+        </dd>
       </dl>
     </div>
   )

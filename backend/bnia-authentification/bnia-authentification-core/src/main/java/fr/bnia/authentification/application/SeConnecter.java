@@ -12,7 +12,7 @@ import java.util.Optional;
 
 /**
  * Connexion unique de tous les utilisateurs (RG-AUT-01) : e-mail et mot de passe, puis un code envoyé par
- * e-mail, sauf sur un navigateur de confiance. {@code operateurs} dit si l'utilisateur peut se connecter
+ * e-mail si la double authentification est activée (RG-AUT-16), sauf sur un navigateur de confiance. {@code operateurs} dit si l'utilisateur peut se connecter
  * (RG-AUT-04). Les refus sont rendus, pas levés, pour que l'échec reste enregistré (RG-AUT-03).
  */
 @UseCase
@@ -21,21 +21,24 @@ public class SeConnecter {
     private final CompteRepository comptes;
     private final HachageMotDePasse hachage;
     private final OperateursLecture operateurs;
+    private final ReglageConnexion reglage;
     private final Politique politique;
     private final Greffe greffe;
 
     public SeConnecter(CompteRepository comptes, HachageMotDePasse hachage, OperateursLecture operateurs,
-            JournalConnexions journal, EnvoiCourriels envoi, ParametresAuthentification parametres, Clock horloge) {
+            ReglageConnexion reglage, JournalConnexions journal, EnvoiCourriels envoi,
+            ParametresAuthentification parametres, Clock horloge) {
         this.comptes = comptes;
         this.hachage = hachage;
         this.operateurs = operateurs;
+        this.reglage = reglage;
         this.politique = parametres.politique();
         this.greffe = new Greffe(journal, envoi, parametres, horloge);
     }
 
     /**
-     * RG-AUT-01 à 04, 06, 12 : vérifie l'e-mail et le mot de passe, puis l'accès ; envoie le code, ou
-     * connecte directement depuis un navigateur de confiance.
+     * RG-AUT-01 à 04, 06, 12, 16 : vérifie l'e-mail et le mot de passe, puis l'accès ; envoie le code, ou
+     * connecte directement, double authentification désactivée ou depuis un navigateur de confiance.
      *
      * @param jetonConfiance jeton du cookie de confiance de ce navigateur, ou {@code null}
      */
@@ -58,12 +61,11 @@ public class SeConnecter {
         if (refus.isPresent()) {
             return refus.get();
         }
+        if (!reglage.doubleAuthentification()) {
+            return connecterSansCode(email, compte, "double authentification désactivée", contexte);
+        }
         if (compte.estDeConfiance(jetonConfiance, maintenant)) {
-            compte.reussir(maintenant);
-            comptes.mettreAJour(compte);
-            greffe.noter(email, compte.utilisateur(), EvenementConnexion.CONNEXION_REUSSIE, "navigateur de confiance",
-                    contexte);
-            return new Resultat.Connecte(compte.utilisateur(), Optional.empty());
+            return connecterSansCode(email, compte, "navigateur de confiance", contexte);
         }
         String code = compte.emettreCode(maintenant, politique);
         comptes.mettreAJour(compte);
@@ -126,6 +128,14 @@ public class SeConnecter {
     public void seDeconnecter(long utilisateur, Contexte contexte) {
         String email = comptes.parUtilisateur(utilisateur).map(CompteConnexion::identifiant).orElse("");
         greffe.noter(email, utilisateur, EvenementConnexion.DECONNEXION, null, contexte);
+    }
+
+    /** RG-AUT-06, 16 : connecté sans code ; le journal dit pourquoi. */
+    private Resultat connecterSansCode(String email, CompteConnexion compte, String motif, Contexte contexte) {
+        compte.reussir(greffe.maintenant());
+        comptes.mettreAJour(compte);
+        greffe.noter(email, compte.utilisateur(), EvenementConnexion.CONNEXION_REUSSIE, motif, contexte);
+        return new Resultat.Connecte(compte.utilisateur(), Optional.empty());
     }
 
     /** RG-AUT-04 : non bloqué par le BNIA, au moins un rattachement actif dans un opérateur actif. */

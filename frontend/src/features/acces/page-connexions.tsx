@@ -35,6 +35,8 @@ const EVENEMENTS: Record<Evenement, string> = {
   REINITIALISATION_DEMANDEE: 'Réinitialisation demandée',
   MOT_DE_PASSE_REINITIALISE: 'Mot de passe réinitialisé',
   NAVIGATEUR_DE_CONFIANCE: 'Navigateur de confiance',
+  DOUBLE_AUTHENTIFICATION_ACTIVEE: 'Double authentification activée',
+  DOUBLE_AUTHENTIFICATION_DESACTIVEE: 'Double authentification désactivée',
 }
 
 const TOUS = 'tous'

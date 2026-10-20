@@ -6,6 +6,7 @@ import fr.bnia.operateurs.domain.partage.Role;
 import fr.bnia.support.AbstractIT;
 import fr.bnia.support.Navigateur;
 import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-/** Connexion unique, code par e-mail, blocage, mots de passe, session, journal (spec 03). */
+/**
+ * Connexion unique, code par e-mail, blocage, mots de passe, session, journal (spec 03). La double
+ * authentification, désactivée au départ (RG-AUT-16), est activée pour chaque test, puis désactivée.
+ */
 class AuthentificationIT extends AbstractIT {
 
     private static final String AUTH = "/api/authentification";
@@ -30,6 +34,59 @@ class AuthentificationIT extends AbstractIT {
         operateur = nouvelOperateur();
         email = emailUnique("jeanne");
         utilisateur = membre(operateur, Role.AGENT, email);
+        doubleAuthentification(true);
+    }
+
+    @AfterEach
+    void doubleAuthentificationDesactivee() {
+        doubleAuthentification(false);
+    }
+
+    private void doubleAuthentification(boolean active) {
+        client.put().uri(AUTH + "/double-authentification").body(Map.of("active", active))
+                .exchange().expectStatus().isOk();
+    }
+
+    @Test
+    @DisplayName("RG-AUT-16 : double authentification désactivée, la session s'ouvre sans code ; seul un ADMIN du BNIA la règle")
+    void rg_aut_16_double_authentification() {
+        doubleAuthentification(false);
+        client.get().uri(AUTH + "/double-authentification").exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.active").isEqualTo(false).jsonPath("$.modifiable").isEqualTo(true);
+
+        RestTestClient session = anonyme();
+        session.post().uri(AUTH + "/connexion").body(Map.of("email", email, "motDePasse", MOT_DE_PASSE))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.etape").isEqualTo("CONNECTE");
+        session.get().uri("/api/moi").exchange().expectStatus().isOk();
+        session.get().uri(AUTH + "/mes-connexions").exchange()
+                .expectBody().jsonPath("$[0].detail").isEqualTo("double authentification désactivée");
+        session.get().uri(AUTH + "/double-authentification").exchange()
+                .expectStatus().isForbidden()
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-AUT-16");
+        session.put().uri(AUTH + "/double-authentification").body(Map.of("active", true)).exchange()
+                .expectStatus().isForbidden()
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-AUT-16");
+
+        String agentBnia = emailUnique("agent-bnia");
+        membre(operateurs.operateurBnia(), Role.AGENT, agentBnia);
+        RestTestClient agent = connecte(agentBnia);
+        agent.get().uri(AUTH + "/double-authentification").exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.modifiable").isEqualTo(false);
+        agent.put().uri(AUTH + "/double-authentification").body(Map.of("active", true)).exchange()
+                .expectStatus().isForbidden();
+
+        doubleAuthentification(true);
+        anonyme().post().uri(AUTH + "/connexion").body(Map.of("email", email, "motDePasse", MOT_DE_PASSE))
+                .exchange()
+                .expectBody().jsonPath("$.etape").isEqualTo("CODE_REQUIS");
+        client.get().uri(u -> u.path(AUTH + "/journal").queryParam("evenement", "DOUBLE_AUTHENTIFICATION_ACTIVEE")
+                        .build())
+                .exchange()
+                .expectBody().jsonPath("$[0].identifiantSaisi").isEqualTo(ADMIN_BNIA);
     }
 
     @Test

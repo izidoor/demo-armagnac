@@ -3,7 +3,9 @@ package fr.bnia.authentification.adapter.rest;
 import fr.bnia.authentification.application.ConsulterConnexions;
 import fr.bnia.authentification.application.Contexte;
 import fr.bnia.authentification.application.EtatCompte;
+import fr.bnia.authentification.application.EtatDoubleAuthentification;
 import fr.bnia.authentification.application.FiltreConnexions;
+import fr.bnia.authentification.application.GererDoubleAuthentification;
 import fr.bnia.authentification.application.GererMotDePasse;
 import fr.bnia.authentification.application.LigneConnexion;
 import fr.bnia.authentification.application.ParametresAuthentification;
@@ -62,15 +64,18 @@ class AuthentificationController {
     private final SeConnecter seConnecter;
     private final GererMotDePasse motDePasse;
     private final ConsulterConnexions connexions;
+    private final GererDoubleAuthentification doubleAuthentification;
     private final SessionUtilisateur session;
     private final SecurityContextRepository depot;
     private final ParametresAuthentification parametres;
 
     AuthentificationController(SeConnecter seConnecter, GererMotDePasse motDePasse, ConsulterConnexions connexions,
-            SessionUtilisateur session, SecurityContextRepository depot, ParametresAuthentification parametres) {
+            GererDoubleAuthentification doubleAuthentification, SessionUtilisateur session,
+            SecurityContextRepository depot, ParametresAuthentification parametres) {
         this.seConnecter = seConnecter;
         this.motDePasse = motDePasse;
         this.connexions = connexions;
+        this.doubleAuthentification = doubleAuthentification;
         this.session = session;
         this.depot = depot;
         this.parametres = parametres;
@@ -92,7 +97,7 @@ class AuthentificationController {
     /** Où en est la connexion. */
     @Schema(name = "Etape")
     enum Etape {
-        /** RG-AUT-01 : un code est parti par e-mail. */
+        /** RG-AUT-01, 16 : un code est parti par e-mail. */
         CODE_REQUIS,
         /** La session est ouverte. */
         CONNECTE
@@ -157,6 +162,21 @@ class AuthentificationController {
             return new EtatCompteResponse(e.utilisateur(), e.bloqueJusqua().orElse(null),
                     e.derniereConnexion().orElse(null), e.motDePasseDefini());
         }
+    }
+
+    @Schema(name = "DoubleAuthentification", description = "Réglage de la double authentification (RG-AUT-16)")
+    record DoubleAuthentificationResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean active,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "L'utilisateur est ADMIN du BNIA")
+            boolean modifiable) {
+
+        static DoubleAuthentificationResponse depuis(EtatDoubleAuthentification e) {
+            return new DoubleAuthentificationResponse(e.active(), e.modifiable());
+        }
+    }
+
+    @Schema(name = "SaisieDoubleAuthentification")
+    record DoubleAuthentificationRequest(@Schema(requiredMode = Schema.RequiredMode.REQUIRED) boolean active) {
     }
 
     @GetMapping("/session")
@@ -253,6 +273,22 @@ class AuthentificationController {
                 du == null ? null : du.atStartOfDay(PARIS).toInstant(),
                 au == null ? null : au.plusDays(1).atStartOfDay(PARIS).toInstant());
         return connexions.journal(connecte.utilisateur(), filtre).stream().map(LigneConnexionResponse::depuis).toList();
+    }
+
+    @GetMapping("/double-authentification")
+    @Operation(operationId = "consulterDoubleAuthentification",
+            summary = "Double authentification activée ou non, pour toute l'application ; personnel du BNIA (RG-AUT-16)")
+    DoubleAuthentificationResponse consulterDoubleAuthentification(Connecte connecte) {
+        return DoubleAuthentificationResponse.depuis(doubleAuthentification.consulter(connecte.utilisateur()));
+    }
+
+    @PutMapping("/double-authentification")
+    @Operation(operationId = "definirDoubleAuthentification",
+            summary = "Activer ou désactiver la double authentification pour toute l'application ; ADMIN du BNIA (RG-AUT-12, 16)")
+    DoubleAuthentificationResponse definirDoubleAuthentification(Connecte connecte,
+            @RequestBody DoubleAuthentificationRequest saisie, HttpServletRequest requete) {
+        return DoubleAuthentificationResponse.depuis(
+                doubleAuthentification.definir(connecte.utilisateur(), saisie.active(), contexte(requete)));
     }
 
     @GetMapping("/comptes")

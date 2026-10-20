@@ -12,6 +12,7 @@ import {
   Package,
   Percent,
   Receipt,
+  ShieldCheck,
   Tags,
   TrendingUp,
   UserCog,
@@ -23,7 +24,8 @@ import { type Espace, type NavGroup } from '../types'
  * Paramètres de l'application (spec 01, §6.1) : le BNIA (sa fiche, ses contacts, le vendeur des factures),
  * puis les référentiels du module Paramétrage, lus par tout le personnel du BNIA, gérés par ses agents et
  * administrateurs. Hors de la barre latérale : sections de la page ouverte par la roue crantée de
- * l'en-tête, chacune enchaînant ses blocs ; chaque bloc mène à sa section, pour la recherche.
+ * l'en-tête, chacune enchaînant ses blocs ; chaque bloc mène à sa section, pour la recherche. La section
+ * Sécurité est réglée par un ADMIN du BNIA seul (RG-AUT-16).
  */
 const GEOGRAPHIE = '/bo/parametrage/geographie'
 const QUALIFICATION = '/bo/parametrage/qualification'
@@ -85,6 +87,17 @@ export const parametrage: NavGroup = {
       title: 'Cotisation',
       icon: Receipt,
       items: [{ title: 'Taux CVO', url: '/bo/parametrage/taux-cvo' }],
+    },
+    {
+      // Spec 03 §6.2 : la double authentification (RG-AUT-16).
+      title: 'Sécurité',
+      icon: ShieldCheck,
+      items: [
+        {
+          title: 'Double authentification',
+          url: '/bo/parametrage/securite',
+        },
+      ],
     },
   ],
 }
