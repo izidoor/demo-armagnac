@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 300" font-family="Inter Variable, Noto Sans, sans-serif">
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a5b1e"/>
+    </marker>
+    <style>
+      .centre { fill: #f7efe5; stroke: #9a5b1e; stroke-width: 1.4; }
+      .boite { fill: #fff; stroke: #c9a27a; }
+      .tiers { fill: #fff; stroke: #c9bcab; stroke-dasharray: 4 3; }
+      .titre-groupe { font-size: 12px; font-weight: 650; fill: #6e3f12; }
+      .nom { font-size: 10px; font-weight: 650; fill: #241f1b; }
+      .nom-discret { font-size: 10px; font-weight: 650; fill: #5a504a; }
+      .detail { font-size: 8px; fill: #5a504a; }
+      .lien { stroke: #9a5b1e; stroke-width: 1.2; fill: none; }
+      .lien-pointille { stroke: #9a5b1e; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+      .etiquette { font-size: 7.8px; fill: #9a5b1e; font-weight: 600; }
+      .legende { font-size: 8px; fill: #5a504a; }
+    </style>
+  </defs>
+
+  <!-- Centre -->
+  <rect class="centre" x="245" y="106" width="170" height="70" rx="8"/>
+  <text class="titre-groupe" x="330" y="132" text-anchor="middle">Déclarations</text>
+  <text class="detail" x="330" y="147" text-anchor="middle">DSM, cotisation, stocks</text>
+  <text class="detail" x="330" y="159" text-anchor="middle">ne dépend que d’Opérateurs</text>
+
+  <!-- Haut -->
+  <rect class="boite" x="20" y="4" width="190" height="44" rx="6"/>
+  <text class="nom" x="32" y="22">Opérateurs</text>
+  <text class="detail" x="32" y="36">fiche, personnes et droits</text>
+  <path class="lien" d="M115,48 L115,80 L280,80 L280,106" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="122" y="64">type, statut de déclaration,</text>
+  <text class="etiquette" x="122" y="74">droits de l’utilisateur connecté</text>
+
+  <rect class="boite" x="450" y="4" width="190" height="44" rx="6"/>
+  <text class="nom" x="462" y="22">Paramétrage</text>
+  <text class="detail" x="462" y="36">classes et taux de TVA</text>
+  <path class="lien" d="M545,48 L545,80 L380,80 L380,106" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="440" y="66" text-anchor="end">taux de TVA de la CVO</text>
+  <text class="etiquette" x="440" y="76" text-anchor="end">(TVA indicative avant facture)</text>
+
+  <!-- Gauche -->
+  <rect class="boite" x="0" y="112" width="150" height="58" rx="6"/>
+  <text class="nom" x="12" y="130">Messagerie</text>
+  <text class="detail" x="12" y="144">conversation de chaque DSM,</text>
+  <text class="detail" x="12" y="155">visible des deux côtés</text>
+  <path class="lien" d="M245,141 L150,141" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="158" y="134">motif des</text>
+  <text class="etiquette" x="158" y="156">compléments</text>
+
+  <!-- Droite -->
+  <rect class="boite" x="510" y="104" width="150" height="74" rx="6"/>
+  <text class="nom" x="522" y="122">Facturation</text>
+  <text class="detail" x="522" y="136">émet la facture, la numérote,</text>
+  <text class="detail" x="522" y="147">applique la TVA, produit</text>
+  <text class="detail" x="522" y="158">le PDF ; avoirs</text>
+  <path class="lien" d="M415,120 L510,120" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="420" y="104">demande de facture,</text>
+  <text class="etiquette" x="420" y="114">articles de cotisation</text>
+  <path class="lien" d="M510,164 L415,164" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="420" y="140">facture émise,</text>
+  <text class="etiquette" x="420" y="150">avoir émis</text>
+
+  <!-- Bas -->
+  <rect class="tiers" x="0" y="226" width="190" height="60" rx="6" style="stroke-dasharray:none"/>
+  <text class="nom" x="12" y="244">Notifications</text>
+  <text class="detail" x="12" y="258">e-mails aux opérateurs et au BNIA</text>
+  <path class="lien" d="M270,176 L270,200 L95,200 L95,226" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="100" y="212">DSM envoyée, compléments demandés,</text>
+  <text class="etiquette" x="100" y="222">DSM validée, déclaration en retard</text>
+
+  <rect class="boite" x="236" y="240" width="188" height="46" rx="6"/>
+  <text class="nom" x="248" y="258">Fiche opérateur, statistiques</text>
+  <text class="detail" x="248" y="272">lectures de synthèse</text>
+  <path class="lien" d="M330,176 L330,240" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="336" y="222">dernière DSM,</text>
+  <text class="etiquette" x="336" y="232">stock déclaré</text>
+
+  <rect class="tiers" x="460" y="226" width="200" height="60" rx="6"/>
+  <text class="nom-discret" x="472" y="244">Contrats d’achat, distillation</text>
+  <text class="detail" x="472" y="258">modules livrés plus tard</text>
+  <path class="lien-pointille" d="M520,226 L520,200 L395,200 L395,176" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="430" y="196">contrat validé, retiraison, fin de travaux</text>
+  <path class="lien-pointille" d="M375,176 L375,212 L600,212 L600,226" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="604" y="222">bilan</text>
+
+  <text class="legende" x="0" y="298">En pointillé : échanges livrés avec les modules des contrats d’achat et de la distillation.</text>
+</svg>

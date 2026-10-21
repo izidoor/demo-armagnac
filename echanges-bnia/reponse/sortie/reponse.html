@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <base href="file:///home/izidor/Projects/bnia/echanges-bnia/reponse/">
-  <title>Observatoire de la filière Armagnac — Proposition de Pierre-Yves Pollet</title>
+  <title>Observatoire économique et gestion de la Donnée Armagnac — Proposition de Pierre-Yves Pollet</title>
   <link rel="stylesheet" href="node_modules/@fontsource-variable/inter/index.css">
   <link rel="stylesheet" href="node_modules/@fontsource-variable/source-serif-4/index.css">
   <link rel="stylesheet" href="gabarit/style.css">
@@ -13,23 +13,29 @@
 <div class="garde">
 <div class="garde-haut">
 <div class="surtitre">Réponse à l’appel d’offres du 23 septembre 2026</div>
-<h1>Observatoire de la filière Armagnac</h1>
+<h1>Observatoire économique et gestion de la Donnée Armagnac</h1>
 <p class="garde-sous-titre">Création de la plateforme : back-office du BNIA et portail des opérateurs</p>
 <p class="garde-nature">Proposition technique et financière</p>
 </div>
 <div class="garde-sommaire">
 <h2>Sommaire</h2>
 <ol>
-<li><strong>Synthèse</strong></li>
-<li><strong>Le prestataire</strong></li>
-<li><strong>Stratégie de réalisation</strong></li>
-<li><strong>Calendrier prévisionnel</strong></li>
-<li><strong>Aspects techniques</strong></li>
-<li><strong>Offre financière</strong></li>
-<li><strong>Maintenance</strong></li>
-<li><strong>Prototype</strong></li>
+<li><span class="ligne"><span class="entree"><strong>Synthèse</strong></span><span class="points"></span><span class="page">2</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Le prestataire</strong></span><span class="points"></span><span class="page">3</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Stratégie de réalisation</strong></span><span class="points"></span><span class="page">4</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Calendrier prévisionnel</strong></span><span class="points"></span><span class="page">5</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Aspects techniques</strong></span><span class="points"></span><span class="page">9</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Offre financière</strong></span><span class="points"></span><span class="page">11</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Maintenance</strong></span><span class="points"></span><span class="page">13</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Prototype</strong></span><span class="points"></span><span class="page">15</span></span></li>
 </ol>
-<p class="garde-annexes">Annexes : exemple d’une spécification détaillée d’un module, curriculum vitae et recommandations</p>
+<h3>Annexes</h3>
+<ol class="garde-annexes" type="A">
+<li><span class="ligne"><span class="entree">Spécification détaillée du module Déclarations</span><span class="points"></span><span class="page">17</span></span></li>
+<li><span class="ligne"><span class="entree">Projet de contrat de prestation</span><span class="points"></span><span class="page">24</span></span></li>
+<li><span class="ligne"><span class="entree">Accord de sous-traitance des données personnelles (RGPD)</span><span class="points"></span><span class="page">27</span></span></li>
+<li><span class="ligne"><span class="entree">Curriculum vitae détaillé</span><span class="points"></span><span class="page">29</span></span></li>
+</ol>
 </div>
 <div class="garde-bas">
 <div>
@@ -703,11 +709,12 @@ de gestion, écrans, cas particuliers) et les spécifications techniques détail
 <section class="section" id="08-prototype">
 <div class="surtitre">Prototype</div>
 <h1>Un prototype à essayer en ligne</h1>
-<div class="encadre">
-<p><strong>Adresse : <a href="https://bnia-demo.osc-fr1.scalingo.io">bnia-demo.osc-fr1.scalingo.io</a></strong><br>
-Mot de passe, commun à tous les comptes : <strong>demo-armagnac</strong>. Si un code de vérification est demandé : <strong>000000</strong>.<br>
-Les données sont fictives : tout peut être essayé sans crainte.</p>
-</div>
+<ul>
+<li><strong>Adresse : <a href="https://bnia-demo.osc-fr1.scalingo.io">bnia-demo.osc-fr1.scalingo.io</a></strong></li>
+<li>Mot de passe, commun à tous les comptes : <strong>demo-armagnac</strong>.</li>
+<li>Si un code de vérification est demandé : <strong>000000</strong>.</li>
+<li>Les données sont fictives : tout peut être essayé sans crainte.</li>
+</ul>
 <h2>Ce qu’on peut y faire</h2>
 <div class="definitions">
 <div>
@@ -740,76 +747,862 @@ Les données sont fictives : tout peut être essayé sans crainte.</p>
 </ul>
 </div>
 </div>
-<p>Une <strong>messagerie</strong> relie aussi le BNIA et les opérateurs : chaque échange peut être rattaché à une DSM ou à une facture.</p>
+<p>Une <strong>messagerie interne</strong> relie aussi le BNIA et les opérateurs : chaque échange peut être rattaché à une DSM ou à une facture. Les opérateurs ont également la possibilité d’ouvrir des conversations sur des sujets libres avec le BNIA.</p>
+<div class="encadre">
+<h3>Aucun e-mail n’est réellement envoyé par le prototype</h3>
+<p>La plateforme envoie des e-mails à plusieurs occasions : l’invitation d’un nouvel utilisateur, le lien « mot de passe oublié », la confirmation d’un changement d’adresse e-mail ou le code de vérification. Sur le prototype, ces e-mails sont préparés mais ne partent pas : les actions qui les déclenchent peuvent être essayées, sans que le message arrive.</p>
+<p>C’est volontaire. Les comptes et les opérateurs sont fictifs : envoyer de vrais e-mails depuis une démonstration ouverte à tous risquerait d’écrire à des adresses réelles, ou de faire passer la plateforme pour un expéditeur indésirable. En production, les e-mails partiront par la messagerie du BNIA (armagnac.fr). Pour essayer le prototype, il suffit d’utiliser les comptes de démonstration présentés ci-après.</p>
+</div>
+<div class="saut"></div>
 <h2>Les comptes de démonstration</h2>
+<p>Neuf comptes sont déjà créés : ils permettent d’essayer le prototype tout de suite, sans rien configurer, et de se mettre à la place de chaque utilisateur. Ils couvrent les trois places de la filière : le <strong>BNIA</strong>, qui instruit et facture, dans le back-office ; un <strong>producteur</strong> et un <strong>négociant</strong>, qui déclarent, sur le portail. Chacun existe dans les trois rôles :</p>
+<ul>
+<li><strong>Administrateur</strong> : fait tout, et gère les accès de son entreprise : il invite les utilisateurs et choisit leur rôle.</li>
+<li><strong>Agent</strong> : fait le travail courant (saisir et envoyer les DSM, tenir la fiche de l’entreprise ; au BNIA, instruire et facturer), sans gérer les accès.</li>
+<li><strong>Observateur</strong> : consulte tout, sans rien modifier ; il peut écrire au BNIA par la messagerie.</li>
+</ul>
+<table class="comptes">
+<thead><tr><th>Compte</th><th>Rôle</th><th>Ce qu’on y voit</th></tr></thead>
+<tbody>
+<tr class="groupe"><th colspan="3">@bnia.fr · le BNIA, back-office</th></tr>
+<tr><td>admin@bnia.fr</td><td>Administrateur</td><td>Tout : opérateurs, DSM à instruire, facturation, paramétrage, accès</td></tr>
+<tr><td>agent@bnia.fr</td><td>Agent</td><td>Fiches des opérateurs, instruction des DSM, facturation, sans la gestion des accès</td></tr>
+<tr><td>observateur@bnia.fr</td><td>Observateur</td><td>Tout le back-office, en lecture seule</td></tr>
+<tr class="groupe"><th colspan="3">@producteur.fr · un producteur (Maison Durand, deux chais), portail</th></tr>
+<tr><td>admin@producteur.fr</td><td>Administrateur</td><td>DSM annuelle en cours de saisie, avec une incohérence à corriger ; passage d’un chai à l’autre ; utilisateurs de l’entreprise</td></tr>
+<tr><td>agent@producteur.fr</td><td>Agent</td><td>DSM, factures et messagerie du chai de Condom</td></tr>
+<tr><td>observateur@producteur.fr</td><td>Observateur</td><td>Le portail en lecture seule ; son accès au chai d’Eauze est suspendu</td></tr>
+<tr class="groupe"><th colspan="3">@negociant.fr · un négociant (Armagnacs de Gascogne), portail</th></tr>
+<tr><td>admin@negociant.fr</td><td>Administrateur</td><td>DSM mensuelles, dont une pour laquelle le BNIA a demandé des compléments ; factures ; utilisateurs de l’entreprise</td></tr>
+<tr><td>agent@negociant.fr</td><td>Agent</td><td>DSM, factures et messagerie</td></tr>
+<tr><td>observateur@negociant.fr</td><td>Observateur</td><td>Le portail en lecture seule</td></tr>
+</tbody>
+</table>
+</section>
+<section class="section" id="09-annexe-specification">
+<div class="surtitre">Annexe</div>
+<h1>Spécification détaillée : les déclarations de stocks et mouvements</h1>
+<p class="accroche">Chaque module est spécifié avant d’être développé, puis soumis au BNIA. Voici la spécification du module Déclarations, celle qui a servi à construire le prototype : son périmètre, ses cas d’usage, ses objets, ses échanges avec les autres modules, ses règles, les tests qui les vérifient, et les points que le BNIA doit confirmer.</p>
+<h2>1. Cadrage</h2>
+<p>Les douanes ont confié au BNIA le suivi des stocks d’Armagnac de chaque opérateur, et peuvent lui en demander à tout moment un état des lieux. Le module porte ce suivi. Sa valeur tient en trois points : des déclarations <strong>cohérentes</strong> (contrôles bloquants à l’envoi, pièces exigées à la validation), une <strong>instruction</strong> lisible des deux côtés, et un <strong>état des stocks</strong> opposable aux douanes.</p>
+<figure class="schema"><img src="gabarit/annexe-dsm-cadrage.svg" alt="Cadrage du module Déclarations : l’opérateur déclare, le BNIA instruit, valide et facture ; le module porte la DSM, la cotisation et les stocks ; contrats, distillation, facturation, messagerie, notifications et statistiques relèvent d’autres modules"></figure>
+<p><strong>Ce que l’analyse propose de changer au cahier des charges</strong>, pour simplifier le travail de chacun :</p>
+<table class="propositions">
+<thead><tr><th>Le cahier des charges prévoit</th><th>Je propose</th><th>Pourquoi</th></tr></thead>
+<tbody>
+<tr><td>Le BNIA génère chaque DSM</td><td>L’opérateur l’initie lui-même, une fois la précédente validée, ou depuis un point de départ fixé une fois par le BNIA</td><td>Aucun geste du BNIA à chaque période</td></tr>
+<tr><td>L’opérateur valide sa DSM ; le BNIA peut la saisir et la corriger</td><td>L’opérateur envoie et lui seul modifie ; le BNIA instruit (demande de compléments) et valide</td><td>Chacun sait qui a la main, et ce qui a été déclaré reste celui de l’opérateur</td></tr>
+<tr><td>Tous les contrôles bloquent la validation</td><td>Les calculs bloquent l’envoi ; les pièces bloquent la validation</td><td>L’opérateur corrige ses erreurs de calcul seul ; le BNIA réclame les pièces pendant l’instruction</td></tr>
+<tr><td>Des relances manuelles</td><td>Une notification à chaque prise de main et en cas de retard, en plus des relances</td><td>Chacun sait quand agir</td></tr>
+<tr><td>Le compte d’âge augmente chaque 1er avril</td><td>Seul l’Armagnac en fût vieillit ; celui en bouteille garde son compte</td><td>Pratique de la filière</td></tr>
+<tr><td>Une note de contrôle par ligne, un pointage par justificatif</td><td>Des messages avec l’opérateur, et des notes internes que lui ne voit pas</td><td>Un seul fil d’échange par DSM</td></tr>
+</tbody>
+</table>
+<h2>2. Cas d’usage</h2>
+<p>Deux acteurs : l’<strong>opérateur</strong> (producteur ou négociant, au portail) et le <strong>BNIA</strong> (au back-office). Les droits suivent les trois rôles : l’observateur lit, l’agent et l’administrateur agissent. Les actions propres au BNIA (point de départ, instruction, validation, facturation) sont réservées à son personnel.</p>
+<figure class="schema"><img src="gabarit/annexe-dsm-cycle.svg" alt="Cycle de la DSM : brouillon chez l’opérateur, envoyée puis en instruction chez le BNIA, compléments demandés renvoyés à l’opérateur, compléments reçus, puis validée ; l’opérateur initie alors la DSM suivante"></figure>
 <table>
 <thead>
 <tr>
-<th>Compte</th>
-<th>Espace</th>
-<th>Ce qu’on y voit</th>
+<th>Id</th>
+<th>Acteur</th>
+<th>Cas d’usage</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>admin@bnia.fr</td>
-<td>Back-office, administrateur</td>
-<td>Tout : opérateurs, DSM à instruire, facturation, accès</td>
+<td>UC-DEC-1</td>
+<td>BNIA</td>
+<td>Lire le <strong>stock déclaré</strong> d’un opérateur ou de tous (stock de fin de leur dernière DSM validée, ligne par ligne, daté), pour répondre aux douanes, et l’exporter en Excel.</td>
 </tr>
 <tr>
-<td>agent@bnia.fr</td>
-<td>Back-office, agent</td>
-<td>La gestion des opérateurs, sans la gestion des accès</td>
+<td>UC-DEC-2</td>
+<td>BNIA</td>
+<td>Établir le <strong>stock estimé</strong> à une date : stock déclaré vieilli, plus les entrées et moins les sorties des contrats et de la distillation survenues depuis. Livré avec ces modules.</td>
 </tr>
 <tr>
-<td>observateur@bnia.fr</td>
-<td>Back-office, observateur</td>
-<td>Tout le back-office, en lecture seule</td>
+<td>UC-DEC-3</td>
+<td>BNIA</td>
+<td>Fixer le <strong>point de départ</strong> d’un opérateur (début de sa première période, stock initial ligne par ligne), à l’écran ou par import Excel ; en fixer un nouveau après une interruption.</td>
 </tr>
 <tr>
-<td>admin@negociant.fr</td>
-<td>Portail négociant, administrateur</td>
-<td>DSM mensuelles, dont une pour laquelle le BNIA a demandé des compléments ; factures, messagerie, utilisateurs</td>
+<td>UC-DEC-4</td>
+<td>Opérateur</td>
+<td>Initier la DSM de la période suivante : le stock de début reprend le stock de fin précédent, vieilli au 1er avril. La remplir (colonnes hors de son périmètre grisées), y joindre justificatifs et DRM, y revenir tant qu’elle est en brouillon.</td>
 </tr>
 <tr>
-<td>agent@negociant.fr</td>
-<td>Portail négociant, agent</td>
-<td>DSM, factures et messagerie</td>
+<td>UC-DEC-5</td>
+<td>Opérateur</td>
+<td>Importer le modèle Excel du BNIA pour pré-remplir la DSM, sans ressaisir ce que son logiciel produit déjà.</td>
 </tr>
 <tr>
-<td>observateur@negociant.fr</td>
-<td>Portail négociant, observateur</td>
-<td>En lecture seule</td>
+<td>UC-DEC-6</td>
+<td>Opérateur</td>
+<td>Envoyer la DSM au BNIA quand ses calculs sont cohérents, puis la renvoyer une fois les compléments apportés. Tant qu’un contrôle bloque, voir son motif au niveau de la DSM, de l’onglet ou de la ligne.</td>
 </tr>
 <tr>
-<td>admin@producteur.fr</td>
-<td>Portail producteur, administrateur</td>
-<td>DSM annuelle en cours de saisie, avec une incohérence à corriger ; deux chais, passage de l’un à l’autre</td>
+<td>UC-DEC-7</td>
+<td>BNIA</td>
+<td>Suivre la campagne : lister les DSM et les filtrer (à prendre en charge, compléments demandés, en retard, absentes, à facturer…).</td>
+</tr>
+<tr>
+<td>UC-DEC-8</td>
+<td>BNIA</td>
+<td>Instruire une DSM envoyée : la prendre en charge, écrire des notes internes, déposer une pièce reçue par courrier, demander des compléments avec un motif, ce qui rend la main à l’opérateur.</td>
+</tr>
+<tr>
+<td>UC-DEC-9</td>
+<td>BNIA</td>
+<td>Valider une DSM dont les pièces sont complètes : elle est figée, et l’opérateur peut initier la suivante.</td>
+</tr>
+<tr>
+<td>UC-DEC-10</td>
+<td>BNIA</td>
+<td>Facturer une DSM validée, ou une sélection : la cotisation calculée devient une facture, retrouvée ensuite depuis la DSM.</td>
+</tr>
+<tr>
+<td>UC-DEC-11</td>
+<td>Les deux</td>
+<td>Être notifié dès qu’une DSM attend son action : l’opérateur en retard, quand des compléments sont demandés ou que sa DSM est validée ; le BNIA quand une DSM est envoyée ou renvoyée.</td>
+</tr>
+</tbody>
+</table>
+<p>Cas secondaires : supprimer un brouillon ; éditer une DSM en PDF ou en Excel, dans tout état (« document provisoire » avant validation) ; consulter l’historique d’une DSM ; tenir la grille des taux de cotisation.</p>
+<h2>3. Objets du domaine</h2>
+<figure class="schema"><img src="gabarit/annexe-dsm-objets.svg" alt="Objets du domaine : la DSM avec ses lignes, justificatifs, DRM et notes internes ; le point de départ ; la grille de cotisation ; le journal ; les calculs sans donnée propre ; l’opérateur et la facture, tenus par d’autres modules"></figure>
+<table>
+<thead>
+<tr>
+<th>Objet</th>
+<th>Rôle</th>
+<th>Invariants principaux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSM</td>
+<td>La déclaration d’un opérateur pour une période</td>
+<td>Au plus une DSM non validée par opérateur. Période : celle qui suit la dernière DSM validée, ni chevauchement ni trou. Type de déclarant figé à l’initiation. Modifiable par l’opérateur seulement en brouillon ou en compléments demandés ; figée une fois validée. Ne porte ni montant ni état de facturation : la facture référence la DSM.</td>
+</tr>
+<tr>
+<td>Ligne</td>
+<td>Un stock suivi : clé, millésime ou dénomination, compte d’âge</td>
+<td>Unique dans la DSM. Colonne 1 = colonne 26 de la ligne correspondante de la DSM précédente. Colonne 26 toujours calculée.</td>
+</tr>
+<tr>
+<td>Justificatif, DRM</td>
+<td>Les pièces de la DSM</td>
+<td>Justificatif rattaché à la DSM ou à une ligne ; une DRM par mois de la période, pour un producteur. Le fichier est conservé dans le stockage des documents, à part de la base.</td>
+</tr>
+<tr>
+<td>Note interne</td>
+<td>Ce que le BNIA garde pour lui</td>
+<td>Jamais montrée à l’opérateur ; les échanges avec lui sont des messages de la conversation de la DSM.</td>
+</tr>
+<tr>
+<td>Point de départ</td>
+<td>Début de la première période et stock initial</td>
+<td>Un seul en vigueur par opérateur ; modifiable tant que la première DSM qui en est issue n’est pas validée.</td>
+</tr>
+<tr>
+<td>Grille de cotisation</td>
+<td>Les taux CVO datés</td>
+<td>Chaîne continue : un taux finit la veille du suivant, sans trou ni chevauchement.</td>
+</tr>
+<tr>
+<td>Journal</td>
+<td>La trace de chaque action</td>
+<td>En ajout seul, lisible par l’opérateur : ni messages ni notes internes.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Le format unique : 26 colonnes</strong>, communes au producteur et au négociant. Pour un producteur, les colonnes grisées restent visibles mais vides, et n’entrent dans aucun calcul.</p>
+<table class="colonnes-dsm">
+<thead><tr><th>N°</th><th>Onglet</th><th>Libellé</th><th>Sens</th><th>Grisée producteur</th><th>Cotisation</th><th>Justificatif</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Récapitulatif</td><td>stock début de période</td><td>calculé</td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td>Récapitulatif</td><td>entrées achats à la propriété</td><td>entrée</td><td>oui</td><td></td><td>achat</td></tr>
+<tr><td>3</td><td>Récapitulatif</td><td>entrées achats négoce</td><td>entrée</td><td>oui</td><td></td><td>achat</td></tr>
+<tr><td>4</td><td>Entrées</td><td>distillation propre</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>5</td><td>Entrées</td><td>passage sous bois / sous-verre</td><td>entrée</td><td>oui</td><td></td><td></td></tr>
+<tr><td>6</td><td>Entrées</td><td>assemblages / coupes</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>7</td><td>Entrées</td><td>transferts chai Armagnac en région délimitée</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>8</td><td>Entrées</td><td>transferts chai Armagnac hors région délimitée</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>9</td><td>Entrées</td><td>réintégrations</td><td>entrée</td><td>oui</td><td></td><td>réintégration</td></tr>
+<tr><td>10</td><td>Sorties</td><td>pertes sur inventaire</td><td>sortie</td><td></td><td></td><td></td></tr>
+<tr><td>11</td><td>Sorties</td><td>passage sous bois / sous-verre</td><td>sortie</td><td>oui</td><td></td><td></td></tr>
+<tr><td>12</td><td>Sorties</td><td>assemblages / coupes</td><td>sortie</td><td></td><td></td><td></td></tr>
+<tr><td>13</td><td>Sorties</td><td>transferts chai Armagnac en région délimitée</td><td>sortie</td><td></td><td></td><td></td></tr>
+<tr><td>14</td><td>Sorties</td><td>transferts chai Armagnac hors région délimitée</td><td>sortie</td><td></td><td>Sorties France</td><td></td></tr>
+<tr><td>15</td><td>Sorties</td><td>fabrications Floc de Gascogne</td><td>sortie</td><td></td><td></td><td>aucun, à confirmer</td></tr>
+<tr><td>16</td><td>Sorties</td><td>autres fabrications que l’AOC</td><td>sortie</td><td></td><td>autre produit, France</td><td>autres fabrications</td></tr>
+<tr><td>17</td><td>Ventes France</td><td>marché intérieur hors chai en bouteilles</td><td>sortie</td><td></td><td>Sorties France</td><td></td></tr>
+<tr><td>18</td><td>Ventes France</td><td>marché intérieur hors chai en vrac</td><td>sortie</td><td></td><td>Sorties France</td><td></td></tr>
+<tr><td>19</td><td>Ventes France</td><td>marché intérieur hors chai en brandies</td><td>sortie</td><td>oui</td><td>Sorties France</td><td></td></tr>
+<tr><td>20</td><td>Ventes France</td><td>négoce chai Armagnac en région délimitée</td><td>sortie</td><td></td><td></td><td>vente négoce</td></tr>
+<tr><td>21</td><td>Ventes France</td><td>négoce chai Armagnac hors région délimitée</td><td>sortie</td><td></td><td>Sorties France</td><td>vente négoce</td></tr>
+<tr><td>22</td><td>Export</td><td>bouteilles</td><td>sortie</td><td></td><td>Sorties Export</td><td>vente export</td></tr>
+<tr><td>23</td><td>Export</td><td>vrac destiné à la mise en bouteille</td><td>sortie</td><td></td><td>Sorties Export</td><td>vente export</td></tr>
+<tr><td>24</td><td>Export</td><td>brandies</td><td>sortie</td><td>oui</td><td>Sorties Export</td><td>vente export</td></tr>
+<tr><td>25</td><td>Export</td><td>vins vinés et fabrications autres</td><td>sortie</td><td>oui</td><td>autre produit, export</td><td>vente export</td></tr>
+<tr><td>26</td><td>Récapitulatif</td><td>stock fin de période</td><td>calculé</td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+<h2>4. Flux avec les autres modules</h2>
+<p>Le module Déclarations ne dépend que du module Opérateurs. Les autres modules dépendent de lui : il leur publie ce qu’ils ont besoin de lire et les prévient de ce qui se passe, sans jamais les appeler en retour. Ainsi, chaque module peut être livré à son tour, sans attendre les suivants.</p>
+<figure class="schema"><img src="gabarit/annexe-dsm-flux.svg" alt="Flux : Opérateurs fournit type, statut et droits ; Paramétrage le taux de TVA ; Déclarations demande les factures à Facturation, qui lui renvoie factures et avoirs ; dépose le motif des compléments dans la Messagerie ; publie ses événements pour les Notifications ; fournit dernière DSM et stock déclaré ; recevra plus tard contrats, retiraisons et fins de travaux, et fournira le bilan prévisionnel"></figure>
+<table>
+<thead>
+<tr>
+<th>Événement publié</th>
+<th>Contenu</th>
+<th>Quand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSM envoyée</td>
+<td>DSM, opérateur, période, premier envoi ou renvoi</td>
+<td>À l’envoi et au renvoi</td>
+</tr>
+<tr>
+<td>Compléments demandés</td>
+<td>DSM, opérateur, période, motif</td>
+<td>À la demande de compléments</td>
+</tr>
+<tr>
+<td>DSM validée</td>
+<td>DSM, opérateur, période</td>
+<td>À la validation</td>
+</tr>
+<tr>
+<td>Déclaration en retard</td>
+<td>opérateur, période attendue, échéance</td>
+<td>Le lendemain de l’échéance, une seule fois par période</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Règles de gestion</h2>
+<p>Extrait : 30 règles sur 44. Chaque règle porte un identifiant, repris par au moins un test.</p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Règle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Droits et calendrier</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-01</td>
+<td>Lire les DSM d’un opérateur exige la lecture du module Déclarations sur cet opérateur ; agir exige sa gestion. Point de départ, instruction, validation, notes internes et dépôt pendant l’instruction sont réservés au BNIA. L’opérateur ne voit jamais les notes internes.</td>
+</tr>
+<tr>
+<td>RG-DEC-02</td>
+<td>Seul un producteur ou un négociant au statut de déclaration « oui » initie une DSM. Le type de déclarant est figé à l’initiation ; une DSM en cours quand le statut change va à son terme.</td>
+</tr>
+<tr>
+<td>RG-DEC-03</td>
+<td>La période d’un producteur va du 1er avril au 31 mars ; celle d’un négociant est un mois civil.</td>
+</tr>
+<tr>
+<td>RG-DEC-04</td>
+<td>Une nouvelle DSM commence le lendemain de la fin de la dernière DSM validée, ou au début du point de départ. Ni chevauchement ni trou, sauf par un nouveau point de départ.</td>
+</tr>
+<tr>
+<td>RG-DEC-05</td>
+<td>Un opérateur a au plus une DSM non validée. L’initiation est refusée sans point de départ, tant que la précédente n’est pas validée, ou avant le premier jour de la période.</td>
+</tr>
+<tr>
+<td><strong>Point de départ</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-08</td>
+<td>Un point de départ se modifie tant qu’aucune DSM qui commence à son début n’est validée ; la DSM en cours suit (stock de début recalculé, lignes ajoutées ou retirées).</td>
+</tr>
+<tr>
+<td>RG-DEC-09</td>
+<td>Après une interruption, le BNIA fixe un nouveau point de départ, postérieur à la dernière DSM validée. Le stock proposé est le stock de fin de celle-ci, vieilli, modifiable. Le trou est tracé au journal.</td>
+</tr>
+<tr>
+<td><strong>Lignes et vieillissement</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-10</td>
+<td>Une ligne MB ou MV porte un millésime ; une ligne NB ou NV porte une dénomination, et pas de millésime.</td>
+</tr>
+<tr>
+<td>RG-DEC-11</td>
+<td>Deux lignes ne peuvent avoir même millésime ou dénomination, même clé et même compte d’âge. Les dénominations se comparent sans tenir compte de la casse, des accents ni des espaces.</td>
+</tr>
+<tr>
+<td>RG-DEC-12</td>
+<td>Le compte d’âge va de 00 à 20+. MB : calculé depuis le millésime, non saisi. MV : saisi, au plus égal au compte calculé de son millésime. NB, NV : saisis.</td>
+</tr>
+<tr>
+<td>RG-DEC-13</td>
+<td>Une ligne reprise ne se supprime pas et son identité ne se modifie pas : un changement passe par les colonnes 12 et 6. Une ligne ajoutée commence à 0 et peut être supprimée.</td>
+</tr>
+<tr>
+<td>RG-DEC-14</td>
+<td>À l’initiation, chaque ligne de la DSM précédente au stock de fin positif est reprise. Au 1er avril, les lignes en fût vieillissent (MB recalculé, NB +1, bornés à 20+), celles en bouteille non ; les lignes devenues identiques fusionnent, volumes additionnés.</td>
+</tr>
+<tr>
+<td><strong>Volumes et contrôles</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-15</td>
+<td>Un volume est en litres d’alcool pur, positif ou nul, au centilitre.</td>
+</tr>
+<tr>
+<td>RG-DEC-16</td>
+<td>Pour un producteur, les colonnes 2, 3, 5, 9, 11, 19, 24 et 25 restent visibles mais vides et non saisissables, hors de tout total, contrôle et calcul.</td>
+</tr>
+<tr>
+<td>RG-DEC-17</td>
+<td>Par ligne : stock de fin (26) = 1 + 2 + 3 + somme des colonnes 4 à 9 − somme des colonnes 10 à 25.</td>
+</tr>
+<tr>
+<td>RG-DEC-18</td>
+<td>Sont des anomalies : un stock de fin négatif ; total de la colonne 6 ≠ total de la colonne 12 ; pour un négociant, colonne 5 ≠ colonne 11 ; un compte MV trop élevé. Chacune est montrée dès la saisie, avec son niveau et son écart. Elle n’empêche pas d’enregistrer ; elle bloque l’envoi.</td>
+</tr>
+<tr>
+<td><strong>Cycle de la DSM</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-20</td>
+<td>L’opérateur envoie un brouillon, ou renvoie une DSM en compléments demandés, si elle n’a aucune anomalie. Le BNIA prend en charge une DSM envoyée ; il demande des compléments, avec un motif obligatoire, ou valide si aucune pièce ne manque. Rien ne sort de l’état validé.</td>
+</tr>
+<tr>
+<td>RG-DEC-21</td>
+<td>Lignes et volumes ne se modifient, et l’import ne s’applique, qu’en brouillon ou en compléments demandés, par l’opérateur.</td>
+</tr>
+<tr>
+<td>RG-DEC-22</td>
+<td>Seul un brouillon se supprime, par l’opérateur ou par le BNIA, avec ses pièces et sa conversation ; une trace de la suppression reste au journal.</td>
+</tr>
+<tr>
+<td>RG-DEC-23</td>
+<td>Le journal s’écrit en ajout seul, sans valeurs avant et après : initiation, enregistrement, import (nom du fichier), envoi, prise en charge, compléments, validation, édition, dépôt et suppression de pièces, point de départ.</td>
+</tr>
+<tr>
+<td><strong>Pièces</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-26</td>
+<td>Un justificatif est un PDF, avec un type de mouvement et un type de pièce compatibles : achat, vente négoce, vente export → facture ou DAE ; réintégration → avoir ou DAE ; autres fabrications → déclaration de fabrication douanes.</td>
+</tr>
+<tr>
+<td>RG-DEC-27</td>
+<td>Une DSM producteur attend une DRM par mois de sa période, un seul PDF par mois.</td>
+</tr>
+<tr>
+<td>RG-DEC-29</td>
+<td>La validation est bloquée tant que, pour un type de mouvement au total non nul, aucune pièce de ce type n’est déposée, ou tant qu’un mois n’a pas sa DRM. Chaque manque est montré.</td>
+</tr>
+<tr>
+<td><strong>Cotisation et facturation</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-30</td>
+<td>Un taux CVO a un montant positif en €/hlAP, un pourcentage exonéré de TVA de 0 à 100, et une date de début unique ; sa fin est la veille du suivant.</td>
+</tr>
+<tr>
+<td>RG-DEC-31</td>
+<td>L’assiette est le volume des colonnes 14, 16 à 19 et 21 à 25, colonnes grisées exclues.</td>
+</tr>
+<tr>
+<td>RG-DEC-32</td>
+<td>Le taux appliqué est celui en vigueur à la fin de la période ; sans taux, la cotisation est signalée « non calculable ».</td>
+</tr>
+<tr>
+<td>RG-DEC-33</td>
+<td>Une ligne de cotisation par ligne de facture : volume en hlAP = litres ÷ 100 ; part exonérée et part assujettie calculées et arrondies séparément, au centime.</td>
+</tr>
+<tr>
+<td>RG-DEC-43</td>
+<td>Facturer est réservé au BNIA, pour une DSM validée, sans facture en cours, d’un opérateur facturable, à la cotisation non nulle ; sinon le refus dit pourquoi. Une sélection se facture toute ou pas du tout.</td>
+</tr>
+<tr>
+<td><strong>Import et retard</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-37</td>
+<td>L’import Excel est tout ou rien : clé inconnue, volume négatif, ligne en double, valeur en colonne grisée, période différente refusent le fichier entier, avec la liste des erreurs (onglet, ligne, colonne).</td>
+</tr>
+<tr>
+<td>RG-DEC-40</td>
+<td>Une période est en retard si son échéance est passée (le 5 du mois suivant pour un négociant, le 30 avril pour un producteur) et que sa DSM est absente, en brouillon ou en compléments demandés. L’opérateur n’est pas en retard tant que sa DSM attend le BNIA.</td>
+</tr>
+</tbody>
+</table>
+<h2>6. Tests attendus</h2>
+<p>Chaque règle a au moins un test qui porte son identifiant ; chaque cas d’usage a son test de refus de droits. Extrait :</p>
+<table>
+<thead>
+<tr>
+<th>Règle</th>
+<th>Cas testé</th>
+<th>Résultat attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RG-DEC-01</td>
+<td>Un agent d’un négociant prend en charge une DSM</td>
+<td>Refusé : réservé au BNIA</td>
+</tr>
+<tr>
+<td>RG-DEC-01</td>
+<td>L’opérateur consulte sa DSM annotée par le BNIA</td>
+<td>Les notes internes n’apparaissent pas</td>
+</tr>
+<tr>
+<td>RG-DEC-05</td>
+<td>Initier une DSM alors que la précédente est envoyée</td>
+<td>Refusé : une seule DSM non validée</td>
+</tr>
+<tr>
+<td>RG-DEC-11</td>
+<td>Ajouter « Hors d’âge » quand « hors d’age » existe, même clé et même compte</td>
+<td>Refusé : ligne en double</td>
+</tr>
+<tr>
+<td>RG-DEC-12</td>
+<td>Ligne MB du millésime 2015 dans une période qui commence le 1er avril 2026</td>
+<td>Compte d’âge calculé, non saisissable</td>
+</tr>
+<tr>
+<td>RG-DEC-14</td>
+<td>Ligne NB compte 19 et ligne NB 20+ de même dénomination, au 1er avril</td>
+<td>Une seule ligne 20+, volumes additionnés</td>
+</tr>
+<tr>
+<td>RG-DEC-14</td>
+<td>Ligne NV compte 6 au 1er avril</td>
+<td>Compte inchangé</td>
+</tr>
+<tr>
+<td>RG-DEC-16</td>
+<td>Producteur qui saisit en colonne 24</td>
+<td>Refusé ; la colonne reste vide</td>
+</tr>
+<tr>
+<td>RG-DEC-18</td>
+<td>50 L en colonne 6, 60 L en colonne 12</td>
+<td>Anomalie de 10 L ; brouillon enregistré, envoi refusé</td>
+</tr>
+<tr>
+<td>RG-DEC-20</td>
+<td>Valider une DSM validée, ou renvoyer une DSM envoyée</td>
+<td>Refusé : transition interdite</td>
+</tr>
+<tr>
+<td>RG-DEC-20</td>
+<td>Demander des compléments sans motif</td>
+<td>Refusé : motif obligatoire</td>
+</tr>
+<tr>
+<td>RG-DEC-22</td>
+<td>Supprimer une DSM envoyée</td>
+<td>Refusé : seul un brouillon se supprime</td>
+</tr>
+<tr>
+<td>RG-DEC-29</td>
+<td>DSM avec 2 254,15 L à l’export et aucun DAE</td>
+<td>Validation refusée ; le manque est nommé</td>
+</tr>
+<tr>
+<td>RG-DEC-33</td>
+<td>Sorties France 839,11 L à 60 €/hlAP dont 20 % exonérés</td>
+<td>100,69 € exonérés, 402,77 € assujettis</td>
+</tr>
+<tr>
+<td>RG-DEC-37</td>
+<td>Fichier Excel avec une valeur en colonne grisée</td>
+<td>Fichier refusé, erreur située ; rien n’est importé</td>
+</tr>
+<tr>
+<td>RG-DEC-40</td>
+<td>Négociant, DSM d’août envoyée le 3 septembre, non instruite le 10</td>
+<td>Pas en retard : elle attend le BNIA</td>
+</tr>
+<tr>
+<td>RG-DEC-41</td>
+<td>Traitement des retards lancé deux fois le même jour</td>
+<td>Un seul avis de retard publié</td>
+</tr>
+</tbody>
+</table>
+<h2>7. Hypothèses et questions ouvertes</h2>
+<p>Le cahier des charges laisse des points ambigus ou muets. Plutôt que de les trancher seul, chacun est posé au BNIA, avec l’hypothèse retenue d’ici sa réponse : le développement avance sans attendre, et rien n’est figé. Extrait : 12 questions sur 27.</p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Question au BNIA</th>
+<th>Hypothèse retenue d’ici la réponse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q-DEC-1</td>
+<td>Quelles données Floc de Gascogne l’ODG fournit-il pour pointer la colonne 15 ?</td>
+<td>La colonne 15 n’appelle aucun justificatif ; le BNIA peut l’annoter</td>
+</tr>
+<tr>
+<td>Q-DEC-2</td>
+<td>L’assiette négociant comprend-elle les colonnes 16 et 25 ? Les sources se contredisent.</td>
+<td>Oui : la facture d’exemple a deux lignes que seules ces colonnes alimentent</td>
+</tr>
+<tr>
+<td>Q-DEC-3</td>
+<td>La colonne 14 (transferts hors région) entre-t-elle dans l’assiette producteur ?</td>
+<td>Oui : une seule règle par colonne, colonnes grisées exclues</td>
+</tr>
+<tr>
+<td>Q-DEC-4</td>
+<td>Sur quelle ligne de facture placer la colonne 14 et les brandies (19, 24) ?</td>
+<td>Sorties France et Sorties Export ; seule la présentation en dépend</td>
+</tr>
+<tr>
+<td>Q-DEC-6</td>
+<td>Une période peut-elle chevaucher le 1er avril ?</td>
+<td>Non : sinon une ligne aurait deux comptes d’âge</td>
+</tr>
+<tr>
+<td>Q-DEC-7</td>
+<td>Quelle échéance, et l’attente de l’instruction compte-t-elle comme un retard ?</td>
+<td>Le 5 du mois suivant (négociant), le 30 avril (producteur) ; l’attente du BNIA ne compte pas</td>
+</tr>
+<tr>
+<td>Q-DEC-8</td>
+<td>Quels contrôles croisés, et à quelle tolérance ?</td>
+<td>Colonne 6 = colonne 12, colonne 5 = colonne 11, au centilitre ; bloquants à l’envoi</td>
+</tr>
+<tr>
+<td>Q-DEC-11</td>
+<td>Après une période de sommeil, l’opérateur déclare-t-il les périodes d’inactivité ?</td>
+<td>Non : le BNIA fixe un nouveau point de départ</td>
+</tr>
+<tr>
+<td>Q-DEC-14</td>
+<td>Les justificatifs se contrôlent-ils par ligne ou par type de mouvement ?</td>
+<td>Par type de mouvement, sur la DSM : une pièce couvre souvent plusieurs lignes</td>
+</tr>
+<tr>
+<td>Q-DEC-18</td>
+<td>Une DSM validée peut-elle être rouverte ?</td>
+<td>Non : l’erreur se régularise dans la DSM suivante, ou par un avoir</td>
+</tr>
+<tr>
+<td>Q-DEC-23</td>
+<td>Quelle classe de TVA s’applique à la cotisation ?</td>
+<td>20 %, sur la seule part assujettie, comme sur la facture d’exemple</td>
+</tr>
+<tr>
+<td>Q-DEC-26</td>
+<td>À quel niveau de détail suivre le stock estimé, et que fait un contrat qui le dépasse ?</td>
+<td>Millésime, ou assemblage et compte d’âge, fût et bouteille confondus ; à trancher avec le module des contrats</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section class="section" id="10-annexe-cv">
+<section class="section" id="10-annexe-contrat">
 <div class="surtitre">Annexe</div>
-<h1>Curriculum vitae</h1>
-<div class="colonnes">
+<h1>Projet de contrat de prestation</h1>
+<p class="accroche">Ce projet traduit en clauses les engagements de ma proposition. Il est remis à titre indicatif, pour être ajusté avec le BNIA avant signature.</p>
+<p><strong>Entre</strong></p>
+<p><strong>Le Bureau National Interprofessionnel de l’Armagnac (BNIA)</strong>, Eauze (32), représenté par son(sa) Président(e), ci-après « le BNIA »,</p>
+<p><strong>Et</strong></p>
+<p><strong>Pierre-Yves Pollet</strong>, entrepreneur individuel, SIRET 809 686 918 00024, code APE 6202A, Anglet (64), ci-après « le Prestataire ».</p>
+<h2>Article 1 · Objet</h2>
+<p>Le BNIA confie au Prestataire la réalisation, la mise en production et la maintenance de sa nouvelle plateforme métier : le back-office du BNIA et le portail des opérateurs. Elle remplace Integraal et pro.armagnac.fr.</p>
+<h2>Article 2 · Pièces contractuelles</h2>
+<p>Le contrat se compose, par ordre de priorité décroissant : du présent contrat, de son annexe relative aux données personnelles, de la réponse du Prestataire à l’appel d’offres (proposition technique et financière) et du cahier des charges du BNIA. En cas de contradiction, la pièce de rang supérieur prévaut.</p>
+<h2>Article 3 · Déroulement par phases</h2>
+<p>La réalisation se déroule en six phases, décrites dans la proposition du Prestataire :</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Durée estimée</th>
+<th>Forfait HT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 · Prise en main de l’existant</td>
+<td>1 journée</td>
+<td>–</td>
+</tr>
+<tr>
+<td>1 · Preuve de capacité sur données réelles</td>
+<td>2 mois</td>
+<td>5 000 €</td>
+</tr>
+<tr>
+<td>2 · Les DSM sur le portail</td>
+<td>2 mois</td>
+<td>12 000 €</td>
+</tr>
+<tr>
+<td>3 · DSM, export et facturation</td>
+<td>2 mois</td>
+<td>12 000 €</td>
+</tr>
+<tr>
+<td>4 · Contrats et distillation</td>
+<td>3 mois</td>
+<td>18 000 €</td>
+</tr>
+<tr>
+<td>5 · Arrêt d’Integraal</td>
+<td>1 mois</td>
+<td>6 000 €</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>53 000 €</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Les durées courent à compter de la fourniture des prérequis de chaque phase par le BNIA (données à reprendre, validation de la matrice Excel des DSM, accès aux outils existants). Un retard dans leur fourniture décale d’autant le calendrier.</p>
+<p>À l’issue de la phase 0, le Prestataire remet un plan de déploiement confirmé ou ajusté. Toute modification du découpage des phases est soumise à l’accord écrit du BNIA, avant d’engager la phase concernée.</p>
+<h2>Article 4 · Recette</h2>
+<p>Chaque module est livré sur la plateforme de recette, essayé par le groupe d’adoption, puis validé par le comité de pilotage. Le BNIA décide seul des mises en production.</p>
+<h2>Article 5 · Prix et paiement</h2>
+<p>Les prix sont fermes et exprimés hors taxes.</p>
+<p>Chaque forfait est facturé après la validation de la phase correspondante, et payable à 30 jours à compter de la date de facture. Aucun acompte n’est demandé.</p>
+<p>Chaque forfait comprend le développement, les tests, la mise en production, la documentation, l’animation du comité de pilotage et du groupe d’adoption, l’accompagnement des opérateurs à chaque ouverture et les relations avec les prestataires externes. Les déplacements dans les locaux du BNIA nécessaires au projet sont compris.</p>
+<h2>Article 6 · Liberté de poursuivre</h2>
+<p>À l’issue de la phase 1, le BNIA décide librement de poursuivre ou d’arrêter, sans pénalité ni indemnité. Il en va de même à l’issue de chaque phase suivante : le BNIA peut mettre fin au contrat par écrit, en ne réglant que les phases validées. Les droits de l’article 9 lui restent acquis sur tout ce qui a été payé.</p>
+<h2>Article 7 · Services externes</h2>
+<p>Les connexions à Zeendoc, Otentik et l’ODG sont comprises dans le prix, sous l’hypothèse qu’ils proposent une interface standard (API REST). Le Prestataire vérifie cette hypothèse dès la phase 1. Si l’un d’eux s’en écarte, il en informe le BNIA avec un chiffrage, avant de poursuivre.</p>
+<p>La connexion à un service de signature électronique des DSM est une option, estimée à 5 000 € HT, que le BNIA peut lever par écrit. L’abonnement et le coût par signature du service retenu restent à sa charge. Toute connexion à un nouveau service externe fait l’objet d’un devis.</p>
+<h2>Article 8 · Hébergement</h2>
+<p>L’hébergement de production est souscrit chez Scalingo (Paris) au nom du BNIA, qui en règle directement les factures, sans marge du Prestataire. Le BNIA détient les accès ; il autorise le Prestataire à administrer ce compte pour son compte, pendant la durée du contrat.</p>
+<h2>Article 9 · Propriété et réversibilité</h2>
+<p>Le code source est publié sous licence libre, dans un dépôt au nom du BNIA. Le Prestataire cède au BNIA, au fur et à mesure du paiement de chaque phase, les droits patrimoniaux sur les développements spécifiques réalisés au titre du contrat (reproduction, représentation, adaptation, modification, pour le monde entier et la durée des droits). Les composants libres utilisés restent soumis à leur propre licence.</p>
+<p>Les données appartiennent au BNIA. Elles sont exportables à tout moment depuis la plateforme. À la fin du contrat, quelle qu’en soit la cause, le Prestataire remet au BNIA les accès, la documentation d’installation et d’exploitation.</p>
+<h2>Article 10 · Maintenance</h2>
+<p><strong>Durée et prix.</strong> La maintenance de tout ce qui est en production est comprise dans les forfaits de réalisation jusqu’au 31 décembre 2027. Elle se poursuit ensuite par un forfait annuel de <strong>15 000 € HT en 2028</strong>, puis de <strong>8 000 € HT par an</strong> à partir de 2029, facturé en début d’année. Elle est conclue pour l’année civile, et reconduite tacitement chaque année, sauf résiliation par l’une des parties par écrit au moins trois mois avant la fin de l’année.</p>
+<p><strong>Contenu.</strong> Le forfait couvre la maintenance corrective (correction des bugs et résolution des incidents), la maintenance réglementaire (adaptations limitées imposées par une évolution réglementaire ; la refonte d’un module relève de la maintenance évolutive), la supervision, les mises à jour de sécurité et le support des équipes du BNIA. La maintenance évolutive fait l’objet de devis, que le BNIA reste libre de confier à un autre prestataire.</p>
+<p><strong>Délais de prise en charge</strong>, à compter du signalement par le BNIA ou de l’alerte de la supervision : 1 jour ouvré pour un incident majeur (blocage de la plateforme), 4 jours ouvrés pour un incident important (blocage d’un opérateur, bug sur une fonctionnalité), corrections regroupées une fois par mois pour un incident mineur. Les incidents qui proviennent d’un service externe sont signalés à ce service et suivis par le Prestataire.</p>
+<h2>Article 11 · Organisation</h2>
+<p>Le Prestataire est l’interlocuteur unique du BNIA, pour la réalisation comme pour la maintenance. Il anime le comité de pilotage et le groupe d’adoption. Il exécute sa mission en toute indépendance, avec ses propres moyens, sans lien de subordination avec le BNIA.</p>
+<p>Le BNIA désigne un référent, met à disposition les informations et les données nécessaires, et réunit le comité de pilotage aux échéances convenues.</p>
+<h2>Article 12 · Responsabilité</h2>
+<p>Le Prestataire est tenu d’une obligation de moyens. Sa responsabilité est limitée aux dommages directs, et plafonnée au montant des sommes perçues au titre du contrat au cours des douze derniers mois. Ce plafond ne s’applique pas en cas de faute lourde ou intentionnelle.</p>
+<h2>Article 13 · Confidentialité et données personnelles</h2>
+<p>Chaque partie garde confidentielles les informations de l’autre dont elle a connaissance à l’occasion du contrat, pendant sa durée et cinq ans après. Le Prestataire traite les données personnelles pour le compte du BNIA, dans les conditions de l’accord de sous-traitance annexé.</p>
+<h2>Article 14 · Force majeure</h2>
+<p>Aucune partie n’est responsable d’un manquement dû à un cas de force majeure au sens de l’article 1218 du Code civil. Si l’empêchement dure plus de deux mois, chaque partie peut mettre fin au contrat par écrit, les phases validées restant dues.</p>
+<h2>Article 15 · Droit applicable et litiges</h2>
+<p>Le contrat est soumis au droit français. En cas de différend, les parties recherchent d’abord une solution amiable, au besoin en comité de pilotage. À défaut d’accord dans un délai de deux mois, le litige est porté devant le tribunal compétent du ressort du siège du BNIA.</p>
+<div class="signatures">
 <div>
-<h2>Parcours d’ingénieur logiciel</h2>
-<ul>
-<li><strong>Depuis septembre 2026 · Indépendant (auto-entreprise).</strong> Conseil et développement d’applications de gestion d’entreprise.</li>
-<li><strong>2022 – 2026 · Groupe Seldon pour la Banque de France.</strong> Création d’une application de gestion de prêts (portail de dépôt et back-office d’instruction), interfaçage avec la signature électronique, sécurisation renforcée, comités de pilotage avec la direction de la Banque de France.</li>
-<li><strong>2020 – 2022 · Développeur indépendant.</strong> E-commerce (CartoucheClub.com), portail de formations d’un réseau vétérinaire (Excelvet).</li>
-<li><strong>2021 · Master informatique</strong> (e-MIAGE), en reprise d’études.</li>
-</ul>
+<p>Fait à Eauze, le 21/10/2026, en deux exemplaires.</p>
+<p><strong>Pour le BNIA</strong><br>
+Le(la) Président(e)</p>
 </div>
 <div>
-<h2>Parcours d’ingénieur agronome</h2>
-<p class="sous-titre">Spécialisé dans la maîtrise de la qualité et la traçabilité des filières agricoles.</p>
+<p> </p>
+<p><strong>Le Prestataire</strong><br>
+Pierre-Yves Pollet</p>
+</div>
+</div>
+</section>
+<section class="section" id="11-annexe-rgpd">
+<div class="surtitre">Annexe</div>
+<h1>Accord de sous-traitance des données personnelles</h1>
+<p class="accroche">Article 28 du règlement général sur la protection des données (RGPD). Cet accord est annexé au contrat de prestation. Il fixe les engagements du Prestataire, qui traite des données personnelles pour le compte du BNIA.</p>
+<p><strong>Entre</strong> le Bureau National Interprofessionnel de l’Armagnac (BNIA), Eauze (32), <strong>responsable du traitement</strong>, représenté par son(sa) Président(e),</p>
+<p><strong>et</strong> Pierre-Yves Pollet, entrepreneur individuel, SIRET 809 686 918 00024, Anglet (64), <strong>sous-traitant</strong>.</p>
+<h2>1 · Objet et durée</h2>
+<p>Le sous-traitant traite des données personnelles pour le compte du BNIA, uniquement pour réaliser, mettre en production et maintenir la plateforme du BNIA (back-office et portail des opérateurs). L’accord s’applique pendant toute la durée du contrat de prestation, maintenance comprise.</p>
+<h2>2 · Description du traitement</h2>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Finalités</strong></td>
+<td>Gestion des opérateurs de la filière et de leurs utilisateurs ; déclarations (DSM, contrats, certificats) ; facturation des cotisations ; messagerie entre le BNIA et les opérateurs ; authentification et sécurité des accès</td>
+</tr>
+<tr>
+<td><strong>Personnes concernées</strong></td>
+<td>Utilisateurs de la plateforme (personnel du BNIA, dirigeants et salariés des opérateurs) ; contacts des opérateurs</td>
+</tr>
+<tr>
+<td><strong>Données traitées</strong></td>
+<td>Identité, fonction et coordonnées professionnelles ; identifiants de connexion et journal des connexions ; messages échangés ; déclarations et factures rattachées à un opérateur et à leur auteur</td>
+</tr>
+<tr>
+<td><strong>Données sensibles</strong></td>
+<td>Aucune</td>
+</tr>
+<tr>
+<td><strong>Opérations</strong></td>
+<td>Reprise des données d’Integraal et de pro.armagnac.fr, hébergement, consultation, modification, sauvegarde, suppression, dans le cadre de la mise au point et de la maintenance</td>
+</tr>
+</tbody>
+</table>
+<h2>3 · Obligations du sous-traitant</h2>
+<p>Le sous-traitant s’engage à :</p>
 <ul>
-<li><strong>2014 – 2019 · Direction d’une coopérative</strong> : production, commercialisation, gestion.</li>
-<li><strong>2008 – 2014 · Filière sous signe officiel de qualité.</strong> Construction collective de l’AOP Kintoa et de son cahier des charges, suivi des producteurs et des indicateurs.</li>
-<li><strong>2007 – 2008 · Conseiller agricole</strong>, Chambre d’agriculture des Ardennes.</li>
-<li><strong>2005 · Ingénieur agronome</strong>, AgroParisTech.</li>
+<li><strong>traiter les données uniquement sur instruction documentée du BNIA</strong>, et à l’informer sans délai si une instruction lui paraît contraire au RGPD ;</li>
+<li><strong>garantir leur confidentialité</strong> : il est seul à intervenir, et n’emploie aucun salarié ni intervenant extérieur sans l’accord écrit du BNIA ;</li>
+<li><strong>assurer leur sécurité</strong> : chiffrement des échanges (HTTPS) et des données stockées chez l’hébergeur ; mots de passe jamais conservés en clair ; double authentification ; blocage après plusieurs échecs de connexion ; droits vérifiés par le serveur à chaque action, chacun ne voyant que ce qui le concerne ; traçabilité des saisies et des connexions ; sauvegardes quotidiennes ; mises à jour de sécurité ;</li>
+<li><strong>limiter son propre accès</strong> au strict nécessaire : il n’utilise des données réelles qu’aux fins de la reprise, des essais en recette et de la résolution des incidents, et ne les copie jamais sur un support personnel ;</li>
+<li><strong>aider le BNIA</strong> à répondre aux demandes d’exercice des droits des personnes (accès, rectification, effacement, limitation, opposition), en lui transmettant sans délai toute demande reçue directement ;</li>
+<li><strong>notifier au BNIA toute violation de données</strong> dans un délai de <strong>48 heures</strong> après en avoir pris connaissance, avec les informations utiles à sa propre notification à la CNIL ;</li>
+<li><strong>aider le BNIA</strong> à réaliser, si nécessaire, une analyse d’impact, et lui fournir les informations nécessaires à la tenue de son registre des traitements ;</li>
+<li><strong>tenir un registre</strong> des traitements effectués pour le compte du BNIA ;</li>
+<li><strong>permettre des audits</strong> : il met à la disposition du BNIA les informations nécessaires pour démontrer le respect de ses obligations, et se prête aux audits menés par le BNIA ou un auditeur qu’il mandate, avec un préavis raisonnable.</li>
+</ul>
+<h2>4 · Sous-traitants ultérieurs</h2>
+<p>Le BNIA autorise le recours aux sous-traitants suivants :</p>
+<table>
+<thead>
+<tr>
+<th>Sous-traitant</th>
+<th>Service</th>
+<th>Localisation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scalingo SAS</td>
+<td>Hébergement des plateformes de production et de recette : application, base de données et documents ; certifié ISO 27001</td>
+<td>France (Paris)</td>
+</tr>
+</tbody>
+</table>
+<p>Le contrat d’hébergement de la production est souscrit directement au nom du BNIA ; celui de la recette, par le sous-traitant. Les e-mails sont envoyés par la messagerie du BNIA (armagnac.fr), sans prestataire d’envoi supplémentaire. Tout nouveau sous-traitant ultérieur est soumis à l’accord écrit préalable du BNIA et aux mêmes obligations.</p>
+<p><strong>Aucune donnée n’est transférée hors de l’Union européenne.</strong></p>
+<h2>5 · Obligations du BNIA</h2>
+<p>Le BNIA fournit au sous-traitant les données nécessaires et les instructions de traitement, informe les personnes concernées, veille au respect du RGPD pendant toute la durée du traitement et définit les durées de conservation des données.</p>
+<h2>6 · Fin de l’accord</h2>
+<p>À la fin du contrat, quelle qu’en soit la cause, le sous-traitant restitue au BNIA l’ensemble des données, dans un format exploitable, puis supprime toutes les copies en sa possession, notamment celles de la plateforme de recette, et le confirme par écrit. Les données de production restent chez l’hébergeur, sous le contrat du BNIA.</p>
+<div class="signatures">
+<div>
+<p>Fait à Eauze, le 21/10/2026, en deux exemplaires.</p>
+<p><strong>Pour le BNIA, responsable du traitement</strong><br>
+Le(la) Président(e)</p>
+</div>
+<div>
+<p> </p>
+<p><strong>Le sous-traitant</strong><br>
+Pierre-Yves Pollet</p>
+</div>
+</div>
+</section>
+<section class="section" id="12-annexe-cv">
+<div class="surtitre">Annexe</div>
+<h1>Curriculum vitae</h1>
+<p class="accroche">J’aime construire des outils de bout en bout : comprendre le métier, concevoir, développer, mettre en ligne, accompagner les utilisateurs, puis maintenir et faire évoluer la solution dans la durée. Douze ans en responsabilités métier, dans une filière agricole puis à la tête d’une coopérative, puis six ans en ingénierie logicielle : pour moi, le logiciel est un moyen, jamais une fin.</p>
+<h2>Expérience en ingénierie logicielle</h2>
+<div class="cv-poste">
+<div class="cv-date">Depuis 2026</div>
+<div>
+<h3>Ingénieur logiciel indépendant <span>· Entreprise individuelle, Anglet</span></h3>
+<p>Conception et développement d’applications métier, en autonomie sur un périmètre complet.</p>
+<ul>
+<li><strong>Artzak Anglet, roller hockey</strong> : gestion des bénévoles pour l’organisation des matchs à domicile ; projet d’extension à tous les clubs via la Fédération française de roller et skateboard.</li>
+<li><strong>Terre d’Arjoux, élevage de porcs plein air, transformation et vente directe</strong> : gestion du cheptel et suivi des transformations pour l’agrément sanitaire, adaptés aux exploitations traditionnelles en plein air et en agriculture biologique.</li>
+</ul>
+<p class="cv-stack">Java · Spring Boot · PostgreSQL · Keycloak · Vue.js · Docker · Linux</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2023 – 2026<br><span>3 ans 4 mois</span></div>
+<div>
+<h3>Chef de projet et responsable technique <span>· Groupe Seldon, Bidart</span></h3>
+<p>Application de gestion de prêts pour la Banque de France : 6&nbsp;000 utilisateurs actifs, plus de 10&nbsp;Md€ d’encours. Développement environ 60&nbsp;%, pilotage environ 40&nbsp;%.</p>
+<ul>
+<li><strong>Produit et pilotage</strong> : ateliers de recueil du besoin, rédaction et priorisation des besoins, interface entre le métier, la maîtrise d’ouvrage et l’équipe de développement ; planning, gestion des risques, comités de pilotage avec le sponsor Banque de France.</li>
+<li><strong>Équipe</strong> : encadrement technique de 4 développeurs (2 confirmés, 2 juniors) : règles de développement, relectures de code, montée en compétence.</li>
+<li><strong>Portail des usagers</strong> : dépôt des demandes, transmission des justificatifs, déblocage des fonds, remboursement anticipé, demande de suspension.</li>
+<li><strong>Back-office d’instruction</strong> : traitement des dossiers par les agents, circuit de triple validation, octroi ou refus motivé, suivi des impayés.</li>
+<li><strong>Sécurité et accès</strong> : authentification fédérée avec celle de la Banque de France, gestion fine des rôles des agents et des usagers.</li>
+<li><strong>Échanges avec d’autres systèmes</strong> : applications internes, système d’information de la Banque de France, prestataire de signature électronique (Oodrive).</li>
+<li><strong>Exploitation</strong> : reprise des données de l’ancien système (SAP, 25 ans d’historique), mises en production, supervision, optimisation des performances, maintenance corrective et évolutive.</li>
+</ul>
+<p class="cv-stack">Java · Spring Boot · Hibernate · PostgreSQL · stockage objet S3 · Keycloak · React · Docker · GitLab CI</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2022<br><span>4 mois</span></div>
+<div>
+<h3>Développeur <span>· Groupe Seldon, Bidart</span></h3>
+<p>Progiciel de gestion interne (support client, suivi commercial, gestion des projets) : évolutions et maintenance d’un produit utilisé chaque jour par les équipes et les clients.</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2020 – 2022<br><span>2 ans</span></div>
+<div>
+<h3>Développeur indépendant <span>· Anglet</span></h3>
+<ul>
+<li><strong>CartoucheClub.com, commerce en ligne</strong> : détection en temps réel des paniers abandonnés et relance des clients par téléphone, depuis un back-office utilisé par un centre d’appels.</li>
+<li><strong>Excelvet, réseau de cliniques vétérinaires</strong> : site de présentation et d’inscription aux formations, et gestion du calendrier des formations.</li>
+</ul>
+<p class="cv-stack">Java · Spring Boot · MySQL · Vue.js · Jenkins · Linux</p>
+</div>
+</div>
+<h2>Douze ans en responsabilités métier</h2>
+<div class="cv-poste">
+<div class="cv-date">2014 – 2019<br><span>5 ans</span></div>
+<div>
+<h3>Directeur <span>· Coopérative agricole Belaun, Les Aldudes</span></h3>
+<p>Direction d’une structure de 6 salariés : recrutement et encadrement, gestion de la production, développement commercial (chiffre d’affaires doublé, de 400&nbsp;k€ à 800&nbsp;k€), gestion financière et budgétaire, obligations déclaratives.</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2008 – 2014<br><span>6 ans</span></div>
+<div>
+<h3>Coordinateur de filière <span>· Filière du Porc Basque, Les Aldudes</span></h3>
+<p>Animation d’un réseau de 80 producteurs et 5 artisans : appui-conseil, suivi financier, suivi des indicateurs de la filière, relations avec les institutions locales et régionales. Obtention de l’AOP Kintoa au terme d’une démarche collective de plusieurs années.</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2007 – 2008<br><span>1 an</span></div>
+<div>
+<h3>Conseiller agricole <span>· Chambre d’agriculture des Ardennes</span></h3>
+</div>
+</div>
+<div class="colonnes cv-bas">
+<div>
+<h2>Formation</h2>
+<ul>
+<li><strong>Master informatique (e-MIAGE)</strong>, Université de Picardie Jules Verne, 2021, suivi à distance pendant l’activité professionnelle.</li>
+<li><strong>Ingénieur agronome</strong>, AgroParisTech, 2005.</li>
+</ul>
+<p><strong>Langues</strong> : français, langue maternelle ; anglais professionnel.</p>
+</div>
+<div>
+<h2>Compétences</h2>
+<ul>
+<li><strong>Conception</strong> : analyse du métier, découpage en modules, tests automatisés.</li>
+<li><strong>Produit</strong> : ateliers de cadrage, priorisation, arbitrage de périmètre, accompagnement des utilisateurs.</li>
+<li><strong>Développement</strong> : Java, Spring Boot, PostgreSQL, React, Vue.js, TypeScript.</li>
+<li><strong>Sécurité</strong> : authentification, habilitations, données personnelles.</li>
+<li><strong>Exploitation</strong> : mise en production, supervision, reprise de données.</li>
 </ul>
 </div>
 </div>

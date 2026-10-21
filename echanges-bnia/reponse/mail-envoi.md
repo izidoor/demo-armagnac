@@ -1,11 +1,11 @@
 **À** : direction@armagnac.fr
-**Objet** : Réponse à l’appel d’offres « Observatoire de la filière Armagnac » – Pierre-Yves Pollet
+**Objet** : Réponse à l’appel d’offres « Observatoire économique et gestion de la Donnée Armagnac » – Pierre-Yves Pollet
 
 **Pièce jointe** : reponse.pdf
 
 ---
 
-Madame, Monsieur,
+Bonjour Olivier,
 
 Vous trouverez ci-joint ma réponse à l’appel d’offres pour la refonte de la plateforme de la filière Armagnac.
 
@@ -13,23 +13,13 @@ Ma proposition s’accompagne d’un prototype, réalisé à partir du cahier de
 
 **https://bnia-demo.osc-fr1.scalingo.io**
 
-Pour vous connecter :
+Les identifiants de connexion sont listés sur la page de connexion du prototype. Le prototype est présenté en détail dans le document, en section 8. Les données sont fictives : vous pouvez saisir, valider et facturer sans crainte.
 
-- mot de passe, commun à tous les comptes : **demo-armagnac** ;
-- si un code de vérification est demandé : **000000**.
+J’ai bien noté notre rendez-vous du mardi 27 octobre à 10 h 30. Pourriez-vous me le confirmer, ainsi que la liste des participants ? Sera-t-il possible de projeter une présentation ?
 
-| Compte | Ce que vous y voyez |
-|---|---|
-| admin@bnia.fr | Le back-office du BNIA, avec tous les droits : opérateurs, DSM à instruire, facturation, messagerie |
-| agent@bnia.fr | Le back-office du BNIA, avec les droits d’un agent |
-| admin@negociant.fr | Le portail d’un négociant (Armagnacs de Gascogne) : DSM mensuelles, dont une pour laquelle le BNIA a demandé des compléments ; factures, messagerie |
-| admin@producteur.fr | Le portail d’un producteur (Maison Durand), avec deux chais : DSM annuelle en cours de saisie, avec une incohérence à corriger |
+Je reste à votre disposition si vous désirez des compléments d'ici là.
 
-Les données sont fictives : vous pouvez saisir, valider et facturer sans crainte. Elles seront remises à zéro de temps à autre.
-
-Je me tiens à votre disposition pour vous présenter cette proposition et le prototype, à la date qui vous conviendra.
-
-Je vous prie d’agréer, Madame, Monsieur, l’expression de mes salutations distinguées.
+Bonne réception,
 
 Pierre-Yves Pollet
 Entreprise individuelle · SIRET 809 686 918 00024

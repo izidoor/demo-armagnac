@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
-import chai from '@/assets/chai.jpg'
 import { Logo } from '@/assets/logo'
+import vignes from '@/assets/vignes.jpg'
 
 type AuthLayoutProps = {
   children: ReactNode
@@ -24,7 +24,7 @@ function Formulaire({ children }: { children: ReactNode }) {
   )
 }
 
-/** Gabarit des écrans publics ; sur deux colonnes, la photo d'un chai et un panneau en surimpression. */
+/** Gabarit des écrans publics ; sur deux colonnes, la photo d'un vignoble et un panneau en surimpression. */
 export function AuthLayout({ children, panneau }: AuthLayoutProps) {
   if (!panneau) {
     return (
@@ -40,9 +40,9 @@ export function AuthLayout({ children, panneau }: AuthLayoutProps) {
       </div>
       <div className='relative hidden lg:block'>
         <img
-          src={chai}
-          alt='Fûts dans un chai'
-          className='absolute inset-0 h-full w-full object-cover'
+          src={vignes}
+          alt='Rangs de vigne au soleil levant'
+          className='absolute inset-0 h-full w-full object-cover object-[75%_center]'
         />
         <div className='absolute inset-0 flex items-center justify-center p-10'>
           <div className='w-full max-w-lg rounded-lg bg-white/85 p-6 text-sm text-neutral-900 shadow-lg backdrop-blur-sm'>
@@ -50,12 +50,12 @@ export function AuthLayout({ children, panneau }: AuthLayoutProps) {
           </div>
         </div>
         <a
-          href='https://unsplash.com/photos/t6RoUiXuhso'
+          href='https://unsplash.com/fr/photos/le-soleil-se-couche-sur-un-vignoble-vHds06aM3c8'
           target='_blank'
           rel='noreferrer'
           className='absolute right-3 bottom-2 text-xs text-white/80 hover:underline'
         >
-          Photo : Javier Balseiro, Unsplash
+          Photo : Unsplash
         </a>
       </div>
     </div>

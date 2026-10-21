@@ -2,7 +2,7 @@
 
 <div class="garde-haut">
 <div class="surtitre">Réponse à l’appel d’offres du 23 septembre 2026</div>
-<h1>Observatoire de la filière Armagnac</h1>
+<h1>Observatoire économique et gestion de la Donnée Armagnac</h1>
 <p class="garde-sous-titre">Création de la plateforme : back-office du BNIA et portail des opérateurs</p>
 <p class="garde-nature">Proposition technique et financière</p>
 </div>
@@ -10,16 +10,22 @@
 <div class="garde-sommaire">
 <h2>Sommaire</h2>
 <ol>
-<li><strong>Synthèse</strong></li>
-<li><strong>Le prestataire</strong></li>
-<li><strong>Stratégie de réalisation</strong></li>
-<li><strong>Calendrier prévisionnel</strong></li>
-<li><strong>Aspects techniques</strong></li>
-<li><strong>Offre financière</strong></li>
-<li><strong>Maintenance</strong></li>
-<li><strong>Prototype</strong></li>
+<li><span class="ligne"><span class="entree"><strong>Synthèse</strong></span><span class="points"></span><span class="page">{{page:01-synthese}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Le prestataire</strong></span><span class="points"></span><span class="page">{{page:02-profil}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Stratégie de réalisation</strong></span><span class="points"></span><span class="page">{{page:03-demarche}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Calendrier prévisionnel</strong></span><span class="points"></span><span class="page">{{page:04-calendrier}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Aspects techniques</strong></span><span class="points"></span><span class="page">{{page:05-technique}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Offre financière</strong></span><span class="points"></span><span class="page">{{page:06-offre-financiere}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Maintenance</strong></span><span class="points"></span><span class="page">{{page:07-maintenance}}</span></span></li>
+<li><span class="ligne"><span class="entree"><strong>Prototype</strong></span><span class="points"></span><span class="page">{{page:08-prototype}}</span></span></li>
 </ol>
-<p class="garde-annexes">Annexes : exemple d’une spécification détaillée d’un module, curriculum vitae et recommandations</p>
+<h3>Annexes</h3>
+<ol class="garde-annexes" type="A">
+<li><span class="ligne"><span class="entree">Spécification détaillée du module Déclarations</span><span class="points"></span><span class="page">{{page:09-annexe-specification}}</span></span></li>
+<li><span class="ligne"><span class="entree">Projet de contrat de prestation</span><span class="points"></span><span class="page">{{page:10-annexe-contrat}}</span></span></li>
+<li><span class="ligne"><span class="entree">Accord de sous-traitance des données personnelles (RGPD)</span><span class="points"></span><span class="page">{{page:11-annexe-rgpd}}</span></span></li>
+<li><span class="ligne"><span class="entree">Curriculum vitae détaillé</span><span class="points"></span><span class="page">{{page:12-annexe-cv}}</span></span></li>
+</ol>
 </div>
 
 <div class="garde-bas">

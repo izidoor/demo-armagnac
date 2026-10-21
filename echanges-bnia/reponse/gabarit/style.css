@@ -17,7 +17,7 @@
   size: A4;
   margin: 18mm 18mm 20mm;
   @bottom-left {
-    content: 'Pierre-Yves Pollet · Observatoire de la filière Armagnac';
+    content: 'Pierre-Yves Pollet · Observatoire économique et gestion de la Donnée Armagnac';
     font: 7.5pt var(--sans);
     color: #7a6f66;
   }
@@ -163,6 +163,11 @@ p:has(+ table), p:has(+ .livraisons) { break-after: avoid; }
 .garde-sommaire h2 { font-size: 12pt; margin-top: 0; }
 .garde-sommaire ol { font-size: 10pt; padding-left: 16pt; margin-bottom: 6pt; }
 .garde-sommaire li { margin-bottom: 4pt; }
+.garde-sommaire .ligne { display: flex; align-items: baseline; }
+.garde-sommaire .points { flex: 1; border-bottom: 1px dotted var(--discret); margin: 0 6pt; transform: translateY(-3pt); }
+.garde-sommaire .page { font-variant-numeric: tabular-nums; min-width: 14pt; text-align: right; }
+.garde-sommaire h3 { font-size: 10pt; margin: 10pt 0 4pt; }
+.garde-sommaire ol.garde-annexes { font-size: 9pt; color: var(--encre); }
 .garde-annexes { color: var(--discret); font-size: 9pt; }
 .garde-bas { display: grid; grid-template-columns: 1.1fr 1.5fr .6fr; gap: 16pt; border-top: 1px solid var(--filet);
              padding-top: 10pt; font-size: 8.5pt; line-height: 1.5; }
@@ -201,3 +206,41 @@ p:has(+ table), p:has(+ .livraisons) { break-after: avoid; }
 #\30 8-prototype td, #\30 8-prototype th { padding: 2.5pt 6pt; }
 #\30 8-prototype .definitions ul { font-size: 8.4pt; line-height: 1.38; }
 #\30 8-prototype h2 { margin-top: 14pt; }
+#\30 8-prototype .comptes td:first-child { white-space: nowrap; }
+.comptes tr.groupe th { background: var(--ambre-pale); color: var(--ambre-fonce); border-bottom: none;
+                        padding-top: 4pt; padding-bottom: 4pt; }
+.comptes tbody tr.groupe:not(:first-child) th { border-top: 6pt solid #fff; }
+
+/* Annexe CV détaillé */
+#\31 2-annexe-cv .cv-poste { display: grid; grid-template-columns: 22mm 1fr; gap: 0 8pt; margin: 0 0 7pt; break-inside: avoid; }
+#\31 2-annexe-cv .cv-date { font: 600 8.4pt var(--sans); color: var(--ambre-fonce); padding-top: 1pt; }
+#\31 2-annexe-cv .cv-date span { font-weight: 400; color: var(--discret); font-size: 7.8pt; }
+#\31 2-annexe-cv .cv-poste h3 { margin: 0 0 2pt; font-size: 10pt; }
+#\31 2-annexe-cv .cv-poste h3 span { font-weight: 400; color: var(--discret); }
+#\31 2-annexe-cv .cv-poste p, #\31 2-annexe-cv .cv-poste li { font-size: 8.8pt; line-height: 1.4; }
+#\31 2-annexe-cv .cv-poste p { margin: 0 0 3pt; }
+#\31 2-annexe-cv .cv-poste ul { margin: 0 0 3pt; }
+#\31 2-annexe-cv .cv-stack { font: 7.8pt var(--sans); color: var(--discret); }
+#\31 2-annexe-cv h2 { margin-top: 12pt; }
+#\31 2-annexe-cv .cv-bas li, #\31 2-annexe-cv .cv-bas p { font-size: 8.8pt; }
+
+/* Annexes contrat et RGPD : texte juridique compact, bloc de signatures */
+#\31 0-annexe-contrat, #\31 1-annexe-rgpd { font-size: 8.8pt; line-height: 1.42; }
+#\31 0-annexe-contrat h2, #\31 1-annexe-rgpd h2 { font-size: 11pt; margin: 11pt 0 3pt; break-after: avoid; }
+#\31 0-annexe-contrat p, #\31 1-annexe-rgpd p { margin: 0 0 5pt; }
+#\31 0-annexe-contrat table, #\31 1-annexe-rgpd table { font-size: 8.3pt; margin: 3pt 0 6pt; }
+#\31 0-annexe-contrat td, #\31 0-annexe-contrat th, #\31 1-annexe-rgpd td, #\31 1-annexe-rgpd th { padding: 2.5pt 6pt; }
+#\31 1-annexe-rgpd td:first-child { white-space: nowrap; }
+.signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 20pt; margin-top: 16pt; break-inside: avoid; }
+.signatures > div { min-height: 70pt; }
+
+/* Annexe : spécification détaillée du module Déclarations */
+#\30 9-annexe-specification h2 { margin-top: 16pt; }
+#\30 9-annexe-specification table { font-size: 8pt; line-height: 1.32; break-inside: auto; }
+#\30 9-annexe-specification td, #\30 9-annexe-specification th { padding: 2.5pt 5pt; }
+#\30 9-annexe-specification tr { break-inside: avoid; }
+#\30 9-annexe-specification table:not(.propositions) td:first-child { white-space: nowrap; }
+#\30 9-annexe-specification tr:has(> td:first-child > strong) { break-after: avoid; }
+#\30 9-annexe-specification .schema img { width: 94%; margin: 0 auto; }
+#\30 9-annexe-specification .colonnes-dsm { font-size: 7.4pt; line-height: 1.2; }
+#\30 9-annexe-specification .colonnes-dsm td, #\30 9-annexe-specification .colonnes-dsm th { padding: 1.4pt 5pt; }

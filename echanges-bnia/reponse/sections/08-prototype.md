@@ -2,13 +2,11 @@
 
 # Un prototype à essayer en ligne
 
-<div class="encadre">
+- **Adresse : [bnia-demo.osc-fr1.scalingo.io](https://bnia-demo.osc-fr1.scalingo.io)**  
+- Mot de passe, commun à tous les comptes : **demo-armagnac**. 
+- Si un code de vérification est demandé : **000000**.  
+- Les données sont fictives : tout peut être essayé sans crainte.
 
-**Adresse : [bnia-demo.osc-fr1.scalingo.io](https://bnia-demo.osc-fr1.scalingo.io)**  
-Mot de passe, commun à tous les comptes : **demo-armagnac**. Si un code de vérification est demandé : **000000**.  
-Les données sont fictives : tout peut être essayé sans crainte.
-
-</div>
 
 ## Ce qu'on peut y faire
 
@@ -47,16 +45,38 @@ Les données sont fictives : tout peut être essayé sans crainte.
 </div>
 </div>
 
-Une **messagerie** relie aussi le BNIA et les opérateurs : chaque échange peut être rattaché à une DSM ou à une facture.
+Une **messagerie interne** relie aussi le BNIA et les opérateurs : chaque échange peut être rattaché à une DSM ou à une facture. Les opérateurs ont également la possibilité d'ouvrir des conversations sur des sujets libres avec le BNIA.
+
+<div class="encadre">
+<h3>Aucun e-mail n’est réellement envoyé par le prototype</h3>
+<p>La plateforme envoie des e-mails à plusieurs occasions : l’invitation d’un nouvel utilisateur, le lien « mot de passe oublié », la confirmation d’un changement d’adresse e-mail ou le code de vérification. Sur le prototype, ces e-mails sont préparés mais ne partent pas : les actions qui les déclenchent peuvent être essayées, sans que le message arrive.</p>
+<p>C’est volontaire. Les comptes et les opérateurs sont fictifs : envoyer de vrais e-mails depuis une démonstration ouverte à tous risquerait d’écrire à des adresses réelles, ou de faire passer la plateforme pour un expéditeur indésirable. En production, les e-mails partiront par la messagerie du BNIA (armagnac.fr). Pour essayer le prototype, il suffit d’utiliser les comptes de démonstration présentés ci-après.</p>
+</div>
+
+<div class="saut"></div>
 
 ## Les comptes de démonstration
 
-| Compte | Espace | Ce qu'on y voit |
-|---|---|---|
-| admin@bnia.fr | Back-office, administrateur | Tout : opérateurs, DSM à instruire, facturation, accès |
-| agent@bnia.fr | Back-office, agent | La gestion des opérateurs, sans la gestion des accès |
-| observateur@bnia.fr | Back-office, observateur | Tout le back-office, en lecture seule |
-| admin@negociant.fr | Portail négociant, administrateur | DSM mensuelles, dont une pour laquelle le BNIA a demandé des compléments ; factures, messagerie, utilisateurs |
-| agent@negociant.fr | Portail négociant, agent | DSM, factures et messagerie |
-| observateur@negociant.fr | Portail négociant, observateur | En lecture seule |
-| admin@producteur.fr | Portail producteur, administrateur | DSM annuelle en cours de saisie, avec une incohérence à corriger ; deux chais, passage de l’un à l’autre |
+Neuf comptes sont déjà créés : ils permettent d’essayer le prototype tout de suite, sans rien configurer, et de se mettre à la place de chaque utilisateur. Ils couvrent les trois places de la filière : le **BNIA**, qui instruit et facture, dans le back-office ; un **producteur** et un **négociant**, qui déclarent, sur le portail. Chacun existe dans les trois rôles :
+
+- **Administrateur** : fait tout, et gère les accès de son entreprise : il invite les utilisateurs et choisit leur rôle.
+- **Agent** : fait le travail courant (saisir et envoyer les DSM, tenir la fiche de l’entreprise ; au BNIA, instruire et facturer), sans gérer les accès.
+- **Observateur** : consulte tout, sans rien modifier ; il peut écrire au BNIA par la messagerie.
+
+<table class="comptes">
+<thead><tr><th>Compte</th><th>Rôle</th><th>Ce qu’on y voit</th></tr></thead>
+<tbody>
+<tr class="groupe"><th colspan="3">@bnia.fr · le BNIA, back-office</th></tr>
+<tr><td>admin@bnia.fr</td><td>Administrateur</td><td>Tout : opérateurs, DSM à instruire, facturation, paramétrage, accès</td></tr>
+<tr><td>agent@bnia.fr</td><td>Agent</td><td>Fiches des opérateurs, instruction des DSM, facturation, sans la gestion des accès</td></tr>
+<tr><td>observateur@bnia.fr</td><td>Observateur</td><td>Tout le back-office, en lecture seule</td></tr>
+<tr class="groupe"><th colspan="3">@producteur.fr · un producteur (Maison Durand, deux chais), portail</th></tr>
+<tr><td>admin@producteur.fr</td><td>Administrateur</td><td>DSM annuelle en cours de saisie, avec une incohérence à corriger ; passage d’un chai à l’autre ; utilisateurs de l’entreprise</td></tr>
+<tr><td>agent@producteur.fr</td><td>Agent</td><td>DSM, factures et messagerie du chai de Condom</td></tr>
+<tr><td>observateur@producteur.fr</td><td>Observateur</td><td>Le portail en lecture seule ; son accès au chai d’Eauze est suspendu</td></tr>
+<tr class="groupe"><th colspan="3">@negociant.fr · un négociant (Armagnacs de Gascogne), portail</th></tr>
+<tr><td>admin@negociant.fr</td><td>Administrateur</td><td>DSM mensuelles, dont une pour laquelle le BNIA a demandé des compléments ; factures ; utilisateurs de l’entreprise</td></tr>
+<tr><td>agent@negociant.fr</td><td>Agent</td><td>DSM, factures et messagerie</td></tr>
+<tr><td>observateur@negociant.fr</td><td>Observateur</td><td>Le portail en lecture seule</td></tr>
+</tbody>
+</table>
