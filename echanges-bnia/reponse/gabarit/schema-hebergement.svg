@@ -13,20 +13,29 @@
       .nom { font-size: 10.5px; font-weight: 650; fill: #241f1b; }
       .detail { font-size: 8.5px; fill: #5a504a; }
       .lien { stroke: #9a5b1e; stroke-width: 1.2; fill: none; }
+      .appareil { fill: #fff; stroke: #9a5b1e; stroke-width: 1.2; }
+      .appareil-trait { stroke: #9a5b1e; stroke-width: 1.2; fill: none; stroke-linecap: round; }
       .etiquette { font-size: 8px; fill: #9a5b1e; font-weight: 600; }
     </style>
   </defs>
 
   <!-- Utilisateurs -->
-  <rect class="acteur" x="0" y="52" width="118" height="54" rx="6"/>
-  <text class="nom" x="59" y="73" text-anchor="middle">Opérateurs</text>
-  <text class="detail" x="59" y="87" text-anchor="middle">portail</text>
-  <text class="detail" x="59" y="98" text-anchor="middle">ordinateur, tablette, mobile</text>
+  <rect class="acteur" x="0" y="46" width="118" height="66" rx="6"/>
+  <text class="nom" x="59" y="64" text-anchor="middle">Opérateurs</text>
+  <text class="detail" x="59" y="76" text-anchor="middle">portail</text>
+  <!-- ordinateur -->
+  <rect class="appareil" x="40" y="84" width="22" height="14" rx="1.5"/>
+  <path class="appareil-trait" d="M51,98 L51,102 M45,103 L57,103"/>
+  <!-- mobile -->
+  <rect class="appareil" x="69" y="86" width="10" height="17" rx="2"/>
+  <path class="appareil-trait" d="M72.5,100.5 L75.5,100.5"/>
 
-  <rect class="acteur" x="0" y="138" width="118" height="54" rx="6"/>
-  <text class="nom" x="59" y="159" text-anchor="middle">Équipes du BNIA</text>
-  <text class="detail" x="59" y="173" text-anchor="middle">back-office</text>
-  <text class="detail" x="59" y="184" text-anchor="middle">ordinateur, tablette</text>
+  <rect class="acteur" x="0" y="132" width="118" height="66" rx="6"/>
+  <text class="nom" x="59" y="150" text-anchor="middle">Équipes du BNIA</text>
+  <text class="detail" x="59" y="162" text-anchor="middle">back-office</text>
+  <!-- ordinateur -->
+  <rect class="appareil" x="48" y="170" width="22" height="14" rx="1.5"/>
+  <path class="appareil-trait" d="M59,184 L59,188 M53,189 L65,189"/>
 
   <!-- Scalingo -->
   <rect class="groupe" x="150" y="4" width="290" height="276" rx="8"/>
@@ -79,5 +88,5 @@
   <path class="lien" d="M426,128 L446,128 L446,88 L464,88" marker-end="url(#fleche)"/>
   <path class="lien" d="M426,150 L446,150 L446,174 L464,174" marker-start="url(#fleche)" marker-end="url(#fleche)"/>
 
-  <text class="sous-groupe" x="0" y="298">Le contrat d'hébergement est souscrit au nom du BNIA, qui en détient les accès.</text>
+  <text class="sous-groupe" x="0" y="298">Le contrat d’hébergement est souscrit au nom du BNIA, qui en détient les accès.</text>
 </svg>

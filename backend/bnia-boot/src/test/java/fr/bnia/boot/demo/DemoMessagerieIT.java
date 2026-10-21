@@ -42,14 +42,15 @@ class DemoMessagerieIT extends AbstractIT {
         }
         var anne = new fr.bnia.operateurs.domain.partage.Acteur(DemoPersonnelBnia.anne(operateurs));
         long gascogne = operateurs.operateurParCode("N320001").orElseThrow().id();
-        long envoyee = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm)
-                .filter(d -> d.etat() == EtatDsm.ENVOYEE).findFirst().orElseThrow().id();
+        long complements = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm)
+                .filter(d -> d.etat() == EtatDsm.COMPLEMENTS_DEMANDES).findFirst().orElseThrow().id();
         Acteur julie = new Acteur(operateurs.utilisateurParEmail("agent@negociant.fr").orElseThrow());
 
-        List<VueConversation.MessageVu> fil = converser.consulterObjet(julie, ObjetRef.de(TypeObjet.DSM, envoyee))
+        List<VueConversation.MessageVu> fil = converser.consulterObjet(julie, ObjetRef.de(TypeObjet.DSM, complements))
                 .messages();
         assertThat(fil).extracting(m -> m.message().cote(), VueConversation.MessageVu::nonLu)
-                .containsExactly(org.assertj.core.groups.Tuple.tuple(Cote.OPERATEUR, false),
+                .containsExactly(org.assertj.core.groups.Tuple.tuple(Cote.BNIA, true),
+                        org.assertj.core.groups.Tuple.tuple(Cote.OPERATEUR, false),
                         org.assertj.core.groups.Tuple.tuple(Cote.BNIA, true));
 
         // Lot 5 : Julie voit sa conversation libre, avec sa pièce jointe ; Henri, l'ADMIN, aucune des deux.

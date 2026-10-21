@@ -56,7 +56,7 @@ h2 { font-size: 14pt; font-weight: 600; margin: 22pt 0 7pt; }
 h3 { font-size: 10.5pt; font-weight: 650; font-family: var(--sans); margin: 10pt 0 4pt; }
 p { margin: 0 0 6pt; }
 ul { margin: 0 0 6pt; padding-left: 14pt; }
-li { margin-bottom: 2pt; }
+li { margin-bottom: 2pt; break-inside: avoid; }
 strong { color: var(--encre); font-weight: 650; }
 a { color: var(--ambre-fonce); text-decoration: none; }
 
@@ -97,7 +97,16 @@ a { color: var(--ambre-fonce); text-decoration: none; }
 .colonnes h2 + ul { margin-top: 0; }
 .colonnes ul + h2 { margin-top: 6pt; }
 .colonnes .sous-titre { font-size: 8.2pt; font-style: italic; color: var(--ambre-fonce); margin: -2pt 0 4pt; }
-.renvoi { font-size: 8.5pt; font-style: italic; color: var(--discret); margin-top: 8pt; }
+.recommandation { margin-top: 26pt; }
+.recommandation h2 { font-size: 11.5pt; margin: 0 0 6pt; }
+.recommandation figure { position: relative; margin: 0; padding: 0 0 0 30pt; }
+.recommandation figure::before { content: '“'; position: absolute; left: 0; top: -6pt; font: 700 46pt/1 var(--serif); color: var(--ambre); }
+.recommandation blockquote { margin: 0; }
+.recommandation blockquote p { font: italic 9.2pt/1.4 var(--serif); color: var(--encre); margin: 0; }
+.recommandation figcaption { font-size: 8.5pt; margin-top: 4pt; }
+.recommandation figcaption a { color: inherit; text-decoration: none; }
+.recommandation figcaption span { font-size: 8pt; color: var(--discret); }
+.renvoi { font-size: 8.5pt; font-style: italic; color: var(--discret); margin-top: 6pt; }
 .mentions { margin-top: 8pt; font-size: 7.5pt; color: var(--discret); }
 
 /* ---- Éléments communs ---- */
@@ -178,3 +187,17 @@ p:has(+ table), p:has(+ .livraisons) { break-after: avoid; }
 .livraison-recette { background: #faf6f0; border-left: 3pt dashed #c9a27a; }
 .livraison-arret { background: #efebe6; border-left: 3pt solid #7a6f66; }
 .livraison-arret h3 { color: var(--encre); }
+
+/* Aspects techniques : tenir sur deux pages */
+#\30 5-technique table { font-size: 8.2pt; line-height: 1.32; }
+#\30 5-technique td, #\30 5-technique th { padding: 3pt 6pt; }
+#\30 5-technique .schema img { width: 88%; margin: 0 auto; }
+#\30 5-technique h2 { margin-top: 16pt; }
+#\30 5-technique table { break-inside: auto; }
+#\30 5-technique tr { break-inside: avoid; }
+
+/* Prototype : une page */
+#\30 8-prototype table { font-size: 8.2pt; line-height: 1.3; }
+#\30 8-prototype td, #\30 8-prototype th { padding: 2.5pt 6pt; }
+#\30 8-prototype .definitions ul { font-size: 8.4pt; line-height: 1.38; }
+#\30 8-prototype h2 { margin-top: 14pt; }

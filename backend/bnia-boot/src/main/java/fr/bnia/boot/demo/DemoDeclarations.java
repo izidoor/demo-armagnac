@@ -58,17 +58,17 @@ import org.springframework.stereotype.Component;
  * <ul>
  * <li>Armagnacs de Gascogne ({@code N320001}) : part de onze mois avant le mois courant (spec 08 §7.1, lots 1
  * et 2) ; ses DSM de ces onze mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L,
- * export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle du mois courant est envoyée, avec les
- * mêmes totaux, deux notes internes du BNIA (sur la DSM et sur sa première ligne) ; elle attend le BNIA,
- * l'opérateur n'est pas en retard ;</li>
+ * export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle du mois courant, avec les
+ * mêmes totaux, deux notes internes du BNIA (sur la DSM et sur sa première ligne) et sans justificatif, est en
+ * compléments demandés, motif « DAE manquants pour l'export » (décision du 2026-10-21 : la démonstration du
+ * portail tient dans les comptes {@code @negociant.fr} et {@code @producteur.fr}) ;</li>
  * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
- * 2026-10-14), DSM en compléments demandés, motif « DAE manquants pour l'export » : en retard dès le 6 du
- * mois courant ;</li>
- * <li>aucun justificatif sur ces deux DSM : leurs manques bloquent la validation (RG-DEC-29) ;</li>
+ * 2026-10-14), DSM envoyée avec les DAE de ses exports : elle attend l'instruction du BNIA ;</li>
  * <li>Négoce des Landes ({@code N400001}) : en brouillon, avec une anomalie (Σ6 ≠ Σ12) ;</li>
  * </ul></li>
  * <li>Maison Durand, Condom ({@code 000001}, producteur) : point de départ au 1er avril de l'an dernier, DSM
- * de cette année-là validée, avec ses douze DRM et le DAE de son export ; la suivante, à initier, montre le vieillissement et la fusion à {@code 20+} ;</li>
+ * de cette année-là validée, avec ses douze DRM et le DAE de son export ; la suivante, en brouillon, montre le
+ * vieillissement et la fusion à {@code 20+}, avec une anomalie (Σ6 ≠ Σ12) qui bloque l'envoi ;</li>
  * <li>Maison Durand, Eauze ({@code 000002}) : pas de point de départ, le BNIA le fixe en démonstration ;</li>
  * <li>Domaine de Laubade ({@code 000003}, producteur) : point de départ au 1er avril d'il y a deux ans, DSM de
  * cette année-là validée, puis statut de déclaration passé à {@code SOMMEIL} : le BNIA fixe un nouveau point de
@@ -201,8 +201,8 @@ public class DemoDeclarations implements ApplicationRunner {
     private static final int MOIS_VALIDES_GASCOGNE = 11;
 
     /**
-     * Onze DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM envoyée du mois
-     * courant, aux mêmes totaux : la file d'attente du BNIA. Le stock de départ couvre les sorties des onze mois et
+     * Onze DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM du mois courant,
+     * aux mêmes totaux, envoyée sans ses DAE : le BNIA demande les compléments. Le stock de départ couvre les sorties des onze mois et
      * laisse au mois courant le même reliquat qu'avec deux.
      */
     private void armagnacsDeGascogne() {
@@ -243,10 +243,12 @@ public class DemoDeclarations implements ApplicationRunner {
                 "Volumes export cohérents avec les DAE reçus par courrier ; à confirmer à l'instruction.");
         notes.ecrire(anne, id, dsm.id(), dsm.lignes().getFirst().id(),
                 "Sorties export à rapprocher des DAE.");
-        LOG.info("Démo : DSM de {} d'Armagnacs de Gascogne envoyée.", dsm.periode().libelle());
+        dsms.prendreEnInstruction(anne, id, dsm.id(), null);
+        dsms.demanderComplements(anne, id, dsm.id(), "DAE manquants pour l'export", null);
+        LOG.info("Démo : DSM de {} d'Armagnacs de Gascogne en compléments demandés.", dsm.periode().libelle());
     }
 
-    /** DSM renvoyée à l'opérateur : compléments demandés, sur le mois précédent, donc en retard dès le 6. */
+    /** DSM du mois précédent envoyée avec les DAE de ses exports : elle attend l'instruction du BNIA. */
     private void maisonLarressingle() {
         Long id = aCharger("N320002");
         if (id == null) {
@@ -262,10 +264,12 @@ public class DemoDeclarations implements ApplicationRunner {
                 0, Map.of(ColonneDsm.C17, "120.00"),
                 1, Map.of(ColonneDsm.C22, "250.00"),
                 3, Map.of(ColonneDsm.C22, "45.50"))).dsm();
+        for (int ligne : List.of(1, 3)) {
+            pieces.deposerJustificatif(marie, id, dsm.id(), dsm.lignes().get(ligne).id(), TypeMouvement.VENTE_EXPORT,
+                    TypePiece.DAE, "26FRA00000000" + (54320 + ligne), pdf("dae-export.pdf"));
+        }
         dsms.envoyer(marie, id, dsm.id(), null);
-        dsms.prendreEnInstruction(anne, id, dsm.id(), null);
-        dsms.demanderComplements(anne, id, dsm.id(), "DAE manquants pour l'export", null);
-        LOG.info("Démo : DSM de {} de la Maison Larressingle en compléments demandés.", dsm.periode().libelle());
+        LOG.info("Démo : DSM de {} de la Maison Larressingle envoyée.", dsm.periode().libelle());
     }
 
     /** DSM en brouillon, avec une anomalie qui bloque l'envoi. */
@@ -286,7 +290,7 @@ public class DemoDeclarations implements ApplicationRunner {
                 vue.anomalies().size());
     }
 
-    /** Producteur : l'année précédente validée ; la suivante, à initier, vieillit au 1er avril. */
+    /** Producteur : l'année précédente validée ; la suivante, en brouillon, vieillit au 1er avril et a une anomalie. */
     private void maisonDurandCondom() {
         Long id = aCharger("000001");
         if (id == null) {
@@ -317,7 +321,12 @@ public class DemoDeclarations implements ApplicationRunner {
         dsms.envoyer(jeanne, id, dsm.id(), null);
         dsms.prendreEnInstruction(anne, id, dsm.id(), null);
         dsms.valider(anne, id, dsm.id(), null);
-        LOG.info("Démo : DSM {} de la Maison Durand, Condom, validée.", dsm.periode().libelle());
+        // Assemblages : 60 L sortis (colonne 12), 50 L entrés (colonne 6) : Σ6 ≠ Σ12.
+        VueDsm suivante = remplir(jeanne, id, Map.of(
+                0, Map.of(ColonneDsm.C06, "50.00", ColonneDsm.C17, "40.00"),
+                1, Map.of(ColonneDsm.C12, "60.00")));
+        LOG.info("Démo : DSM {} de la Maison Durand, Condom, validée ; la suivante en brouillon ({} anomalie).",
+                dsm.periode().libelle(), suivante.anomalies().size());
     }
 
     /**

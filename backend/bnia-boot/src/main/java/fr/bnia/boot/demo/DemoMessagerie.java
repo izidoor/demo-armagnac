@@ -10,7 +10,6 @@ import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.messagerie.api.Acteur;
 import fr.bnia.messagerie.api.ObjetRef;
 import fr.bnia.messagerie.api.TypeObjet;
-import fr.bnia.messagerie.application.ConversationsDesObjets;
 import fr.bnia.messagerie.application.Converser;
 import fr.bnia.messagerie.application.FichierJoint;
 import fr.bnia.messagerie.application.MessagerieLecture;
@@ -32,14 +31,13 @@ import org.springframework.stereotype.Component;
  * Données de démonstration de la messagerie (spec 15 §7.1), en profil {@code demo} seulement, après les déclarations
  * et la facturation, pour Armagnacs de Gascogne ({@code N320001}) :
  * <ul>
- * <li>la conversation de la DSM envoyée du mois courant : un message de Julie Darrigade et la réponse de Luc Dubos,
- * non lue pour Gascogne (lots 2 et 3) ;</li>
+ * <li>la conversation de la DSM du mois courant, en compléments demandés : après le motif, déposé par
+ * {@code declarations}, un message de Julie Darrigade et la réponse de Luc Dubos, non lue pour Gascogne (lots 2 et
+ * 3) ;</li>
  * <li>la conversation libre « Import de la matrice refusé » de Julie Darrigade, l'Excel de sa DSM en pièce jointe,
  * avec la réponse du BNIA ; celle de Thomas Barrère, invisible de Julie et d'Henri Castex, l'ADMIN (lot 5) ;</li>
  * <li>la conversation de la dernière facture émise : la question d'Henri Castex, non lue pour le BNIA (lot 6).</li>
  * </ul>
- * Le motif des compléments de Maison Larressingle est déjà dans la conversation de sa DSM, déposé par
- * {@code declarations}.
  *
  * <p>Tout passe par les cas d'usage. Gascogne ayant déjà une conversation libre, rien n'est rechargé : le chargeur
  * est relançable.
@@ -52,17 +50,15 @@ public class DemoMessagerie implements ApplicationRunner {
     private static final Logger LOG = LoggerFactory.getLogger(DemoMessagerie.class);
 
     private final Converser converser;
-    private final ConversationsDesObjets objets;
     private final GererDsm dsms;
     private final EditerDsm editions;
     private final ConsulterMesFactures factures;
     private final MessagerieLecture messagerie;
     private final OperateursLecture lecture;
 
-    public DemoMessagerie(Converser converser, ConversationsDesObjets objets, GererDsm dsms, EditerDsm editions,
+    public DemoMessagerie(Converser converser, GererDsm dsms, EditerDsm editions,
             ConsulterMesFactures factures, MessagerieLecture messagerie, OperateursLecture lecture) {
         this.converser = converser;
-        this.objets = objets;
         this.dsms = dsms;
         this.editions = editions;
         this.factures = factures;
@@ -112,20 +108,17 @@ public class DemoMessagerie implements ApplicationRunner {
     private void conversationDeLaDsmDeGascogne() {
         long gascogne = lecture.operateurParCode("N320001").orElseThrow().id();
         var anne = new fr.bnia.operateurs.domain.partage.Acteur(DemoPersonnelBnia.anne(lecture));
-        var envoyee = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm)
-                .filter(d -> d.etat() == EtatDsm.ENVOYEE).findFirst();
-        if (envoyee.isEmpty()) {
+        var complements = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm)
+                .filter(d -> d.etat() == EtatDsm.COMPLEMENTS_DEMANDES).findFirst();
+        if (complements.isEmpty()) {
             return;
         }
-        ObjetRef dsm = ObjetRef.de(TypeObjet.DSM, envoyee.get().id());
-        if (objets.ouverte(dsm)) {
-            return;
-        }
-        converser.ecrireSurObjet(membre("agent@negociant.fr"), dsm, "40 L de XO sont passés dans l'assemblage VSOP (colonnes 12 et 6) ;"
-                + " les DAE de l'export partent par courrier cette semaine.");
-        converser.ecrireSurObjet(membre("agent@bnia.fr"), dsm, "Bien noté. Nous rapprocherons les DAE des sorties"
-                + " export à l'instruction ; merci de joindre aussi celui du 12.");
-        LOG.info("Démo : conversation de la DSM de {} d'Armagnacs de Gascogne.", envoyee.get().periode().libelle());
+        ObjetRef dsm = ObjetRef.de(TypeObjet.DSM, complements.get().id());
+        converser.ecrireSurObjet(membre("agent@negociant.fr"), dsm, "Les DAE de l'export sont partis par courrier"
+                + " cette semaine. Pour l'assemblage : 40 L de XO sont passés dans le VSOP (colonnes 12 et 6).");
+        converser.ecrireSurObjet(membre("agent@bnia.fr"), dsm, "Merci. Déposez plutôt les DAE en PDF sur chaque"
+                + " ligne d'export de la DSM, puis renvoyez-la : nous la validerons à réception.");
+        LOG.info("Démo : conversation de la DSM de {} d'Armagnacs de Gascogne.", complements.get().periode().libelle());
     }
 
     private Acteur membre(String email) {

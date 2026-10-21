@@ -16,15 +16,14 @@ Ma proposition s’accompagne d’un prototype, réalisé à partir du cahier de
 Pour vous connecter :
 
 - mot de passe, commun à tous les comptes : **demo-armagnac** ;
-- code de vérification demandé à la connexion : **000000**.
+- si un code de vérification est demandé : **000000**.
 
 | Compte | Ce que vous y voyez |
 |---|---|
 | admin@bnia.fr | Le back-office du BNIA, avec tous les droits : opérateurs, DSM à instruire, facturation, messagerie |
 | agent@bnia.fr | Le back-office du BNIA, avec les droits d’un agent |
-| admin@negociant.fr | Le portail d’un négociant (Armagnacs de Gascogne) : DSM mensuelles, factures, messagerie |
-| admin@producteur.fr | Le portail d’un producteur (Maison Durand), avec deux chais : DSM annuelle |
-| admin@larressingle.fr | Le portail d’un négociant à qui le BNIA a demandé des compléments sur sa DSM |
+| admin@negociant.fr | Le portail d’un négociant (Armagnacs de Gascogne) : DSM mensuelles, dont une pour laquelle le BNIA a demandé des compléments ; factures, messagerie |
+| admin@producteur.fr | Le portail d’un producteur (Maison Durand), avec deux chais : DSM annuelle en cours de saisie, avec une incohérence à corriger |
 
 Les données sont fictives : vous pouvez saisir, valider et facturer sans crainte. Elles seront remises à zéro de temps à autre.
 

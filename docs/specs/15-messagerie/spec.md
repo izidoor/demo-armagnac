@@ -313,8 +313,7 @@ Par les cas d'usage, relançable (`DemoMessagerie`, après `DemoDeclarations` et
 | Opérateur | Données | Démontre | Lot |
 |---|---|---|---|
 | BNIA | Note interne d'Anne Lamarque sur la DSM d'octobre de Gascogne (reprise de l'actuel commentaire interne) et une note sur sa première ligne | Carnet distinct, invisible du portail | 1 |
-| Armagnacs de Gascogne (`N320001`) | Conversation de la DSM d'octobre : message de Julie Darrigade (reprise de l'actuel commentaire de ligne, sur la DSM), réponse de Luc Dubos, non lue pour Gascogne | Conversation d'objet, page de la DSM, nouveaux messages des deux côtés | 2, 3 |
-| Maison Larressingle (`N320002`) | Motif « DAE manquants pour l'export », protégé, dans la conversation de la DSM de septembre | Motif déposé par `declarations` | 2 |
+| Armagnacs de Gascogne (`N320001`) | Conversation de la DSM d'octobre, en compléments demandés (décision du 2026-10-21) : motif « DAE manquants pour l'export », protégé, déposé par `declarations` ; puis message de Julie Darrigade, réponse de Luc Dubos, non lue pour Gascogne | Motif, conversation d'objet, page de la DSM, nouveaux messages des deux côtés | 2, 3 |
 | Armagnacs de Gascogne | Conversation libre « Import de la matrice refusé » de Julie Darrigade, avec l'Excel de sa DSM en pièce jointe, réponse du BNIA ; conversation libre de Thomas Barrère, invisible de Julie et d'Henri Castex (`ADMIN`) | Conversation libre, pièces jointes, confidentialité | 5 |
 | Armagnacs de Gascogne | Conversation d'une facture émise : question d'Henri Castex sur le volume facturé, non lue pour le BNIA | Facture conversable, écriture par le client | 6 |
 

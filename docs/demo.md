@@ -41,8 +41,11 @@ opérateur. Le sélecteur sous le titre de l'espace change d'opérateur actif.
 | `admin@negociant.fr` | Henri Castex | Armagnacs de Gascogne (`N320001`) | `ADMIN` | Portail d'un négociant : tout, dont les accès |
 | `agent@negociant.fr` | Julie Darrigade | Armagnacs de Gascogne | `AGENT` | Portail : fiche et contacts gérés, accès en lecture |
 | `observateur@negociant.fr` | Thomas Barrère | Armagnacs de Gascogne | `OBSERVATEUR` | Portail en lecture seule |
-| `admin@larressingle.fr` | Marie Lacoste | Maison Larressingle (`N320002`) | `ADMIN` | Portail : DSM en compléments demandés, à corriger et renvoyer |
+| `admin@larressingle.fr` | Marie Lacoste | Maison Larressingle (`N320002`) | `ADMIN` | Portail : DSM envoyée, qui attend le BNIA |
 | `admin@landes.fr` | Bernard Dufau | Négoce des Landes (`N400001`) | `ADMIN` | Portail : DSM en brouillon avec une anomalie |
+
+Depuis le 2026-10-21, la démonstration du portail tient dans les comptes `@negociant.fr` (compléments demandés)
+et `@producteur.fr` (anomalie à corriger) : ce sont les seuls que présente la réponse à l'appel d'offres.
 | `admin@laubade.fr` | Hélène Lassus | Domaine de Laubade (`000003`) | `ADMIN` | Portail d'un producteur en sommeil : DSM 2024-2025 validée, en attente d'un nouveau point de départ |
 | `saisie@demo.fr` | Saisie Démo | Les quinze opérateurs ajoutés pour la facturation (`N320010` à `N470010`, `000020` à `000029`) | `AGENT` de chacun | Compte technique qui a saisi leurs DSM ; sélecteur à quinze opérateurs |
 
@@ -75,20 +78,22 @@ par Anne Lamarque : leur première DSM est celle de ce mois.
   « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM des onze mois
   précédents **validées**, aux volumes de la facture d'exemple (sorties France 839,11 L, export 2 254,15 L,
   avec le DAE de l'export) : à facturer (voir « Facturation »). DSM du mois
-  **envoyée** par Julie Darrigade : 40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6), sorties
-  France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; un message de Julie et la
-  réponse de Luc Dubos (messagerie), deux notes **internes** d'Anne Lamarque (sur la DSM et la ligne XO). Aucune pièce : il manque un justificatif pour
+  envoyée par Julie Darrigade, prise en instruction puis en **compléments demandés** par Anne Lamarque, motif
+  « DAE manquants pour l'export » : 40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6), sorties
+  France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; après le motif, un message de
+  Julie et la réponse de Luc Dubos (messagerie), deux notes **internes** d'Anne Lamarque (sur la DSM et la ligne XO). Aucune pièce : il manque un justificatif pour
   les ventes négoce et un pour l'export.
-- **Maison Larressingle (`N320002`, négociant)** : DSM du mois précédent envoyée par Marie Lacoste, prise en
-  instruction puis en **compléments demandés** par Anne Lamarque, motif « DAE manquants pour l'export » :
-  **en retard** dès le 6 du mois courant (échéance le 5).
+- **Maison Larressingle (`N320002`, négociant)** : DSM du mois précédent **envoyée** par Marie Lacoste, avec
+  le DAE de chacun de ses deux exports : elle attend l'instruction du BNIA, qui peut la valider.
 - **Négoce des Landes (`N400001`, négociant)** : DSM du mois en **brouillon**, remplie par Bernard Dufau,
   avec une anomalie : les assemblages en entrée (colonne 6, 50 L) et en sortie (colonne 12, 60 L)
   diffèrent de 10 L.
 - **Maison Durand, Condom (`000001`, producteur)** : point de départ au 1er avril de l'an dernier (2025)
   ; DSM de cette année-là **validée**, avec `NB` « Hors d'âge » 19 et `NB` « Hors d'âge » `20+`, `MB`
   2015, `NB` « Blanche » `00`, avec ses **douze DRM** et le DAE de son export (ligne `NB` « Hors d'âge »
-  `20+`), tous sur le même PDF de démonstration. La DSM de l'année en cours est à initier.
+  `20+`), tous sur le même PDF de démonstration. La DSM de l'année en cours est en **brouillon**, vieillie
+  au 1er avril, avec une anomalie : les assemblages en entrée (colonne 6, 50 L, première ligne) et en sortie
+  (colonne 12, 60 L, deuxième ligne) diffèrent de 10 L.
 - **Maison Durand, Eauze (`000002`, producteur)** : aucun point de départ.
 - **Domaine de Laubade (`000003`, producteur)**, compte `admin@laubade.fr` (Hélène Lassus, `ADMIN`) : point
   de départ au 1er avril d'il y a deux ans (2024), DSM 2024-2025 **validée** avec ses douze DRM, puis statut
@@ -108,10 +113,10 @@ Scénario :
    ligne « NB VSOP » à la place des 50 L (onglet « Mouvements en entrée ») : l'anomalie disparaît aussitôt
    (vue provisoire). « Envoyer » : la saisie est enregistrée puis envoyée.
 2. `admin@bnia.fr`, menu « Déclarations > DSM » : onglet « En cours », état « À prendre en charge » : la file d'attente montre
-   Armagnacs de Gascogne et Négoce des Landes. Ouvrir la DSM d'Armagnacs de Gascogne : sous le classeur,
-   les messages échangés avec Gascogne, puis le carnet de notes internes (deux notes d'Anne Lamarque) ; la
-   pastille de la ligne XO mène à sa note. « Prendre en charge », puis « Demander des compléments » avec un
-   motif : il s'ajoute aux messages, protégé.
+   Maison Larressingle et Négoce des Landes. Ouvrir la DSM d'Armagnacs de Gascogne (en compléments
+   demandés) : sous le classeur, le motif, protégé, et les messages échangés avec Gascogne, puis le carnet
+   de notes internes (deux notes d'Anne Lamarque) ; la pastille de la ligne XO mène à sa note. Ouvrir celle
+   de Maison Larressingle : « Prendre en charge », puis « Valider » ou « Demander des compléments ».
 3. `agent@negociant.fr` : la DSM est en compléments demandés, le motif dans ses messages ; les notes
    internes n'apparaissent pas. Corriger, répondre par un message ; onglet « Pièces », déposer une facture
    pour les ventes négoce et un DAE pour l'export (n'importe quel PDF) ; « Renvoyer » : la DSM est en
@@ -155,12 +160,11 @@ Scénario :
     Eauze, onglet « Déclarations », « Importer depuis Excel » avec ce fichier : le point de départ est fixé
     au 1er avril qui suit la campagne du fichier, avec son stock de fin, vieilli d'un an.
 12. `admin@bnia.fr`, menu « Déclarations > DSM », onglet « En cours » : colonne « Échéance » ; Maison
-    Larressingle « En retard » (à partir du 6 du mois) ; Armagnacs de Gascogne, envoyée, attend le BNIA et
-    n'est pas en retard ; Maison Durand, Condom apparaît en ligne « Absente » (la DSM de l'année n'est pas
-    initiée), qui ouvre l'onglet « Déclarations » de sa fiche. Filtre « En retard seulement », état
+    Larressingle, envoyée, attend le BNIA et n'est pas en retard ; Armagnacs de Gascogne, en compléments
+    demandés sur le mois courant, n'est pas encore en retard. Filtre « En retard seulement », état
     « Absente ». La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
     `notifications`, rien ne part encore.
-13. `admin@larressingle.fr`, « Mes DSM » : bandeau rouge du retard ; `admin@landes.fr` : bandeau de
+13. `admin@landes.fr`, « Mes DSM » : bandeau de
     l'échéance à venir (le 5 du mois prochain). En-tête de la DSM et éditions PDF et Excel : l'échéance.
 14. `admin@bnia.fr`, fiche du Domaine de Laubade, onglet « Déclarations » : point de départ figé,
     « Fixer un nouveau point de départ » ; le stock proposé est celui de fin de la DSM 2024-2025. Choisir
@@ -246,10 +250,9 @@ Articles et ventes (lot 5) :
 
 ## Messagerie (spec 15, lots 1 à 6)
 
-- **Armagnacs de Gascogne**, DSM envoyée du mois courant : un message de Julie Darrigade et la réponse de Luc Dubos,
-  non lue pour Gascogne ; deux notes internes d'Anne Lamarque (sur la DSM et sur la ligne XO).
-- **Maison Larressingle** : le motif des compléments (« DAE manquants pour l'export ») dans la conversation de sa DSM,
-  protégé.
+- **Armagnacs de Gascogne**, DSM du mois courant en compléments demandés : le motif (« DAE manquants pour
+  l'export »), protégé, puis un message de Julie Darrigade et la réponse de Luc Dubos, non lue pour Gascogne ;
+  deux notes internes d'Anne Lamarque (sur la DSM et sur la ligne XO).
 - **Conversations libres de Gascogne** : « Import de la matrice refusé », de Julie Darrigade, l'Excel de sa DSM en
   pièce jointe, avec la réponse du BNIA ; « Accès aux statistiques du marché », de Thomas Barrère, que ni Julie ni
   Henri Castex (l'ADMIN) ne voient.

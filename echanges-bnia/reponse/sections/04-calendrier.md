@@ -1,20 +1,20 @@
-<div class="surtitre">Calendrier de réalisation</div>
+<div class="surtitre">Calendrier prévisionnel</div>
 
 # Des déploiements par petites étapes
 
-<p class="accroche">Plutôt qu'une bascule lourde en fin de projet, je propose de remplacer Integraal et pro.armagnac.fr par petites étapes successives. Chaque module est déployé en production dès qu'il est prêt, pendant que le suivant se prépare en recette. Les opérateurs commencent à utiliser le portail dès février 2027 pour les DSM. Integraal et pro.armagnac.fr restent en activité partielle jusqu'à leur arrêt définitif en septembre 2027.</p>
+<p class="accroche">Plutôt qu’une bascule lourde en fin de projet, je propose de remplacer Integraal et pro.armagnac.fr par petites étapes successives. Chaque module est déployé en production dès qu’il est prêt, pendant que le suivant se prépare en recette. Les opérateurs commencent à utiliser le portail dès février 2027 pour les DSM. Integraal et pro.armagnac.fr restent en activité partielle jusqu’à leur arrêt définitif en septembre 2027.</p>
 
-Ce plan est construit à partir des informations dont je dispose aujourd'hui : le cahier des charges, le document de consultation et les réponses du BNIA. Integraal et pro.armagnac.fr sont des outils anciens, reliés entre eux par des échanges que seule une analyse sur place permettra de connaître entièrement. C'est l'objet de la phase 0. Si elle révèle qu'une étape doit être déplacée ou découpée autrement, je proposerai au BNIA un plan ajusté, en toute transparence, avant d'engager la suite. Cela ne remet pas en cause le principe de modularisation des déploiements.
+Ce plan est construit à partir des informations dont je dispose aujourd'hui : le cahier des charges, le document de consultation et les réponses du BNIA. Integraal et pro.armagnac.fr sont des outils anciens, reliés entre eux par des échanges que seule une analyse sur place permettra de connaître entièrement. C'est l'objet de la phase 0. Si elle révèle qu'une étape doit être déplacée ou découpée autrement, je proposerai au BNIA un plan ajusté, en toute transparence, avant d'engager la suite. Cela ne remet pas en cause le principe des déploiements par étapes.
 
 ## Le principe : un module en production, le suivant en recette
 
 <figure class="schema"><img src="gabarit/schema-calendrier.svg" alt="Calendrier : chaque lot passe en recette pendant deux mois, puis en production, pendant que le lot suivant entre en recette ; Integraal reste l'outil de référence jusqu'à son arrêt en septembre 2027"></figure>
 
-## Pourquoi ce découpage incrémental fin, en contradiction avec la recommandation du cahier des charges ?
+## Pourquoi ce découpage incrémental fin, qui s'écarte des recommandations du cahier des charges ?
 
 Je juge le périmètre d'ouverture préconisé par le cahier des charges trop vaste. Un découpage incrémental a de nombreux aspects positifs :
 
-- **Réduction des risques.** Avec une livraison unique contenant toutes les fonctionnalités métier, la vraie confrontation avec la production arrive en fin de projet, quand les délais sont serrés et le budget quasiment consommé, et engendre une pression de bascule importante. Avec des livraisons incrémentales au contraire, un problème détecté touche un périmètre limité et un retour arrière reste possible car Integraal et pro.armagnac.fr ne sont pas débranchés. Cela lisse les risques dans le temps, plutôt que de les concentrer sur une seule date.
+- **Réduction des risques.** Avec une livraison unique contenant toutes les fonctionnalités métier, la vraie confrontation avec la production arrive en fin de projet, quand les délais sont serrés et le budget quasiment consommé. Cela engendre une pression de bascule importante. Avec des livraisons incrémentales au contraire, un problème détecté touche un périmètre limité et un retour arrière reste possible car Integraal et pro.armagnac.fr ne sont pas débranchés. Cela lisse les risques dans le temps, plutôt que de les concentrer sur une seule date.
 
 - **Valeur métier livrée plus tôt.** Le BNIA bénéficie de gains concrets dès les premiers mois au lieu d'attendre la fin du projet. Les retours utilisateurs arrivent tôt, quand corriger coûte peu, plutôt qu'en fin de projet, où chaque correction peut devenir compliquée.
 
@@ -24,21 +24,23 @@ Je juge le périmètre d'ouverture préconisé par le cahier des charges trop va
 
 - **Conduite du changement et adoption.** Former 100 % des utilisateurs sur 100 % du périmètre en une seule fois engendre une surcharge de travail et peut provoquer des retards d'adoption voire des rejets. L'incrémental permet une montée en compétence progressive, avec des utilisateurs relais formés en premier, qui deviennent ambassadeurs.
 
+---
+
 ## Phase 0 · Prise en main de l'existant
 
 **Une journée, dans les locaux du BNIA, avec ses équipes.** À partir de l'état des lieux du cahier des charges, je prends en main Integraal et pro.armagnac.fr : leurs fonctions et leurs échanges. J'évalue pour chaque fonction la phase où elle passe dans la nouvelle plateforme. L'objectif est d'établir en concertation une stratégie de coexistence temporaire entre les anciens outils et la nouvelle plateforme. Le BNIA dispose ainsi, avant tout engagement, d'un plan confirmé ou ajusté.
 
 ## Phase 1 · Preuve de capacité sur données réelles
 
-**Un premier incrément de valeur et de sécurisation.** Sur un périmètre limité mais réel, qui valide la chaîne de bout en bout. Le BNIA y voit son futur outil fonctionner sur ses propres données, avec ses propres utilisateurs. Le BNIA s'assure de la capacité technique du prestataire.
+**Il s'agit d'un premier incrément de valeur et de sécurisation** sur un périmètre limité mais réel. Cela permet de valider la chaîne de bout en bout. Le BNIA y voit son futur outil fonctionner sur ses propres données, avec ses propres utilisateurs. Il s'assure aussi de la capacité technique du prestataire.
 
 **Durée estimée : 2 mois à compter de la fourniture des prérequis.**
 
 <div class="encadre">
 <h3>Prérequis</h3>
 <ul>
-<li>Un jeu complet de données à reprendre, extrait d'Integraal et de pro.armagnac.fr.</li>
-<li>La validation de la matrice Excel d'import et d'export des DSM.</li>
+<li>Un jeu complet de données à reprendre, extrait d’Integraal et de pro.armagnac.fr.</li>
+<li>La validation définitive de la matrice Excel d’import et d’export des DSM.</li>
 </ul>
 </div>
 
@@ -50,7 +52,7 @@ Je juge le périmètre d'ouverture préconisé par le cahier des charges trop va
 <li>La connexion sécurisée, avec double authentification par e-mail, et les comptes utilisateurs.</li>
 <li>La gestion des opérateurs dans le back-office, alimentée par une reprise automatisée de leurs données.</li>
 <li>La gestion de leurs utilisateurs par les opérateurs, dans le portail.</li>
-<li>Les DSM : saisie ou import Excel par l'opérateur, instruction par le BNIA.</li>
+<li>Les DSM : saisie ou import Excel par l’opérateur, instruction par le BNIA.</li>
 <li>La messagerie entre le BNIA et les opérateurs.</li>
 <li>Les notifications par e-mail.</li>
 </ul>
@@ -58,9 +60,9 @@ Je juge le périmètre d'ouverture préconisé par le cahier des charges trop va
 <div>
 <h3>Chantiers ouverts en parallèle</h3>
 <ul>
-<li><strong>Prise de contact avec les éditeurs des logiciels de gestion des opérateurs</strong> : export Excel des DSM et des ventes à l'export, pour que l'opérateur n'ait rien à ressaisir.</li>
-<li><strong>Prise de contact avec Zeendoc, Otentik et l'ODG</strong> : obtention de la documentation de leurs interfaces.</li>
-<li><strong>Groupe d'adoption</strong> constitué avec le BNIA : 2 à 3 producteurs et 2 à 3 négociants.</li>
+<li><strong>Prise de contact avec les éditeurs des logiciels de gestion des opérateurs</strong> : export Excel des DSM et des ventes à l’export, pour que l’opérateur n’ait rien à ressaisir.</li>
+<li><strong>Prise de contact avec Zeendoc, Otentik et l’ODG</strong> : obtention de la documentation de leurs interfaces.</li>
+<li><strong>Groupe d’adoption</strong> constitué avec le BNIA : 2 à 3 producteurs et 2 à 3 négociants.</li>
 </ul>
 </div>
 </div>
@@ -79,7 +81,7 @@ La phase se clôt par une validation sur cinq critères, vérifiés ensemble sur
 
 </div>
 
-<p class="encadre"><strong>À l'issue de cette phase, le BNIA décide de poursuivre ou d'arrêter.</strong> Elle est courte et chiffrée à part (section 6).</p>
+<p class="encadre"><strong>À l’issue de cette phase, le BNIA décide de poursuivre ou d’arrêter.</strong></p>
 
 ## Phase 2 · Les DSM sur le portail
 
@@ -88,7 +90,7 @@ Dès cette phase a lieu <strong>l'ouverture officielle</strong> du portail et du
 <div class="livraisons">
 <div class="livraison livraison-production">
 <h3>Livré en production</h3>
-<p>Les <strong>fondations solides</strong> de l'application</p>
+<p>Les <strong>fondations solides</strong> de l’application</p>
 <ul>
     <li>Connexion et authentification sécurisée</li>
     <li>Gestion des opérateurs et des utilisateurs</li>
@@ -97,15 +99,15 @@ Dès cette phase a lieu <strong>l'ouverture officielle</strong> du portail et du
 <p>1<sup>er</sup> module métier : <strong>les DSM côté portail</strong></p>
 <ul>
 <li>Les opérateurs <strong>déclarent leurs DSM directement sur le portail</strong> (par saisie ou import Excel). Le BNIA continue de les saisir manuellement dans Integraal.</li>
-<li><strong>Ouverture par vagues</strong> : le groupe d'adoption d'abord, puis les négociants, qui déclarent chaque mois, et enfin les producteurs, pour la <strong>campagne de mars 2027</strong>.</li>
+<li><strong>Ouverture par vagues</strong> : le groupe d’adoption d’abord, puis les négociants, qui déclarent chaque mois, et enfin les producteurs, pour la <strong>campagne de mars 2027</strong>.</li>
 </ul>
 </div>
 <div class="livraison livraison-recette">
 <h3>Livré en recette</h3>
 <ul>
 <li>Le <strong>suivi des sorties export</strong>, par saisie directe ou import Excel.</li>
-<li>Les <strong>certificats export</strong>, avec l'intégration d'Otentik si le BNIA le confirme.</li>
-<li>La <strong>facturation</strong> des cotisations sur les DSM et sur l'export, ainsi que les factures manuelles, avec la transmission à Zeendoc.</li>
+<li>Les <strong>certificats export</strong>, avec l’intégration d’Otentik si le BNIA le confirme.</li>
+<li>La <strong>facturation</strong> des cotisations sur les DSM et sur l’export, ainsi que les factures manuelles, avec la transmission à Zeendoc.</li>
 </ul>
 </div>
 </div>
@@ -120,15 +122,15 @@ Les DSM sont complètement transférées dans la nouvelle plateforme : fin de la
 <ul>
 <li>Les <strong>DSM</strong> côté back-office : fin de la saisie dans Integraal.</li>
 <li>Le <strong>suivi des sorties export</strong>, par saisie directe ou import Excel.</li>
-<li>Les <strong>certificats export</strong>, avec l'intégration d'Otentik si le BNIA le confirme.</li>
-<li>La <strong>facturation</strong> des cotisations sur les DSM et sur l'export, ainsi que les factures manuelles, avec la transmission à Zeendoc. Elle démarre à une date de coupure fixée avec le BNIA, pour qu'aucune période ne soit facturée deux fois.</li>
+<li>Les <strong>certificats export</strong>, avec l’intégration d’Otentik si le BNIA le confirme.</li>
+<li>La <strong>facturation</strong> des cotisations sur les DSM et sur l’export, ainsi que les factures manuelles, avec la transmission à Zeendoc. Elle démarre à une date de coupure fixée avec le BNIA, pour qu’aucune période ne soit facturée deux fois.</li>
 </ul>
 </div>
 <div class="livraison livraison-recette">
 <h3>Livré en recette</h3>
-<p>Cette phase se concentre sur les fonctionnalités de pro.armagnac.fr et les communications avec l'ODG. Elles viennent en phase 3, le temps de préciser avec le BNIA et l'ODG l'avenir des contrats pluriannuels et la refonte de l'outil de l'ODG.</p>
+<p>Les fonctionnalités de pro.armagnac.fr et les échanges avec l’ODG viennent en phase 3, le temps de préciser avec le BNIA et l’ODG l’avenir des contrats pluriannuels et la refonte de l’outil de l’ODG.</p>
 <ul>
-<li>Les <strong>contrats d'achat</strong> d'Armagnac, de vin, les contrats pluriannuels, les contrats d'engagement.</li>
+<li>Les <strong>contrats d’achat</strong> d’Armagnac, de vin, les contrats pluriannuels, les contrats d’engagement.</li>
 <li>Les <strong>déclarations de fin de distillation</strong>.</li>
 </ul>
 </div>
@@ -142,7 +144,7 @@ Mise en production avant l'ouverture de la campagne de distillation du 1<sup>er<
 <div class="livraison livraison-production">
 <h3>Ajouts en production</h3>
 <ul>
-<li>Les <strong>contrats d'achat</strong> d'Armagnac, de vin, les contrats pluriannuels, les contrats d'engagement.</li>
+<li>Les <strong>contrats d’achat</strong> d’Armagnac, de vin, les contrats pluriannuels, les contrats d’engagement.</li>
 <li>Les <strong>déclarations de fin de distillation</strong>, avec la facturation des travaux de distillation.</li>
 </ul>
 </div>
@@ -152,7 +154,7 @@ Mise en production avant l'ouverture de la campagne de distillation du 1<sup>er<
 <li>Les <strong>statistiques</strong> et chiffres clés de la filière.</li>
 <li>La <strong>boutique</strong>.</li>
 <li>La <strong>gestion documentaire</strong>.</li>
-<li>La <strong>reprise complète de l'historique</strong> d'Integraal, vérifiée par le BNIA.</li>
+<li>La <strong>reprise complète de l’historique</strong> d’Integraal, vérifiée par le BNIA.</li>
 </ul>
 </div>
 </div>
@@ -168,14 +170,14 @@ Mise en production avant l'ouverture de la campagne de distillation du 1<sup>er<
 <li>Les <strong>statistiques</strong> et chiffres clés de la filière.</li>
 <li>La <strong>boutique</strong>.</li>
 <li>La <strong>gestion documentaire</strong>.</li>
-<li>L'<strong>historique complet</strong> d'Integraal.</li>
+<li>L’<strong>historique complet</strong> d’Integraal.</li>
 </ul>
 </div>
 <div class="livraison livraison-arret">
 <h3>Arrêt des anciens outils</h3>
 <ul>
-<li><strong>Dernière synchronisation</strong> des données d'Integraal et de pro.armagnac.fr.</li>
-<li><strong>Arrêt</strong> d'Integraal et de pro.armagnac.fr.</li>
+<li><strong>Dernière synchronisation</strong> des données d’Integraal et de pro.armagnac.fr.</li>
+<li><strong>Arrêt</strong> d’Integraal et de pro.armagnac.fr.</li>
 </ul>
 </div>
 </div>

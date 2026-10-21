@@ -2,32 +2,38 @@
 
 # Une plateforme qui appartient au BNIA
 
-<p class="accroche">Je propose de remplacer Integraal et pro.armagnac.fr par étapes, pour un prix dans le bas de la fourchette annoncée, en laissant le BNIA entièrement maître de son outil, et libre de s'arrêter après une première phase de deux mois.</p>
+<p class="accroche">Je propose de remplacer Integraal et pro.armagnac.fr par étapes, pour un prix dans le bas de la fourchette annoncée. Le BNIA est entièrement propriétaire de sa plateforme.</p>
 
 <div class="chiffres">
+    <div class="chiffre"><span class="valeur">53 000 €</span><span class="libelle">HT, réalisation complète</span></div>
+
+<div class="chiffre"><span class="valeur">févr. 2027</span><span class="libelle">premières DSM déclarées sur le portail</span></div>
+<div class="chiffre"><span class="valeur">sept. 2027</span><span class="libelle">plateforme complète déployée</span></div>
 <div class="chiffre"><span class="valeur">5 000 €</span><span class="libelle">HT, une première phase de deux mois pour juger sur pièces</span></div>
-<div class="chiffre"><span class="valeur">févr. 2027</span><span class="libelle">premières DSM déclarées sur le portail par les opérateurs</span></div>
-<div class="chiffre"><span class="valeur">sept. 2027</span><span class="libelle">plateforme complète et arrêt d'Integraal, trois mois avant l'échéance</span></div>
-<div class="chiffre"><span class="valeur">53 000 €</span><span class="libelle">HT, réalisation complète, forfaits payés à la validation de chaque phase</span></div>
+
 </div>
 
 ## Ce que je propose
 
-- **Le BNIA propriétaire de sa plateforme à 100 %.** Code source ouvert dont il est titulaire des droits, hébergement souscrit à son nom, toutes ses données téléchargeables à tout moment : tout est fait pour qu'il reste libre, y compris de confier la suite à un autre prestataire.
-- **Une première phase courte, à faible engagement.** En deux mois et pour 5 000 € HT, le BNIA voit son futur outil fonctionner sur ses propres données, avec ses propres utilisateurs. À son issue, il décide de poursuivre ou d'arrêter.
-- **Un risque maîtrisé étape par étape.** Chaque module est mis en production dès qu'il est prêt, pendant que le suivant s'essaie en recette ; Integraal reste le filet de sécurité jusqu'à son arrêt. J'ai mené une reprise de cette nature pour la Banque de France : elle se prépare et se répète avant le jour J.
-- **Au-delà du cahier des charges, et compris dans le prix** : le portail utilisable sur mobile et tablette, et une messagerie entre le BNIA et les opérateurs, où chaque échange est rattaché à sa déclaration ou à sa facture.
+- **Le BNIA est le propriétaire de sa plateforme à 100 %.** Le code est open source et le BNIA en est le titulaire des droits. L'hébergement est souscrit au nom du BNIA, et toutes les données sont téléchargeables à tout moment : tout est fait pour que le BNIA reste libre, y compris de confier la suite à un autre prestataire.
+- **La construction est incrémentale.** Chaque module est migré depuis Integraal et pro.armagnac.fr vers la nouvelle plateforme dès qu'il est prêt. Integraal et pro.armagnac.fr restent en activité partielle jusqu'à leur arrêt définitif en fin de projet. Cette stratégie réduit les risques et favorise une adoption progressive par les opérateurs.
+- **Au-delà du cahier des charges, et compris dans le prix** : je propose que le portail soit utilisable sur mobile et tablette via une application installable, en particulier pour saisir les contrats d'achat d'Armagnac sur le terrain. En plus, et par expérience, j’ajoute une messagerie interne à la plateforme entre le BNIA et les opérateurs.
+- **Une première phase courte, à faible engagement financier, permet au BNIA de valider son choix.** En deux mois et pour 5 000 € HT, le BNIA voit son futur outil fonctionner sur ses propres données, avec ses propres utilisateurs, sur un périmètre très représentatif (DSM). À l'issue de cette phase, le BNIA est libre de poursuivre ou d'arrêter.
 
-## Mon engagement
+## Prototype inclus avec l'offre
 
-Le BNIA serait le premier client de mon entreprise, celui sur lequel elle se construit. Mon objectif va donc au-delà de la réalisation : la **satisfaction totale du BNIA**. Ma structure est légère, sans frais commerciaux ni marge d'agence : c'est ce qui permet ce prix.
+Accessible à l’adresse : <a href="https://bnia-demo.osc-fr1.scalingo.io">bnia-demo.osc-fr1.scalingo.io</a>
+
+Je l'ai réalisé pour deux raisons : 
+- **Démontrer mon sérieux et ma capacité à faire**, ainsi que mon intérêt réel pour l’interprofession Armagnac.
+- **Éprouver le cahier des charges.** Le prototype est développé à partir des informations fournies dans ce document. Ce que j’en retiens : c’est une description orientée « données » plutôt que « processus métiers ». Une bonne base de départ certes, mais à laquelle il manque des informations essentielles pour en faire un outil qui réponde **véritablement aux besoins des utilisateurs en tenant compte de leurs contraintes métier**.
+
+Le contenu du prototype est détaillé en section 8 de ce document.
+
+
 
 <div class="encadre">
-<h3>Le prototype</h3>
-<p>Accessible à l’adresse : <a href="https://bnia-demo.osc-fr1.scalingo.io">bnia-demo.osc-fr1.scalingo.io</a>. Je l’ai réalisé avant même d’être retenu, pour trois raisons :</p>
-<ul>
-<li><strong>Démontrer mon sérieux et ma capacité à faire</strong>, ainsi que mon intérêt réel pour l’interprofession, et montrer au BNIA comment je travaille.</li>
-<li><strong>Éprouver le cahier des charges.</strong> Le prototype est développé à partir de lui. Ce que j’en retiens : c’est une description orientée données plutôt que métier. Une bonne base de départ, à laquelle il manque des informations essentielles pour en faire un véritable outil, qui réponde aux besoins des utilisateurs en tenant compte de leurs contraintes métier (voir en annexe l’exemple de spécifications détaillées, paragraphe « Questions au BNIA »).</li>
-<li><strong>Disposer d’une base de discussion</strong> pour expliciter le contenu de cette offre.</li>
-</ul>
+<h3>Mon engagement personnel</h3>
+<p>Le BNIA serait le premier client de mon entreprise, celui sur lequel sa réputation se construit. Mon objectif va donc au-delà de la réalisation : je vise la <strong>satisfaction totale du BNIA</strong>.</p>
+<p>Ma structure est légère, <strong>sans frais commerciaux ni marge d’agence</strong> : c’est ce qui permet ce prix bas.</p>
 </div>

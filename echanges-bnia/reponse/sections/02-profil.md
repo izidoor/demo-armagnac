@@ -36,9 +36,9 @@ APE 6202A · Anglet (64)<br>
 <div class="periode">Les Aldudes · 2014 – 2019</div>
 <ul>
 <li>Direction d’une structure de 6 salariés</li>
-<li><strong>Doublement du chiffre d’affaires</strong>, de 400 k€ à 800 k€</li>
+<li><strong>Doublement du chiffre d’affaires</strong>, de 400&nbsp;k€ à 800&nbsp;k€</li>
 <li>Production, développement commercial, gestion financière et budgétaire</li>
-<li>Obligations déclaratives et administratives assumées au quotidien</li>
+<li>Obligations déclaratives et administratives</li>
 </ul>
 <div class="apport">J’ai été opérateur d’une filière : je sais ce que coûte chaque saisie réglementaire et j’ai été confronté à des outils collectifs qui parfois facilitaient, parfois compliquaient les démarches.</div>
 </div>
@@ -49,10 +49,9 @@ APE 6202A · Anglet (64)<br>
 <h3>Chef de projet informatique</h3>
 <div class="periode">Groupe Seldon pour la Banque de France · 2022 – 2026</div>
 <ul>
-<li><strong>Création d’un portail usagers avec back-office</strong> d’instruction : 6 000 utilisateurs, plus de 10 Md€ d’encours</li>
-<li><strong>Reprise des données</strong> de l’ancien système (SAP) : agents, prêts, historique</li>
+<li><strong>Création d’un portail usagers avec back-office</strong> d’instruction : 6&nbsp;000 utilisateurs, plus de 10&nbsp;Md€ d’encours</li>
+<li><strong>Reprise des données</strong> de l’ancien système (SAP) : 25 ans d’historique</li>
 <li>Encadrement de 4 développeurs</li>
-<li>Mise en production, supervision, maintenance</li>
 </ul>
 <div class="apport">J’ai livré, migré et exploité une plateforme de plus grande échelle et de plus grande complexité technique que celle demandée par le BNIA.</div>
 </div>
@@ -63,12 +62,20 @@ APE 6202A · Anglet (64)<br>
 <h2>Les garanties pour le BNIA</h2>
 <ul>
 <li><strong>Un interlocuteur unique</strong>, du recueil du besoin à la mise en production, puis en maintenance.</li>
-<li><strong>Un engagement de client fondateur</strong> : le BNIA serait le premier client de mon entreprise, celui sur lequel sa réputation se construit. Au-delà de la mise en œuvre de l’application, la satisfaction totale du BNIA est l’objectif prioritaire.</li>
 <li><strong>Du conseil, pas seulement du code</strong> : mon expérience de filière me permet d’interroger le besoin, de proposer des simplifications et d’accompagner l’évolution des pratiques.</li>
-<li><strong>Le métier avant la technique</strong> : les écrans sont pensés pour les opérateurs comme pour les équipes du BNIA. Ils prennent en compte les contraintes de chacun.</li>
-<li><strong>La reprise des données</strong> : c’est le piège principal de ce type de projet. Je l’ai déjà franchi pour la Banque de France avec des enjeux financiers et sécuritaires énormes.</li>
-<li><strong>Une preuve plutôt qu’une promesse</strong> : le prototype présenté dans cette proposition démontre ma capacité à faire.</li>
+<li><strong>Le métier avant la technique</strong> : les écrans sont pensés pour les opérateurs comme pour le BNIA. Ils prennent en compte les contraintes de chacun.</li>
+<li><strong>La reprise des données</strong> : c’est le piège principal de ce projet. Je l’ai déjà franchi pour la Banque de France avec des enjeux financiers et sécuritaires énormes.</li>
 </ul>
+</div>
+
+<div class="recommandation">
+<h2>Recommandation</h2>
+<figure>
+<blockquote>
+<p>Pierre-Yves est un collaborateur rare, qui se nourrit des défis qui lui sont confiés. Il est capable de prendre en charge un projet dans son intégralité et de le faire aboutir, en s’adaptant aux incertitudes et en s’ajustant aux changements imprévus. Son approche pragmatique et efficace, combinée à une attention constante aux détails, a permis la réussite d’un projet qui a fait grandir notre entreprise. Ce qui distingue particulièrement Pierre-Yves, c’est son engagement envers les résultats et la satisfaction des clients. Je recommande Pierre-Yves avec enthousiasme.</p>
+</blockquote>
+<figcaption><strong><a href="https://www.linkedin.com/in/gilles-sebe-57339424/">Gilles Sebe</a></strong>, Président du Groupe Seldon · 06&nbsp;80&nbsp;13&nbsp;79&nbsp;32<br><span>Mon responsable direct · recommandation publiée sur LinkedIn le 2 avril 2026</span></figcaption>
+</figure>
 </div>
 
 <p class="renvoi">Parcours détaillé en annexe : curriculum vitae.</p>

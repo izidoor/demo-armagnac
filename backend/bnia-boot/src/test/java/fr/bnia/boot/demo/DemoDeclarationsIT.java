@@ -77,39 +77,41 @@ class DemoDeclarationsIT extends AbstractIT {
 
         long gascogne = id("N320001");
         assertThat(points.consulter(anne, gascogne).orElseThrow().point().lignes()).hasSize(6);
-        // Spec 08 §7.1 : onze mois validés, à facturer, avant celui qui attend le BNIA.
+        // Spec 08 §7.1 : onze mois validés, à facturer, avant celui en compléments demandés.
         List<DsmLigne> declarations = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
         List<org.assertj.core.groups.Tuple> attendues = new java.util.ArrayList<>();
-        attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.ENVOYEE, mois));
+        attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.COMPLEMENTS_DEMANDES, mois));
         for (int m = 1; m <= 11; m++) {
             attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(m)));
         }
         assertThat(declarations).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactlyElementsOf(attendues);
         assertThat(dsms.consulter(anne, gascogne, declarations.get(1).id()).cotisation().ht())
                 .contains(new BigDecimal("1855.95"));
-        var envoyee = dsms.consulter(anne, gascogne, declarations.getFirst().id());
-        assertThat(envoyee.anomalies()).isEmpty();
-        List<LigneDsm> lignes = envoyee.dsm().lignes();
+        var courante = dsms.consulter(anne, gascogne, declarations.getFirst().id());
+        assertThat(courante.anomalies()).isEmpty();
+        List<LigneDsm> lignes = courante.dsm().lignes();
         assertThat(somme(lignes, ColonneDsm.C14, ColonneDsm.C17, ColonneDsm.C18, ColonneDsm.C19, ColonneDsm.C21))
                 .isEqualTo("839.11");
         assertThat(somme(lignes, ColonneDsm.C22, ColonneDsm.C23, ColonneDsm.C24)).isEqualTo("2254.15");
-        assertThat(notes.lister(anne, gascogne, envoyee.dsm().id())).extracting(NoteInterne::ligne)
-                .containsExactly(null, envoyee.dsm().lignes().getFirst().id());
-        assertThat(envoyee.manques()).extracting(Manque::typeMouvement)
+        assertThat(notes.lister(anne, gascogne, courante.dsm().id())).extracting(NoteInterne::ligne)
+                .containsExactly(null, courante.dsm().lignes().getFirst().id());
+        assertThat(courante.manques()).extracting(Manque::typeMouvement)
                 .containsExactly(TypeMouvement.VENTE_NEGOCE, TypeMouvement.VENTE_EXPORT);
         // La facture d'exemple : 1 855,95 € HT à 60 €/hlAP, 20 % exonérés.
-        assertThat(envoyee.cotisation().ht()).contains(new BigDecimal("1855.95"));
+        assertThat(courante.cotisation().ht()).contains(new BigDecimal("1855.95"));
         assertThat(grille.consulter(anne)).extracting(t -> t.taux().debut())
                 .contains(LocalDate.of(2021, 1, 1), LocalDate.of(2024, 1, 1));
 
         long larressingle = id("N320002");
-        DsmLigne complements = seule("N320002", EtatDsm.COMPLEMENTS_DEMANDES, mois.minusMonths(1));
-        assertThat(dsms.consulter(anne, larressingle, complements.id()).enRetard())
-                .as("en retard dès le 6 du mois").isEqualTo(LocalDate.now().getDayOfMonth() > 5);
-        assertThat(dsms.consulter(anne, gascogne, envoyee.dsm().id()).enRetard()).as("attend le BNIA").isFalse();
+        var aInstruire = dsms.consulter(anne, larressingle,
+                seule("N320002", EtatDsm.ENVOYEE, mois.minusMonths(1)).id());
+        assertThat(aInstruire.manques()).as("DAE déposés : validable").isEmpty();
+        assertThat(aInstruire.enRetard()).as("attend le BNIA").isFalse();
+        assertThat(courante.enRetard()).as("mois courant").isFalse();
         assertThat(converser.consulterObjet(new fr.bnia.messagerie.api.Acteur(anne.utilisateur()),
-                fr.bnia.messagerie.api.ObjetRef.de(fr.bnia.messagerie.api.TypeObjet.DSM, complements.id())).messages())
-                .singleElement().satisfies(m -> {
+                fr.bnia.messagerie.api.ObjetRef.de(fr.bnia.messagerie.api.TypeObjet.DSM, courante.dsm().id())).messages())
+                .as("le motif ouvre la conversation")
+                .first().satisfies(m -> {
                     assertThat(m.message().texte()).isEqualTo("DAE manquants pour l'export");
                     assertThat(m.message().protege()).isTrue();
                 });
@@ -120,13 +122,18 @@ class DemoDeclarationsIT extends AbstractIT {
 
         LocalDate aujourdhui = LocalDate.now();
         int annee = aujourdhui.getMonthValue() >= 4 ? aujourdhui.getYear() : aujourdhui.getYear() - 1;
-        DsmLigne validee = seule("000001", EtatDsm.VALIDEE, LocalDate.of(annee - 1, 4, 1));
+        List<DsmLigne> deCondom = dsms.lister(anne, id("000001")).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
+        assertThat(deCondom).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactly(
+                org.assertj.core.groups.Tuple.tuple(EtatDsm.BROUILLON, LocalDate.of(annee, 4, 1)),
+                org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, LocalDate.of(annee - 1, 4, 1)));
+        assertThat(dsms.consulter(anne, id("000001"), deCondom.getFirst().id()).anomalies()).extracting(a -> a.type())
+                .containsExactly(TypeAnomalie.ASSEMBLAGES_DESEQUILIBRES);
+        DsmLigne validee = deCondom.get(1);
         var piecesCondom = pieces.pieces(anne, id("000001"), validee.id());
         assertThat(piecesCondom.mois()).hasSize(12).allSatisfy(m -> assertThat(m.drm()).isPresent());
         assertThat(piecesCondom.justificatifs()).singleElement()
                 .satisfies(j -> assertThat(j.typePiece()).isEqualTo(TypePiece.DAE));
         assertThat(piecesCondom.manques()).isEmpty();
-        assertThat(dsms.situation(anne, id("000001")).initiable()).as("la DSM suivante est à initier").isTrue();
 
         assertThat(points.consulter(anne, id("000002"))).isEmpty();
 

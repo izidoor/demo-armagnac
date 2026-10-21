@@ -93,12 +93,12 @@
   <text class="dans-prod" x="355" y="128">production : DSM côté BNIA, export, certificats, facturation</text>
 
   <!-- Lot 3 -->
-  <text class="rubrique" x="0" y="150">Contrats d'achat,</text>
+  <text class="rubrique" x="0" y="150">Contrats d’achat,</text>
   <text class="rubrique" x="0" y="161">fin de distillation</text>
   <rect class="recette" x="347" y="144" width="66" height="18" rx="3"/>
   <text class="dans-recette" x="380" y="156" text-anchor="middle">recette</text>
   <rect class="prod" x="415" y="144" width="237" height="18" rx="3"/>
-  <text class="dans-prod" x="423" y="156">production : contrats d'achat, fin de distillation</text>
+  <text class="dans-prod" x="423" y="156">production : contrats d’achat, fin de distillation</text>
 
   <!-- Lot 4 -->
   <text class="rubrique" x="0" y="178">Statistiques, boutique,</text>
@@ -114,17 +114,17 @@
   <line class="jalon" x1="516" y1="50" x2="516" y2="216"/>
   <line class="jalon" x1="652" y1="50" x2="652" y2="216"/>
   <text class="texte-jalon" x="274" y="214" text-anchor="end">fin janv. : le BNIA décide</text>
-  <text class="texte-jalon" x="274" y="224" text-anchor="end">de poursuivre ou d'arrêter</text>
+  <text class="texte-jalon" x="274" y="224" text-anchor="end">de poursuivre ou d’arrêter</text>
   <text class="texte-jalon" x="329" y="208" text-anchor="middle">campagne DSM</text>
   <text class="texte-jalon" x="329" y="218" text-anchor="middle">producteurs</text>
   <text class="texte-jalon" x="512" y="214" text-anchor="end">1er sept. : campagne de distillation,</text>
-  <text class="texte-jalon" x="512" y="224" text-anchor="end">arrêt d'Integraal</text>
+  <text class="texte-jalon" x="512" y="224" text-anchor="end">arrêt d’Integraal</text>
   <text class="texte-jalon" x="648" y="214" text-anchor="end">déc. : échéance</text>
   <text class="texte-jalon" x="648" y="224" text-anchor="end">du BNIA</text>
 
   <!-- Légende -->
   <rect class="recette" x="0" y="246" width="22" height="10" rx="2"/>
-  <text class="legende" x="28" y="254">en recette : essayé par le groupe d'adoption, validé par le BNIA</text>
+  <text class="legende" x="28" y="254">en recette : essayé par le groupe d’adoption, validé par le BNIA</text>
   <rect class="prod" x="286" y="246" width="22" height="10" rx="2"/>
   <text class="legende" x="314" y="254">en production : utilisé par tous</text>
   <rect class="campagne" x="450" y="246" width="22" height="10"/>
