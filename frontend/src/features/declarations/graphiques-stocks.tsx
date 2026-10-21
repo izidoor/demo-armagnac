@@ -41,29 +41,35 @@ const VUES: { id: Vue; libelle: string }[] = [
 ]
 
 type Type = 'NEGOCIANT' | 'PRODUCTEUR'
-type Tranche = 'jeunes' | '1-3' | '4-9' | '10-19' | '20+'
+type Tranche = '00-3' | '4-9' | '10-19' | '20+'
 
 const TYPES: Type[] = ['NEGOCIANT', 'PRODUCTEUR']
-const TRANCHES: Tranche[] = ['jeunes', '1-3', '4-9', '10-19', '20+']
+const TRANCHES: Tranche[] = ['00-3', '4-9', '10-19', '20+']
 
-/** Stock moyen fictif par type de déclarant, en hl AP, et part de chaque tranche de compte d'âge. */
-const BASE: Record<Type, number> = { NEGOCIANT: 30000, PRODUCTEUR: 12000 }
+/**
+ * Stock de chaque type de déclarant cette année, en hl AP, et part de chaque tranche de compte d'âge : les
+ * chiffres réels de la filière, communiqués par le BNIA (159 236 hl AP, 35 % producteurs, 65 % négociants).
+ */
+const BASE: Record<Type, number> = { NEGOCIANT: 103_503, PRODUCTEUR: 55_733 }
 const PART: Record<Tranche, number> = {
-  jeunes: 0.28,
-  '1-3': 0.27,
-  '4-9': 0.22,
+  '00-3': 0.37,
+  '4-9': 0.27,
   '10-19': 0.14,
-  '20+': 0.09,
+  '20+': 0.22,
 }
+const ANNEE_DE_REFERENCE = new Date().getFullYear()
 /** Niveau du stock à chaque fin de mois (janvier à décembre) : il monte avec la distillation, puis s'écoule. */
 const SAISONS = [
   1.04, 1.07, 1.08, 1.06, 1.03, 1, 0.98, 0.97, 0.96, 0.95, 0.98, 1.01,
 ]
 
-/** Stock fictif, en hl AP, à la fin d'un mois (1 à 12) : croissance de 1,5 % l'an, saison (accentuée pour les jeunes comptes), ±4 %. */
+/**
+ * Stock fictif, en hl AP, à la fin d'un mois (1 à 12) : celui de la filière cette année, 1,5 % de moins par année
+ * en arrière, saison (accentuée pour les jeunes comptes), ±3 %.
+ */
 function stock(type: Type, tranche: Tranche, annee: number, mois: number) {
   const saison = SAISONS[mois - 1]
-  const s = tranche === 'jeunes' ? 1 + (saison - 1) * 3 : saison
+  const s = tranche === '00-3' ? 1 + (saison - 1) * 2 : saison
   const graine =
     TYPES.indexOf(type) * 2027 +
     TRANCHES.indexOf(tranche) * 1013 +
@@ -72,9 +78,9 @@ function stock(type: Type, tranche: Tranche, annee: number, mois: number) {
   return Math.round(
     BASE[type] *
       PART[tranche] *
-      Math.pow(1.015, annee - 2020) *
+      Math.pow(1.015, annee - ANNEE_DE_REFERENCE) *
       s *
-      (1 + 0.04 * bruit(graine))
+      (1 + 0.03 * bruit(graine))
   )
 }
 
@@ -221,8 +227,7 @@ function GraphiqueStockTotal() {
 
 /** Les courbes, une par tranche de compte d'âge ; la couleur suit la tranche. */
 const COURBES: { cle: Tranche; libelle: string; couleur: string }[] = [
-  { cle: 'jeunes', libelle: 'Comptes 00 et 0', couleur: 'var(--chart-1)' },
-  { cle: '1-3', libelle: 'Comptes 1 à 3', couleur: 'var(--chart-2)' },
+  { cle: '00-3', libelle: 'Comptes 00 à 3', couleur: 'var(--chart-1)' },
   { cle: '4-9', libelle: 'Comptes 4 à 9', couleur: 'var(--chart-3)' },
   { cle: '10-19', libelle: 'Comptes 10 à 19', couleur: 'var(--chart-4)' },
   { cle: '20+', libelle: 'Compte 20+', couleur: 'var(--primary)' },

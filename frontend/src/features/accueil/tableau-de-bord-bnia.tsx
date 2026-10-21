@@ -19,9 +19,7 @@ import {
 import {
   type Droits,
   type DsmListee,
-  listerOperateurs,
   listerPieces,
-  listerStocksDeclares,
   listerToutesDsm,
   rechercherOperateurs,
 } from '@/api/generated'
@@ -52,10 +50,18 @@ const DEMO = {
   commandesBoutique: 9,
 }
 
-const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
+/**
+ * Chiffres réels de la filière, communiqués par le BNIA : nombre d'opérateurs et stock total (159 236 hl AP,
+ * 35 % chez les producteurs, 65 % chez les négociants). Les données de démonstration n'en sont qu'un
+ * échantillon : la carte de chaque type montre ces chiffres plutôt que ceux de la base.
+ */
+const FILIERE: Record<TypeDeclarant, { operateurs: number; stockHl: number }> =
+  {
+    PRODUCTEUR: { operateurs: 460, stockHl: 55_733 },
+    NEGOCIANT: { operateurs: 180, stockHl: 103_503 },
+  }
 
-/** Un stock en L AP, affiché en hl AP arrondis : « 4 230 hl AP ». */
-const enHectolitres = (litres: number) => `${entier.format(litres / 100)} hl AP`
+const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
 
 const lit = (droits: Droits | undefined, module: Module) =>
   !!droits && droits[module] !== 'AUCUN'
@@ -65,7 +71,8 @@ const lit = (droits: Droits | undefined, module: Module) =>
  * de chaque type, recherche rapide d'un opérateur), les activités à traiter, puis deux graphiques. Chaque
  * indicateur ouvre le listing préfiltré correspondant. Les blocs suivent les droits de l'utilisateur sur
  * l'opérateur BNIA : seuls ceux des modules qu'il lit s'affichent, et leurs lectures ne partent qu'alors. Les
- * chiffres viennent de la base quand le contexte existe (opérateurs, DSM, factures, messages) ; les certificats export,
+ * chiffres viennent de la base quand le contexte existe (DSM, factures, messages), ceux des opérateurs et
+ * des stocks de la filière (FILIERE) ; les certificats export,
  * contrats, commandes boutique et les graphiques sont des données de démonstration, marquées comme
  * telles.
  */
@@ -175,7 +182,7 @@ function Lien({
 
 /**
  * Un type de déclarant : nombre d'opérateurs actifs, qui ouvre le listing préfiltré sur ce type ; stock déclaré
- * total (RG-DEC-42), qui ouvre les stocks déclarés, pour qui lit les déclarations.
+ * total, qui ouvre les stocks déclarés, pour qui lit les déclarations. Chiffres de la filière (FILIERE).
  */
 function CarteType({
   type,
@@ -190,23 +197,7 @@ function CarteType({
   couleur: string
   stock: boolean
 }) {
-  const operateurs = useQuery({
-    queryKey: ['operateurs', 'liste', { type, actif: true }],
-    queryFn: () =>
-      listerOperateurs({
-        query: { type, actif: true },
-        throwOnError: true,
-      }).then((r) => r.data),
-  })
-  const stocks = useQuery({
-    queryKey: ['declarations', 'stocks', { type }],
-    queryFn: () =>
-      listerStocksDeclares({ query: { type }, throwOnError: true }).then(
-        (r) => r.data
-      ),
-    enabled: avecStock,
-  })
-  const stock = stocks.data?.reduce((s, l) => s + l.stock, 0)
+  const { operateurs, stockHl } = FILIERE[type]
   return (
     <Card>
       <CardHeader className='flex flex-row items-center gap-3'>
@@ -224,16 +215,12 @@ function CarteType({
       <CardContent className='grid grid-cols-2 gap-6'>
         <Lien to='/bo/operateurs' search={{ type }}>
           <p className='text-muted-foreground text-sm'>Opérateurs actifs</p>
-          <Valeur
-            valeur={operateurs.data && entier.format(operateurs.data.length)}
-          />
+          <Valeur valeur={entier.format(operateurs)} />
         </Lien>
         {avecStock && (
           <Lien to='/bo/declarations/stocks'>
             <p className='text-muted-foreground text-sm'>Stock total déclaré</p>
-            <Valeur
-              valeur={stock === undefined ? undefined : enHectolitres(stock)}
-            />
+            <Valeur valeur={`${entier.format(stockHl)} hl AP`} />
           </Lien>
         )}
       </CardContent>
