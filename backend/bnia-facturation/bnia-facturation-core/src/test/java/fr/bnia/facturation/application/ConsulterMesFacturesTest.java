@@ -10,11 +10,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.ElementIntrouvable;
+import fr.bnia.commun.domain.RegleEnfreinte;
+import fr.bnia.facturation.api.LigneVendue;
 import fr.bnia.facturation.domain.CoteJournal;
 import fr.bnia.facturation.domain.EntreeJournal;
 import fr.bnia.facturation.domain.EtatPiece;
 import fr.bnia.facturation.domain.EvenementJournal;
 import fr.bnia.facturation.domain.Exemples;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -83,11 +86,30 @@ class ConsulterMesFacturesTest {
     }
 
     @Test
-    @DisplayName("RG-FAC-26 : les factures d'un opérateur sont refusées à qui ne lui est pas rattaché")
+    @DisplayName("RG-FAC-34 : les lignes article des seules pièces émises de l'opérateur, dans la période et de la nature demandée")
+    void rg_fac_34_lignes() {
+        LocalDate debut = LocalDate.of(2026, 10, 1);
+        LocalDate fin = LocalDate.of(2026, 10, 31);
+
+        assertThat(cas.lignes(CLIENT, OPERATEUR_CLIENT, debut, fin, Optional.of("DSM")))
+                .extracting(LigneVendue::piece).containsExactly(emise, emise, emise, emise);
+        assertThat(cas.lignes(CLIENT, OPERATEUR_CLIENT, debut, fin, Optional.empty())).hasSize(4);
+        assertThat(cas.lignes(CLIENT, OPERATEUR_CLIENT, debut, fin, Optional.of("FIN_DE_TRAVAUX"))).isEmpty();
+        assertThat(cas.lignes(CLIENT, OPERATEUR_CLIENT, debut.minusMonths(1), debut.minusDays(1), Optional.empty()))
+                .isEmpty();
+        assertThat(cas.lignes(GESTIONNAIRE, 43, debut, fin, Optional.empty())).isEmpty();
+        assertThatThrownBy(() -> cas.lignes(CLIENT, OPERATEUR_CLIENT, fin, debut, Optional.empty()))
+                .isInstanceOfSatisfying(RegleEnfreinte.class, e -> assertThat(e.regle()).contains("RG-FAC-30"));
+    }
+
+    @Test
+    @DisplayName("RG-FAC-26, 34 : les factures d'un opérateur et leurs lignes sont refusées à qui ne lui est pas rattaché")
     void rg_fac_26_refus() {
         assertThatThrownBy(() -> cas.lister(ETRANGER, OPERATEUR_CLIENT, FiltrePieces.aucun()))
                 .isInstanceOfSatisfying(AccesRefuse.class, e -> assertThat(e.regle()).contains("RG-FAC-26"));
         assertThatThrownBy(() -> cas.consulter(CLIENT, 43, emise)).isInstanceOf(AccesRefuse.class);
         assertThatThrownBy(() -> cas.pdf(ETRANGER, OPERATEUR_CLIENT, emise)).isInstanceOf(AccesRefuse.class);
+        assertThatThrownBy(() -> cas.lignes(ETRANGER, OPERATEUR_CLIENT, LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 31), Optional.empty())).isInstanceOf(AccesRefuse.class);
     }
 }

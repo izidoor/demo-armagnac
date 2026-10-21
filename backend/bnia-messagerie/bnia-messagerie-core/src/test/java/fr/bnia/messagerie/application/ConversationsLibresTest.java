@@ -44,7 +44,7 @@ class ConversationsLibresTest {
     }
 
     @Test
-    @DisplayName("RG-MSG-02 : côté opérateur, son seul auteur la voit, ADMIN compris exclu ; tout le BNIA la voit et y répond")
+    @DisplayName("RG-MSG-02 : côté opérateur, son seul auteur la voit, ADMIN compris exclu ; tout le BNIA la voit, ses agents et administrateurs y répondent")
     void rg_msg_02_confidentialite() {
         long id = ouvrir();
         assertThat(converser.consulter(AGENT, id).peutEcrire()).isTrue();
@@ -53,20 +53,28 @@ class ConversationsLibresTest {
                     .hasMessage("La conversation « Import de la matrice refusé » n'est visible que de Utilisateur 10"
                             + " et du BNIA.");
         }
-        assertThat(converser.ecrire(OBSERVATEUR_BNIA, id, "Pouvez-vous préciser la ligne ?").cote())
-                .as("module Messagerie géré par tous les rôles").isEqualTo(Cote.BNIA);
+        var vueObservateur = converser.consulter(OBSERVATEUR_BNIA, id);
+        assertThat(vueObservateur.peutEcrire()).as("OBSERVATEUR lit le module Messagerie sans le gérer").isFalse();
+        assertThat(vueObservateur.lectureSeule()).contains("Votre rôle permet de lire cette conversation, pas d'y écrire.");
+        assertThatThrownBy(() -> converser.ecrire(OBSERVATEUR_BNIA, id, "Pouvez-vous préciser la ligne ?"))
+                .isInstanceOf(AccesRefuse.class)
+                .extracting(e -> ((RegleEnfreinte) e).regle().orElseThrow()).isEqualTo("RG-MSG-02");
+        assertThat(converser.ecrire(AGENT_BNIA, id, "Pouvez-vous préciser la ligne ?").cote()).isEqualTo(Cote.BNIA);
         assertThat(converser.consulter(AGENT_BNIA, id).messages()).hasSize(2);
     }
 
     @Test
-    @DisplayName("RG-MSG-12 : seul un utilisateur du portail ouvre une conversation libre, avec un titre")
+    @DisplayName("RG-MSG-12 : seul un utilisateur du portail qui gère la Messagerie ouvre une conversation libre, avec un titre")
     void rg_msg_12_ouverture() {
         assertThatThrownBy(() -> converser.ouvrirLibre(AGENT_BNIA, NEGOCIANT, "Titre", "Texte", List.of()))
                 .isInstanceOf(AccesRefuse.class);
         enfreint("RG-MSG-12", () -> converser.ouvrirLibre(AGENT, NEGOCIANT, " ", "Texte", List.of()));
         enfreint("RG-MSG-05", () -> converser.ouvrirLibre(AGENT, NEGOCIANT, "Titre", " ", List.of()));
+        assertThatThrownBy(() -> converser.ouvrirLibre(OBSERVATEUR, NEGOCIANT, "Titre", "Texte", List.of()))
+                .isInstanceOf(AccesRefuse.class).hasMessage("Seul un membre de l'opérateur ouvre une conversation"
+                        + " avec le BNIA.");
         assertThat(monde.conversations.parId).as("rien n'est ouvert sur un refus").isEmpty();
-        var vue = converser.ouvrirLibre(OBSERVATEUR, NEGOCIANT, "Accès à l'export", "Bonjour", List.of());
+        var vue = converser.ouvrirLibre(ADMIN, NEGOCIANT, "Accès à l'export", "Bonjour", List.of());
         assertThat(vue.conversation().orElseThrow().operateur()).isEqualTo(NEGOCIANT);
         assertThat(vue.sujet().intitule()).isEqualTo("Accès à l'export");
     }

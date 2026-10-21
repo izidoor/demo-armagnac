@@ -87,6 +87,21 @@ class MessagerieIT extends AbstractIT {
     }
 
     @Test
+    @DisplayName("RG-MSG-12, RG-OPE-31 : l'observateur lit la Messagerie sans la gérer ; il n'ouvre pas de conversation libre")
+    void rg_msg_12_observateur() {
+        String email = emailUnique("observateur");
+        membre(operateur, Role.OBSERVATEUR, email);
+        RestTestClient observateur = connecte(email);
+
+        observateur.get().uri("/api/operateurs/{id}/mes-droits", operateur).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.messagerie").isEqualTo("LECTURE");
+        agent.get().uri("/api/operateurs/{id}/mes-droits", operateur).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$.messagerie").isEqualTo("GESTION");
+        ouvrir(observateur, "Accès aux statistiques", "Mon rôle le permet-il ?").expectStatus().isForbidden()
+                .expectBody().jsonPath("$.regle").isEqualTo("RG-MSG-12");
+    }
+
+    @Test
     @DisplayName("RG-MSG-02, 12, 14 : l'agent ouvre une conversation libre avec ses pièces ; son ADMIN ne la voit pas ; le BNIA répond")
     void rg_msg_02_12_14_conversation_libre() {
         Map<?, ?> ouverte = corps(ouvrir(agent, "Import de la matrice refusé", "Voici ma matrice ; où est l'erreur ?",

@@ -53,7 +53,7 @@ class DemoMessagerieIT extends AbstractIT {
                         org.assertj.core.groups.Tuple.tuple(Cote.OPERATEUR, false),
                         org.assertj.core.groups.Tuple.tuple(Cote.BNIA, true));
 
-        // Lot 5 : Julie voit sa conversation libre, avec sa pièce jointe ; Henri, l'ADMIN, aucune des deux.
+        // Lot 5 : Julie voit sa conversation libre, avec sa pièce jointe ; Henri, l'ADMIN, la sienne seulement.
         var deJulie = consulter.conversationsDuPortail(julie, gascogne, libres()).elements();
         assertThat(deJulie).singleElement().satisfies(c -> {
             assertThat(c.intitule()).isEqualTo("Import de la matrice refusé");
@@ -62,7 +62,8 @@ class DemoMessagerieIT extends AbstractIT {
         assertThat(converser.consulter(julie, deJulie.getFirst().id()).messages().getFirst().message().pieces())
                 .singleElement().satisfies(d -> assertThat(d.nom()).endsWith(".xlsx"));
         Acteur henri = new Acteur(operateurs.utilisateurParEmail("admin@negociant.fr").orElseThrow());
-        assertThat(consulter.conversationsDuPortail(henri, gascogne, libres()).elements()).isEmpty();
+        assertThat(consulter.conversationsDuPortail(henri, gascogne, libres()).elements()).singleElement()
+                .satisfies(c -> assertThat(c.intitule()).isEqualTo("Accès aux statistiques du marché"));
         Acteur anneMessagerie = new Acteur(anne.utilisateur());
         assertThat(consulter.conversationsDuBnia(anneMessagerie, new MessagerieLecture.Filtre(Optional.of(gascogne),
                 Optional.empty(), true, false, Optional.empty())).elements()).hasSize(2);

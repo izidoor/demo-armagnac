@@ -2,6 +2,7 @@ package fr.bnia.facturation.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.commun.application.StockageDocuments.DocumentLu;
+import fr.bnia.facturation.adapter.rest.VentesResponse.LigneVendueResponse;
 import fr.bnia.facturation.application.ConsulterMesFactures;
 import fr.bnia.facturation.application.FiltrePieces;
 import fr.bnia.facturation.domain.SensPiece;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Les factures et avoirs d'un opérateur, au portail (UC-FAC-5, spec 08 §6.2) : pièces émises dont il est le client,
- * détail et PDF, consultations journalisées côté client (RG-FAC-26, 28).
+ * détail et PDF, consultations journalisées côté client (RG-FAC-26, 28) ; lignes article d'une période (RG-FAC-34).
  */
 @RestController
 @RequestMapping("/api/operateurs/{operateur}/factures")
@@ -55,6 +56,19 @@ class MesFacturesController {
                 Optional.ofNullable(au));
         return mesFactures.lister(Acteurs.de(connecte), operateur, filtre).stream().map(PieceListeeResponse::de)
                 .toList();
+    }
+
+    @GetMapping("/lignes")
+    @Operation(operationId = "listerMesLignesFacturees",
+            summary = "Les lignes article des pièces émises de l'opérateur dans une période, par nature (RG-FAC-34)")
+    List<LigneVendueResponse> lignes(Connecte connecte, @PathVariable long operateur,
+            @Parameter(description = "Premier jour, inclus") @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate du,
+            @Parameter(description = "Dernier jour, inclus") @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate au,
+            @Parameter(description = "Nature d'origine", example = "DSM") @RequestParam(required = false) String nature) {
+        return mesFactures.lignes(Acteurs.de(connecte), operateur, du, au, texte(nature)).stream()
+                .map(LigneVendueResponse::de).toList();
     }
 
     @GetMapping("/{id}")

@@ -7,6 +7,7 @@ import fr.bnia.messagerie.api.TypeObjet;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.List;
 
 /**
  * Le monde des tests de cas d'usage : l'opérateur 7 (un négociant) et ses membres, le personnel du BNIA, la DSM 42 et
@@ -41,6 +42,7 @@ final class Monde {
         droits.membre(ADMIN.utilisateur(), NEGOCIANT, TypeObjet.DSM);
         droits.bnia(AGENT_BNIA.utilisateur(), TypeObjet.DSM, TypeObjet.FACTURE);
         droits.bnia(OBSERVATEUR_BNIA.utilisateur());
+        droits.observateurs.addAll(List.of(OBSERVATEUR.utilisateur(), OBSERVATEUR_BNIA.utilisateur()));
         dsms.descriptions.put("42", new DescriptionObjet(NEGOCIANT, "DSM octobre 2026"));
         factures.descriptions.put("9", new DescriptionObjet(NEGOCIANT, "Facture 2026000003"));
     }

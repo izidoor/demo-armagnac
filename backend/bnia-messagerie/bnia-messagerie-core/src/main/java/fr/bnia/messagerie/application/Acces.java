@@ -25,12 +25,13 @@ final class Acces {
      * @param peutEcrire       il y écrit
      * @param lectureSeule     pourquoi il n'y écrit pas ; vide s'il écrit
      * @param auteurParti      conversation libre dont l'auteur n'est plus membre actif (RG-MSG-13)
+     * @param regle            la règle qui refuse l'écriture
      */
-    record Droit(Cote cote, boolean peutEcrire, Optional<String> lectureSeule, boolean auteurParti) {
+    record Droit(Cote cote, boolean peutEcrire, Optional<String> lectureSeule, boolean auteurParti, String regle) {
 
         void exigerEcriture() {
             lectureSeule.ifPresent(motif -> {
-                throw new AccesRefuse(auteurParti ? "RG-MSG-13" : "RG-MSG-01", motif);
+                throw new AccesRefuse(regle, motif);
             });
         }
     }
@@ -43,7 +44,7 @@ final class Acces {
         boolean ecrit = droits.gere(acteur, type, operateur)
                 || type == TypeObjet.FACTURE;
         return new Droit(cote, ecrit, ecrit ? Optional.empty()
-                : Optional.of("Votre rôle permet de lire cette conversation, pas d'y écrire."), false);
+                : Optional.of("Votre rôle permet de lire cette conversation, pas d'y écrire."), false, "RG-MSG-01");
     }
 
     /** RG-MSG-01, 02, 13 : une conversation existante. */
@@ -54,21 +55,24 @@ final class Acces {
         };
     }
 
+    /**
+     * RG-MSG-02, 13 : tout rôle lit le module Messagerie, seuls {@code AGENT} et {@code ADMIN} le gèrent, donc y
+     * écrivent ; côté opérateur, la conversation n'est lue que par son auteur.
+     */
     private Droit surLibre(Acteur acteur, long operateur, SujetLibre libre) {
-        Optional<Cote> cote = droits.cote(acteur, operateur);
-        if (cote.isEmpty() || !droits.gereMessagerie(acteur, operateur)) {
-            throw new AccesRefuse("RG-MSG-02", "Vous n'avez pas accès à la conversation « " + libre.titre() + " ».");
-        }
+        Cote cote = droits.cote(acteur, operateur).orElseThrow(() -> new AccesRefuse("RG-MSG-02",
+                "Vous n'avez pas accès à la conversation « " + libre.titre() + " »."));
         boolean auteurActif = droits.membreActif(libre.auteur().utilisateur(), operateur);
-        if (cote.get() == Cote.OPERATEUR) {
-            if (libre.auteur().utilisateur() != acteur.utilisateur() || !auteurActif) {
-                throw new AccesRefuse("RG-MSG-02", "La conversation « " + libre.titre() + " » n'est visible que de "
-                        + libre.auteur().nom() + " et du BNIA.");
-            }
-            return new Droit(Cote.OPERATEUR, true, Optional.empty(), false);
+        if (cote == Cote.OPERATEUR && (libre.auteur().utilisateur() != acteur.utilisateur() || !auteurActif)) {
+            throw new AccesRefuse("RG-MSG-02", "La conversation « " + libre.titre() + " » n'est visible que de "
+                    + libre.auteur().nom() + " et du BNIA.");
         }
-        return auteurActif ? new Droit(Cote.BNIA, true, Optional.empty(), false)
-                : new Droit(Cote.BNIA, false, Optional.of(libre.auteur().nom()
-                        + " n'est plus membre de l'opérateur : la conversation est en lecture seule."), true);
+        if (cote == Cote.BNIA && !auteurActif) {
+            return new Droit(Cote.BNIA, false, Optional.of(libre.auteur().nom()
+                    + " n'est plus membre de l'opérateur : la conversation est en lecture seule."), true, "RG-MSG-13");
+        }
+        boolean ecrit = droits.gereMessagerie(acteur, operateur);
+        return new Droit(cote, ecrit, ecrit ? Optional.empty()
+                : Optional.of("Votre rôle permet de lire cette conversation, pas d'y écrire."), false, "RG-MSG-02");
     }
 }

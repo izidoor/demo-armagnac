@@ -32,11 +32,16 @@ public class ConsulterVentes {
      */
     public Ventes ventes(Acteur acteur, LocalDate du, LocalDate au) {
         controles.exigerLectureBnia(acteur);
+        exigerPeriode(du, au);
+        return Ventes.de(du, au, lecture.ventes(du, au, Optional.empty(), Optional.empty()));
+    }
+
+    /** RG-FAC-30 : la période des ventes va d'une date à une date postérieure ou égale. */
+    static void exigerPeriode(LocalDate du, LocalDate au) {
         if (du == null || au == null || au.isBefore(du)) {
             throw new RegleEnfreinte("RG-FAC-30", "La période des ventes va d'une date à une date postérieure ou égale"
                     + (du != null && au != null ? " (du " + du.format(DATE) + " au " + au.format(DATE) + ")." : "."));
         }
-        return Ventes.de(du, au, lecture.ventes(du, au, Optional.empty()));
     }
 
     /** RG-FAC-26, 30 : le PDF des ventes de la période, édité à la date du jour. */

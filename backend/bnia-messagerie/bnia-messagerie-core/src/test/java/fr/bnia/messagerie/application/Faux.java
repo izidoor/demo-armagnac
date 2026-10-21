@@ -129,6 +129,8 @@ final class Faux {
         final Map<Long, Map<Long, Set<TypeObjet>>> membres = new HashMap<>();
         /** Personnel du BNIA : utilisateur → types gérés. */
         final Map<Long, Set<TypeObjet>> bnia = new HashMap<>();
+        /** Les observateurs, qui lisent le module Messagerie sans le gérer. */
+        final Set<Long> observateurs = new HashSet<>();
 
         void membre(long utilisateur, long operateur, TypeObjet... geres) {
             Set<TypeObjet> types = EnumSet.noneOf(TypeObjet.class);
@@ -170,7 +172,7 @@ final class Faux {
 
         @Override
         public boolean gereMessagerie(Acteur acteur, long operateur) {
-            return cote(acteur, operateur).isPresent();
+            return cote(acteur, operateur).isPresent() && !observateurs.contains(acteur.utilisateur());
         }
 
         @Override

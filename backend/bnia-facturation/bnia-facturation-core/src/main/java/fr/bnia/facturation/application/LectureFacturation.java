@@ -22,6 +22,6 @@ public class LectureFacturation implements FacturationLecture {
 
     @Override
     public List<LigneVendue> ventes(LocalDate du, LocalDate au, Optional<String> nature) {
-        return lecture.ventes(du, au, nature.map(String::strip).filter(n -> !n.isEmpty()));
+        return lecture.ventes(du, au, nature.map(String::strip).filter(n -> !n.isEmpty()), Optional.empty());
     }
 }

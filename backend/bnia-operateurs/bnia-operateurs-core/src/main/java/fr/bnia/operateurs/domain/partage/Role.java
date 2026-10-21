@@ -20,12 +20,14 @@ public enum Role {
         return libelle;
     }
 
-    /** Tableau rôles × modules (spec 02 §3.2.7) : tout rôle lit ; qui gère dépend du module. */
+    /**
+     * Tableau rôles × modules (spec 02 §3.2.7) : tout rôle lit ; qui gère dépend du module. {@code OBSERVATEUR} ne
+     * gère aucun module, Messagerie comprise (révision du 2026-10-21).
+     */
     public boolean gere(Module module) {
         return switch (module) {
-            case CONTACTS, PARAMETRAGE, DECLARATIONS, FACTURATION -> this != OBSERVATEUR;
+            case CONTACTS, PARAMETRAGE, DECLARATIONS, FACTURATION, MESSAGERIE -> this != OBSERVATEUR;
             case ACCES -> this == ADMIN;
-            case MESSAGERIE -> true;
         };
     }
 }

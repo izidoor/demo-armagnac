@@ -2,7 +2,6 @@ package fr.bnia.declarations.adapter.rest;
 
 import fr.bnia.commun.adapter.rest.Connecte;
 import fr.bnia.declarations.application.ConsulterStocksDeclares;
-import fr.bnia.declarations.domain.AnneeDeclarative;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Stocks déclarés (analyse UC-DEC-1, spec 05 §6.1, §6.2) : de tous, au back-office ; d'un opérateur, sur sa fiche
- * et au portail, avec, au portail, son historique d'une année déclarative pour le tableau croisé (RG-DEC-44).
+ * et au portail.
  */
 @RestController
 @Tag(name = "declarations")
@@ -65,18 +64,5 @@ class StocksDeclaresController {
     ResponseEntity<StockDeclareResponse> consulter(Connecte connecte, @PathVariable long operateur) {
         return stocks.deLOperateur(Acteurs.de(connecte), operateur).map(StockDeclareResponse::depuis)
                 .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
-    }
-
-    @GetMapping("/api/operateurs/{operateur}/stock-declare/historique")
-    @Operation(operationId = "historiqueStockDeclare",
-            summary = "Le stock déclaré de l'opérateur à chaque fin de mois écoulée d'une année déclarative, l'année en cours par défaut (RG-DEC-01, 44)")
-    HistoriqueStocksResponse historiqueDe(Connecte connecte, @PathVariable long operateur,
-            @RequestParam(required = false) Integer annee) {
-        return HistoriqueStocksResponse.depuis(stocks.historiqueDe(Acteurs.de(connecte), operateur, annee(annee)));
-    }
-
-    /** Le paramètre {@code annee} : l'année de son 1er avril, 2026 pour 2026-2027. */
-    private static Optional<AnneeDeclarative> annee(Integer annee) {
-        return Optional.ofNullable(annee).map(AnneeDeclarative::new);
     }
 }

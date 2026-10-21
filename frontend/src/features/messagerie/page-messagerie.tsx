@@ -40,6 +40,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { formatDateCourte } from '@/components/metier/dates-fil'
 import { PageMetier } from '@/components/metier/page-metier'
 import { RechercheOperateur } from '@/features/operateurs/portail/recherche-operateur'
+import { useDroits } from '@/features/session/session'
 import {
   apiMessagerie,
   cleListesMessagerie,
@@ -71,7 +72,7 @@ const LIBELLES_TYPE: Record<TypeObjet, string> = {
  * La messagerie (spec 15 §6), commune au back-office et au portail : à gauche, mes conversations comme une boîte de
  * réception, non lues en gras, filtrées et cherchées (RG-MSG-15, 16) ; à droite, la conversation choisie, lue en
  * s'affichant (RG-MSG-10), avec le lien vers son objet. Au portail, « Nouvelle conversation » ouvre un sujet libre
- * avec le BNIA (RG-MSG-12).
+ * avec le BNIA, pour qui gère le module Messagerie, l'observateur ne faisant que le lire (RG-MSG-12).
  */
 export function PageMessagerie({
   espace,
@@ -97,10 +98,12 @@ export function PageMessagerie({
           : 'Vos échanges avec le BNIA : conversations de vos DSM, de vos factures et sujets libres.'
       }
       actions={
-        espace === 'portail' && (
-          <Button onClick={() => setNouvelle(true)}>
-            <MessageSquarePlus className='size-4' /> Nouvelle conversation
-          </Button>
+        espace === 'portail' &&
+        operateur !== undefined && (
+          <BoutonNouvelleConversation
+            operateur={operateur}
+            onClick={() => setNouvelle(true)}
+          />
         )
       }
     >
@@ -154,6 +157,23 @@ export function PageMessagerie({
         />
       )}
     </PageMetier>
+  )
+}
+
+/** RG-MSG-12 : l'ouverture d'une conversation libre, pour qui gère le module Messagerie ; l'observateur le lit. */
+function BoutonNouvelleConversation({
+  operateur,
+  onClick,
+}: {
+  operateur: number
+  onClick: () => void
+}) {
+  const droits = useDroits(operateur)
+  if (droits?.messagerie !== 'GESTION') return null
+  return (
+    <Button onClick={onClick}>
+      <MessageSquarePlus className='size-4' /> Nouvelle conversation
+    </Button>
   )
 }
 

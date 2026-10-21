@@ -30,7 +30,7 @@ class JdbcVentesLecture implements VentesLecture {
     }
 
     @Override
-    public List<LigneVendue> ventes(LocalDate du, LocalDate au, Optional<String> nature) {
+    public List<LigneVendue> ventes(LocalDate du, LocalDate au, Optional<String> nature, Optional<String> client) {
         return jdbcClient.sql("select f.id, f.sens, f.numero, f.date_emission, f.acheteur_nom,"
                         + " f.acheteur_client_identifiant, f.acheteur_client_code, f.origine_source, f.origine_nature,"
                         + " f.origine_libelle_nature, f.origine_identifiant, f.origine_reference,"
@@ -43,10 +43,12 @@ class JdbcVentesLecture implements VentesLecture {
                         + " where f.etat = 'EMISE' and l.sorte = 'ARTICLE'"
                         + " and f.date_emission between :du and :au"
                         + " and (cast(:nature as text) is null or f.origine_nature = :nature)"
+                        + " and (cast(:client as text) is null or f.acheteur_client_identifiant = :client)"
                         + " order by f.date_emission, f.numero, l.position")
                 .param("du", du, Types.DATE)
                 .param("au", au, Types.DATE)
                 .param("nature", nature.orElse(null), Types.VARCHAR)
+                .param("client", client.orElse(null), Types.VARCHAR)
                 .query((rs, n) -> new LigneVendue(rs.getLong("id"), rs.getString("numero"),
                         "AVOIR".equals(rs.getString("sens")), rs.getObject("date_emission", LocalDate.class),
                         rs.getString("acheteur_nom"),

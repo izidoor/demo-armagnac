@@ -10,7 +10,7 @@ public interface VentesLecture {
 
     /**
      * Les lignes vendues émises du {@code du} au {@code au} inclus, par date d'émission, numéro et position ; celles
-     * d'un avoir en négatif ; filtrées par nature d'origine si elle est donnée.
+     * d'un avoir en négatif ; filtrées par nature d'origine et par client (identifiant chez l'hôte) s'ils sont donnés.
      */
-    List<LigneVendue> ventes(LocalDate du, LocalDate au, Optional<String> nature);
+    List<LigneVendue> ventes(LocalDate du, LocalDate au, Optional<String> nature, Optional<String> client);
 }

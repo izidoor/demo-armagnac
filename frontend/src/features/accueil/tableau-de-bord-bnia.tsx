@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, type LinkProps, useNavigate } from '@tanstack/react-router'
 import {
   Building2,
-  ChevronRight,
   FilePenLine,
   FileSearch,
   FileText,
@@ -18,13 +17,11 @@ import {
 } from 'lucide-react'
 import {
   type Droits,
-  type DsmListee,
   listerPieces,
   listerToutesDsm,
   rechercherOperateurs,
 } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
-import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -34,14 +31,17 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { FILIERE, type TypeDeclarant } from '@/components/metier/filiere'
 import { GraphiqueComptes } from '@/features/declarations/graphiques-stocks'
-import { GROUPES_ETATS } from '@/features/declarations/libelles'
+import { dansGroupe as dans } from '@/features/declarations/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
 import { useDroits, useMoi } from '@/features/session/session'
+import { Activite, Section, Valeur } from './activite'
 import { GraphiqueExportations } from './graphique-exportations'
 
-type TypeDeclarant = 'PRODUCTEUR' | 'NEGOCIANT'
 type Module = 'declarations' | 'facturation'
+
+const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
 
 /** Chiffres de démonstration, pour les contextes qui n'existent pas encore. */
 const DEMO = {
@@ -49,19 +49,6 @@ const DEMO = {
   contrats: 4,
   commandesBoutique: 9,
 }
-
-/**
- * Chiffres réels de la filière, communiqués par le BNIA : nombre d'opérateurs et stock total (159 236 hl AP,
- * 35 % chez les producteurs, 65 % chez les négociants). Les données de démonstration n'en sont qu'un
- * échantillon : la carte de chaque type montre ces chiffres plutôt que ceux de la base.
- */
-const FILIERE: Record<TypeDeclarant, { operateurs: number; stockHl: number }> =
-  {
-    PRODUCTEUR: { operateurs: 460, stockHl: 55_733 },
-    NEGOCIANT: { operateurs: 180, stockHl: 103_503 },
-  }
-
-const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
 
 const lit = (droits: Droits | undefined, module: Module) =>
   !!droits && droits[module] !== 'AUCUN'
@@ -138,24 +125,6 @@ export function TableauDeBordBnia() {
         </div>
       </Section>
     </div>
-  )
-}
-
-function Section({ titre, children }: { titre: string; children: ReactNode }) {
-  return (
-    <section>
-      <h2 className='mb-4 text-xl font-semibold'>{titre}</h2>
-      {children}
-    </section>
-  )
-}
-
-/** Un nombre en attente de sa lecture. */
-function Valeur({ valeur }: { valeur: string | undefined }) {
-  return valeur === undefined ? (
-    <Skeleton className='h-9 w-24' />
-  ) : (
-    <span className='block text-3xl font-bold tabular-nums'>{valeur}</span>
   )
 }
 
@@ -317,61 +286,6 @@ function NouveauxMessages() {
       lien={{ to: '/bo/messagerie' }}
     />
   )
-}
-
-/** Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. */
-function Activite({
-  libelle,
-  icone: Icone,
-  valeur,
-  lien,
-  demo,
-}: {
-  libelle: string
-  icone: LucideIcon
-  valeur: number | undefined
-  lien?: { to: LinkProps['to']; search?: LinkProps['search'] }
-  demo?: boolean
-}) {
-  const contenu = (
-    <Card className='h-full gap-2 py-5'>
-      <CardHeader className='flex flex-row items-center justify-between gap-2 px-5'>
-        <span className='bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-lg'>
-          <Icone className='size-[18px]' />
-        </span>
-        {demo ? (
-          <Badge variant='outline' className='font-normal'>
-            Démonstration
-          </Badge>
-        ) : (
-          lien && <ChevronRight className='text-muted-foreground size-4' />
-        )}
-      </CardHeader>
-      <CardContent className='space-y-1 px-5'>
-        <Valeur
-          valeur={valeur === undefined ? undefined : entier.format(valeur)}
-        />
-        <p className='text-muted-foreground text-sm'>{libelle}</p>
-      </CardContent>
-    </Card>
-  )
-  return lien ? (
-    <Link
-      to={lien.to}
-      search={lien.search}
-      className='hover:[&>[data-slot=card]]:border-primary/40 block rounded-xl transition-colors'
-    >
-      {contenu}
-    </Link>
-  ) : (
-    contenu
-  )
-}
-
-const etatDe = (d: DsmListee) => (d.absente ? 'ABSENTE' : d.etat)
-const dans = (groupe: string) => (d: DsmListee) => {
-  const e = etatDe(d)
-  return !!e && GROUPES_ETATS[groupe].etats.includes(e)
 }
 
 /**

@@ -208,9 +208,16 @@ export const espacePortail: Espace = {
       ],
     },
     {
-      // Spec 08, §6.2 : lu par tout rattachement actif (§3.12).
+      // Spec 08, §6.2 : lu par tout rattachement actif (§3.12) ; le suivi des cotisations (RG-FAC-34).
       title: 'Facturation',
-      items: [{ title: 'Factures', url: '/portail/factures', icon: FileText }],
+      items: [
+        { title: 'Factures', url: '/portail/factures', icon: FileText },
+        {
+          title: 'Cotisation',
+          url: '/portail/factures/cotisations',
+          icon: TrendingUp,
+        },
+      ],
     },
   ],
 }

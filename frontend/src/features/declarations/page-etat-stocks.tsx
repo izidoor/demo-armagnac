@@ -1,60 +1,83 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { historiqueStockDeclare, type LigneStock } from '@/api/generated'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { type LigneStock } from '@/api/generated'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { FILIERE, typeDeclarant } from '@/components/metier/filiere'
 import { PageMetier } from '@/components/metier/page-metier'
 import { TableDonnees } from '@/components/metier/table-donnees'
 import { useMoi } from '@/features/session/session'
-import { cleDeclarations, useStockDeclare } from './api'
+import { useStockDeclare } from './api'
 import { colonnesLigneStock } from './colonnes-stocks'
 import { formatDate, formatDateHeure, formatLitres } from './format'
-import { ChoixAnnee, TableauStocks } from './tableau-stocks'
+import { type EchelleOperateur, GraphiquesStocks } from './graphiques-stocks'
 
 /**
  * Portail, « Stocks déclarés » (spec 05 §6.2), lu par tout lecteur des déclarations de l'opérateur actif
- * (RG-DEC-01), en deux onglets indépendants : *Données*, le stock de fin de sa dernière DSM validée, ligne par
- * ligne (RG-DEC-42) ; *Analyse*, le tableau croisé dynamique et le graphique d'une année déclarative, stock de
- * sa dernière DSM validée à chaque fin de mois (RG-DEC-44). Pendant du menu du back-office, réduit à
- * l'opérateur.
+ * (RG-DEC-01), sans onglets, comme au back-office : deux graphiques de démonstration à l'échelle de l'opérateur,
+ * puis le stock de fin de sa dernière DSM validée, ligne par ligne (RG-DEC-42).
  */
 export function PageEtatStocks() {
   const { actif } = useMoi()
   if (!actif) return null
-  return <EtatStocks key={actif.operateur} operateur={actif.operateur} />
+  return (
+    <EtatStocks
+      key={actif.operateur}
+      operateur={actif.operateur}
+      type={actif.type}
+    />
+  )
 }
 
-function EtatStocks({ operateur }: { operateur: number }) {
+function EtatStocks({ operateur, type }: { operateur: number; type: string }) {
+  const stock = useStockDeclare(operateur)
   return (
     <PageMetier
       titre='Stocks déclarés'
-      description='Le stock déclaré de votre entreprise : le stock de fin de vos DSM validées.'
+      description='Historique de vos stocks déclarés et analyse'
     >
-      <Tabs defaultValue='donnees' className='mb-8'>
-        <TabsList>
-          <TabsTrigger value='donnees'>Données</TabsTrigger>
-          <TabsTrigger value='analyse'>Analyse</TabsTrigger>
-        </TabsList>
-        <TabsContent value='donnees' className='mt-4'>
-          <DonneesStock operateur={operateur} />
-        </TabsContent>
-        <TabsContent value='analyse' className='mt-4'>
-          <AnalyseStock operateur={operateur} />
-        </TabsContent>
-      </Tabs>
+      <div className='mb-8'>
+        {stock.isPending ? (
+          <Skeleton className='h-96 w-full' />
+        ) : (
+          <GraphiquesStocks
+            operateur={echelle(type, stock.data?.lignes ?? [])}
+          />
+        )}
+        <Separator className='my-10' />
+        <h2 className='mb-4 text-xl font-semibold'>
+          Liste des stocks déclarés
+        </h2>
+        <DonneesStock stock={stock} />
+      </div>
     </PageMetier>
   )
+}
+
+/**
+ * L'échelle des graphiques : le stock déclaré de l'opérateur, en hl AP ; sans stock, celui d'un opérateur moyen
+ * de son type dans la filière.
+ */
+function echelle(type: string, lignes: LigneStock[]): EchelleOperateur {
+  const t = typeDeclarant(type)
+  const litres = lignes.reduce((s, l) => s + l.stock, 0)
+  return {
+    type: t,
+    stockHl:
+      litres > 0 ? litres / 100 : FILIERE[t].stockHl / FILIERE[t].operateurs,
+  }
 }
 
 const COLONNES = colonnesLigneStock<LigneStock>()
 
 /**
- * *Données* : le stock de fin de la dernière DSM validée, ligne par ligne, lignes nulles omises (RG-DEC-42) ;
- * recherche, tri et filtre par valeurs sur chaque colonne, total des lignes affichées.
+ * Le stock de fin de la dernière DSM validée, ligne par ligne, lignes nulles omises (RG-DEC-42) ; recherche, tri
+ * et filtre par valeurs sur chaque colonne, total des lignes affichées.
  */
-function DonneesStock({ operateur }: { operateur: number }) {
-  const stock = useStockDeclare(operateur)
+function DonneesStock({
+  stock,
+}: {
+  stock: ReturnType<typeof useStockDeclare>
+}) {
   if (stock.isSuccess && !stock.data) {
     return (
       <p className='text-muted-foreground text-sm'>
@@ -87,48 +110,6 @@ function DonneesStock({ operateur }: { operateur: number }) {
         total={(l) => l.stock}
         formatTotal={formatLitres}
       />
-    </>
-  )
-}
-
-/** *Analyse* : tableau croisé et graphique d'une année déclarative (RG-DEC-44). */
-function AnalyseStock({ operateur }: { operateur: number }) {
-  const [annee, setAnnee] = useState<number>()
-  const historique = useQuery({
-    queryKey: [...cleDeclarations(operateur), 'stocks', annee],
-    queryFn: () =>
-      historiqueStockDeclare({
-        path: { operateur },
-        query: { annee },
-        throwOnError: true,
-      }).then((r) => r.data),
-  })
-  return (
-    <>
-      <div className='mb-4'>
-        <ChoixAnnee
-          historique={historique.data}
-          valeur={annee}
-          onChange={setAnnee}
-        />
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-base'>Tableau croisé dynamique</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {historique.isPending && (
-            <p className='text-muted-foreground text-sm'>Chargement…</p>
-          )}
-          {historique.isSuccess && (
-            <TableauStocks
-              historique={historique.data}
-              avecOperateur={false}
-              cle='stocks-declares-portail'
-            />
-          )}
-        </CardContent>
-      </Card>
     </>
   )
 }

@@ -390,6 +390,7 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | RG-FAC-31 | La partie publiée rend les `LigneVendue` d'une période, filtrables par nature d'origine, pour `statistiques` (CVO facturée sur DSM, sur fin de travaux). | §4.10.3 p.48 ; décision du 2026-10-14 | 5 |
 | RG-FAC-32 | Qui gère la facturation transmet à Zeendoc une sélection de pièces émises, chacune dans sa transaction, son numéro comme clé d'idempotence : la pièce devient « Transmis » (journal `TRANSMISE`, côté vendeur). Une pièce ne se transmet qu'une fois, et un brouillon jamais : le refus est rapporté sans arrêter les autres. Simulé dans le prototype, sans traitement planifié ni rejet (décision du 2026-10-17). | §4.9.8 p.46, §6.2.3 p.83 | 6 |
 | RG-FAC-33 | Le règlement relevé dans Zeendoc rend « Payé » une pièce transmise, une fois, à sa date (journal `PAYEE`, au nom de « Zeendoc »). L'état (« Transmis », « Payé ») s'affiche au back-office et au portail. Simulé dans le prototype : sans relevé planifié, seule la démonstration enregistre des règlements (décision du 2026-10-17). | §4.9.8 p.46, §5.10.3 p.74, §6.2.2 p.83 | 6 |
+| RG-FAC-34 | Au portail, l'opérateur suit la facturation de ses cotisations : les lignes article de ses pièces émises dans une période (date d'émission, du… au…, bornes comprises, la seconde postérieure ou égale à la première, l'année civile en cours par défaut), filtrées par nature d'origine (`DSM`), celles d'un avoir en négatif. Elles se présentent comme les ventes du back-office (RG-FAC-30), sans l'acheteur, avec le total HT des lignes affichées ; une ligne ouvre sa facture. Pas d'export. Lues par qui lit les factures de l'opérateur (RG-FAC-26). | demande de l'utilisateur du 2026-10-21 | 3 |
 
 ## 5. Cas d'usage
 
@@ -417,6 +418,7 @@ facture pas. La lecture est celle de son opérateur : les pièces émises dont i
 | UC-FAC-4 Historique du back-office, détail d'une pièce, PDF, journal (consultation journalisée côté vendeur) | 20, 26, 27 | 1 |
 | Brouillons de l'acteur, avec ce qui manque pour les émettre | 09, 26 | 1 |
 | UC-FAC-5 Factures et avoirs de l'opérateur au portail, détail, PDF | 26, 28 | 3 |
+| Suivi des cotisations de l'opérateur au portail : ses lignes de cotisation d'une période | 26, 34 | 3 (révision du 2026-10-21) |
 | UC-FAC-6 Tableau de tous les articles | 29 | 5 |
 | UC-FAC-8 Ventes consolidées, export Excel et PDF | 30 | 5 |
 | Ventes publiées pour `statistiques` | 31 | 5 |
@@ -468,6 +470,18 @@ son infra sur la partie publiée d'`operateurs` (analyse §4). Les articles lui 
 - PDF ;
 - référence de l'origine ;
 - état Zeendoc (lot 6) : badge « Transmis » ou « Payé », en colonne de la liste et dans le détail, avec ses dates.
+
+**Menu Cotisation** (révision du 2026-10-21, RG-FAC-34) : le suivi de la facturation des cotisations, pendant
+de la page *Ventes* du back-office, sans onglets :
+- en tête, deux graphiques de démonstration côte à côte (données fictives, celles de la filière ramenées à la
+  part d'un opérateur moyen de son type, badge « Démonstration ») : cotisation totale en histogramme ; cotisation
+  par ligne (sorties France, sorties export, EDV France, EDV export) en courbes à choisir ; vues 5 dernières
+  années, 12 mois glissants, année en cours (par défaut, comparée à l'année précédente) ;
+- la période (raccourcis : trimestre en cours, trimestre précédent, année en cours, année précédente ; par défaut
+  l'année civile en cours) ;
+- ses lignes de cotisation (émise le, n°, objet, article, TVA, quantité, prix unitaire HT, montant HT ; code
+  article en colonne masquée), table triable et filtrable, total HT des lignes affichées ; une ligne ouvre sa
+  facture.
 
 Le module Facturation est lu par tout rattachement actif (§3.12).
 
@@ -548,9 +562,9 @@ Chaque RG-FAC-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 - **Tests de domaine**, sans base : 04, 05, 06, 07, 08, 10, 12, 13, 14, 22 (calcul de l'avertissement),
   23 (conditions de l'annulation).
 - **Tests de cas d'usage**, avec repositories et ports simulés (un `CatalogueArticles` factice) : 01, 02,
-  03, 09, 11, 16, 17, 18, 19, 20, 21, 24, 25, 26 (un test de refus par cas d'usage), 30, 32, 33.
+  03, 09, 11, 16, 17, 18, 19, 20, 21, 24, 25, 26 (un test de refus par cas d'usage), 30, 32, 33, 34.
 - **Tests d'intégration** : 12 (numéros sous concurrence), 15 (PDF), 25 (`declarations` reçoit les
-  événements dans la transaction), 27, 28, 29, 31 ; `CatalogueArticles` de `declarations` et port
+  événements dans la transaction), 27, 28, 29, 31, 34 ; `CatalogueArticles` de `declarations` et port
   `Clients` sur `operateurs`.
 - **Révisions** : les RG-DEC et RG-OPE révisées gardent leur identifiant et leurs tests, mis à jour.
 
@@ -597,3 +611,4 @@ Chaque RG-FAC-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-17 | Écrans (demande de l'utilisateur) : troisième onglet *Payées* dans l'historique du back-office, qui reçoit les pièces payées ; *Émises* garde les pièces transmises et non transmises. Partage du listing des pièces émises dans le front, selon l'état Zeendoc, sans changement d'API (§6.1). |
 | 2026-10-17 | Écrans (demande de l'utilisateur) : l'onglet *Émises* compte ses pièces (émises non payées) dans une pastille, comme *Brouillons*, sans les filtres de saisie (seul le client de l'URL compte) (§6.1). |
 | 2026-10-17 | Révision par la spec 15 (`messagerie`, lot 6) : une pièce émise dont le client est un opérateur est conversable (`ObjetsConversables` du type `FACTURE` dans l'infra, cas d'usage `DecrirePiece`) ; section *Messages* sur la pièce émise, au back-office (§6.1) et au portail (§6.2) ; la lecture du module Facturation suffit au client pour y écrire (spec 15 RG-MSG-01, 17). |
+| 2026-10-21 | Portail (demande de l'utilisateur) : menu *Cotisation*, suivi de la facturation des cotisations de l'opérateur, bâti comme la page *Ventes* (§6.2) ; RG-FAC-34. Choix d'implémentation : port `VentesLecture` filtré aussi par client (identifiant chez l'hôte) ; cas d'usage `ConsulterMesFactures.lignes`, droit de lecture du client (RG-FAC-26), même contrôle de période que RG-FAC-30 ; endpoint `GET /api/operateurs/{operateur}/factures/lignes?du&au&nature`, qui rend des `LigneVendue` ; le front demande la nature `DSM`, `facturation` ignore ce qu'est une cotisation ; graphiques de démonstration des ventes, ramenés à la part de l'opérateur ; pas d'export. Le chevron qui finit chaque ligne cliquable s'ajoute aux tables *Ventes* et *Articles* (composant commun). |

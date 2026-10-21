@@ -97,13 +97,14 @@ class DroitsTest {
     }
 
     @Test
-    @DisplayName("RG-OPE-31 : la Messagerie (conversations libres) est gérée par les trois rôles, observateur compris")
+    @DisplayName("RG-OPE-31 : la Messagerie (conversations libres) est gérée par AGENT et ADMIN ; OBSERVATEUR la lit")
     void rg_ope_31_module_messagerie() {
-        assertThat(Role.OBSERVATEUR.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(Role.OBSERVATEUR.gere(Module.MESSAGERIE)).isFalse();
         assertThat(Role.AGENT.gere(Module.MESSAGERIE)).isTrue();
         assertThat(Role.ADMIN.gere(Module.MESSAGERIE)).isTrue();
         Droits observateurLocal = new Droits(5, Optional.of(Role.OBSERVATEUR), Optional.empty());
-        assertThat(observateurLocal.gere(Module.MESSAGERIE)).isTrue();
+        assertThat(observateurLocal.gere(Module.MESSAGERIE)).isFalse();
+        assertThat(observateurLocal.lit(Module.MESSAGERIE)).isTrue();
         assertThat(Droits.aucun(5).gere(Module.MESSAGERIE)).isFalse();
     }
 }

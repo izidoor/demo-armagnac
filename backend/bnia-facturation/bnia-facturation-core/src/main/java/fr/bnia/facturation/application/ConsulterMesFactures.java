@@ -6,35 +6,39 @@ import fr.bnia.commun.application.UseCase;
 import fr.bnia.commun.domain.AccesRefuse;
 import fr.bnia.commun.domain.ElementIntrouvable;
 import fr.bnia.facturation.api.Acteur;
+import fr.bnia.facturation.api.LigneVendue;
 import fr.bnia.facturation.domain.CoteJournal;
 import fr.bnia.facturation.domain.EntreeJournal;
 import fr.bnia.facturation.domain.EtatPiece;
 import fr.bnia.facturation.domain.EvenementJournal;
 import fr.bnia.facturation.domain.Facture;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Les factures et avoirs d'un opérateur, au portail (UC-FAC-5). RG-FAC-26, 28 : les pièces émises dont il est le
  * client, jamais les brouillons ; chaque ouverture et chaque téléchargement est journalisé {@code CONSULTEE}, côté
- * client. Le journal reste au BNIA (RG-FAC-20).
+ * client. Le journal reste au BNIA (RG-FAC-20). RG-FAC-34 : les lignes article de ses pièces émises d'une période.
  */
 @UseCase
 public class ConsulterMesFactures {
 
     private final FactureRepository factures;
     private final PiecesLecture lecture;
+    private final VentesLecture ventes;
     private final JournalFacturation journal;
     private final StockageDocuments stockage;
     private final DroitsFacturation droits;
     private final Controles controles;
     private final Clock horloge;
 
-    public ConsulterMesFactures(FactureRepository factures, PiecesLecture lecture, JournalFacturation journal,
-            StockageDocuments stockage, DroitsFacturation droits, Clock horloge) {
+    public ConsulterMesFactures(FactureRepository factures, PiecesLecture lecture, VentesLecture ventes,
+            JournalFacturation journal, StockageDocuments stockage, DroitsFacturation droits, Clock horloge) {
         this.factures = factures;
         this.lecture = lecture;
+        this.ventes = ventes;
         this.journal = journal;
         this.stockage = stockage;
         this.droits = droits;
@@ -48,6 +52,17 @@ public class ConsulterMesFactures {
         return lecture.rechercher(new FiltrePieces(filtre.numero(), filtre.sens(), Optional.of(EtatPiece.EMISE),
                 filtre.nature(), Optional.of(Long.toString(operateur)), Optional.empty(), filtre.periode(),
                 filtre.du(), filtre.au()));
+    }
+
+    /**
+     * RG-FAC-30, 34 : les lignes article des pièces émises de l'opérateur du {@code du} au {@code au} inclus (date
+     * d'émission), filtrées par nature d'origine si elle est donnée ; celles d'un avoir en négatif.
+     */
+    public List<LigneVendue> lignes(Acteur acteur, long operateur, LocalDate du, LocalDate au,
+            Optional<String> nature) {
+        exigerLecture(acteur, operateur);
+        ConsulterVentes.exigerPeriode(du, au);
+        return ventes.ventes(du, au, nature, Optional.of(Long.toString(operateur)));
     }
 
     /** RG-FAC-28 : une pièce émise de l'opérateur ; l'ouverture est journalisée {@code CONSULTEE}. */

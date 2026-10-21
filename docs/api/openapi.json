@@ -4117,6 +4117,64 @@
         "tags" : [ "facturation" ]
       }
     },
+    "/api/operateurs/{operateur}/factures/lignes" : {
+      "get" : {
+        "operationId" : "listerMesLignesFacturees",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "description" : "Premier jour, inclus",
+          "in" : "query",
+          "name" : "du",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "Dernier jour, inclus",
+          "in" : "query",
+          "name" : "au",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "Nature d'origine",
+          "example" : "DSM",
+          "in" : "query",
+          "name" : "nature",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneVendue"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les lignes article des pièces émises de l'opérateur dans une période, par nature (RG-FAC-34)",
+        "tags" : [ "facturation" ]
+      }
+    },
     "/api/operateurs/{operateur}/factures/{id}" : {
       "get" : {
         "operationId" : "consulterMaFacture",
@@ -5127,42 +5185,6 @@
           }
         },
         "summary" : "Le stock déclaré de l'opérateur : le stock de fin de sa dernière DSM validée ; 204 sans DSM validée (RG-DEC-01, 42)",
-        "tags" : [ "declarations" ]
-      }
-    },
-    "/api/operateurs/{operateur}/stock-declare/historique" : {
-      "get" : {
-        "operationId" : "historiqueStockDeclare",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "operateur",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        }, {
-          "in" : "query",
-          "name" : "annee",
-          "required" : false,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/HistoriqueStocks"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Le stock déclaré de l'opérateur à chaque fin de mois écoulée d'une année déclarative, l'année en cours par défaut (RG-DEC-01, 44)",
         "tags" : [ "declarations" ]
       }
     },
@@ -8491,31 +8513,6 @@
         },
         "required" : [ "type" ]
       },
-      "AnneeDeclarative" : {
-        "type" : "object",
-        "description" : "Du 1er avril au 31 mars (RG-DEC-44)",
-        "properties" : {
-          "debut" : {
-            "type" : "string",
-            "format" : "date"
-          },
-          "debutAnnee" : {
-            "type" : "integer",
-            "format" : "int32",
-            "description" : "Année de son 1er avril",
-            "example" : 2026
-          },
-          "fin" : {
-            "type" : "string",
-            "format" : "date"
-          },
-          "libelle" : {
-            "type" : "string",
-            "example" : "2026-2027"
-          }
-        },
-        "required" : [ "debut", "debutAnnee", "fin", "libelle" ]
-      },
       "AnomalieDsm" : {
         "type" : "object",
         "description" : "Anomalie de calcul, bloquante à l'envoi (RG-DEC-18)",
@@ -9227,6 +9224,11 @@
             "description" : "Factures et avoirs (spec 08 §3.12)",
             "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
           },
+          "messagerie" : {
+            "type" : "string",
+            "description" : "Conversations libres (spec 15 §3.6)",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
           "operateur" : {
             "type" : "integer",
             "format" : "int64"
@@ -9250,7 +9252,7 @@
             "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
           }
         },
-        "required" : [ "acces", "adminBnia", "contacts", "declarations", "facturation", "operateur", "parametrage", "personnelBnia" ]
+        "required" : [ "acces", "adminBnia", "contacts", "declarations", "facturation", "messagerie", "operateur", "parametrage", "personnelBnia" ]
       },
       "Dsm" : {
         "type" : "object",
@@ -10032,29 +10034,6 @@
           }
         },
         "required" : [ "centresInteret", "id", "operateur", "type", "version" ]
-      },
-      "HistoriqueStocks" : {
-        "type" : "object",
-        "description" : "Les stocks déclarés d'une année déclarative, à chaque fin de mois écoulée (RG-DEC-44)",
-        "properties" : {
-          "annee" : {
-            "$ref" : "#/components/schemas/AnneeDeclarative"
-          },
-          "anneesDisponibles" : {
-            "type" : "array",
-            "description" : "Les années qui ont une DSM validée, et l'année en cours, de la plus récente à la plus ancienne",
-            "items" : {
-              "$ref" : "#/components/schemas/AnneeDeclarative"
-            }
-          },
-          "lignes" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/StockALaDate"
-            }
-          }
-        },
-        "required" : [ "annee", "anneesDisponibles", "lignes" ]
       },
       "ImportRefuse" : {
         "type" : "object",
@@ -12945,68 +12924,6 @@
           }
         },
         "required" : [ "enRetard", "initiable", "message" ]
-      },
-      "StockALaDate" : {
-        "type" : "object",
-        "description" : "Une ligne du stock déclaré d'un opérateur à une fin de mois : celle de sa dernière DSM validée finie à cette date (RG-DEC-44)",
-        "properties" : {
-          "au" : {
-            "type" : "string",
-            "format" : "date",
-            "description" : "La fin de mois"
-          },
-          "cle" : {
-            "type" : "string",
-            "enum" : [ "MB", "MV", "NB", "NV" ]
-          },
-          "codeOperateur" : {
-            "type" : "string",
-            "example" : "N320001"
-          },
-          "compte" : {
-            "type" : "string",
-            "example" : "20+"
-          },
-          "denomination" : {
-            "type" : "string",
-            "description" : "Lignes NB et NV"
-          },
-          "dsm" : {
-            "type" : "integer",
-            "format" : "int64",
-            "description" : "La DSM dont la ligne est tirée"
-          },
-          "finDsm" : {
-            "type" : "string",
-            "format" : "date",
-            "description" : "Fin de la période de la DSM"
-          },
-          "millesime" : {
-            "type" : "integer",
-            "format" : "int32",
-            "description" : "Lignes MB et MV"
-          },
-          "operateur" : {
-            "type" : "integer",
-            "format" : "int64"
-          },
-          "periodeDsm" : {
-            "type" : "string",
-            "example" : "juillet 2026"
-          },
-          "raisonSociale" : {
-            "type" : "string"
-          },
-          "stock" : {
-            "type" : "number",
-            "description" : "Litres d'alcool pur"
-          },
-          "type" : {
-            "type" : "string",
-            "enum" : [ "PRODUCTEUR", "NEGOCIANT" ]
-          }
-        },
-        "required" : [ "au", "cle", "codeOperateur", "compte", "dsm", "finDsm", "operateur", "periodeDsm", "raisonSociale", "stock", "type" ]
       },
       "StockDeclare" : {
         "type" : "object",

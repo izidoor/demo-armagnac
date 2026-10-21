@@ -40,6 +40,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
+import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { PageMetier } from '@/components/metier/page-metier'
 import { Lecture } from '@/features/operateurs/commun/champs'
 import {
@@ -119,13 +120,14 @@ export function PageUtilisateurs() {
               <TableHead>Opérateurs</TableHead>
               <TableHead>État</TableHead>
               <TableHead>Dernière connexion</TableHead>
+              <EnteteOuvrir />
             </TableRow>
           </TableHeader>
           <TableBody>
             {lignes.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className='text-muted-foreground h-16 text-center'
                 >
                   {utilisateurs.isPending
@@ -163,6 +165,15 @@ export function PageUtilisateurs() {
                       new Date(etats.get(u.id)!.derniereConnexion!)
                     )}
                 </TableCell>
+                <CelluleOuvrir
+                  libelle={`Ouvrir le compte de ${u.prenom} ${u.nom}`}
+                  onOuvrir={() =>
+                    navigate({
+                      to: '/bo/acces/utilisateurs/$id',
+                      params: { id: String(u.id) },
+                    })
+                  }
+                />
               </TableRow>
             ))}
           </TableBody>

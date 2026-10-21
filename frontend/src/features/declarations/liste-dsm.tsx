@@ -1,8 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
-import { ChevronRight } from 'lucide-react'
 import { type DsmResume } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -12,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BadgePlein } from '@/components/metier/badge-statut'
+import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
 import { type Espace } from './api'
@@ -55,7 +54,7 @@ export function ListeDsm({
               <TableHead>Envoyée le</TableHead>
               <TableHead>Validée le</TableHead>
               <TableHead className='text-right'>Total HT</TableHead>
-              <TableHead className='w-0' />
+              <EnteteOuvrir />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -94,18 +93,10 @@ export function ListeDsm({
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      ouvrir(d.id)
-                    }}
-                  >
-                    Ouvrir <ChevronRight className='size-4' />
-                  </Button>
-                </TableCell>
+                <CelluleOuvrir
+                  libelle={`Ouvrir la DSM de ${d.periode.libelle}`}
+                  onOuvrir={() => ouvrir(d.id)}
+                />
               </TableRow>
             ))}
           </TableBody>

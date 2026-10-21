@@ -80,7 +80,10 @@ public class DemoMessagerie implements ApplicationRunner {
         conversationDUneFacture(gascogne);
     }
 
-    /** Lot 5 : une demande d'aide avec sa pièce jointe, et une conversation qu'Henri Castex, l'ADMIN, ne voit pas. */
+    /**
+     * Lot 5 : une demande d'aide de Julie Darrigade avec sa pièce jointe, qu'Henri Castex, l'ADMIN, ne voit pas, et une
+     * question d'Henri que Julie ne voit pas. L'observateur, qui ne gère pas la Messagerie, n'en ouvre pas.
+     */
     private void conversationsLibres(long gascogne) {
         Acteur julie = membre("agent@negociant.fr");
         var anne = new fr.bnia.operateurs.domain.partage.Acteur(DemoPersonnelBnia.anne(lecture));
@@ -91,7 +94,7 @@ public class DemoMessagerie implements ApplicationRunner {
                 List.of(new FichierJoint(excel.nom(), excel.contenu())));
         converser.ecrire(membre("agent@bnia.fr"), vue.conversation().orElseThrow().id(), "Bonjour, la colonne 15"
                 + " (Floc de Gascogne) est grisée pour un négociant : laissez-la vide et réimportez le fichier.");
-        converser.ouvrirLibre(membre("observateur@negociant.fr"), gascogne, "Accès aux statistiques du marché",
+        converser.ouvrirLibre(membre("admin@negociant.fr"), gascogne, "Accès aux statistiques du marché",
                 "Bonjour, je n'arrive pas à consulter les statistiques globalisées : mon rôle le permet-il ?", List.of());
     }
 

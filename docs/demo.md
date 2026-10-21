@@ -176,6 +176,12 @@ Scénario :
     de la dernière DSM validée de Maison Durand, Condom et du Domaine de Laubade, ligne par ligne, total ;
     filtres opérateur et type ; « Exporter en Excel » pour les douanes. La fiche de chacun en montre le
     sien, section « Stock déclaré ».
+16. `agent@negociant.fr` (Armagnacs de Gascogne), menu « Déclarations > Stocks déclarés » : sans onglets,
+    comme au back-office, deux graphiques de démonstration à l'échelle de son stock déclaré (sans choix du
+    type), puis son stock de fin, ligne par ligne, avec le lien vers sa DSM.
+17. Même compte, tableau de bord : section « Activités », « DSM à saisir ou compléter », « DSM en attente du
+    BNIA », « Factures non payées », « Nouveaux messages » (chiffres réels, chacun ouvre sa page), puis trois
+    cartes de démonstration (contrats, certificats export, commandes boutique).
 
 ## Facturation (spec 08, lots 1, 2, 3 et 5)
 
@@ -241,12 +247,13 @@ Articles et ventes (lot 5) :
 
 14. `admin@bnia.fr`, menu « Facturation > Articles » : les huit articles de la cotisation (part assujettie à
     20 %, part non assujettie exonérée, en hlAP) ; une ligne ouvre la grille CVO du Paramétrage.
-15. « Facturation > Ventes », période « Année en cours » : onglet « Données », les lignes des factures émises
-    cette année, total HT ; une ligne ouvre sa facture. Onglet « Analyse » : vue « Par mois » (article en
-    lignes, mois en colonnes), graphique ; mesure « Quantité » : l'article reste en lignes, un seul article
-    s'il passe en filtre ; vue « Par acheteur » : Gascogne et Maison Durand. Sous le tableau, le
-    récapitulatif de TVA de la période. « Exporter le tableau » (Excel du tableau affiché), « Exporter en PDF »
-    (synthèse par article, TVA, totaux). Période « Année précédente » : la facture de décembre 2025.
+15. « Facturation > Ventes » : deux graphiques de démonstration (chiffre d'affaires total, par secteur), puis,
+    période « Année en cours », les lignes des factures émises cette année, total HT ; une ligne (ou son
+    chevron) ouvre sa facture. « Exporter en PDF » (synthèse par article, TVA, totaux). Période « Année
+    précédente » : la facture de décembre 2025.
+16. `agent@negociant.fr` (Armagnacs de Gascogne), menu « Facturation > Cotisation » : deux graphiques de
+    démonstration à l'échelle d'un négociant (cotisation totale, par ligne), puis ses lignes de cotisation de
+    l'année (sorties France et export, parts assujettie et exonérée), total HT ; une ligne ouvre sa facture.
 
 ## Messagerie (spec 15, lots 1 à 6)
 
@@ -254,8 +261,8 @@ Articles et ventes (lot 5) :
   l'export »), protégé, puis un message de Julie Darrigade et la réponse de Luc Dubos, non lue pour Gascogne ;
   deux notes internes d'Anne Lamarque (sur la DSM et sur la ligne XO).
 - **Conversations libres de Gascogne** : « Import de la matrice refusé », de Julie Darrigade, l'Excel de sa DSM en
-  pièce jointe, avec la réponse du BNIA ; « Accès aux statistiques du marché », de Thomas Barrère, que ni Julie ni
-  Henri Castex (l'ADMIN) ne voient.
+  pièce jointe, avec la réponse du BNIA, qu'Henri Castex (l'ADMIN) ne voit pas ; « Accès aux statistiques du
+  marché », d'Henri Castex, que Julie ne voit pas.
 - **Dernière facture émise de Gascogne** : la question d'Henri Castex sur le volume facturé, non lue pour le BNIA.
 
 Scénario :
@@ -269,10 +276,10 @@ Scénario :
 3. Cocher « Non lues seulement » : les lues disparaissent ; décocher. Filtrer par opérateur (Gascogne), par type (DSM, Factures, Sujets libres), « Non lues
    seulement » ; chercher « debit » ou « DAE » (sans tenir compte des accents ni de la casse). Ouvrir « Import de la
    matrice refusé » : la pièce jointe Excel se télécharge.
-4. `agent@negociant.fr` (Julie Darrigade), tableau de bord : la carte « Messagerie » compte la réponse de Luc Dubos.
-   Menu « Messagerie » : la conversation de la DSM, celle de la facture, et sa conversation
-   libre, pas celle de Thomas Barrère. « Nouvelle conversation » : un titre, un message, une capture d'écran (PNG) ;
+4. `agent@negociant.fr` (Julie Darrigade), tableau de bord : la carte « Nouveaux messages » compte la réponse de Luc
+   Dubos. Menu « Messagerie » : la conversation de la DSM, celle de la facture, et sa conversation
+   libre, pas celle d'Henri Castex. « Nouvelle conversation » : un titre, un message, une capture d'écran (PNG) ;
    seuls Julie et le BNIA la voient.
-5. `admin@negociant.fr` (Henri Castex) : ni la conversation libre de Julie, ni celle de Thomas Barrère ; la
-   conversation de la DSM et celle de la facture, oui. `observateur@negociant.fr` lit la conversation de la DSM sans
-   y écrire, mais écrit dans celle de la facture et dans ses conversations libres.
+5. `admin@negociant.fr` (Henri Castex) : sa conversation libre, pas celle de Julie ; la conversation de la DSM et
+   celle de la facture, oui. `observateur@negociant.fr` lit la conversation de la DSM sans y écrire, mais écrit dans
+   celle de la facture ; il n'a pas « Nouvelle conversation » (l'observateur lit la Messagerie sans la gérer).

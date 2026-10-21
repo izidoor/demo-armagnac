@@ -191,14 +191,15 @@ du même type font échouer le démarrage (comme `CatalogueArticles`, ADR-021).
 
 | Rôle | Messagerie (conversations libres ; spec 15 §3.6) |
 |---|---|
-| `OBSERVATEUR` | gestion |
+| `OBSERVATEUR` | lecture (gestion jusqu'au 2026-10-21) |
 | `AGENT` | gestion |
 | `ADMIN` | gestion |
 
 Le module ne couvre que les conversations libres. Une conversation d'objet suit les droits du module de
 l'objet (§3.2, RG-MSG-01). Exception à RG-OPE-31 (« tout rattachement `ACTIF` lit tout son opérateur ») : une
-conversation libre n'est lue, côté opérateur, que par son auteur (RG-MSG-02). `OBSERVATEUR` y a la gestion,
-seule exception à sa lecture seule dans tous les autres modules (analyse §2).
+conversation libre n'est lue, côté opérateur, que par son auteur (RG-MSG-02). `OBSERVATEUR` la lit sans la
+gérer, comme tous les autres modules (révision du 2026-10-21, qui retire l'exception de l'analyse §2) : il
+n'ouvre pas de conversation libre et n'y écrit pas, au portail comme au BNIA.
 
 ### 3.7 Révisions de l'existant livrées par cette spec
 
@@ -216,7 +217,7 @@ seule exception à sa lecture seule dans tous les autres modules (analyse §2).
 | Id | Règle | Source | Lot |
 |---|---|---|---|
 | RG-MSG-01 | Une conversation d'objet se lit par qui lit le module de son type (§3.2) sur l'opérateur de l'objet ; on y écrit avec la gestion de ce module, sauf sur une facture, où la lecture suffit. Un rôle tenu dans l'opérateur BNIA vaut pour tous les opérateurs (RG-OPE-32). | analyse §2 ; décision du 2026-10-17 (facture) | 2 |
-| RG-MSG-02 | Une conversation libre se lit et s'écrit, côté opérateur, par son seul auteur, tant qu'il a un rattachement `ACTIF` à l'opérateur de la conversation (aucun autre membre, `ADMIN` compris) ; côté BNIA, par tout son personnel (module Messagerie). Exception à RG-OPE-31. | analyse §2, H-MSG-2 | 5 |
+| RG-MSG-02 | Une conversation libre se lit, côté opérateur, par son seul auteur, tant qu'il a un rattachement `ACTIF` à l'opérateur de la conversation (aucun autre membre, `ADMIN` compris) ; côté BNIA, par tout son personnel. On y écrit avec la gestion du module Messagerie (`AGENT`, `ADMIN`) ; un `OBSERVATEUR` la lit seulement (révision du 2026-10-21). Exception à RG-OPE-31. | analyse §2, H-MSG-2 ; décision du 2026-10-21 | 5 |
 | RG-MSG-03 | Le côté d'un acteur est `BNIA` si son opérateur actif est le BNIA, `OPERATEUR` sinon ; un message porte le côté de son auteur. | analyse §1 | 2 |
 | RG-MSG-04 | Un objet a au plus une conversation. Elle naît à son premier message, écrit ou déposé : son opérateur et son libellé sont ceux que rend `ObjetsConversables` ; un objet inconnu ou non conversable est introuvable. | analyse §3 | 2 |
 | RG-MSG-05 | Le texte d'un message est non vide (espaces exclus) et compte 4 000 caractères au plus. Un message porte sur l'objet entier, jamais sur une de ses parties. | analyse §3 ; convention du 2026-10-17 (longueur) | 2 |
@@ -226,7 +227,7 @@ seule exception à sa lecture seule dans tous les autres modules (analyse §2).
 | RG-MSG-09 | Un message est lu ou non lu par côté, sans dire qui l'a lu : lu par un utilisateur, il l'est pour tout son côté. Il est lu pour le côté de son auteur dès qu'il est écrit, non lu pour l'autre. | analyse §2 | 3 |
 | RG-MSG-10 | Afficher une conversation (liste des nouveaux messages, écran unifié, page de l'objet) marque lus tous ses messages pour le côté de l'acteur. « Marquer non lu » remet un message non lu pour ce côté jusqu'au prochain affichage de sa conversation. Lire n'exige que le droit de lire la conversation. | décision du 2026-10-17 | 3 |
 | RG-MSG-11 | Les nouveaux messages d'un acteur sont les messages non lus de son côté dans les conversations qu'il peut lire (RG-MSG-01, 02) : au portail, celles de son opérateur actif ; au back-office, celles de tous les opérateurs. Le tableau de bord en montre le nombre (au portail, avec les deux plus récents : libellé de l'objet ou titre du sujet libre, début du texte) et ouvre la messagerie ; dans « Mes conversations », celles qui en ont ressortent en gras, avec leur nombre (RG-MSG-15). | analyse UC-MSG-6 ; §4.1 p.13 (aucune donnée non autorisée) | 3 |
-| RG-MSG-12 | Seul un utilisateur du portail ouvre une conversation libre, avec un titre (non vide, 120 caractères au plus) et un premier message ; son opérateur est l'opérateur actif de l'auteur. | analyse UC-MSG-1 | 5 |
+| RG-MSG-12 | Seul un utilisateur du portail qui gère le module Messagerie (`AGENT`, `ADMIN` ; révision du 2026-10-21) ouvre une conversation libre, avec un titre (non vide, 120 caractères au plus) et un premier message ; son opérateur est l'opérateur actif de l'auteur. | analyse UC-MSG-1 | 5 |
 | RG-MSG-13 | Une conversation libre dont l'auteur n'a plus de rattachement `ACTIF` à son opérateur (retiré, suspendu, supprimé) passe en lecture seule pour le BNIA, marquée « auteur parti » ; elle redevient active si l'auteur est réactivé. | décision du 2026-10-17 | 5 |
 | RG-MSG-14 | Un message d'une conversation libre porte au plus 5 pièces jointes, de 10 Mo au plus chacune, PDF, PNG, JPEG ou `.xlsx`, reconnues par leur signature. Elles se lisent avec la conversation et sont supprimées avec leur message. Une conversation d'objet n'a pas de pièces jointes. | analyse §3 ; décision du 2026-10-17 | 5 |
 | RG-MSG-15 | « Mes conversations » liste les conversations que l'acteur peut lire, de la plus récemment écrite à la plus ancienne, avec leur nombre de messages non lus de son côté, comme une boîte de réception : une conversation qui en a ressort en gras ; au back-office, filtrées par opérateur, type d'objet ou sujet libre ; « non lues seulement » aux deux espaces. Ouverte, une conversation se montre sur son premier message non lu, sinon sur le dernier. | analyse UC-MSG-9 | 4 |
@@ -293,15 +294,16 @@ sur la page de chaque objet. Mêmes composants au back-office et au portail.
 
 ### 6.2 Portail
 
-- **Tableau de bord** : même carte (lot 3).
+- **Tableau de bord** : carte « Nouveaux messages » de la section *Activités*, comme au back-office (lot 3 ;
+  révision du 2026-10-21).
 - **Messagerie**, menu du portail : même liste unique et même vue, sans filtre d'opérateur ;
-  bouton **Nouvelle conversation** (lot 5) : titre, message, pièces jointes ; mention « Seuls vous et le
+  bouton **Nouvelle conversation** (lot 5), pour qui gère le module Messagerie : titre, message, pièces jointes ; mention « Seuls vous et le
   BNIA verrez cette conversation ».
 - **Page d'une DSM** : section *Messages*, sans notes internes ni actions du BNIA (lot 2).
 - **Page d'une facture** (spec 08 §6.2) : section *Messages* (lot 6).
 
-Un `OBSERVATEUR` lit les conversations d'objet sans y écrire (sauf sur une facture), et ouvre ses
-conversations libres (§3.6).
+Un `OBSERVATEUR` lit les conversations d'objet sans y écrire (sauf sur une facture) ; il n'ouvre pas de
+conversation libre (§3.6, révision du 2026-10-21).
 
 ## 7. Données
 
@@ -314,7 +316,7 @@ Par les cas d'usage, relançable (`DemoMessagerie`, après `DemoDeclarations` et
 |---|---|---|---|
 | BNIA | Note interne d'Anne Lamarque sur la DSM d'octobre de Gascogne (reprise de l'actuel commentaire interne) et une note sur sa première ligne | Carnet distinct, invisible du portail | 1 |
 | Armagnacs de Gascogne (`N320001`) | Conversation de la DSM d'octobre, en compléments demandés (décision du 2026-10-21) : motif « DAE manquants pour l'export », protégé, déposé par `declarations` ; puis message de Julie Darrigade, réponse de Luc Dubos, non lue pour Gascogne | Motif, conversation d'objet, page de la DSM, nouveaux messages des deux côtés | 2, 3 |
-| Armagnacs de Gascogne | Conversation libre « Import de la matrice refusé » de Julie Darrigade, avec l'Excel de sa DSM en pièce jointe, réponse du BNIA ; conversation libre de Thomas Barrère, invisible de Julie et d'Henri Castex (`ADMIN`) | Conversation libre, pièces jointes, confidentialité | 5 |
+| Armagnacs de Gascogne | Conversation libre « Import de la matrice refusé » de Julie Darrigade, avec l'Excel de sa DSM en pièce jointe, réponse du BNIA, invisible d'Henri Castex (`ADMIN`) ; conversation libre d'Henri Castex, invisible de Julie (l'observateur Thomas Barrère n'en ouvre plus depuis le 2026-10-21) | Conversation libre, pièces jointes, confidentialité | 5 |
 | Armagnacs de Gascogne | Conversation d'une facture émise : question d'Henri Castex sur le volume facturé, non lue pour le BNIA | Facture conversable, écriture par le client | 6 |
 
 L'« auteur parti » (RG-MSG-13) n'est pas dans la démonstration : il est testé en IT.
@@ -394,3 +396,4 @@ Chaque RG-MSG-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-17 | Phases D à H, enchaînées à la demande de l'utilisateur. D : `contextes.md` (ordre, bordure Q-MSG, fiche 15, fiches 2, 5, 6, 7, 8, 11, éléments transverses, context map, journal). E : décisions A-MSG-1 à 9, chaque fois la forme de `facturation`, à relire. F : H-MSG-1 à 5 ont chacune leur question au BNIA ; aucune question « à trancher ». G : relecture (RG continues, sources, cas d'usage, tests, lots) ; glossaire (Message, Conversation, Conversation libre, Note interne, Nouveaux messages ; Commentaire, Instruction, Module, Rôle révisés). H : spec terminée ; ADR-023 ; ADR-011, 018 et 021 amendés ; `CLAUDE.md`. Révisions des specs 02, 05 et 08 livrées par les lots 1, 2 et 6. |
 | 2026-10-17 | Implémentation, lots 1 à 6, enchaînés à la demande de l'utilisateur. Écarts au plan des lots : les lots 1 et 2 sont livrés ensemble (le carnet de notes et le retrait de `Commentaire` touchent les mêmes fichiers de `declarations`) ; `Conversations.nonLus` n'est pas publié (la page d'un objet affiche sa conversation, avec ses non lus, par la messagerie elle-même). Choix d'implémentation : persistance en `JdbcClient` (conversations, messages, pièces jointes en table fille) ; afficher une conversation est un `GET` qui la lit pour le côté de l'acteur, comme la consultation journalisée d'une facture (RG-FAC-28) ; répondre sans afficher ne lit pas (le BNIA qui répond sans ouvrir garde le message de l'opérateur non lu) ; côté d'un acteur : membre actif de l'opérateur, sinon personnel du BNIA ; « marquer non lu » proposé sur les messages de l'autre côté ; réponse et ouverture en `multipart/form-data` (`texte`, `titre`, `pieces`), PDF et images ouverts dans le navigateur, Excel téléchargé ; `FormatDocument` dans `bnia-commun-core`, `deposerPdf` devenu une méthode par défaut de `deposer` ; recherche `unaccent(lower(...)) like`, motif échappé ; listes sans pagination ; schéma OpenAPI « Cote » partagé avec `declarations` (même ordre de valeurs). Écrans : menu « Messagerie » sous « Accueil » aux deux espaces, adresse `?onglet=&conversation=&message=` ; la carte « Nouveaux messages » du back-office remplace la carte de démonstration ; au portail, une carte « Messagerie » sur l'accueil. Démonstration : `DemoMessagerie` (ordre 6), relançable dès qu'une conversation libre de Gascogne existe ; l'« auteur parti » n'est vérifié qu'en IT. |
 | 2026-10-18 | Écrans (§6), à la demande de l'utilisateur : la messagerie n'a plus d'onglets ; *Nouveaux messages* et *Conversations* fusionnent en une liste unique de conversations, comme une boîte de réception, non lues en gras (RG-MSG-11 et 15 révisées, §5.2) ; les cartes des tableaux de bord ouvrent la liste sans filtre (adresse `?nonLues=&conversation=&message=`, « non lues seulement » retenu dans l'adresse) ; une conversation s'ouvre sur son premier non lu. Fil en bulles, regroupé par jour et par auteur, défilant dans son panneau ; notes internes au même gabarit. Pièces jointes : le sélecteur filtre par type MIME, le format est vérifié au choix (RG-MSG-14). |
+| 2026-10-21 | Droits (demande de l'utilisateur) : l'`OBSERVATEUR` ne gère plus le module Messagerie, il le lit, comme tous les autres modules (§3.6) ; au portail, il n'a plus « Nouvelle conversation » ; au BNIA comme au portail, il lit les conversations libres sans y écrire (« Votre rôle permet de lire cette conversation, pas d'y écrire. »). RG-MSG-02 et 12 révisées. Choix d'implémentation : `Role.gere(MESSAGERIE)` faux pour `OBSERVATEUR` (spec 02 §3.2.7) ; la lecture d'une conversation libre ne dépend plus que du côté de l'acteur, l'écriture de `gereMessagerie` (`Acces.surLibre`), refus sous RG-MSG-02 ; le niveau `messagerie` s'ajoute aux droits de l'API (`Droits`), que le bouton consulte. Démonstration : la seconde conversation libre de Gascogne est ouverte par Henri Castex, et non plus par Thomas Barrère (§7.1). Tableau de bord du portail : la carte « Messagerie » devient la carte « Nouveaux messages » de la section *Activités* (§6.2). |

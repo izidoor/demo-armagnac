@@ -17,6 +17,8 @@ public record DroitsResponse(
         Niveau declarations,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Factures et avoirs (spec 08 §3.12)")
         Niveau facturation,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Conversations libres (spec 15 §3.6)")
+        Niveau messagerie,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Champs réservés, listing des opérateurs (RG-OPE-32, 36)")
         boolean personnelBnia,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Fin d'un opérateur, blocage (RG-OPE-25, 26, 50)")
@@ -31,7 +33,8 @@ public record DroitsResponse(
     static DroitsResponse depuis(Droits d) {
         return new DroitsResponse(d.operateur(), d.local().orElse(null), d.bnia().orElse(null), niveau(d, Module.CONTACTS),
                 niveau(d, Module.ACCES), niveau(d, Module.PARAMETRAGE),
-                niveau(d, Module.DECLARATIONS), niveau(d, Module.FACTURATION), d.personnelBnia(), d.adminBnia());
+                niveau(d, Module.DECLARATIONS), niveau(d, Module.FACTURATION), niveau(d, Module.MESSAGERIE),
+                d.personnelBnia(), d.adminBnia());
     }
 
     private static Niveau niveau(Droits d, Module module) {

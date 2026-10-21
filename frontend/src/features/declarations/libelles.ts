@@ -6,7 +6,7 @@ import {
   type LucideIcon,
   Store,
 } from 'lucide-react'
-import { type Dsm, type LigneDsm } from '@/api/generated'
+import { type Dsm, type DsmListee, type LigneDsm } from '@/api/generated'
 import { type Statut } from '@/components/metier/badge-statut'
 
 type EtatDsm = Dsm['etat']
@@ -129,3 +129,10 @@ export const GROUPES_ETATS: Record<
     etats: ['ENVOYEE', 'EN_INSTRUCTION', 'COMPLEMENTS_RECUS'],
   },
 }
+
+/** Une DSM listée (ou sa période absente) est-elle dans ce groupe d'états ? */
+export const dansGroupe =
+  (groupe: string) => (d: Pick<DsmListee, 'etat'> & { absente?: boolean }) => {
+    const etat = d.absente ? 'ABSENTE' : d.etat
+    return !!etat && GROUPES_ETATS[groupe].etats.includes(etat)
+  }

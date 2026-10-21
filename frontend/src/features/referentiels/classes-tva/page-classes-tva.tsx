@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { ChevronRight, Plus } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { Plus } from 'lucide-react'
 import { creerClasseTva, listerClassesTva } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +13,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BadgeEtat } from '@/components/metier/badge-etat'
+import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { BarreFiltre } from '../commun/filtre-valeurs'
@@ -58,7 +59,7 @@ export function PageClassesTva() {
               <TableHead className='text-end'>Taux en vigueur</TableHead>
               <TableHead>En vigueur depuis</TableHead>
               <TableHead className='w-28'>État</TableHead>
-              <TableHead className='w-24' />
+              <EnteteOuvrir />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -90,17 +91,15 @@ export function PageClassesTva() {
                 <TableCell>
                   <BadgeEtat actif={classe.actif} />
                 </TableCell>
-                <TableCell className='text-end'>
-                  <Button variant='ghost' size='sm' asChild>
-                    <Link
-                      to='/bo/parametrage/classes-tva/$id'
-                      params={{ id: String(classe.id) }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Détail <ChevronRight />
-                    </Link>
-                  </Button>
-                </TableCell>
+                <CelluleOuvrir
+                  libelle={`Ouvrir la classe de TVA ${classe.libelle}`}
+                  onOuvrir={() =>
+                    navigate({
+                      to: '/bo/parametrage/classes-tva/$id',
+                      params: { id: String(classe.id) },
+                    })
+                  }
+                />
               </TableRow>
             ))}
           </TableBody>

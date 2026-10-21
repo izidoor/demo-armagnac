@@ -4,7 +4,6 @@ import static fr.bnia.declarations.adapter.persistence.Lignes.SCHEMA;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.StocksLecture;
-import fr.bnia.declarations.domain.AnneeDeclarative;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.SensColonne;
@@ -19,14 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
 /**
- * Stocks déclarés (RG-DEC-42) : la dernière DSM validée de chaque opérateur, en une requête ; les DSM validées
- * d'un opérateur sur une année déclarative, pour son historique (RG-DEC-44).
+ * Stocks déclarés (RG-DEC-42) : la dernière DSM validée de chaque opérateur, en une requête.
  */
 @Repository
 class JdbcStocks implements StocksLecture {
@@ -66,26 +63,6 @@ class JdbcStocks implements StocksLecture {
         });
         sql.append(" order by d.operateur_id, l.rang");
         return jdbcClient.sql(sql.toString()).params(parametres).query((rs, n) -> ligne(rs)).list();
-    }
-
-    @Override
-    public List<LigneStock> stocksDeLAnnee(AnneeDeclarative annee, long operateur) {
-        return jdbcClient.sql("select d.id, d.operateur_id, d.type, d.debut, d.fin, d.validee_le,"
-                        + " l.cle, l.millesime, l.denomination, l.compte, " + STOCK_FIN + " as stock"
-                        + " from " + SCHEMA + ".dsm d join " + SCHEMA + ".ligne_dsm l on l.dsm_id = d.id"
-                        + " where d.etat = 'VALIDEE' and d.debut >= :debut and d.fin <= :fin"
-                        + " and d.operateur_id = :operateur order by d.fin, l.rang")
-                .param("debut", annee.debut()).param("fin", annee.fin()).param("operateur", operateur)
-                .query((rs, n) -> ligne(rs)).list();
-    }
-
-    @Override
-    public Set<AnneeDeclarative> anneesDeclarees(long operateur) {
-        return jdbcClient.sql("select distinct fin from " + SCHEMA + ".dsm where etat = 'VALIDEE'"
-                        + " and operateur_id = :operateur")
-                .param("operateur", operateur)
-                .query((rs, n) -> AnneeDeclarative.contenant(rs.getObject("fin", LocalDate.class)))
-                .list().stream().collect(Collectors.toSet());
     }
 
     private static LigneStock ligne(ResultSet rs) throws SQLException {

@@ -5,13 +5,6 @@ import {
   type ResultatRechercheOperateur,
 } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 
 /**
@@ -75,22 +68,5 @@ export function RechercheOperateur({
         </p>
       )}
     </div>
-  )
-}
-
-/** Carte de l'accueil du portail, en attendant les écrans de contrats qui utiliseront la recherche. */
-export function CarteRechercheOperateur() {
-  return (
-    <Card className='sm:col-span-2'>
-      <CardHeader>
-        <CardTitle>Rechercher un opérateur</CardTitle>
-        <CardDescription>
-          L'autre partie d'un contrat, parmi les opérateurs actifs.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <RechercheOperateur />
-      </CardContent>
-    </Card>
   )
 }

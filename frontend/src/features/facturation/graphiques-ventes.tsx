@@ -32,7 +32,8 @@ import { formatEuros } from '@/features/declarations/format'
 
 /*
  * Graphiques de démonstration : des montants fictifs, calculés dans le navigateur, pour montrer au client ce
- * que la page *Ventes* présentera en production. Aucune donnée réelle n'y est lue.
+ * que les pages *Ventes* (back-office) et *Cotisation* (portail) présenteront en production. Aucune donnée
+ * réelle n'y est lue. Au portail, les montants de la filière sont ramenés à l'échelle de l'opérateur.
  */
 
 type Secteur =
@@ -79,20 +80,29 @@ const MODELE: Record<Secteur, { base: number; saisons: number[] }> = {
   },
 }
 
-/** Chiffre d'affaires fictif d'un secteur pour un mois (1 à 12) : base, croissance de 4 % l'an, saison, ±12 %. */
-function montant(secteur: Secteur, annee: number, mois: number) {
+/**
+ * Chiffre d'affaires fictif d'un secteur pour un mois (1 à 12) : base, croissance de 4 % l'an, saison, ±12 % ;
+ * multiplié par l'échelle (1 pour la filière).
+ */
+function montant(
+  secteur: Secteur,
+  annee: number,
+  mois: number,
+  echelle: number
+) {
   const { base, saisons } = MODELE[secteur]
   const croissance = Math.pow(1.04, annee - 2020)
   const graine = SECTEURS.indexOf(secteur) * 1013 + annee * 37 + mois * 7
   return Math.round(
-    base * croissance * saisons[mois - 1] * (1 + 0.12 * bruit(graine))
+    base * croissance * saisons[mois - 1] * (1 + 0.12 * bruit(graine)) * echelle
   )
 }
 
-const somme = (secteurs: Secteur[], periode: Periode) =>
+const somme = (secteurs: Secteur[], periode: Periode, echelle: number) =>
   periode.mois.reduce(
     (total, { annee, mois }) =>
-      total + secteurs.reduce((s, sec) => s + montant(sec, annee, mois), 0),
+      total +
+      secteurs.reduce((s, sec) => s + montant(sec, annee, mois, echelle), 0),
     0
   )
 
@@ -100,11 +110,19 @@ const formatEurosAxe = formatAxe('€')
 const formatInfobulle = (v: unknown) =>
   typeof v === 'number' ? formatEuros(v) : String(v)
 
+/** Ce que trace un graphique : la filière au back-office, ou les cotisations d'un opérateur au portail. */
+type Portee = { cotisations: false } | { cotisations: true; echelle: number }
+
+const FILIERE_ENTIERE: Portee = { cotisations: false }
+
 /**
  * Chiffre d'affaires total HT, en histogramme, sur l'une des trois vues ; sur l'année en cours (la vue par
- * défaut), ses mois sont placés à côté de ceux de l'année précédente, sauf si l'on ôte la comparaison.
+ * défaut), ses mois sont placés à côté de ceux de l'année précédente, sauf si l'on ôte la comparaison. Au
+ * portail, la cotisation totale de l'opérateur.
  */
-function GraphiqueChiffreAffaires() {
+function GraphiqueChiffreAffaires({ portee }: { portee: Portee }) {
+  const secteurs = portee.cotisations ? COTISATIONS : SECTEURS
+  const echelle = portee.cotisations ? portee.echelle : 1
   const [vue, setVue] = useState<Vue>('annee-en-cours')
   const [comparer, setComparer] = useState(true)
   const jour = new Date()
@@ -113,20 +131,28 @@ function GraphiqueChiffreAffaires() {
   const points = periodes(vue, jour).map((p, i) => ({
     x: p.libelle,
     // Les mois terminés seulement.
-    total: p.mois.length ? somme(SECTEURS, p) : undefined,
+    total: p.mois.length ? somme(secteurs, p, echelle) : undefined,
     precedente: comparaison
-      ? somme(SECTEURS, {
-          libelle: '',
-          mois: [{ annee: annee - 1, mois: i + 1 }],
-        })
+      ? somme(
+          secteurs,
+          { libelle: '', mois: [{ annee: annee - 1, mois: i + 1 }] },
+          echelle
+        )
       : undefined,
   }))
   return (
     <Card>
-      <EnteteDemo
-        titre="Chiffre d'affaires total"
-        description='Factures émises, avoirs déduits, en euros HT.'
-      />
+      {portee.cotisations ? (
+        <EnteteDemo
+          titre='Cotisation totale'
+          description='Factures de cotisation émises, en euros HT.'
+        />
+      ) : (
+        <EnteteDemo
+          titre="Chiffre d'affaires total"
+          description='Factures émises, avoirs déduits, en euros HT.'
+        />
+      )}
       <CardContent className='space-y-3'>
         <div className='flex flex-wrap items-center gap-3'>
           <SelecteurVue vues={VUES} vue={vue} onChange={setVue} />
@@ -169,7 +195,13 @@ function GraphiqueChiffreAffaires() {
               )}
               <Bar
                 dataKey='total'
-                name={comparaison ? String(annee) : "Chiffre d'affaires"}
+                name={
+                  comparaison
+                    ? String(annee)
+                    : portee.cotisations
+                      ? 'Cotisation'
+                      : "Chiffre d'affaires"
+                }
                 fill='var(--chart-1)'
                 radius={[4, 4, 0, 0]}
               />
@@ -241,37 +273,52 @@ const DETAIL = COTISATIONS as string[]
 /**
  * Évolution du chiffre d'affaires HT par secteur de vente (cotisations, boutique, autre), en courbes, sur l'une
  * des trois vues. Les cotisations s'affichent en une courbe ou par ligne de cotisation ; chaque courbe se
- * masque ou s'affiche.
+ * masque ou s'affiche. Au portail, les seules lignes de cotisation de l'opérateur.
  */
-function GraphiqueSecteurs() {
+function GraphiqueSecteurs({ portee }: { portee: Portee }) {
   const [vue, setVue] = useState<Vue>('annee-en-cours')
-  const [detailler, setDetailler] = useState(false)
+  const [choixDetailler, setDetailler] = useState(false)
   const [masquees, setMasquees] = useState<Set<string>>(new Set())
+  const detailler = portee.cotisations || choixDetailler
+  const echelle = portee.cotisations ? portee.echelle : 1
   const proposees = COURBES.filter((c) =>
-    detailler ? c.cle !== 'cotisations' : !DETAIL.includes(c.cle)
+    portee.cotisations
+      ? DETAIL.includes(c.cle)
+      : detailler
+        ? c.cle !== 'cotisations'
+        : !DETAIL.includes(c.cle)
   )
   const affichees = proposees.filter((c) => !masquees.has(c.cle))
   const points = periodes(vue).map((p) => {
     const point: Record<string, number | string> = { x: p.libelle }
     if (p.mois.length)
-      affichees.forEach((c) => (point[c.cle] = somme(c.secteurs, p)))
+      affichees.forEach((c) => (point[c.cle] = somme(c.secteurs, p, echelle)))
     return point
   })
   return (
     <Card>
-      <EnteteDemo
-        titre="Chiffre d'affaires par secteur"
-        description='Évolution par secteur de vente, en euros HT.'
-      />
+      {portee.cotisations ? (
+        <EnteteDemo
+          titre='Cotisation par ligne'
+          description='Évolution par ligne de cotisation, en euros HT.'
+        />
+      ) : (
+        <EnteteDemo
+          titre="Chiffre d'affaires par secteur"
+          description='Évolution par secteur de vente, en euros HT.'
+        />
+      )}
       <CardContent className='space-y-3'>
         <div className='flex flex-wrap items-center gap-3'>
           <SelecteurVue vues={VUES} vue={vue} onChange={setVue} />
-          <Option
-            id='secteurs-detailler'
-            libelle='Détailler les cotisations'
-            valeur={detailler}
-            onChange={setDetailler}
-          />
+          {!portee.cotisations && (
+            <Option
+              id='secteurs-detailler'
+              libelle='Détailler les cotisations'
+              valeur={choixDetailler}
+              onChange={setDetailler}
+            />
+          )}
         </div>
         <ChoixCourbes
           courbes={proposees}
@@ -326,8 +373,22 @@ function GraphiqueSecteurs() {
 export function GraphiquesVentes() {
   return (
     <div className='grid gap-6 xl:grid-cols-2'>
-      <GraphiqueChiffreAffaires />
-      <GraphiqueSecteurs />
+      <GraphiqueChiffreAffaires portee={FILIERE_ENTIERE} />
+      <GraphiqueSecteurs portee={FILIERE_ENTIERE} />
+    </div>
+  )
+}
+
+/**
+ * Les deux graphiques de démonstration de la page *Cotisation* du portail : ceux des cotisations de la filière,
+ * multipliées par l'échelle de l'opérateur (sa part de la filière).
+ */
+export function GraphiquesCotisations({ echelle }: { echelle: number }) {
+  const portee: Portee = { cotisations: true, echelle }
+  return (
+    <div className='grid gap-6 xl:grid-cols-2'>
+      <GraphiqueChiffreAffaires portee={portee} />
+      <GraphiqueSecteurs portee={portee} />
     </div>
   )
 }

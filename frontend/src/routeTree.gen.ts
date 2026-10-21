@@ -39,6 +39,7 @@ import { Route as BoParametrageIndexRouteImport } from './routes/bo/parametrage/
 import { Route as BoOperateursIndexRouteImport } from './routes/bo/operateurs/index'
 import { Route as BoFacturationIndexRouteImport } from './routes/bo/facturation/index'
 import { Route as BoDeclarationsIndexRouteImport } from './routes/bo/declarations/index'
+import { Route as PortailFacturesCotisationsRouteImport } from './routes/portail/factures/cotisations'
 import { Route as PortailFacturesIdRouteImport } from './routes/portail/factures/$id'
 import { Route as PortailDeclarationsStocksRouteImport } from './routes/portail/declarations/stocks'
 import { Route as PortailDeclarationsDsmRouteImport } from './routes/portail/declarations/$dsm'
@@ -213,6 +214,12 @@ const BoDeclarationsIndexRoute = BoDeclarationsIndexRouteImport.update({
   path: '/declarations/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const PortailFacturesCotisationsRoute =
+  PortailFacturesCotisationsRouteImport.update({
+    id: '/factures/cotisations',
+    path: '/factures/cotisations',
+    getParentRoute: () => PortailRouteRoute,
+  } as any)
 const PortailFacturesIdRoute = PortailFacturesIdRouteImport.update({
   id: '/factures/$id',
   path: '/factures/$id',
@@ -370,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/portail/declarations/stocks': typeof PortailDeclarationsStocksRoute
   '/portail/factures/$id': typeof PortailFacturesIdRoute
+  '/portail/factures/cotisations': typeof PortailFacturesCotisationsRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/facturation': typeof BoFacturationIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
@@ -421,6 +429,7 @@ export interface FileRoutesByTo {
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/portail/declarations/stocks': typeof PortailDeclarationsStocksRoute
   '/portail/factures/$id': typeof PortailFacturesIdRoute
+  '/portail/factures/cotisations': typeof PortailFacturesCotisationsRoute
   '/bo/declarations': typeof BoDeclarationsIndexRoute
   '/bo/facturation': typeof BoFacturationIndexRoute
   '/bo/operateurs': typeof BoOperateursIndexRoute
@@ -476,6 +485,7 @@ export interface FileRoutesById {
   '/portail/declarations/$dsm': typeof PortailDeclarationsDsmRoute
   '/portail/declarations/stocks': typeof PortailDeclarationsStocksRoute
   '/portail/factures/$id': typeof PortailFacturesIdRoute
+  '/portail/factures/cotisations': typeof PortailFacturesCotisationsRoute
   '/bo/declarations/': typeof BoDeclarationsIndexRoute
   '/bo/facturation/': typeof BoFacturationIndexRoute
   '/bo/operateurs/': typeof BoOperateursIndexRoute
@@ -532,6 +542,7 @@ export interface FileRouteTypes {
     | '/portail/declarations/$dsm'
     | '/portail/declarations/stocks'
     | '/portail/factures/$id'
+    | '/portail/factures/cotisations'
     | '/bo/declarations'
     | '/bo/facturation'
     | '/bo/operateurs'
@@ -583,6 +594,7 @@ export interface FileRouteTypes {
     | '/portail/declarations/$dsm'
     | '/portail/declarations/stocks'
     | '/portail/factures/$id'
+    | '/portail/factures/cotisations'
     | '/bo/declarations'
     | '/bo/facturation'
     | '/bo/operateurs'
@@ -637,6 +649,7 @@ export interface FileRouteTypes {
     | '/portail/declarations/$dsm'
     | '/portail/declarations/stocks'
     | '/portail/factures/$id'
+    | '/portail/factures/cotisations'
     | '/bo/declarations/'
     | '/bo/facturation/'
     | '/bo/operateurs/'
@@ -884,6 +897,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoDeclarationsIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/portail/factures/cotisations': {
+      id: '/portail/factures/cotisations'
+      path: '/factures/cotisations'
+      fullPath: '/portail/factures/cotisations'
+      preLoaderRoute: typeof PortailFacturesCotisationsRouteImport
+      parentRoute: typeof PortailRouteRoute
+    }
     '/portail/factures/$id': {
       id: '/portail/factures/$id'
       path: '/factures/$id'
@@ -1120,6 +1140,7 @@ interface PortailRouteRouteChildren {
   PortailDeclarationsDsmRoute: typeof PortailDeclarationsDsmRoute
   PortailDeclarationsStocksRoute: typeof PortailDeclarationsStocksRoute
   PortailFacturesIdRoute: typeof PortailFacturesIdRoute
+  PortailFacturesCotisationsRoute: typeof PortailFacturesCotisationsRoute
   PortailAnnuaireIndexRoute: typeof PortailAnnuaireIndexRoute
   PortailDeclarationsIndexRoute: typeof PortailDeclarationsIndexRoute
   PortailFacturesIndexRoute: typeof PortailFacturesIndexRoute
@@ -1134,6 +1155,7 @@ const PortailRouteRouteChildren: PortailRouteRouteChildren = {
   PortailDeclarationsDsmRoute: PortailDeclarationsDsmRoute,
   PortailDeclarationsStocksRoute: PortailDeclarationsStocksRoute,
   PortailFacturesIdRoute: PortailFacturesIdRoute,
+  PortailFacturesCotisationsRoute: PortailFacturesCotisationsRoute,
   PortailAnnuaireIndexRoute: PortailAnnuaireIndexRoute,
   PortailDeclarationsIndexRoute: PortailDeclarationsIndexRoute,
   PortailFacturesIndexRoute: PortailFacturesIndexRoute,

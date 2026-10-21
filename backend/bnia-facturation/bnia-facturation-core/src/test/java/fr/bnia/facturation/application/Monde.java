@@ -145,14 +145,16 @@ final class Monde {
     }
 
     ConsulterMesFactures mesFactures(PiecesLecture lecture) {
-        return new ConsulterMesFactures(factures, lecture, journal, stockage, droits, horloge);
+        return new ConsulterMesFactures(factures, lecture, ventes, journal, stockage, droits, horloge);
     }
 
     /** Les ventes des pièces émises en mémoire, comme la requête de l'infra (RG-FAC-30). */
-    final VentesLecture ventes = (du, au, nature) -> factures.parId.values().stream().map(Facture::reconstituer)
+    final VentesLecture ventes = (du, au, nature, client) -> factures.parId.values().stream().map(Facture::reconstituer)
             .filter(f -> f.etat() == EtatPiece.EMISE)
             .filter(f -> !f.dateEmission().orElseThrow().isBefore(du) && !f.dateEmission().orElseThrow().isAfter(au))
             .filter(f -> nature.isEmpty() || f.origine() != null && f.origine().nature().equals(nature.get()))
+            .filter(f -> client.isEmpty() || f.acheteur().client() != null
+                    && f.acheteur().client().identifiant().equals(client.get()))
             .sorted(Comparator.comparing(f -> f.numero().orElseThrow()))
             .flatMap(f -> f.lignesArticle().stream().map(a -> vendue(f, a))).toList();
 

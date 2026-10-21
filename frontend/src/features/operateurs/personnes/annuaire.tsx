@@ -31,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { cleOperateur, useAnnuaire, type Espace } from '../commun/api'
 import { ROLES } from '../commun/libelles'
 import { DialogueInvitation } from './dialogue-invitation'
@@ -91,13 +92,14 @@ export function OngletAnnuaire({
                   <TableHead>E-mail</TableHead>
                   <TableHead>Téléphone</TableHead>
                   <TableHead>État</TableHead>
+                  <EnteteOuvrir />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {personnes.length === 0 && (
                   <TableRow>
                     <TableCell
-                      colSpan={5}
+                      colSpan={6}
                       className='text-muted-foreground h-16 text-center'
                     >
                       {annuaire.isPending ? 'Chargement…' : 'Personne.'}
@@ -141,6 +143,10 @@ export function OngletAnnuaire({
                         )}
                       </span>
                     </TableCell>
+                    <CelluleOuvrir
+                      libelle={`Ouvrir la fiche de ${p.nomComplet}`}
+                      onOuvrir={() => navigation.ouvrir(genreDe(p), p.id)}
+                    />
                   </TableRow>
                 ))}
               </TableBody>

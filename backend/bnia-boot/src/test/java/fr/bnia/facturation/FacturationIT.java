@@ -626,6 +626,35 @@ class FacturationIT extends AbstractIT {
     }
 
     @Test
+    @DisplayName("RG-FAC-26, 34 : au portail, l'opérateur lit les lignes de ses pièces émises de la période ; un autre opérateur est refusé")
+    void rg_fac_34_lignes_portail() {
+        long operateur = negociant(true);
+        long emise = brouillonDeDsm(operateur);
+        client.post().uri(PIECES + "/{id}/emission", emise).exchange().expectStatus().isOk();
+        String email = emailUnique("observateur");
+        membre(operateur, Role.OBSERVATEUR, email);
+        RestTestClient observateur = connecte(email);
+        String jour = LocalDate.now().toString();
+        String hier = LocalDate.now().minusDays(1).toString();
+        String lignes = "/api/operateurs/" + operateur + "/factures/lignes";
+
+        observateur.get().uri(u -> u.path(lignes).queryParam("du", jour).queryParam("au", jour)
+                        .queryParam("nature", "DSM").build()).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[*].piece").isEqualTo(List.of((int) emise, (int) emise, (int) emise,
+                        (int) emise))
+                .jsonPath("$[*].montantHt").isEqualTo(List.of(402.77, 100.69, 1081.99, 270.5));
+        observateur.get().uri(u -> u.path(lignes).queryParam("du", hier).queryParam("au", hier).build())
+                .exchange().expectStatus().isOk().expectBody().jsonPath("$").isEmpty();
+        observateur.get().uri(u -> u.path(lignes).queryParam("du", jour).queryParam("au", hier).build())
+                .exchange().expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+
+        String autre = emailUnique("observateur");
+        membre(negociant(true), Role.OBSERVATEUR, autre);
+        connecte(autre).get().uri(u -> u.path(lignes).queryParam("du", jour).queryParam("au", jour).build())
+                .exchange().expectStatus().isForbidden();
+    }
+
+    @Test
     @DisplayName("RG-FAC-10, 11 : le port Clients lit l'acheteur d'un opérateur, pays compris ; un client inconnu est vide")
     void rg_fac_11_clients() {
         long operateur = negociant(true);

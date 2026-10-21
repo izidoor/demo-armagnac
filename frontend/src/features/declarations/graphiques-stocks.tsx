@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { Card, CardContent } from '@/components/ui/card'
+import { FILIERE, type TypeDeclarant } from '@/components/metier/filiere'
 import {
   ChoixCourbes,
   EnteteDemo,
@@ -28,8 +29,9 @@ import {
 
 /*
  * Graphiques de démonstration : des stocks fictifs, calculés dans le navigateur, pour montrer au client ce que
- * la page *Stocks déclarés* présentera en production. Aucune donnée réelle n'y est lue. Un stock est un
- * instantané : celui d'une période est le stock à la fin de son dernier mois.
+ * la page *Stocks déclarés* présentera en production. Aucune donnée réelle n'y est lue, sinon, au portail, le
+ * stock déclaré de l'opérateur, qui donne l'échelle. Un stock est un instantané : celui d'une période est le
+ * stock à la fin de son dernier mois.
  */
 
 type Vue = 'annees' | 'glissants' | 'annee-en-cours'
@@ -40,17 +42,30 @@ const VUES: { id: Vue; libelle: string }[] = [
   { id: 'annee-en-cours', libelle: 'Année en cours' },
 ]
 
-type Type = 'NEGOCIANT' | 'PRODUCTEUR'
+type Type = TypeDeclarant
 type Tranche = '00-3' | '4-9' | '10-19' | '20+'
 
 const TYPES: Type[] = ['NEGOCIANT', 'PRODUCTEUR']
 const TRANCHES: Tranche[] = ['00-3', '4-9', '10-19', '20+']
 
+/** Stock de chaque type de déclarant cette année, en hl AP : celui de la filière (FILIERE). */
+type Bases = Partial<Record<Type, number>>
+const FILIERE_BASES: Bases = {
+  NEGOCIANT: FILIERE.NEGOCIANT.stockHl,
+  PRODUCTEUR: FILIERE.PRODUCTEUR.stockHl,
+}
+
 /**
- * Stock de chaque type de déclarant cette année, en hl AP, et part de chaque tranche de compte d'âge : les
- * chiffres réels de la filière, communiqués par le BNIA (159 236 hl AP, 35 % producteurs, 65 % négociants).
+ * Au portail, l'opérateur actif : son type, et son stock en hl AP, qui remplace celui de la filière comme
+ * stock de cette année.
  */
-const BASE: Record<Type, number> = { NEGOCIANT: 103_503, PRODUCTEUR: 55_733 }
+export type EchelleOperateur = { type: Type; stockHl: number }
+
+/** Les types tracés et le stock de chacun cette année : la filière, ou le seul opérateur actif. */
+const bases = (operateur?: EchelleOperateur): Bases =>
+  operateur ? { [operateur.type]: operateur.stockHl } : FILIERE_BASES
+
+/** Part de chaque tranche de compte d'âge. */
 const PART: Record<Tranche, number> = {
   '00-3': 0.37,
   '4-9': 0.27,
@@ -67,7 +82,13 @@ const SAISONS = [
  * Stock fictif, en hl AP, à la fin d'un mois (1 à 12) : celui de la filière cette année, 1,5 % de moins par année
  * en arrière, saison (accentuée pour les jeunes comptes), ±3 %.
  */
-function stock(type: Type, tranche: Tranche, annee: number, mois: number) {
+function stock(
+  base: Bases,
+  type: Type,
+  tranche: Tranche,
+  annee: number,
+  mois: number
+) {
   const saison = SAISONS[mois - 1]
   const s = tranche === '00-3' ? 1 + (saison - 1) * 2 : saison
   const graine =
@@ -76,7 +97,7 @@ function stock(type: Type, tranche: Tranche, annee: number, mois: number) {
     annee * 37 +
     mois * 7
   return Math.round(
-    BASE[type] *
+    (base[type] ?? 0) *
       PART[tranche] *
       Math.pow(1.015, annee - ANNEE_DE_REFERENCE) *
       s *
@@ -85,13 +106,14 @@ function stock(type: Type, tranche: Tranche, annee: number, mois: number) {
 }
 
 const total = (
+  base: Bases,
   types: Type[],
   tranches: Tranche[],
   { annee, mois }: FinDeMois
 ) =>
   types.reduce(
     (t, ty) =>
-      t + tranches.reduce((s, tr) => s + stock(ty, tr, annee, mois), 0),
+      t + tranches.reduce((s, tr) => s + stock(base, ty, tr, annee, mois), 0),
     0
   )
 
@@ -152,7 +174,9 @@ const libelleAnnee = (debut: number) => `${debut}-${String(debut + 1).slice(2)}`
  * Stock total déclaré, en histogramme, sur l'une des trois vues ; sur l'année déclarative en cours (la vue par
  * défaut), ses fins de mois sont placées à côté de celles de l'année précédente, sauf si l'on ôte la comparaison.
  */
-function GraphiqueStockTotal() {
+function GraphiqueStockTotal({ operateur }: { operateur?: EchelleOperateur }) {
+  const base = bases(operateur)
+  const types = Object.keys(base) as Type[]
   const [vue, setVue] = useState<Vue>('annee-en-cours')
   const [comparer, setComparer] = useState(true)
   const jour = new Date()
@@ -160,9 +184,9 @@ function GraphiqueStockTotal() {
   const comparaison = vue === 'annee-en-cours' && comparer
   const points = instants(vue, jour).map((p, i) => ({
     x: p.libelle,
-    stock: p.fin && total(TYPES, TRANCHES, p.fin),
+    stock: p.fin && total(base, types, TRANCHES, p.fin),
     precedente: comparaison
-      ? total(TYPES, TRANCHES, moisApres(courante - 1, 4, i))
+      ? total(base, types, TRANCHES, moisApres(courante - 1, 4, i))
       : undefined,
   }))
   return (
@@ -243,19 +267,27 @@ const CHOIX_TYPES: { id: ChoixType; libelle: string }[] = [
 
 /**
  * Évolution du stock déclaré par tranche de compte d'âge, en courbes, sur l'une des trois vues, pour tous les
- * déclarants ou un type ; chaque courbe se masque ou s'affiche.
+ * déclarants ou un type ; chaque courbe se masque ou s'affiche. Au portail, celui de l'opérateur actif seul,
+ * sans choix de type.
  */
-export function GraphiqueComptes() {
+export function GraphiqueComptes({
+  operateur,
+}: {
+  operateur?: EchelleOperateur
+}) {
   const [vue, setVue] = useState<Vue>('annee-en-cours')
   const [type, setType] = useState<ChoixType>('tous')
   const [masquees, setMasquees] = useState<Set<string>>(new Set())
-  const types = type === 'tous' ? TYPES : [type]
+  const base = bases(operateur)
+  const types = operateur ? [operateur.type] : type === 'tous' ? TYPES : [type]
   const affichees = COURBES.filter((c) => !masquees.has(c.cle))
   const points = instants(vue).map((p) => {
     const point: Record<string, number | string> = { x: p.libelle }
     const fin = p.fin
     if (fin)
-      affichees.forEach((c) => (point[c.cle] = total(types, [c.cle], fin)))
+      affichees.forEach(
+        (c) => (point[c.cle] = total(base, types, [c.cle], fin))
+      )
     return point
   })
   return (
@@ -267,7 +299,9 @@ export function GraphiqueComptes() {
       <CardContent className='space-y-3'>
         <div className='flex flex-wrap items-center gap-3'>
           <SelecteurVue vues={VUES} vue={vue} onChange={setVue} />
-          <SelecteurVue vues={CHOIX_TYPES} vue={type} onChange={setType} />
+          {!operateur && (
+            <SelecteurVue vues={CHOIX_TYPES} vue={type} onChange={setType} />
+          )}
         </div>
         <ChoixCourbes
           courbes={COURBES}
@@ -317,12 +351,19 @@ export function GraphiqueComptes() {
   )
 }
 
-/** Les deux graphiques de démonstration, côte à côte, au-dessus des données de la page *Stocks déclarés*. */
-export function GraphiquesStocks() {
+/**
+ * Les deux graphiques de démonstration, côte à côte, au-dessus des données de la page *Stocks déclarés* : ceux de
+ * la filière au back-office, ceux de l'opérateur actif au portail.
+ */
+export function GraphiquesStocks({
+  operateur,
+}: {
+  operateur?: EchelleOperateur
+}) {
   return (
     <div className='grid gap-6 xl:grid-cols-2'>
-      <GraphiqueStockTotal />
-      <GraphiqueComptes />
+      <GraphiqueStockTotal operateur={operateur} />
+      <GraphiqueComptes operateur={operateur} />
     </div>
   )
 }

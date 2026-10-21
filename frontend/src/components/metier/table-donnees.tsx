@@ -50,6 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CelluleOuvrir, EnteteOuvrir } from './cellule-ouvrir'
 import { Pagination } from './pagination'
 
 /** Les tailles de page proposées. */
@@ -146,6 +147,7 @@ export function TableDonnees<T>({
   colonneTotal: colonneTotalDemandee,
   formatTotal = String,
   onLigne,
+  libelleLigne = () => 'Ouvrir le détail',
   actions,
 }: {
   /** Clé de la mémoire de la disposition, propre à la table ; sans elle, rien n'est retenu. */
@@ -164,7 +166,10 @@ export function TableDonnees<T>({
   /** La colonne sous laquelle s'affiche le total ; la dernière par défaut. */
   colonneTotal?: string
   formatTotal?: (valeur: number) => string
+  /** Ouvre le détail d'une ligne : la ligne est cliquable et finit par un chevron. */
   onLigne?: (ligne: T) => void
+  /** Ce qu'ouvre le chevron d'une ligne, pour les lecteurs d'écran. */
+  libelleLigne?: (ligne: T) => string
   /** À droite de la barre de recherche (un export, par exemple). */
   actions?: ReactNode
 }) {
@@ -394,6 +399,7 @@ export function TableDonnees<T>({
                     {flexRender(h.column.columnDef.header, h.getContext())}
                   </TableHead>
                 ))}
+                {onLigne && <EnteteOuvrir />}
               </TableRow>
             ))}
           </TableHeader>
@@ -401,7 +407,7 @@ export function TableDonnees<T>({
             {lignes.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={nombreColonnes}
+                  colSpan={nombreColonnes + (onLigne ? 1 : 0)}
                   className='text-muted-foreground h-16 text-center'
                 >
                   {chargement
@@ -443,6 +449,15 @@ export function TableDonnees<T>({
                       {contenu(cell)}
                     </TableCell>
                   ))}
+                  {onLigne &&
+                    (groupe ? (
+                      <TableCell />
+                    ) : (
+                      <CelluleOuvrir
+                        libelle={libelleLigne(row.original)}
+                        onOuvrir={() => onLigne(row.original)}
+                      />
+                    ))}
                 </TableRow>
               )
             })}
@@ -466,6 +481,7 @@ export function TableDonnees<T>({
                         : null}
                   </TableCell>
                 ))}
+                {onLigne && <TableCell />}
               </TableRow>
             </TableFooter>
           )}
