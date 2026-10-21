@@ -44,8 +44,8 @@ export function AuthLayout({ children, panneau }: AuthLayoutProps) {
           alt='Rangs de vigne au soleil levant'
           className='absolute inset-0 h-full w-full object-cover object-[75%_center]'
         />
-        <div className='absolute inset-0 flex items-center justify-center p-10'>
-          <div className='w-full max-w-lg rounded-lg bg-white/85 p-6 text-sm text-neutral-900 shadow-lg backdrop-blur-sm'>
+        <div className='absolute inset-0 flex items-start justify-center p-10 pt-16'>
+          <div className='w-full max-w-lg rounded-lg border border-white/70 bg-white/85 p-6 text-sm text-neutral-900 shadow-2xl ring-1 shadow-black/40 ring-black/10 backdrop-blur-sm'>
             {panneau}
           </div>
         </div>

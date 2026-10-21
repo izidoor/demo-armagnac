@@ -27,8 +27,8 @@ export function PanneauDemo() {
         </div>
         {COMPTES.map((c) => (
           <div key={c.domaine}>
-            <p className='text-xs font-semibold'>{c.titre}</p>
-            <ul className='font-mono text-xs'>
+            <p className='text-sm font-semibold'>{c.titre}</p>
+            <ul className='font-mono text-sm'>
               {ROLES.map((r) => (
                 <li key={r}>
                   {r}@{c.domaine}
@@ -39,8 +39,10 @@ export function PanneauDemo() {
         ))}
       </div>
       <dl className='grid grid-cols-[auto_1fr] gap-x-3 gap-y-1'>
-        <dt className='text-neutral-600'>Tous les mots de passe :</dt>
-        <dd className='font-mono'>demo-armagnac</dd>
+        <dt className='font-semibold text-neutral-900'>
+          Tous les mots de passe :
+        </dt>
+        <dd className='font-mono font-semibold'>demo-armagnac</dd>
         <dt className='text-neutral-600'>Tous les codes de vérification :</dt>
         <dd>
           <span className='font-mono'>000000</span>{' '}
