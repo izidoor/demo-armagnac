@@ -78,7 +78,7 @@ const ECHELLE = 0.12
 
 /**
  * L'offre en plein écran : à gauche, les miniatures des sections, à la manière d'une barre latérale ; à droite, la
- * section choisie, défilant dans sa page, puis les flèches vers la section précédente et la suivante. Chaque
+ * section choisie, défilant dans sa page, sous les flèches vers la précédente et la suivante, et « Fermer ». Chaque
  * section est une page HTML, avec la feuille de style du document imprimé, affichée dans une iframe ; le sommaire
  * de la couverture y mène aux sections (postMessage).
  */
@@ -233,6 +233,29 @@ function VisionneuseOffre({
         </aside>
 
         <div className='flex min-w-0 flex-1 flex-col'>
+          {/* Les deux boutons toujours au même endroit, de part et d'autre du centre, à un quart de la largeur l'un
+              de l'autre ; la marge symétrique laisse la place de « Fermer » sans décentrer. */}
+          <header className='bg-background relative grid grid-cols-[1fr_25%_1fr] items-center border-b px-28 py-2'>
+            <Fleche
+              sens='precedente'
+              desactivee={precedente == null}
+              onClick={() => aller(courante - 1)}
+            />
+            <Fleche
+              sens='suivante'
+              desactivee={suivante == null}
+              onClick={() => aller(courante + 1)}
+            />
+            <DialogClose asChild>
+              <Button
+                variant='outline'
+                className='absolute end-4 top-1/2 -translate-y-1/2'
+              >
+                <X /> Fermer
+              </Button>
+            </DialogClose>
+          </header>
+
           <div className='bg-muted relative min-h-0 flex-1'>
             {section ? (
               <iframe
@@ -249,31 +272,7 @@ function VisionneuseOffre({
                   : !isPending && "L'offre ne contient aucune section."}
               </p>
             )}
-            <DialogClose asChild>
-              <Button
-                variant='outline'
-                size='icon'
-                aria-label='Fermer'
-                className='absolute end-5 top-4 rounded-full shadow-sm'
-              >
-                <X />
-              </Button>
-            </DialogClose>
           </div>
-
-          {/* Les deux boutons de part et d'autre du centre, à un quart de la largeur l'un de l'autre, quels que soient les titres. */}
-          <footer className='bg-background grid grid-cols-[1fr_25%_1fr] items-center border-t px-4 py-2'>
-            <Fleche
-              sens='precedente'
-              section={precedente}
-              onClick={() => aller(courante - 1)}
-            />
-            <Fleche
-              sens='suivante'
-              section={suivante}
-              onClick={() => aller(courante + 1)}
-            />
-          </footer>
         </div>
       </DialogContent>
     </Dialog>
@@ -282,38 +281,33 @@ function VisionneuseOffre({
 
 function Fleche({
   sens,
-  section,
+  desactivee,
   onClick,
 }: {
   sens: 'precedente' | 'suivante'
-  section?: SectionNumerotee
+  desactivee: boolean
   onClick: () => void
 }) {
-  const libelle =
-    sens === 'precedente' ? 'Section précédente' : 'Section suivante'
-  const titre = section
-    ? [section.numero, section.titre].filter(Boolean).join(' · ')
-    : '—'
   return (
     <Button
       variant='outline'
-      className={cn(
-        'h-auto max-w-full py-1.5',
+      className={
         sens === 'precedente'
           ? 'justify-self-end'
-          : 'col-start-3 flex-row-reverse justify-self-start text-end'
-      )}
-      disabled={!section}
+          : 'col-start-3 justify-self-start'
+      }
+      disabled={desactivee}
       onClick={onClick}
-      aria-label={section ? `${libelle} : ${titre}` : libelle}
     >
-      {sens === 'precedente' ? <ChevronLeft /> : <ChevronRight />}
-      <span className='grid min-w-0 leading-tight'>
-        <span className='text-muted-foreground text-xs font-normal'>
-          {libelle}
-        </span>
-        <span className='truncate'>{titre}</span>
-      </span>
+      {sens === 'precedente' ? (
+        <>
+          <ChevronLeft /> Section précédente
+        </>
+      ) : (
+        <>
+          Section suivante <ChevronRight />
+        </>
+      )}
     </Button>
   )
 }
