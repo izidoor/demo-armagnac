@@ -48,7 +48,7 @@
 
 1. **Spécifications détaillées.** J'écris, pour chaque module, un document établi à partir des prescriptions du cahier
    des charges et des réponses du BNIA à mes questions. Il réunit les spécifications fonctionnelles détaillées (règles
-   de gestion, écrans, cas particuliers) et les spécifications techniques détaillées (données, échanges avec les applications externes). Un exemple est donné en annexe.
+   de gestion, écrans, cas particuliers) et les spécifications techniques détaillées (données, échanges avec les applications externes). Un exemple, celui du module Déclarations, est donné en annexe A.
 2. **Réalisation et livraison en recette.**
 3. **Essai par le groupe d'adoption**, dont les retours sont pris en compte avant la validation.
 4. **Validation par le comité de pilotage.**

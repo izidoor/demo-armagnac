@@ -26,7 +26,7 @@ Accessible à l’adresse : <a href="https://bnia-demo.osc-fr1.scalingo.io">bnia
 
 Je l'ai réalisé pour deux raisons : 
 - **Démontrer mon sérieux et ma capacité à faire**, ainsi que mon intérêt réel pour l’interprofession Armagnac.
-- **Éprouver le cahier des charges.** Le prototype est développé à partir des informations fournies dans ce document. Ce que j’en retiens : c’est une description orientée « données » plutôt que « processus métiers ». Une bonne base de départ certes, mais à laquelle il manque des informations essentielles pour en faire un outil qui réponde **véritablement aux besoins des utilisateurs en tenant compte de leurs contraintes métier**.
+- **Éprouver le cahier des charges.** Le prototype est développé à partir des seules informations du cahier des charges. Ce que j’en retiens : c’est une description orientée « données » plutôt que « processus métiers ». Une bonne base de départ certes, mais à laquelle il manque des informations essentielles pour en faire un outil qui réponde **véritablement aux besoins des utilisateurs en tenant compte de leurs contraintes métier**.
 
 Le contenu du prototype est détaillé en section 8 de ce document.
 
