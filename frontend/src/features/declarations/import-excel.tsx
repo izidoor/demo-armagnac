@@ -93,7 +93,7 @@ export function DialogueImportExcel({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         {avertissements ? (
-          <Alert>
+          <Alert variant='warning'>
             <AlertTriangle className='size-4' />
             <AlertTitle>Fichier importé, avec des avertissements</AlertTitle>
             <AlertDescription>

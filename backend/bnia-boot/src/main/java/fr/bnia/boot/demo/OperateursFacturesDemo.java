@@ -2,18 +2,26 @@ package fr.bnia.boot.demo;
 
 import fr.bnia.commun.domain.Appellation;
 import fr.bnia.operateurs.domain.partage.TypeOperateur;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
  * Opérateurs de démonstration ajoutés pour donner du volume à la facturation (spec 08 §7.1, lot 5) : cinq
- * négociants dont toutes les DSM mensuelles de l'année civile en cours sont validées, dix producteurs dont la DSM
- * de la dernière année déclarative close est validée ; toutes facturées et émises. Noms et identifiants fictifs.
+ * négociants dont toutes les DSM mensuelles de l'année civile en cours sont validées, jusqu'au mois dernier, sauf
+ * Maison Saint-Puy, arrêtée au mois d'avant ({@link #EN_RETARD}) ; dix producteurs dont la DSM de la dernière année
+ * déclarative close est validée ; toutes facturées et émises. Noms et identifiants fictifs.
  * Partagé par les chargeurs des opérateurs, des déclarations et de la facturation.
  *
  * <p>Un seul compte saisit leurs DSM, {@link #EMAIL_SAISIE}, AGENT de chacun ; le destinataire des factures est une
  * adresse saisie, sans compte.
  */
 final class OperateursFacturesDemo {
+
+    /**
+     * Le négociant dont les DSM s'arrêtent deux mois avant le mois courant : la période du mois dernier est absente,
+     * en retard dès le 6 du mois, seule ligne absente du listing du BNIA (RG-DEC-40, décision du 2026-10-21).
+     */
+    static final String EN_RETARD = "N320012";
 
     /** Le compte de saisie des DSM de ces opérateurs (décision du 2026-10-15). */
     static final String EMAIL_SAISIE = "saisie@demo.fr";
@@ -65,6 +73,17 @@ final class OperateursFacturesDemo {
                     "LOT-ET-GARONNE", Appellation.ARMAGNAC_TENAREZE, 430, 0));
 
     private OperateursFacturesDemo() {
+    }
+
+    /**
+     * Le nombre de DSM validées de l'opérateur : un négociant, les mois de l'année écoulés jusqu'au mois dernier
+     * (jusqu'à l'avant-dernier pour {@link #EN_RETARD}) ; un producteur, une.
+     */
+    static int dsmValidees(Operateur operateur, LocalDate aujourdhui) {
+        if (!operateur.negociant()) {
+            return 1;
+        }
+        return Math.max(0, aujourdhui.getMonthValue() - (EN_RETARD.equals(operateur.code()) ? 2 : 1));
     }
 
     /** Le rang de l'opérateur dans la liste : il fait varier ses volumes et ses identifiants. */

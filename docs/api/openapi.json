@@ -971,7 +971,7 @@
             "description" : "No Content"
           }
         },
-        "summary" : "Abandonne un brouillon : supprimé avec son journal, FactureAbandonnee publiée (RG-FAC-18)",
+        "summary" : "Abandonne un brouillon : supprimé avec son journal et ses notes, FactureAbandonnee publiée (RG-FAC-18)",
         "tags" : [ "facturation" ]
       },
       "get" : {
@@ -1156,44 +1156,6 @@
         "tags" : [ "facturation" ]
       }
     },
-    "/api/facturation/pieces/{id}/notes" : {
-      "post" : {
-        "operationId" : "annoterPiece",
-        "parameters" : [ {
-          "in" : "path",
-          "name" : "id",
-          "required" : true,
-          "schema" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/NotePiece"
-              }
-            }
-          },
-          "required" : true
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/EntreeJournalPiece"
-                }
-              }
-            },
-            "description" : "OK"
-          }
-        },
-        "summary" : "Ajoute une note interne au journal de la pièce (RG-FAC-21)",
-        "tags" : [ "facturation" ]
-      }
-    },
     "/api/facturation/pieces/{id}/pdf" : {
       "get" : {
         "operationId" : "telechargerPdfPiece",
@@ -1220,6 +1182,146 @@
           }
         },
         "summary" : "Le PDF d'une pièce émise, journalisé (RG-FAC-15, 20)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/pieces/{piece}/notes" : {
+      "get" : {
+        "operationId" : "listerNotesInternesPiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "piece",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/NoteInternePiece"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les notes internes de la pièce, du plus ancien au plus récent ; personnel du BNIA (RG-FAC-21)",
+        "tags" : [ "facturation" ]
+      },
+      "post" : {
+        "operationId" : "ecrireNoteInternePiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "piece",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NotePiece"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NoteInternePiece"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "Annoter la pièce, quel que soit son état ; jamais imprimée ni transmise (RG-FAC-21)",
+        "tags" : [ "facturation" ]
+      }
+    },
+    "/api/facturation/pieces/{piece}/notes/{id}" : {
+      "delete" : {
+        "operationId" : "supprimerNoteInternePiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "piece",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "L'auteur supprime sa note (RG-FAC-21)",
+        "tags" : [ "facturation" ]
+      },
+      "put" : {
+        "operationId" : "modifierNoteInternePiece",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "piece",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NotePiece"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NoteInternePiece"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'auteur modifie sa note (RG-FAC-21)",
         "tags" : [ "facturation" ]
       }
     },
@@ -9618,7 +9720,7 @@
           },
           "evenement" : {
             "type" : "string",
-            "enum" : [ "DEMANDEE", "CREEE", "MODIFIEE", "EMISE", "CONSULTEE", "ANNULEE", "AVOIR_EMIS", "TRANSMISE", "PAYEE", "NOTE" ]
+            "enum" : [ "DEMANDEE", "CREEE", "MODIFIEE", "EMISE", "CONSULTEE", "ANNULEE", "AVOIR_EMIS", "TRANSMISE", "PAYEE" ]
           },
           "libelle" : {
             "type" : "string",
@@ -11051,6 +11153,37 @@
           "ligneSupprimee" : {
             "type" : "string",
             "description" : "Libellé de la ligne visée, supprimée depuis ; la note porte alors sur la DSM"
+          },
+          "modifieeLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Renseigné si modifiée (« modifiée » affiché)"
+          },
+          "texte" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "auteur", "deLUtilisateur", "ecriteLe", "id", "texte" ]
+      },
+      "NoteInternePiece" : {
+        "type" : "object",
+        "description" : "Note interne du BNIA sur une pièce, jamais imprimée, transmise ni montrée au client (RG-FAC-21)",
+        "properties" : {
+          "auteur" : {
+            "type" : "string",
+            "description" : "Copie du nom de l'auteur"
+          },
+          "deLUtilisateur" : {
+            "type" : "boolean",
+            "description" : "Écrite par l'utilisateur connecté : il la modifie ou la supprime"
+          },
+          "ecriteLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
           },
           "modifieeLe" : {
             "type" : "string",

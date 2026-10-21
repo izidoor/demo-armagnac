@@ -17,6 +17,7 @@ import fr.bnia.facturation.domain.EtatPiece;
 import fr.bnia.facturation.domain.Exemples;
 import fr.bnia.facturation.domain.Facture;
 import fr.bnia.facturation.domain.LigneFacture.LigneArticle;
+import fr.bnia.facturation.domain.NoteInterne;
 import fr.bnia.facturation.domain.Numerotation;
 import fr.bnia.facturation.domain.SensPiece;
 import fr.bnia.facturation.domain.Vendeur;
@@ -52,6 +53,7 @@ final class Monde {
     final Vendeurs vendeurs = new Vendeurs();
     final Numeros numeros = new Numeros();
     final Journal journal = new Journal();
+    final Notes notes = new Notes();
     final Map<ClientRef, Acheteur> acheteurs = new HashMap<>(Map.of(Exemples.CLIENT, Exemples.acheteur()));
     final Map<String, Article> articles = new HashMap<>();
     final List<Object> evenements = new ArrayList<>();
@@ -136,7 +138,7 @@ final class Monde {
     }
 
     AbandonnerBrouillon abandonner() {
-        return new AbandonnerBrouillon(factures, evenements::add, droits);
+        return new AbandonnerBrouillon(factures, notes, evenements::add, droits);
     }
 
     /** Transactions immédiates (ADR-022) : l'action s'exécute sans transaction. */
@@ -189,7 +191,7 @@ final class Monde {
     }
 
     AnnoterPiece annoter() {
-        return new AnnoterPiece(factures, journal, droits, horloge);
+        return new AnnoterPiece(factures, notes, droits, horloge);
     }
 
     static final class Factures implements FactureRepository {
@@ -282,6 +284,49 @@ final class Monde {
         @Override
         public List<EntreeJournal> deLaPiece(long piece) {
             return entrees.stream().filter(e -> e.piece() == piece).toList().reversed();
+        }
+    }
+
+    static final class Notes implements NotesInternes {
+
+        final Map<Long, NoteInterne> parId = new HashMap<>();
+        private long suivant = 500;
+
+        @Override
+        public NoteInterne inserer(NoteInterne n) {
+            long id = suivant++;
+            parId.put(id, copie(n, id));
+            return parId(id).orElseThrow();
+        }
+
+        @Override
+        public void mettreAJour(NoteInterne n) {
+            parId.put(n.id(), copie(n, n.id()));
+        }
+
+        @Override
+        public Optional<NoteInterne> parId(long id) {
+            return Optional.ofNullable(parId.get(id)).map(n -> copie(n, id));
+        }
+
+        @Override
+        public List<NoteInterne> deLaPiece(long piece) {
+            return parId.values().stream().filter(n -> n.piece() == piece)
+                    .sorted(Comparator.comparing(NoteInterne::id)).map(n -> copie(n, n.id())).toList();
+        }
+
+        @Override
+        public void supprimer(long id) {
+            parId.remove(id);
+        }
+
+        @Override
+        public void supprimerDeLaPiece(long piece) {
+            parId.values().removeIf(n -> n.piece() == piece);
+        }
+
+        private static NoteInterne copie(NoteInterne n, long id) {
+            return NoteInterne.reconstituer(id, n.piece(), n.auteur(), n.ecriteLe(), n.modifieeLe(), n.texte());
         }
     }
 

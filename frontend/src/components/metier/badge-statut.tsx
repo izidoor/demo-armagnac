@@ -14,6 +14,9 @@ const FOND: Record<Statut, string> = {
   info: 'bg-info-foreground',
 }
 
+/** La couleur de la puce : celle du fond, sauf un vert plus vif, le vert foncé se distinguant mal en petit. */
+const POINT: Record<Statut, string> = { ...FOND, success: 'bg-success-point' }
+
 /**
  * Un état : badge sobre, texte neutre, point de la couleur du statut. Les mises en garde, elles, sont en
  * contour coloré (variantes de statut de {@link Badge}).
@@ -32,7 +35,7 @@ export function BadgePoint({
       variant='outline'
       className={cn('text-foreground gap-1.5 font-normal', className)}
     >
-      <span className={cn('size-1.5 rounded-full', FOND[statut])} />
+      <span className={cn('size-2 rounded-full', POINT[statut])} />
       {children}
     </Badge>
   )

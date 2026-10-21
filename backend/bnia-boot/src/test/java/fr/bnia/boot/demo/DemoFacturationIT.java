@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.domain.partage.EtatDsm;
+import fr.bnia.facturation.application.AnnoterPiece;
 import fr.bnia.facturation.application.ConsulterFactures;
 import fr.bnia.facturation.application.FiltrePieces;
 import fr.bnia.facturation.application.ParametrerVendeur;
@@ -31,6 +32,7 @@ class DemoFacturationIT extends AbstractIT {
     @Autowired ApplicationContext contexte;
     @Autowired GererDsm dsms;
     @Autowired ConsulterFactures factures;
+    @Autowired AnnoterPiece notes;
     @Autowired ParametrerVendeur vendeur;
 
     @Test
@@ -85,20 +87,21 @@ class DemoFacturationIT extends AbstractIT {
         assertThat(validees.subList(3, 11)).allMatch(DsmLigne::facturee);
         assertThat(validees.get(2).facturationDemandee()).isTrue();
         assertThat(validees.subList(0, 2)).noneMatch(d -> d.facturee() || d.facturationDemandee());
-        assertThat(factures.journal(lecteur, emises.getFirst().id())).extracting(e -> e.evenement())
-                .contains(fr.bnia.facturation.domain.EvenementJournal.NOTE);
+        assertThat(notes.lister(lecteur, emises.getFirst().id())).singleElement()
+                .satisfies(n -> assertThat(n.auteur().nom()).isEqualTo("Anne Lamarque"));
 
         long condom = operateurs.operateurParCode("000001").orElseThrow().id();
         assertThat(dsms.lister(anne, condom)).filteredOn(d -> d.dsm().etat() == EtatDsm.VALIDEE)
                 .allSatisfy(d -> assertThat(d.dsm().facturee()).isTrue());
-        // Volume (lot 5) : chaque négociant ajouté a ses DSM mensuelles de l'année, jusqu'au mois dernier ; chaque
-        // producteur, celle de sa dernière année déclarative close ; toutes facturées, émises avant aujourd'hui.
+        // Volume (lot 5) : chaque négociant ajouté a ses DSM mensuelles de l'année, jusqu'au mois dernier (sauf celui
+        // en retard) ; chaque producteur, celle de sa dernière année déclarative close ; toutes facturées, émises
+        // avant aujourd'hui.
         for (OperateursFacturesDemo.Operateur o : OperateursFacturesDemo.OPERATEURS) {
             long id = operateurs.operateurParCode(o.code()).orElseThrow().id();
             List<DsmLigne> leurs = dsms.lister(anne, id).stream().map(GererDsm.DsmDeLOperateur::dsm)
                     .filter(d -> d.etat() == EtatDsm.VALIDEE).toList();
             assertThat(leurs).as(o.raisonSociale())
-                    .hasSize(o.negociant() ? LocalDate.now().getMonthValue() - 1 : 1)
+                    .hasSize(OperateursFacturesDemo.dsmValidees(o, LocalDate.now()))
                     .allMatch(DsmLigne::facturee);
             assertThat(factures.lister(lecteur, new FiltrePieces(Optional.empty(), Optional.empty(), Optional.empty(),
                     Optional.empty(), Optional.of(Long.toString(id)), Optional.empty(), Optional.empty(),

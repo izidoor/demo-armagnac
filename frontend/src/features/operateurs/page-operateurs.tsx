@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ChevronRight, Download, Plus } from 'lucide-react'
+import { ChevronRight, Download, Plus, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { exporterOperateurs, listerOperateurs } from '@/api/generated'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -121,6 +121,17 @@ export function PageOperateurs({
       }
     >
       <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <div className='relative'>
+          <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
+          <Input
+            placeholder='Rechercher un opérateur'
+            title='Code, raison sociale, nom commercial, code postal, ville'
+            aria-label='Recherche par code, raison sociale, nom commercial, code postal ou ville'
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+            className='h-9 w-96 ps-8'
+          />
+        </div>
         <Select value={type} onValueChange={setType}>
           <SelectTrigger className='h-9 w-36'>
             <SelectValue />
@@ -134,12 +145,6 @@ export function PageOperateurs({
             ))}
           </SelectContent>
         </Select>
-        <Input
-          placeholder='Code, raison sociale, nom commercial, code postal, ville'
-          value={recherche}
-          onChange={(e) => setRecherche(e.target.value)}
-          className='h-9 w-96'
-        />
         <Select value={etat} onValueChange={setEtat}>
           <SelectTrigger className='h-9 w-32'>
             <SelectValue />

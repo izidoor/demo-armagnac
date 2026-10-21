@@ -27,11 +27,15 @@ class AbandonnerBrouillonTest {
     }
 
     @Test
-    @DisplayName("RG-FAC-18, 25 : le brouillon est supprimé avec son journal et FactureAbandonnee publie son origine")
+    @DisplayName("RG-FAC-18, 25 : le brouillon est supprimé avec son journal et ses notes internes ; FactureAbandonnee "
+            + "publie son origine")
     void rg_fac_18_abandon() {
+        monde.annoter().ecrire(GESTIONNAIRE, brouillon, "Attendre le SIRET");
+
         cas.abandonner(GESTIONNAIRE, brouillon);
 
         assertThat(monde.factures.parId(brouillon)).isEmpty();
+        assertThat(monde.notes.deLaPiece(brouillon)).isEmpty();
         assertThat(monde.evenements).singleElement().isInstanceOfSatisfying(FactureAbandonnee.class, e -> {
             assertThat(e.piece()).isEqualTo(brouillon);
             assertThat(e.origine().identifiant()).isEqualTo("7");

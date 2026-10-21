@@ -147,7 +147,11 @@ final class Monde {
     }
 
     ListerDsm listerDsm() {
-        return new ListerDsm(dsms, calendriers, grilles, operateurs, HORLOGE);
+        return listerDsm(HORLOGE);
+    }
+
+    ListerDsm listerDsm(Clock horloge) {
+        return new ListerDsm(dsms, calendriers, grilles, operateurs, horloge);
     }
 
     GererGrilleCotisation gererGrille() {

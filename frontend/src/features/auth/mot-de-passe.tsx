@@ -38,7 +38,7 @@ export function MotDePasseOublie() {
       description='Un lien pour choisir un nouveau mot de passe vous sera envoyé ; il est valable une heure.'
     >
       {demande.isSuccess ? (
-        <Alert>
+        <Alert variant='success'>
           <AlertDescription>
             Un e-mail est parti à {email.trim()}. Ouvrez le lien qu'il contient.
           </AlertDescription>
@@ -91,7 +91,7 @@ export function Reinitialisation({ jeton }: { jeton: string }) {
   return (
     <CartePublique titre='Nouveau mot de passe'>
       {reinitialisation.isSuccess ? (
-        <Alert>
+        <Alert variant='success'>
           <AlertDescription>
             Votre mot de passe est changé. Connectez-vous avec lui.
           </AlertDescription>

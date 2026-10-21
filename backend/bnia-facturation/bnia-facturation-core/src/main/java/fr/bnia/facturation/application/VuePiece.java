@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @param empechements RG-FAC-09 ; vide pour une pièce émise, ou un brouillon prêt à l'être
  * @param gerer        l'acteur gère la facturation (RG-FAC-26) : il modifie, émet et abandonne un brouillon, et
- *                     annote toute pièce
+ *                     annote toute pièce (RG-FAC-21)
  */
 public record VuePiece(Facture piece, List<String> empechements, boolean gerer) {
 

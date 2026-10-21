@@ -64,7 +64,8 @@ Lot-et-Garonne : producteurs `000001` à `000009`, négociants `N320001`, `N3200
 S'y ajoutent, pour le volume de la facturation (spec 08 §7.1), quinze opérateurs fictifs, facturables (SIRET,
 n° de TVA, destinataire des factures `comptabilite@<code>.example`, sans compte) : cinq négociants (`N320010`,
 `N320011`, `N320012`, `N400010`, `N470010`), toutes leurs DSM mensuelles de l'année validées jusqu'au mois
-dernier ; dix producteurs (`000020` à `000029`), leur DSM de la dernière année déclarative close validée, avec
+dernier, sauf Maison Saint-Puy (`N320012`), arrêtée au mois d'avant : sa DSM du mois dernier est absente, en
+retard dès le 6 du mois ; dix producteurs (`000020` à `000029`), leur DSM de la dernière année déclarative close validée, avec
 ses DRM. Les uns exportent (avec un DAE), les autres non ; les volumes varient d'un mois à l'autre.
 
 ## Déclarations (spec 05, lots 1 à 8)
@@ -161,8 +162,9 @@ Scénario :
     au 1er avril qui suit la campagne du fichier, avec son stock de fin, vieilli d'un an.
 12. `admin@bnia.fr`, menu « Déclarations > DSM », onglet « En cours » : colonne « Échéance » ; Maison
     Larressingle, envoyée, attend le BNIA et n'est pas en retard ; Armagnacs de Gascogne, en compléments
-    demandés sur le mois courant, n'est pas encore en retard. Filtre « En retard seulement », état
-    « Absente ». La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
+    demandés sur le mois courant, n'est pas encore en retard. Case « En retard », état
+    « Absente » : Maison Saint-Puy, sans DSM du mois dernier, en retard dès le 6 du mois ; ligne grisée, dont
+    seul l'opérateur mène à sa fiche. Les périodes absentes pas encore en retard ne sont pas listées. La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
     `notifications`, rien ne part encore.
 13. `admin@landes.fr`, « Mes DSM » : bandeau de
     l'échéance à venir (le 5 du mois prochain). En-tête de la DSM et éditions PDF et Excel : l'échéance.
@@ -234,7 +236,8 @@ Brouillons (lot 2) :
    DSM : « Facturation abandonnée »).
 10. Onglet « Brouillons » : tout cocher, « Émettre la sélection » : le compte rendu donne un numéro par
     brouillon, ou le motif d'un écart (par exemple, l'opérateur a perdu son SIRET entre-temps).
-11. Ouvrir la facture émise de Gascogne, bouton « Historique » : la note de démonstration ; en ajouter une.
+11. Ouvrir la facture émise de Gascogne : en bas de page, le carnet de notes internes et la note de
+    démonstration ; en ajouter une, la modifier. Le bouton « Historique » ne montre que le journal.
 
 Portail (lot 3) :
 

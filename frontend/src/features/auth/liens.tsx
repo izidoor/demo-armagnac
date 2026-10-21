@@ -197,7 +197,7 @@ export function ConfirmerEmail({ jeton }: { jeton: string }) {
     <CartePublique titre='Changement d’e-mail'>
       <MessageErreur erreur={confirmation.error} />
       {confirmation.isSuccess && (
-        <Alert>
+        <Alert variant='success'>
           <AlertDescription>
             Votre nouvel e-mail est confirmé : c'est désormais votre identifiant
             de connexion.
@@ -237,7 +237,7 @@ export function ChoixOperateur() {
     >
       <MessageErreur erreur={choix.error} />
       {utilisables.length === 0 && (
-        <Alert>
+        <Alert variant='warning'>
           <AlertDescription>
             Vous n'avez plus d'accès actif : contactez l'opérateur ou le BNIA.
           </AlertDescription>

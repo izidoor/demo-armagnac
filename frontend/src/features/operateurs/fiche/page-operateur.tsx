@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { OngletDeclarations } from '@/features/declarations/onglet-declarations'
 import { OngletFactures } from '@/features/facturation/onglet-factures'
 import { apiOperateur, cleOperateur, type Espace } from '../commun/api'
@@ -127,28 +128,8 @@ export function PageOperateur({
           {fiche.nomCommercial && <span>{fiche.nomCommercial}</span>}
         </span>
       }
-      actions={
-        droits.adminBnia && (
-          <div className='flex gap-2'>
-            <Button
-              variant='outline'
-              onClick={() =>
-                setAction(fiche.actif ? 'desactiver' : 'reactiver')
-              }
-            >
-              {fiche.actif ? 'Désactiver' : 'Réactiver'}
-            </Button>
-            <Button
-              variant='destructive'
-              onClick={() => setAction('supprimer')}
-            >
-              Supprimer
-            </Button>
-          </div>
-        )
-      }
     >
-      <div className='mb-4 space-y-2'>
+      <div className='my-6 space-y-3 empty:hidden'>
         {fiche.manquePourFacturer.length > 0 && (
           <Alert variant='warning'>
             <TriangleAlert />
@@ -272,6 +253,44 @@ export function PageOperateur({
           </TabsContent>
         )}
       </Tabs>
+      {droits.adminBnia && (
+        <ZoneDanger>
+          {fiche.actif ? (
+            <ActionDanger
+              titre="Désactiver l'opérateur"
+              description="Il reste consultable, mais n'est plus proposé ; ses membres n'y ont plus accès et ses invitations en attente sont annulées. Il se réactive à tout moment."
+            >
+              <Button
+                variant='outline'
+                className='text-destructive'
+                onClick={() => setAction('desactiver')}
+              >
+                Désactiver
+              </Button>
+            </ActionDanger>
+          ) : (
+            <ActionDanger
+              titre="Réactiver l'opérateur"
+              description='Il est de nouveau proposé, et ses membres retrouvent leur accès.'
+            >
+              <Button variant='outline' onClick={() => setAction('reactiver')}>
+                Réactiver
+              </Button>
+            </ActionDanger>
+          )}
+          <ActionDanger
+            titre="Supprimer l'opérateur"
+            description="Définitivement, avec sa présentation, ses contacts, ses fiches professionnelles, ses rattachements et ses invitations. Refusé si d'autres données le référencent : désactivez-le plutôt."
+          >
+            <Button
+              variant='destructive'
+              onClick={() => setAction('supprimer')}
+            >
+              Supprimer
+            </Button>
+          </ActionDanger>
+        </ZoneDanger>
+      )}
       <ConfirmDialog
         open={action !== null}
         onOpenChange={(o) => !o && setAction(null)}

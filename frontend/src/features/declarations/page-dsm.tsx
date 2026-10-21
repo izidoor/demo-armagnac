@@ -52,6 +52,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgePlein } from '@/components/metier/badge-statut'
 import { OngletsClasseur } from '@/components/metier/onglets-classeur'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { SectionMessages } from '@/features/messagerie/section-messages'
 import { AideDsm } from './aide-dsm'
 import {
@@ -70,8 +71,7 @@ import {
 import { ListeDenominations } from './champs-identite'
 import { OngletCotisation } from './cotisation'
 import { DialogueLigne } from './dialogue-ligne'
-import { Echeance } from './echeance'
-import { formatDateHeure, formatEuros } from './format'
+import { formatDateHeure } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
 import { DialogueImportExcel } from './import-excel'
 import { TableJournalDeclarations } from './journal'
@@ -432,6 +432,7 @@ function EditeurDsm({
   return (
     <PageMetier
       titre={`DSM de ${dsm.periode.libelle}`}
+      complement={dsm.raisonSociale}
       description={
         <span className='flex flex-wrap items-center gap-2'>
           <Button variant='link' className='h-auto p-0' onClick={retour}>
@@ -448,31 +449,13 @@ function EditeurDsm({
               Voir la fiche opérateur
             </Button>
           )}
-          <span>
-            <span className='font-mono'>{dsm.codeOperateur}</span> ·{' '}
-            {dsm.raisonSociale}
-          </span>
           <Badge variant='secondary'>{TYPES_DECLARANT[dsm.type]}</Badge>
           <BadgePlein statut={STATUT_ETAT[dsm.etat]}>
             {dsm.libelleEtat}
           </BadgePlein>
-          {/* RG-DEC-39, 40 : l'échéance, et le retard tant que la DSM est chez l'opérateur. */}
-          <span className='inline-flex items-center gap-1'>
-            Échéance{' '}
-            <Echeance echeance={dsm.echeance} enRetard={dsm.enRetard} />
-          </span>
-          {dsm.envoyeeLe && (
-            <span>Envoyée le {formatDateHeure(dsm.envoyeeLe)}</span>
-          )}
           {dsm.valideeLe && (
             <span>
               Validée le {formatDateHeure(dsm.valideeLe)} par {dsm.valideePar}
-            </span>
-          )}
-          {vue.cotisation.totalHt != null && (
-            <span>
-              Total HT {formatEuros(vue.cotisation.totalHt)}
-              {vue.cotisation.statut === 'FACTUREE' && ' (facturé)'}
             </span>
           )}
           {espace === 'bo' && dsm.brouillonFacture != null && (
@@ -492,25 +475,7 @@ function EditeurDsm({
         </span>
       }
       actions={
-        <div className='flex gap-2'>
-          <Button variant='outline' onClick={() => setAideOuverte(true)}>
-            <CircleHelp className='size-4' /> Aide
-          </Button>
-          <Button variant='outline' onClick={() => setHistoriqueOuvert(true)}>
-            <History className='size-4' /> Historique
-          </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='outline' onClick={editerPdf}>
-                <FileDown className='size-4' /> PDF
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {modifie
-                ? 'Le PDF de la DSM enregistrée, sans les modifications en cours.'
-                : 'Le PDF de la DSM, dans un nouvel onglet.'}
-            </TooltipContent>
-          </Tooltip>
+        <div className='ms-auto flex flex-wrap justify-end gap-2'>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant='outline' asChild>
@@ -527,6 +492,24 @@ function EditeurDsm({
                   : 'Le classeur de la DSM, au format du modèle du BNIA.'}
             </TooltipContent>
           </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant='outline' onClick={editerPdf}>
+                <FileDown className='size-4' /> PDF
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {modifie
+                ? 'Le PDF de la DSM enregistrée, sans les modifications en cours.'
+                : 'Le PDF de la DSM, dans un nouvel onglet.'}
+            </TooltipContent>
+          </Tooltip>
+          <Button variant='outline' onClick={() => setHistoriqueOuvert(true)}>
+            <History className='size-4' /> Historique
+          </Button>
+          <Button variant='outline' onClick={() => setAideOuverte(true)}>
+            <CircleHelp className='size-4' /> Aide
+          </Button>
           {saisissable && (
             <Button variant='outline' onClick={() => onImporter(modifie)}>
               <FileUp className='size-4' /> Importer
@@ -611,15 +594,10 @@ function EditeurDsm({
               )}
             </Tooltip>
           )}
-          {permis('SUPPRIMER') && (
-            <Button variant='destructive' onClick={() => setSuppression(true)}>
-              Supprimer
-            </Button>
-          )}
         </div>
       }
     >
-      <div className='mb-4 space-y-2'>
+      <div className='my-6 space-y-3 empty:hidden'>
         {nonFacturable && (
           <Alert variant='destructive'>
             <TriangleAlert />
@@ -783,6 +761,18 @@ function EditeurDsm({
           }
         />
       )}
+      {permis('SUPPRIMER') && (
+        <ZoneDanger>
+          <ActionDanger
+            titre='Supprimer la DSM'
+            description="Le brouillon est supprimé avec ses lignes, ses messages, ses notes internes et son historique ; la suppression reste tracée au journal de l'opérateur, et la période pourra être réinitiée."
+          >
+            <Button variant='destructive' onClick={() => setSuppression(true)}>
+              Supprimer
+            </Button>
+          </ActionDanger>
+        </ZoneDanger>
+      )}
       <AideDsm open={aideOuverte} onOpenChange={setAideOuverte} />
       <Sheet open={historiqueOuvert} onOpenChange={setHistoriqueOuvert}>
         <SheetContent className='w-full overflow-y-auto sm:max-w-2xl'>
@@ -936,7 +926,7 @@ function PanneauAnomalies({
 }) {
   if (anomalies.length === 0 && manques.length === 0) {
     return (
-      <Alert>
+      <Alert variant='success'>
         <CircleCheck />
         <AlertTitle>Aucune anomalie ni pièce manquante</AlertTitle>
         <AlertDescription>
@@ -952,7 +942,7 @@ function PanneauAnomalies({
         <ListeAnomalies anomalies={anomalies} onMontrer={onMontrer} />
       )}
       {manques.length > 0 && (
-        <Alert>
+        <Alert variant='warning'>
           <FileWarning />
           <AlertTitle>
             {manques.length === 1

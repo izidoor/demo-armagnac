@@ -7,14 +7,16 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { SelecteurOperateur } from './selecteur-operateur'
 
-/** Actions à droite de l'en-tête : opérateur actif, thème, paramètres de l'application (back-office seulement), profil. */
+/** Actions à droite de l'en-tête, sur toutes les pages : recherche et actions rapides (⌘K), opérateur actif, thème, paramètres de l'application (back-office seulement), profil. */
 export function ActionsEntete() {
   const { pathname } = useLocation()
   return (
     <div className='ms-auto flex items-center gap-4'>
+      <Search placeholder='Rechercher' />
       <SelecteurOperateur />
       <ThemeSwitch />
       {pathname.startsWith('/bo') && (

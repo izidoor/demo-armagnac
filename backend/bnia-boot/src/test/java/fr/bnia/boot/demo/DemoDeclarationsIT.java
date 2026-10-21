@@ -4,11 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import fr.bnia.commun.domain.VolumeAlcoolPur;
 import fr.bnia.declarations.application.AnnoterDsm;
+import fr.bnia.declarations.application.FiltreDsm;
 import fr.bnia.declarations.application.DsmLigne;
 import fr.bnia.declarations.application.GererDsm;
 import fr.bnia.declarations.application.GererGrilleCotisation;
 import fr.bnia.declarations.application.GererPieces;
 import fr.bnia.declarations.application.GererPointDeDepart;
+import fr.bnia.declarations.application.ListerDsm;
 import fr.bnia.declarations.domain.ColonneDsm;
 import fr.bnia.declarations.domain.NoteInterne;
 import fr.bnia.declarations.domain.LigneDsm;
@@ -23,6 +25,8 @@ import fr.bnia.support.AbstractIT;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +45,7 @@ class DemoDeclarationsIT extends AbstractIT {
     @Autowired fr.bnia.messagerie.application.Converser converser;
     @Autowired GererPieces pieces;
     @Autowired GererGrilleCotisation grille;
+    @Autowired ListerDsm listing;
     @Autowired ApplicationContext contexte;
 
     private Acteur anne;
@@ -108,6 +113,19 @@ class DemoDeclarationsIT extends AbstractIT {
         assertThat(aInstruire.manques()).as("DAE déposés : validable").isEmpty();
         assertThat(aInstruire.enRetard()).as("attend le BNIA").isFalse();
         assertThat(courante.enRetard()).as("mois courant").isFalse();
+        // RG-DEC-40 : Maison Saint-Puy n'a pas initié la DSM du mois dernier ; le listing ne la montre qu'en retard,
+        // dès le 6 du mois, et c'en est la seule période absente.
+        var absentes = listing.lister(anne, new FiltreDsm(Optional.empty(), Optional.empty(), Optional.empty(),
+                Set.of())).stream().filter(ListerDsm.DsmListee::absente).toList();
+        if (LocalDate.now().getDayOfMonth() > 5) {
+            assertThat(absentes).singleElement().satisfies(l -> {
+                assertThat(l.code()).isEqualTo(OperateursFacturesDemo.EN_RETARD);
+                assertThat(l.periode().debut()).isEqualTo(mois.minusMonths(1));
+                assertThat(l.enRetard()).isTrue();
+            });
+        } else {
+            assertThat(absentes).isEmpty();
+        }
         assertThat(converser.consulterObjet(new fr.bnia.messagerie.api.Acteur(anne.utilisateur()),
                 fr.bnia.messagerie.api.ObjetRef.de(fr.bnia.messagerie.api.TypeObjet.DSM, courante.dsm().id())).messages())
                 .as("le motif ouvre la conversation")

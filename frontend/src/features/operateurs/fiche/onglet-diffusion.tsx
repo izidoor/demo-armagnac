@@ -119,7 +119,7 @@ export function OngletDiffusion({
               ))}
             </RadioGroup>
             {vidage && (
-              <Alert>
+              <Alert variant='warning'>
                 <AlertDescription>
                   En quittant l'accord partiel, la liste des millésimes
                   diffusables sera vidée à l'enregistrement.

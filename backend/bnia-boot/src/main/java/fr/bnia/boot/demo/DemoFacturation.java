@@ -168,7 +168,7 @@ public class DemoFacturation implements ApplicationRunner {
         }
         LOG.info("Démo : factures émises avant le {} transmises à Zeendoc et payées.", ilYADeuxMois);
         horloge.relacher();
-        annoter.annoter(emettrice, brouillons.get(gascogne.getFirst().id()),
+        annoter.ecrire(emettrice, brouillons.get(gascogne.getFirst().id()),
                 "Facture envoyée aussi par courrier, à la demande du service comptable.");
     }
 

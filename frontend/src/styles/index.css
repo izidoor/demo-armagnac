@@ -114,11 +114,15 @@
   --success: oklch(0.95 0.035 140);
   --success-foreground: oklch(0.42 0.09 140);
   --success-border: oklch(0.86 0.06 140);
+  /* Puce des badges : le vert du texte, trop sombre en petit point, éclairci et avivé. */
+  --success-point: oklch(0.65 0.17 145);
   --warning: oklch(0.96 0.04 70);
-  --warning-foreground: oklch(0.5 0.13 55);
+  /* Plus orangé et plus clair que le danger, pour ne pas s'y confondre (décision du 2026-10-21). */
+  --warning-foreground: oklch(0.565 0.15 62);
   --warning-border: oklch(0.8 0.11 65);
   --danger: oklch(0.94 0.03 20);
-  --danger-foreground: oklch(0.45 0.15 25);
+  /* Un vrai rouge, plus clair et plus franc que le bordeaux de --primary, sans être criard (décision du 2026-10-21). */
+  --danger-foreground: oklch(0.53 0.175 27);
   --danger-border: oklch(0.86 0.06 20);
   --info: oklch(0.95 0.025 205);
   --info-foreground: oklch(0.45 0.07 210);
@@ -194,6 +198,7 @@
   --success: oklch(0.33 0.05 145);
   --success-foreground: oklch(0.84 0.11 145);
   --success-border: oklch(0.44 0.07 145);
+  --success-point: var(--success-foreground);
   --warning: oklch(0.34 0.05 75);
   --warning-foreground: oklch(0.86 0.11 80);
   --warning-border: oklch(0.47 0.08 75);
@@ -265,6 +270,7 @@
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-border: var(--success-border);
+  --color-success-point: var(--success-point);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-border: var(--warning-border);

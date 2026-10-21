@@ -750,7 +750,7 @@ export type EntreeJournalPiece = {
     cote: 'VENDEUR' | 'CLIENT';
     date: string;
     detail?: string;
-    evenement: 'DEMANDEE' | 'CREEE' | 'MODIFIEE' | 'EMISE' | 'CONSULTEE' | 'ANNULEE' | 'AVOIR_EMIS' | 'TRANSMISE' | 'PAYEE' | 'NOTE';
+    evenement: 'DEMANDEE' | 'CREEE' | 'MODIFIEE' | 'EMISE' | 'CONSULTEE' | 'ANNULEE' | 'AVOIR_EMIS' | 'TRANSMISE' | 'PAYEE';
     libelle: string;
 };
 
@@ -1575,6 +1575,27 @@ export type NoteInterneDsm = {
      * Libellé de la ligne visée, supprimée depuis ; la note porte alors sur la DSM
      */
     ligneSupprimee?: string;
+    /**
+     * Renseigné si modifiée (« modifiée » affiché)
+     */
+    modifieeLe?: string;
+    texte: string;
+};
+
+/**
+ * Note interne du BNIA sur une pièce, jamais imprimée, transmise ni montrée au client (RG-FAC-21)
+ */
+export type NoteInternePiece = {
+    /**
+     * Copie du nom de l'auteur
+     */
+    auteur: string;
+    /**
+     * Écrite par l'utilisateur connecté : il la modifie ou la supprime
+     */
+    deLUtilisateur: boolean;
+    ecriteLe: string;
+    id: number;
     /**
      * Renseigné si modifiée (« modifiée » affiché)
      */
@@ -3456,24 +3477,6 @@ export type ConsulterJournalPieceResponses = {
 
 export type ConsulterJournalPieceResponse = ConsulterJournalPieceResponses[keyof ConsulterJournalPieceResponses];
 
-export type AnnoterPieceData = {
-    body: NotePiece;
-    path: {
-        id: number;
-    };
-    query?: never;
-    url: '/api/facturation/pieces/{id}/notes';
-};
-
-export type AnnoterPieceResponses = {
-    /**
-     * OK
-     */
-    200: EntreeJournalPiece;
-};
-
-export type AnnoterPieceResponse = AnnoterPieceResponses[keyof AnnoterPieceResponses];
-
 export type TelechargerPdfPieceData = {
     body?: never;
     path: {
@@ -3491,6 +3494,80 @@ export type TelechargerPdfPieceResponses = {
 };
 
 export type TelechargerPdfPieceResponse = TelechargerPdfPieceResponses[keyof TelechargerPdfPieceResponses];
+
+export type ListerNotesInternesPieceData = {
+    body?: never;
+    path: {
+        piece: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{piece}/notes';
+};
+
+export type ListerNotesInternesPieceResponses = {
+    /**
+     * OK
+     */
+    200: Array<NoteInternePiece>;
+};
+
+export type ListerNotesInternesPieceResponse = ListerNotesInternesPieceResponses[keyof ListerNotesInternesPieceResponses];
+
+export type EcrireNoteInternePieceData = {
+    body: NotePiece;
+    path: {
+        piece: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{piece}/notes';
+};
+
+export type EcrireNoteInternePieceResponses = {
+    /**
+     * Created
+     */
+    201: NoteInternePiece;
+};
+
+export type EcrireNoteInternePieceResponse = EcrireNoteInternePieceResponses[keyof EcrireNoteInternePieceResponses];
+
+export type SupprimerNoteInternePieceData = {
+    body?: never;
+    path: {
+        piece: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{piece}/notes/{id}';
+};
+
+export type SupprimerNoteInternePieceResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type SupprimerNoteInternePieceResponse = SupprimerNoteInternePieceResponses[keyof SupprimerNoteInternePieceResponses];
+
+export type ModifierNoteInternePieceData = {
+    body: NotePiece;
+    path: {
+        piece: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/facturation/pieces/{piece}/notes/{id}';
+};
+
+export type ModifierNoteInternePieceResponses = {
+    /**
+     * OK
+     */
+    200: NoteInternePiece;
+};
+
+export type ModifierNoteInternePieceResponse = ModifierNoteInternePieceResponses[keyof ModifierNoteInternePieceResponses];
 
 export type ConsulterVendeurData = {
     body?: never;

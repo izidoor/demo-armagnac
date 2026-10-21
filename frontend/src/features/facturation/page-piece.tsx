@@ -15,17 +15,19 @@ import {
   Lock,
   Pencil,
   Send,
-  StickyNote,
   Trash2,
   TriangleAlert,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   abandonnerBrouillon,
-  annoterPiece,
   consulterJournalPiece,
   consulterPiece,
+  ecrireNoteInternePiece,
   emettrePiece,
+  listerNotesInternesPiece,
+  modifierNoteInternePiece,
+  supprimerNoteInternePiece,
   type AdresseFacturation,
   type LignePiece,
   type Piece,
@@ -40,7 +42,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
 import {
   Sheet,
   SheetContent,
@@ -56,14 +57,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { CarnetNotesInternes } from '@/components/metier/notes-internes'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import {
   formatDate,
   formatDateHeure,
@@ -86,7 +88,8 @@ import { Recapitulatif } from './recapitulatif'
  * Une pièce au back-office (spec 08 §6.1) : l'en-tête (origine, acheteur, dates, période, condition, échéance,
  * notes), les lignes groupées, le récapitulatif de TVA et les totaux ; le journal dans le tiroir « Historique » (RG-FAC-20). Un
  * brouillon affiche ce qui l'empêche d'être émis (RG-FAC-09) ; il se modifie (RG-FAC-17), s'émet ou s'abandonne
- * (RG-FAC-18). Une pièce émise a son PDF (RG-FAC-15). Qui gère la facturation annote toute pièce (RG-FAC-21).
+ * (RG-FAC-18). Une pièce émise a son PDF (RG-FAC-15). Le carnet de notes internes en bas de page, pour toute pièce
+ * (RG-FAC-21).
  */
 export function PagePiece({ id }: { id: number }) {
   const requete = useQuery({
@@ -221,11 +224,6 @@ function VuePiece({ piece }: { piece: Piece }) {
             </Button>
           )}
           {piece.emettre && !edition && (
-            <Button variant='outline' onClick={() => setAbandon(true)}>
-              <Trash2 className='size-4' /> Abandonner
-            </Button>
-          )}
-          {piece.emettre && !edition && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={empeche ? 0 : undefined}>
@@ -248,17 +246,28 @@ function VuePiece({ piece }: { piece: Piece }) {
       }
     >
       <ContenuPiece piece={piece} edition={edition} onEditer={setEdition} />
+      <NotesPiece piece={piece} />
+      {piece.emettre && !edition && (
+        <ZoneDanger>
+          <ActionDanger
+            titre='Abandonner le brouillon'
+            description={`Il est supprimé avec son journal et ses notes internes${piece.origine ? ` ; ${piece.origine.reference} redevient à facturer` : ''}. Aucun numéro n'est consommé.`}
+          >
+            <Button variant='destructive' onClick={() => setAbandon(true)}>
+              <Trash2 className='size-4' /> Abandonner
+            </Button>
+          </ActionDanger>
+        </ZoneDanger>
+      )}
       <Sheet open={historique} onOpenChange={setHistorique}>
         <SheetContent className='w-full overflow-y-auto sm:max-w-2xl'>
           <SheetHeader>
             <SheetTitle>Historique</SheetTitle>
             <SheetDescription>
-              Le journal de la pièce, du plus récent au plus ancien, et ses
-              notes internes.
+              Le journal de la pièce, du plus récent au plus ancien.
             </SheetDescription>
           </SheetHeader>
-          <div className='space-y-4 px-4 pb-4'>
-            {piece.gerer && <AjoutNote id={piece.id} />}
+          <div className='px-4 pb-4'>
             <JournalPiece id={piece.id} />
           </div>
         </SheetContent>
@@ -267,7 +276,7 @@ function VuePiece({ piece }: { piece: Piece }) {
         open={abandon}
         onOpenChange={setAbandon}
         title='Abandonner ce brouillon ?'
-        desc={`Il sera supprimé avec son journal${piece.origine ? ` ; ${piece.origine.reference} redeviendra à facturer` : ''}.`}
+        desc={`Il sera supprimé avec son journal et ses notes internes${piece.origine ? ` ; ${piece.origine.reference} redeviendra à facturer` : ''}.`}
         confirmText='Abandonner'
         cancelBtnText='Garder'
         destructive
@@ -404,7 +413,7 @@ function ContenuPiece({
   return (
     <>
       {piece.etat === 'BROUILLON' && piece.empechements.length > 0 && (
-        <Alert variant='destructive' className='mb-4'>
+        <Alert variant='destructive' className='mt-2 mb-6'>
           <TriangleAlert />
           <AlertTitle>Ne peut pas être émis</AlertTitle>
           <AlertDescription>
@@ -421,41 +430,45 @@ function ContenuPiece({
   )
 }
 
-/** RG-FAC-21 : une note interne, côté BNIA, jamais imprimée ni transmise. */
-function AjoutNote({ id }: { id: number }) {
+/**
+ * RG-FAC-21 : le carnet de notes internes de la pièce, comme celui d'une DSM, quel que soit son état ; jamais imprimé
+ * ni transmis. Lu par le personnel du BNIA, écrit par qui gère la facturation.
+ */
+function NotesPiece({ piece }: { piece: Piece }) {
   const queryClient = useQueryClient()
-  const [texte, setTexte] = useState('')
-  const ajout = useMutation({
-    mutationFn: () =>
-      annoterPiece({ path: { id }, body: { texte }, throwOnError: true }),
-    onSuccess: () => {
-      setTexte('')
-      toast.success('Note ajoutée au journal.')
-      queryClient.invalidateQueries({
-        queryKey: [...cleFacturation, 'piece', id, 'journal'],
-      })
-    },
+  const cle = [...cleFacturation, 'piece', piece.id, 'notes']
+  const notes = useQuery({
+    queryKey: cle,
+    queryFn: () =>
+      listerNotesInternesPiece({
+        path: { piece: piece.id },
+        throwOnError: true,
+      }).then((r) => r.data),
   })
+  const path = { piece: piece.id }
   return (
-    <div className='flex items-end gap-2'>
-      <div className='flex-1 space-y-1'>
-        <Label htmlFor='note'>Note interne</Label>
-        <Textarea
-          id='note'
-          rows={2}
-          placeholder='Jamais imprimée ni transmise au client.'
-          value={texte}
-          onChange={(e) => setTexte(e.target.value)}
-        />
-      </div>
-      <Button
-        variant='outline'
-        disabled={texte.trim() === '' || ajout.isPending}
-        onClick={() => ajout.mutate()}
-      >
-        <StickyNote className='size-4' /> Ajouter une note
-      </Button>
-    </div>
+    <CarnetNotesInternes
+      description='Le carnet du BNIA sur cette pièce, brouillon ou émise : relances, échanges avec le comptable, points à vérifier. Jamais imprimé ni transmis : le client ne le voit pas.'
+      notes={notes.data ?? []}
+      peutAnnoter={piece.gerer}
+      ecrire={(texte) =>
+        ecrireNoteInternePiece({ path, body: { texte }, throwOnError: true })
+      }
+      modifier={(n, texte) =>
+        modifierNoteInternePiece({
+          path: { ...path, id: n.id },
+          body: { texte },
+          throwOnError: true,
+        })
+      }
+      supprimer={(n) =>
+        supprimerNoteInternePiece({
+          path: { ...path, id: n.id },
+          throwOnError: true,
+        })
+      }
+      onChange={() => queryClient.invalidateQueries({ queryKey: cle })}
+    />
   )
 }
 

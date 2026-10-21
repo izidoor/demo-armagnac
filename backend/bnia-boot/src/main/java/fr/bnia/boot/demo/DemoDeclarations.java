@@ -127,7 +127,8 @@ public class DemoDeclarations implements ApplicationRunner {
 
     /**
      * Volume de la facturation (spec 08 §7.1, lot 5), saisi par {@code saisie@demo.fr} : un négociant part du
-     * 1er janvier de l'année en cours, toutes ses DSM mensuelles jusqu'au mois dernier validées ; un producteur part
+     * 1er janvier de l'année en cours, toutes ses DSM mensuelles jusqu'au mois dernier validées (sauf
+     * {@link OperateursFacturesDemo#EN_RETARD}, arrêté au mois d'avant : en retard) ; un producteur part
      * du 1er avril, sa DSM de la dernière année déclarative close validée, avec ses douze DRM. L'export a son DAE
      * (RG-DEC-29). Volumes variés d'un mois et d'un opérateur à l'autre.
      */
@@ -146,7 +147,7 @@ public class DemoDeclarations implements ApplicationRunner {
                 stock(CleConditionnement.NB, "VSOP", "5", volume),
                 stock(CleConditionnement.NB, "XO", "10", volume),
                 stock(CleConditionnement.MB, 2012 + rang % 5, null, volume)));
-        int nombre = o.negociant() ? moisCourant().getMonthValue() - 1 : 1;
+        int nombre = OperateursFacturesDemo.dsmValidees(o, aujourdhui);
         for (int mois = 0; mois < nombre; mois++) {
             Map<Integer, Map<ColonneDsm, String>> mouvements = o.export() == 0
                     ? Map.of(0, Map.of(ColonneDsm.C17, OperateursFacturesDemo.litres(o.sortiesFrance(), rang, mois)))

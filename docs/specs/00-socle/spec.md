@@ -21,6 +21,13 @@
 - Un cas d'usage est une classe `@UseCase` de `application`, sans annotation Spring.
   `UseCaseConfiguration` en fait un bean et exécute ses méthodes publiques dans une transaction.
 - Routes REST : préfixe `/api/<contexte>`. `operationId` explicite sur chaque opération.
+- Écrans : sur une page de détail, les actions qui retirent ou suppriment (désactiver, suspendre, bloquer,
+  supprimer, abandonner) quittent l'en-tête pour un cadre « Zone danger » tout en bas de la page
+  (`ZoneDanger`), chacune avec ce qu'elle entraîne ; la confirmation reste celle de l'action (décision du
+  2026-10-21).
+- Alertes : fond de carte, contour épais de leur nature, icône (24 px) et titre (gras) de cette
+  couleur (choisi le 2026-10-21, après essai de fonds teintés, de liserés et de fonds pleins) :
+  information (par défaut), `success`, `warning`, `destructive`.
 
 ## Garde-fous
 | Règle | Vérifiée par |

@@ -12,24 +12,27 @@ import fr.bnia.facturation.domain.SensPiece;
 public class AbandonnerBrouillon {
 
     private final FactureRepository factures;
+    private final NotesInternes notes;
     private final PublicationEvenements evenements;
     private final Controles controles;
 
-    public AbandonnerBrouillon(FactureRepository factures, PublicationEvenements evenements,
+    public AbandonnerBrouillon(FactureRepository factures, NotesInternes notes, PublicationEvenements evenements,
             DroitsFacturation droits) {
         this.factures = factures;
+        this.notes = notes;
         this.evenements = evenements;
         this.controles = new Controles(droits);
     }
 
     /**
-     * RG-FAC-18 : le brouillon est supprimé avec son journal ; celui d'une facture publie {@link FactureAbandonnee}
+     * RG-FAC-18 : le brouillon est supprimé avec son journal et ses notes internes ; celui d'une facture publie {@link FactureAbandonnee}
      * avec son origine, dans la même transaction (RG-FAC-25). Une pièce émise ne s'abandonne pas (RG-FAC-14).
      */
     public void abandonner(Acteur acteur, long id) {
         controles.exigerGestion(acteur);
         Facture piece = factures.parId(id).orElseThrow(() -> new ElementIntrouvable("Pièce introuvable : n° " + id + "."));
         piece.exigerAbandonnable();
+        notes.supprimerDeLaPiece(id);
         factures.supprimer(id);
         if (piece.sens() == SensPiece.FACTURE) {
             evenements.publier(new FactureAbandonnee(id, piece.origine(), piece.acheteur().client(), acteur));

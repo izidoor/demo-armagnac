@@ -70,9 +70,9 @@ public class ListerDsm {
     }
 
     /**
-     * RG-DEC-01 : de la période la plus récente à la plus ancienne, puis par code d'opérateur. Les périodes
-     * absentes suivent les filtres d'opérateur, de type et de mois, et n'apparaissent pas quand un état est
-     * demandé. Sept lectures en tout, quelle que soit la taille du listing : les droits, les DSM, les opérateurs
+     * RG-DEC-01 : de la période la plus récente à la plus ancienne, puis par code d'opérateur. Une période
+     * absente n'apparaît qu'en retard, son échéance passée (RG-DEC-40) ; elle suit les filtres d'opérateur, de type
+     * et de mois, et n'apparaît pas quand un état est demandé. Sept lectures en tout, quelle que soit la taille du listing : les droits, les DSM, les opérateurs
      * attendus, leurs repères, l'identité des opérateurs, ceux qui sont facturables (RG-DEC-43), la grille.
      */
     public List<DsmListee> lister(Acteur acteur, FiltreDsm filtre) {
@@ -86,7 +86,10 @@ public class ListerDsm {
                 .flatMap(a -> a.situation().dsmEnCours().stream())
                 .collect(Collectors.toSet());
         List<Attendue> absentes = filtre.etats().isEmpty()
-                ? attendues.stream().filter(a -> a.situation().absente()).filter(a -> retenue(a, filtre)).toList()
+                ? attendues.stream()
+                        .filter(a -> a.situation().absente() && a.situation().enRetard())
+                        .filter(a -> retenue(a, filtre))
+                        .toList()
                 : List.of();
         GrilleCotisation grille = grilles.charger();
         Map<Long, ResultatRecherche> identites = identites(dsms, absentes);

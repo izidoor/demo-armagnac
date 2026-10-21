@@ -42,6 +42,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { Lecture } from '@/features/operateurs/commun/champs'
 import {
   ROLES,
@@ -262,22 +263,6 @@ export function PageUtilisateur({ id }: { id: number }) {
           <Etat statut={u.statut} etat={etat} />
         </span>
       }
-      actions={
-        droits?.adminBnia &&
-        (u.statut === 'BLOQUE' ? (
-          <Button
-            variant='outline'
-            disabled={action.isPending}
-            onClick={() => action.mutate(false)}
-          >
-            Débloquer
-          </Button>
-        ) : (
-          <Button variant='destructive' onClick={() => setBlocage(true)}>
-            Bloquer
-          </Button>
-        ))
-      }
     >
       <div className='space-y-4'>
         <Card>
@@ -341,6 +326,33 @@ export function PageUtilisateur({ id }: { id: number }) {
           </CardContent>
         </Card>
       </div>
+      {droits?.adminBnia && (
+        <ZoneDanger>
+          {u.statut === 'BLOQUE' ? (
+            <ActionDanger
+              titre="Débloquer l'utilisateur"
+              description='Ses connexions sont de nouveau acceptées, dans tous ses opérateurs.'
+            >
+              <Button
+                variant='outline'
+                disabled={action.isPending}
+                onClick={() => action.mutate(false)}
+              >
+                Débloquer
+              </Button>
+            </ActionDanger>
+          ) : (
+            <ActionDanger
+              titre="Bloquer l'utilisateur"
+              description='Ses connexions sont refusées dans tous ses opérateurs et sa session est coupée ; il en est prévenu par e-mail, ainsi que les ADMIN de ses opérateurs. Il se débloque à tout moment.'
+            >
+              <Button variant='destructive' onClick={() => setBlocage(true)}>
+                Bloquer
+              </Button>
+            </ActionDanger>
+          )}
+        </ZoneDanger>
+      )}
       <Dialog open={blocage} onOpenChange={setBlocage}>
         <DialogContent>
           <DialogHeader>

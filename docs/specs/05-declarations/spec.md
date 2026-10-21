@@ -305,7 +305,7 @@ que la `CVO`, toujours en €/hlAP ; le taux de fin de travaux appartient à `di
 | Projection `FactureDsm` | Brouillon demandé (pièce de `facturation`), puis factures et avoirs reçus de `facturation` : pièce, numéro, date, HT, TVA, TTC (RG-DEC-34, 43, A-DEC-4) | 4, spec 08 |
 | Articles de cotisation | Deux articles par ligne de cotisation, `CVO-<ligne>-S` (part assujettie, classe de TVA de la `CVO`) et `CVO-<ligne>-E` (part non assujettie, exonérée), au taux CVO en vigueur à une date ; publiés à `facturation` (spec 08 §3.13, H-FAC-1, H-FAC-2) | spec 08 |
 | Vue de la DSM | DSM, anomalies, cotisation, « à facturer », « facturation demandée » (avec la pièce du brouillon) ou « facturée » lus dans la projection des factures, TVA indicative (RG-DEC-34, 43, A-DEC-4) | 1, 4, spec 08 |
-| Listing des DSM | Filtres : opérateur, type, période, état, en retard, absente (RG-DEC-40) | 2, 7 |
+| Listing des DSM | Filtres : opérateur, type, état, en retard, absente (RG-DEC-40) | 2, 7 |
 | Stock déclaré | Colonne 26 de la dernière DSM validée de chaque opérateur, par ligne, datée de sa fin de période (RG-DEC-42) | 8 |
 
 Le stock estimé, les engagements, le stock disponible et le bilan prévisionnel (analyse UC-DEC-2, §4.3)
@@ -379,7 +379,7 @@ module Paramétrage (décision du 2026-10-13).
 | RG-DEC-38 | Un import remplace les colonnes 2 à 25. Les lignes se rapprochent par leur identité : ligne du fichier absente de la DSM ajoutée (`AJOUT`), ligne `REPRISE` absente du fichier gardée à 0, ligne `AJOUT` absente supprimée. Colonnes 1 et 26 et compte `MB` du fichier ignorés, leurs écarts signalés en avertissement. L'onglet « Cotisation » est ignoré. Le même import (colonne 26) alimente un stock initial. | §5.4.4 p.64, H-DEC-14, H-DEC-15 | 6 |
 | **Retard** | | | |
 | RG-DEC-39 | L'échéance d'une période est le 5 du mois qui suit sa fin (négociant), le 30 avril qui suit (producteur), jour compris. | modèles Excel, H-DEC-6 | 7 |
-| RG-DEC-40 | La période attendue d'un opérateur au statut `OUI` est celle de sa DSM non validée s'il en a une, sinon celle qui suit sa dernière DSM validée (ou commence à son point de départ). Elle est **absente** si elle a commencé et qu'aucune DSM n'est initiée pour elle (une période pas commencée ne s'initie pas, RG-DEC-05). Elle est **en retard** si son échéance est passée et que sa DSM est absente, `BROUILLON` ou `COMPLEMENTS_DEMANDES` ; une DSM `ENVOYEE`, `EN_INSTRUCTION` ou `COMPLEMENTS_RECUS` attend le BNIA, l'opérateur n'est pas en retard. | §4.4.8 p.27, H-DEC-6, H-DEC-10 | 7 |
+| RG-DEC-40 | La période attendue d'un opérateur au statut `OUI` est celle de sa DSM non validée s'il en a une, sinon celle qui suit sa dernière DSM validée (ou commence à son point de départ). Elle est **absente** si elle a commencé et qu'aucune DSM n'est initiée pour elle (une période pas commencée ne s'initie pas, RG-DEC-05). Elle est **en retard** si son échéance est passée et que sa DSM est absente, `BROUILLON` ou `COMPLEMENTS_DEMANDES` ; une DSM `ENVOYEE`, `EN_INSTRUCTION` ou `COMPLEMENTS_RECUS` attend le BNIA, l'opérateur n'est pas en retard. Le listing du BNIA ne montre une période absente qu'en retard : avant son échéance, le BNIA n'a rien à relancer ; l'opérateur, lui, voit sa période à initier dès qu'elle a commencé (décision du 2026-10-21). | §4.4.8 p.27, H-DEC-6, H-DEC-10 | 7 |
 | RG-DEC-41 | Un traitement planifié quotidien publie `DeclarationEnRetard` une seule fois par période en retard, le lendemain de l'échéance. | §4.4.8 p.27, analyse §4.1, H-DEC-6 | 7 |
 | **Stocks** | | | |
 | RG-DEC-42 | Le stock déclaré d'un opérateur est le stock de fin (colonne 26) de sa dernière DSM validée, ligne par ligne, daté de la fin de sa période ; sans DSM validée, il n'en a pas. | analyse UC-DEC-1, §4.10.5 p.49 | 8 |
@@ -492,11 +492,12 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
     « À saisir ou relancer », périodes absentes, brouillons et compléments demandés ; « À traiter »,
     envoyées, en instruction et compléments reçus ; l'onglet et l'état se passent aussi dans l'URL, pour
     les accès du tableau de bord, décision du 2026-10-16), *Validées*, *Facturées*
-    (rempli au lot 4) ; filtres opérateur (recherche par code ou raison sociale), type de déclarant,
-    période ; colonnes opérateur, type, période, état, puis, en cours, modifiée le (dernière action au
+    (rempli au lot 4) ; recherche d'un opérateur (champ à loupe, en premier, sur le code ou la raison
+    sociale, au fil de la frappe), puis type de déclarant, état et, en dernier, la case « En retard »
+    (révision du 2026-10-21 ; filtre par période retiré) ; colonnes opérateur, type, période, état, puis, en cours, modifiée le (dernière action au
     journal), ailleurs envoyée le et validée le ; la prise en charge se fait depuis l'écran de la DSM (§6.3),
     plus depuis le listing ; ouverture de la DSM, dont le retour ramène au listing (lot 2). Puis total HT sur chaque ligne ; *Validées* ne montre que les DSM sans facture, donc à facturer, et *Facturées* celles qui en ont une (lot 4) ; échéance, « en retard »,
-    « absente » (lot 7) : une période absente apparaît comme une ligne sans DSM. Spec 08 : dans
+    « absente » (lot 7) : une période absente, une fois en retard (RG-DEC-40), apparaît comme une ligne sans DSM, grisée et non cliquable, sauf l'opérateur, lien vers sa fiche qui ne reprend sa couleur qu'au survol (révision du 2026-10-21). Spec 08 : dans
     *Validées*, une sélection et « Facturer la sélection » (RG-DEC-43) ; on reste sur le listing, avec le
     message « N brouillons de facture créés » et un lien vers les brouillons ; une DSM dont la facture
     est demandée passe dans *Facturées*, badge « Brouillon », total HT calculé (décisions du 2026-10-14).
@@ -547,8 +548,11 @@ Les deux espaces partagent l'**écran d'une DSM** (§6.3) ; les actions s'y affi
 
 ### 6.3 Écran d'une DSM (commun)
 
-- **En-tête** : opérateur, type de déclarant, période, état, envoyée le, validée le ; nombre
-  d'anomalies et de manques ; échéance (lot 7) ; total HT (lot 4) ; actions.
+- **En-tête** : titre « DSM de <période> – <opérateur> », comme une facture émise ; sous le titre, le
+  retour, le lien vers la fiche de l'opérateur (back-office), le type de déclarant, l'état, validée le ;
+  nombre d'anomalies et de manques ; actions alignées à droite. L'échéance, la date d'envoi et le total HT
+  n'y sont plus (révision du 2026-10-21) : le total HT reste dans la section cotisation, l'échéance au
+  listing et aux éditions PDF et Excel.
 - **Onglets du format unique** (lot 1) : *Récapitulatif*, *Mouvements en entrée*, *Mouvements en
   sortie*, *Ventes France*, *Ventes à l'exportation*. Chacun est une grille : une rangée par ligne
   (millésime ou dénomination, clé, compte d'âge), une colonne par colonne de l'onglet, numérotée ; une
@@ -622,6 +626,7 @@ lot ajoute ses données et son scénario à `docs/demo.md`.
 | Maison Durand, Condom | Douze DRM et des justificatifs (PDF de démonstration) sur la DSM validée | Pièces, mois attendus | 3 |
 | Armagnacs de Gascogne (décision du 2026-10-21) | DSM d'octobre prise en instruction puis en compléments demandés, motif « DAE manquants pour l'export » | Compléments, sur un compte du portail présenté dans la réponse à l'appel d'offres | 2 |
 | Maison Larressingle (`N320002`, négociant) | Point de départ au 1er du mois **précédent** (décision du 2026-10-14) ; DSM de septembre envoyée avec les DAE de ses deux exports (décision du 2026-10-21) | File d'attente du BNIA, DSM validable | 2 |
+| Maison Saint-Puy (`N320012`, négociant du volume de la facturation, spec 08 §7.1) | DSM validées de janvier à l'avant-dernier mois (août pour un chargement en octobre) ; celle du mois dernier n'est pas initiée (décision du 2026-10-21) | Seule période absente du listing du BNIA, en retard dès le 6 du mois (RG-DEC-40) | 7 |
 | Négoce des Landes (`N400001`, négociant) | Point de départ au 1er du mois courant ; DSM d'octobre en brouillon, Σ6 ≠ Σ12 | Anomalie qui bloque l'envoi ; modification du point de départ ; échéance à venir (lot 7) | 2 |
 | Maison Durand, Eauze (producteur) | Aucun point de départ | Le BNIA fixe un point de départ | 1 |
 | Grille | 55,00 €/hlAP et 20 % depuis le 1er janvier 2021, 60,00 €/hlAP et 20 % depuis le 1er janvier 2024 | Chaîne des taux | 4 |
@@ -793,3 +798,9 @@ Hors lots de ce contexte : stock estimé et bilan prévisionnel (avec `contratsa
 | 2026-10-20 | Revue de l'utilisateur : la colonne « Prendre en charge » quitte le listing du BNIA (onglet *En cours*) ; la prise en charge se fait depuis l'écran de la DSM seulement (§6.1, §6.3). États de la DSM en badges pleins, colorés selon qui a la main. |
 | 2026-10-21 | Démonstration (§7.1) : la réponse à l'appel d'offres ne présente que les comptes `@negociant.fr` et `@producteur.fr`. La DSM du mois d'Armagnacs de Gascogne passe en compléments demandés (motif « DAE manquants pour l'export ») ; Maison Durand, Condom a sa DSM de l'année en brouillon, avec Σ6 ≠ Σ12 ; Maison Larressingle, envoyée avec ses DAE, garde une DSM à instruire au BNIA. |
 | 2026-10-21 | Page *Stocks déclarés* du portail (demande de l'utilisateur) : sans onglets, comme au back-office ; les deux graphiques de démonstration, à l'échelle de l'opérateur, au-dessus de son stock déclaré ; le tableau croisé dynamique (onglet *Analyse*) est retiré, et avec lui RG-DEC-44 (§6.2). Code retiré : le service de l'historique d'un opérateur (`GET /api/operateurs/{operateur}/stock-declare/historique`, `HistoriqueStocks`, le report mois par mois de `ConsulterStocksDeclares`, les lectures `stocksDeLAnnee` et `anneesDeclarees` de `StocksLecture`), `AnneeDeclarative` ; dans le front, le composant de tableau croisé dynamique et la dépendance `write-excel-file`. Tableau de bord du portail : cartes *Activités* « DSM à saisir ou compléter » (la période attendue qu'il peut initier, ses brouillons, ses compléments demandés) et « DSM en attente du BNIA » (envoyées, en instruction, compléments reçus), qui ouvrent ses DSM. Liste des DSM : le chevron seul finit la ligne (« Ouvrir » retiré). |
+| 2026-10-21 | Liste des DSM du back-office (revue de l'utilisateur, §6.1) : la recherche d'un opérateur devient un champ à loupe, « Rechercher un opérateur », en tête des filtres, comme sur la liste des opérateurs ; elle filtre au fil de la frappe, dans le navigateur, sur le code et la raison sociale. La case « En retard seulement » devient « En retard » et passe en dernier. Le filtre « Période contenant le mois » est retiré de l'écran : la liste est déjà triée de la période la plus récente à la plus ancienne, et le champ mois s'affichait mal hors de Chrome ; les paramètres `operateur` et `mois` de `GET /api/declarations/dsm` restent dans l'API. |
+| 2026-10-21 | Liste des DSM du back-office (revue de l'utilisateur, §6.1) : une ligne « absente » n'ouvre plus la fiche de l'opérateur, ce qui troublait ; faute de DSM à ouvrir, elle est grisée, sans chevron ; seul l'opérateur reste un lien vers sa fiche, qui ne reprend sa couleur qu'au survol. |
+| 2026-10-21 | RG-DEC-40 amendée (décision de l'utilisateur) : le listing du BNIA ne montre une période absente qu'en retard, son échéance passée. Avant, chaque début de mois y faisait apparaître tous les négociants (et, depuis le 1er avril, tous les producteurs) sans rien à relancer. La carte « DSM en attente de saisie » du tableau de bord, calculée sur ce listing, suit ; la période à initier du portail ne change pas. |
+| 2026-10-21 | Démonstration (§7.1, décision de l'utilisateur) : RG-DEC-40 amendée, plus aucune période absente n'y était en retard ; Maison Saint-Puy (`N320012`), l'un des négociants du volume de la facturation, s'arrête à l'avant-dernier mois : la période du mois dernier est absente, en retard dès le 6 du mois. `DemoDeclarationsIT` le vérifie. |
+| 2026-10-21 | Écran de la DSM (revue de l'utilisateur, §6.3) : l'opérateur passe dans le titre (« DSM de septembre 2026 – Maison Larressingle »), comme pour une facture émise, et quitte la ligne sous le titre, qui garde le lien vers sa fiche ; l'échéance, la date d'envoi et le total HT en sont retirés ; les actions (Excel, PDF, Historique, Aide, puis celles de l'état) s'alignent à droite. |
+| 2026-10-21 | Écran de la DSM (demande de l'utilisateur, §6.3) : « Supprimer » (brouillon) quitte l'en-tête pour le cadre « Zone danger » en bas de page, avec ce qu'il entraîne (convention de la spec 00). |

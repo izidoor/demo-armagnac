@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { useDroits, useMoi } from '@/features/session/session'
 import { cleOperateur, type Espace } from '../commun/api'
 import { Lecture } from '../commun/champs'
@@ -191,11 +192,6 @@ function PageContact({ espace, operateur, id, droits }: PropsPersonne) {
             ) : (
               <Button onClick={() => setInvitation(true)}>Inviter</Button>
             ))}
-          {gestion && (
-            <Button variant='destructive' onClick={() => setSuppression(true)}>
-              Supprimer
-            </Button>
-          )}
         </div>
       }
     >
@@ -238,6 +234,18 @@ function PageContact({ espace, operateur, id, droits }: PropsPersonne) {
           <TableJournal lignes={journal.data ?? []} />
         </Section>
       </div>
+      {gestion && (
+        <ZoneDanger>
+          <ActionDanger
+            titre='Supprimer le contact'
+            description={`${c.nomComplet} et sa fiche professionnelle sont supprimés.${effets}`}
+          >
+            <Button variant='destructive' onClick={() => setSuppression(true)}>
+              Supprimer
+            </Button>
+          </ActionDanger>
+        </ZoneDanger>
+      )}
       {invitation && (
         <DialogueInvitation
           operateur={operateur}
@@ -358,23 +366,6 @@ function PageMembre({ espace, operateur, id, droits }: PropsPersonne) {
           )}
         </span>
       }
-      actions={
-        acces && (
-          <div className='flex gap-2'>
-            <Button
-              variant='outline'
-              onClick={() =>
-                setAction(m.statut === 'ACTIF' ? 'suspendre' : 'reactiver')
-              }
-            >
-              {m.statut === 'ACTIF' ? "Suspendre l'accès" : "Réactiver l'accès"}
-            </Button>
-            <Button variant='destructive' onClick={() => setAction('retirer')}>
-              Retirer l'accès
-            </Button>
-          </div>
-        )
-      }
     >
       <div className='space-y-4'>
         <Section titre='Identité et accès'>
@@ -434,6 +425,41 @@ function PageMembre({ espace, operateur, id, droits }: PropsPersonne) {
           <TableJournal lignes={journal.data ?? []} />
         </Section>
       </div>
+      {acces && (
+        <ZoneDanger>
+          {m.statut === 'ACTIF' ? (
+            <ActionDanger
+              titre="Suspendre l'accès"
+              description={`${m.nomComplet} n'a plus accès à cet opérateur jusqu'à sa réactivation ; ses autres opérateurs ne changent pas.`}
+            >
+              <Button
+                variant='outline'
+                className='text-destructive'
+                onClick={() => setAction('suspendre')}
+              >
+                Suspendre
+              </Button>
+            </ActionDanger>
+          ) : (
+            <ActionDanger
+              titre="Réactiver l'accès"
+              description={`${m.nomComplet} retrouve son accès, avec le rôle ${ROLES[m.role]}.`}
+            >
+              <Button variant='outline' onClick={() => setAction('reactiver')}>
+                Réactiver
+              </Button>
+            </ActionDanger>
+          )}
+          <ActionDanger
+            titre="Retirer l'accès"
+            description={`${m.nomComplet} n'est plus membre de cet opérateur ; si c'était son dernier opérateur, son compte est supprimé.`}
+          >
+            <Button variant='destructive' onClick={() => setAction('retirer')}>
+              Retirer
+            </Button>
+          </ActionDanger>
+        </ZoneDanger>
+      )}
       <ConfirmDialog
         open={action !== null}
         onOpenChange={(o) => !o && setAction(null)}

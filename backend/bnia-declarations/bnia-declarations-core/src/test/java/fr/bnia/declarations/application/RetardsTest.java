@@ -68,6 +68,14 @@ class RetardsTest {
     }
 
     @Test
+    @DisplayName("RG-DEC-40 : une période absente n'est listée qu'en retard, le lendemain de son échéance")
+    void rg_dec_40_absente_listee_en_retard() {
+        assertThat(monde.listerDsm(le(2026, 7, 5)).lister(AGENT_BNIA, TOUT)).as("le jour de l'échéance").isEmpty();
+        assertThat(monde.listerDsm(le(2026, 7, 6)).lister(AGENT_BNIA, TOUT)).singleElement()
+                .satisfies(l -> assertThat(l.absente() && l.enRetard()).isTrue());
+    }
+
+    @Test
     @DisplayName("RG-DEC-40 : une DSM en brouillon après l'échéance est en retard ; envoyée, elle attend le BNIA")
     void rg_dec_40_dsm_en_retard() {
         long id = dsms.initier(AGENT_NEGOCIANT, NEGOCIANT).dsm().id();

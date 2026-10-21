@@ -10,8 +10,7 @@ public enum EvenementJournal {
     ANNULEE("Annulée"),
     AVOIR_EMIS("Avoir émis"),
     TRANSMISE("Transmise à Zeendoc"),
-    PAYEE("Payée"),
-    NOTE("Note");
+    PAYEE("Payée");
 
     private final String libelle;
 

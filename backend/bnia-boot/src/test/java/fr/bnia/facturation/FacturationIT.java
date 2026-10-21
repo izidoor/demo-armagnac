@@ -519,23 +519,37 @@ class FacturationIT extends AbstractIT {
     }
 
     @Test
-    @DisplayName("RG-FAC-21 : une note interne au journal, sur un brouillon comme sur une pièce émise ; une note vide est refusée")
+    @DisplayName("RG-FAC-21, 26 : une note interne au carnet de la pièce, sur un brouillon comme sur une pièce émise, hors du journal ; modifiée et supprimée par son auteur ; une note vide est refusée ; refusée à un membre d'un négociant")
     void rg_fac_21_note() {
-        long brouillon = brouillonDeDsm(negociant(true));
+        long operateur = negociant(true);
+        long brouillon = brouillonDeDsm(operateur);
+        String notes = PIECES + "/" + brouillon + "/notes";
 
-        client.post().uri(PIECES + "/{id}/notes", brouillon).body(Map.of("texte", "Relancer le comptable")).exchange()
-                .expectStatus().isOk().expectBody().jsonPath("$.evenement").isEqualTo("NOTE");
+        long note = ((Number) corps(client.post().uri(notes).body(Map.of("texte", "Relancer le comptable")).exchange()
+                .expectStatus().isCreated()).get("id")).longValue();
         client.post().uri(PIECES + "/{id}/emission", brouillon).exchange().expectStatus().isOk();
-        client.post().uri(PIECES + "/{id}/notes", brouillon).body(Map.of("texte", "Envoyée par courrier")).exchange()
-                .expectStatus().isOk();
-        client.post().uri(PIECES + "/{id}/notes", brouillon).body(Map.of("texte", " ")).exchange()
+        client.post().uri(notes).body(Map.of("texte", "Envoyée par courrier")).exchange().expectStatus().isCreated();
+        client.post().uri(notes).body(Map.of("texte", " ")).exchange()
                 .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
                 .expectBody().jsonPath("$.regle").isEqualTo("RG-FAC-21");
+        client.put().uri(notes + "/{id}", note).body(Map.of("texte", "Comptable relancé")).exchange()
+                .expectStatus().isOk().expectBody().jsonPath("$.modifieeLe").isNotEmpty();
 
+        client.get().uri(notes).exchange().expectStatus().isOk()
+                .expectBody().jsonPath("$[0].texte").isEqualTo("Comptable relancé")
+                .jsonPath("$[0].deLUtilisateur").isEqualTo(true)
+                .jsonPath("$[1].texte").isEqualTo("Envoyée par courrier");
         client.get().uri(PIECES + "/{id}/journal", brouillon).exchange().expectStatus().isOk()
-                .expectBody().jsonPath("$[0].detail").isEqualTo("Envoyée par courrier")
-                .jsonPath("$[0].cote").isEqualTo("VENDEUR")
-                .jsonPath("$[2].detail").isEqualTo("Relancer le comptable");
+                .expectBody().jsonPath("$[*].detail").value(d -> assertThat((List<String>) d)
+                        .doesNotContain("Envoyée par courrier", "Comptable relancé"));
+        client.delete().uri(notes + "/{id}", note).exchange().expectStatus().isNoContent();
+        client.get().uri(notes).exchange().expectStatus().isOk().expectBody().jsonPath("$.length()").isEqualTo(1);
+
+        String email = emailUnique("observateur");
+        membre(operateur, Role.OBSERVATEUR, email);
+        RestTestClient observateur = connecte(email);
+        observateur.get().uri(notes).exchange().expectStatus().isForbidden();
+        observateur.post().uri(notes).body(Map.of("texte", "Note")).exchange().expectStatus().isForbidden();
     }
 
     @Test

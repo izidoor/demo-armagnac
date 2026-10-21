@@ -50,6 +50,7 @@ import { BadgeEtat } from '@/components/metier/badge-etat'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { ChangementEtat } from '../commun/changement-etat'
 import { Suppression } from '../commun/suppression'
 import { useGestionParametrage } from '../commun/use-gestion-parametrage'
@@ -132,12 +133,6 @@ export function PageClasseTva({ id }: { id: number }) {
             <Button variant='outline' onClick={() => setRenommage(true)}>
               Modifier
             </Button>
-            <Button variant='outline' onClick={() => setChangementEtat(true)}>
-              {classe.actif ? 'Désactiver' : 'Réactiver'}
-            </Button>
-            <Button variant='outline' onClick={() => setSuppression(true)}>
-              Supprimer
-            </Button>
             <Button onClick={() => setEditionTaux('nouveau')}>
               <Plus /> Ajouter un taux
             </Button>
@@ -212,6 +207,41 @@ export function PageClasseTva({ id }: { id: number }) {
           </TableBody>
         </Table>
       </div>
+      {gestion && (
+        <ZoneDanger>
+          {classe.actif ? (
+            <ActionDanger
+              titre='Désactiver la classe'
+              description="Elle n'est plus proposée à la saisie, mais reste affichée là où elle est déjà utilisée ; ses taux restent consultables. Elle se réactive à tout moment."
+            >
+              <Button
+                variant='outline'
+                className='text-destructive'
+                onClick={() => setChangementEtat(true)}
+              >
+                Désactiver
+              </Button>
+            </ActionDanger>
+          ) : (
+            <ActionDanger
+              titre='Réactiver la classe'
+              description='Elle est de nouveau proposée à la saisie.'
+            >
+              <Button variant='outline' onClick={() => setChangementEtat(true)}>
+                Réactiver
+              </Button>
+            </ActionDanger>
+          )}
+          <ActionDanger
+            titre='Supprimer la classe'
+            description="Définitivement, avec ses taux. Refusé si des documents l'utilisent : désactivez-la plutôt."
+          >
+            <Button variant='destructive' onClick={() => setSuppression(true)}>
+              Supprimer
+            </Button>
+          </ActionDanger>
+        </ZoneDanger>
+      )}
 
       <FormulaireValeurSimple
         ouvert={renommage}

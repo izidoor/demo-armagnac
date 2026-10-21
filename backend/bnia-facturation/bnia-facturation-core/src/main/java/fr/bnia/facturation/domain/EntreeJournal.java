@@ -8,7 +8,7 @@ import java.time.Instant;
  *
  * @param utilisateur identifiant de l'utilisateur ; {@code null} pour un traitement
  * @param nomActeur   copie du nom de l'utilisateur, ou nom du traitement
- * @param detail      facultatif : texte d'une note, motif d'un rejet, numéro d'un avoir
+ * @param detail      facultatif : motif d'un rejet, numéro d'un avoir
  */
 public record EntreeJournal(long piece, Instant date, EvenementJournal evenement, Long utilisateur, String nomActeur,
         CoteJournal cote, String detail) {

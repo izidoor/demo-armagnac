@@ -3,16 +3,26 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current',
+  'relative w-full rounded-lg border px-4 py-4 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*6)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-1 items-start [&>svg]:size-6 [&>svg]:-translate-y-0.5 [&>svg]:text-current',
   {
     variants: {
+      /**
+       * Style B de la page d'essai (essai du 2026-10-21, après les styles C puis E) : fond de carte, contour épais
+       * de la couleur de la nature, icône et titre de cette couleur, texte courant.
+       */
       variant: {
-        default: 'bg-card text-card-foreground',
-        destructive:
-          'text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90',
-        /** Un manque à combler, non bloquant pour l'écran (fiche non facturable…) : contour et fond orangés. */
+        /** Une information, une explication. */
+        default:
+          'bg-card text-card-foreground border-2 border-info-foreground/70 [&>svg]:text-info-foreground *:data-[slot=alert-title]:text-info-foreground',
+        /** Ce qui a réussi, ce qui est en ordre. */
+        success:
+          'bg-card text-card-foreground border-2 border-success-foreground/70 [&>svg]:text-success-foreground *:data-[slot=alert-title]:text-success-foreground',
+        /** Un manque à combler, non bloquant pour l'écran (fiche non facturable…). */
         warning:
-          'border-amber-500/60 bg-amber-50 text-amber-900 [&>svg]:text-amber-600 *:data-[slot=alert-description]:text-amber-900/80 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-200 dark:[&>svg]:text-amber-400 dark:*:data-[slot=alert-description]:text-amber-200/80',
+          'bg-card text-card-foreground border-2 border-warning-foreground/70 [&>svg]:text-warning-foreground *:data-[slot=alert-title]:text-warning-foreground',
+        /** Une erreur, un blocage. */
+        destructive:
+          'bg-card text-card-foreground border-2 border-danger-foreground/70 [&>svg]:text-danger-foreground *:data-[slot=alert-title]:text-danger-foreground',
       },
     },
     defaultVariants: {
@@ -41,7 +51,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot='alert-title'
       className={cn(
-        'col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight',
+        'col-start-2 line-clamp-1 min-h-5 font-semibold tracking-tight',
         className
       )}
       {...props}

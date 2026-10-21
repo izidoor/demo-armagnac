@@ -6,9 +6,7 @@ import fr.bnia.facturation.adapter.rest.BrouillonsRequests.ArticleProposeRespons
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.CompteRenduResponse;
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.CompteRenduTransmissionResponse;
 import fr.bnia.facturation.adapter.rest.BrouillonsRequests.EmissionRequest;
-import fr.bnia.facturation.adapter.rest.BrouillonsRequests.NoteRequest;
 import fr.bnia.facturation.application.AbandonnerBrouillon;
-import fr.bnia.facturation.application.AnnoterPiece;
 import fr.bnia.facturation.application.ConsulterFactures;
 import fr.bnia.facturation.application.EmettreLot;
 import fr.bnia.facturation.application.EmettrePiece;
@@ -43,7 +41,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Les pièces au back-office : historique, détail, PDF, journal, notes ; brouillons modifiés, émis seuls ou en lot,
+ * Les pièces au back-office : historique, détail, PDF, journal ; brouillons modifiés, émis seuls ou en lot,
  * abandonnés (UC-FAC-2, UC-FAC-4).
  */
 @RestController
@@ -56,18 +54,15 @@ class PiecesController {
     private final EmettreLot emettreLot;
     private final ModifierBrouillon modifier;
     private final AbandonnerBrouillon abandonner;
-    private final AnnoterPiece annoter;
     private final TransmettreAZeendoc transmettre;
 
     PiecesController(ConsulterFactures consulter, EmettrePiece emettre, EmettreLot emettreLot,
-            ModifierBrouillon modifier, AbandonnerBrouillon abandonner, AnnoterPiece annoter,
-            TransmettreAZeendoc transmettre) {
+            ModifierBrouillon modifier, AbandonnerBrouillon abandonner, TransmettreAZeendoc transmettre) {
         this.consulter = consulter;
         this.emettre = emettre;
         this.emettreLot = emettreLot;
         this.modifier = modifier;
         this.abandonner = abandonner;
-        this.annoter = annoter;
         this.transmettre = transmettre;
     }
 
@@ -170,15 +165,9 @@ class PiecesController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(operationId = "abandonnerBrouillon",
-            summary = "Abandonne un brouillon : supprimé avec son journal, FactureAbandonnee publiée (RG-FAC-18)")
+            summary = "Abandonne un brouillon : supprimé avec son journal et ses notes, FactureAbandonnee publiée (RG-FAC-18)")
     void abandonner(Connecte connecte, @PathVariable long id) {
         abandonner.abandonner(Acteurs.de(connecte), id);
-    }
-
-    @PostMapping("/{id}/notes")
-    @Operation(operationId = "annoterPiece", summary = "Ajoute une note interne au journal de la pièce (RG-FAC-21)")
-    EntreeJournalPieceResponse annoter(Connecte connecte, @PathVariable long id, @RequestBody NoteRequest note) {
-        return EntreeJournalPieceResponse.de(annoter.annoter(Acteurs.de(connecte), id, note.texte()));
     }
 
     private static Optional<String> texte(String valeur) {

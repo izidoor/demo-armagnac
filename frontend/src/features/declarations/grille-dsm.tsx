@@ -27,9 +27,12 @@ import { designation, identite, type Onglet } from './libelles'
 
 type Sommes = ReturnType<typeof sommes>
 
-/** Fond des cellules calculées (colonnes 1 et 26, entrées et sorties du récapitulatif). */
-const CALCULEE = 'bg-info/60'
-const ENTETE_CALCULEE = 'bg-info'
+/**
+ * Fond des cellules calculées (colonnes 1 et 26, entrées et sorties du récapitulatif). En thème sombre, le fond
+ * d'information se confond avec celui de la page : le bleu de sa bordure, plus clair et plus coloré.
+ */
+const CALCULEE = 'bg-info/60 dark:bg-info-border/50'
+const ENTETE_CALCULEE = 'bg-info dark:bg-info-border/80'
 /** Fond hachuré des colonnes sans objet pour un producteur (RG-DEC-16). */
 const SANS_OBJET =
   'bg-muted bg-[image:repeating-linear-gradient(135deg,transparent_0_6px,var(--border)_6px_7px)]'

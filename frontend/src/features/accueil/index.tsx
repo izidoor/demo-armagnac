@@ -3,7 +3,6 @@ import { ActionsEntete } from '@/components/layout/actions-entete'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { type Espace } from '@/components/layout/types'
-import { Search } from '@/components/search'
 
 type AccueilProps = {
   espace: Espace
@@ -17,7 +16,6 @@ export function Accueil({ espace, children, tableauDeBord }: AccueilProps) {
   return (
     <>
       <Header fixed>
-        <Search placeholder='Rechercher' />
         <ActionsEntete />
       </Header>
 

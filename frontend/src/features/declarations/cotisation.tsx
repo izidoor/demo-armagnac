@@ -37,7 +37,7 @@ export function OngletCotisation({
   switch (cotisation.statut) {
     case 'NON_CALCULABLE':
       return (
-        <Alert>
+        <Alert variant='warning'>
           <Receipt />
           <AlertTitle>Cotisation non calculable</AlertTitle>
           <AlertDescription>

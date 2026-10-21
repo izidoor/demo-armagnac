@@ -1,25 +1,19 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
-import { ChevronRight, Receipt, TriangleAlert, X } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { ChevronRight, Receipt, Search, TriangleAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   type Dsm,
   type DsmListee,
   facturerSelectionDsm,
   listerToutesDsm,
-  type ResultatRechercheOperateur,
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -46,7 +40,6 @@ import { BadgePlein } from '@/components/metier/badge-statut'
 import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
-import { RechercheOperateur } from '@/features/operateurs/portail/recherche-operateur'
 import { useDroits, useMoi } from '@/features/session/session'
 import { Echeance } from './echeance'
 import { formatDateHeure, formatEuros } from './format'
@@ -76,9 +69,9 @@ type Vue = 'en-cours' | 'validees' | 'facturees'
  * Les DSM de tous les opérateurs, pour le BNIA (spec 05 §6.1, UC-DEC-7), en trois onglets : en cours
  * (brouillon, à prendre en charge, en instruction, compléments demandés, compléments reçus ; filtre d'état,
  * « tous » par défaut), validées (sans facture, donc à facturer), facturées (projection des factures,
- * RG-DEC-34). Total HT, calculé ou facturé. Filtres opérateur, type et mois. Une ligne ouvre la DSM.
+ * RG-DEC-34). Total HT, calculé ou facturé. Recherche d'un opérateur, filtre de type. Une ligne ouvre la DSM.
  * Lot 7 : échéance et retard de chaque ligne ; la période attendue d'un opérateur sans DSM est une ligne
- * « absente » de l'onglet « En cours », qui ouvre l'onglet « Stocks & Mouvements » de sa fiche (RG-DEC-39, 40).
+ * « absente » de l'onglet « En cours », grisée, faute de DSM à ouvrir ; seul son opérateur mène à sa fiche (RG-DEC-39, 40).
  * Spec 08 : dans « Validées », une sélection se facture d'un coup (RG-DEC-43) ; une DSM dont la facture est
  * demandée passe dans « Facturées », badge « Brouillon » (décision du 2026-10-14).
  * Tableau de bord (CDC §4.1) : l'onglet et l'état, ou un regroupement d'états, peuvent venir de l'URL.
@@ -91,12 +84,8 @@ export function PageDsmBnia({
   etat?: string
 }) {
   const navigate = useNavigate()
-  const [operateur, setOperateur] = useState<ResultatRechercheOperateur | null>(
-    null
-  )
-  const [recherche, setRecherche] = useState(false)
+  const [recherche, setRecherche] = useState('')
   const [type, setType] = useState<string>(TOUS)
-  const [mois, setMois] = useState('')
   const [vue, setVue] = useState<Vue>(vueInitiale ?? 'en-cours')
   const [etat, setEtat] = useState<string>(etatInitial ?? TOUS)
   const [enRetard, setEnRetard] = useState(false)
@@ -104,21 +93,24 @@ export function PageDsmBnia({
   const { actif } = useMoi()
   // RG-DEC-43 : facturer est réservé à qui gère la facturation au BNIA.
   const facturer = useDroits(actif?.operateur ?? 0)?.facturation === 'GESTION'
-  // Une seule lecture, filtrée par opérateur, type et mois : les onglets et leurs nombres se calculent
-  // dessus, et suivent donc ces filtres.
+  // Une seule lecture, filtrée par type : les onglets et leurs nombres se calculent dessus, et suivent donc
+  // ce filtre, comme la recherche d'un opérateur, faite dans le navigateur.
   const listing = useQuery({
-    queryKey: ['declarations', 'toutes', operateur?.id, type, mois],
+    queryKey: ['declarations', 'toutes', type],
     queryFn: () =>
       listerToutesDsm({
         query: {
-          operateur: operateur?.id,
           type: type === TOUS ? undefined : (type as TypeDeclarant),
-          mois: mois || undefined,
         },
         throwOnError: true,
       }).then((r) => r.data),
   })
-  const toutes = listing.data ?? []
+  const cherche = sansAccents(recherche.trim())
+  const toutes = (listing.data ?? []).filter(
+    (d) =>
+      !cherche ||
+      sansAccents(`${d.codeOperateur} ${d.raisonSociale}`).includes(cherche)
+  )
   const enCours = toutes.filter((d) => d.etat !== 'VALIDEE')
   const etatDe = (d: DsmListee) => (d.absente ? ABSENTE : d.etat)
   // RG-DEC-34, 43 : une DSM validée sans facture vivante est à facturer ; facturée, ou sa facture demandée,
@@ -154,15 +146,6 @@ export function PageDsmBnia({
       to: '/bo/operateurs/$id/dsm/$dsm',
       params: { id: String(operateurId), dsm: String(id) },
     })
-  // Une période absente n'a pas de DSM : elle ouvre l'onglet « Stocks & Mouvements » de la fiche opérateur.
-  const ouvrirLigne = (d: DsmListee) =>
-    d.id == null
-      ? navigate({
-          to: '/bo/operateurs/$id',
-          params: { id: String(d.operateur) },
-          search: { onglet: 'declarations' },
-        })
-      : ouvrir(d.operateur, d.id)
   const facturation = useMutation({
     mutationFn: (ids: number[]) =>
       facturerSelectionDsm({ body: { dsms: ids }, throwOnError: true }).then(
@@ -235,39 +218,16 @@ export function PageDsmBnia({
         </TabsList>
       </Tabs>
       <div className='mb-4 flex flex-wrap items-end gap-4'>
-        <div className='space-y-1'>
-          <Label>Opérateur</Label>
-          {operateur ? (
-            <div className='flex h-9 items-center gap-1 rounded-md border px-3 text-sm'>
-              <span className='font-mono'>{operateur.code}</span> ·{' '}
-              {operateur.raisonSociale}
-              <Button
-                variant='ghost'
-                size='icon'
-                className='size-6'
-                aria-label="Retirer le filtre sur l'opérateur"
-                onClick={() => setOperateur(null)}
-              >
-                <X className='size-4' />
-              </Button>
-            </div>
-          ) : (
-            <Popover open={recherche} onOpenChange={setRecherche}>
-              <PopoverTrigger asChild>
-                <Button variant='outline' className='w-56 justify-start'>
-                  Tous les opérateurs
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align='start' className='w-96'>
-                <RechercheOperateur
-                  onChoisir={(o) => {
-                    setOperateur(o)
-                    setRecherche(false)
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          )}
+        <div className='relative'>
+          <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
+          <Input
+            placeholder='Rechercher un opérateur'
+            title='Code ou raison sociale'
+            aria-label='Recherche par code ou raison sociale'
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+            className='h-9 w-72 ps-8'
+          />
         </div>
         <div className='space-y-1'>
           <Label htmlFor='filtre-type'>Type</Label>
@@ -285,28 +245,6 @@ export function PageDsmBnia({
             </SelectContent>
           </Select>
         </div>
-        <div className='space-y-1'>
-          <Label htmlFor='filtre-mois'>Période contenant le mois</Label>
-          <Input
-            id='filtre-mois'
-            type='month'
-            className='w-44'
-            value={mois}
-            onChange={(e) => setMois(e.target.value)}
-          />
-        </div>
-        {vue === 'en-cours' && (
-          <div className='flex h-9 items-center gap-2'>
-            <Checkbox
-              id='filtre-retard'
-              checked={enRetard}
-              onCheckedChange={(v) => setEnRetard(v === true)}
-            />
-            <Label htmlFor='filtre-retard' className='font-normal'>
-              En retard seulement
-            </Label>
-          </div>
-        )}
         {vue === 'en-cours' && (
           <div className='space-y-1'>
             <Label htmlFor='filtre-etat'>État</Label>
@@ -328,6 +266,18 @@ export function PageDsmBnia({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        )}
+        {vue === 'en-cours' && (
+          <div className='flex h-9 items-center gap-2'>
+            <Checkbox
+              id='filtre-retard'
+              checked={enRetard}
+              onCheckedChange={(v) => setEnRetard(v === true)}
+            />
+            <Label htmlFor='filtre-retard' className='font-normal'>
+              En retard
+            </Label>
           </div>
         )}
       </div>
@@ -412,8 +362,16 @@ export function PageDsmBnia({
             {(page ?? []).map((d) => (
               <TableRow
                 key={d.id ?? `absente-${d.operateur}-${d.periode.debut}`}
-                className='cursor-pointer'
-                onClick={() => ouvrirLigne(d)}
+                // Une période absente n'a pas de DSM à ouvrir : ligne grisée, sans lien, sauf l'opérateur, qui
+                // mène à sa fiche et ne reprend sa couleur qu'au survol.
+                className={
+                  d.id == null
+                    ? 'text-muted-foreground hover:bg-transparent [&>td:not([data-operateur])]:opacity-60'
+                    : 'cursor-pointer'
+                }
+                onClick={
+                  d.id == null ? undefined : () => ouvrir(d.operateur, d.id!)
+                }
               >
                 {selectionnable && (
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -424,11 +382,25 @@ export function PageDsmBnia({
                     />
                   </TableCell>
                 )}
-                <TableCell>
-                  <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
-                  {d.raisonSociale}
-                  {!d.operateurFacturable && <NonFacturable />}
-                </TableCell>
+                {d.id == null ? (
+                  <TableCell data-operateur>
+                    <Link
+                      to='/bo/operateurs/$id'
+                      params={{ id: String(d.operateur) }}
+                      className='hover:text-foreground opacity-60 transition-opacity hover:underline hover:opacity-100'
+                    >
+                      <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
+                      {d.raisonSociale}
+                    </Link>
+                    {!d.operateurFacturable && <NonFacturable />}
+                  </TableCell>
+                ) : (
+                  <TableCell>
+                    <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
+                    {d.raisonSociale}
+                    {!d.operateurFacturable && <NonFacturable />}
+                  </TableCell>
+                )}
                 <TableCell>{TYPES_DECLARANT[d.type]}</TableCell>
                 <TableCell className='font-medium'>
                   {d.periode.libelle}
@@ -472,21 +444,19 @@ export function PageDsmBnia({
                   {formatEuros(d.totalHt)}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    aria-label={
-                      d.absente
-                        ? `Ouvrir les déclarations de ${d.raisonSociale}`
-                        : `Ouvrir la DSM de ${d.periode.libelle} de ${d.raisonSociale}`
-                    }
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      ouvrirLigne(d)
-                    }}
-                  >
-                    <ChevronRight className='size-4' />
-                  </Button>
+                  {d.id != null && (
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      aria-label={`Ouvrir la DSM de ${d.periode.libelle} de ${d.raisonSociale}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        ouvrir(d.operateur, d.id!)
+                      }}
+                    >
+                      <ChevronRight className='size-4' />
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -566,4 +536,12 @@ function Nombre({ valeur, pret }: { valeur: number; pret: boolean }) {
       {valeur}
     </Badge>
   )
+}
+
+/** Pour chercher sans tenir compte de la casse ni des accents. */
+function sansAccents(texte: string) {
+  return texte
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
 }
