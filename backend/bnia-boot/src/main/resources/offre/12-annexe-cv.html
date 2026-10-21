@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curriculum vitae détaillé</title>
+<base target="_blank">
+<link rel="stylesheet" href="offre.css">
+<script>
+  if (location.hash === '#miniature') document.documentElement.classList.add('miniature')
+  document.addEventListener('click', (e) => {
+    const lien = e.target.closest('[data-section]')
+    if (lien) parent.postMessage({ offre: lien.dataset.section }, location.origin)
+  })
+</script>
+</head>
+<body>
+<section class="section" id="12-annexe-cv">
+<div class="surtitre">Annexe</div>
+<h1>Curriculum vitae</h1>
+<p class="accroche">J’aime construire des outils de bout en bout : comprendre le métier, concevoir, développer, mettre en ligne, accompagner les utilisateurs, puis maintenir et faire évoluer la solution dans la durée. Douze ans en responsabilités métier, dans une filière agricole puis à la tête d’une coopérative, puis six ans en ingénierie logicielle : pour moi, le logiciel est un moyen, jamais une fin.</p>
+<h2>Expérience en ingénierie logicielle</h2>
+<div class="cv-poste">
+<div class="cv-date">Depuis 2026</div>
+<div>
+<h3>Ingénieur logiciel indépendant <span>· Entreprise individuelle, Anglet</span></h3>
+<p>Conception et développement d’applications métier, en autonomie sur un périmètre complet.</p>
+<ul>
+<li><strong>Artzak Anglet, roller hockey</strong> : gestion des bénévoles pour l’organisation des matchs à domicile ; projet d’extension à tous les clubs via la Fédération française de roller et skateboard.</li>
+<li><strong>Terre d’Arjoux, élevage de porcs plein air, transformation et vente directe</strong> : gestion du cheptel et suivi des transformations pour l’agrément sanitaire, adaptés aux exploitations traditionnelles en plein air et en agriculture biologique.</li>
+</ul>
+<p class="cv-stack">Java · Spring Boot · PostgreSQL · Keycloak · Vue.js · Docker · Linux</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2023 – 2026<br><span>3 ans 4 mois</span></div>
+<div>
+<h3>Chef de projet et responsable technique <span>· Groupe Seldon, Bidart</span></h3>
+<p>Application de gestion de prêts pour la Banque de France : 6&nbsp;000 utilisateurs actifs, plus de 10&nbsp;Md€ d’encours. Développement environ 60&nbsp;%, pilotage environ 40&nbsp;%.</p>
+<ul>
+<li><strong>Produit et pilotage</strong> : ateliers de recueil du besoin, rédaction et priorisation des besoins, interface entre le métier, la maîtrise d’ouvrage et l’équipe de développement ; planning, gestion des risques, comités de pilotage avec le sponsor Banque de France.</li>
+<li><strong>Équipe</strong> : encadrement technique de 4 développeurs (2 confirmés, 2 juniors) : règles de développement, relectures de code, montée en compétence.</li>
+<li><strong>Portail des usagers</strong> : dépôt des demandes, transmission des justificatifs, déblocage des fonds, remboursement anticipé, demande de suspension.</li>
+<li><strong>Back-office d’instruction</strong> : traitement des dossiers par les agents, circuit de triple validation, octroi ou refus motivé, suivi des impayés.</li>
+<li><strong>Sécurité et accès</strong> : authentification fédérée avec celle de la Banque de France, gestion fine des rôles des agents et des usagers.</li>
+<li><strong>Échanges avec d’autres systèmes</strong> : applications internes, système d’information de la Banque de France, prestataire de signature électronique (Oodrive).</li>
+<li><strong>Exploitation</strong> : reprise des données de l’ancien système (SAP, 25 ans d’historique), mises en production, supervision, optimisation des performances, maintenance corrective et évolutive.</li>
+</ul>
+<p class="cv-stack">Java · Spring Boot · Hibernate · PostgreSQL · stockage objet S3 · Keycloak · React · Docker · GitLab CI</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2022<br><span>4 mois</span></div>
+<div>
+<h3>Développeur <span>· Groupe Seldon, Bidart</span></h3>
+<p>Progiciel de gestion interne (support client, suivi commercial, gestion des projets) : évolutions et maintenance d’un produit utilisé chaque jour par les équipes et les clients.</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2020 – 2022<br><span>2 ans</span></div>
+<div>
+<h3>Développeur indépendant <span>· Anglet</span></h3>
+<ul>
+<li><strong>CartoucheClub.com, commerce en ligne</strong> : détection en temps réel des paniers abandonnés et relance des clients par téléphone, depuis un back-office utilisé par un centre d’appels.</li>
+<li><strong>Excelvet, réseau de cliniques vétérinaires</strong> : site de présentation et d’inscription aux formations, et gestion du calendrier des formations.</li>
+</ul>
+<p class="cv-stack">Java · Spring Boot · MySQL · Vue.js · Jenkins · Linux</p>
+</div>
+</div>
+<h2>Douze ans en responsabilités métier</h2>
+<div class="cv-poste">
+<div class="cv-date">2014 – 2019<br><span>5 ans</span></div>
+<div>
+<h3>Directeur <span>· Coopérative agricole Belaun, Les Aldudes</span></h3>
+<p>Direction d’une structure de 6 salariés : recrutement et encadrement, gestion de la production, développement commercial (chiffre d’affaires doublé, de 400&nbsp;k€ à 800&nbsp;k€), gestion financière et budgétaire, obligations déclaratives.</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2008 – 2014<br><span>6 ans</span></div>
+<div>
+<h3>Coordinateur de filière <span>· Filière du Porc Basque, Les Aldudes</span></h3>
+<p>Animation d’un réseau de 80 producteurs et 5 artisans : appui-conseil, suivi financier, suivi des indicateurs de la filière, relations avec les institutions locales et régionales. Obtention de l’AOP Kintoa au terme d’une démarche collective de plusieurs années.</p>
+</div>
+</div>
+<div class="cv-poste">
+<div class="cv-date">2007 – 2008<br><span>1 an</span></div>
+<div>
+<h3>Conseiller agricole <span>· Chambre d’agriculture des Ardennes</span></h3>
+</div>
+</div>
+<div class="colonnes cv-bas">
+<div>
+<h2>Formation</h2>
+<ul>
+<li><strong>Master informatique (e-MIAGE)</strong>, Université de Picardie Jules Verne, 2021, suivi à distance pendant l’activité professionnelle.</li>
+<li><strong>Ingénieur agronome</strong>, AgroParisTech, 2005.</li>
+</ul>
+<p><strong>Langues</strong> : français, langue maternelle ; anglais professionnel.</p>
+</div>
+<div>
+<h2>Compétences</h2>
+<ul>
+<li><strong>Conception</strong> : analyse du métier, découpage en modules, tests automatisés.</li>
+<li><strong>Produit</strong> : ateliers de cadrage, priorisation, arbitrage de périmètre, accompagnement des utilisateurs.</li>
+<li><strong>Développement</strong> : Java, Spring Boot, PostgreSQL, React, Vue.js, TypeScript.</li>
+<li><strong>Sécurité</strong> : authentification, habilitations, données personnelles.</li>
+<li><strong>Exploitation</strong> : mise en production, supervision, reprise de données.</li>
+</ul>
+</div>
+</div>
+</section>
+</body>
+</html>

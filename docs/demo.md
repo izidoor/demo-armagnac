@@ -28,6 +28,14 @@ Une seule page de connexion pour tous (RG-AUT-01), http://localhost:5173/connexi
 L'opérateur actif décide de l'espace (RG-OPE-49) : back-office pour le BNIA, portail pour un autre
 opérateur. Le sélecteur sous le titre de l'espace change d'opérateur actif.
 
+## Lire l'offre
+
+« Voir l'offre », au bas de la barre latérale des deux espaces, sur grand écran seulement (dès 1024 px), ouvre
+en plein écran la réponse à l'appel d'offres : les miniatures des sections à gauche, la section choisie à droite,
+les flèches vers la précédente et la suivante, le PDF à télécharger. Les pages sont servies sous `/api/offre/`, donc après connexion seulement.
+Elles sont publiées depuis `echanges-bnia/reponse`, après `pnpm build`, par `pnpm publier`, qui réécrit
+`backend/bnia-boot/src/main/resources/offre/`.
+
 ## Comptes
 
 | E-mail | Personne | Opérateur | Rôle | Ce qu'on y voit |

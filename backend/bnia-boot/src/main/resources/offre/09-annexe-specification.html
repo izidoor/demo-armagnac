@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spécification détaillée du module Déclarations</title>
+<base target="_blank">
+<link rel="stylesheet" href="offre.css">
+<script>
+  if (location.hash === '#miniature') document.documentElement.classList.add('miniature')
+  document.addEventListener('click', (e) => {
+    const lien = e.target.closest('[data-section]')
+    if (lien) parent.postMessage({ offre: lien.dataset.section }, location.origin)
+  })
+</script>
+</head>
+<body>
+<section class="section" id="09-annexe-specification">
+<div class="surtitre">Annexe</div>
+<h1>Spécification détaillée : les déclarations de stocks et mouvements</h1>
+<p class="accroche">Chaque module est spécifié avant d’être développé, puis soumis au BNIA. Voici la spécification du module Déclarations, celle qui a servi à construire le prototype : son périmètre, ses cas d’usage, ses objets, ses échanges avec les autres modules, ses règles, les tests qui les vérifient, et les points que le BNIA doit confirmer.</p>
+<h2>1. Cadrage</h2>
+<p>Les douanes ont confié au BNIA le suivi des stocks d’Armagnac de chaque opérateur, et peuvent lui en demander à tout moment un état des lieux. Le module porte ce suivi. Sa valeur tient en trois points : des déclarations <strong>cohérentes</strong> (contrôles bloquants à l’envoi, pièces exigées à la validation), une <strong>instruction</strong> lisible des deux côtés, et un <strong>état des stocks</strong> opposable aux douanes.</p>
+<figure class="schema"><img src="annexe-dsm-cadrage.svg" alt="Cadrage du module Déclarations : l’opérateur déclare, le BNIA instruit, valide et facture ; le module porte la DSM, la cotisation et les stocks ; contrats, distillation, facturation, messagerie, notifications et statistiques relèvent d’autres modules"></figure>
+<p><strong>Ce que l’analyse propose de changer au cahier des charges</strong>, pour simplifier le travail de chacun :</p>
+<table class="propositions">
+<thead><tr><th>Le cahier des charges prévoit</th><th>Je propose</th><th>Pourquoi</th></tr></thead>
+<tbody>
+<tr><td>Le BNIA génère chaque DSM</td><td>L’opérateur l’initie lui-même, une fois la précédente validée, ou depuis un point de départ fixé une fois par le BNIA</td><td>Aucun geste du BNIA à chaque période</td></tr>
+<tr><td>L’opérateur valide sa DSM ; le BNIA peut la saisir et la corriger</td><td>L’opérateur envoie et lui seul modifie ; le BNIA instruit (demande de compléments) et valide</td><td>Chacun sait qui a la main, et ce qui a été déclaré reste celui de l’opérateur</td></tr>
+<tr><td>Tous les contrôles bloquent la validation</td><td>Les calculs bloquent l’envoi ; les pièces bloquent la validation</td><td>L’opérateur corrige ses erreurs de calcul seul ; le BNIA réclame les pièces pendant l’instruction</td></tr>
+<tr><td>Des relances manuelles</td><td>Une notification à chaque prise de main et en cas de retard, en plus des relances</td><td>Chacun sait quand agir</td></tr>
+<tr><td>Le compte d’âge augmente chaque 1er avril</td><td>Seul l’Armagnac en fût vieillit ; celui en bouteille garde son compte</td><td>Pratique de la filière</td></tr>
+<tr><td>Une note de contrôle par ligne, un pointage par justificatif</td><td>Des messages avec l’opérateur, et des notes internes que lui ne voit pas</td><td>Un seul fil d’échange par DSM</td></tr>
+</tbody>
+</table>
+<h2>2. Cas d’usage</h2>
+<p>Deux acteurs : l’<strong>opérateur</strong> (producteur ou négociant, au portail) et le <strong>BNIA</strong> (au back-office). Les droits suivent les trois rôles : l’observateur lit, l’agent et l’administrateur agissent. Les actions propres au BNIA (point de départ, instruction, validation, facturation) sont réservées à son personnel.</p>
+<figure class="schema"><img src="annexe-dsm-cycle.svg" alt="Cycle de la DSM : brouillon chez l’opérateur, envoyée puis en instruction chez le BNIA, compléments demandés renvoyés à l’opérateur, compléments reçus, puis validée ; l’opérateur initie alors la DSM suivante"></figure>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Acteur</th>
+<th>Cas d’usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UC-DEC-1</td>
+<td>BNIA</td>
+<td>Lire le <strong>stock déclaré</strong> d’un opérateur ou de tous (stock de fin de leur dernière DSM validée, ligne par ligne, daté), pour répondre aux douanes, et l’exporter en Excel.</td>
+</tr>
+<tr>
+<td>UC-DEC-2</td>
+<td>BNIA</td>
+<td>Établir le <strong>stock estimé</strong> à une date : stock déclaré vieilli, plus les entrées et moins les sorties des contrats et de la distillation survenues depuis. Livré avec ces modules.</td>
+</tr>
+<tr>
+<td>UC-DEC-3</td>
+<td>BNIA</td>
+<td>Fixer le <strong>point de départ</strong> d’un opérateur (début de sa première période, stock initial ligne par ligne), à l’écran ou par import Excel ; en fixer un nouveau après une interruption.</td>
+</tr>
+<tr>
+<td>UC-DEC-4</td>
+<td>Opérateur</td>
+<td>Initier la DSM de la période suivante : le stock de début reprend le stock de fin précédent, vieilli au 1er avril. La remplir (colonnes hors de son périmètre grisées), y joindre justificatifs et DRM, y revenir tant qu’elle est en brouillon.</td>
+</tr>
+<tr>
+<td>UC-DEC-5</td>
+<td>Opérateur</td>
+<td>Importer le modèle Excel du BNIA pour pré-remplir la DSM, sans ressaisir ce que son logiciel produit déjà.</td>
+</tr>
+<tr>
+<td>UC-DEC-6</td>
+<td>Opérateur</td>
+<td>Envoyer la DSM au BNIA quand ses calculs sont cohérents, puis la renvoyer une fois les compléments apportés. Tant qu’un contrôle bloque, voir son motif au niveau de la DSM, de l’onglet ou de la ligne.</td>
+</tr>
+<tr>
+<td>UC-DEC-7</td>
+<td>BNIA</td>
+<td>Suivre la campagne : lister les DSM et les filtrer (à prendre en charge, compléments demandés, en retard, absentes, à facturer…).</td>
+</tr>
+<tr>
+<td>UC-DEC-8</td>
+<td>BNIA</td>
+<td>Instruire une DSM envoyée : la prendre en charge, écrire des notes internes, déposer une pièce reçue par courrier, demander des compléments avec un motif, ce qui rend la main à l’opérateur.</td>
+</tr>
+<tr>
+<td>UC-DEC-9</td>
+<td>BNIA</td>
+<td>Valider une DSM dont les pièces sont complètes : elle est figée, et l’opérateur peut initier la suivante.</td>
+</tr>
+<tr>
+<td>UC-DEC-10</td>
+<td>BNIA</td>
+<td>Facturer une DSM validée, ou une sélection : la cotisation calculée devient une facture, retrouvée ensuite depuis la DSM.</td>
+</tr>
+<tr>
+<td>UC-DEC-11</td>
+<td>Les deux</td>
+<td>Être notifié dès qu’une DSM attend son action : l’opérateur en retard, quand des compléments sont demandés ou que sa DSM est validée ; le BNIA quand une DSM est envoyée ou renvoyée.</td>
+</tr>
+</tbody>
+</table>
+<p>Cas secondaires : supprimer un brouillon ; éditer une DSM en PDF ou en Excel, dans tout état (« document provisoire » avant validation) ; consulter l’historique d’une DSM ; tenir la grille des taux de cotisation.</p>
+<h2>3. Objets du domaine</h2>
+<figure class="schema"><img src="annexe-dsm-objets.svg" alt="Objets du domaine : la DSM avec ses lignes, justificatifs, DRM et notes internes ; le point de départ ; la grille de cotisation ; le journal ; les calculs sans donnée propre ; l’opérateur et la facture, tenus par d’autres modules"></figure>
+<table>
+<thead>
+<tr>
+<th>Objet</th>
+<th>Rôle</th>
+<th>Invariants principaux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSM</td>
+<td>La déclaration d’un opérateur pour une période</td>
+<td>Au plus une DSM non validée par opérateur. Période : celle qui suit la dernière DSM validée, ni chevauchement ni trou. Type de déclarant figé à l’initiation. Modifiable par l’opérateur seulement en brouillon ou en compléments demandés ; figée une fois validée. Ne porte ni montant ni état de facturation : la facture référence la DSM.</td>
+</tr>
+<tr>
+<td>Ligne</td>
+<td>Un stock suivi : clé, millésime ou dénomination, compte d’âge</td>
+<td>Unique dans la DSM. Colonne 1 = colonne 26 de la ligne correspondante de la DSM précédente. Colonne 26 toujours calculée.</td>
+</tr>
+<tr>
+<td>Justificatif, DRM</td>
+<td>Les pièces de la DSM</td>
+<td>Justificatif rattaché à la DSM ou à une ligne ; une DRM par mois de la période, pour un producteur. Le fichier est conservé dans le stockage des documents, à part de la base.</td>
+</tr>
+<tr>
+<td>Note interne</td>
+<td>Ce que le BNIA garde pour lui</td>
+<td>Jamais montrée à l’opérateur ; les échanges avec lui sont des messages de la conversation de la DSM.</td>
+</tr>
+<tr>
+<td>Point de départ</td>
+<td>Début de la première période et stock initial</td>
+<td>Un seul en vigueur par opérateur ; modifiable tant que la première DSM qui en est issue n’est pas validée.</td>
+</tr>
+<tr>
+<td>Grille de cotisation</td>
+<td>Les taux CVO datés</td>
+<td>Chaîne continue : un taux finit la veille du suivant, sans trou ni chevauchement.</td>
+</tr>
+<tr>
+<td>Journal</td>
+<td>La trace de chaque action</td>
+<td>En ajout seul, lisible par l’opérateur : ni messages ni notes internes.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Le format unique : 26 colonnes</strong>, communes au producteur et au négociant. Pour un producteur, les colonnes grisées restent visibles mais vides, et n’entrent dans aucun calcul.</p>
+<table class="colonnes-dsm">
+<thead><tr><th>N°</th><th>Onglet</th><th>Libellé</th><th>Sens</th><th>Grisée producteur</th><th>Cotisation</th><th>Justificatif</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Récapitulatif</td><td>stock début de période</td><td>calculé</td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td>Récapitulatif</td><td>entrées achats à la propriété</td><td>entrée</td><td>oui</td><td></td><td>achat</td></tr>
+<tr><td>3</td><td>Récapitulatif</td><td>entrées achats négoce</td><td>entrée</td><td>oui</td><td></td><td>achat</td></tr>
+<tr><td>4</td><td>Entrées</td><td>distillation propre</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>5</td><td>Entrées</td><td>passage sous bois / sous-verre</td><td>entrée</td><td>oui</td><td></td><td></td></tr>
+<tr><td>6</td><td>Entrées</td><td>assemblages / coupes</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>7</td><td>Entrées</td><td>transferts chai Armagnac en région délimitée</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>8</td><td>Entrées</td><td>transferts chai Armagnac hors région délimitée</td><td>entrée</td><td></td><td></td><td></td></tr>
+<tr><td>9</td><td>Entrées</td><td>réintégrations</td><td>entrée</td><td>oui</td><td></td><td>réintégration</td></tr>
+<tr><td>10</td><td>Sorties</td><td>pertes sur inventaire</td><td>sortie</td><td></td><td></td><td></td></tr>
+<tr><td>11</td><td>Sorties</td><td>passage sous bois / sous-verre</td><td>sortie</td><td>oui</td><td></td><td></td></tr>
+<tr><td>12</td><td>Sorties</td><td>assemblages / coupes</td><td>sortie</td><td></td><td></td><td></td></tr>
+<tr><td>13</td><td>Sorties</td><td>transferts chai Armagnac en région délimitée</td><td>sortie</td><td></td><td></td><td></td></tr>
+<tr><td>14</td><td>Sorties</td><td>transferts chai Armagnac hors région délimitée</td><td>sortie</td><td></td><td>Sorties France</td><td></td></tr>
+<tr><td>15</td><td>Sorties</td><td>fabrications Floc de Gascogne</td><td>sortie</td><td></td><td></td><td>aucun, à confirmer</td></tr>
+<tr><td>16</td><td>Sorties</td><td>autres fabrications que l’AOC</td><td>sortie</td><td></td><td>autre produit, France</td><td>autres fabrications</td></tr>
+<tr><td>17</td><td>Ventes France</td><td>marché intérieur hors chai en bouteilles</td><td>sortie</td><td></td><td>Sorties France</td><td></td></tr>
+<tr><td>18</td><td>Ventes France</td><td>marché intérieur hors chai en vrac</td><td>sortie</td><td></td><td>Sorties France</td><td></td></tr>
+<tr><td>19</td><td>Ventes France</td><td>marché intérieur hors chai en brandies</td><td>sortie</td><td>oui</td><td>Sorties France</td><td></td></tr>
+<tr><td>20</td><td>Ventes France</td><td>négoce chai Armagnac en région délimitée</td><td>sortie</td><td></td><td></td><td>vente négoce</td></tr>
+<tr><td>21</td><td>Ventes France</td><td>négoce chai Armagnac hors région délimitée</td><td>sortie</td><td></td><td>Sorties France</td><td>vente négoce</td></tr>
+<tr><td>22</td><td>Export</td><td>bouteilles</td><td>sortie</td><td></td><td>Sorties Export</td><td>vente export</td></tr>
+<tr><td>23</td><td>Export</td><td>vrac destiné à la mise en bouteille</td><td>sortie</td><td></td><td>Sorties Export</td><td>vente export</td></tr>
+<tr><td>24</td><td>Export</td><td>brandies</td><td>sortie</td><td>oui</td><td>Sorties Export</td><td>vente export</td></tr>
+<tr><td>25</td><td>Export</td><td>vins vinés et fabrications autres</td><td>sortie</td><td>oui</td><td>autre produit, export</td><td>vente export</td></tr>
+<tr><td>26</td><td>Récapitulatif</td><td>stock fin de période</td><td>calculé</td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+<h2>4. Flux avec les autres modules</h2>
+<p>Le module Déclarations ne dépend que du module Opérateurs. Les autres modules dépendent de lui : il leur publie ce qu’ils ont besoin de lire et les prévient de ce qui se passe, sans jamais les appeler en retour. Ainsi, chaque module peut être livré à son tour, sans attendre les suivants.</p>
+<figure class="schema"><img src="annexe-dsm-flux.svg" alt="Flux : Opérateurs fournit type, statut et droits ; Paramétrage le taux de TVA ; Déclarations demande les factures à Facturation, qui lui renvoie factures et avoirs ; dépose le motif des compléments dans la Messagerie ; publie ses événements pour les Notifications ; fournit dernière DSM et stock déclaré ; recevra plus tard contrats, retiraisons et fins de travaux, et fournira le bilan prévisionnel"></figure>
+<table>
+<thead>
+<tr>
+<th>Événement publié</th>
+<th>Contenu</th>
+<th>Quand</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DSM envoyée</td>
+<td>DSM, opérateur, période, premier envoi ou renvoi</td>
+<td>À l’envoi et au renvoi</td>
+</tr>
+<tr>
+<td>Compléments demandés</td>
+<td>DSM, opérateur, période, motif</td>
+<td>À la demande de compléments</td>
+</tr>
+<tr>
+<td>DSM validée</td>
+<td>DSM, opérateur, période</td>
+<td>À la validation</td>
+</tr>
+<tr>
+<td>Déclaration en retard</td>
+<td>opérateur, période attendue, échéance</td>
+<td>Le lendemain de l’échéance, une seule fois par période</td>
+</tr>
+</tbody>
+</table>
+<h2>5. Règles de gestion</h2>
+<p>Extrait : 30 règles sur 44. Chaque règle porte un identifiant, repris par au moins un test.</p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Règle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Droits et calendrier</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-01</td>
+<td>Lire les DSM d’un opérateur exige la lecture du module Déclarations sur cet opérateur ; agir exige sa gestion. Point de départ, instruction, validation, notes internes et dépôt pendant l’instruction sont réservés au BNIA. L’opérateur ne voit jamais les notes internes.</td>
+</tr>
+<tr>
+<td>RG-DEC-02</td>
+<td>Seul un producteur ou un négociant au statut de déclaration « oui » initie une DSM. Le type de déclarant est figé à l’initiation ; une DSM en cours quand le statut change va à son terme.</td>
+</tr>
+<tr>
+<td>RG-DEC-03</td>
+<td>La période d’un producteur va du 1er avril au 31 mars ; celle d’un négociant est un mois civil.</td>
+</tr>
+<tr>
+<td>RG-DEC-04</td>
+<td>Une nouvelle DSM commence le lendemain de la fin de la dernière DSM validée, ou au début du point de départ. Ni chevauchement ni trou, sauf par un nouveau point de départ.</td>
+</tr>
+<tr>
+<td>RG-DEC-05</td>
+<td>Un opérateur a au plus une DSM non validée. L’initiation est refusée sans point de départ, tant que la précédente n’est pas validée, ou avant le premier jour de la période.</td>
+</tr>
+<tr>
+<td><strong>Point de départ</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-08</td>
+<td>Un point de départ se modifie tant qu’aucune DSM qui commence à son début n’est validée ; la DSM en cours suit (stock de début recalculé, lignes ajoutées ou retirées).</td>
+</tr>
+<tr>
+<td>RG-DEC-09</td>
+<td>Après une interruption, le BNIA fixe un nouveau point de départ, postérieur à la dernière DSM validée. Le stock proposé est le stock de fin de celle-ci, vieilli, modifiable. Le trou est tracé au journal.</td>
+</tr>
+<tr>
+<td><strong>Lignes et vieillissement</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-10</td>
+<td>Une ligne MB ou MV porte un millésime ; une ligne NB ou NV porte une dénomination, et pas de millésime.</td>
+</tr>
+<tr>
+<td>RG-DEC-11</td>
+<td>Deux lignes ne peuvent avoir même millésime ou dénomination, même clé et même compte d’âge. Les dénominations se comparent sans tenir compte de la casse, des accents ni des espaces.</td>
+</tr>
+<tr>
+<td>RG-DEC-12</td>
+<td>Le compte d’âge va de 00 à 20+. MB : calculé depuis le millésime, non saisi. MV : saisi, au plus égal au compte calculé de son millésime. NB, NV : saisis.</td>
+</tr>
+<tr>
+<td>RG-DEC-13</td>
+<td>Une ligne reprise ne se supprime pas et son identité ne se modifie pas : un changement passe par les colonnes 12 et 6. Une ligne ajoutée commence à 0 et peut être supprimée.</td>
+</tr>
+<tr>
+<td>RG-DEC-14</td>
+<td>À l’initiation, chaque ligne de la DSM précédente au stock de fin positif est reprise. Au 1er avril, les lignes en fût vieillissent (MB recalculé, NB +1, bornés à 20+), celles en bouteille non ; les lignes devenues identiques fusionnent, volumes additionnés.</td>
+</tr>
+<tr>
+<td><strong>Volumes et contrôles</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-15</td>
+<td>Un volume est en litres d’alcool pur, positif ou nul, au centilitre.</td>
+</tr>
+<tr>
+<td>RG-DEC-16</td>
+<td>Pour un producteur, les colonnes 2, 3, 5, 9, 11, 19, 24 et 25 restent visibles mais vides et non saisissables, hors de tout total, contrôle et calcul.</td>
+</tr>
+<tr>
+<td>RG-DEC-17</td>
+<td>Par ligne : stock de fin (26) = 1 + 2 + 3 + somme des colonnes 4 à 9 − somme des colonnes 10 à 25.</td>
+</tr>
+<tr>
+<td>RG-DEC-18</td>
+<td>Sont des anomalies : un stock de fin négatif ; total de la colonne 6 ≠ total de la colonne 12 ; pour un négociant, colonne 5 ≠ colonne 11 ; un compte MV trop élevé. Chacune est montrée dès la saisie, avec son niveau et son écart. Elle n’empêche pas d’enregistrer ; elle bloque l’envoi.</td>
+</tr>
+<tr>
+<td><strong>Cycle de la DSM</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-20</td>
+<td>L’opérateur envoie un brouillon, ou renvoie une DSM en compléments demandés, si elle n’a aucune anomalie. Le BNIA prend en charge une DSM envoyée ; il demande des compléments, avec un motif obligatoire, ou valide si aucune pièce ne manque. Rien ne sort de l’état validé.</td>
+</tr>
+<tr>
+<td>RG-DEC-21</td>
+<td>Lignes et volumes ne se modifient, et l’import ne s’applique, qu’en brouillon ou en compléments demandés, par l’opérateur.</td>
+</tr>
+<tr>
+<td>RG-DEC-22</td>
+<td>Seul un brouillon se supprime, par l’opérateur ou par le BNIA, avec ses pièces et sa conversation ; une trace de la suppression reste au journal.</td>
+</tr>
+<tr>
+<td>RG-DEC-23</td>
+<td>Le journal s’écrit en ajout seul, sans valeurs avant et après : initiation, enregistrement, import (nom du fichier), envoi, prise en charge, compléments, validation, édition, dépôt et suppression de pièces, point de départ.</td>
+</tr>
+<tr>
+<td><strong>Pièces</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-26</td>
+<td>Un justificatif est un PDF, avec un type de mouvement et un type de pièce compatibles : achat, vente négoce, vente export → facture ou DAE ; réintégration → avoir ou DAE ; autres fabrications → déclaration de fabrication douanes.</td>
+</tr>
+<tr>
+<td>RG-DEC-27</td>
+<td>Une DSM producteur attend une DRM par mois de sa période, un seul PDF par mois.</td>
+</tr>
+<tr>
+<td>RG-DEC-29</td>
+<td>La validation est bloquée tant que, pour un type de mouvement au total non nul, aucune pièce de ce type n’est déposée, ou tant qu’un mois n’a pas sa DRM. Chaque manque est montré.</td>
+</tr>
+<tr>
+<td><strong>Cotisation et facturation</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-30</td>
+<td>Un taux CVO a un montant positif en €/hlAP, un pourcentage exonéré de TVA de 0 à 100, et une date de début unique ; sa fin est la veille du suivant.</td>
+</tr>
+<tr>
+<td>RG-DEC-31</td>
+<td>L’assiette est le volume des colonnes 14, 16 à 19 et 21 à 25, colonnes grisées exclues.</td>
+</tr>
+<tr>
+<td>RG-DEC-32</td>
+<td>Le taux appliqué est celui en vigueur à la fin de la période ; sans taux, la cotisation est signalée « non calculable ».</td>
+</tr>
+<tr>
+<td>RG-DEC-33</td>
+<td>Une ligne de cotisation par ligne de facture : volume en hlAP = litres ÷ 100 ; part exonérée et part assujettie calculées et arrondies séparément, au centime.</td>
+</tr>
+<tr>
+<td>RG-DEC-43</td>
+<td>Facturer est réservé au BNIA, pour une DSM validée, sans facture en cours, d’un opérateur facturable, à la cotisation non nulle ; sinon le refus dit pourquoi. Une sélection se facture toute ou pas du tout.</td>
+</tr>
+<tr>
+<td><strong>Import et retard</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>RG-DEC-37</td>
+<td>L’import Excel est tout ou rien : clé inconnue, volume négatif, ligne en double, valeur en colonne grisée, période différente refusent le fichier entier, avec la liste des erreurs (onglet, ligne, colonne).</td>
+</tr>
+<tr>
+<td>RG-DEC-40</td>
+<td>Une période est en retard si son échéance est passée (le 5 du mois suivant pour un négociant, le 30 avril pour un producteur) et que sa DSM est absente, en brouillon ou en compléments demandés. L’opérateur n’est pas en retard tant que sa DSM attend le BNIA.</td>
+</tr>
+</tbody>
+</table>
+<h2>6. Tests attendus</h2>
+<p>Chaque règle a au moins un test qui porte son identifiant ; chaque cas d’usage a son test de refus de droits. Extrait :</p>
+<table>
+<thead>
+<tr>
+<th>Règle</th>
+<th>Cas testé</th>
+<th>Résultat attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RG-DEC-01</td>
+<td>Un agent d’un négociant prend en charge une DSM</td>
+<td>Refusé : réservé au BNIA</td>
+</tr>
+<tr>
+<td>RG-DEC-01</td>
+<td>L’opérateur consulte sa DSM annotée par le BNIA</td>
+<td>Les notes internes n’apparaissent pas</td>
+</tr>
+<tr>
+<td>RG-DEC-05</td>
+<td>Initier une DSM alors que la précédente est envoyée</td>
+<td>Refusé : une seule DSM non validée</td>
+</tr>
+<tr>
+<td>RG-DEC-11</td>
+<td>Ajouter « Hors d’âge » quand « hors d’age » existe, même clé et même compte</td>
+<td>Refusé : ligne en double</td>
+</tr>
+<tr>
+<td>RG-DEC-12</td>
+<td>Ligne MB du millésime 2015 dans une période qui commence le 1er avril 2026</td>
+<td>Compte d’âge calculé, non saisissable</td>
+</tr>
+<tr>
+<td>RG-DEC-14</td>
+<td>Ligne NB compte 19 et ligne NB 20+ de même dénomination, au 1er avril</td>
+<td>Une seule ligne 20+, volumes additionnés</td>
+</tr>
+<tr>
+<td>RG-DEC-14</td>
+<td>Ligne NV compte 6 au 1er avril</td>
+<td>Compte inchangé</td>
+</tr>
+<tr>
+<td>RG-DEC-16</td>
+<td>Producteur qui saisit en colonne 24</td>
+<td>Refusé ; la colonne reste vide</td>
+</tr>
+<tr>
+<td>RG-DEC-18</td>
+<td>50 L en colonne 6, 60 L en colonne 12</td>
+<td>Anomalie de 10 L ; brouillon enregistré, envoi refusé</td>
+</tr>
+<tr>
+<td>RG-DEC-20</td>
+<td>Valider une DSM validée, ou renvoyer une DSM envoyée</td>
+<td>Refusé : transition interdite</td>
+</tr>
+<tr>
+<td>RG-DEC-20</td>
+<td>Demander des compléments sans motif</td>
+<td>Refusé : motif obligatoire</td>
+</tr>
+<tr>
+<td>RG-DEC-22</td>
+<td>Supprimer une DSM envoyée</td>
+<td>Refusé : seul un brouillon se supprime</td>
+</tr>
+<tr>
+<td>RG-DEC-29</td>
+<td>DSM avec 2 254,15 L à l’export et aucun DAE</td>
+<td>Validation refusée ; le manque est nommé</td>
+</tr>
+<tr>
+<td>RG-DEC-33</td>
+<td>Sorties France 839,11 L à 60 €/hlAP dont 20 % exonérés</td>
+<td>100,69 € exonérés, 402,77 € assujettis</td>
+</tr>
+<tr>
+<td>RG-DEC-37</td>
+<td>Fichier Excel avec une valeur en colonne grisée</td>
+<td>Fichier refusé, erreur située ; rien n’est importé</td>
+</tr>
+<tr>
+<td>RG-DEC-40</td>
+<td>Négociant, DSM d’août envoyée le 3 septembre, non instruite le 10</td>
+<td>Pas en retard : elle attend le BNIA</td>
+</tr>
+<tr>
+<td>RG-DEC-41</td>
+<td>Traitement des retards lancé deux fois le même jour</td>
+<td>Un seul avis de retard publié</td>
+</tr>
+</tbody>
+</table>
+<h2>7. Hypothèses et questions ouvertes</h2>
+<p>Le cahier des charges laisse des points ambigus ou muets. Plutôt que de les trancher seul, chacun est posé au BNIA, avec l’hypothèse retenue d’ici sa réponse : le développement avance sans attendre, et rien n’est figé. Extrait : 12 questions sur 27.</p>
+<table>
+<thead>
+<tr>
+<th>Id</th>
+<th>Question au BNIA</th>
+<th>Hypothèse retenue d’ici la réponse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q-DEC-1</td>
+<td>Quelles données Floc de Gascogne l’ODG fournit-il pour pointer la colonne 15 ?</td>
+<td>La colonne 15 n’appelle aucun justificatif ; le BNIA peut l’annoter</td>
+</tr>
+<tr>
+<td>Q-DEC-2</td>
+<td>L’assiette négociant comprend-elle les colonnes 16 et 25 ? Les sources se contredisent.</td>
+<td>Oui : la facture d’exemple a deux lignes que seules ces colonnes alimentent</td>
+</tr>
+<tr>
+<td>Q-DEC-3</td>
+<td>La colonne 14 (transferts hors région) entre-t-elle dans l’assiette producteur ?</td>
+<td>Oui : une seule règle par colonne, colonnes grisées exclues</td>
+</tr>
+<tr>
+<td>Q-DEC-4</td>
+<td>Sur quelle ligne de facture placer la colonne 14 et les brandies (19, 24) ?</td>
+<td>Sorties France et Sorties Export ; seule la présentation en dépend</td>
+</tr>
+<tr>
+<td>Q-DEC-6</td>
+<td>Une période peut-elle chevaucher le 1er avril ?</td>
+<td>Non : sinon une ligne aurait deux comptes d’âge</td>
+</tr>
+<tr>
+<td>Q-DEC-7</td>
+<td>Quelle échéance, et l’attente de l’instruction compte-t-elle comme un retard ?</td>
+<td>Le 5 du mois suivant (négociant), le 30 avril (producteur) ; l’attente du BNIA ne compte pas</td>
+</tr>
+<tr>
+<td>Q-DEC-8</td>
+<td>Quels contrôles croisés, et à quelle tolérance ?</td>
+<td>Colonne 6 = colonne 12, colonne 5 = colonne 11, au centilitre ; bloquants à l’envoi</td>
+</tr>
+<tr>
+<td>Q-DEC-11</td>
+<td>Après une période de sommeil, l’opérateur déclare-t-il les périodes d’inactivité ?</td>
+<td>Non : le BNIA fixe un nouveau point de départ</td>
+</tr>
+<tr>
+<td>Q-DEC-14</td>
+<td>Les justificatifs se contrôlent-ils par ligne ou par type de mouvement ?</td>
+<td>Par type de mouvement, sur la DSM : une pièce couvre souvent plusieurs lignes</td>
+</tr>
+<tr>
+<td>Q-DEC-18</td>
+<td>Une DSM validée peut-elle être rouverte ?</td>
+<td>Non : l’erreur se régularise dans la DSM suivante, ou par un avoir</td>
+</tr>
+<tr>
+<td>Q-DEC-23</td>
+<td>Quelle classe de TVA s’applique à la cotisation ?</td>
+<td>20 %, sur la seule part assujettie, comme sur la facture d’exemple</td>
+</tr>
+<tr>
+<td>Q-DEC-26</td>
+<td>À quel niveau de détail suivre le stock estimé, et que fait un contrat qui le dépasse ?</td>
+<td>Millésime, ou assemblage et compte d’âge, fût et bouteille confondus ; à trancher avec le module des contrats</td>
+</tr>
+</tbody>
+</table>
+</section>
+</body>
+</html>

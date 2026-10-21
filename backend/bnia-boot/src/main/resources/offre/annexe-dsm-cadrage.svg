@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 262" font-family="Inter Variable, Noto Sans, sans-serif">
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a5b1e"/>
+    </marker>
+    <style>
+      .groupe { fill: #f7efe5; stroke: #e6dccf; }
+      .tiers { fill: #fff; stroke: #c9bcab; stroke-dasharray: 4 3; }
+      .boite { fill: #fff; stroke: #c9a27a; }
+      .acteur { fill: #fff; stroke: #9a5b1e; stroke-width: 1.3; }
+      .titre-groupe { font-size: 12px; font-weight: 650; fill: #6e3f12; }
+      .sous-groupe { font-size: 8.5px; fill: #7a6f66; }
+      .nom { font-size: 10.5px; font-weight: 650; fill: #241f1b; }
+      .nom-discret { font-size: 9px; font-weight: 650; fill: #5a504a; }
+      .detail { font-size: 8.5px; fill: #5a504a; }
+      .lien { stroke: #9a5b1e; stroke-width: 1.2; fill: none; }
+      .lien-pointille { stroke: #9a5b1e; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+      .etiquette { font-size: 8px; fill: #9a5b1e; font-weight: 600; }
+    </style>
+  </defs>
+
+  <!-- Acteurs -->
+  <rect class="acteur" x="0" y="22" width="128" height="58" rx="6"/>
+  <text class="nom" x="64" y="42" text-anchor="middle">Opérateur</text>
+  <text class="detail" x="64" y="55" text-anchor="middle">producteur ou négociant</text>
+  <text class="detail" x="64" y="67" text-anchor="middle">au portail : déclare</text>
+
+  <rect class="acteur" x="0" y="112" width="128" height="58" rx="6"/>
+  <text class="nom" x="64" y="132" text-anchor="middle">BNIA</text>
+  <text class="detail" x="64" y="145" text-anchor="middle">au back-office : instruit,</text>
+  <text class="detail" x="64" y="157" text-anchor="middle">valide, facture</text>
+
+  <rect class="tiers" x="0" y="202" width="128" height="52" rx="6"/>
+  <text class="nom-discret" x="64" y="220" text-anchor="middle">Douanes</text>
+  <text class="detail" x="64" y="233" text-anchor="middle">sans accès : le BNIA leur</text>
+  <text class="detail" x="64" y="244" text-anchor="middle">transmet l’état des lieux</text>
+
+  <!-- Le module -->
+  <rect class="groupe" x="168" y="0" width="290" height="262" rx="8"/>
+  <text class="titre-groupe" x="182" y="20">Module Déclarations</text>
+  <text class="sous-groupe" x="182" y="33">ce que le module porte</text>
+
+  <rect class="boite" x="182" y="44" width="262" height="70" rx="5"/>
+  <text class="nom" x="194" y="61">La DSM</text>
+  <text class="detail" x="194" y="75">initiée, remplie (saisie ou import Excel) et envoyée</text>
+  <text class="detail" x="194" y="86">par l’opérateur, avec ses justificatifs et ses DRM ;</text>
+  <text class="detail" x="194" y="97">instruite puis validée par le BNIA, qui la fige ;</text>
+  <text class="detail" x="194" y="108">éditions PDF et Excel, journal, retards</text>
+
+  <rect class="boite" x="182" y="124" width="262" height="59" rx="5"/>
+  <text class="nom" x="194" y="141">La cotisation</text>
+  <text class="detail" x="194" y="155">grille des taux CVO datés, tenue par le BNIA ;</text>
+  <text class="detail" x="194" y="166">calcul selon l’assiette du déclarant ;</text>
+  <text class="detail" x="194" y="177">demande de facture des DSM validées</text>
+
+  <rect class="boite" x="182" y="193" width="262" height="59" rx="5"/>
+  <text class="nom" x="194" y="210">Les stocks</text>
+  <text class="detail" x="194" y="224">stock déclaré : fin de la dernière DSM validée ;</text>
+  <text class="detail" x="194" y="235">stock estimé, engagements, bilan prévisionnel :</text>
+  <text class="detail" x="194" y="246">avec les contrats et la distillation</text>
+
+  <!-- Liens des acteurs -->
+  <path class="lien" d="M128,51 L182,79" marker-end="url(#fleche)"/>
+  <path class="lien" d="M128,141 L182,100" marker-end="url(#fleche)"/>
+  <path class="lien" d="M128,150 L182,153" marker-end="url(#fleche)"/>
+  <path class="lien-pointille" d="M64,170 L64,202" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="70" y="190">état des lieux</text>
+
+  <!-- Hors du module -->
+  <text class="titre-groupe" x="478" y="20">Hors du module</text>
+  <text class="sous-groupe" x="478" y="33">module qui en a la charge</text>
+
+  <rect class="tiers" x="478" y="42" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="54">Contrats, retiraisons</text>
+  <text class="detail" x="487" y="65">Contrats d’achat</text>
+  <rect class="tiers" x="478" y="73" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="85">Fin de travaux</text>
+  <text class="detail" x="487" y="96">Distillation</text>
+  <rect class="tiers" x="478" y="104" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="116">Facture, numéro, TVA, PDF</text>
+  <text class="detail" x="487" y="127">Facturation</text>
+  <rect class="tiers" x="478" y="135" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="147">Échanges avec l’opérateur</text>
+  <text class="detail" x="487" y="158">Messagerie</text>
+  <rect class="tiers" x="478" y="166" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="178">Envoi des relances, e-mails</text>
+  <text class="detail" x="487" y="189">Notifications</text>
+  <rect class="tiers" x="478" y="197" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="209">Indicateurs, tableaux de bord</text>
+  <text class="detail" x="487" y="220">Statistiques</text>
+  <rect class="tiers" x="478" y="228" width="182" height="28" rx="5"/>
+  <text class="nom-discret" x="487" y="240">Signature électronique</text>
+  <text class="detail" x="487" y="251">en option, hors du prix</text>
+</svg>

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offre financière</title>
+<base target="_blank">
+<link rel="stylesheet" href="offre.css">
+<script>
+  if (location.hash === '#miniature') document.documentElement.classList.add('miniature')
+  document.addEventListener('click', (e) => {
+    const lien = e.target.closest('[data-section]')
+    if (lien) parent.postMessage({ offre: lien.dataset.section }, location.origin)
+  })
+</script>
+</head>
+<body>
+<section class="section" id="06-offre-financiere">
+<div class="surtitre">Offre financière</div>
+<h1>Un prix fixe, des paiements par phase</h1>
+<p class="accroche">Chaque phase est un forfait, payé seulement une fois qu’elle est validée par le BNIA. L’hébergement est souscrit par le BNIA au prix réel, sans marge intermédiaire. Le premier engagement ne dépasse pas 5 000&nbsp;€.</p>
+<div class="chiffres">
+<div class="chiffre"><span class="valeur">5 000&nbsp;€</span><span class="libelle">HT pour juger sur pièces, avant toute décision de poursuivre (phase 1)</span></div>
+<div class="chiffre"><span class="valeur">53 000&nbsp;€</span><span class="libelle">HT pour la réalisation complète, de la prise en main à l’arrêt d’Integraal</span></div>
+<div class="chiffre"><span class="valeur">≈&nbsp;80&nbsp;€</span><span class="libelle">HT par mois d’hébergement, payés directement à l’hébergeur</span></div>
+<div class="chiffre"><span class="valeur">0 €</span><span class="libelle">de maintenance facturée jusqu’à fin 2027</span></div>
+</div>
+<h2>Réalisation</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Durée</th>
+<th>Contenu</th>
+<th>Forfait HT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0 · Prise en main de l’existant</strong></td>
+<td>1 journée</td>
+<td>Plan de déploiement confirmé ou ajusté</td>
+<td>–</td>
+</tr>
+<tr>
+<td><strong>1 · Preuve de capacité sur données réelles</strong></td>
+<td>2 mois</td>
+<td>Le socle sur les données du BNIA, en recette : connexion, opérateurs et utilisateurs, DSM, messagerie, notifications</td>
+<td>5 000 €</td>
+</tr>
+<tr>
+<td><strong>2 · Les DSM sur le portail</strong></td>
+<td>2 mois</td>
+<td>Mise en production des DSM ; en recette : suivi export, certificats, facturation</td>
+<td>12 000 €</td>
+</tr>
+<tr>
+<td><strong>3 · DSM, export et facturation</strong></td>
+<td>2 mois</td>
+<td>Mise en production ; en recette : contrats d’achat, fin de distillation</td>
+<td>12 000 €</td>
+</tr>
+<tr>
+<td><strong>4 · Contrats et distillation</strong></td>
+<td>3 mois</td>
+<td>Mise en production ; en recette : statistiques, boutique, gestion documentaire, reprise complète de l’historique</td>
+<td>18 000 €</td>
+</tr>
+<tr>
+<td><strong>5 · Arrêt d’Integraal</strong></td>
+<td>1 mois</td>
+<td>Mise en production finale, dernière synchronisation, arrêt d’Integraal et de pro.armagnac.fr</td>
+<td>6 000 €</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td></td>
+<td><strong>53 000 €</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Chaque forfait comprend le développement, les tests, la mise en production, la documentation, l’animation du groupe d’adoption, l’accompagnement des opérateurs à chaque ouverture et les relations avec les prestataires externes.</p>
+<div class="encadre">
+<h3>Pourquoi ce prix ?</h3>
+<p>J’estime la charge de travail à neuf mois pour une personne à plein temps. Le prix total représente le salaire d’un chef de projet informatique expérimenté sur cette période.</p>
+</div>
+<h3>Les connexions aux services externes</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Usage</th>
+<th>Dans le prix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Zeendoc</td>
+<td>Archivage des factures</td>
+<td>Inclus</td>
+</tr>
+<tr>
+<td>Otentik</td>
+<td>Certificats export</td>
+<td>Inclus</td>
+</tr>
+<tr>
+<td>ODG</td>
+<td>Échange des données de la filière</td>
+<td>Inclus</td>
+</tr>
+<tr>
+<td>Signature électronique des DSM</td>
+<td>Signature de la DSM par l’opérateur</td>
+<td>En option : environ 5 000 € HT</td>
+</tr>
+</tbody>
+</table>
+<p>Je ne dispose pas encore de la documentation de Zeendoc, d’Otentik et de l’ODG. Mon prix suppose qu’ils proposent une interface standard (API REST). La prise de contact avec ces services est prévue dès la phase 1 : si l’un d’eux s’écarte de ce standard, le BNIA en est informé avant de poursuivre, avec un chiffrage.</p>
+<p class="encadre"><strong>La signature électronique n’est pas incluse.</strong> La double authentification et la traçabilité de la plateforme prouvent déjà qui a envoyé chaque DSM, avec quel contenu et à quelle date. Si le BNIA souhaite tout de même la signature électronique, la connexion à un service de signature (Yousign, DocuSign…) est estimée à environ 5&nbsp;000&nbsp;€ HT. S’y ajoutent l’abonnement et le coût par signature du service retenu, payés directement par le BNIA.</p>
+<p>D’une façon générale, j’estime à environ 5 000 € HT la connexion à tout nouveau service externe qui propose une interface standard.</p>
+<h2>Hébergement</h2>
+<p>Le contrat est souscrit au nom du BNIA avant la première mise en production, et réglé directement par lui : aucun frais d’hébergement ne passe par moi, et le BNIA paie le prix public de l’hébergeur, sans marge.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Hébergeur</th>
+<th>Prix HT par mois</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Application</td>
+<td>Scalingo, Paris</td>
+<td>28,80 €</td>
+</tr>
+<tr>
+<td>Écrans (fichiers statiques)</td>
+<td>Scalingo, Paris</td>
+<td>7,20 €</td>
+</tr>
+<tr>
+<td>Base de données PostgreSQL, haute disponibilité</td>
+<td>Scalingo, Paris</td>
+<td>40,00 €</td>
+</tr>
+<tr>
+<td>Stockage des documents, répliqué</td>
+<td>Scalingo, Paris</td>
+<td>moins de 1 €</td>
+</tr>
+<tr>
+<td>Envoi des e-mails</td>
+<td>Messagerie du BNIA (armagnac.fr)</td>
+<td>sans surcoût</td>
+</tr>
+<tr>
+<td><strong>Production</strong></td>
+<td></td>
+<td><strong>environ 77 €, soit environ 920 € par an</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>Conditions</h2>
+<ul>
+<li><strong>Prix fermes</strong>, exprimés hors taxes.</li>
+<li><strong>Paiement à 30 jours</strong>, après validation de chaque phase par le BNIA ; le forfait annuel de maintenance est facturé en début d’année.</li>
+<li><strong>Liberté du BNIA</strong> : il décide de poursuivre ou d’arrêter à l’issue de la phase 1, sans pénalité.</li>
+</ul>
+</section>
+</body>
+</html>

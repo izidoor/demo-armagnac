@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maintenance</title>
+<base target="_blank">
+<link rel="stylesheet" href="offre.css">
+<script>
+  if (location.hash === '#miniature') document.documentElement.classList.add('miniature')
+  document.addEventListener('click', (e) => {
+    const lien = e.target.closest('[data-section]')
+    if (lien) parent.postMessage({ offre: lien.dataset.section }, location.origin)
+  })
+</script>
+</head>
+<body>
+<section class="section" id="07-maintenance">
+<div class="surtitre">Maintenance</div>
+<h1>Une plateforme suivie dans la durée</h1>
+<p class="accroche">Après la réalisation, je reste responsable du bon fonctionnement de la plateforme. La maintenance est comprise jusqu’à fin 2027, puis assurée par un forfait annuel, avec des engagements de délai clairs.</p>
+<h2>Coût de la maintenance</h2>
+<ul>
+<li><strong>Jusqu’au 31 décembre 2027</strong> : aucun coût de maintenance. Le support et la maintenance de tout ce qui est en production sont compris dans les forfaits de réalisation, dès la première ouverture en février 2027.</li>
+<li><strong>En 2028</strong> : <strong>15 000 € HT</strong> pour l’année. C’est la première année pleine sans Integraal, celle où les retours des opérateurs et des équipes du BNIA demandent le plus d’ajustements.</li>
+<li><strong>À partir de 2029</strong> : <strong>8 000 € HT par an</strong>.</li>
+</ul>
+<h2>Ce que couvre le forfait annuel</h2>
+<table>
+<thead>
+<tr>
+<th>Type de maintenance</th>
+<th>Contenu</th>
+<th>Prise en charge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Corrective</strong></td>
+<td>Correction des bugs et résolution des incidents</td>
+<td>Comprise dans le forfait annuel</td>
+</tr>
+<tr>
+<td><strong>Réglementaire</strong></td>
+<td>Maintien des fonctionnalités existantes au niveau des exigences réglementaires et des normes : adaptations limitées imposées par une évolution réglementaire. La refonte d’un module relève de la maintenance évolutive</td>
+<td>Comprise dans le forfait annuel</td>
+</tr>
+<tr>
+<td><strong>Évolutive</strong></td>
+<td>Nouveaux modules, nouvelles fonctionnalités, évolutions majeures de l’existant, à la demande du BNIA</td>
+<td>Sur devis, que le BNIA reste libre de confier à un autre prestataire</td>
+</tr>
+</tbody>
+</table>
+<p>Le forfait annuel comprend aussi la <strong>supervision</strong> de la plateforme et l’administration des comptes d’hébergement pour le compte du BNIA, les <strong>mises à jour de sécurité</strong> des composants techniques, et le <strong>support des équipes du BNIA</strong>, et à travers elles des opérateurs.</p>
+<h2>Mes engagements de qualité</h2>
+<table>
+<thead>
+<tr>
+<th>Niveau d’incident</th>
+<th>Exemples</th>
+<th>Délai d’intervention maximum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Majeur</strong></td>
+<td>Blocage de la plateforme</td>
+<td>1 jour ouvré</td>
+</tr>
+<tr>
+<td><strong>Important</strong></td>
+<td>Blocage d’un opérateur, bug sur une fonctionnalité</td>
+<td>4 jours ouvrés</td>
+</tr>
+<tr>
+<td><strong>Mineur</strong></td>
+<td>Détail visuel, bug non bloquant</td>
+<td>Corrections regroupées une fois par mois</td>
+</tr>
+</tbody>
+</table>
+<p>Le délai court à partir du signalement par le BNIA ou de l’alerte de la supervision. Il s’agit du délai de prise en charge : l’analyse et la correction commencent dans ce délai, la durée de résolution dépendant de la nature de l’incident.</p>
+<p class="encadre">Certains dysfonctionnements peuvent provenir des services externes auxquels la plateforme est reliée (Zeendoc, Otentik, l’ODG…). Leurs délais de rétablissement ne dépendent pas de moi : je signale l’incident au service concerné et j’en assure le suivi. Si l’interruption se prolonge, j’évalue avec le BNIA des solutions de contournement.</p>
+<h2>Le coût total : un an de réalisation, dix ans d’exploitation</h2>
+<p>Pour éclairer la décision du BNIA, voici l’estimation de tout ce qu’il paierait, de novembre 2026 à fin 2037 : la réalisation en 2027, puis dix années d’exploitation, de 2028 à 2037.</p>
+<table>
+<thead>
+<tr>
+<th>Poste</th>
+<th>Période</th>
+<th>Montant HT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Réalisation, phases 0 à 5</td>
+<td>nov. 2026 – sept. 2027</td>
+<td>53 000 €</td>
+</tr>
+<tr>
+<td>Maintenance</td>
+<td>2027</td>
+<td>comprise</td>
+</tr>
+<tr>
+<td>Maintenance</td>
+<td>2028</td>
+<td>15 000 €</td>
+</tr>
+<tr>
+<td>Maintenance</td>
+<td>2029 – 2037, 9 ans × 8 000 €</td>
+<td>72 000 €</td>
+</tr>
+<tr>
+<td>Hébergement de la production, aux tarifs actuels</td>
+<td>févr. 2027 – 2037</td>
+<td>environ 10 100 €</td>
+</tr>
+<tr>
+<td><strong>Total sur onze ans</strong></td>
+<td></td>
+<td><strong>environ 150 000 €</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Soit <strong>environ 13 600 € HT par an</strong> en moyenne sur onze ans, réalisation comprise.</p>
+</section>
+</body>
+</html>

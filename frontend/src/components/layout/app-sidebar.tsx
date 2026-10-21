@@ -2,9 +2,11 @@ import { useLayout } from '@/context/layout-provider'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import { BoutonOffre } from '@/features/offre/offre'
 import { AppTitle } from './app-title'
 import { NavGroup } from './nav-group'
 import { type Espace } from './types'
@@ -25,6 +27,9 @@ export function AppSidebar({ espace }: AppSidebarProps) {
           <NavGroup key={props.title} {...props} />
         ))}
       </SidebarContent>
+      <SidebarFooter className='pb-16 max-lg:hidden'>
+        <BoutonOffre />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )

@@ -19,7 +19,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
  * Spring Security seul (décision du 2026-10-08, ADR-015) : toute l'API exige une session, sauf la
  * connexion, le mot de passe oublié, le premier mot de passe et les liens reçus par e-mail. La session
  * est serveur, en base (Spring Session JDBC, A-AUT-3), protégée par un jeton CSRF lu par le front dans
- * un cookie. Aucun droit ici : les cas d'usage les vérifient (ADR-016).
+ * un cookie. Aucun droit ici : les cas d'usage les vérifient (ADR-016). Une iframe de la même origine est permise :
+ * l'application y affiche la réponse à l'appel d'offres, servie sous {@code /api/offre}.
  */
 @Configuration(proxyBeanMethods = false)
 class SecuriteConfiguration {
@@ -59,6 +60,7 @@ class SecuriteConfiguration {
                         .anyRequest().authenticated())
                 .securityContext(contexte -> contexte.securityContextRepository(depot))
                 .csrf(csrf -> csrf.spa())
+                .headers(entetes -> entetes.frameOptions(cadres -> cadres.sameOrigin()))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)

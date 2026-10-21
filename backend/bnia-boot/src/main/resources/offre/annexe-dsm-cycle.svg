@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 270" font-family="Inter Variable, Noto Sans, sans-serif">
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a5b1e"/>
+    </marker>
+    <style>
+      .couloir { fill: #f7efe5; stroke: #e6dccf; }
+      .couloir-bnia { fill: #faf6f0; stroke: #e6dccf; }
+      .etat { fill: #fff; stroke: #c9a27a; }
+      .etat-final { fill: #9a5b1e; stroke: #6e3f12; }
+      .tiers { fill: #fff; stroke: #c9bcab; stroke-dasharray: 4 3; }
+      .titre-couloir { font-size: 10px; font-weight: 650; fill: #6e3f12; }
+      .nom { font-size: 9.5px; font-weight: 650; fill: #241f1b; }
+      .nom-blanc { font-size: 9.5px; font-weight: 650; fill: #fff; }
+      .detail { font-size: 7.8px; fill: #5a504a; }
+      .detail-blanc { font-size: 7.8px; fill: #fff; }
+      .lien { stroke: #9a5b1e; stroke-width: 1.2; fill: none; }
+      .lien-pointille { stroke: #9a5b1e; stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; }
+      .etiquette { font-size: 8px; fill: #9a5b1e; font-weight: 600; }
+    </style>
+  </defs>
+
+  <!-- Couloirs -->
+  <rect class="couloir" x="0" y="0" width="660" height="104" rx="8"/>
+  <text class="titre-couloir" x="12" y="18">La DSM est chez l’opérateur (portail) : lui seul la modifie</text>
+  <rect class="couloir-bnia" x="0" y="114" width="660" height="156" rx="8"/>
+  <text class="titre-couloir" x="12" y="258">La DSM est chez le BNIA (back-office) : elle attend son instruction</text>
+
+  <!-- États côté opérateur -->
+  <rect class="etat" x="100" y="40" width="112" height="42" rx="6"/>
+  <text class="nom" x="156" y="57" text-anchor="middle">Brouillon</text>
+  <text class="detail" x="156" y="70" text-anchor="middle">saisie, import, pièces</text>
+
+  <rect class="etat" x="350" y="40" width="130" height="42" rx="6"/>
+  <text class="nom" x="415" y="57" text-anchor="middle">Compléments demandés</text>
+  <text class="detail" x="415" y="70" text-anchor="middle">l’opérateur corrige, dépose</text>
+
+  <rect class="tiers" x="540" y="40" width="112" height="42" rx="6"/>
+  <text class="nom" x="596" y="57" text-anchor="middle">DSM suivante</text>
+  <text class="detail" x="596" y="70" text-anchor="middle">nouveau brouillon</text>
+
+  <!-- États côté BNIA -->
+  <rect class="tiers" x="8" y="166" width="84" height="42" rx="6"/>
+  <text class="nom" x="50" y="183" text-anchor="middle">Point de</text>
+  <text class="nom" x="50" y="196" text-anchor="middle">départ</text>
+
+  <rect class="etat" x="140" y="166" width="104" height="42" rx="6"/>
+  <text class="nom" x="192" y="183" text-anchor="middle">Envoyée</text>
+  <text class="detail" x="192" y="196" text-anchor="middle">« à prendre en charge »</text>
+
+  <rect class="etat" x="286" y="166" width="100" height="42" rx="6"/>
+  <text class="nom" x="336" y="183" text-anchor="middle">En instruction</text>
+  <text class="detail" x="336" y="196" text-anchor="middle">notes internes</text>
+
+  <rect class="etat" x="420" y="166" width="104" height="42" rx="6"/>
+  <text class="nom" x="472" y="183" text-anchor="middle">Compléments</text>
+  <text class="nom" x="472" y="196" text-anchor="middle">reçus</text>
+
+  <rect class="etat-final" x="556" y="166" width="96" height="42" rx="6"/>
+  <text class="nom-blanc" x="604" y="183" text-anchor="middle">Validée</text>
+  <text class="detail-blanc" x="604" y="196" text-anchor="middle">figée, à facturer</text>
+
+  <!-- Transitions -->
+  <path class="lien" d="M50,166 L50,61 L100,61" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="56" y="100">initier</text>
+
+  <path class="lien" d="M170,82 L186,166" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="184" y="114">envoyer</text>
+  <text class="detail" x="184" y="124">si aucune anomalie</text>
+
+  <path class="lien" d="M244,187 L286,187" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="265" y="160" text-anchor="middle">prendre</text>
+  <text class="etiquette" x="265" y="150" text-anchor="middle">en charge</text>
+
+  <path class="lien" d="M330,166 L380,82" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="240" y="98">demander des</text>
+  <text class="etiquette" x="240" y="108">compléments (motif)</text>
+
+  <path class="lien" d="M436,82 L456,166" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="402" y="124">renvoyer</text>
+
+  <path class="lien" d="M492,166 L460,82" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="488" y="114">redemander</text>
+
+  <path class="lien" d="M524,187 L556,187" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="540" y="160" text-anchor="middle">valider</text>
+
+  <path class="lien" d="M336,208 C336,250 604,250 604,208" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="470" y="246" text-anchor="middle">valider, si aucune pièce ne manque</text>
+
+  <path class="lien-pointille" d="M604,166 L604,82" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="610" y="128">initier</text>
+
+</svg>

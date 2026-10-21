@@ -1,0 +1,61 @@
+{
+  "pdf": "reponse-ao-armagnac-py-pollet.pdf",
+  "sections": [
+    {
+      "id": "00-garde",
+      "titre": "Couverture et sommaire"
+    },
+    {
+      "id": "01-synthese",
+      "titre": "Synthèse"
+    },
+    {
+      "id": "02-profil",
+      "titre": "Le prestataire"
+    },
+    {
+      "id": "03-demarche",
+      "titre": "Stratégie de réalisation"
+    },
+    {
+      "id": "04-calendrier",
+      "titre": "Calendrier prévisionnel"
+    },
+    {
+      "id": "05-technique",
+      "titre": "Aspects techniques"
+    },
+    {
+      "id": "06-offre-financiere",
+      "titre": "Offre financière"
+    },
+    {
+      "id": "07-maintenance",
+      "titre": "Maintenance"
+    },
+    {
+      "id": "08-prototype",
+      "titre": "Prototype"
+    },
+    {
+      "id": "09-annexe-specification",
+      "titre": "Spécification détaillée du module Déclarations",
+      "annexe": "A"
+    },
+    {
+      "id": "10-annexe-contrat",
+      "titre": "Projet de contrat de prestation",
+      "annexe": "B"
+    },
+    {
+      "id": "11-annexe-rgpd",
+      "titre": "Accord de sous-traitance des données personnelles (RGPD)",
+      "annexe": "C"
+    },
+    {
+      "id": "12-annexe-cv",
+      "titre": "Curriculum vitae détaillé",
+      "annexe": "D"
+    }
+  ]
+}

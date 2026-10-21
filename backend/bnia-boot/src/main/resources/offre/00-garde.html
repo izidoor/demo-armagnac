@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Couverture et sommaire</title>
+<base target="_blank">
+<link rel="stylesheet" href="offre.css">
+<script>
+  if (location.hash === '#miniature') document.documentElement.classList.add('miniature')
+  document.addEventListener('click', (e) => {
+    const lien = e.target.closest('[data-section]')
+    if (lien) parent.postMessage({ offre: lien.dataset.section }, location.origin)
+  })
+</script>
+</head>
+<body>
+<section class="section" id="00-garde">
+<div class="garde">
+<div class="garde-haut">
+<div class="surtitre">Réponse à l’appel d’offres du 23 septembre 2026</div>
+<h1>Observatoire économique et gestion de la Donnée Armagnac</h1>
+<p class="garde-sous-titre">Création de la plateforme : back-office du BNIA et portail des opérateurs</p>
+<p class="garde-nature">Proposition technique et financière</p>
+</div>
+<div class="garde-sommaire">
+<h2>Sommaire</h2>
+<ol>
+<li data-section="01-synthese"><span class="ligne"><span class="entree"><strong>Synthèse</strong></span><span class="points"></span><span class="page">2</span></span></li>
+<li data-section="02-profil"><span class="ligne"><span class="entree"><strong>Le prestataire</strong></span><span class="points"></span><span class="page">3</span></span></li>
+<li data-section="03-demarche"><span class="ligne"><span class="entree"><strong>Stratégie de réalisation</strong></span><span class="points"></span><span class="page">4</span></span></li>
+<li data-section="04-calendrier"><span class="ligne"><span class="entree"><strong>Calendrier prévisionnel</strong></span><span class="points"></span><span class="page">5</span></span></li>
+<li data-section="05-technique"><span class="ligne"><span class="entree"><strong>Aspects techniques</strong></span><span class="points"></span><span class="page">9</span></span></li>
+<li data-section="06-offre-financiere"><span class="ligne"><span class="entree"><strong>Offre financière</strong></span><span class="points"></span><span class="page">11</span></span></li>
+<li data-section="07-maintenance"><span class="ligne"><span class="entree"><strong>Maintenance</strong></span><span class="points"></span><span class="page">13</span></span></li>
+<li data-section="08-prototype"><span class="ligne"><span class="entree"><strong>Prototype</strong></span><span class="points"></span><span class="page">15</span></span></li>
+</ol>
+<h3>Annexes</h3>
+<ol class="garde-annexes" type="A">
+<li data-section="09-annexe-specification"><span class="ligne"><span class="entree">Spécification détaillée du module Déclarations</span><span class="points"></span><span class="page">17</span></span></li>
+<li data-section="10-annexe-contrat"><span class="ligne"><span class="entree">Projet de contrat de prestation</span><span class="points"></span><span class="page">24</span></span></li>
+<li data-section="11-annexe-rgpd"><span class="ligne"><span class="entree">Accord de sous-traitance des données personnelles (RGPD)</span><span class="points"></span><span class="page">27</span></span></li>
+<li data-section="12-annexe-cv"><span class="ligne"><span class="entree">Curriculum vitae détaillé</span><span class="points"></span><span class="page">29</span></span></li>
+</ol>
+</div>
+<div class="garde-bas">
+<div>
+<div class="garde-etiquette">Destinataire</div>
+<p><strong>Bureau National Interprofessionnel de l’Armagnac</strong><br>Eauze (32)<br>direction@armagnac.fr</p>
+</div>
+<div>
+<div class="garde-etiquette">Candidat</div>
+<p><strong>Pierre-Yves Pollet</strong><br>Ingénieur agronome · Ingénieur logiciel<br>Entreprise individuelle · SIRET 809 686 918 00024<br>Anglet (64) · 06 64 81 94 76 · py.pollet@gmail.com</p>
+</div>
+<div>
+<div class="garde-etiquette">Date</div>
+<p><strong>21 octobre 2026</strong></p>
+</div>
+</div>
+</div>
+</section>
+</body>
+</html>

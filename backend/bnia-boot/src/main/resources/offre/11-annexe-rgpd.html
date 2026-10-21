@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accord de sous-traitance des données personnelles (RGPD)</title>
+<base target="_blank">
+<link rel="stylesheet" href="offre.css">
+<script>
+  if (location.hash === '#miniature') document.documentElement.classList.add('miniature')
+  document.addEventListener('click', (e) => {
+    const lien = e.target.closest('[data-section]')
+    if (lien) parent.postMessage({ offre: lien.dataset.section }, location.origin)
+  })
+</script>
+</head>
+<body>
+<section class="section" id="11-annexe-rgpd">
+<div class="surtitre">Annexe</div>
+<h1>Accord de sous-traitance des données personnelles</h1>
+<p class="accroche">Article 28 du règlement général sur la protection des données (RGPD). Cet accord est annexé au contrat de prestation. Il fixe les engagements du Prestataire, qui traite des données personnelles pour le compte du BNIA.</p>
+<p><strong>Entre</strong> le Bureau National Interprofessionnel de l’Armagnac (BNIA), Eauze (32), <strong>responsable du traitement</strong>, représenté par son(sa) Président(e),</p>
+<p><strong>et</strong> Pierre-Yves Pollet, entrepreneur individuel, SIRET 809 686 918 00024, Anglet (64), <strong>sous-traitant</strong>.</p>
+<h2>1 · Objet et durée</h2>
+<p>Le sous-traitant traite des données personnelles pour le compte du BNIA, uniquement pour réaliser, mettre en production et maintenir la plateforme du BNIA (back-office et portail des opérateurs). L’accord s’applique pendant toute la durée du contrat de prestation, maintenance comprise.</p>
+<h2>2 · Description du traitement</h2>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Finalités</strong></td>
+<td>Gestion des opérateurs de la filière et de leurs utilisateurs ; déclarations (DSM, contrats, certificats) ; facturation des cotisations ; messagerie entre le BNIA et les opérateurs ; authentification et sécurité des accès</td>
+</tr>
+<tr>
+<td><strong>Personnes concernées</strong></td>
+<td>Utilisateurs de la plateforme (personnel du BNIA, dirigeants et salariés des opérateurs) ; contacts des opérateurs</td>
+</tr>
+<tr>
+<td><strong>Données traitées</strong></td>
+<td>Identité, fonction et coordonnées professionnelles ; identifiants de connexion et journal des connexions ; messages échangés ; déclarations et factures rattachées à un opérateur et à leur auteur</td>
+</tr>
+<tr>
+<td><strong>Données sensibles</strong></td>
+<td>Aucune</td>
+</tr>
+<tr>
+<td><strong>Opérations</strong></td>
+<td>Reprise des données d’Integraal et de pro.armagnac.fr, hébergement, consultation, modification, sauvegarde, suppression, dans le cadre de la mise au point et de la maintenance</td>
+</tr>
+</tbody>
+</table>
+<h2>3 · Obligations du sous-traitant</h2>
+<p>Le sous-traitant s’engage à :</p>
+<ul>
+<li><strong>traiter les données uniquement sur instruction documentée du BNIA</strong>, et à l’informer sans délai si une instruction lui paraît contraire au RGPD ;</li>
+<li><strong>garantir leur confidentialité</strong> : il est seul à intervenir, et n’emploie aucun salarié ni intervenant extérieur sans l’accord écrit du BNIA ;</li>
+<li><strong>assurer leur sécurité</strong> : chiffrement des échanges (HTTPS) et des données stockées chez l’hébergeur ; mots de passe jamais conservés en clair ; double authentification ; blocage après plusieurs échecs de connexion ; droits vérifiés par le serveur à chaque action, chacun ne voyant que ce qui le concerne ; traçabilité des saisies et des connexions ; sauvegardes quotidiennes ; mises à jour de sécurité ;</li>
+<li><strong>limiter son propre accès</strong> au strict nécessaire : il n’utilise des données réelles qu’aux fins de la reprise, des essais en recette et de la résolution des incidents, et ne les copie jamais sur un support personnel ;</li>
+<li><strong>aider le BNIA</strong> à répondre aux demandes d’exercice des droits des personnes (accès, rectification, effacement, limitation, opposition), en lui transmettant sans délai toute demande reçue directement ;</li>
+<li><strong>notifier au BNIA toute violation de données</strong> dans un délai de <strong>48 heures</strong> après en avoir pris connaissance, avec les informations utiles à sa propre notification à la CNIL ;</li>
+<li><strong>aider le BNIA</strong> à réaliser, si nécessaire, une analyse d’impact, et lui fournir les informations nécessaires à la tenue de son registre des traitements ;</li>
+<li><strong>tenir un registre</strong> des traitements effectués pour le compte du BNIA ;</li>
+<li><strong>permettre des audits</strong> : il met à la disposition du BNIA les informations nécessaires pour démontrer le respect de ses obligations, et se prête aux audits menés par le BNIA ou un auditeur qu’il mandate, avec un préavis raisonnable.</li>
+</ul>
+<h2>4 · Sous-traitants ultérieurs</h2>
+<p>Le BNIA autorise le recours aux sous-traitants suivants :</p>
+<table>
+<thead>
+<tr>
+<th>Sous-traitant</th>
+<th>Service</th>
+<th>Localisation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scalingo SAS</td>
+<td>Hébergement des plateformes de production et de recette : application, base de données et documents ; certifié ISO 27001</td>
+<td>France (Paris)</td>
+</tr>
+</tbody>
+</table>
+<p>Le contrat d’hébergement de la production est souscrit directement au nom du BNIA ; celui de la recette, par le sous-traitant. Les e-mails sont envoyés par la messagerie du BNIA (armagnac.fr), sans prestataire d’envoi supplémentaire. Tout nouveau sous-traitant ultérieur est soumis à l’accord écrit préalable du BNIA et aux mêmes obligations.</p>
+<p><strong>Aucune donnée n’est transférée hors de l’Union européenne.</strong></p>
+<h2>5 · Obligations du BNIA</h2>
+<p>Le BNIA fournit au sous-traitant les données nécessaires et les instructions de traitement, informe les personnes concernées, veille au respect du RGPD pendant toute la durée du traitement et définit les durées de conservation des données.</p>
+<h2>6 · Fin de l’accord</h2>
+<p>À la fin du contrat, quelle qu’en soit la cause, le sous-traitant restitue au BNIA l’ensemble des données, dans un format exploitable, puis supprime toutes les copies en sa possession, notamment celles de la plateforme de recette, et le confirme par écrit. Les données de production restent chez l’hébergeur, sous le contrat du BNIA.</p>
+<div class="signatures">
+<div>
+<p>Fait à Eauze, le 21/10/2026, en deux exemplaires.</p>
+<p><strong>Pour le BNIA, responsable du traitement</strong><br>
+Le(la) Président(e)</p>
+</div>
+<div>
+<p> </p>
+<p><strong>Le sous-traitant</strong><br>
+Pierre-Yves Pollet</p>
+</div>
+</div>
+</section>
+</body>
+</html>

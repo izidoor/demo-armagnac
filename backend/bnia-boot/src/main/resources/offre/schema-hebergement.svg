@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 304" font-family="Inter Variable, Noto Sans, sans-serif">
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a5b1e"/>
+    </marker>
+    <style>
+      .groupe { fill: #f7efe5; stroke: #e6dccf; }
+      .tiers { fill: #fff; stroke: #c9bcab; stroke-dasharray: 4 3; }
+      .boite { fill: #fff; stroke: #c9a27a; }
+      .acteur { fill: #fff; stroke: #9a5b1e; stroke-width: 1.3; }
+      .titre-groupe { font-size: 12px; font-weight: 650; fill: #6e3f12; }
+      .sous-groupe { font-size: 8.5px; fill: #7a6f66; }
+      .nom { font-size: 10.5px; font-weight: 650; fill: #241f1b; }
+      .detail { font-size: 8.5px; fill: #5a504a; }
+      .lien { stroke: #9a5b1e; stroke-width: 1.2; fill: none; }
+      .appareil { fill: #fff; stroke: #9a5b1e; stroke-width: 1.2; }
+      .appareil-trait { stroke: #9a5b1e; stroke-width: 1.2; fill: none; stroke-linecap: round; }
+      .etiquette { font-size: 8px; fill: #9a5b1e; font-weight: 600; }
+    </style>
+  </defs>
+
+  <!-- Utilisateurs -->
+  <rect class="acteur" x="0" y="46" width="118" height="66" rx="6"/>
+  <text class="nom" x="59" y="64" text-anchor="middle">Opérateurs</text>
+  <text class="detail" x="59" y="76" text-anchor="middle">portail</text>
+  <!-- ordinateur -->
+  <rect class="appareil" x="40" y="84" width="22" height="14" rx="1.5"/>
+  <path class="appareil-trait" d="M51,98 L51,102 M45,103 L57,103"/>
+  <!-- mobile -->
+  <rect class="appareil" x="69" y="86" width="10" height="17" rx="2"/>
+  <path class="appareil-trait" d="M72.5,100.5 L75.5,100.5"/>
+
+  <rect class="acteur" x="0" y="132" width="118" height="66" rx="6"/>
+  <text class="nom" x="59" y="150" text-anchor="middle">Équipes du BNIA</text>
+  <text class="detail" x="59" y="162" text-anchor="middle">back-office</text>
+  <!-- ordinateur -->
+  <rect class="appareil" x="48" y="170" width="22" height="14" rx="1.5"/>
+  <path class="appareil-trait" d="M59,184 L59,188 M53,189 L65,189"/>
+
+  <!-- Scalingo -->
+  <rect class="groupe" x="150" y="4" width="290" height="276" rx="8"/>
+  <text class="titre-groupe" x="164" y="24">Scalingo · Paris</text>
+  <text class="sous-groupe" x="164" y="37">application, données et documents · ISO 27001, HDS</text>
+
+  <rect class="boite" x="164" y="48" width="262" height="44" rx="5"/>
+  <text class="nom" x="176" y="66">Écrans</text>
+  <text class="detail" x="176" y="80">fichiers statiques, servis en HTTPS</text>
+
+  <rect class="boite" x="164" y="112" width="262" height="52" rx="5"/>
+  <text class="nom" x="176" y="130">Application</text>
+  <text class="detail" x="176" y="144">règles de gestion, contrôles, droits,</text>
+  <text class="detail" x="176" y="155">documents PDF et Excel, API</text>
+
+  <rect class="boite" x="164" y="188" width="128" height="80" rx="5"/>
+  <text class="nom" x="174" y="205">Base de données</text>
+  <text class="nom" x="174" y="217">PostgreSQL</text>
+  <text class="detail" x="174" y="232">haute disponibilité,</text>
+  <text class="detail" x="174" y="243">chiffrée, sauvegardes</text>
+  <text class="detail" x="174" y="254">quotidiennes</text>
+
+  <rect class="boite" x="300" y="188" width="126" height="80" rx="5"/>
+  <text class="nom" x="310" y="205">Stockage</text>
+  <text class="nom" x="310" y="217">des documents</text>
+  <text class="detail" x="310" y="232">justificatifs, factures,</text>
+  <text class="detail" x="310" y="243">certificats ; répliqué sur</text>
+  <text class="detail" x="310" y="254">plusieurs centres</text>
+
+  <!-- Messagerie du BNIA -->
+  <rect class="tiers" x="464" y="60" width="196" height="56" rx="8" style="stroke-dasharray:none"/>
+  <text class="nom" x="474" y="79">Messagerie du BNIA</text>
+  <text class="detail" x="474" y="93">armagnac.fr · envoi des e-mails :</text>
+  <text class="detail" x="474" y="104">codes de connexion, notifications</text>
+
+  <!-- Services tiers -->
+  <rect class="tiers" x="464" y="144" width="196" height="60" rx="8"/>
+  <text class="nom" x="474" y="164">Services tiers</text>
+  <text class="detail" x="474" y="178">ODG, Zeendoc, Otentik</text>
+  <text class="detail" x="474" y="189">échanges par API</text>
+
+  <!-- Liens -->
+  <path class="lien" d="M118,79 L134,79 L134,62 L164,62" marker-end="url(#fleche)"/>
+  <path class="lien" d="M118,165 L144,165 L144,78 L164,78" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="114" y="124">HTTPS</text>
+  <path class="lien" d="M295,92 L295,112" marker-end="url(#fleche)"/>
+  <text class="etiquette" x="301" y="105">API</text>
+  <path class="lien" d="M228,164 L228,188" marker-end="url(#fleche)"/>
+  <path class="lien" d="M363,164 L363,188" marker-end="url(#fleche)"/>
+  <path class="lien" d="M426,128 L446,128 L446,88 L464,88" marker-end="url(#fleche)"/>
+  <path class="lien" d="M426,150 L446,150 L446,174 L464,174" marker-start="url(#fleche)" marker-end="url(#fleche)"/>
+
+  <text class="sous-groupe" x="0" y="298">Le contrat d’hébergement est souscrit au nom du BNIA, qui en détient les accès.</text>
+</svg>
