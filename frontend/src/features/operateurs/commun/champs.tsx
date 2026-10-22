@@ -168,7 +168,7 @@ export function ChampCases<T extends FieldValues, V extends string | number>({
         return (
           <FormItem className={className}>
             <FormLabel>{label}</FormLabel>
-            <div className='grid gap-2 sm:grid-cols-2'>
+            <div className='grid gap-2 @min-[48rem]/content:grid-cols-2'>
               {options.map((o) => (
                 <label
                   key={String(o.valeur)}
@@ -203,6 +203,20 @@ export function ChampCases<T extends FieldValues, V extends string | number>({
   )
 }
 
+/**
+ * Sur un contenu étroit (moins de 48rem : téléphone, tablette, petite fenêtre barre latérale ouverte), un champ en
+ * lecture tient sur une ligne, libellé à gauche, valeur à droite ; au-delà, libellé au-dessus de la valeur. Les
+ * grilles de champs suivent le même seuil (`@min-[48rem]/content:grid-cols-…`) : en dessous, une colonne, où la ligne a
+ * sa place.
+ */
+const LIGNE_ETROITE =
+  '@max-[48rem]/content:flex @max-[48rem]/content:items-baseline @max-[48rem]/content:justify-between @max-[48rem]/content:gap-4 @max-[48rem]/content:space-y-0'
+/** Le libellé garde sa largeur, la moitié au plus : un libellé long passe à la ligne plutôt que de couper la valeur. */
+const LIBELLE_ETROIT =
+  '@max-[48rem]/content:max-w-[50%] @max-[48rem]/content:shrink-0'
+const VALEUR_ETROITE =
+  '@max-[48rem]/content:min-w-0 @max-[48rem]/content:text-end @max-[48rem]/content:[overflow-wrap:anywhere]'
+
 /** Champ en lecture seule (portail, RG-OPE-36). */
 export function Lecture({
   label,
@@ -214,9 +228,11 @@ export function Lecture({
   className?: string
 }) {
   return (
-    <div className={cn('space-y-1', className)}>
-      <div className='text-sm font-medium'>{label}</div>
-      <div className='text-muted-foreground text-sm'>{valeur || '—'}</div>
+    <div className={cn('space-y-1', LIGNE_ETROITE, className)}>
+      <div className={cn('text-sm font-medium', LIBELLE_ETROIT)}>{label}</div>
+      <div className={cn('text-muted-foreground text-sm', VALEUR_ETROITE)}>
+        {valeur || '—'}
+      </div>
     </div>
   )
 }
@@ -234,12 +250,26 @@ export function LectureListe({
   className?: string
 }) {
   return (
-    <div className={cn('space-y-1', className)}>
-      {label && <div className='text-sm font-medium'>{label}</div>}
+    <div className={cn('space-y-1', label && LIGNE_ETROITE, className)}>
+      {label && (
+        <div className={cn('text-sm font-medium', LIBELLE_ETROIT)}>{label}</div>
+      )}
       {valeurs.length === 0 ? (
-        <div className='text-muted-foreground text-sm italic'>{vide}</div>
+        <div
+          className={cn(
+            'text-muted-foreground text-sm italic',
+            label && VALEUR_ETROITE
+          )}
+        >
+          {vide}
+        </div>
       ) : (
-        <ul className='text-muted-foreground space-y-1 text-sm'>
+        <ul
+          className={cn(
+            'text-muted-foreground space-y-1 text-sm',
+            label && VALEUR_ETROITE
+          )}
+        >
           {valeurs.map((v, i) => (
             <li key={i}>{v}</li>
           ))}

@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { cleOperateur } from '../commun/api'
 import { CIBLES_JOURNAL } from '../commun/libelles'
 
@@ -29,7 +30,11 @@ export function OngletJournal({ operateur }: { operateur: number }) {
   return <TableJournal lignes={journal.data ?? []} avecCible />
 }
 
-/** Lignes du journal, de la plus récente à la plus ancienne, avec le détail des champs changés. */
+/**
+ * Lignes du journal, de la plus récente à la plus ancienne, avec le détail des champs changés. Sous 56rem de contenu
+ * (760 px de tableau, plus 84 px de marges et de carte), une carte par ligne. Les changements passent à la ligne :
+ * leur longueur dépend des données.
+ */
 export function TableJournal({
   lignes,
   avecCible = false,
@@ -38,55 +43,84 @@ export function TableJournal({
   avecCible?: boolean
 }) {
   return (
-    <div className='rounded-md border'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Action</TableHead>
-            {avecCible && <TableHead>Personne</TableHead>}
-            <TableHead>Changements</TableHead>
-            <TableHead>Par</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {lignes.length === 0 && (
+    <>
+      <div className='rounded-md border @max-[56rem]/content:hidden'>
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell
-                colSpan={avecCible ? 5 : 4}
-                className='text-muted-foreground h-16 text-center'
-              >
-                Aucune action.
-              </TableCell>
+              <TableHead>Date</TableHead>
+              <TableHead>Action</TableHead>
+              {avecCible && <TableHead>Personne</TableHead>}
+              <TableHead>Changements</TableHead>
+              <TableHead>Par</TableHead>
             </TableRow>
-          )}
-          {lignes.map((l, i) => (
-            <TableRow key={i}>
-              <TableCell className='whitespace-nowrap'>
-                {dateHeure.format(new Date(l.date))}
-              </TableCell>
-              <TableCell>{l.libelle}</TableCell>
-              {avecCible && (
-                <TableCell>
-                  {l.nomCible}
-                  <span className='text-muted-foreground'>
-                    {' '}
-                    · {CIBLES_JOURNAL[l.cible]}
-                  </span>
+          </TableHeader>
+          <TableBody>
+            {lignes.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={avecCible ? 5 : 4}
+                  className='text-muted-foreground h-16 text-center'
+                >
+                  Aucune action.
                 </TableCell>
-              )}
-              <TableCell className='text-sm'>
-                {l.changements.map((c) => (
-                  <div key={c.champ}>
-                    {c.champ} : {c.avant ?? '—'} → {c.apres ?? '—'}
-                  </div>
-                ))}
-              </TableCell>
-              <TableCell>{l.acteur}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+              </TableRow>
+            )}
+            {lignes.map((l, i) => (
+              <TableRow key={i}>
+                <TableCell className='whitespace-nowrap'>
+                  {dateHeure.format(new Date(l.date))}
+                </TableCell>
+                <TableCell>{l.libelle}</TableCell>
+                {avecCible && (
+                  <TableCell>
+                    {l.nomCible}
+                    <span className='text-muted-foreground'>
+                      {' '}
+                      · {CIBLES_JOURNAL[l.cible]}
+                    </span>
+                  </TableCell>
+                )}
+                <TableCell className='text-sm whitespace-normal'>
+                  {l.changements.map((c) => (
+                    <div key={c.champ}>
+                      {c.champ} : {c.avant ?? '—'} → {c.apres ?? '—'}
+                    </div>
+                  ))}
+                </TableCell>
+                <TableCell>{l.acteur}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <CartesListe
+        requete={{ isPending: false, isError: false, data: lignes }}
+        vide='Aucune action.'
+        masquee='@min-[56rem]/content:hidden'
+      >
+        {lignes.map((l, i) => (
+          <CarteListe key={i} titre={l.libelle}>
+            {avecCible && (
+              <div className='text-sm'>
+                {l.nomCible}
+                <span className='text-muted-foreground'>
+                  {' '}
+                  · {CIBLES_JOURNAL[l.cible]}
+                </span>
+              </div>
+            )}
+            {l.changements.map((c) => (
+              <div key={c.champ} className='text-sm'>
+                {c.champ} : {c.avant ?? '—'} → {c.apres ?? '—'}
+              </div>
+            ))}
+            <div className='text-muted-foreground text-xs'>
+              {dateHeure.format(new Date(l.date))} · {l.acteur}
+            </div>
+          </CarteListe>
+        ))}
+      </CartesListe>
+    </>
   )
 }

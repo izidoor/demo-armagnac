@@ -5,15 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { creerOperateur, proposerCodeOperateur } from '@/api/generated'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { useDroits, useMoi } from '@/features/session/session'
@@ -149,103 +143,99 @@ export function CreationOperateur({
   })
 
   return (
-    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
-      <DialogContent className='sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle>Nouvel opérateur</DialogTitle>
-          <DialogDescription>
-            Le code est proposé selon le type et le code postal ; il reste
-            modifiable. La fiche se complète ensuite.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            id='creation-operateur'
-            onSubmit={form.handleSubmit((s) => mutation.mutate(s))}
-            className='grid grid-cols-2 gap-4'
-          >
-            <div className='col-span-2'>
-              <ErreurRacine errors={form.formState.errors} />
-            </div>
-            <ChampChoix
-              control={form.control}
-              name='type'
-              label='Type'
-              options={optionsListe(TYPES_CHOISIS)}
-            />
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={onOuvertChange}
+      titre='Nouvel opérateur'
+      description='Le code est proposé selon le type et le code postal ; il reste modifiable. La fiche se complète ensuite.'
+    >
+      <Form {...form}>
+        <form
+          id='creation-operateur'
+          onSubmit={form.handleSubmit((s) => mutation.mutate(s))}
+          className='grid gap-4 sm:grid-cols-2'
+        >
+          <div className='sm:col-span-2'>
+            <ErreurRacine errors={form.formState.errors} />
+          </div>
+          <ChampChoix
+            control={form.control}
+            name='type'
+            label='Type'
+            options={optionsListe(TYPES_CHOISIS)}
+          />
+          <ChampTexte
+            control={form.control}
+            name='codePostal'
+            label='Code postal'
+          />
+          <ChampTexte control={form.control} name='ville' label='Ville' />
+          <ChampChoix
+            control={form.control}
+            name='pays'
+            label='Pays'
+            facultatif
+            description='Vide : France.'
+            options={optionsReference(pays.valeurs)}
+          />
+          <div className='space-y-1 sm:col-span-2'>
             <ChampTexte
               control={form.control}
-              name='codePostal'
-              label='Code postal'
+              name='raisonSociale'
+              label='Raison sociale'
             />
-            <ChampTexte control={form.control} name='ville' label='Ville' />
-            <ChampChoix
+            <AlerteDoublons doublons={doublons} champ='RAISON_SOCIALE' />
+          </div>
+          <div onInput={() => (codeTouche.current = true)}>
+            <ChampTexte
               control={form.control}
-              name='pays'
-              label='Pays'
-              facultatif
-              description='Vide : France.'
-              options={optionsReference(pays.valeurs)}
+              name='code'
+              label='Code'
+              description={
+                propose.data
+                  ? `Proposé : ${propose.data}`
+                  : 'Aucun code proposé : à saisir (négociant sans code postal français).'
+              }
             />
-            <div className='col-span-2 space-y-1'>
+          </div>
+          {adminBnia && (
+            <fieldset className='grid gap-4 rounded-md border p-3 sm:col-span-2 sm:grid-cols-2'>
+              <legend className='px-1 text-sm font-medium'>
+                Inviter un premier ADMIN (facultatif)
+              </legend>
               <ChampTexte
                 control={form.control}
-                name='raisonSociale'
-                label='Raison sociale'
+                name='adminPrenom'
+                label='Prénom'
               />
-              <AlerteDoublons doublons={doublons} champ='RAISON_SOCIALE' />
-            </div>
-            <div onInput={() => (codeTouche.current = true)}>
+              <ChampTexte control={form.control} name='adminNom' label='Nom' />
               <ChampTexte
                 control={form.control}
-                name='code'
-                label='Code'
-                description={
-                  propose.data
-                    ? `Proposé : ${propose.data}`
-                    : 'Aucun code proposé : à saisir (négociant sans code postal français).'
-                }
+                name='adminEmail'
+                label='E-mail'
+                className='sm:col-span-2'
+                description='Un lien valable 7 jours lui sera envoyé.'
               />
-            </div>
-            {adminBnia && (
-              <fieldset className='col-span-2 grid grid-cols-2 gap-4 rounded-md border p-3'>
-                <legend className='px-1 text-sm font-medium'>
-                  Inviter un premier ADMIN (facultatif)
-                </legend>
-                <ChampTexte
-                  control={form.control}
-                  name='adminPrenom'
-                  label='Prénom'
-                />
-                <ChampTexte
-                  control={form.control}
-                  name='adminNom'
-                  label='Nom'
-                />
-                <ChampTexte
-                  control={form.control}
-                  name='adminEmail'
-                  label='E-mail'
-                  className='col-span-2'
-                  description='Un lien valable 7 jours lui sera envoyé.'
-                />
-              </fieldset>
-            )}
-          </form>
-        </Form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOuvertChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='creation-operateur'
-            disabled={mutation.isPending}
-          >
-            Créer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            </fieldset>
+          )}
+        </form>
+      </Form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOuvertChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          type='submit'
+          form='creation-operateur'
+          disabled={mutation.isPending}
+        >
+          Créer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

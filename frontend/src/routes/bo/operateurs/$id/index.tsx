@@ -19,8 +19,17 @@ export const Route = createFileRoute('/bo/operateurs/$id/')({
   component: function Fiche() {
     const { id } = Route.useParams()
     const { onglet } = Route.useSearch()
+    const navigate = Route.useNavigate()
     return (
-      <PageOperateur key={id} espace='bo' id={Number(id)} onglet={onglet} />
+      <PageOperateur
+        key={id}
+        espace='bo'
+        id={Number(id)}
+        onglet={onglet}
+        onOnglet={(o) =>
+          navigate({ search: { onglet: o }, replace: true, resetScroll: false })
+        }
+      />
     )
   },
 })

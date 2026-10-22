@@ -47,7 +47,7 @@ import {
   type Role,
 } from '../commun/libelles'
 import { DialogueInvitation } from './dialogue-invitation'
-import { FormulaireFiche, FormulaireIdentiteContact } from './formulaires'
+import { CarteFiche, FormulaireIdentiteContact } from './formulaires'
 import { TableJournal } from './journal'
 import { type GenrePersonne, useNavigationPersonnes } from './navigation'
 
@@ -213,23 +213,21 @@ function PageContact({ espace, operateur, id, droits }: PropsPersonne) {
             }}
           />
         </Section>
-        <Section titre='Fiche professionnelle'>
-          <FormulaireFiche
-            fiche={c.fiche}
-            modifiable={gestion}
-            enregistrer={(body) =>
-              modifierFiche({
-                path: { operateur, fiche: c.fiche.id },
-                body,
-                throwOnError: true,
-              })
-            }
-            onSucces={() => {
-              toast.success('Enregistré.')
-              rafraichir()
-            }}
-          />
-        </Section>
+        <CarteFiche
+          fiche={c.fiche}
+          modifiable={gestion}
+          enregistrer={(body) =>
+            modifierFiche({
+              path: { operateur, fiche: c.fiche.id },
+              body,
+              throwOnError: true,
+            })
+          }
+          onSucces={() => {
+            toast.success('Enregistré.')
+            rafraichir()
+          }}
+        />
         <Section titre='Journal'>
           <TableJournal lignes={journal.data ?? []} />
         </Section>
@@ -369,7 +367,7 @@ function PageMembre({ espace, operateur, id, droits }: PropsPersonne) {
     >
       <div className='space-y-4'>
         <Section titre='Identité et accès'>
-          <div className='grid gap-4 md:grid-cols-4'>
+          <div className='grid gap-4 @min-[48rem]/content:grid-cols-4'>
             <Lecture label='Nom' valeur={m.nomComplet} />
             <Lecture label='E-mail' valeur={m.email} />
             <Lecture
@@ -404,23 +402,21 @@ function PageMembre({ espace, operateur, id, droits }: PropsPersonne) {
             modifie, dans « Mon compte ».
           </p>
         </Section>
-        <Section titre='Fiche professionnelle'>
-          <FormulaireFiche
-            fiche={m.fiche}
-            modifiable={droits.contacts === 'GESTION' || sienne}
-            enregistrer={(body) =>
-              modifierFiche({
-                path: { operateur, fiche: m.fiche.id },
-                body,
-                throwOnError: true,
-              })
-            }
-            onSucces={() => {
-              toast.success('Enregistré.')
-              rafraichir()
-            }}
-          />
-        </Section>
+        <CarteFiche
+          fiche={m.fiche}
+          modifiable={droits.contacts === 'GESTION' || sienne}
+          enregistrer={(body) =>
+            modifierFiche({
+              path: { operateur, fiche: m.fiche.id },
+              body,
+              throwOnError: true,
+            })
+          }
+          onSucces={() => {
+            toast.success('Enregistré.')
+            rafraichir()
+          }}
+        />
         <Section titre='Journal'>
           <TableJournal lignes={journal.data ?? []} />
         </Section>
@@ -541,7 +537,7 @@ function PageInvitation({ espace, operateur, id, droits }: PropsPersonne) {
       }
     >
       <Section titre='Invitation'>
-        <div className='grid gap-4 md:grid-cols-3'>
+        <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
           <Lecture label='E-mail' valeur={i.email} />
           <Lecture label='Rôle proposé' valeur={ROLES[i.role]} />
           <Lecture

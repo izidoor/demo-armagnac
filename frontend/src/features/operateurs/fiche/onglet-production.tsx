@@ -182,7 +182,7 @@ export function OngletProduction({
           <ErreurRacine errors={form.formState.errors} />
           <CadreEditable titre='Déclaratif' {...cadreProduction('declaratif')}>
             {cadre === 'declaratif' ? (
-              <div className='grid gap-4 md:grid-cols-3'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
                 {fiche.type === 'AUTRE' ? (
                   <Lecture
                     label='Périodicité DSM'
@@ -217,7 +217,7 @@ export function OngletProduction({
                   control={c}
                   name='appellations'
                   label='Appellations'
-                  className='md:col-span-3'
+                  className='@min-[48rem]/content:col-span-3'
                   options={cles(APPELLATIONS).map((a) => ({
                     valeur: a,
                     libelle: APPELLATIONS[a],
@@ -225,7 +225,7 @@ export function OngletProduction({
                 />
               </div>
             ) : (
-              <div className='grid gap-4 md:grid-cols-3'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
                 <Lecture
                   label='Périodicité DSM'
                   valeur={
@@ -247,7 +247,7 @@ export function OngletProduction({
                 <LectureListe
                   label='Appellations'
                   vide='Aucune appellation'
-                  className='md:col-span-3'
+                  className='@min-[48rem]/content:col-span-3'
                   valeurs={fiche.appellations.map((a) => APPELLATIONS[a])}
                 />
               </div>
@@ -271,7 +271,7 @@ export function OngletProduction({
                 {alambics.fields.map((champ, i) => (
                   <div
                     key={champ.id}
-                    className='grid items-end gap-3 md:grid-cols-[1fr_1fr_1fr_auto]'
+                    className='grid items-end gap-3 @min-[48rem]/content:grid-cols-[1fr_1fr_1fr_auto]'
                   >
                     <ChampChoix
                       control={c}

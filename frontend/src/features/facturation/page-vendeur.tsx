@@ -148,7 +148,7 @@ function FormulaireVendeur({
     nom: keyof Saisie,
     libelle: string,
     description?: string,
-    classe = 'sm:col-span-1'
+    classe = '@min-[48rem]/content:col-span-1'
   ) => (
     <FormField
       control={form.control}
@@ -186,8 +186,12 @@ function FormulaireVendeur({
           émise.
         </p>
       )}
-      <div className='grid gap-4 sm:grid-cols-2'>
-        <Lecture label='Nom' valeur={v?.nom} className='sm:col-span-2' />
+      <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
+        <Lecture
+          label='Nom'
+          valeur={v?.nom}
+          className='@min-[48rem]/content:col-span-2'
+        />
         <Lecture label='Adresse du siège' valeur={adresse} />
         <div className='space-y-4'>
           <Lecture label='Téléphone' valeur={v?.telephone} />
@@ -208,7 +212,7 @@ function FormulaireVendeur({
         <Lecture
           label="Option pour le paiement de la TVA d'après les débits"
           valeur={v && (v.tvaSurDebits ? 'Oui' : 'Non')}
-          className='sm:col-span-2'
+          className='@min-[48rem]/content:col-span-2'
         />
       </div>
     </div>
@@ -238,8 +242,13 @@ function FormulaireVendeur({
             {edition ? (
               <div className='space-y-4'>
                 <ErreurRacine errors={form.formState.errors} />
-                <div className='grid gap-4 sm:grid-cols-2'>
-                  {champ('nom', 'Nom', undefined, 'sm:col-span-2')}
+                <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
+                  {champ(
+                    'nom',
+                    'Nom',
+                    undefined,
+                    '@min-[48rem]/content:col-span-2'
+                  )}
                   {champ('ligne1', 'Adresse du siège')}
                   {champ('ligne2', 'Complément')}
                   {champ('codePostal', 'Code postal')}
@@ -265,7 +274,7 @@ function FormulaireVendeur({
                     control={form.control}
                     name='tvaSurDebits'
                     render={({ field }) => (
-                      <FormItem className='flex items-center gap-3 sm:col-span-2'>
+                      <FormItem className='flex items-center gap-3 @min-[48rem]/content:col-span-2'>
                         <FormControl>
                           <Switch
                             checked={field.value}

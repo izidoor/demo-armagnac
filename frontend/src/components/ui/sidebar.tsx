@@ -3,6 +3,7 @@ import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'class-variance-authority'
 import { PanelLeftIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useBalayageFermeture } from '@/hooks/use-balayage-fermeture'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,7 +26,22 @@ import {
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = '16rem'
-const SIDEBAR_WIDTH_MOBILE = '18rem'
+// Le tiroir sur mobile : 85 % de l'écran, sans plafond (le Sheet en a un dès sm), textes plus grands.
+const SIDEBAR_WIDTH_MOBILE = '85%'
+/**
+ * Le menu du tiroir. Textes : un cran au-dessus de la barre d'écran large dans l'en-tête (« Mon compte »), deux dans le
+ * menu et le pied, dont les liens prennent aussi une ligne et une icône plus hautes ; dans le pied, la hauteur reste
+ * celle de chaque lien (« L'offre (PDF) » a la sienne, et ses textes leur taille). Les liens du menu en petites
+ * capitales, initiale comprise, les titres de section tels quels ; un trait entre deux sections.
+ */
+const TIROIR = [
+  '[&_[data-sidebar=menu-button]]:text-base',
+  '[&_[data-sidebar=group-label]]:text-base',
+  '[&_[data-sidebar=content]_[data-sidebar=menu-button]]:h-10 [&_[data-sidebar=content]_[data-sidebar=menu-button]]:text-lg [&_[data-sidebar=content]_[data-sidebar=menu-button]]:[font-variant-caps:all-small-caps] [&_[data-sidebar=content]_[data-sidebar=menu-button]>svg]:size-5',
+  '[&_[data-sidebar=menu-sub-button]]:h-9 [&_[data-sidebar=menu-sub-button]]:text-lg [&_[data-sidebar=menu-sub-button]]:[font-variant-caps:all-small-caps]',
+  '[&_[data-sidebar=footer]_[data-sidebar=menu-button]]:text-lg [&_[data-sidebar=footer]_[data-sidebar=menu-button]>svg]:size-5',
+  '[&_[data-sidebar=group]+[data-sidebar=group]]:border-sidebar-trait [&_[data-sidebar=group]+[data-sidebar=group]]:border-t [&_[data-sidebar=group]+[data-sidebar=group]]:pt-3',
+]
 const SIDEBAR_WIDTH_ICON = '3rem'
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
 
@@ -161,6 +177,12 @@ function Sidebar({
   collapsible?: 'offcanvas' | 'icon' | 'none'
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  // Sur mobile, le tiroir se ferme aussi d'un balayage vers son bord.
+  const balayage = useBalayageFermeture({
+    ouvert: openMobile,
+    fermer: () => setOpenMobile(false),
+    cote: side,
+  })
 
   if (collapsible === 'none') {
     return (
@@ -184,13 +206,18 @@ function Sidebar({
           data-sidebar='sidebar'
           data-slot='sidebar'
           data-mobile='true'
-          className='bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden'
+          className={cn(
+            'bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 sm:max-w-none [&>button]:hidden',
+            TIROIR
+          )}
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
+              ...balayage.style,
             } as React.CSSProperties
           }
           side={side}
+          {...balayage.gestes}
         >
           <SheetHeader className='sr-only'>
             <SheetTitle>Sidebar</SheetTitle>

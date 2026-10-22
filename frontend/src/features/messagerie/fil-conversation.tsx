@@ -15,7 +15,6 @@ import { type Conversation, type Message } from '@/api/generated'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import {
@@ -70,7 +69,8 @@ export function ChoixPieces({
             <Paperclip className='size-4' /> Joindre un fichier
           </label>
         </Button>
-        <Input
+        {/* Natif : l'`Input` de l'interface ajoute `w-full`, qui l'emporte sur `sr-only` et élargissait la page. */}
+        <input
           id={id}
           type='file'
           multiple

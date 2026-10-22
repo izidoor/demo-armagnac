@@ -119,9 +119,12 @@ export function Designations({
       enregistrement={mutation.isPending}
     >
       {edition ? (
-        <div className='grid gap-4 md:grid-cols-2'>
+        <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
           {erreur && (
-            <Alert variant='destructive' className='md:col-span-2'>
+            <Alert
+              variant='destructive'
+              className='@min-[48rem]/content:col-span-2'
+            >
               <AlertDescription>{erreur}</AlertDescription>
             </Alert>
           )}
@@ -186,7 +189,7 @@ export function Designations({
           </div>
         </div>
       ) : (
-        <div className='grid gap-4 md:grid-cols-2'>
+        <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
           <Lecture
             label='Contact principal'
             valeur={nomDe(fiche.contactPrincipal)}

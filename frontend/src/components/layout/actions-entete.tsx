@@ -13,8 +13,8 @@ import { SelecteurOperateur } from './selecteur-operateur'
 
 /**
  * Actions à droite de l'en-tête, sur toutes les pages : recherche et actions rapides (⌘K), opérateur actif, thème,
- * paramètres de l'application (back-office seulement), profil. Sur mobile, la recherche et le profil seulement :
- * l'opérateur actif et les paramètres passent dans le tiroir de navigation (`AppSidebar`), le thème dans le profil.
+ * paramètres de l'application (back-office seulement), profil. Sur mobile, la loupe seule : l'opérateur actif, les
+ * paramètres et « Mon compte » passent dans le tiroir de navigation (`AppSidebar`), le thème dans « Mon compte ».
  */
 export function ActionsEntete() {
   const { pathname } = useLocation()
@@ -44,7 +44,9 @@ export function ActionsEntete() {
           <TooltipContent>Paramètres de l'application</TooltipContent>
         </Tooltip>
       )}
-      <ProfileDropdown />
+      <span className='contents max-md:hidden'>
+        <ProfileDropdown />
+      </span>
     </div>
   )
 }

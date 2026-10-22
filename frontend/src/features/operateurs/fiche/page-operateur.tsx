@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, TriangleAlert } from 'lucide-react'
@@ -9,6 +9,7 @@ import {
   reactiverOperateur,
   supprimerOperateur,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -37,15 +38,21 @@ type Action = 'desactiver' | 'reactiver' | 'supprimer'
  * l'opérateur BNIA (RG-OPE-39) est dans les paramètres de l'application (`SectionBnia`). Ce que l'on peut faire suit
  * les droits renvoyés avec la fiche (RG-OPE-31, 32, 36). Au back-office, un producteur ou un négociant a
  * l'onglet « Stocks & Mouvements », fourni par {@code declarations} (spec 05 §6.1).
+ *
+ * Sur un contenu étroit (moins de 40rem), la barre d'onglets cède la place à `NavigationEtroite` : les deux groupes
+ * en bande, les onglets du groupe choisi en pastilles.
  */
 export function PageOperateur({
   espace,
   id,
   onglet = 'general',
+  onOnglet,
 }: {
   espace: Espace
   id: number
   onglet?: string
+  /** L'onglet choisi, pour l'adresse (`?onglet=`) : le retour d'une page ouverte depuis l'onglet y ramène. */
+  onOnglet?: (onglet: string) => void
 }) {
   const bo = espace === 'bo'
   const queryClient = useQueryClient()
@@ -56,6 +63,11 @@ export function PageOperateur({
   })
   const presentation = usePresentation(id)
   const [action, setAction] = useState<Action | null>(null)
+  const [ongletOuvert, setOngletOuvert] = useState(onglet)
+  const ouvrirOnglet = (valeur: string) => {
+    setOngletOuvert(valeur)
+    onOnglet?.(valeur)
+  }
   const rafraichir = () => {
     queryClient.invalidateQueries({ queryKey: cleOperateur(id) })
     queryClient.invalidateQueries({ queryKey: ['operateurs'] })
@@ -106,6 +118,37 @@ export function PageOperateur({
   const avecAnnuaire = bo
   const avecDeclarations =
     bo && (fiche.type === 'PRODUCTEUR' || fiche.type === 'NEGOCIANT')
+  // Au back-office, deux groupes d'onglets : la fiche, qui décrit l'opérateur, et son activité. Au portail, la fiche
+  // seule, sans libellé : l'activité a ses propres menus (déclarations, factures).
+  const groupes: GroupeOnglets[] = [
+    {
+      libelle: bo ? "Fiche de l'opérateur" : undefined,
+      court: 'Fiche',
+      onglets: [
+        { valeur: 'general', libelle: 'Général' },
+        ...(avecAnnuaire ? [{ valeur: 'annuaire', libelle: 'Contacts' }] : []),
+        { valeur: 'production', libelle: 'Production' },
+        { valeur: 'oenotourisme', libelle: 'Œnotourisme' },
+        { valeur: 'diffusion', libelle: 'Statistiques' },
+      ],
+    },
+    ...(bo
+      ? [
+          {
+            libelle: 'Suivi des activités',
+            court: 'Activités',
+            onglets: [
+              ...(avecDeclarations
+                ? [{ valeur: 'declarations', libelle: 'Stocks & Mouvements' }]
+                : []),
+              { valeur: 'contrats', libelle: 'Contrats' },
+              { valeur: 'exportations', libelle: 'Exportations' },
+              { valeur: 'factures', libelle: 'Factures' },
+            ],
+          },
+        ]
+      : []),
+  ]
   return (
     <PageMetier
       titre={
@@ -169,32 +212,31 @@ export function PageOperateur({
           </Alert>
         )}
       </div>
-      <Tabs defaultValue={onglet}>
-        {/* Au back-office, deux groupes d'onglets : la fiche, qui décrit l'opérateur, et son activité. Au portail,
-            la fiche seule, sans libellé : l'activité a ses propres menus (déclarations, factures). */}
-        <div className='flex flex-wrap items-end gap-x-8 gap-y-4'>
-          <GroupeOnglets libelle={bo ? "Fiche de l'opérateur" : undefined}>
-            <TabsTrigger value='general'>Général</TabsTrigger>
-            {avecAnnuaire && (
-              <TabsTrigger value='annuaire'>Contacts</TabsTrigger>
-            )}
-            <TabsTrigger value='production'>Production</TabsTrigger>
-            <TabsTrigger value='oenotourisme'>Œnotourisme</TabsTrigger>
-            <TabsTrigger value='diffusion'>Statistiques</TabsTrigger>
-          </GroupeOnglets>
-          {bo && (
-            <GroupeOnglets libelle='Suivi des activités'>
-              {avecDeclarations && (
-                <TabsTrigger value='declarations'>
-                  Stocks & Mouvements
-                </TabsTrigger>
+      <Tabs value={ongletOuvert} onValueChange={ouvrirOnglet}>
+        {/* La barre la plus large (la fiche, au back-office) fait 568 px : sous 40rem de contenu, `NavigationEtroite` la remplace. */}
+        <div className='flex flex-wrap items-end gap-x-8 gap-y-4 @max-[40rem]/content:hidden'>
+          {groupes.map((g) => (
+            <div key={g.court} className='space-y-1.5'>
+              {g.libelle && (
+                <div className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
+                  {g.libelle}
+                </div>
               )}
-              <TabsTrigger value='contrats'>Contrats</TabsTrigger>
-              <TabsTrigger value='exportations'>Exportations</TabsTrigger>
-              <TabsTrigger value='factures'>Factures</TabsTrigger>
-            </GroupeOnglets>
-          )}
+              <TabsList className='flex-wrap'>
+                {g.onglets.map((o) => (
+                  <TabsTrigger key={o.valeur} value={o.valeur}>
+                    {o.libelle}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          ))}
         </div>
+        <NavigationEtroite
+          groupes={groupes}
+          ouvert={ongletOuvert}
+          onOuvrir={ouvrirOnglet}
+        />
         <TabsContent value='general'>
           <OngletGeneral
             espace={espace}
@@ -324,23 +366,74 @@ export function PageOperateur({
   )
 }
 
-/** Une barre d'onglets, sous le libellé de son groupe. */
-function GroupeOnglets({
-  libelle,
-  children,
-}: {
+/** Un groupe d'onglets : son libellé au-dessus de sa barre, son nom court dans la bande de `NavigationEtroite`. */
+type GroupeOnglets = {
   libelle?: string
-  children: ReactNode
+  court: string
+  onglets: { valeur: string; libelle: string }[]
+}
+
+/**
+ * Sur un contenu étroit (moins de 40rem), les onglets en deux niveaux : une bande des groupes (Fiche, Activités), puis
+ * les onglets du groupe choisi en pastilles. Choisir un groupe ouvre son premier onglet. Au portail, un seul groupe :
+ * les pastilles seules.
+ */
+function NavigationEtroite({
+  groupes,
+  ouvert,
+  onOuvrir,
+}: {
+  groupes: GroupeOnglets[]
+  ouvert: string
+  onOuvrir: (valeur: string) => void
 }) {
+  const groupeOuvert =
+    groupes.find((g) => g.onglets.some((o) => o.valeur === ouvert)) ??
+    groupes[0]
   return (
-    <div className='space-y-1.5'>
-      {libelle && (
-        <div className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>
-          {libelle}
+    <nav
+      aria-label='Onglets de la fiche'
+      className='space-y-3 @min-[40rem]/content:hidden'
+    >
+      {groupes.length > 1 && (
+        <div className='bg-muted grid grid-cols-2 gap-1 rounded-lg p-1'>
+          {groupes.map((g) => (
+            <button
+              key={g.court}
+              type='button'
+              aria-pressed={g === groupeOuvert}
+              onClick={() => onOuvrir(g.onglets[0].valeur)}
+              className={cn(
+                'rounded-md py-1.5 text-sm font-medium transition-colors',
+                g === groupeOuvert
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground'
+              )}
+            >
+              {g.court}
+            </button>
+          ))}
         </div>
       )}
-      <TabsList className='flex-wrap'>{children}</TabsList>
-    </div>
+      <div className='flex flex-wrap gap-2'>
+        {groupeOuvert.onglets.map((o) => (
+          <button
+            key={o.valeur}
+            type='button'
+            aria-pressed={o.valeur === ouvert}
+            onClick={() => onOuvrir(o.valeur)}
+            className={cn(
+              'rounded-full border px-3 py-1 text-sm transition-colors',
+              o.valeur === ouvert
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card hover:bg-muted'
+            )}
+          >
+            {o.libelle}
+          </button>
+        ))}
+      </div>
+    </nav>
   )
 }
 

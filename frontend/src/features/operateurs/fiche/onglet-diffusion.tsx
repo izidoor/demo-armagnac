@@ -166,7 +166,7 @@ export function OngletDiffusion({
             )}
           </div>
         ) : (
-          <div className='grid gap-4 md:grid-cols-3'>
+          <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
             <Lecture
               label="Niveau d'accord"
               valeur={NIVEAUX_DIFFUSION[fiche.niveauDiffusion]}
@@ -175,7 +175,7 @@ export function OngletDiffusion({
               <LectureListe
                 label='Millésimes diffusables'
                 vide='Aucun millésime'
-                className='md:col-span-2'
+                className='@min-[48rem]/content:col-span-2'
                 valeurs={
                   fiche.millesimesDiffusables.length > 0
                     ? [fiche.millesimesDiffusables.join(', ')]

@@ -165,7 +165,7 @@ export function CadreMarques({
       champs={['marques', 'circuits']}
     >
       {!edition ? (
-        <div className='grid gap-6 md:grid-cols-2'>
+        <div className='grid gap-6 @min-[48rem]/content:grid-cols-2'>
           <LectureListe
             label='Marques'
             vide='Aucune marque'
@@ -185,7 +185,7 @@ export function CadreMarques({
           />
         </div>
       ) : (
-        <div className='grid gap-6 md:grid-cols-2'>
+        <div className='grid gap-6 @min-[48rem]/content:grid-cols-2'>
           <div className='space-y-2'>
             <Label>Marques</Label>
             {p.marques.map((m, i) =>
@@ -580,7 +580,7 @@ export function SectionOenotourisme({
     </label>
   )
   const cases = (nom: 'langues' | 'produitsCommercialises', liste: Liste) => (
-    <div className='grid gap-2 sm:grid-cols-2'>
+    <div className='grid gap-2 @min-[48rem]/content:grid-cols-2'>
       {liste.proposees(p[nom]).map((v) => (
         <label key={v.id} className='flex items-center gap-2 text-sm'>
           <Checkbox
@@ -622,7 +622,7 @@ export function SectionOenotourisme({
         ]}
       >
         {!enEdition('accueil') ? (
-          <div className='grid gap-4 md:grid-cols-3'>
+          <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
             <Lecture
               label='Paiement par carte'
               valeur={
@@ -659,7 +659,7 @@ export function SectionOenotourisme({
             />
           </div>
         ) : (
-          <div className='grid gap-4 md:grid-cols-2'>
+          <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
             <div className='space-y-2'>
               <label className='flex items-center gap-2 text-sm'>
                 <Switch
@@ -730,7 +730,7 @@ export function SectionOenotourisme({
         )}
       </CadrePresentation>
       <CadreVisites {...cadre} />
-      <div className='grid gap-4 md:grid-cols-2'>
+      <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
         <CadrePresentation
           {...cadre}
           cle='langues'
@@ -769,7 +769,7 @@ export function SectionOenotourisme({
         champs={['presentationFr', 'presentationEn']}
       >
         {enEdition('presentation') ? (
-          <div className='grid gap-4 md:grid-cols-2'>
+          <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
             <div className='space-y-1'>
               <Label>En français</Label>
               <Textarea
@@ -792,7 +792,7 @@ export function SectionOenotourisme({
             </div>
           </div>
         ) : (
-          <div className='grid gap-4 md:grid-cols-2'>
+          <div className='grid gap-4 @min-[48rem]/content:grid-cols-2'>
             <Lecture
               label='En français'
               valeur={
@@ -827,7 +827,7 @@ export function SectionOenotourisme({
             {p.medailles.map((m, i) => (
               <div
                 key={i}
-                className='grid items-center gap-2 md:grid-cols-[2fr_1fr_1fr_2fr_auto]'
+                className='grid items-center gap-2 @min-[48rem]/content:grid-cols-[2fr_1fr_1fr_2fr_auto]'
               >
                 <Input
                   placeholder='Concours'

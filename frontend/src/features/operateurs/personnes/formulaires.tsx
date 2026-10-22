@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useForm, type Control } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,9 +12,16 @@ import {
 } from '@/api/generated'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
+import { CadreEditable } from '@/components/metier/cadre-editable'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
-import { ChampCases, ChampChoix, ChampTexte } from '../commun/champs'
+import {
+  ChampCases,
+  ChampChoix,
+  ChampTexte,
+  Lecture,
+  LectureListe,
+} from '../commun/champs'
 import { useListe } from '../commun/referentiels'
 import {
   identifiant,
@@ -141,7 +148,11 @@ export function FormulaireContact({
         {/* Les champs de la fiche portent les mêmes noms dans la saisie complète. */}
         <ChampsFiche control={c as unknown as Control<Fiche>} />
         <div className='flex justify-end md:col-span-3'>
-          <Button type='submit' disabled={mutation.isPending}>
+          <Button
+            type='submit'
+            className='max-md:w-full'
+            disabled={mutation.isPending}
+          >
             Déclarer
           </Button>
         </div>
@@ -216,20 +227,26 @@ export function FormulaireIdentiteContact({
 }
 
 /**
- * Fiche professionnelle d'un contact ou d'un membre (RG-OPE-46) : modifiée par son titulaire ou par un
- * rôle qui gère le module Contacts.
+ * La fiche professionnelle d'un contact ou d'un membre, dans sa carte (RG-OPE-46) : en lecture, et « Éditer » pour qui
+ * peut la modifier, son titulaire ou un rôle qui gère le module Contacts.
  */
-export function FormulaireFiche({
+export function CarteFiche({
+  titre = 'Fiche professionnelle',
   fiche,
   modifiable,
   enregistrer,
   onSucces,
 }: {
+  /** « Ma fiche chez … », dans Mon compte. */
+  titre?: string
   fiche: FicheProfessionnelle
   modifiable: boolean
   enregistrer: (saisie: SaisieFiche) => Promise<unknown>
   onSucces: () => void
 }) {
+  const [edition, setEdition] = useState(false)
+  const pays = useListe('pays')
+  const centres = useListe('centresInteret')
   const form = useForm<Fiche>({
     resolver: zodResolver(schemaFiche),
     defaultValues: ficheDepuis(fiche),
@@ -239,36 +256,94 @@ export function FormulaireFiche({
     mutationFn: (s: Fiche) =>
       enregistrer({ ...versFiche(s), version: fiche.version }),
     meta: { erreurAffichee: true },
-    onSuccess: onSucces,
+    onSuccess: () => {
+      setEdition(false)
+      onSucces()
+    },
     onError: (error) => afficherErreur(form, error),
   })
+  const telephone = (numero?: string | null) =>
+    numero && (
+      <a href={`tel:${numero}`} className='hover:underline'>
+        {numero}
+      </a>
+    )
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit((s) => mutation.mutate(s))}
-        className='grid gap-4 md:grid-cols-3'
-      >
-        <div className='md:col-span-3'>
-          <ErreurRacine errors={form.formState.errors} />
-        </div>
-        <fieldset disabled={!modifiable} className='contents'>
-          <ChampsFiche
-            control={form.control}
-            pays={fiche.pays}
-            centresInteret={fiche.centresInteret}
-          />
-        </fieldset>
-        <p className='text-muted-foreground text-sm md:col-span-2'>
-          {fiche.modifieePar &&
-            `Modifiée par ${fiche.modifieePar}${fiche.modifieeLe ? `, le ${new Date(fiche.modifieeLe).toLocaleDateString('fr-FR')}` : ''}.`}
-        </p>
-        {modifiable && (
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={mutation.isPending}>
-              Enregistrer la fiche
-            </Button>
-          </div>
-        )}
+      <form onSubmit={form.handleSubmit((s) => mutation.mutate(s))}>
+        <CadreEditable
+          titre={titre}
+          edition={edition}
+          modifiable={modifiable}
+          onEditer={() => setEdition(true)}
+          onAnnuler={() => {
+            form.reset(ficheDepuis(fiche))
+            setEdition(false)
+          }}
+          enregistrement={mutation.isPending}
+        >
+          {edition ? (
+            <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
+              <div className='@min-[48rem]/content:col-span-3'>
+                <ErreurRacine errors={form.formState.errors} />
+              </div>
+              <ChampsFiche
+                control={form.control}
+                pays={fiche.pays}
+                centresInteret={fiche.centresInteret}
+                pleineLargeur='@min-[48rem]/content:col-span-3'
+              />
+            </div>
+          ) : (
+            <div className='space-y-4'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
+                <Lecture label='Fonction' valeur={fiche.fonction} />
+                <Lecture
+                  label='Téléphone professionnel'
+                  valeur={telephone(fiche.telephoneProfessionnel)}
+                />
+                <Lecture
+                  label='Téléphone secondaire'
+                  valeur={telephone(fiche.telephoneSecondaire)}
+                />
+                <Lecture
+                  label='Adresse (si distincte)'
+                  valeur={fiche.adresse}
+                />
+                <Lecture label='Code postal' valeur={fiche.codePostal} />
+                <Lecture label='Ville' valeur={fiche.ville} />
+                <Lecture label='Pays' valeur={pays.libelle(fiche.pays)} />
+                <LectureListe
+                  label="Centres d'intérêt"
+                  valeurs={(fiche.centresInteret ?? []).map((id) =>
+                    centres.libelle(id)
+                  )}
+                  vide='Aucun'
+                  className='@min-[48rem]/content:col-span-2'
+                />
+                <Lecture
+                  label='Observation'
+                  valeur={
+                    fiche.observation && (
+                      <span className='whitespace-pre-line'>
+                        {fiche.observation}
+                      </span>
+                    )
+                  }
+                  className='@min-[48rem]/content:col-span-3'
+                />
+              </div>
+              {fiche.modifieePar && (
+                <p className='text-muted-foreground text-sm'>
+                  Modifiée par {fiche.modifieePar}
+                  {fiche.modifieeLe &&
+                    `, le ${new Date(fiche.modifieeLe).toLocaleDateString('fr-FR')}`}
+                  .
+                </p>
+              )}
+            </div>
+          )}
+        </CadreEditable>
       </form>
     </Form>
   )
@@ -279,10 +354,13 @@ function ChampsFiche({
   control: c,
   pays: paysPorte,
   centresInteret = [],
+  pleineLargeur = 'md:col-span-3',
 }: {
   control: Control<Fiche>
   pays?: number | null
   centresInteret?: number[]
+  /** Les champs sur toute la largeur de la grille ; dans la zone de contenu, sa variante de conteneur. */
+  pleineLargeur?: string
 }) {
   const pays = useListe('pays')
   const centres = useListe('centresInteret')
@@ -313,7 +391,7 @@ function ChampsFiche({
         control={c}
         name='centresInteret'
         label="Centres d'intérêt"
-        className='md:col-span-3'
+        className={pleineLargeur}
         options={centres.proposees(centresInteret).map((v) => ({
           valeur: v.id,
           libelle: v.actif ? v.libelle : `${v.libelle} (inactif)`,
@@ -324,7 +402,7 @@ function ChampsFiche({
         name='observation'
         label='Observation'
         multiligne
-        className='md:col-span-3'
+        className={pleineLargeur}
       />
     </>
   )

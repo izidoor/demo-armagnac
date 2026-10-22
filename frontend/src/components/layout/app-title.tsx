@@ -43,8 +43,12 @@ export function AppTitle({ espace }: AppTitleProps) {
               onClick={() => setOpenMobile(false)}
               className='grid flex-1 text-start text-sm leading-tight'
             >
-              <span className='truncate font-bold'>{espace.nom}</span>
-              <span className='truncate text-xs'>{espace.description}</span>
+              <span className='truncate font-bold max-md:text-base'>
+                {espace.nom}
+              </span>
+              <span className='truncate text-xs max-md:text-sm'>
+                {espace.description}
+              </span>
             </Link>
             <ToggleSidebar />
           </div>
@@ -54,7 +58,8 @@ export function AppTitle({ espace }: AppTitleProps) {
   )
 }
 
-function ToggleSidebar({
+/** Ouvre ou ferme la sidebar ; sur mobile, une croix, qui ferme le tiroir. */
+export function ToggleSidebar({
   className,
   onClick,
   ...props

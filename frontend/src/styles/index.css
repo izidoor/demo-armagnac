@@ -145,6 +145,10 @@
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-border: oklch(0.9355 0.0324 80.9937);
   --sidebar-ring: oklch(0.465 0.147 24.9381);
+  /* Haut et pied de la barre latérale, et leurs traits : son fond, assombri ; même teinte et même saturation là où la
+     couleur relative est prise en charge (@supports plus bas). */
+  --sidebar-bandeau: color-mix(in oklch, var(--sidebar) 93%, black);
+  --sidebar-trait: color-mix(in oklch, var(--sidebar) 80%, black);
   --font-sans: Poppins, sans-serif;
   --font-serif: Libre Baskerville, serif;
   --font-mono: IBM Plex Mono, monospace;
@@ -225,6 +229,9 @@
   --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
   --sidebar-border: oklch(0.3843 0.0301 269.7337);
   --sidebar-ring: oklch(0.6397 0.172 36.4421);
+  /* Haut et pied de la barre latérale, et leurs traits : son fond, éclairci (voir :root). */
+  --sidebar-bandeau: color-mix(in oklch, var(--sidebar) 93%, white);
+  --sidebar-trait: color-mix(in oklch, var(--sidebar) 75%, white);
   --font-sans: Inter, sans-serif;
   --font-serif: Source Serif 4, serif;
   --font-mono: JetBrains Mono, monospace;
@@ -248,6 +255,17 @@
   --shadow-xl:
     0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.25);
+}
+
+@supports (color: oklch(from red l c h)) {
+  :root {
+    --sidebar-bandeau: oklch(from var(--sidebar) calc(l - 0.035) c h);
+    --sidebar-trait: oklch(from var(--sidebar) calc(l - 0.13) c h);
+  }
+  .dark {
+    --sidebar-bandeau: oklch(from var(--sidebar) calc(l + 0.04) c h);
+    --sidebar-trait: oklch(from var(--sidebar) calc(l + 0.14) c h);
+  }
 }
 
 @theme inline {
@@ -296,6 +314,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-bandeau: var(--sidebar-bandeau);
+  --color-sidebar-trait: var(--sidebar-trait);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

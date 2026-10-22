@@ -275,7 +275,7 @@ export function OngletGeneral({
           <ErreurRacine errors={form.formState.errors} />
           <CadreEditable titre='Identité' {...cadreDe('identite')}>
             {cadre === 'identite' ? (
-              <div className='grid gap-4 md:grid-cols-3'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
                 {bo && fiche.type !== 'BNIA' ? (
                   <ChampChoix
                     control={c}
@@ -312,7 +312,7 @@ export function OngletGeneral({
                   facultatif
                   options={optionsReference(titres.valeurs, fiche.titre)}
                 />
-                <div className='space-y-1 md:col-span-2'>
+                <div className='space-y-1 @min-[48rem]/content:col-span-2'>
                   {bo ? (
                     <>
                       <ChampTexte
@@ -386,7 +386,7 @@ export function OngletGeneral({
                 )}
               </div>
             ) : (
-              <div className='grid gap-4 md:grid-cols-3'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
                 <Lecture label='Type' valeur={TYPES[fiche.type]} />
                 <Lecture label='Code' valeur={fiche.code} />
                 <Lecture label='Groupe' valeur={fiche.groupe} />
@@ -394,7 +394,7 @@ export function OngletGeneral({
                 <Lecture
                   label='Raison sociale'
                   valeur={fiche.raisonSociale}
-                  className='md:col-span-2'
+                  className='@min-[48rem]/content:col-span-2'
                 />
                 <Lecture label='Nom commercial' valeur={fiche.nomCommercial} />
                 <Lecture label='CVI' valeur={fiche.cvi} />
@@ -424,7 +424,7 @@ export function OngletGeneral({
           </CadreEditable>
           <CadreEditable titre='Coordonnées' {...cadreDe('coordonnees')}>
             {cadre === 'coordonnees' ? (
-              <div className='grid gap-4 md:grid-cols-3'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
                 <ChampTexte control={c} name='adresseLigne1' label='Adresse' />
                 <ChampTexte
                   control={c}
@@ -489,12 +489,12 @@ export function OngletGeneral({
                     label='Commentaire interne'
                     description='Jamais montré au portail.'
                     multiligne
-                    className='md:col-span-3'
+                    className='@min-[48rem]/content:col-span-3'
                   />
                 )}
               </div>
             ) : (
-              <div className='grid gap-4 md:grid-cols-3'>
+              <div className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
                 <Lecture label='Adresse' valeur={fiche.adresseLigne1} />
                 <Lecture label='Complément' valeur={fiche.adresseLigne2} />
                 <Lecture
@@ -529,7 +529,7 @@ export function OngletGeneral({
                         </span>
                       )
                     }
-                    className='md:col-span-3'
+                    className='@min-[48rem]/content:col-span-3'
                   />
                 )}
               </div>

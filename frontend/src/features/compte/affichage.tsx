@@ -20,7 +20,7 @@ export function Affichage() {
       value={theme}
       onValueChange={(v) => setTheme(v as typeof theme)}
       aria-label="Mode d'affichage"
-      className='grid max-w-md grid-cols-3 gap-4'
+      className='grid max-w-md grid-cols-3 gap-4 max-md:pe-3'
     >
       {modes.map(({ valeur, libelle, icone: Icone }) => (
         <Item

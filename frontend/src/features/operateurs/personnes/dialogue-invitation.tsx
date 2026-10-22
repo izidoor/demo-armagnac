@@ -4,13 +4,6 @@ import { inviter, type Contact, type PersonneAnnuaire } from '@/api/generated'
 import { lireProbleme } from '@/lib/probleme'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -20,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { cles, ROLES, ROLES_DESCRIPTION, type Role } from '../commun/libelles'
 
 /**
@@ -86,78 +80,73 @@ export function DialogueInvitation({
   const erreur = invitation.error ? lireProbleme(invitation.error) : null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-lg'>
-        <DialogHeader>
-          <DialogTitle>
-            {contact ? `Inviter ${contact.nomComplet}` : 'Inviter une personne'}
-          </DialogTitle>
-          <DialogDescription>
-            Un lien valable 7 jours part par e-mail. En l'acceptant, la personne
-            devient membre de l'opérateur avec ce rôle
-            {contact ? ', et garde sa fiche professionnelle.' : '.'}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={soumettre} className='space-y-4'>
-          {erreur && (
-            <Alert variant='destructive'>
-              <AlertDescription>
-                {erreur.detail ?? erreur.titre}
-              </AlertDescription>
-            </Alert>
-          )}
-          <Champ libelle='E-mail' valeur={email} onChange={setEmail} />
-          {contactDeLEmail && (
-            <Alert>
-              <AlertDescription>
-                Cet e-mail est celui du contact {contactDeLEmail.nomComplet} :
-                l'invitation part de ce contact, dont la fiche professionnelle
-                est conservée.
-              </AlertDescription>
-            </Alert>
-          )}
-          {!contact && !contactDeLEmail && (
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <Champ libelle='Prénom' valeur={prenom} onChange={setPrenom} />
-              <Champ libelle='Nom' valeur={nom} onChange={setNom} />
-              <Champ
-                libelle='Fonction'
-                valeur={fonction}
-                onChange={setFonction}
-              />
-              <Champ
-                libelle='Téléphone professionnel'
-                valeur={telephone}
-                onChange={setTelephone}
-              />
-            </div>
-          )}
-          <div className='space-y-2'>
-            <Label>Rôle</Label>
-            <Select value={role} onValueChange={(v) => setRole(v as Role)}>
-              <SelectTrigger className='w-full'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {cles(ROLES).map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {ROLES[r]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className='text-muted-foreground text-sm'>
-              {ROLES_DESCRIPTION[role]}
-            </p>
+    <DialogueFormulaire
+      ouvert={open}
+      onOuvertChange={onOpenChange}
+      titre={contact ? `Inviter ${contact.nomComplet}` : 'Inviter une personne'}
+      description={`Un lien valable 7 jours part par e-mail. En l'acceptant, la personne devient membre de l'opérateur avec ce rôle${contact ? ', et garde sa fiche professionnelle.' : '.'}`}
+    >
+      <form onSubmit={soumettre} className='space-y-4'>
+        {erreur && (
+          <Alert variant='destructive'>
+            <AlertDescription>{erreur.detail ?? erreur.titre}</AlertDescription>
+          </Alert>
+        )}
+        <Champ libelle='E-mail' valeur={email} onChange={setEmail} />
+        {contactDeLEmail && (
+          <Alert>
+            <AlertDescription>
+              Cet e-mail est celui du contact {contactDeLEmail.nomComplet} :
+              l'invitation part de ce contact, dont la fiche professionnelle est
+              conservée.
+            </AlertDescription>
+          </Alert>
+        )}
+        {!contact && !contactDeLEmail && (
+          <div className='grid gap-4 sm:grid-cols-2'>
+            <Champ libelle='Prénom' valeur={prenom} onChange={setPrenom} />
+            <Champ libelle='Nom' valeur={nom} onChange={setNom} />
+            <Champ
+              libelle='Fonction'
+              valeur={fonction}
+              onChange={setFonction}
+            />
+            <Champ
+              libelle='Téléphone professionnel'
+              valeur={telephone}
+              onChange={setTelephone}
+            />
           </div>
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={invitation.isPending}>
-              Envoyer l'invitation
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        )}
+        <div className='space-y-2'>
+          <Label>Rôle</Label>
+          <Select value={role} onValueChange={(v) => setRole(v as Role)}>
+            <SelectTrigger className='w-full'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {cles(ROLES).map((r) => (
+                <SelectItem key={r} value={r}>
+                  {ROLES[r]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className='text-muted-foreground text-sm'>
+            {ROLES_DESCRIPTION[role]}
+          </p>
+        </div>
+        <div className='flex justify-end'>
+          <Button
+            type='submit'
+            className='max-md:w-full'
+            disabled={invitation.isPending}
+          >
+            Envoyer l'invitation
+          </Button>
+        </div>
+      </form>
+    </DialogueFormulaire>
   )
 }
 

@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  ChevronLeft,
   MessageSquarePlus,
   MessagesSquare,
   Search,
   UserX,
   X,
 } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { toast } from 'sonner'
 import { type ResultatRechercheOperateur } from '@/api/generated'
 import { cn } from '@/lib/utils'
+import { useContenuAuMoins } from '@/hooks/use-contenu-au-moins'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -73,7 +76,15 @@ const LIBELLES_TYPE: Record<TypeObjet, string> = {
  * réception, non lues en gras, filtrées et cherchées (RG-MSG-15, 16) ; à droite, la conversation choisie, lue en
  * s'affichant (RG-MSG-10), avec le lien vers son objet. Au portail, « Nouvelle conversation » ouvre un sujet libre
  * avec le BNIA, pour qui gère le module Messagerie, l'observateur ne faisant que le lire (RG-MSG-12).
+ *
+ * Les deux panneaux côte à côte demandent 68rem de contenu (`COTE_A_COTE`), barre latérale comprise : la liste garde
+ * ses 26rem, la conversation en a une quarantaine. En dessous, la liste seule ; la conversation choisie s'ouvre
+ * par-dessus la zone de contenu (tout l'écran sur un téléphone), sous un bouton de retour à la liste
+ * (`ConversationPleinEcran`).
  */
+/** Largeur de contenu des deux panneaux côte à côte, en rem ; écrite aussi en entier dans les classes `@…-[68rem]/content`. */
+const COTE_A_COTE = 68
+
 export function PageMessagerie({
   espace,
   operateur,
@@ -87,6 +98,17 @@ export function PageMessagerie({
   onSelection: (selection: SelectionMessagerie) => void
 }) {
   const [nouvelle, setNouvelle] = useState(false)
+  const coteACote = useContenuAuMoins(COTE_A_COTE)
+  // Ouverte depuis la liste, le retour revient en arrière dans l'historique : le bouton retour du téléphone et
+  // celui de l'écran font de même. Ouverte par un lien (tableau de bord, notification), il n'y a pas de liste où
+  // revenir : le retour l'y affiche.
+  const [depuisListe, setDepuisListe] = useState(false)
+  const retourALaListe = () => {
+    if (depuisListe) {
+      setDepuisListe(false)
+      window.history.back()
+    } else onSelection({ nonLues: selection.nonLues })
+  }
 
   return (
     <PageMetier
@@ -107,7 +129,7 @@ export function PageMessagerie({
         )
       }
     >
-      <div className='grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]'>
+      <div className='grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)] @min-[68rem]/content:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]'>
         <ListeConversations
           espace={espace}
           operateur={operateur}
@@ -116,12 +138,13 @@ export function PageMessagerie({
           onNonLues={(nonLues) =>
             onSelection({ ...selection, nonLues: nonLues || undefined })
           }
-          onChoisir={(conversation) =>
+          onChoisir={(conversation) => {
+            if (!coteACote) setDepuisListe(true)
             onSelection({ nonLues: selection.nonLues, conversation })
-          }
+          }}
         />
-        <div className='min-h-0 min-w-0'>
-          {selection.conversation != null ? (
+        <div className='min-h-0 min-w-0 @max-[68rem]/content:hidden'>
+          {selection.conversation != null && coteACote ? (
             <PanneauConversation
               key={selection.conversation}
               id={selection.conversation}
@@ -129,7 +152,7 @@ export function PageMessagerie({
               espace={espace}
             />
           ) : (
-            <section className='bg-card flex h-[36rem] flex-col items-center justify-center gap-4 rounded-md border p-5 text-center shadow-xs lg:h-full lg:min-h-0'>
+            <section className='bg-card flex h-full min-h-0 flex-col items-center justify-center gap-4 rounded-md border p-5 text-center shadow-xs'>
               <span className='bg-muted text-muted-foreground flex size-16 items-center justify-center rounded-full'>
                 <MessagesSquare className='size-8' />
               </span>
@@ -145,6 +168,17 @@ export function PageMessagerie({
           )}
         </div>
       </div>
+      {selection.conversation != null && !coteACote && (
+        <ConversationPleinEcran onRetour={retourALaListe}>
+          <PanneauConversation
+            key={selection.conversation}
+            id={selection.conversation}
+            message={selection.message}
+            espace={espace}
+            pleinEcran
+          />
+        </ConversationPleinEcran>
+      )}
       {operateur != null && (
         <NouvelleConversation
           open={nouvelle}
@@ -220,7 +254,7 @@ function ListeConversations({
         <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
         <Input
           className='ps-8'
-          placeholder='Chercher dans les messages, titres et objets'
+          placeholder='Chercher dans les conversations'
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
           aria-label='Chercher'
@@ -257,7 +291,10 @@ function ListeConversations({
               <PopoverTrigger asChild>
                 <Button variant='outline'>Tous les opérateurs</Button>
               </PopoverTrigger>
-              <PopoverContent align='start' className='w-96'>
+              <PopoverContent
+                align='start'
+                className='w-96 max-w-[calc(100vw-2rem)]'
+              >
                 <RechercheOperateur
                   onChoisir={(o) => {
                     setDeLOperateur(o)
@@ -373,6 +410,35 @@ function ListeConversations({
 }
 
 /**
+ * Sans la place des deux panneaux, la conversation par-dessus la zone de contenu (`SidebarInset`, tout l'écran sur un
+ * téléphone), entrée par la droite, sous « Conversations » pour revenir à la liste.
+ */
+function ConversationPleinEcran({
+  onRetour,
+  children,
+}: {
+  onRetour: () => void
+  children: React.ReactNode
+}) {
+  return createPortal(
+    <div
+      role='dialog'
+      aria-modal='true'
+      aria-label='Conversation'
+      className='bg-background animate-in slide-in-from-right absolute inset-0 z-50 flex flex-col rounded-[inherit] duration-200'
+    >
+      <div className='flex h-14 shrink-0 items-center border-b px-2'>
+        <Button variant='ghost' className='gap-1 px-2' onClick={onRetour}>
+          <ChevronLeft className='size-5' /> Conversations
+        </Button>
+      </div>
+      <div className='flex min-h-0 flex-1 flex-col p-4'>{children}</div>
+    </div>,
+    document.querySelector('[data-slot="sidebar-inset"]') ?? document.body
+  )
+}
+
+/**
  * La conversation choisie : l'afficher la lit pour mon côté (RG-MSG-10), puis les listes et le compteur se relisent.
  * Elle s'ouvre sur le message visé, sinon sur son premier message non lu, sinon sur le dernier.
  */
@@ -380,10 +446,13 @@ function PanneauConversation({
   id,
   message,
   espace,
+  pleinEcran = false,
 }: {
   id: number
   message?: number
   espace: EspaceMessagerie
+  /** Dans `ConversationPleinEcran` : toute la hauteur, sans cadre. */
+  pleinEcran?: boolean
 }) {
   const queryClient = useQueryClient()
   const { data: conversation, isError } = useQuery({
@@ -408,7 +477,14 @@ function PanneauConversation({
     )
   }
   return (
-    <section className='bg-card flex h-[36rem] flex-col rounded-md border p-5 shadow-xs lg:h-full lg:min-h-0'>
+    <section
+      className={cn(
+        'flex flex-col',
+        pleinEcran
+          ? 'min-h-0 flex-1'
+          : 'bg-card h-full min-h-0 rounded-md border p-5 shadow-xs'
+      )}
+    >
       <div className='mb-4 flex shrink-0 flex-wrap items-start gap-3 border-b pb-4'>
         <div className='min-w-0 flex-1 space-y-1'>
           <h2 className='text-xl font-semibold'>

@@ -97,7 +97,7 @@ export function PageContenances() {
   return (
     <PageMetier
       titre='Contenances'
-      description="Volumes en litres, utilisés pour le calcul du volume d'alcool pur des ventes export (C.10.9.4, §4.7.5)."
+      description="Volumes en litres, utilisés pour le calcul du volume d'alcool pur des ventes export."
       actions={
         gestion && (
           <Button onClick={() => setEdition('nouvelle')}>

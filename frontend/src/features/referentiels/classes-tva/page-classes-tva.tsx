@@ -40,7 +40,7 @@ export function PageClassesTva() {
   return (
     <PageMetier
       titre='Classes de TVA'
-      description='Classes de TVA et historique de leurs taux ; les taux ne se chevauchent pas (§4.11.1, C.10.1-2). Cliquer une classe pour ouvrir son historique.'
+      description='Classes de TVA et historique de leurs taux ; les taux ne se chevauchent pas. Cliquer une classe pour ouvrir son historique.'
       actions={
         gestion && (
           <Button onClick={() => setCreation(true)}>

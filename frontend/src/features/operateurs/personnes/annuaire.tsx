@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, Mail, Plus } from 'lucide-react'
-import { creerContact, type Contact, type Droits } from '@/api/generated'
+import { ChevronDown, Mail, Phone, Plus } from 'lucide-react'
+import {
+  creerContact,
+  type Contact,
+  type Droits,
+  type PersonneAnnuaire,
+} from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,13 +22,6 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
   Table,
   TableBody,
   TableCell,
@@ -31,7 +29,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { cleOperateur, useAnnuaire, type Espace } from '../commun/api'
 import { ROLES } from '../commun/libelles'
 import { DialogueInvitation } from './dialogue-invitation'
@@ -41,7 +41,8 @@ import { genreDe, useNavigationPersonnes } from './navigation'
 
 /**
  * Annuaire d'un opérateur (RG-OPE-52) : contacts, membres et personnes nouvelles invitées, en une liste ;
- * déclarer un contact (module Contacts) ; inviter (module Accès) ; au back-office, le journal en dessous.
+ * déclarer un contact (module Contacts) ; inviter (module Accès) ; au back-office, le journal en dessous. Sous 56rem de
+ * contenu (730 px de tableau, plus 84 px de marges et de carte), une carte par personne à la place du tableau.
  */
 export function OngletAnnuaire({
   espace,
@@ -83,7 +84,7 @@ export function OngletAnnuaire({
           </CardAction>
         </CardHeader>
         <CardContent>
-          <div className='rounded-md border'>
+          <div className='rounded-md border @max-[56rem]/content:hidden'>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -117,31 +118,7 @@ export function OngletAnnuaire({
                     <TableCell>{p.email}</TableCell>
                     <TableCell>{p.telephoneProfessionnel}</TableCell>
                     <TableCell>
-                      <span className='flex flex-wrap gap-1'>
-                        {p.genre === 'CONTACT' && (
-                          <Badge variant='outline'>Contact</Badge>
-                        )}
-                        {p.genre === 'MEMBRE' && p.role && (
-                          <Badge>{ROLES[p.role]}</Badge>
-                        )}
-                        {p.statut === 'SUSPENDU' && (
-                          <Badge variant='secondary'>Accès suspendu</Badge>
-                        )}
-                        {p.bloqueParBnia && (
-                          <Badge variant='destructive'>
-                            Bloqué par le BNIA
-                          </Badge>
-                        )}
-                        {(p.genre === 'INVITATION' ||
-                          p.invitationEnAttente) && (
-                          <Badge variant='secondary'>
-                            Invitation envoyée
-                            {p.genre === 'INVITATION' && p.role
-                              ? ` (${ROLES[p.role]})`
-                              : ''}
-                          </Badge>
-                        )}
-                      </span>
+                      <EtatPersonne personne={p} />
                     </TableCell>
                     <CelluleOuvrir
                       libelle={`Ouvrir la fiche de ${p.nomComplet}`}
@@ -152,6 +129,48 @@ export function OngletAnnuaire({
               </TableBody>
             </Table>
           </div>
+          <CartesListe
+            requete={annuaire}
+            vide='Personne.'
+            masquee='@min-[56rem]/content:hidden'
+          >
+            {personnes.map((p) => (
+              <CarteListe
+                key={`${p.genre}-${p.id}`}
+                onOuvrir={() => navigation.ouvrir(genreDe(p), p.id)}
+                titre={p.nomComplet}
+              >
+                {p.fonction && (
+                  <div className='text-muted-foreground text-sm'>
+                    {p.fonction}
+                  </div>
+                )}
+                <EtatPersonne personne={p} />
+                {(p.email || p.telephoneProfessionnel) && (
+                  <div className='flex flex-wrap gap-x-4 gap-y-1 text-sm'>
+                    {p.telephoneProfessionnel && (
+                      <a
+                        href={`tel:${p.telephoneProfessionnel.replace(/\s/g, '')}`}
+                        className='relative z-10 inline-flex items-center gap-1.5 hover:underline'
+                      >
+                        <Phone className='text-muted-foreground size-3.5' />
+                        {p.telephoneProfessionnel}
+                      </a>
+                    )}
+                    {p.email && (
+                      <a
+                        href={`mailto:${p.email}`}
+                        className='relative z-10 inline-flex min-w-0 items-center gap-1.5 hover:underline'
+                      >
+                        <Mail className='text-muted-foreground size-3.5 shrink-0' />
+                        <span className='truncate'>{p.email}</span>
+                      </a>
+                    )}
+                  </div>
+                )}
+              </CarteListe>
+            ))}
+          </CartesListe>
         </CardContent>
       </Card>
       {avecJournal && (
@@ -171,31 +190,28 @@ export function OngletAnnuaire({
           </Card>
         </Collapsible>
       )}
-      <Dialog open={creation} onOpenChange={setCreation}>
-        <DialogContent className='sm:max-w-3xl'>
-          <DialogHeader>
-            <DialogTitle>Déclarer un contact</DialogTitle>
-            <DialogDescription>
-              Une personne sans compte, avec sa fiche professionnelle. Elle
-              pourra ensuite être invitée.
-            </DialogDescription>
-          </DialogHeader>
-          <FormulaireContact
-            enregistrer={(body) =>
-              creerContact({
-                path: { operateur },
-                body,
-                throwOnError: true,
-              }).then((r) => r.data)
-            }
-            onSucces={(cree) => {
-              setCreation(false)
-              rafraichir()
-              navigation.ouvrir('contact', (cree as Contact).id)
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      <DialogueFormulaire
+        ouvert={creation}
+        onOuvertChange={setCreation}
+        titre='Déclarer un contact'
+        description='Une personne sans compte, avec sa fiche professionnelle. Elle pourra ensuite être invitée.'
+        className='sm:max-w-3xl'
+      >
+        <FormulaireContact
+          enregistrer={(body) =>
+            creerContact({
+              path: { operateur },
+              body,
+              throwOnError: true,
+            }).then((r) => r.data)
+          }
+          onSucces={(cree) => {
+            setCreation(false)
+            rafraichir()
+            navigation.ouvrir('contact', (cree as Contact).id)
+          }}
+        />
+      </DialogueFormulaire>
       {invitation && (
         <DialogueInvitation
           operateur={operateur}
@@ -206,5 +222,27 @@ export function OngletAnnuaire({
         />
       )}
     </div>
+  )
+}
+
+/** Ce qu'est la personne pour l'opérateur (contact, rôle) et ce qui la concerne (suspension, blocage, invitation). */
+function EtatPersonne({ personne: p }: { personne: PersonneAnnuaire }) {
+  return (
+    <span className='flex flex-wrap gap-1'>
+      {p.genre === 'CONTACT' && <Badge variant='outline'>Contact</Badge>}
+      {p.genre === 'MEMBRE' && p.role && <Badge>{ROLES[p.role]}</Badge>}
+      {p.statut === 'SUSPENDU' && (
+        <Badge variant='secondary'>Accès suspendu</Badge>
+      )}
+      {p.bloqueParBnia && (
+        <Badge variant='destructive'>Bloqué par le BNIA</Badge>
+      )}
+      {(p.genre === 'INVITATION' || p.invitationEnAttente) && (
+        <Badge variant='secondary'>
+          Invitation envoyée
+          {p.genre === 'INVITATION' && p.role ? ` (${ROLES[p.role]})` : ''}
+        </Badge>
+      )}
+    </span>
   )
 }

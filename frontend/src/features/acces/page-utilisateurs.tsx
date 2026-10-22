@@ -269,7 +269,7 @@ export function PageUtilisateur({ id }: { id: number }) {
           <CardHeader>
             <CardTitle>Compte</CardTitle>
           </CardHeader>
-          <CardContent className='grid gap-4 md:grid-cols-3'>
+          <CardContent className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
             <Lecture label='E-mail (identifiant)' valeur={u.email} />
             <Lecture
               label='Dernière connexion'

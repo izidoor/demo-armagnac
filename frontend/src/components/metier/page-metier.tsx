@@ -1,4 +1,5 @@
-import { type ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useContext } from 'react'
+import { useTitreSorti } from '@/hooks/use-titre-sorti'
 import { ActionsEntete } from '@/components/layout/actions-entete'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -95,27 +96,4 @@ export function PageMetier({
       )}
     </>
   )
-}
-
-/** Hauteur de l'en-tête fixe (`h-16`). */
-const HAUTEUR_ENTETE = 64
-
-/** Le titre est entièrement passé sous l'en-tête fixe : l'en-tête le reprend, en petit. */
-function useTitreSorti() {
-  const ref = useRef<HTMLHeadingElement>(null)
-  const [sorti, setSorti] = useState(false)
-  useEffect(() => {
-    const titre = ref.current
-    if (!titre) return
-    const observateur = new IntersectionObserver(
-      ([e]) =>
-        setSorti(
-          !e.isIntersecting && e.boundingClientRect.top < HAUTEUR_ENTETE
-        ),
-      { rootMargin: `-${HAUTEUR_ENTETE}px 0px 0px 0px` }
-    )
-    observateur.observe(titre)
-    return () => observateur.disconnect()
-  }, [])
-  return [ref, sorti] as const
 }

@@ -1,14 +1,26 @@
 import { type ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 /**
  * Le cadre « Zone danger », tout en bas d'une page de détail : les actions qui retirent ou suppriment (désactiver,
  * suspendre, bloquer, supprimer…), chacune avec ce qu'elle entraîne ; la confirmation reste celle de l'action.
  */
-export function ZoneDanger({ children }: { children: ReactNode }) {
+export function ZoneDanger({
+  titre = 'Zone danger',
+  className,
+  children,
+}: {
+  /** Un autre titre, pour une action sensible qui ne supprime rien (« Session », pour se déconnecter). */
+  titre?: string
+  className?: string
+  children: ReactNode
+}) {
   return (
-    <section className='border-destructive/50 mt-8 rounded-xl border'>
+    <section
+      className={cn('border-destructive/50 mt-8 rounded-xl border', className)}
+    >
       <h2 className='text-destructive border-destructive/30 border-b px-6 py-4 text-base font-semibold'>
-        Zone danger
+        {titre}
       </h2>
       <div className='divide-destructive/20 divide-y'>{children}</div>
     </section>
