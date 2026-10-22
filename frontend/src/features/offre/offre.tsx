@@ -72,6 +72,44 @@ export function BoutonOffre() {
   )
 }
 
+/**
+ * Sous `lg`, à la place de « Voir l'offre » : le PDF de l'offre, ouvert dans la visionneuse de l'appareil. La lecture
+ * section par section n'a pas la place sur un téléphone ni sur une tablette.
+ */
+export function LienOffrePdf() {
+  const petitEcran = window.matchMedia('(max-width: 1023px)').matches
+  const { data } = useQuery({
+    queryKey: ['offre'],
+    queryFn: lireOffre,
+    enabled: petitEcran,
+    staleTime: Infinity,
+  })
+  if (!data?.pdf) return null
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          size='lg'
+          asChild
+          className='h-14 bg-[#9a5b1e] text-white shadow-sm hover:bg-[#6e3f12] hover:text-white active:bg-[#6e3f12] active:text-white'
+        >
+          <a href={RACINE + data.pdf} target='_blank' rel='noreferrer'>
+            <span className='grid size-9 shrink-0 place-items-center rounded-md bg-white/15'>
+              <ScrollText className='size-5' />
+            </span>
+            <span className='grid leading-tight'>
+              <span className='text-base font-semibold'>L'offre (PDF)</span>
+              <span className='truncate text-xs opacity-85'>
+                Réponse à l'appel d'offres
+              </span>
+            </span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
+}
+
 /** Miniatures A4 : la page de la section, réduite. */
 const LARGEUR = 794
 const HAUTEUR = 1123

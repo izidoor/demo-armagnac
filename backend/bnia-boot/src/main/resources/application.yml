@@ -29,6 +29,9 @@ spring:
       initialize-schema: never
 
 server:
+  # Manifeste de l'application installable (front embarqué, frontend/public/manifest.webmanifest).
+  mime-mappings:
+    webmanifest: application/manifest+json
   servlet:
     session:
       # RG-AUT-09 : la session se ferme après 2 heures d'inactivité.

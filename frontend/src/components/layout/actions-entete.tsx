@@ -11,14 +11,21 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { SelecteurOperateur } from './selecteur-operateur'
 
-/** Actions à droite de l'en-tête, sur toutes les pages : recherche et actions rapides (⌘K), opérateur actif, thème, paramètres de l'application (back-office seulement), profil. */
+/**
+ * Actions à droite de l'en-tête, sur toutes les pages : recherche et actions rapides (⌘K), opérateur actif, thème,
+ * paramètres de l'application (back-office seulement), profil. Sur mobile, la recherche et le profil seulement :
+ * l'opérateur actif et les paramètres passent dans le tiroir de navigation (`AppSidebar`), le thème dans le profil.
+ */
 export function ActionsEntete() {
   const { pathname } = useLocation()
   return (
     <div className='ms-auto flex items-center gap-4'>
       <Search placeholder='Rechercher' />
-      <SelecteurOperateur />
-      <ThemeSwitch />
+      <SelecteurOperateur className='max-md:hidden' />
+      {/* Masqué, pas retiré : il garde la couleur de la barre d'état (theme-color) au thème choisi. */}
+      <span className='contents max-md:hidden'>
+        <ThemeSwitch />
+      </span>
       {pathname.startsWith('/bo') && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -26,7 +33,7 @@ export function ActionsEntete() {
               asChild
               size='icon'
               variant='ghost'
-              className='scale-95 rounded-full'
+              className='scale-95 rounded-full max-md:hidden'
               aria-label="Paramètres de l'application"
             >
               <Link to='/bo/parametrage'>

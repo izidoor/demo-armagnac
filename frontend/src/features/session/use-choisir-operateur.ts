@@ -14,7 +14,12 @@ export function useChoisirOperateur() {
     mutationFn: (operateur: number) =>
       choisirOperateurActif({ body: { operateur }, throwOnError: true }),
     onSuccess: async (r) => {
-      queryClient.clear()
+      // « moi » est mis à jour sur place, pas vidé avec le reste : ses abonnés (en-tête, tableau de bord) restent
+      // attachés au cache et passent au nouvel opérateur. Après un clear(), ils gardaient l'ancien jusqu'au
+      // rechargement de la page.
+      queryClient.removeQueries({
+        predicate: (q) => q.queryKey[0] !== requeteMoi.queryKey[0],
+      })
       queryClient.setQueryData(requeteMoi.queryKey, r.data)
       const nouveau = r.data.rattachements.find(
         (x) => x.operateur === r.data.operateurOuvert

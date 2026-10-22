@@ -88,6 +88,13 @@ router.subscribe('onResolved', ({ toLocation }) => {
 })
 demarrerSuivi()
 
+// Application installable (PWA) : le service worker ne garde rien en cache (public/sw.js). En dev, Vite s'en passe.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {})
+  })
+}
+
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {

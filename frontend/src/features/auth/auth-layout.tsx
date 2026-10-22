@@ -24,7 +24,10 @@ function Formulaire({ children }: { children: ReactNode }) {
   )
 }
 
-/** Gabarit des écrans publics ; sur deux colonnes, la photo d'un vignoble et un panneau en surimpression. */
+/**
+ * Gabarit des écrans publics ; sur deux colonnes, la photo d'un vignoble et un panneau en surimpression. Sous `lg`,
+ * sans la photo, le panneau passe sous le formulaire : les comptes de démonstration restent visibles sur mobile.
+ */
 export function AuthLayout({ children, panneau }: AuthLayoutProps) {
   if (!panneau) {
     return (
@@ -35,8 +38,11 @@ export function AuthLayout({ children, panneau }: AuthLayoutProps) {
   }
   return (
     <div className='grid min-h-svh lg:grid-cols-2'>
-      <div className='flex items-center justify-center px-4'>
+      <div className='flex flex-col items-center justify-center px-4'>
         <Formulaire>{children}</Formulaire>
+        <div className='mb-8 w-full rounded-lg border bg-white p-6 text-sm text-neutral-900 shadow-sm sm:w-[416px] lg:hidden'>
+          {panneau}
+        </div>
       </div>
       <div className='relative hidden lg:block'>
         <img

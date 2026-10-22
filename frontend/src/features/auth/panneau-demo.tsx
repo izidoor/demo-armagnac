@@ -38,7 +38,7 @@ export function PanneauDemo() {
           </div>
         ))}
       </div>
-      <dl className='grid grid-cols-[auto_1fr] gap-x-3 gap-y-1'>
+      <dl className='grid gap-x-3 gap-y-1 sm:grid-cols-[auto_1fr]'>
         <dt className='font-semibold text-neutral-900'>
           Tous les mots de passe :
         </dt>
