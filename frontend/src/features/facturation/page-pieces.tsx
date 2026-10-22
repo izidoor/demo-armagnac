@@ -10,6 +10,7 @@ import {
   type CompteRenduEmission,
   type PieceListee,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,7 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
@@ -357,6 +359,29 @@ function transmissible(p: PieceListee, brouillons: boolean) {
 }
 
 /**
+ * Dans l'onglet « Factures » de la fiche opérateur (sans acheteur), selon la largeur du contenu (`CartesListe`), dans
+ * le cadre d'une carte (84 px de marges) : sous 72rem (1050 px de large naturelle), le tableau perd le HT et la TVA ;
+ * sous 62rem (886 px sans eux), la période, que la référence de l'origine rappelle ; l'origine prend ensuite la place
+ * qui reste et se tronque ; sous 40rem (544 px avec l'origine à 8rem), une carte par pièce. Les brouillons, plus
+ * étroits, suivent les mêmes seuils : les deux tableaux de l'onglet changent ensemble. La page Factures du
+ * back-office, avec l'acheteur et la sélection, garde son tableau.
+ */
+const SEUILS_ONGLET = {
+  montants: '@max-[72rem]/content:hidden',
+  periode: '@max-[62rem]/content:hidden',
+  tableau: '@max-[40rem]/content:hidden',
+  cartes: '@min-[40rem]/content:hidden',
+  origine: 'w-full max-w-0 min-w-32',
+}
+const SANS_SEUILS = {
+  montants: '',
+  periode: '',
+  tableau: '',
+  cartes: '',
+  origine: '',
+}
+
+/**
  * Les pièces, émises ou brouillons : une ligne ouvre la pièce. Sans acheteur dans l'onglet « Factures » de la
  * fiche opérateur, où il est toujours le même.
  */
@@ -388,9 +413,11 @@ export function TablePieces({
   const cochables = selection ? pieces.filter(selection.possible) : []
   const coches = cochables.filter((p) => selection?.ids.has(p.id)).length
   const { lignes, pagination } = usePagination(pieces, TAILLE_PAGE)
+  const enCartes = !avecAcheteur
+  const seuils = enCartes ? SEUILS_ONGLET : SANS_SEUILS
   return (
     <>
-      <div className='rounded-md border'>
+      <div className={cn('rounded-md border', seuils.tableau)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -424,9 +451,13 @@ export function TablePieces({
               )}
               {avecAcheteur && <TableHead>Acheteur</TableHead>}
               <TableHead>Origine</TableHead>
-              <TableHead>Période</TableHead>
-              <TableHead className='text-right'>HT</TableHead>
-              <TableHead className='text-right'>TVA</TableHead>
+              <TableHead className={seuils.periode}>Période</TableHead>
+              <TableHead className={cn('text-right', seuils.montants)}>
+                HT
+              </TableHead>
+              <TableHead className={cn('text-right', seuils.montants)}>
+                TVA
+              </TableHead>
               <TableHead className='text-right'>TTC</TableHead>
               {!brouillons && <TableHead>Zeendoc</TableHead>}
               <TableHead className='w-0' />
@@ -501,17 +532,34 @@ export function TablePieces({
                     {p.acheteur}
                   </TableCell>
                 )}
-                <TableCell>
-                  <span className='block'>{p.libelleNature ?? '—'}</span>
-                  <span className='text-muted-foreground text-xs'>
+                <TableCell
+                  className={seuils.origine}
+                  title={
+                    enCartes
+                      ? [p.libelleNature, p.reference]
+                          .filter(Boolean)
+                          .join(' · ')
+                      : undefined
+                  }
+                >
+                  <span className='block truncate'>
+                    {p.libelleNature ?? '—'}
+                  </span>
+                  <span className='text-muted-foreground block truncate text-xs'>
                     {p.reference}
                   </span>
                 </TableCell>
-                <TableCell>{p.libellePeriode}</TableCell>
-                <TableCell className='text-right tabular-nums'>
+                <TableCell className={seuils.periode}>
+                  {p.libellePeriode}
+                </TableCell>
+                <TableCell
+                  className={cn('text-right tabular-nums', seuils.montants)}
+                >
                   {formatEuros(p.ht)}
                 </TableCell>
-                <TableCell className='text-right tabular-nums'>
+                <TableCell
+                  className={cn('text-right tabular-nums', seuils.montants)}
+                >
                   {formatEuros(p.tva)}
                 </TableCell>
                 <TableCell className='text-right font-medium tabular-nums'>
@@ -543,8 +591,66 @@ export function TablePieces({
           </TableBody>
         </Table>
       </div>
+      {enCartes && (
+        <CartesListe
+          requete={{ isPending: chargement, isError: false, data: pieces }}
+          vide={
+            brouillons ? 'Aucun brouillon.' : (vide ?? 'Aucune pièce émise.')
+          }
+          masquee={seuils.cartes}
+        >
+          {(lignes ?? []).map((p) => (
+            <CartePiece key={p.id} piece={p} brouillon={brouillons} />
+          ))}
+        </CartesListe>
+      )}
       <Pagination {...pagination} />
     </>
+  )
+}
+
+/**
+ * Une pièce en carte : son numéro et son état Zeendoc (le libellé de son origine pour un brouillon), la référence de
+ * l'origine, qui distingue les pièces, et son libellé, puis la date et le TTC.
+ */
+function CartePiece({
+  piece: p,
+  brouillon,
+}: {
+  piece: PieceListee
+  brouillon: boolean
+}) {
+  return (
+    <CarteListe
+      lien={{ to: '/bo/facturation/$id', params: { id: String(p.id) } }}
+      titre={
+        brouillon ? (
+          (p.libelleNature ?? 'Brouillon')
+        ) : (
+          <span className='flex flex-wrap items-center gap-2'>
+            <span className='font-mono'>{p.numero}</span>
+            {p.sens === 'AVOIR' && (
+              <Badge variant='secondary'>{SENS[p.sens]}</Badge>
+            )}
+            <BadgeZeendoc piece={p} />
+          </span>
+        )
+      }
+    >
+      <div className='truncate text-sm'>
+        {[p.reference, brouillon ? null : p.libelleNature]
+          .filter(Boolean)
+          .join(' · ')}
+      </div>
+      <div className='flex justify-between gap-2 text-sm'>
+        <span className='text-muted-foreground'>
+          {formatDate(brouillon ? p.creeeLe : p.dateEmission)}
+        </span>
+        <span className='font-medium whitespace-nowrap tabular-nums'>
+          {formatEuros(p.ttc)} TTC
+        </span>
+      </div>
+    </CarteListe>
   )
 }
 

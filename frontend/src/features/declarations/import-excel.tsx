@@ -7,14 +7,7 @@ import { type ErreurImport } from '@/api/generated'
 import { lireProbleme } from '@/lib/probleme'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -25,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 
 /** RG-DEC-37 : les erreurs situées d'un import refusé, lues dans le corps de la réponse 422. */
 function erreursImport(error: unknown): ErreurImport[] {
@@ -86,109 +80,114 @@ export function DialogueImportExcel({
   const probleme = mutation.error ? lireProbleme(mutation.error) : null
 
   return (
-    <Dialog open={ouvert} onOpenChange={(o) => !o && fermer()}>
-      <DialogContent className='sm:max-w-3xl'>
-        <DialogHeader>
-          <DialogTitle>{titre}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        {avertissements ? (
-          <Alert variant='warning'>
-            <AlertTriangle className='size-4' />
-            <AlertTitle>Fichier importé, avec des avertissements</AlertTitle>
-            <AlertDescription>
-              <ul className='list-disc space-y-1 ps-4'>
-                {avertissements.map((a) => (
-                  <li key={a}>{a}</li>
-                ))}
-              </ul>
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <form
-            id='import-excel'
-            className='space-y-4'
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (fichier) mutation.mutate(fichier)
-            }}
-          >
-            <div className='space-y-2'>
-              <Label htmlFor='import-excel-fichier'>
-                Fichier Excel (.xlsx)
-              </Label>
-              <Input
-                id='import-excel-fichier'
-                type='file'
-                accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                onChange={(e) => {
-                  setFichier(e.target.files?.[0] ?? null)
-                  mutation.reset()
-                }}
-              />
-            </div>
-            {champs}
-            {probleme && (
-              <Alert variant='destructive'>
-                <FileWarning className='size-4' />
-                <AlertTitle>{probleme.detail}</AlertTitle>
-                {erreurs.length > 0 && (
-                  <AlertDescription>
-                    <div className='max-h-72 w-full overflow-auto rounded-md border'>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Onglet</TableHead>
-                            <TableHead className='text-end'>Ligne</TableHead>
-                            <TableHead>Colonne</TableHead>
-                            <TableHead>Erreur</TableHead>
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={(o) => !o && fermer()}
+      titre={titre}
+      description={description}
+      className='sm:max-w-3xl'
+    >
+      {avertissements ? (
+        <Alert variant='warning'>
+          <AlertTriangle className='size-4' />
+          <AlertTitle>Fichier importé, avec des avertissements</AlertTitle>
+          <AlertDescription>
+            <ul className='list-disc space-y-1 ps-4'>
+              {avertissements.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <form
+          id='import-excel'
+          className='space-y-4'
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (fichier) mutation.mutate(fichier)
+          }}
+        >
+          <div className='space-y-2'>
+            <Label htmlFor='import-excel-fichier'>Fichier Excel (.xlsx)</Label>
+            <Input
+              id='import-excel-fichier'
+              type='file'
+              accept='.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+              onChange={(e) => {
+                setFichier(e.target.files?.[0] ?? null)
+                mutation.reset()
+              }}
+            />
+          </div>
+          {champs}
+          {probleme && (
+            <Alert variant='destructive'>
+              <FileWarning className='size-4' />
+              <AlertTitle>{probleme.detail}</AlertTitle>
+              {erreurs.length > 0 && (
+                <AlertDescription>
+                  <div className='max-h-72 w-full overflow-auto rounded-md border'>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Onglet</TableHead>
+                          <TableHead className='text-end'>Ligne</TableHead>
+                          <TableHead>Colonne</TableHead>
+                          <TableHead>Erreur</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {erreurs.map((e, i) => (
+                          <TableRow key={i}>
+                            <TableCell className='whitespace-nowrap'>
+                              {e.onglet}
+                            </TableCell>
+                            <TableCell className='text-end tabular-nums'>
+                              {e.ligne}
+                            </TableCell>
+                            <TableCell className='font-mono'>
+                              {e.colonne}
+                            </TableCell>
+                            <TableCell className='whitespace-normal'>
+                              {e.message}
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {erreurs.map((e, i) => (
-                            <TableRow key={i}>
-                              <TableCell className='whitespace-nowrap'>
-                                {e.onglet}
-                              </TableCell>
-                              <TableCell className='text-end tabular-nums'>
-                                {e.ligne}
-                              </TableCell>
-                              <TableCell className='font-mono'>
-                                {e.colonne}
-                              </TableCell>
-                              <TableCell className='whitespace-normal'>
-                                {e.message}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </AlertDescription>
-                )}
-              </Alert>
-            )}
-          </form>
-        )}
-        <DialogFooter>
-          {avertissements ? (
-            <Button onClick={fermer}>Fermer</Button>
-          ) : (
-            <>
-              <Button variant='outline' onClick={fermer}>
-                Annuler
-              </Button>
-              <Button
-                type='submit'
-                form='import-excel'
-                disabled={!fichier || mutation.isPending}
-              >
-                Importer
-              </Button>
-            </>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </AlertDescription>
+              )}
+            </Alert>
           )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </form>
+      )}
+      <DialogFooter>
+        {avertissements ? (
+          <Button className='max-md:w-full' onClick={fermer}>
+            Fermer
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant='outline'
+              className='max-md:hidden'
+              onClick={fermer}
+            >
+              Annuler
+            </Button>
+            <Button
+              type='submit'
+              form='import-excel'
+              className='max-md:w-full'
+              disabled={!fichier || mutation.isPending}
+            >
+              Importer
+            </Button>
+          </>
+        )}
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

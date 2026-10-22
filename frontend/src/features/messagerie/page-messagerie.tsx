@@ -17,14 +17,7 @@ import { useDebounce } from '@/hooks/use-debounce'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -41,6 +34,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { formatDateCourte } from '@/components/metier/dates-fil'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { PageMetier } from '@/components/metier/page-metier'
 import { RechercheOperateur } from '@/features/operateurs/portail/recherche-operateur'
 import { useDroits } from '@/features/session/session'
@@ -559,64 +553,66 @@ function NouvelleConversation({
     },
   })
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-xl'>
-        <DialogHeader>
-          <DialogTitle>Nouvelle conversation avec le BNIA</DialogTitle>
-          <DialogDescription>
-            Seuls vous et le BNIA verrez cette conversation : les autres
-            utilisateurs de votre entreprise ne la voient pas.
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          id='nouvelle-conversation'
-          className='space-y-4'
-          onSubmit={(e) => {
-            e.preventDefault()
-            ouverture.mutate()
-          }}
-        >
-          <div className='space-y-1'>
-            <Label htmlFor='conversation-titre'>Titre</Label>
-            <Input
-              id='conversation-titre'
-              maxLength={120}
-              value={titre}
-              onChange={(e) => setTitre(e.target.value)}
-              placeholder='Import de la matrice refusé'
-            />
-          </div>
-          <div className='space-y-1'>
-            <Label htmlFor='conversation-texte'>Message</Label>
-            <Textarea
-              id='conversation-texte'
-              rows={5}
-              maxLength={4000}
-              value={texte}
-              onChange={(e) => setTexte(e.target.value)}
-            />
-          </div>
-          <ChoixPieces
-            id='conversation-pieces'
-            pieces={pieces}
-            onChange={setPieces}
+    <DialogueFormulaire
+      ouvert={open}
+      onOuvertChange={onOpenChange}
+      titre='Nouvelle conversation avec le BNIA'
+      description='Seuls vous et le BNIA verrez cette conversation : les autres utilisateurs de votre entreprise ne la voient pas.'
+      className='sm:max-w-xl'
+    >
+      <form
+        id='nouvelle-conversation'
+        className='space-y-4'
+        onSubmit={(e) => {
+          e.preventDefault()
+          ouverture.mutate()
+        }}
+      >
+        <div className='space-y-1'>
+          <Label htmlFor='conversation-titre'>Titre</Label>
+          <Input
+            id='conversation-titre'
+            maxLength={120}
+            value={titre}
+            onChange={(e) => setTitre(e.target.value)}
+            placeholder='Import de la matrice refusé'
           />
-        </form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='nouvelle-conversation'
-            disabled={
-              titre.trim() === '' || texte.trim() === '' || ouverture.isPending
-            }
-          >
-            Envoyer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+        <div className='space-y-1'>
+          <Label htmlFor='conversation-texte'>Message</Label>
+          <Textarea
+            id='conversation-texte'
+            rows={5}
+            maxLength={4000}
+            value={texte}
+            onChange={(e) => setTexte(e.target.value)}
+          />
+        </div>
+        <ChoixPieces
+          id='conversation-pieces'
+          pieces={pieces}
+          onChange={setPieces}
+        />
+      </form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOpenChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          type='submit'
+          form='nouvelle-conversation'
+          className='max-md:w-full'
+          disabled={
+            titre.trim() === '' || texte.trim() === '' || ouverture.isPending
+          }
+        >
+          Envoyer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

@@ -13,7 +13,8 @@ import { millesimee } from './libelles'
 
 /**
  * Le stock déclaré d'un opérateur (RG-DEC-42) : le stock de fin de sa dernière DSM validée, ligne par ligne,
- * daté de la fin de sa période ; les lignes finies à 0 sont omises.
+ * daté de la fin de sa période ; les lignes finies à 0 sont omises. Les en-têtes passent à la ligne : le tableau tient
+ * dans un téléphone (300 px au plus serré).
  */
 export function ResumeStockDeclare({ stock }: { stock: StockDeclare | null }) {
   if (!stock) {
@@ -34,10 +35,14 @@ export function ResumeStockDeclare({ stock }: { stock: StockDeclare | null }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Millésime ou dénomination</TableHead>
+              <TableHead className='whitespace-normal'>
+                Millésime ou dénomination
+              </TableHead>
               <TableHead>Clé</TableHead>
-              <TableHead>Compte d'âge</TableHead>
-              <TableHead className='text-right'>Stock (L AP)</TableHead>
+              <TableHead className='whitespace-normal'>Compte d'âge</TableHead>
+              <TableHead className='text-right whitespace-normal'>
+                Stock <span className='whitespace-nowrap'>(L AP)</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -53,7 +58,7 @@ export function ResumeStockDeclare({ stock }: { stock: StockDeclare | null }) {
             )}
             {stock.lignes.map((l, i) => (
               <TableRow key={i}>
-                <TableCell>
+                <TableCell className='whitespace-normal'>
                   {millesimee(l.cle) ? l.millesime : l.denomination}
                 </TableCell>
                 <TableCell className='font-mono'>{l.cle}</TableCell>

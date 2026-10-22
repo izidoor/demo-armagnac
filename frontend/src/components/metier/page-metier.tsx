@@ -1,7 +1,7 @@
 import { type ReactNode, useContext } from 'react'
 import { useTitreSorti } from '@/hooks/use-titre-sorti'
 import { ActionsEntete } from '@/components/layout/actions-entete'
-import { Header } from '@/components/layout/header'
+import { Header, type HeaderProps } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { PageImbriquee } from './page-imbriquee'
 
@@ -16,6 +16,8 @@ type PageMetierProps = {
    * défile par panneaux (la messagerie). Sur écran étroit, la page défile normalement.
    */
   pleineHauteur?: boolean
+  /** Page de second niveau : la flèche de retour de l'en-tête, sur écran étroit (`Header`). */
+  retour?: HeaderProps['retour']
   children: ReactNode
 }
 
@@ -29,6 +31,7 @@ export function PageMetier({
   description,
   actions,
   pleineHauteur = false,
+  retour,
   children,
 }: PageMetierProps) {
   const imbriquee = useContext(PageImbriquee)
@@ -84,6 +87,7 @@ export function PageMetier({
         fixed
         titre={complement ? `${titre} – ${complement}` : titre}
         titreVisible={titreSorti}
+        retour={retour}
       >
         <ActionsEntete />
       </Header>

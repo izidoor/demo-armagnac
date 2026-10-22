@@ -13,13 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -32,6 +26,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { CadreEditable } from '@/components/metier/cadre-editable'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { ValeursProches } from '@/features/referentiels/listes-simples/valeurs-proches'
 import { Lecture, LectureListe } from '../commun/champs'
 import {
@@ -313,14 +308,14 @@ function NouvelleMarque({
   onCree: (id: number) => void
 }) {
   return (
-    <Dialog open={portee !== null} onOpenChange={(o) => !o && onFermer()}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>Nouvelle marque</DialogTitle>
-        </DialogHeader>
-        {portee && <SaisieMarque onFermer={onFermer} onCree={onCree} />}
-      </DialogContent>
-    </Dialog>
+    <DialogueFormulaire
+      ouvert={portee !== null}
+      onOuvertChange={(o) => !o && onFermer()}
+      titre='Nouvelle marque'
+      className='sm:max-w-md'
+    >
+      {portee && <SaisieMarque onFermer={onFermer} onCree={onCree} />}
+    </DialogueFormulaire>
   )
 }
 
@@ -382,10 +377,14 @@ function SaisieMarque({
         </div>
       </div>
       <DialogFooter>
-        <Button variant='outline' onClick={onFermer}>
+        <Button variant='outline' className='max-md:hidden' onClick={onFermer}>
           Annuler
         </Button>
-        <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+        <Button
+          className='max-md:w-full'
+          onClick={() => mutation.mutate()}
+          disabled={mutation.isPending}
+        >
           Créer
         </Button>
       </DialogFooter>

@@ -14,7 +14,8 @@ import {
 /**
  * Un formulaire de création (nouvel opérateur, contact, invitation) : une fenêtre sur un écran large, une pleine page
  * sur un téléphone ou une tablette en portrait (moins de 768 px, comme le tiroir de la barre latérale), entrée par la
- * droite, sous « Annuler » qui la referme. La page défile sous ce bouton, qui reste en haut.
+ * droite, sous « Annuler » qui la referme. La page défile sous ce bouton, qui reste en haut. À l'ouverture, le focus va
+ * au premier champ, pas à « Annuler ».
  */
 export function DialogueFormulaire({
   ouvert,
@@ -35,6 +36,17 @@ export function DialogueFormulaire({
   return (
     <Dialog open={ouvert} onOpenChange={onOuvertChange}>
       <DialogContent
+        onOpenAutoFocus={(e) => {
+          const champ = (
+            e.currentTarget as HTMLElement
+          ).querySelector<HTMLElement>(
+            '[data-slot=formulaire] :is(input, textarea, select, button[role=combobox]):not([disabled], [type=hidden])'
+          )
+          if (champ) {
+            e.preventDefault()
+            champ.focus()
+          }
+        }}
         className={cn(
           'gap-0 p-0 md:max-h-[calc(100dvh-2rem)] md:overflow-y-auto',
           'max-md:inset-0 max-md:flex max-md:h-dvh max-md:max-w-none! max-md:translate-x-0 max-md:translate-y-0 max-md:flex-col max-md:overflow-y-auto max-md:overscroll-contain max-md:rounded-none max-md:border-0 max-md:shadow-none',
@@ -50,7 +62,10 @@ export function DialogueFormulaire({
             </Button>
           </DialogClose>
         </div>
-        <div className='grid gap-4 p-6 max-md:p-4 max-md:pb-8'>
+        <div
+          data-slot='formulaire'
+          className='grid gap-4 p-6 max-md:p-4 max-md:pb-8'
+        >
           <DialogHeader className='text-start'>
             <DialogTitle>{titre}</DialogTitle>
             {description && (

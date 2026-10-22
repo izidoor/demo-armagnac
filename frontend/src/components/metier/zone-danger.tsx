@@ -2,11 +2,11 @@ import { type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Le cadre « Zone danger », tout en bas d'une page de détail : les actions qui retirent ou suppriment (désactiver,
+ * Le cadre « Zone à risque », tout en bas d'une page de détail : les actions qui retirent ou suppriment (désactiver,
  * suspendre, bloquer, supprimer…), chacune avec ce qu'elle entraîne ; la confirmation reste celle de l'action.
  */
 export function ZoneDanger({
-  titre = 'Zone danger',
+  titre = 'Zone à risque',
   className,
   children,
 }: {
@@ -27,7 +27,7 @@ export function ZoneDanger({
   )
 }
 
-/** Une action de la zone danger : son nom, ce qu'elle entraîne, son bouton à droite. */
+/** Une action de la zone à risque : son nom, ce qu'elle entraîne, son bouton à droite. */
 export function ActionDanger({
   titre,
   description,

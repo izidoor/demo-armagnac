@@ -8,21 +8,22 @@ import {
 import { lireProbleme } from '@/lib/probleme'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { apiDeclarations, cleDeclarations } from './api'
 import { ChampsIdentite, ListeDenominations } from './champs-identite'
 import { formatDate, lireLitres, texteLitres } from './format'
 import { depuisApi, type IdentiteSaisie, versApi } from './saisie-ligne'
 
 type LigneSaisie = IdentiteSaisie & { volume: string }
+
+/**
+ * Une ligne du stock initial : ses champs à la suite ; sous 34rem de formulaire (`@container/stock`), dans un bloc de
+ * deux rangées, désignation et clé, puis compte d'âge, volume et corbeille, chaque champ à la largeur de sa colonne.
+ */
+const LIGNE =
+  'flex flex-wrap items-center gap-2 @max-[34rem]/stock:grid @max-[34rem]/stock:grid-cols-[1fr_1fr_5rem] @max-[34rem]/stock:rounded-md @max-[34rem]/stock:border @max-[34rem]/stock:p-2 @max-[34rem]/stock:[&>*]:w-full! @max-[34rem]/stock:[&>*:first-child]:col-span-2 @max-[34rem]/stock:[&>*:last-child]:w-9!'
 
 /**
  * Le BNIA fixe ou modifie le point de départ d'un producteur ou d'un négociant (analyse UC-DEC-3,
@@ -92,74 +93,76 @@ export function DialoguePointDeDepart({
     setLignes(lignes.map((l, j) => (j === i ? ligne : l)))
 
   return (
-    <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-3xl'>
-        <DialogHeader>
-          <DialogTitle>
-            {proposition
-              ? 'Fixer un nouveau stock initial'
-              : point
-                ? 'Modifier le stock initial'
-                : 'Fixer le stock initial'}
-          </DialogTitle>
-          <DialogDescription>
-            Début de la première période et stock initial, en litres d'alcool
-            pur. Le début est{' '}
-            {producteur
-              ? 'un 1er avril pour un producteur'
-              : 'le premier du mois pour un négociant'}
-            .{' '}
-            {proposition
-              ? `Il commence après le ${formatDate(proposition.derniere.fin)}, fin de la dernière DSM validée (${proposition.derniere.libelle}) ; le précédent reste consultable et une interruption est inscrite au journal. Le stock proposé est le stock de fin de cette DSM, vieilli à la date de début.`
-              : "Tant que la première DSM n'est pas validée, le point de départ se modifie et la DSM en cours suit le stock initial."}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={soumettre} className='space-y-4'>
-          {erreur && (
-            <Alert variant='destructive'>
-              <AlertDescription>
-                {erreur.detail ?? erreur.titre}
-              </AlertDescription>
-            </Alert>
-          )}
-          <div className='space-y-2'>
-            <Label htmlFor='debut-point'>Début</Label>
-            <div className='flex flex-wrap items-center gap-2'>
-              <Input
-                id='debut-point'
-                type='date'
-                className='w-44'
-                value={debut}
-                onChange={(e) => setDebut(e.target.value)}
-              />
-              {proposition && (
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  disabled={debut === '' || recalcul.isPending}
-                  onClick={() => recalcul.mutate()}
-                >
-                  Reprendre le stock vieilli à cette date
-                </Button>
-              )}
-            </div>
-          </div>
-          <div className='space-y-2'>
-            <Label>Stock initial</Label>
-            {lignes.length === 0 && (
-              <p className='text-muted-foreground text-sm'>
-                Aucune ligne : l'opérateur part d'un stock nul.
-              </p>
+    <DialogueFormulaire
+      ouvert
+      onOuvertChange={onOpenChange}
+      className='sm:max-w-3xl'
+      titre={
+        proposition
+          ? 'Fixer un nouveau stock initial'
+          : point
+            ? 'Modifier le stock initial'
+            : 'Fixer le stock initial'
+      }
+      description={
+        <>
+          Début de la première période et stock initial, en litres d'alcool pur.
+          Le début est{' '}
+          {producteur
+            ? 'un 1er avril pour un producteur'
+            : 'le premier du mois pour un négociant'}
+          .{' '}
+          {proposition
+            ? `Il commence après le ${formatDate(proposition.derniere.fin)}, fin de la dernière DSM validée (${proposition.derniere.libelle}) ; le précédent reste consultable et une interruption est inscrite au journal. Le stock proposé est le stock de fin de cette DSM, vieilli à la date de début.`
+            : "Tant que la première DSM n'est pas validée, le point de départ se modifie et la DSM en cours suit le stock initial."}
+        </>
+      }
+    >
+      <form onSubmit={soumettre} className='space-y-4'>
+        {erreur && (
+          <Alert variant='destructive'>
+            <AlertDescription>{erreur.detail ?? erreur.titre}</AlertDescription>
+          </Alert>
+        )}
+        <div className='space-y-2'>
+          <Label htmlFor='debut-point'>Début</Label>
+          <div className='flex flex-wrap items-center gap-2'>
+            <Input
+              id='debut-point'
+              type='date'
+              className='w-44'
+              value={debut}
+              onChange={(e) => setDebut(e.target.value)}
+            />
+            {proposition && (
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                disabled={debut === '' || recalcul.isPending}
+                onClick={() => recalcul.mutate()}
+              >
+                Reprendre le stock vieilli à cette date
+              </Button>
             )}
-            {lignes.map((l, i) => (
-              <div key={i} className='flex flex-wrap items-center gap-2'>
-                <ChampsIdentite
-                  valeur={l}
-                  onChange={(identite) => changer(i, { ...l, ...identite })}
-                />
+          </div>
+        </div>
+        <div className='@container/stock space-y-2'>
+          <Label>Stock initial</Label>
+          {lignes.length === 0 && (
+            <p className='text-muted-foreground text-sm'>
+              Aucune ligne : l'opérateur part d'un stock nul.
+            </p>
+          )}
+          {lignes.map((l, i) => (
+            <div key={i} className={LIGNE}>
+              <ChampsIdentite
+                valeur={l}
+                onChange={(identite) => changer(i, { ...l, ...identite })}
+              />
+              <div className='relative w-32'>
                 <Input
-                  className='w-32 text-right'
+                  className='w-full text-right @max-[34rem]/stock:pe-12'
                   inputMode='decimal'
                   placeholder='Litres AP'
                   aria-label='Volume en litres AP'
@@ -167,44 +170,49 @@ export function DialoguePointDeDepart({
                   value={l.volume}
                   onChange={(e) => changer(i, { ...l, volume: e.target.value })}
                 />
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='icon'
-                  aria-label='Retirer la ligne'
-                  onClick={() => setLignes(lignes.filter((_, j) => j !== i))}
-                >
-                  <Trash2 className='size-4' />
-                </Button>
+                <span className='text-muted-foreground pointer-events-none absolute inset-y-0 end-3 flex items-center text-sm @min-[34rem]/stock:hidden'>
+                  L AP
+                </span>
               </div>
-            ))}
-            <Button
-              type='button'
-              variant='outline'
-              size='sm'
-              onClick={() =>
-                setLignes([
-                  ...lignes,
-                  { cle: 'NB', designation: '', compte: '', volume: '' },
-                ])
-              }
-            >
-              <Plus className='size-4' /> Ajouter une ligne
-            </Button>
-            <ListeDenominations valeurs={denominations.data ?? []} />
-          </div>
-          <div className='flex justify-end'>
-            <Button
-              type='submit'
-              disabled={
-                enregistrement.isPending || debut === '' || volumesInvalides
-              }
-            >
-              Enregistrer
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon'
+                className='justify-self-end'
+                aria-label='Retirer la ligne'
+                onClick={() => setLignes(lignes.filter((_, j) => j !== i))}
+              >
+                <Trash2 className='size-4' />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={() =>
+              setLignes([
+                ...lignes,
+                { cle: 'NB', designation: '', compte: '', volume: '' },
+              ])
+            }
+          >
+            <Plus className='size-4' /> Ajouter une ligne
+          </Button>
+          <ListeDenominations valeurs={denominations.data ?? []} />
+        </div>
+        <div className='flex justify-end'>
+          <Button
+            type='submit'
+            className='max-md:w-full'
+            disabled={
+              enregistrement.isPending || debut === '' || volumesInvalides
+            }
+          >
+            Enregistrer
+          </Button>
+        </div>
+      </form>
+    </DialogueFormulaire>
   )
 }

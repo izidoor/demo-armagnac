@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 
-type HeaderProps = React.HTMLAttributes<HTMLElement> & {
+export type HeaderProps = React.HTMLAttributes<HTMLElement> & {
   fixed?: boolean
   ref?: React.Ref<HTMLElement>
   /** Le titre de la page, en petit, montré quand celui de la page est passé sous l'en-tête. */
   titre?: React.ReactNode
   titreVisible?: boolean
+  /** Page de second niveau : sur écran étroit, une flèche de retour vers la page parente remplace le bouton du menu. */
+  retour?: { libelle: string; onRetour: () => void }
 }
 
 export function Header({
@@ -16,6 +20,7 @@ export function Header({
   fixed,
   titre,
   titreVisible = false,
+  retour,
   children,
   ...props
 }: HeaderProps) {
@@ -52,7 +57,19 @@ export function Header({
         )}
       >
         {/* Sur écran large, le bouton du menu est dans la sidebar (AppTitle). */}
-        <SidebarTrigger variant='outline' className='scale-125 md:hidden' />
+        {retour ? (
+          <Button
+            variant='outline'
+            size='icon'
+            className='size-7 scale-125 md:hidden'
+            onClick={retour.onRetour}
+            aria-label={`Retour : ${retour.libelle}`}
+          >
+            <ArrowLeft />
+          </Button>
+        ) : (
+          <SidebarTrigger variant='outline' className='scale-125 md:hidden' />
+        )}
         <Separator orientation='vertical' className='h-6 md:hidden' />
         {titre && (
           <span

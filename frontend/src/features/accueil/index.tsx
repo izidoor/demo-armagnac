@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react'
+import { useTitreSorti } from '@/hooks/use-titre-sorti'
 import { ActionsEntete } from '@/components/layout/actions-entete'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -13,16 +14,21 @@ type AccueilProps = {
 }
 
 export function Accueil({ espace, children, tableauDeBord }: AccueilProps) {
+  const [refTitre, titreSorti] = useTitreSorti()
+  const titre = tableauDeBord ? 'Tableau de bord' : espace.nom
   return (
     <>
-      <Header fixed>
+      <Header fixed titre={titre} titreVisible={titreSorti}>
         <ActionsEntete />
       </Header>
 
       <Main>
         <div className='mb-4'>
-          <h1 className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'>
-            {tableauDeBord ? 'Tableau de bord' : espace.nom}
+          <h1
+            ref={refTitre}
+            className='mb-2 text-[1.75rem] leading-tight font-bold tracking-tight'
+          >
+            {titre}
           </h1>
           <p className='text-muted-foreground'>
             {tableauDeBord ? espace.nom : 'Accueil'}

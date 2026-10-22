@@ -45,6 +45,13 @@ import { ResumeStockDeclare } from './stock-declare'
  * (RG-DEC-09) ; lot 8 : le stock déclaré (RG-DEC-42). Chaque partie dans un cadre : DSM, stocks déclarés,
  * stock initial (le point de départ), stocks initiaux précédents, puis le journal, dépliable.
  */
+/**
+ * Les boutons du stock initial, à droite du titre ; sous 36rem de cadre (`@container/card-header`), ils passent
+ * dessous, l'un sous l'autre, en pleine largeur.
+ */
+const ACTIONS_STOCK_INITIAL =
+  'flex flex-wrap justify-end gap-2 @max-[36rem]/card-header:col-span-2 @max-[36rem]/card-header:col-start-1 @max-[36rem]/card-header:row-span-1 @max-[36rem]/card-header:row-start-3 @max-[36rem]/card-header:mt-2 @max-[36rem]/card-header:w-full @max-[36rem]/card-header:flex-col'
+
 export function OngletDeclarations({
   operateur,
   producteur,
@@ -98,7 +105,7 @@ export function OngletDeclarations({
         <CardHeader>
           <CardTitle>Stock initial</CardTitle>
           {gereBnia && actuel?.renouvelable && (
-            <CardAction className='flex flex-wrap justify-end gap-2'>
+            <CardAction className={ACTIONS_STOCK_INITIAL}>
               <Button variant='outline' onClick={() => setImport(true)}>
                 Importer depuis Excel
               </Button>
@@ -112,7 +119,7 @@ export function OngletDeclarations({
             </CardAction>
           )}
           {gereBnia && point.isSuccess && !actuel?.fige && (
-            <CardAction className='flex flex-wrap justify-end gap-2'>
+            <CardAction className={ACTIONS_STOCK_INITIAL}>
               <Button variant='outline' onClick={() => setImport(true)}>
                 Importer depuis Excel
               </Button>

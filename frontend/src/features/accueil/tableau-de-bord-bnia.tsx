@@ -73,25 +73,23 @@ export function TableauDeBordBnia() {
   return (
     <div className='space-y-10'>
       {operateurs && (
-        <Section titre="État des lieux de l'interprofession">
-          <div className='grid gap-6 lg:grid-cols-2 xl:grid-cols-3'>
-            <CarteType
-              type='PRODUCTEUR'
-              libelle='Producteurs'
-              icone={Grape}
-              couleur='var(--chart-5)'
-              stock={declarations}
-            />
-            <CarteType
-              type='NEGOCIANT'
-              libelle='Négociants'
-              icone={Building2}
-              couleur='var(--chart-2)'
-              stock={declarations}
-            />
-            <RechercheRapide />
-          </div>
-        </Section>
+        <div className='grid gap-6 lg:grid-cols-2 xl:grid-cols-3'>
+          <CarteType
+            type='PRODUCTEUR'
+            libelle='Producteurs'
+            icone={Grape}
+            couleur='var(--chart-5)'
+            stock={declarations}
+          />
+          <CarteType
+            type='NEGOCIANT'
+            libelle='Négociants'
+            icone={Building2}
+            couleur='var(--chart-2)'
+            stock={declarations}
+          />
+          <RechercheRapide />
+        </div>
       )}
       <Section titre='Activités'>
         <GrilleActivites>

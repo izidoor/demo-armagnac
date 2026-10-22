@@ -10,6 +10,7 @@ import {
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { handleServerError } from '@/lib/handle-server-error'
+import { retenirEntree } from '@/hooks/use-retour'
 import { demarrerSuivi, ecranAffiche } from '@/features/suivi/suivi'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
@@ -87,6 +88,9 @@ router.subscribe('onResolved', ({ toLocation }) => {
   ecranAffiche(toLocation.pathname, toLocation.searchStr, gabarit)
 })
 demarrerSuivi()
+
+// Retour des pages de second niveau (useRetour) : le chemin de chaque entrée de l'historique.
+router.subscribe('onResolved', () => retenirEntree(router))
 
 // Application installable (PWA) : le service worker ne garde rien en cache (public/sw.js). En dev, Vite s'en passe.
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

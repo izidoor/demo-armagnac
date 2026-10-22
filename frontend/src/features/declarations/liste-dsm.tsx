@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BadgePlein } from '@/components/metier/badge-statut'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
@@ -20,6 +21,10 @@ import { STATUT_ETAT } from './libelles'
 /**
  * Les DSM d'un opérateur, de la plus récente à la plus ancienne, avec leur échéance (RG-DEC-39) et leur total
  * HT, calculé ou facturé (RG-DEC-34) ; une ligne ouvre la DSM.
+ *
+ * Selon la largeur du contenu (`CartesListe`), dans le cadre d'une carte (84 px de marges) : sous 62rem (875 px de
+ * large naturelle), le tableau perd les dates d'envoi et de validation ; sous 45rem (617 px sans elles), une carte par
+ * DSM. Une ligne par DSM.
  */
 export function ListeDsm({
   espace,
@@ -44,15 +49,19 @@ export function ListeDsm({
   const { lignes, pagination } = usePagination(dsms, TAILLE_PAGE)
   return (
     <>
-      <div className='rounded-md border'>
+      <div className='rounded-md border @max-[45rem]/content:hidden'>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Période</TableHead>
               <TableHead>État</TableHead>
               <TableHead>Échéance</TableHead>
-              <TableHead>Envoyée le</TableHead>
-              <TableHead>Validée le</TableHead>
+              <TableHead className='@max-[62rem]/content:hidden'>
+                Envoyée le
+              </TableHead>
+              <TableHead className='@max-[62rem]/content:hidden'>
+                Validée le
+              </TableHead>
               <TableHead className='text-right'>Total HT</TableHead>
               <EnteteOuvrir />
             </TableRow>
@@ -83,9 +92,13 @@ export function ListeDsm({
                   </BadgePlein>
                 </TableCell>
                 <TableCell>{formatDate(d.echeance)}</TableCell>
-                <TableCell>{formatDateHeure(d.envoyeeLe)}</TableCell>
-                <TableCell>{formatDateHeure(d.valideeLe)}</TableCell>
-                <TableCell className='text-right tabular-nums'>
+                <TableCell className='@max-[62rem]/content:hidden'>
+                  {formatDateHeure(d.envoyeeLe)}
+                </TableCell>
+                <TableCell className='@max-[62rem]/content:hidden'>
+                  {formatDateHeure(d.valideeLe)}
+                </TableCell>
+                <TableCell className='text-right whitespace-nowrap tabular-nums'>
                   {formatEuros(d.totalHt)}
                   {d.facturee && (
                     <Badge variant='secondary' className='ms-2'>
@@ -102,6 +115,36 @@ export function ListeDsm({
           </TableBody>
         </Table>
       </div>
+      <CartesListe
+        requete={{ isPending: false, isError: false, data: dsms }}
+        vide='Aucune DSM.'
+        masquee='@min-[45rem]/content:hidden'
+      >
+        {(lignes ?? []).map((d) => (
+          <CarteListe
+            key={d.id}
+            onOuvrir={() => ouvrir(d.id)}
+            titre={
+              <span className='flex flex-wrap items-center gap-2'>
+                {d.periode.libelle}
+                <BadgePlein statut={STATUT_ETAT[d.etat]}>
+                  {d.libelleEtat}
+                </BadgePlein>
+                {d.facturee && <Badge variant='secondary'>Facturée</Badge>}
+              </span>
+            }
+          >
+            <div className='text-muted-foreground text-sm'>
+              {[
+                d.echeance && `Échéance ${formatDate(d.echeance)}`,
+                d.totalHt != null && `${formatEuros(d.totalHt)} HT`,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </div>
+          </CarteListe>
+        ))}
+      </CartesListe>
       <Pagination {...pagination} />
     </>
   )

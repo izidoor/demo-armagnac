@@ -10,6 +10,7 @@ import {
   supprimerOperateur,
 } from '@/api/generated'
 import { cn } from '@/lib/utils'
+import { useRetour } from '@/hooks/use-retour'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -57,6 +58,7 @@ export function PageOperateur({
   const bo = espace === 'bo'
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const retourALaListe = useRetour({ to: '/bo/operateurs' })
   const requete = useQuery({
     queryKey: [...cleOperateur(id), 'fiche'],
     queryFn: apiOperateur(id).fiche,
@@ -154,13 +156,16 @@ export function PageOperateur({
       titre={
         bo ? fiche.raisonSociale : `Mon entreprise · ${fiche.raisonSociale}`
       }
+      retour={
+        bo ? { libelle: 'Opérateurs', onRetour: retourALaListe } : undefined
+      }
       description={
         <span className='flex flex-wrap items-center gap-2'>
           {bo && (
             <Button
               variant='link'
-              className='h-auto p-0'
-              onClick={() => navigate({ to: '/bo/operateurs' })}
+              className='h-auto p-0 max-md:hidden'
+              onClick={retourALaListe}
             >
               <ArrowLeft className='size-4' /> Opérateurs
             </Button>
@@ -295,7 +300,8 @@ export function PageOperateur({
           </TabsContent>
         )}
       </Tabs>
-      {droits.adminBnia && (
+      {/* Désactiver, supprimer : l'opérateur entier, sous l'onglet Général seulement. */}
+      {droits.adminBnia && ongletOuvert === 'general' && (
         <ZoneDanger>
           {fiche.actif ? (
             <ActionDanger
