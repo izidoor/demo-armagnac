@@ -78,7 +78,7 @@ export function AppSidebar({ espace }: AppSidebarProps) {
           <AppTitle espace={espace} />
         )}
       </SidebarHeader>
-      <SidebarContent className='max-md:py-4'>
+      <SidebarContent className='max-md:py-4' ref={montrerPageActive}>
         {espace.navGroups.map((props) => (
           <NavGroup key={props.title} {...props} />
         ))}
@@ -107,4 +107,21 @@ export function AppSidebar({ espace }: AppSidebarProps) {
       <SidebarRail />
     </Sidebar>
   )
+}
+
+/**
+ * Sur mobile, à chaque ouverture du tiroir, qui recrée la liste défilée tout en haut : si l'entrée de la page courante
+ * est hors de vue, la liste défile pour la centrer.
+ */
+function montrerPageActive(liste: HTMLDivElement | null) {
+  if (!liste?.closest('[data-mobile="true"]')) return
+  requestAnimationFrame(() => {
+    const entree = liste.querySelector<HTMLElement>('[data-active="true"]')
+    if (!entree) return
+    const cadre = liste.getBoundingClientRect()
+    const position = entree.getBoundingClientRect()
+    if (position.top >= cadre.top && position.bottom <= cadre.bottom) return
+    liste.scrollTop +=
+      position.top - cadre.top - (cadre.height - position.height) / 2
+  })
 }

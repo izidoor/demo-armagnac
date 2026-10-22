@@ -94,7 +94,8 @@
 :root {
   --background: oklch(0.9779 0.0042 56.3756);
   --foreground: oklch(0.2178 0 0);
-  --card: oklch(0.9779 0.0042 56.3756);
+  /* Un crème plus léger que le fond de page, pour que les champs blancs ne tranchent pas trop. */
+  --card: oklch(0.988 0.0028 56.3756);
   --card-foreground: oklch(0.2178 0 0);
   --popover: oklch(0.9779 0.0042 56.3756);
   --popover-foreground: oklch(0.2178 0 0);
@@ -128,7 +129,9 @@
   --info-foreground: oklch(0.45 0.07 210);
   --info-border: oklch(0.86 0.04 205);
   --border: oklch(0.9355 0.0324 80.9937);
-  --input: oklch(0.9355 0.0324 80.9937);
+  /* Champs de saisie : fond blanc sur le crème des cartes, bordure plus marquée que celle des cartes. */
+  --input: oklch(0.83 0.03 70);
+  --champ: oklch(1 0 0);
   --ring: oklch(0.465 0.147 24.9381);
   /* Graphiques : bordeaux, ambre, sarcelle, ardoise, olive, des teintes bien distinctes. */
   --chart-1: oklch(0.5 0.15 25);
@@ -213,7 +216,9 @@
   --info-foreground: oklch(0.84 0.08 215);
   --info-border: oklch(0.45 0.06 220);
   --border: oklch(0.3843 0.0301 269.7337);
-  --input: oklch(0.3843 0.0301 269.7337);
+  /* Champs de saisie : creusés, plus sombres que les cartes, et bordés plus clair. */
+  --input: oklch(0.48 0.03 268);
+  --champ: oklch(0.27 0.03 265);
   --ring: oklch(0.6397 0.172 36.4421);
   /* Mêmes teintes que le thème clair, plus lumineuses. */
   --chart-1: oklch(0.65 0.17 25);
@@ -300,6 +305,7 @@
   --color-info-border: var(--info-border);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-champ: var(--champ);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);

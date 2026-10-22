@@ -183,7 +183,7 @@ function VuePiece({ piece }: { piece: Piece }) {
   return (
     <PageMetier
       titre={titre}
-      complement={piece.numero ? piece.acheteur.nom : undefined}
+      complement={piece.acheteur.nom || undefined}
       retour={{ libelle: 'Retour', onRetour: retour }}
       description={
         <span className='flex flex-wrap items-center gap-2'>
@@ -212,7 +212,7 @@ function VuePiece({ piece }: { piece: Piece }) {
         </span>
       }
       actions={
-        <div className='flex flex-wrap gap-2'>
+        <div className='ms-auto flex flex-wrap justify-end gap-2'>
           {/* Sur un téléphone, les actions de consultation passent dans « Plus » : reste l'émission. */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -668,8 +668,8 @@ const prix = new Intl.NumberFormat('fr-FR', {
 
 /**
  * Les lignes groupées (RG-FAC-04), le récapitulatif de TVA et les totaux (RG-FAC-05). La désignation passe à la ligne ;
- * sous 38rem de carte (le tableau fait 590 px avec elle à 12rem), une ligne de la pièce par bloc : désignation et
- * code, puis quantité, prix et TVA, et le montant HT à droite (`@container/lignes`).
+ * sous 38rem de carte (le tableau fait 590 px avec elle à 12rem), une ligne de la pièce par bloc : désignation, puis
+ * quantité, prix et TVA, et le montant HT à droite (`@container/lignes`). Le code de l'article n'est pas montré.
  */
 export function Lignes({
   piece,
@@ -790,9 +790,6 @@ function Ligne({ ligne, retrait }: { ligne: LignePiece; retrait?: boolean }) {
         className={cn('min-w-48 whitespace-normal', retrait && 'ps-6')}
       >
         {ligne.texte}
-        <span className='text-muted-foreground block font-mono text-xs'>
-          {ligne.code}
-        </span>
       </TableCell>
       <TableCell className='text-right whitespace-nowrap tabular-nums'>
         {ligne.quantite != null && formatHectolitres(ligne.quantite)}{' '}
@@ -809,7 +806,7 @@ function Ligne({ ligne, retrait }: { ligne: LignePiece; retrait?: boolean }) {
   )
 }
 
-/** Une ligne de la pièce en bloc, sur une carte étroite : désignation et code, puis quantité × prix, TVA et montant. */
+/** Une ligne de la pièce en bloc, sur une carte étroite : désignation, puis quantité × prix, TVA et montant. */
 function BlocLigne({
   ligne,
   retrait,
@@ -821,31 +818,26 @@ function BlocLigne({
     <li className={cn('space-y-0.5 py-2', retrait ? 'ps-4 pe-2' : 'px-2')}>
       <div>{ligne.texte}</div>
       {ligne.sorte !== 'TEXTE' && (
-        <>
-          <div className='text-muted-foreground font-mono text-xs break-all'>
-            {ligne.code}
-          </div>
-          <div className='flex items-baseline justify-between gap-2'>
-            <span className='text-muted-foreground'>
-              {[
-                ligne.quantite != null &&
-                  `${formatHectolitres(ligne.quantite)} ${ligne.unite ?? ''}`.trim(),
-                ligne.prixUnitaire != null && prix.format(ligne.prixUnitaire),
-              ]
-                .filter(Boolean)
-                .join(' × ')}
-              {ligne.tvaLibelle && (
-                <span className='whitespace-nowrap'>
-                  {' '}
-                  · TVA {ligne.tvaLibelle}
-                </span>
-              )}
-            </span>
-            <span className='font-medium whitespace-nowrap tabular-nums'>
-              {formatEuros(ligne.montantHt)}
-            </span>
-          </div>
-        </>
+        <div className='flex items-baseline justify-between gap-2'>
+          <span className='text-muted-foreground'>
+            {[
+              ligne.quantite != null &&
+                `${formatHectolitres(ligne.quantite)} ${ligne.unite ?? ''}`.trim(),
+              ligne.prixUnitaire != null && prix.format(ligne.prixUnitaire),
+            ]
+              .filter(Boolean)
+              .join(' × ')}
+            {ligne.tvaLibelle && (
+              <span className='whitespace-nowrap'>
+                {' '}
+                · TVA {ligne.tvaLibelle}
+              </span>
+            )}
+          </span>
+          <span className='font-medium whitespace-nowrap tabular-nums'>
+            {formatEuros(ligne.montantHt)}
+          </span>
+        </div>
       )}
     </li>
   )

@@ -825,13 +825,16 @@ function ValeurFigee({
   libelle,
   valeur,
   className,
+  classeCellule,
 }: {
   libelle: string
   valeur: string
   className?: string
+  /** Classes du bloc, libellé compris. */
+  classeCellule?: string
 }) {
   return (
-    <div className='space-y-1'>
+    <div className={cn('space-y-1', classeCellule)}>
       <Label className='text-muted-foreground justify-end text-xs'>
         {libelle}
       </Label>
@@ -843,9 +846,9 @@ function ValeurFigee({
 }
 
 /**
- * Une ligne : désignation toujours modifiable ; quantité, unité, prix et retrait pour les seules lignes ajoutées. Sous
- * 36rem de ligne (`@container/ligne`), la poignée, la désignation et le cadenas (ou le retrait) tiennent sur une
- * rangée, quantité et prix passent dessous.
+ * Une ligne : désignation toujours modifiable ; quantité, unité, prix et retrait pour les seules lignes ajoutées ; la
+ * TVA de l'article en fin de ligne, en lecture. Sous 36rem de ligne (`@container/ligne`), la poignée, la désignation et
+ * le cadenas (ou le retrait) tiennent sur une rangée, quantité, prix et TVA passent dessous.
  */
 function LigneEdition({
   ligne,
@@ -859,19 +862,22 @@ function LigneEdition({
   onRetirer: () => void
 }) {
   const libre = !ligne.recue
+  const tva = (
+    <ValeurFigee
+      libelle='TVA'
+      className={cn(montant('w-20'), 'justify-end whitespace-nowrap')}
+      // Sur une ligne étroite, toujours à droite, sous le prix.
+      classeCellule='@max-[36rem]/ligne:col-start-2'
+      valeur={ligne.tvaLibelle ?? ''}
+    />
+  )
   return (
     <div className='@container/ligne'>
       <div className='flex flex-wrap items-end gap-2'>
         {poignee}
         <div className='min-w-0 flex-1 space-y-1 @min-[36rem]/ligne:min-w-64'>
-          <Label className='text-muted-foreground flex-wrap gap-x-2 gap-y-0 text-xs'>
+          <Label className='text-muted-foreground text-xs'>
             {LIBELLES_SORTE[ligne.sorte]}
-            {ligne.code && (
-              <span className='font-mono break-all @max-[36rem]/ligne:basis-full'>
-                {ligne.code}
-                {ligne.tvaLibelle && ` · TVA ${ligne.tvaLibelle}`}
-              </span>
-            )}
           </Label>
           <Input
             aria-label={LIBELLES_SORTE[ligne.sorte]}
@@ -884,14 +890,20 @@ function LigneEdition({
           <div className={MONTANTS_LIGNE}>
             <ValeurFigee
               libelle='Quantité'
-              className='w-28 justify-end tabular-nums'
-              valeur={`${ligne.quantite}${ligne.unite ? ` ${ligne.unite}` : ''}`}
+              className={cn(montant('w-28'), 'justify-end tabular-nums')}
+              valeur={ligne.quantite}
+            />
+            <ValeurFigee
+              libelle='Unité'
+              className={cn(montant('w-20'), 'justify-end')}
+              valeur={ligne.unite}
             />
             <ValeurFigee
               libelle='Prix unitaire HT'
-              className='w-28 justify-end tabular-nums'
+              className={cn(montant('w-28'), 'justify-end tabular-nums')}
               valeur={ligne.prixUnitaire && `${ligne.prixUnitaire} €`}
             />
+            {tva}
           </div>
         )}
         {ligne.sorte === 'ARTICLE' && libre && (
@@ -902,7 +914,7 @@ function LigneEdition({
               </Label>
               <Input
                 aria-label='Quantité'
-                className='w-28 text-right'
+                className={cn(montant('w-28'), 'text-right')}
                 value={ligne.quantite}
                 onChange={(e) =>
                   onChanger({ ...ligne, quantite: e.target.value })
@@ -915,7 +927,7 @@ function LigneEdition({
               </Label>
               <Input
                 aria-label='Unité'
-                className='w-20 text-right'
+                className={cn(montant('w-20'), 'text-right')}
                 value={ligne.unite}
                 onChange={(e) => onChanger({ ...ligne, unite: e.target.value })}
               />
@@ -926,13 +938,14 @@ function LigneEdition({
               </Label>
               <Input
                 aria-label='Prix unitaire HT'
-                className='w-28 text-right'
+                className={cn(montant('w-28'), 'text-right')}
                 value={ligne.prixUnitaire}
                 onChange={(e) =>
                   onChanger({ ...ligne, prixUnitaire: e.target.value })
                 }
               />
             </div>
+            {tva}
           </div>
         )}
         {libre ? (
@@ -964,9 +977,14 @@ function LigneEdition({
   )
 }
 
-/** Quantité et prix d'une ligne : à leur place sur une ligne large, sous la désignation sur une ligne étroite. */
+/**
+ * Quantité, prix et TVA d'une ligne : à leur place sur une ligne large ; sous la désignation sur une ligne étroite, deux
+ * par rangée.
+ */
 const MONTANTS_LIGNE =
-  'flex items-end gap-2 @max-[36rem]/ligne:order-last @max-[36rem]/ligne:w-full @max-[36rem]/ligne:ps-6'
+  'flex items-end gap-2 @max-[36rem]/ligne:order-last @max-[36rem]/ligne:grid @max-[36rem]/ligne:w-full @max-[36rem]/ligne:grid-cols-2 @max-[36rem]/ligne:ps-6'
+/** La largeur d'un montant : fixe sur une ligne large, la demi-largeur de la ligne sur une ligne étroite. */
+const montant = (largeur: string) => `${largeur} @max-[36rem]/ligne:w-full`
 
 /**
  * Colonnes de la liste des articles, communes à la ligne de titre et aux articles. Sous 44rem de fenêtre
