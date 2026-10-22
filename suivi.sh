@@ -21,6 +21,7 @@ if [[ "$local" == false && -f .env.suivi ]]; then
     source .env.suivi
     : "${BNIA_SUIVI_URL:?BNIA_SUIVI_URL manque dans .env.suivi}"
     : "${BNIA_SUIVI_JETON:?BNIA_SUIVI_JETON manque dans .env.suivi}"
+    echo "Instance hébergée (.env.suivi) : ${BNIA_SUIVI_URL}" >&2
 else
     port=$(sed -n 's/^SERVER_PORT=//p' backend/.env 2>/dev/null || true)
     BNIA_SUIVI_URL="http://localhost:${port:-8080}"
