@@ -65,7 +65,7 @@ bnia:
     inactivite-session: 2h
     # RG-AUT-01 : vide en production (code tiré au hasard) ; 000000 en dev et en démo.
     code-fixe: ""
-  # Export du suivi de l'utilisation (suivi.sh, docs/deploiement-scalingo.md) ; vide : export fermé.
+  # Export du suivi de l'utilisation (suivi.sh, docs/suivi-utilisation.md) ; vide : export fermé.
   suivi:
     jeton: ${BNIA_SUIVI_JETON:}
 

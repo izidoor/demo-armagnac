@@ -115,7 +115,7 @@ Racine :
 - Déploiement du prototype (Scalingo, front embarqué, profils `prod,demo`) : `docs/deploiement-scalingo.md` ;
   remise à zéro de la démonstration hébergée : `./scalingo-reset.sh`
 - Ports propres à un worktree : `./worktree-env.sh`
-- Suivi de l'utilisation du prototype (pour l'auteur seul, jeton dans `.env.suivi`) : `./suivi.sh [--local] [tout|personnes|visites|ecrans|offre|fichiers|evenements|connexions|tableau] [depuis]`
+- Suivi de l'utilisation du prototype (pour l'auteur seul, jeton dans `.env.suivi`, `docs/suivi-utilisation.md`) : `./suivi.sh [--local] [tout|personnes|visites|ecrans|offre|fichiers|evenements|connexions|tableau] [depuis]`
   (`tableau` : page de graphiques ouverte dans le navigateur)
 - Réponse à l'appel d'offres (« Voir l'offre ») : depuis `echanges-bnia/reponse`, `pnpm build` puis `pnpm publier`
   (pages servies après connexion sous `/api/offre/`)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Suivi de l'utilisation du prototype (docs/deploiement-scalingo.md, « Suivi de l'utilisation »).
+# Suivi de l'utilisation du prototype (docs/suivi-utilisation.md).
 #   ./suivi.sh [--local] [rapport] [depuis AAAA-MM-JJ]
 # Rapports : tout (par défaut : personnes, visites, ecrans, offre, fichiers), personnes, visites (avec le parcours de
 # chacune), ecrans, offre, fichiers (téléchargements, exports, imports), evenements, connexions.
