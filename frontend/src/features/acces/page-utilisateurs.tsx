@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   bloquerUtilisateur,
@@ -11,17 +11,12 @@ import {
   listerUtilisateurs,
   type EtatCompte,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
+import { useRetour, useVersParente } from '@/hooks/use-retour'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -40,7 +35,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { Lecture } from '@/features/operateurs/commun/champs'
@@ -72,7 +69,8 @@ function useEtatsComptes(utilisateurs: number[]) {
 
 /**
  * Utilisateurs, au back-office (RG-OPE-53) : liste filtrable par nom ou e-mail, statut, opérateur. Les filtres sont
- * gardés dans l'adresse (`useFiltresAdresse`) : le retour depuis un utilisateur les retrouve.
+ * gardés dans l'adresse (`useFiltresAdresse`) : le retour depuis un utilisateur les retrouve. Colonnes masquées par
+ * paliers et cartes sous un seuil (`SEUILS`).
  */
 export function PageUtilisateurs() {
   const navigate = useNavigate()
@@ -99,20 +97,30 @@ export function PageUtilisateurs() {
   })
   const lignes = utilisateurs.data ?? []
   const etats = useEtatsComptes(lignes.map((u) => u.id))
+  const ouvrir = (id: number) =>
+    navigate({
+      to: '/bo/acces/utilisateurs/$id',
+      params: { id: String(id) },
+    })
   return (
     <PageMetier
       titre='Utilisateurs'
       description='Les personnes qui ont un compte, et leurs opérateurs.'
     >
-      <div className='mb-4 flex flex-wrap gap-2'>
-        <Input
-          className='max-w-sm'
-          placeholder='Nom, prénom ou e-mail'
-          value={recherche}
-          onChange={(e) => setRecherche(e.target.value)}
-        />
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <div className='relative w-full sm:w-auto'>
+          <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
+          <Input
+            placeholder='Rechercher un utilisateur'
+            title='Nom, prénom ou e-mail'
+            aria-label='Recherche par nom, prénom ou e-mail'
+            value={recherche}
+            onChange={(e) => setRecherche(e.target.value)}
+            className='h-9 w-full ps-8 sm:w-72'
+          />
+        </div>
         <Select value={statut} onValueChange={(v) => changer({ statut: v })}>
-          <SelectTrigger className='w-48'>
+          <SelectTrigger aria-label='Statut' className='h-9 w-48 max-sm:w-full'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -122,7 +130,7 @@ export function PageUtilisateurs() {
           </SelectContent>
         </Select>
       </div>
-      <div className='rounded-md border'>
+      <div className={cn('rounded-md border', SEUILS.tableau)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -130,7 +138,9 @@ export function PageUtilisateurs() {
               <TableHead>E-mail</TableHead>
               <TableHead>Opérateurs</TableHead>
               <TableHead>État</TableHead>
-              <TableHead>Dernière connexion</TableHead>
+              <TableHead className={SEUILS.connexion}>
+                Dernière connexion
+              </TableHead>
               <EnteteOuvrir />
             </TableRow>
           </TableHeader>
@@ -151,48 +161,89 @@ export function PageUtilisateurs() {
               <TableRow
                 key={u.id}
                 className='cursor-pointer'
-                onClick={() =>
-                  navigate({
-                    to: '/bo/acces/utilisateurs/$id',
-                    params: { id: String(u.id) },
-                  })
-                }
+                onClick={() => ouvrir(u.id)}
               >
                 <TableCell>
                   {u.prenom} {u.nom}
                 </TableCell>
                 <TableCell>{u.email}</TableCell>
-                <TableCell className='text-sm'>
-                  {u.rattachements
-                    .map((r) => `${r.raisonSociale} (${ROLES[r.role]})`)
-                    .join(', ')}
+                <TableCell
+                  className='w-full max-w-0 min-w-48 truncate text-sm'
+                  title={operateurs(u)}
+                >
+                  {operateurs(u)}
                 </TableCell>
                 <TableCell>
                   <Etat statut={u.statut} etat={etats?.get(u.id)} />
                 </TableCell>
-                <TableCell>
-                  {etats?.get(u.id)?.derniereConnexion &&
-                    dateHeure.format(
-                      new Date(etats.get(u.id)!.derniereConnexion!)
-                    )}
+                <TableCell className={SEUILS.connexion}>
+                  {derniereConnexion(etats?.get(u.id))}
                 </TableCell>
                 <CelluleOuvrir
                   libelle={`Ouvrir le compte de ${u.prenom} ${u.nom}`}
-                  onOuvrir={() =>
-                    navigate({
-                      to: '/bo/acces/utilisateurs/$id',
-                      params: { id: String(u.id) },
-                    })
-                  }
+                  onOuvrir={() => ouvrir(u.id)}
                 />
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+      <CartesListe
+        requete={utilisateurs}
+        vide='Aucun utilisateur.'
+        masquee={SEUILS.cartes}
+      >
+        {lignes.map((u) => (
+          <CarteListe
+            key={u.id}
+            lien={{
+              to: '/bo/acces/utilisateurs/$id',
+              params: { id: String(u.id) },
+            }}
+            titre={`${u.prenom} ${u.nom}`}
+          >
+            <div className='text-muted-foreground truncate text-sm'>
+              {u.email}
+            </div>
+            <div className='line-clamp-2 text-sm' title={operateurs(u)}>
+              {operateurs(u)}
+            </div>
+            <div className='flex flex-wrap items-center gap-2 text-sm'>
+              <Etat statut={u.statut} etat={etats?.get(u.id)} />
+              {etats?.get(u.id)?.derniereConnexion && (
+                <span className='text-muted-foreground'>
+                  Connecté le {derniereConnexion(etats.get(u.id))}
+                </span>
+              )}
+            </div>
+          </CarteListe>
+        ))}
+      </CartesListe>
     </PageMetier>
   )
 }
+
+/**
+ * Selon la largeur du contenu, comme la liste des opérateurs (34 px de marges) : les opérateurs prennent la place qui
+ * reste et se tronquent (12rem au moins) ; sous 60rem, le tableau perd la dernière connexion ; sous 49rem, une carte par
+ * utilisateur.
+ */
+const SEUILS = {
+  connexion: '@max-[60rem]/content:hidden',
+  tableau: '@max-[49rem]/content:hidden',
+  cartes: '@min-[49rem]/content:hidden',
+}
+
+/** Les opérateurs d'un utilisateur, avec son rôle dans chacun. */
+const operateurs = (u: {
+  rattachements: { raisonSociale: string; role: keyof typeof ROLES }[]
+}) =>
+  u.rattachements.map((r) => `${r.raisonSociale} (${ROLES[r.role]})`).join(', ')
+
+const derniereConnexion = (etat?: EtatCompte) =>
+  etat?.derniereConnexion
+    ? dateHeure.format(new Date(etat.derniereConnexion))
+    : undefined
 
 function Etat({ statut, etat }: { statut: string; etat?: EtatCompte }) {
   const bloqueJusqua = etat?.bloqueJusqua
@@ -230,6 +281,8 @@ export function PageUtilisateur({ id }: { id: number }) {
       ),
   })
   const etats = useEtatsComptes([id])
+  const retour = useRetour({ to: '/bo/acces/utilisateurs' })
+  const versLaListe = useVersParente({ to: '/bo/acces/utilisateurs' })
   const action = useMutation({
     mutationFn: (bloquer: boolean) =>
       (bloquer
@@ -262,14 +315,16 @@ export function PageUtilisateur({ id }: { id: number }) {
   return (
     <PageMetier
       titre={`${u.prenom} ${u.nom}`}
+      retour={{ libelle: 'Retour', onRetour: retour }}
       description={
         <span className='flex flex-wrap items-center gap-2'>
-          <Link
-            to='/bo/acces/utilisateurs'
-            className='inline-flex items-center gap-1 hover:underline'
+          <Button
+            variant='link'
+            className='h-auto p-0 max-md:hidden'
+            onClick={versLaListe}
           >
             <ArrowLeft className='size-4' /> Utilisateurs
-          </Link>
+          </Button>
           <Etat statut={u.statut} etat={etat} />
         </span>
       }
@@ -280,7 +335,7 @@ export function PageUtilisateur({ id }: { id: number }) {
             <CardTitle>Compte</CardTitle>
           </CardHeader>
           <CardContent className='grid gap-4 @min-[48rem]/content:grid-cols-3'>
-            <Lecture label='E-mail (identifiant)' valeur={u.email} />
+            <Lecture label='E-mail' valeur={u.email} />
             <Lecture
               label='Dernière connexion'
               valeur={
@@ -298,8 +353,9 @@ export function PageUtilisateur({ id }: { id: number }) {
           <CardHeader>
             <CardTitle>Opérateurs</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Table>
+          {/* Sous 32rem de carte, un opérateur par bloc : raison sociale et code, puis rôle et accès. */}
+          <CardContent className='@container/rattachements'>
+            <Table className='@max-[32rem]/rattachements:hidden'>
               <TableHeader>
                 <TableRow>
                   <TableHead>Opérateur</TableHead>
@@ -311,28 +367,28 @@ export function PageUtilisateur({ id }: { id: number }) {
                 {u.rattachements.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell>
-                      <Link
-                        to='/bo/operateurs/$id/personnes/$genre/$personne'
-                        params={{
-                          id: String(r.operateur),
-                          genre: 'membre',
-                          personne: String(r.id),
-                        }}
-                        className='hover:underline'
-                      >
-                        {r.raisonSociale}
-                      </Link>
+                      <LienRattachement rattachement={r} />
                       <span className='text-muted-foreground'> · {r.code}</span>
                     </TableCell>
                     <TableCell>{ROLES[r.role]}</TableCell>
-                    <TableCell>
-                      {STATUTS_RATTACHEMENT[r.statut]}
-                      {!r.operateurEnActivite && ', opérateur inactif'}
-                    </TableCell>
+                    <TableCell>{acces(r)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            <ul className='divide-y text-sm @min-[32rem]/rattachements:hidden'>
+              {u.rattachements.map((r) => (
+                <li key={r.id} className='space-y-0.5 py-2 first:pt-0'>
+                  <div>
+                    <LienRattachement rattachement={r} />
+                    <span className='text-muted-foreground'> · {r.code}</span>
+                  </div>
+                  <div className='text-muted-foreground'>
+                    {ROLES[r.role]} · {acces(r)}
+                  </div>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
       </div>
@@ -363,35 +419,55 @@ export function PageUtilisateur({ id }: { id: number }) {
           )}
         </ZoneDanger>
       )}
-      <Dialog open={blocage} onOpenChange={setBlocage}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Bloquer {u.email}</DialogTitle>
-            <DialogDescription>
-              Ses connexions seront refusées dans tous ses opérateurs, et sa
-              session coupée. Il en est prévenu par e-mail, ainsi que les ADMIN
-              de ses opérateurs. Le motif reste au journal, sans être envoyé.
-            </DialogDescription>
-          </DialogHeader>
-          <div className='space-y-2'>
-            <Label htmlFor='motif'>Motif</Label>
-            <Textarea
-              id='motif'
-              value={motif}
-              onChange={(e) => setMotif(e.target.value)}
-            />
-          </div>
-          <div className='flex justify-end'>
-            <Button
-              variant='destructive'
-              disabled={action.isPending || !motif.trim()}
-              onClick={() => action.mutate(true)}
-            >
-              Bloquer
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DialogueFormulaire
+        ouvert={blocage}
+        onOuvertChange={setBlocage}
+        titre={`Bloquer ${u.email}`}
+        description='Ses connexions seront refusées dans tous ses opérateurs, et sa session coupée. Il en est prévenu par e-mail, ainsi que les ADMIN de ses opérateurs. Le motif reste au journal, sans être envoyé.'
+      >
+        <div className='space-y-2'>
+          <Label htmlFor='motif'>Motif</Label>
+          <Textarea
+            id='motif'
+            value={motif}
+            onChange={(e) => setMotif(e.target.value)}
+          />
+        </div>
+        <div className='flex justify-end'>
+          <Button
+            variant='destructive'
+            className='max-md:w-full'
+            disabled={action.isPending || !motif.trim()}
+            onClick={() => action.mutate(true)}
+          >
+            Bloquer
+          </Button>
+        </div>
+      </DialogueFormulaire>
     </PageMetier>
   )
 }
+
+type Rattachement = NonNullable<
+  Awaited<ReturnType<typeof consulterUtilisateur>>['data']
+>['rattachements'][number]
+
+/** La fiche du membre chez cet opérateur. */
+function LienRattachement({ rattachement: r }: { rattachement: Rattachement }) {
+  return (
+    <Link
+      to='/bo/operateurs/$id/personnes/$genre/$personne'
+      params={{
+        id: String(r.operateur),
+        genre: 'membre',
+        personne: String(r.id),
+      }}
+      className='hover:underline'
+    >
+      {r.raisonSociale}
+    </Link>
+  )
+}
+
+const acces = (r: Rattachement) =>
+  `${STATUTS_RATTACHEMENT[r.statut]}${r.operateurEnActivite ? '' : ', opérateur inactif'}`

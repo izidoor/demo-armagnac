@@ -5,14 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { type ValeurSimple } from '@/api/generated'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -23,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { ValeursProches } from './valeurs-proches'
@@ -87,71 +81,74 @@ export function FormulaireValeurSimple<R>({
   const libelle = useWatch({ control: form.control, name: 'libelle' })
 
   return (
-    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>{titre}</DialogTitle>
-          <DialogDescription>
-            Le code est unique dans la liste.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            id='formulaire-valeur-simple'
-            onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
-            className='space-y-4'
-          >
-            <ErreurRacine errors={form.formState.errors} />
-            <FormField
-              control={form.control}
-              name='code'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Code</FormLabel>
-                  <FormControl>
-                    <Input {...field} autoComplete='off' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='libelle'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Libellé</FormLabel>
-                  <FormControl>
-                    <Input {...field} autoComplete='off' />
-                  </FormControl>
-                  {proches && (
-                    <FormDescription>
-                      <ValeursProches
-                        libelle={libelle}
-                        proches={proches}
-                        sauf={valeur?.id}
-                      />
-                    </FormDescription>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOuvertChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='formulaire-valeur-simple'
-            disabled={mutation.isPending}
-          >
-            Enregistrer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={onOuvertChange}
+      className='sm:max-w-md'
+      titre={titre}
+      description='Le code est unique dans la liste.'
+    >
+      <Form {...form}>
+        <form
+          id='formulaire-valeur-simple'
+          onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
+          className='space-y-4'
+        >
+          <ErreurRacine errors={form.formState.errors} />
+          <FormField
+            control={form.control}
+            name='code'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Code</FormLabel>
+                <FormControl>
+                  <Input {...field} autoComplete='off' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='libelle'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Libellé</FormLabel>
+                <FormControl>
+                  <Input {...field} autoComplete='off' />
+                </FormControl>
+                {proches && (
+                  <FormDescription>
+                    <ValeursProches
+                      libelle={libelle}
+                      proches={proches}
+                      sauf={valeur?.id}
+                    />
+                  </FormDescription>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOuvertChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          className='max-md:w-full'
+          type='submit'
+          form='formulaire-valeur-simple'
+          disabled={mutation.isPending}
+        >
+          Enregistrer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

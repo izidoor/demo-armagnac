@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ChevronRight, CloudUpload, Loader2, Send, X } from 'lucide-react'
+import {
+  ChevronRight,
+  CloudUpload,
+  Loader2,
+  Search,
+  Send,
+  X,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import {
   emettreBrouillons,
@@ -24,7 +31,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Table,
   TableBody,
@@ -193,7 +199,7 @@ export function PagePieces() {
       description='Les factures et avoirs du BNIA, quelle que soit leur origine ; les brouillons attendent leur émission.'
     >
       <Tabs value={onglet} onValueChange={changerOnglet} className='mb-4'>
-        <TabsList>
+        <TabsList className='max-sm:w-full'>
           <TabsTrigger value='brouillons'>
             Brouillons
             <Compteur nombre={enAttente} />
@@ -205,11 +211,10 @@ export function PagePieces() {
           <TabsTrigger value='payees'>Payées</TabsTrigger>
         </TabsList>
       </Tabs>
-      <div className='mb-4 flex flex-wrap items-end gap-4'>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
         {client && (
-          <div className='space-y-1'>
-            <Label>Client</Label>
-            <div className='flex h-9 items-center gap-1 rounded-md border px-3 text-sm'>
+          <div className='flex h-9 items-center gap-1 rounded-md border ps-3 pe-1 text-sm max-sm:w-full'>
+            <span className='truncate'>
               {nomClient ? (
                 <>
                   <span className='font-mono'>{nomClient.clientCode}</span> ·{' '}
@@ -218,78 +223,73 @@ export function PagePieces() {
               ) : (
                 `Opérateur n° ${client}`
               )}
-              <Button
-                variant='ghost'
-                size='icon'
-                className='size-6'
-                aria-label='Retirer le filtre sur le client'
-                onClick={() => changer({ client: '' })}
-              >
-                <X className='size-4' />
-              </Button>
-            </div>
+            </span>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='ms-auto size-7 shrink-0'
+              aria-label='Retirer le filtre sur le client'
+              onClick={() => changer({ client: '' })}
+            >
+              <X className='size-4' />
+            </Button>
           </div>
         )}
-        {!brouillons && (
-          <div className='space-y-1'>
-            <Label htmlFor='filtre-numero'>Numéro</Label>
-            <Input
-              id='filtre-numero'
-              className='w-36'
-              placeholder='2026…'
-              value={numero}
-              onChange={(e) => setNumero(e.target.value)}
-            />
-          </div>
-        )}
-        <div className='space-y-1'>
-          <Label htmlFor='filtre-acheteur'>Acheteur</Label>
+        <div className='relative w-full sm:w-auto'>
+          <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
           <Input
-            id='filtre-acheteur'
-            className='w-56'
-            placeholder='Nom ou n° BNIA'
+            placeholder='Rechercher un acheteur'
+            title='Nom ou n° BNIA'
+            aria-label='Acheteur, par nom ou n° BNIA'
             value={acheteur}
             onChange={(e) => setAcheteur(e.target.value)}
-          />
-        </div>
-        <div className='space-y-1'>
-          <Label htmlFor='filtre-periode'>Période</Label>
-          <Input
-            id='filtre-periode'
-            className='w-44'
-            placeholder='juillet 2026'
-            value={periode}
-            onChange={(e) => setPeriode(e.target.value)}
+            className='h-9 w-full ps-8 sm:w-64'
           />
         </div>
         {!brouillons && (
-          <>
-            <div className='space-y-1'>
-              <Label htmlFor='filtre-du'>Émise du</Label>
-              <Input
-                id='filtre-du'
-                type='date'
-                className='w-40'
-                value={du}
-                onChange={(e) => changer({ du: e.target.value })}
-              />
-            </div>
-            <div className='space-y-1'>
-              <Label htmlFor='filtre-au'>au</Label>
-              <Input
-                id='filtre-au'
-                type='date'
-                className='w-40'
-                value={au}
-                onChange={(e) => changer({ au: e.target.value })}
-              />
-            </div>
-          </>
+          <Input
+            aria-label='Numéro'
+            placeholder='Numéro'
+            title='Début du numéro : 2026…'
+            className='h-9 w-36 max-sm:min-w-0 max-sm:flex-1'
+            value={numero}
+            onChange={(e) => setNumero(e.target.value)}
+          />
+        )}
+        <Input
+          aria-label='Période'
+          placeholder='Période'
+          title='Juillet 2026, 2026…'
+          className='h-9 w-40 max-sm:min-w-0 max-sm:flex-1'
+          value={periode}
+          onChange={(e) => setPeriode(e.target.value)}
+        />
+        {!brouillons && (
+          // Les dates d'émission, sur une ligne à part sur un téléphone.
+          <div className='flex items-center gap-2 text-sm max-sm:w-full'>
+            <span className='text-muted-foreground shrink-0'>Émise du</span>
+            <Input
+              type='date'
+              aria-label='Émise du'
+              className='h-9 w-40 max-sm:min-w-0 max-sm:flex-1'
+              value={du}
+              onChange={(e) => changer({ du: e.target.value })}
+            />
+            <span className='text-muted-foreground shrink-0'>au</span>
+            <Input
+              type='date'
+              aria-label='Émise au'
+              className='h-9 w-40 max-sm:min-w-0 max-sm:flex-1'
+              value={au}
+              onChange={(e) => changer({ au: e.target.value })}
+            />
+          </div>
         )}
       </div>
       {brouillons && gere && (
         <div className='mb-2 flex justify-end'>
           <Button
+            className='max-sm:w-full'
             disabled={selectionnes.length === 0 || emission.isPending}
             onClick={() => setConfirmation(true)}
           >
@@ -301,6 +301,7 @@ export function PagePieces() {
       {onglet === 'emises' && gere && (
         <div className='mb-2 flex justify-end'>
           <Button
+            className='max-sm:w-full'
             disabled={selectionnes.length === 0 || transmission.isPending}
             onClick={() => transmission.mutate()}
           >
@@ -370,26 +371,35 @@ function transmissible(p: PieceListee, brouillons: boolean) {
 }
 
 /**
- * Dans l'onglet « Factures » de la fiche opérateur (sans acheteur), selon la largeur du contenu (`CartesListe`), dans
- * le cadre d'une carte (84 px de marges) : sous 72rem (1050 px de large naturelle), le tableau perd le HT et la TVA ;
- * sous 62rem (886 px sans eux), la période, que la référence de l'origine rappelle ; l'origine prend ensuite la place
- * qui reste et se tronque ; sous 40rem (544 px avec l'origine à 8rem), une carte par pièce. Les brouillons, plus
- * étroits, suivent les mêmes seuils : les deux tableaux de l'onglet changent ensemble. La page Factures du
- * back-office, avec l'acheteur et la sélection, garde son tableau.
+ * Les seuils du tableau, selon la largeur du contenu (`CartesListe`).
+ *
+ * Dans l'onglet « Factures » de la fiche opérateur (sans acheteur), dans le cadre d'une carte (84 px de marges) : sous
+ * 72rem (1050 px de large naturelle), le tableau perd le HT et la TVA ; sous 62rem (886 px sans eux), la période, que
+ * la référence de l'origine rappelle ; l'origine prend ensuite la place qui reste et se tronque ; sous 40rem (544 px
+ * avec l'origine à 8rem), une carte par pièce. Les brouillons, plus étroits, suivent les mêmes seuils : les deux
+ * tableaux de l'onglet changent ensemble.
  */
 const SEUILS_ONGLET = {
   montants: '@max-[72rem]/content:hidden',
   periode: '@max-[62rem]/content:hidden',
   tableau: '@max-[40rem]/content:hidden',
   cartes: '@min-[40rem]/content:hidden',
+  acheteur: '',
   origine: 'w-full max-w-0 min-w-32',
 }
-const SANS_SEUILS = {
-  montants: '',
-  periode: '',
-  tableau: '',
-  cartes: '',
-  origine: '',
+/**
+ * Dans la page Factures, avec l'acheteur et la sélection (34 px de marges) : l'acheteur (12rem au moins) et l'origine
+ * (8rem) se partagent la place qui reste et se tronquent ; le tableau des pièces émises fait alors 1113 px. Sous 72rem,
+ * il perd d'abord la période, que la référence de l'origine rappelle (931 px) ; sous 61rem, le HT et la TVA (764 px) ;
+ * sous 51rem, une carte par pièce. Les brouillons et les pièces payées, plus étroits, suivent les mêmes seuils.
+ */
+const SEUILS_PAGE = {
+  montants: '@max-[61rem]/content:hidden',
+  periode: '@max-[72rem]/content:hidden',
+  tableau: '@max-[51rem]/content:hidden',
+  cartes: '@min-[51rem]/content:hidden',
+  acheteur: 'w-1/2 max-w-0 min-w-48',
+  origine: 'w-1/2 max-w-0 min-w-32',
 }
 
 /**
@@ -424,8 +434,7 @@ export function TablePieces({
   const cochables = selection ? pieces.filter(selection.possible) : []
   const coches = cochables.filter((p) => selection?.ids.has(p.id)).length
   const { lignes, pagination } = usePagination(pieces, TAILLE_PAGE)
-  const enCartes = !avecAcheteur
-  const seuils = enCartes ? SEUILS_ONGLET : SANS_SEUILS
+  const seuils = avecAcheteur ? SEUILS_PAGE : SEUILS_ONGLET
   return (
     <>
       <div className={cn('rounded-md border', seuils.tableau)}>
@@ -536,22 +545,25 @@ export function TablePieces({
                   </>
                 )}
                 {avecAcheteur && (
-                  <TableCell>
-                    {p.clientCode && (
-                      <span className='font-mono'>{p.clientCode} · </span>
-                    )}
-                    {p.acheteur}
+                  <TableCell
+                    className={seuils.acheteur}
+                    title={[p.clientCode, p.acheteur]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  >
+                    <span className='block truncate'>
+                      {p.clientCode && (
+                        <span className='font-mono'>{p.clientCode} · </span>
+                      )}
+                      {p.acheteur}
+                    </span>
                   </TableCell>
                 )}
                 <TableCell
                   className={seuils.origine}
-                  title={
-                    enCartes
-                      ? [p.libelleNature, p.reference]
-                          .filter(Boolean)
-                          .join(' · ')
-                      : undefined
-                  }
+                  title={[p.libelleNature, p.reference]
+                    .filter(Boolean)
+                    .join(' · ')}
                 >
                   <span className='block truncate'>
                     {p.libelleNature ?? '—'}
@@ -602,34 +614,53 @@ export function TablePieces({
           </TableBody>
         </Table>
       </div>
-      {enCartes && (
-        <CartesListe
-          requete={{ isPending: chargement, isError: false, data: pieces }}
-          vide={
-            brouillons ? 'Aucun brouillon.' : (vide ?? 'Aucune pièce émise.')
-          }
-          masquee={seuils.cartes}
-        >
-          {(lignes ?? []).map((p) => (
-            <CartePiece key={p.id} piece={p} brouillon={brouillons} />
-          ))}
-        </CartesListe>
-      )}
+      <CartesListe
+        requete={{ isPending: chargement, isError: false, data: pieces }}
+        vide={brouillons ? 'Aucun brouillon.' : (vide ?? 'Aucune pièce émise.')}
+        masquee={seuils.cartes}
+      >
+        {(lignes ?? []).map((p) => (
+          <CartePiece
+            key={p.id}
+            piece={p}
+            brouillon={brouillons}
+            avecAcheteur={avecAcheteur}
+            selection={
+              selection?.possible(p)
+                ? {
+                    coche: selection.ids.has(p.id),
+                    basculer: (coche) =>
+                      selection.changer(
+                        coche
+                          ? [...selection.ids, p.id]
+                          : [...selection.ids].filter((id) => id !== p.id)
+                      ),
+                  }
+                : undefined
+            }
+          />
+        ))}
+      </CartesListe>
       <Pagination {...pagination} />
     </>
   )
 }
 
 /**
- * Une pièce en carte : son numéro et son état Zeendoc (le libellé de son origine pour un brouillon), la référence de
- * l'origine, qui distingue les pièces, et son libellé, puis la date et le TTC.
+ * Une pièce en carte : son numéro et son état Zeendoc (le libellé de son origine pour un brouillon), l'acheteur (page
+ * Factures), la référence de l'origine, qui distingue les pièces, et son libellé, puis la date et le TTC. Une case la
+ * sélectionne pour l'émission (brouillon) ou la transmission à Zeendoc.
  */
 function CartePiece({
   piece: p,
   brouillon,
+  avecAcheteur,
+  selection,
 }: {
   piece: PieceListee
   brouillon: boolean
+  avecAcheteur: boolean
+  selection?: { coche: boolean; basculer: (coche: boolean) => void }
 }) {
   return (
     <CarteListe
@@ -648,7 +679,22 @@ function CartePiece({
         )
       }
     >
-      <div className='truncate text-sm'>
+      {avecAcheteur && (
+        <div className='truncate text-sm'>
+          {p.clientCode && (
+            <span className='text-muted-foreground font-mono'>
+              {p.clientCode} ·{' '}
+            </span>
+          )}
+          {p.acheteur}
+        </div>
+      )}
+      <div
+        className={cn(
+          'truncate text-sm',
+          avecAcheteur && 'text-muted-foreground'
+        )}
+      >
         {[p.reference, brouillon ? null : p.libelleNature]
           .filter(Boolean)
           .join(' · ')}
@@ -661,6 +707,17 @@ function CartePiece({
           {formatEuros(p.ttc)} TTC
         </span>
       </div>
+      {selection && (
+        <label className='relative z-10 flex w-fit items-center gap-2 pt-1 text-sm'>
+          <Checkbox
+            checked={selection.coche}
+            onCheckedChange={(v) => selection.basculer(v === true)}
+          />
+          {brouillon
+            ? "Sélectionner pour l'émission"
+            : 'Sélectionner pour Zeendoc'}
+        </label>
+      )}
     </CarteListe>
   )
 }

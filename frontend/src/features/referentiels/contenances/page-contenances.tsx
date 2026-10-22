@@ -13,15 +13,9 @@ import {
   supprimerContenance,
   type Contenance,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -41,11 +35,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BadgeEtat } from '@/components/metier/badge-etat'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
+import { COLONNE_CODE, COLONNE_ETAT, COLONNE_LIBELLE } from '../commun/colonnes'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
@@ -114,9 +110,11 @@ export function PageContenances() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-40 text-end'>Volume (L)</TableHead>
-              <TableHead>Libellé</TableHead>
-              <TableHead className='w-28'>État</TableHead>
+              <TableHead className={cn(COLONNE_CODE, 'text-end')}>
+                Volume (L)
+              </TableHead>
+              <TableHead className={COLONNE_LIBELLE}>Libellé</TableHead>
+              <TableHead className={COLONNE_ETAT}>État</TableHead>
               <TableHead className='w-12' />
             </TableRow>
           </TableHeader>
@@ -127,7 +125,10 @@ export function PageContenances() {
                 <TableCell className='text-end font-mono'>
                   {litres.format(contenance.volume)}
                 </TableCell>
-                <TableCell>
+                <TableCell
+                  className={cn(COLONNE_LIBELLE, 'truncate')}
+                  title={contenance.libelle}
+                >
                   {contenance.libelle}
                   {!contenance.libelleSaisi && (
                     <span className='text-muted-foreground'> (dérivé)</span>
@@ -235,74 +236,77 @@ function FormulaireContenance({
   })
 
   return (
-    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>
-            {contenance
-              ? `Modifier « ${contenance.libelle} »`
-              : 'Nouvelle contenance'}
-          </DialogTitle>
-          <DialogDescription>
-            Le volume est unique dans le référentiel.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            id='formulaire-contenance'
-            onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
-            className='space-y-4'
-          >
-            <ErreurRacine errors={form.formState.errors} />
-            <FormField
-              control={form.control}
-              name='volume'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Volume en litres</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      inputMode='decimal'
-                      placeholder='0,70'
-                      autoComplete='off'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='libelle'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Libellé</FormLabel>
-                  <FormControl>
-                    <Input {...field} autoComplete='off' />
-                  </FormControl>
-                  <FormDescription>
-                    Facultatif : à défaut, dérivé du volume (« 0,70 L »).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOuvertChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='formulaire-contenance'
-            disabled={mutation.isPending}
-          >
-            Enregistrer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={onOuvertChange}
+      className='sm:max-w-md'
+      titre={
+        contenance
+          ? `Modifier « ${contenance.libelle} »`
+          : 'Nouvelle contenance'
+      }
+      description='Le volume est unique dans le référentiel.'
+    >
+      <Form {...form}>
+        <form
+          id='formulaire-contenance'
+          onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
+          className='space-y-4'
+        >
+          <ErreurRacine errors={form.formState.errors} />
+          <FormField
+            control={form.control}
+            name='volume'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Volume en litres</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    inputMode='decimal'
+                    placeholder='0,70'
+                    autoComplete='off'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='libelle'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Libellé</FormLabel>
+                <FormControl>
+                  <Input {...field} autoComplete='off' />
+                </FormControl>
+                <FormDescription>
+                  Facultatif : à défaut, dérivé du volume (« 0,70 L »).
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOuvertChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          className='max-md:w-full'
+          type='submit'
+          form='formulaire-contenance'
+          disabled={mutation.isPending}
+        >
+          Enregistrer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

@@ -19,14 +19,7 @@ import {
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -47,10 +40,17 @@ import {
 } from '@/components/ui/table'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgeEtat } from '@/components/metier/badge-etat'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
+import {
+  ActionsHistorique,
+  COLONNE_ACTIONS,
+  SECONDAIRE,
+  SOUS_LE_TAUX,
+} from '../commun/actions-historique'
 import { ChangementEtat } from '../commun/changement-etat'
 import { Suppression } from '../commun/suppression'
 import { useGestionParametrage } from '../commun/use-gestion-parametrage'
@@ -98,7 +98,12 @@ export function PageClasseTva({ id }: { id: number }) {
   })
 
   const retour = (
-    <Button variant='ghost' size='sm' asChild className='-ms-2 mb-2'>
+    <Button
+      variant='ghost'
+      size='sm'
+      asChild
+      className='-ms-2 mb-2 max-md:hidden'
+    >
       <Link to='/bo/parametrage/classes-tva'>
         <ArrowLeft /> Classes de TVA
       </Link>
@@ -148,8 +153,8 @@ export function PageClasseTva({ id }: { id: number }) {
               <TableHead className='text-end'>Taux</TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
-              <TableHead />
-              <TableHead className='w-48' />
+              <TableHead className={SECONDAIRE} />
+              <TableHead className={COLONNE_ACTIONS} />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -170,6 +175,13 @@ export function PageClasseTva({ id }: { id: number }) {
               >
                 <TableCell className='text-end font-medium'>
                   {formatTaux(taux.taux)}
+                  {taux.dateDebut === enVigueur && (
+                    <Badge
+                      className={`ms-auto mt-1 flex w-fit ${SOUS_LE_TAUX}`}
+                    >
+                      En vigueur
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>{formatDate(taux.dateDebut)}</TableCell>
                 <TableCell>
@@ -179,27 +191,16 @@ export function PageClasseTva({ id }: { id: number }) {
                     <span className='text-muted-foreground'>Sans terme</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className={SECONDAIRE}>
                   {taux.dateDebut === enVigueur && <Badge>En vigueur</Badge>}
                 </TableCell>
                 <TableCell className='text-end'>
                   {gestion && (
-                    <>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => setEditionTaux(taux)}
-                      >
-                        Modifier
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => setRetrait(taux)}
-                      >
-                        Retirer
-                      </Button>
-                    </>
+                    <ActionsHistorique
+                      onModifier={() => setEditionTaux(taux)}
+                      onRetirer={() => setRetrait(taux)}
+                      retirer='Retirer'
+                    />
                   )}
                 </TableCell>
               </TableRow>
@@ -387,81 +388,81 @@ function FormulaireTaux({
   })
 
   return (
-    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>
-            {taux ? 'Corriger le taux' : 'Ajouter un taux'}
-          </DialogTitle>
-          <DialogDescription>
-            Les périodes des taux d'une classe ne doivent pas se chevaucher ;
-            des trous sont permis.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            id='formulaire-taux'
-            onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
-            className='space-y-4'
-          >
-            <ErreurRacine errors={form.formState.errors} />
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={onOuvertChange}
+      className='sm:max-w-md'
+      titre={taux ? 'Corriger le taux' : 'Ajouter un taux'}
+      description="Les périodes des taux d'une classe ne doivent pas se chevaucher ; des trous sont permis."
+    >
+      <Form {...form}>
+        <form
+          id='formulaire-taux'
+          onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
+          className='space-y-4'
+        >
+          <ErreurRacine errors={form.formState.errors} />
+          <FormField
+            control={form.control}
+            name='taux'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Taux (%)</FormLabel>
+                <FormControl>
+                  <Input {...field} inputMode='decimal' placeholder='20,00' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
-              name='taux'
+              name='dateDebut'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Taux (%)</FormLabel>
+                  <FormLabel>Début</FormLabel>
                   <FormControl>
-                    <Input {...field} inputMode='decimal' placeholder='20,00' />
+                    <Input type='date' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className='grid grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='dateDebut'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Début</FormLabel>
-                    <FormControl>
-                      <Input type='date' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='dateFin'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fin</FormLabel>
-                    <FormControl>
-                      <Input type='date' {...field} />
-                    </FormControl>
-                    <FormDescription>Facultative.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </form>
-        </Form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOuvertChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='formulaire-taux'
-            disabled={mutation.isPending}
-          >
-            Enregistrer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <FormField
+              control={form.control}
+              name='dateFin'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fin</FormLabel>
+                  <FormControl>
+                    <Input type='date' {...field} />
+                  </FormControl>
+                  <FormDescription>Facultative.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </form>
+      </Form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOuvertChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          className='max-md:w-full'
+          type='submit'
+          form='formulaire-taux'
+          disabled={mutation.isPending}
+        >
+          Enregistrer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

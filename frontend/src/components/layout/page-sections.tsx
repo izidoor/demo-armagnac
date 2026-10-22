@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { ActionsEntete } from './actions-entete'
-import { Header } from './header'
+import { Header, type HeaderProps } from './header'
 import { Main } from './main'
 
 export type SectionPage = {
@@ -35,6 +35,8 @@ type PageSectionsProps = {
   actions?: ReactNode
   /** Sur mobile, les sections en onglets plutôt qu'en liste déroulante : pour une page qui en a peu. */
   onglets?: boolean
+  /** Une page de second niveau dans une section (une classe de TVA) : la flèche de retour de l'en-tête (`Header`). */
+  retour?: HeaderProps['retour']
   children: ReactNode
 }
 
@@ -51,6 +53,7 @@ export function PageSections({
   onChoisir,
   actions,
   onglets = false,
+  retour,
   children,
 }: PageSectionsProps) {
   const navigate = useNavigate()
@@ -75,7 +78,7 @@ export function PageSections({
 
   return (
     <>
-      <Header fixed titre={titre} titreVisible={titreSorti}>
+      <Header fixed titre={titre} titreVisible={titreSorti} retour={retour}>
         <ActionsEntete />
       </Header>
       <Main fixed={!mobile}>

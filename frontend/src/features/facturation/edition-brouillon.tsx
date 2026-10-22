@@ -55,7 +55,6 @@ import {
 } from '@/components/ui/command'
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
@@ -75,6 +74,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { ContenuPleinePage } from '@/components/metier/dialogue-formulaire'
 import { formatDate } from '@/features/declarations/format'
 import { cleFacturation } from './api'
 import { Recapitulatif } from './recapitulatif'
@@ -842,7 +842,11 @@ function ValeurFigee({
   )
 }
 
-/** Une ligne : désignation toujours modifiable ; quantité, unité, prix et retrait pour les seules lignes ajoutées. */
+/**
+ * Une ligne : désignation toujours modifiable ; quantité, unité, prix et retrait pour les seules lignes ajoutées. Sous
+ * 36rem de ligne (`@container/ligne`), la poignée, la désignation et le cadenas (ou le retrait) tiennent sur une
+ * rangée, quantité et prix passent dessous.
+ */
 function LigneEdition({
   ligne,
   poignee,
@@ -856,111 +860,128 @@ function LigneEdition({
 }) {
   const libre = !ligne.recue
   return (
-    <div className='flex flex-wrap items-end gap-2'>
-      {poignee}
-      <div className='min-w-64 flex-1 space-y-1'>
-        <Label className='text-muted-foreground text-xs'>
-          {LIBELLES_SORTE[ligne.sorte]}
-          {ligne.code && (
-            <span className='ms-2 font-mono'>
-              {ligne.code}
-              {ligne.tvaLibelle && ` · TVA ${ligne.tvaLibelle}`}
-            </span>
-          )}
-        </Label>
-        <Input
-          aria-label={LIBELLES_SORTE[ligne.sorte]}
-          className={ligne.sorte === 'GROUPE' ? 'font-medium' : undefined}
-          value={ligne.texte}
-          onChange={(e) => onChanger({ ...ligne, texte: e.target.value })}
-        />
+    <div className='@container/ligne'>
+      <div className='flex flex-wrap items-end gap-2'>
+        {poignee}
+        <div className='min-w-0 flex-1 space-y-1 @min-[36rem]/ligne:min-w-64'>
+          <Label className='text-muted-foreground flex-wrap gap-x-2 gap-y-0 text-xs'>
+            {LIBELLES_SORTE[ligne.sorte]}
+            {ligne.code && (
+              <span className='font-mono break-all @max-[36rem]/ligne:basis-full'>
+                {ligne.code}
+                {ligne.tvaLibelle && ` · TVA ${ligne.tvaLibelle}`}
+              </span>
+            )}
+          </Label>
+          <Input
+            aria-label={LIBELLES_SORTE[ligne.sorte]}
+            className={ligne.sorte === 'GROUPE' ? 'font-medium' : undefined}
+            value={ligne.texte}
+            onChange={(e) => onChanger({ ...ligne, texte: e.target.value })}
+          />
+        </div>
+        {ligne.sorte === 'ARTICLE' && !libre && (
+          <div className={MONTANTS_LIGNE}>
+            <ValeurFigee
+              libelle='Quantité'
+              className='w-28 justify-end tabular-nums'
+              valeur={`${ligne.quantite}${ligne.unite ? ` ${ligne.unite}` : ''}`}
+            />
+            <ValeurFigee
+              libelle='Prix unitaire HT'
+              className='w-28 justify-end tabular-nums'
+              valeur={ligne.prixUnitaire && `${ligne.prixUnitaire} €`}
+            />
+          </div>
+        )}
+        {ligne.sorte === 'ARTICLE' && libre && (
+          <div className={MONTANTS_LIGNE}>
+            <div className='space-y-1'>
+              <Label className='text-muted-foreground justify-end text-xs'>
+                Quantité
+              </Label>
+              <Input
+                aria-label='Quantité'
+                className='w-28 text-right'
+                value={ligne.quantite}
+                onChange={(e) =>
+                  onChanger({ ...ligne, quantite: e.target.value })
+                }
+              />
+            </div>
+            <div className='space-y-1'>
+              <Label className='text-muted-foreground justify-end text-xs'>
+                Unité
+              </Label>
+              <Input
+                aria-label='Unité'
+                className='w-20 text-right'
+                value={ligne.unite}
+                onChange={(e) => onChanger({ ...ligne, unite: e.target.value })}
+              />
+            </div>
+            <div className='space-y-1'>
+              <Label className='text-muted-foreground justify-end text-xs'>
+                Prix unitaire HT
+              </Label>
+              <Input
+                aria-label='Prix unitaire HT'
+                className='w-28 text-right'
+                value={ligne.prixUnitaire}
+                onChange={(e) =>
+                  onChanger({ ...ligne, prixUnitaire: e.target.value })
+                }
+              />
+            </div>
+          </div>
+        )}
+        {libre ? (
+          <Button
+            variant='ghost'
+            size='icon'
+            aria-label='Retirer la ligne'
+            onClick={onRetirer}
+          >
+            <Trash2 className='size-4' />
+          </Button>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                tabIndex={0}
+                className='text-muted-foreground flex size-9 items-center justify-center'
+              >
+                <Lock className='size-4' aria-label='Reçue de la source' />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Reçue de la source : seules sa désignation et sa place changent.
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
-      {ligne.sorte === 'ARTICLE' && !libre && (
-        <>
-          <ValeurFigee
-            libelle='Quantité'
-            className='w-28 justify-end tabular-nums'
-            valeur={`${ligne.quantite}${ligne.unite ? ` ${ligne.unite}` : ''}`}
-          />
-          <ValeurFigee
-            libelle='Prix unitaire HT'
-            className='w-28 justify-end tabular-nums'
-            valeur={ligne.prixUnitaire && `${ligne.prixUnitaire} €`}
-          />
-        </>
-      )}
-      {ligne.sorte === 'ARTICLE' && libre && (
-        <>
-          <div className='space-y-1'>
-            <Label className='text-muted-foreground justify-end text-xs'>
-              Quantité
-            </Label>
-            <Input
-              aria-label='Quantité'
-              className='w-28 text-right'
-              value={ligne.quantite}
-              onChange={(e) =>
-                onChanger({ ...ligne, quantite: e.target.value })
-              }
-            />
-          </div>
-          <div className='space-y-1'>
-            <Label className='text-muted-foreground justify-end text-xs'>
-              Unité
-            </Label>
-            <Input
-              aria-label='Unité'
-              className='w-20 text-right'
-              value={ligne.unite}
-              onChange={(e) => onChanger({ ...ligne, unite: e.target.value })}
-            />
-          </div>
-          <div className='space-y-1'>
-            <Label className='text-muted-foreground justify-end text-xs'>
-              Prix unitaire HT
-            </Label>
-            <Input
-              aria-label='Prix unitaire HT'
-              className='w-28 text-right'
-              value={ligne.prixUnitaire}
-              onChange={(e) =>
-                onChanger({ ...ligne, prixUnitaire: e.target.value })
-              }
-            />
-          </div>
-        </>
-      )}
-      {libre ? (
-        <Button
-          variant='ghost'
-          size='icon'
-          aria-label='Retirer la ligne'
-          onClick={onRetirer}
-        >
-          <Trash2 className='size-4' />
-        </Button>
-      ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span
-              tabIndex={0}
-              className='text-muted-foreground flex size-9 items-center justify-center'
-            >
-              <Lock className='size-4' aria-label='Reçue de la source' />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            Reçue de la source : seules sa désignation et sa place changent.
-          </TooltipContent>
-        </Tooltip>
-      )}
     </div>
   )
 }
 
-/** Colonnes de la liste des articles, communes à la ligne de titre et aux articles. */
+/** Quantité et prix d'une ligne : à leur place sur une ligne large, sous la désignation sur une ligne étroite. */
+const MONTANTS_LIGNE =
+  'flex items-end gap-2 @max-[36rem]/ligne:order-last @max-[36rem]/ligne:w-full @max-[36rem]/ligne:ps-6'
+
+/**
+ * Colonnes de la liste des articles, communes à la ligne de titre et aux articles. Sous 44rem de fenêtre
+ * (`@container/articles`), un article sur trois rangées : code et TVA, désignation, prix ; la ligne de titre disparaît.
+ */
 const COLONNES_ARTICLE =
-  'grid grid-cols-[14rem_1fr_9rem_6rem] items-center gap-4'
+  'grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 @min-[44rem]/articles:grid-cols-[14rem_1fr_9rem_6rem] @min-[44rem]/articles:gap-y-4'
+/** Sous 44rem, la place de chaque cellule d'un article : code et TVA en haut, puis la désignation, puis le prix. */
+const ETROIT = {
+  code: '@max-[44rem]/articles:col-start-1 @max-[44rem]/articles:row-start-1',
+  designation:
+    '@max-[44rem]/articles:col-span-2 @max-[44rem]/articles:row-start-2',
+  prix: '@max-[44rem]/articles:col-span-2 @max-[44rem]/articles:row-start-3 @max-[44rem]/articles:text-left',
+  tva: '@max-[44rem]/articles:col-start-2 @max-[44rem]/articles:row-start-1',
+}
 
 /** RG-FAC-03 : les articles actifs de tous les catalogues, à la date de l'opération du brouillon. */
 function ChoixArticle({
@@ -988,7 +1009,7 @@ function ChoixArticle({
   }
   return (
     <Dialog open={ouvert} onOpenChange={(o) => !o && onFermer()}>
-      <DialogContent className='gap-0 overflow-hidden p-0 sm:max-w-5xl'>
+      <ContenuPleinePage className='gap-0 overflow-hidden p-0 sm:max-w-5xl'>
         <DialogHeader className='bg-primary/5 border-primary/20 flex-row items-center gap-4 border-b px-6 py-4 text-start'>
           <span className='bg-primary text-primary-foreground flex size-10 shrink-0 items-center justify-center rounded-full'>
             <Package className='size-5' />
@@ -1001,12 +1022,12 @@ function ChoixArticle({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <Command className='[&_[cmdk-group-heading]]:text-info-foreground [&_[cmdk-item][data-selected=true]]:bg-primary/10 **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group]]:px-3 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5'>
+        <Command className='[&_[cmdk-group-heading]]:text-info-foreground [&_[cmdk-item][data-selected=true]]:bg-primary/10 @container/articles **:data-[slot=command-input-wrapper]:h-12 max-md:min-h-0 max-md:flex-1 [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group]]:px-3 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5'>
           <CommandInput placeholder='Code ou désignation…' />
           <div
             className={cn(
               COLONNES_ARTICLE,
-              'bg-muted text-primary border-b px-6 py-2 text-xs font-semibold'
+              'bg-muted text-primary border-b px-6 py-2 text-xs font-semibold @max-[44rem]/articles:hidden'
             )}
           >
             <span>Code article</span>
@@ -1014,7 +1035,7 @@ function ChoixArticle({
             <span className='text-right'>Prix</span>
             <span className='text-right'>TVA</span>
           </div>
-          <CommandList className='max-h-[70vh] min-h-[50vh]'>
+          <CommandList className='max-h-[70vh] min-h-[50vh] max-md:max-h-none max-md:flex-1'>
             <CommandEmpty>
               {articles.isPending ? 'Chargement…' : 'Aucun article.'}
             </CommandEmpty>
@@ -1030,15 +1051,24 @@ function ChoixArticle({
                       'border-border/60 rounded-none border-b last:border-b-0'
                     )}
                   >
-                    <span className='truncate font-mono text-xs'>{a.code}</span>
-                    <span>{a.designation}</span>
-                    <span className='text-right font-medium tabular-nums'>
+                    <span
+                      className={cn('truncate font-mono text-xs', ETROIT.code)}
+                    >
+                      {a.code}
+                    </span>
+                    <span className={ETROIT.designation}>{a.designation}</span>
+                    <span
+                      className={cn(
+                        'text-right font-medium tabular-nums',
+                        ETROIT.prix
+                      )}
+                    >
                       {String(a.prixUnitaire).replace('.', ',')} €
                       <span className='text-muted-foreground block text-xs'>
                         par {a.unite ?? 'unité'}
                       </span>
                     </span>
-                    <span className='text-right'>
+                    <span className={cn('text-right', ETROIT.tva)}>
                       <span
                         className={cn(
                           'inline-block rounded-full px-3 py-1 text-sm font-medium tabular-nums',
@@ -1057,7 +1087,7 @@ function ChoixArticle({
             ))}
           </CommandList>
         </Command>
-      </DialogContent>
+      </ContenuPleinePage>
     </Dialog>
   )
 }

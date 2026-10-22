@@ -92,7 +92,7 @@ export type ConfigListeSimple = {
 
 export const zonesCommerciales: ConfigListeSimple = {
   titre: 'Zones commerciales',
-  description: 'Continents auxquels les pays sont rattachés (C.10.4).',
+  description: 'Continents auxquels les pays sont rattachés.',
   libelleNouveau: 'Nouvelle zone commerciale',
   api: {
     cle: 'zones-commerciales',
@@ -122,7 +122,7 @@ export const zonesCommerciales: ConfigListeSimple = {
 export const titres: ConfigListeSimple = {
   titre: 'Titres',
   description:
-    "Civilités et formes d'appel des fiches, contacts et destinataires (C.10.8.1).",
+    "Civilités et formes d'appel des fiches, contacts et destinataires.",
   libelleNouveau: 'Nouveau titre',
   api: {
     cle: 'titres',
@@ -144,7 +144,7 @@ export const titres: ConfigListeSimple = {
 
 export const labels: ConfigListeSimple = {
   titre: 'Labels',
-  description: 'Labels et distinctions (C.10.8.3).',
+  description: 'Labels et distinctions.',
   libelleNouveau: 'Nouveau label',
   api: {
     cle: 'labels',
@@ -166,8 +166,7 @@ export const labels: ConfigListeSimple = {
 
 export const typesVisite: ConfigListeSimple = {
   titre: 'Types de visite',
-  description:
-    "Visites et prestations d'accueil proposées par les opérateurs (C.10.8.4).",
+  description: "Visites et prestations d'accueil proposées par les opérateurs.",
   libelleNouveau: 'Nouveau type de visite',
   api: {
     cle: 'types-visite',
@@ -194,7 +193,7 @@ export const typesVisite: ConfigListeSimple = {
 
 export const langues: ConfigListeSimple = {
   titre: 'Langues',
-  description: 'Langues utilisées dans les fiches opérateurs (C.10.8.5).',
+  description: 'Langues utilisées dans les fiches opérateurs.',
   libelleNouveau: 'Nouvelle langue',
   api: {
     cle: 'langues',
@@ -219,7 +218,7 @@ export const langues: ConfigListeSimple = {
 export const centresInteret: ConfigListeSimple = {
   titre: "Centres d'intérêt",
   description:
-    "Domaines d'activité des contacts : comptabilité, marketing, production… (C.10.8.6).",
+    "Domaines d'activité des contacts : comptabilité, marketing, production….",
   libelleNouveau: "Nouveau centre d'intérêt",
   api: {
     cle: 'centres-interet',
@@ -246,8 +245,7 @@ export const centresInteret: ConfigListeSimple = {
 
 export const membresBnia: ConfigListeSimple = {
   titre: 'Membres BNIA',
-  description:
-    'Valeurs du champ « membre BNIA » de la fiche opérateur (C.1.1.1, spec 02).',
+  description: 'Valeurs du champ « membre BNIA » de la fiche opérateur.',
   libelleNouveau: 'Nouveau membre BNIA',
   api: {
     cle: 'membres-bnia',
@@ -275,7 +273,7 @@ export const membresBnia: ConfigListeSimple = {
 export const marques: ConfigListeSimple = {
   titre: 'Marques',
   description:
-    'Marques des opérateurs, libellé unique à la casse et aux accents près (C.10.9.1, RG-REF-15).',
+    'Marques des opérateurs, libellé unique à la casse et aux accents près.',
   libelleNouveau: 'Nouvelle marque',
   api: {
     cle: 'marques',
@@ -303,7 +301,7 @@ export const marques: ConfigListeSimple = {
 
 export const circuitsDistribution: ConfigListeSimple = {
   titre: 'Circuits de distribution',
-  description: 'Circuits de distribution des opérateurs (C.10.9.2).',
+  description: 'Circuits de distribution des opérateurs.',
   libelleNouveau: 'Nouveau circuit',
   api: {
     cle: 'circuits-distribution',
@@ -336,8 +334,7 @@ export const circuitsDistribution: ConfigListeSimple = {
 
 export const produitsCommercialises: ConfigListeSimple = {
   titre: 'Produits commercialisés',
-  description:
-    'Types de produits commercialisés : Armagnac, Blanche, Floc… (C.10.9.3).',
+  description: 'Types de produits commercialisés : Armagnac, Blanche, Floc….',
   libelleNouveau: 'Nouveau produit commercialisé',
   api: {
     cle: 'produits-commercialises',

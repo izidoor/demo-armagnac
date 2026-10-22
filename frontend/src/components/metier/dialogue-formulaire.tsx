@@ -11,6 +11,45 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
+/** Une fenêtre en pleine page sous 768 px, entrée par la droite, sans la croix de fermeture : `BarreAnnuler` la remplace. */
+const PLEINE_PAGE_MOBILE = cn(
+  'max-md:inset-0 max-md:flex max-md:h-dvh max-md:max-w-none! max-md:translate-x-0 max-md:translate-y-0 max-md:flex-col max-md:overflow-y-auto max-md:overscroll-contain max-md:rounded-none max-md:border-0 max-md:shadow-none',
+  'max-md:data-[state=closed]:slide-out-to-right max-md:data-[state=closed]:zoom-out-100 max-md:data-[state=open]:slide-in-from-right max-md:data-[state=open]:zoom-in-100',
+  'max-md:[&>[data-slot=dialog-close]]:hidden'
+)
+
+/**
+ * Le contenu d'une fenêtre de choix qui n'est pas un formulaire (le choix d'un article) : une fenêtre sur un écran
+ * large, une pleine page sous 768 px, sous « ‹ Annuler », comme `DialogueFormulaire`.
+ */
+export function ContenuPleinePage({
+  className,
+  children,
+}: {
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <DialogContent className={cn(className, PLEINE_PAGE_MOBILE)}>
+      <BarreAnnuler />
+      {children}
+    </DialogContent>
+  )
+}
+
+/** « ‹ Annuler », collé en haut d'une fenêtre en pleine page (sous 768 px), qui la referme. */
+function BarreAnnuler() {
+  return (
+    <div className='bg-background sticky top-0 z-10 flex h-14 shrink-0 items-center border-b px-2 md:hidden'>
+      <DialogClose asChild>
+        <Button variant='ghost' className='gap-1 px-2'>
+          <ChevronLeft className='size-5' /> Annuler
+        </Button>
+      </DialogClose>
+    </div>
+  )
+}
+
 /**
  * Un formulaire de création (nouvel opérateur, contact, invitation) : une fenêtre sur un écran large, une pleine page
  * sur un téléphone ou une tablette en portrait (moins de 768 px, comme le tiroir de la barre latérale), entrée par la
@@ -49,19 +88,11 @@ export function DialogueFormulaire({
         }}
         className={cn(
           'gap-0 p-0 md:max-h-[calc(100dvh-2rem)] md:overflow-y-auto',
-          'max-md:inset-0 max-md:flex max-md:h-dvh max-md:max-w-none! max-md:translate-x-0 max-md:translate-y-0 max-md:flex-col max-md:overflow-y-auto max-md:overscroll-contain max-md:rounded-none max-md:border-0 max-md:shadow-none',
-          'max-md:data-[state=closed]:slide-out-to-right max-md:data-[state=closed]:zoom-out-100 max-md:data-[state=open]:slide-in-from-right max-md:data-[state=open]:zoom-in-100',
-          'max-md:[&>[data-slot=dialog-close]]:hidden',
+          PLEINE_PAGE_MOBILE,
           className
         )}
       >
-        <div className='bg-background sticky top-0 z-10 flex h-14 shrink-0 items-center border-b px-2 md:hidden'>
-          <DialogClose asChild>
-            <Button variant='ghost' className='gap-1 px-2'>
-              <ChevronLeft className='size-5' /> Annuler
-            </Button>
-          </DialogClose>
-        </div>
+        <BarreAnnuler />
         <div
           data-slot='formulaire'
           className='grid gap-4 p-6 max-md:p-4 max-md:pb-8'

@@ -5,7 +5,7 @@ import { PagePieces } from '@/features/facturation/page-pieces'
 /** Le client, l'onglet et les filtres de la liste, gardés dans l'adresse (`useFiltresAdresse`). */
 export const Route = createFileRoute('/bo/facturation/')({
   validateSearch: z.object({
-    client: z.string().optional(),
+    client: z.coerce.string().optional(),
     onglet: z.enum(['brouillons', 'emises', 'payees']).optional(),
     numero: z.coerce.string().optional(),
     acheteur: z.coerce.string().optional(),

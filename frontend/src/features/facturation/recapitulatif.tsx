@@ -33,9 +33,10 @@ export function Recapitulatif({
       <CardHeader>
         <CardTitle className='text-base'>{titre}</CardTitle>
       </CardHeader>
-      <CardContent>
+      {/* Sur une carte étroite, les deux tableaux prennent toute la largeur, l'un sous l'autre. */}
+      <CardContent className='@container/recap'>
         <div className='flex flex-wrap justify-between gap-6'>
-          <div className='rounded-md border'>
+          <div className='min-w-0 rounded-md border @max-[36rem]/recap:w-full'>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -50,7 +51,7 @@ export function Recapitulatif({
                     <TableCell>
                       {t.libelle}
                       {t.motif && (
-                        <span className='text-muted-foreground block text-xs'>
+                        <span className='text-muted-foreground block text-xs whitespace-normal'>
                           {t.motif}
                         </span>
                       )}
@@ -66,7 +67,7 @@ export function Recapitulatif({
               </TableBody>
             </Table>
           </div>
-          <div className='rounded-md border'>
+          <div className='rounded-md border @max-[36rem]/recap:w-full'>
             <Table>
               <TableBody>
                 <TableRow>

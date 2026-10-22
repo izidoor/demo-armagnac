@@ -11,6 +11,7 @@ import {
   supprimerPays,
   type Pays,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,6 +28,7 @@ import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { usePagination } from '@/components/metier/use-pagination'
 import { ChangementEtat } from '../commun/changement-etat'
+import { COLONNE_LIBELLE } from '../commun/colonnes'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
@@ -41,6 +43,15 @@ function versRequete({ zoneCommerciale, ageMinimum, ...saisie }: SaisiePays) {
     zoneCommerciale: Number(zoneCommerciale),
     ageMinimum: ageMinimum || undefined,
   }
+}
+
+/**
+ * Selon la largeur du contenu : le libellé prend la place qui reste et se tronque ; sous 60rem, le tableau perd le
+ * certificat et l'âge minimum ; sous 44rem, le code ISO, et la zone et l'UE passent sous le libellé.
+ */
+const SEUILS = {
+  certificat: '@max-[60rem]/content:hidden',
+  zone: '@max-[44rem]/content:hidden',
 }
 
 export function PagePays() {
@@ -71,7 +82,7 @@ export function PagePays() {
   return (
     <PageMetier
       titre='Pays'
-      description="Zone commerciale, appartenance à l'UE, certificat export et âge minimum (C.10.5)."
+      description="Zone commerciale, appartenance à l'UE, certificat export et âge minimum."
       actions={
         gestion && (
           <Button onClick={() => setEdition('nouveau')}>
@@ -89,12 +100,12 @@ export function PagePays() {
           <TableHeader>
             <TableRow>
               <TableHead>Code</TableHead>
-              <TableHead>ISO</TableHead>
-              <TableHead>Libellé</TableHead>
-              <TableHead>Zone</TableHead>
-              <TableHead>UE</TableHead>
-              <TableHead>Certificat</TableHead>
-              <TableHead>Âge min.</TableHead>
+              <TableHead className={SEUILS.zone}>ISO</TableHead>
+              <TableHead className={COLONNE_LIBELLE}>Libellé</TableHead>
+              <TableHead className={SEUILS.zone}>Zone</TableHead>
+              <TableHead className={SEUILS.zone}>UE</TableHead>
+              <TableHead className={SEUILS.certificat}>Certificat</TableHead>
+              <TableHead className={SEUILS.certificat}>Âge min.</TableHead>
               <TableHead>État</TableHead>
               <TableHead className='w-12' />
             </TableRow>
@@ -104,19 +115,32 @@ export function PagePays() {
             {lignes?.map((pays) => (
               <TableRow key={pays.id}>
                 <TableCell className='font-mono'>{pays.code}</TableCell>
-                <TableCell className='font-mono'>{pays.codeIso}</TableCell>
-                <TableCell>{pays.libelle}</TableCell>
-                <TableCell>{libelleZone(pays.zoneCommerciale)}</TableCell>
-                <TableCell>
+                <TableCell className={cn('font-mono', SEUILS.zone)}>
+                  {pays.codeIso}
+                </TableCell>
+                <TableCell className={COLONNE_LIBELLE} title={pays.libelle}>
+                  <span className='block truncate'>{pays.libelle}</span>
+                  {/* Sur un contenu étroit, la zone et l'UE passent sous le libellé. */}
+                  <span className='text-muted-foreground block truncate text-xs @min-[44rem]/content:hidden'>
+                    {libelleZone(pays.zoneCommerciale)}
+                    {pays.membreUe && ' · UE'}
+                  </span>
+                </TableCell>
+                <TableCell className={SEUILS.zone}>
+                  {libelleZone(pays.zoneCommerciale)}
+                </TableCell>
+                <TableCell className={SEUILS.zone}>
                   {pays.membreUe && <Badge variant='secondary'>UE</Badge>}
                 </TableCell>
-                <TableCell className='text-sm'>
+                <TableCell className={cn('text-sm', SEUILS.certificat)}>
                   {LANGUES_CERTIFICAT[pays.langueCertificat]}
                   <div className='text-muted-foreground'>
                     {NIVEAUX_DETAIL[pays.niveauDetailCertificat]}
                   </div>
                 </TableCell>
-                <TableCell className='font-mono'>{pays.ageMinimum}</TableCell>
+                <TableCell className={cn('font-mono', SEUILS.certificat)}>
+                  {pays.ageMinimum}
+                </TableCell>
                 <TableCell>
                   <BadgeEtat actif={pays.actif} />
                 </TableCell>

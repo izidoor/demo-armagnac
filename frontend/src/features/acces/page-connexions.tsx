@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { listerConnexions, type LigneConnexion } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -18,7 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { PageMetier } from '@/components/metier/page-metier'
+import { Pagination } from '@/components/metier/pagination'
+import { usePagination } from '@/components/metier/use-pagination'
 
 type Evenement = LigneConnexion['evenement']
 
@@ -45,7 +48,12 @@ const dateHeure = new Intl.DateTimeFormat('fr-FR', {
   timeStyle: 'medium',
 })
 
-/** Journal des connexions (spec 03 §6.2, RG-AUT-13), filtré par événement et période. */
+/**
+ * Journal des connexions (spec 03 §6.2, RG-AUT-13), filtré par événement et période, par pages de 25.
+ *
+ * Selon la largeur du contenu, comme la liste des opérateurs (34 px de marges) : le détail prend la place qui reste et
+ * se tronque (8rem au moins) ; le tableau fait alors 754 px ; sous 50rem, une carte par événement (`SEUILS`).
+ */
 export function PageConnexions() {
   const [evenement, setEvenement] = useState(TOUS)
   const [du, setDu] = useState('')
@@ -62,49 +70,49 @@ export function PageConnexions() {
         throwOnError: true,
       }).then((r) => r.data),
   })
-  const lignes = journal.data ?? []
+  const { lignes, pagination } = usePagination(journal.data, 25)
   return (
     <PageMetier
       titre='Journal des connexions'
       description='Connexions, échecs, blocages et mots de passe, du plus récent au plus ancien.'
     >
-      <div className='mb-4 flex flex-wrap items-end gap-4'>
-        <div className='space-y-2'>
-          <Label>Événement</Label>
-          <Select value={evenement} onValueChange={setEvenement}>
-            <SelectTrigger className='w-64'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={TOUS}>Tous</SelectItem>
-              {(Object.keys(EVENEMENTS) as Evenement[]).map((e) => (
-                <SelectItem key={e} value={e}>
-                  {EVENEMENTS[e]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className='space-y-2'>
-          <Label htmlFor='du'>Du</Label>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <Select value={evenement} onValueChange={setEvenement}>
+          <SelectTrigger
+            aria-label='Événement'
+            className='h-9 w-64 max-sm:w-full'
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={TOUS}>Tous les événements</SelectItem>
+            {(Object.keys(EVENEMENTS) as Evenement[]).map((e) => (
+              <SelectItem key={e} value={e}>
+                {EVENEMENTS[e]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className='flex items-center gap-2 text-sm max-sm:w-full'>
+          <span className='text-muted-foreground shrink-0'>Du</span>
           <Input
-            id='du'
             type='date'
+            aria-label='Du'
+            className='h-9 w-40 max-sm:min-w-0 max-sm:flex-1'
             value={du}
             onChange={(e) => setDu(e.target.value)}
           />
-        </div>
-        <div className='space-y-2'>
-          <Label htmlFor='au'>Au</Label>
+          <span className='text-muted-foreground shrink-0'>au</span>
           <Input
-            id='au'
             type='date'
+            aria-label='Au'
+            className='h-9 w-40 max-sm:min-w-0 max-sm:flex-1'
             value={au}
             onChange={(e) => setAu(e.target.value)}
           />
         </div>
       </div>
-      <div className='rounded-md border'>
+      <div className={cn('rounded-md border', SEUILS.tableau)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -116,7 +124,7 @@ export function PageConnexions() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {lignes.length === 0 && (
+            {lignes?.length === 0 || !lignes ? (
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -125,21 +133,55 @@ export function PageConnexions() {
                   {journal.isPending ? 'Chargement…' : 'Aucun événement.'}
                 </TableCell>
               </TableRow>
-            )}
-            {lignes.map((l, i) => (
+            ) : null}
+            {(lignes ?? []).map((l, i) => (
               <TableRow key={i}>
                 <TableCell className='whitespace-nowrap'>
                   {dateHeure.format(new Date(l.date))}
                 </TableCell>
                 <TableCell>{l.identifiantSaisi}</TableCell>
                 <TableCell>{l.libelle}</TableCell>
-                <TableCell>{l.detail}</TableCell>
+                <TableCell
+                  className='w-full max-w-0 min-w-32 truncate'
+                  title={l.detail ?? undefined}
+                >
+                  {l.detail}
+                </TableCell>
                 <TableCell>{l.adresseIp}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+      <CartesListe
+        requete={journal}
+        vide='Aucun événement.'
+        masquee={SEUILS.cartes}
+      >
+        {(lignes ?? []).map((l, i) => (
+          <CarteListe key={i} titre={l.libelle}>
+            {l.identifiantSaisi && (
+              <div className='truncate text-sm'>{l.identifiantSaisi}</div>
+            )}
+            {l.detail && (
+              <div className='text-muted-foreground text-sm break-words'>
+                {l.detail}
+              </div>
+            )}
+            <div className='text-muted-foreground text-sm'>
+              {[dateHeure.format(new Date(l.date)), l.adresseIp]
+                .filter(Boolean)
+                .join(' · ')}
+            </div>
+          </CarteListe>
+        ))}
+      </CartesListe>
+      <Pagination {...pagination} />
     </PageMetier>
   )
+}
+
+const SEUILS = {
+  tableau: '@max-[50rem]/content:hidden',
+  cartes: '@min-[50rem]/content:hidden',
 }

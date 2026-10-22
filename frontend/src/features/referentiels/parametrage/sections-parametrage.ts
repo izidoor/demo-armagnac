@@ -4,20 +4,17 @@ import { type SectionPage } from '@/components/layout/page-sections'
 
 /** En-tête de chaque section, par adresse (familles de la spec 01 §2.1). */
 const descriptions: Record<string, string> = {
-  '/bo/parametrage/bnia':
-    'Fiche, contacts et facturation du BNIA (spec 02 §6.1, spec 08 §6.1).',
+  '/bo/parametrage/bnia': 'Fiche, contacts et facturation du BNIA.',
   '/bo/parametrage/geographie':
-    'Continents et zones commerciales, pays et régions (§4.11.3).',
+    'Continents et zones commerciales, pays et régions.',
   '/bo/parametrage/qualification':
-    "Titres, labels, types de visite, langues, centres d'intérêt et membres du BNIA (§4.11.4).",
+    "Titres, labels, types de visite, langues, centres d'intérêt et membres du BNIA.",
   '/bo/parametrage/commercialisation':
-    'Marques, circuits de distribution, produits commercialisés et contenances (§4.11.5).',
-  '/bo/parametrage/classes-tva':
-    'Classes de TVA et historique de leurs taux (§4.11.1).',
-  '/bo/parametrage/taux-cvo':
-    'Grille des taux de la cotisation CVO des DSM (§4.11.2).',
+    'Marques, circuits de distribution, produits commercialisés et contenances.',
+  '/bo/parametrage/classes-tva': 'Classes de TVA et historique de leurs taux.',
+  '/bo/parametrage/taux-cvo': 'Grille des taux de la cotisation CVO des DSM.',
   '/bo/parametrage/securite':
-    'Double authentification, pour toute l’application (spec 03, RG-AUT-16).',
+    'Double authentification, pour toute l’application.',
 }
 
 /** Une entrée par section ; tous les référentiels d'une section mènent à la même page. */

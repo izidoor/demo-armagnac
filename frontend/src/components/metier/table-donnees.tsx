@@ -1,4 +1,10 @@
-import { type CSSProperties, type ReactNode, useEffect, useState } from 'react'
+import {
+  type CSSProperties,
+  Fragment,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react'
 import {
   type Cell,
   type Column,
@@ -50,6 +56,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CartesListe } from './cartes-liste'
 import { CelluleOuvrir, EnteteOuvrir } from './cellule-ouvrir'
 import { Pagination } from './pagination'
 
@@ -131,6 +138,11 @@ const bordEpingle = <T,>(colonne: Column<T, unknown>) =>
  * leur nombre et les sous-totaux des colonnes qui ont une agrégation (`aggregationFn`), mis en forme par
  * `meta.format` ou `aggregatedCell`. Les autres colonnes ne s'agrègent pas.</li>
  * </ul>
+ * Sur un contenu étroit (facultatif, comme la liste des opérateurs) : une colonne prend les classes de son
+ * `meta.className` (colonne masquée sous un seuil, colonne qui se tronque) ; avec `cartes`, sous un seuil de la largeur
+ * du contenu, une carte par ligne (`CarteListe`) remplace la table et le menu « Colonnes », dans l'ordre et sous les
+ * filtres de la table.
+ *
  * Pagination dans le navigateur, 25 lignes par page au départ (10, 25, 50 ou 100) ; un groupe déplié compte ses
  * lignes dans la page. La disposition (visibilité, épinglage, regroupement, taille de page) est retenue dans le
  * navigateur, par `cle`.
@@ -149,6 +161,7 @@ export function TableDonnees<T>({
   onLigne,
   libelleLigne = () => 'Ouvrir le détail',
   actions,
+  cartes,
 }: {
   /** Clé de la mémoire de la disposition, propre à la table ; sans elle, rien n'est retenu. */
   cle?: string
@@ -172,6 +185,15 @@ export function TableDonnees<T>({
   libelleLigne?: (ligne: T) => string
   /** À droite de la barre de recherche (un export, par exemple). */
   actions?: ReactNode
+  /**
+   * Une carte par ligne sous un seuil : `carte` rend la ligne (`CarteListe`) ; `tableau` masque la table sous le seuil
+   * et `masquee` les cartes au-dessus, écrites en entier pour Tailwind (voir `CartesListe`).
+   */
+  cartes?: {
+    carte: (ligne: T) => ReactNode
+    tableau: string
+    masquee: string
+  }
 }) {
   const initiale = (): Disposition => ({
     visibilite: Object.fromEntries(masquees.map((id) => [id, false])),
@@ -298,7 +320,7 @@ export function TableDonnees<T>({
           placeholder='Rechercher dans la table…'
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
-          className='h-8 w-64'
+          className='h-8 w-64 max-sm:w-full'
         />
         {filtre && (
           <Button
@@ -337,7 +359,7 @@ export function TableDonnees<T>({
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='outline' size='sm'>
+            <Button variant='outline' size='sm' className={cartes?.tableau}>
               <Columns3 className='size-4' /> Colonnes
             </Button>
           </DropdownMenuTrigger>
@@ -381,7 +403,7 @@ export function TableDonnees<T>({
         </DropdownMenu>
         {actions}
       </div>
-      <div className='overflow-x-auto rounded-md border'>
+      <div className={cn('overflow-x-auto rounded-md border', cartes?.tableau)}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((groupe) => (
@@ -392,6 +414,7 @@ export function TableDonnees<T>({
                     style={styleEpingle(h.column)}
                     className={cn(
                       chiffree(h.column.id) && 'text-right',
+                      h.column.columnDef.meta?.className,
                       bordEpingle(h.column),
                       h.column.getIsPinned() && FOND_EN_TETE
                     )}
@@ -441,6 +464,7 @@ export function TableDonnees<T>({
                       style={styleEpingle(cell.column)}
                       className={cn(
                         chiffree(cell.column.id) && 'text-right tabular-nums',
+                        cell.column.columnDef.meta?.className,
                         groupe && cell.getIsAggregated() && 'font-medium',
                         bordEpingle(cell.column),
                         groupe && cell.column.getIsPinned() && 'bg-muted'
@@ -471,6 +495,7 @@ export function TableDonnees<T>({
                     style={styleEpingle(c)}
                     className={cn(
                       c.id === colonneTotal && 'text-right tabular-nums',
+                      c.columnDef.meta?.className,
                       c.getIsPinned() && 'bg-muted'
                     )}
                   >
@@ -487,6 +512,24 @@ export function TableDonnees<T>({
           )}
         </Table>
       </div>
+      {cartes && (
+        <CartesListe
+          requete={{
+            isPending: chargement,
+            isError: false,
+            data: lignes,
+          }}
+          vide={filtre ? 'Aucune ligne ne répond aux filtres.' : vide}
+          masquee={cartes.masquee}
+        >
+          {/* Les lignes de groupe ne se montrent pas en cartes : seules leurs lignes dépliées. */}
+          {lignes
+            .filter((row) => !row.getIsGrouped())
+            .map((row) => (
+              <Fragment key={row.id}>{cartes.carte(row.original)}</Fragment>
+            ))}
+        </CartesListe>
+      )}
       <div className='flex flex-wrap items-center justify-end gap-2'>
         {table.getPrePaginationRowModel().rows.length > TAILLES[0] && (
           <div className='flex items-center gap-2 pt-4 text-sm'>

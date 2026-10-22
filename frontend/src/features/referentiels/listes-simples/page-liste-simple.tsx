@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
 import { type ValeurSimple } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -15,6 +16,7 @@ import { BadgeEtat } from '@/components/metier/badge-etat'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
+import { COLONNE_CODE, COLONNE_ETAT, COLONNE_LIBELLE } from '../commun/colonnes'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
@@ -60,9 +62,9 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-40'>Code</TableHead>
-              <TableHead>Libellé</TableHead>
-              <TableHead className='w-28'>État</TableHead>
+              <TableHead className={COLONNE_CODE}>Code</TableHead>
+              <TableHead className={COLONNE_LIBELLE}>Libellé</TableHead>
+              <TableHead className={COLONNE_ETAT}>État</TableHead>
               <TableHead className='w-12' />
             </TableRow>
           </TableHeader>
@@ -71,7 +73,12 @@ export function PageListeSimple({ config }: { config: ConfigListeSimple }) {
             {requete.data?.map((valeur) => (
               <TableRow key={valeur.id}>
                 <TableCell className='font-mono'>{valeur.code}</TableCell>
-                <TableCell>{valeur.libelle}</TableCell>
+                <TableCell
+                  className={cn(COLONNE_LIBELLE, 'truncate')}
+                  title={valeur.libelle}
+                >
+                  {valeur.libelle}
+                </TableCell>
                 <TableCell>
                   <BadgeEtat actif={valeur.actif} />
                 </TableCell>

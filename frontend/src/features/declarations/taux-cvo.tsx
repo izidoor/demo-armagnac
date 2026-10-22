@@ -11,16 +11,10 @@ import {
   supprimerTauxCvo,
   type TauxCvo,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -39,9 +33,16 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { PageMetier } from '@/components/metier/page-metier'
+import {
+  ActionsHistorique,
+  COLONNE_ACTIONS,
+  SECONDAIRE,
+  SOUS_LE_TAUX,
+} from '@/features/referentiels/commun/actions-historique'
 import { formatDate, formatEuros, formatPourcentage } from './format'
 
 const CLE = ['declarations', 'taux-cvo'] as const
@@ -96,11 +97,13 @@ export function PageTauxCvo() {
           <TableHeader>
             <TableRow>
               <TableHead className='text-end'>Montant</TableHead>
-              <TableHead className='text-end'>Exonéré de TVA</TableHead>
+              <TableHead className={cn('text-end', SECONDAIRE)}>
+                Exonéré de TVA
+              </TableHead>
               <TableHead>Début</TableHead>
               <TableHead>Fin</TableHead>
-              <TableHead />
-              <TableHead className='w-48' />
+              <TableHead className={SECONDAIRE} />
+              <TableHead className={COLONNE_ACTIONS} />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,10 +124,19 @@ export function PageTauxCvo() {
                 key={t.debut}
                 className={enVigueur(t) ? 'bg-muted/50' : ''}
               >
-                <TableCell className='text-end font-medium tabular-nums'>
+                <TableCell className='text-end font-medium whitespace-normal tabular-nums'>
                   {formatEuros(t.montant)}/hlAP
+                  {/* Sur un contenu étroit, la part exonérée et « En vigueur » passent sous le montant. */}
+                  <span
+                    className={`text-muted-foreground block text-xs font-normal ${SOUS_LE_TAUX}`}
+                  >
+                    dont {formatPourcentage(t.pourcentageExonere)} exonéré
+                  </span>
+                  {enVigueur(t) && (
+                    <Badge className={`mt-1 ${SOUS_LE_TAUX}`}>En vigueur</Badge>
+                  )}
                 </TableCell>
-                <TableCell className='text-end tabular-nums'>
+                <TableCell className={cn('text-end tabular-nums', SECONDAIRE)}>
                   {formatPourcentage(t.pourcentageExonere)}
                 </TableCell>
                 <TableCell>{formatDate(t.debut)}</TableCell>
@@ -135,24 +147,15 @@ export function PageTauxCvo() {
                     <span className='text-muted-foreground'>Sans terme</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className={SECONDAIRE}>
                   {enVigueur(t) && <Badge>En vigueur</Badge>}
                 </TableCell>
                 <TableCell className='text-end'>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => setEdition(t)}
-                  >
-                    Modifier
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => setSuppression(t)}
-                  >
-                    Supprimer
-                  </Button>
+                  <ActionsHistorique
+                    onModifier={() => setEdition(t)}
+                    onRetirer={() => setSuppression(t)}
+                    retirer='Supprimer'
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -264,88 +267,80 @@ function FormulaireTauxCvo({
   })
 
   return (
-    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>
-            {taux ? 'Corriger le taux CVO' : 'Ajouter un taux CVO'}
-          </DialogTitle>
-          <DialogDescription>
-            Le taux vaut à partir de son début, jusqu'à la veille du taux
-            suivant ; il clôt le précédent.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            id='formulaire-taux-cvo'
-            onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
-            className='space-y-4'
-          >
-            <ErreurRacine errors={form.formState.errors} />
-            <div className='grid grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='montant'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Montant (€/hlAP)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        inputMode='decimal'
-                        placeholder='60,00'
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='pourcentageExonere'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Exonéré de TVA (%)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        inputMode='decimal'
-                        placeholder='20,00'
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={onOuvertChange}
+      className='sm:max-w-md'
+      titre={taux ? 'Corriger le taux CVO' : 'Ajouter un taux CVO'}
+      description="Le taux vaut à partir de son début, jusqu'à la veille du taux suivant ; il clôt le précédent."
+    >
+      <Form {...form}>
+        <form
+          id='formulaire-taux-cvo'
+          onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
+          className='space-y-4'
+        >
+          <ErreurRacine errors={form.formState.errors} />
+          <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
-              name='debut'
+              name='montant'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Début</FormLabel>
+                  <FormLabel>Montant (€/hlAP)</FormLabel>
                   <FormControl>
-                    <Input type='date' {...field} />
+                    <Input {...field} inputMode='decimal' placeholder='60,00' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </form>
-        </Form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOuvertChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='formulaire-taux-cvo'
-            disabled={mutation.isPending}
-          >
-            Enregistrer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <FormField
+              control={form.control}
+              name='pourcentageExonere'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Exonéré de TVA (%)</FormLabel>
+                  <FormControl>
+                    <Input {...field} inputMode='decimal' placeholder='20,00' />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name='debut'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Début</FormLabel>
+                <FormControl>
+                  <Input type='date' {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOuvertChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          className='max-md:w-full'
+          type='submit'
+          form='formulaire-taux-cvo'
+          disabled={mutation.isPending}
+        >
+          Enregistrer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

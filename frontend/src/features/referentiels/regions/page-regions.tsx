@@ -15,13 +15,7 @@ import {
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -41,11 +35,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BadgeEtat } from '@/components/metier/badge-etat'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { afficherErreur } from '@/components/metier/erreur-formulaire'
 import { ErreurRacine } from '@/components/metier/erreur-racine'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ChangementEtat } from '../commun/changement-etat'
+import { COLONNE_CODE, COLONNE_ETAT, COLONNE_LIBELLE } from '../commun/colonnes'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { MenuActions } from '../commun/menu-actions'
 import { Suppression } from '../commun/suppression'
@@ -59,6 +55,9 @@ const schema = z.object({
 })
 
 type SaisieRegion = z.infer<typeof schema>
+
+/** Sous 40rem de contenu, la colonne de la région délimitée passe sous le libellé. */
+const SOUS_40REM = '@max-[40rem]/content:hidden'
 
 export function PageRegions() {
   const filtreValeurs = useFiltreValeurs()
@@ -82,7 +81,7 @@ export function PageRegions() {
   return (
     <PageMetier
       titre='Régions'
-      description="Régions de rattachement des opérateurs ; l'indicateur distingue la région délimitée de l'Armagnac (C.10.6, C.1.1.2)."
+      description="Régions de rattachement des opérateurs ; l'indicateur distingue la région délimitée de l'Armagnac."
       actions={
         gestion && (
           <Button onClick={() => setEdition('nouvelle')}>
@@ -96,10 +95,10 @@ export function PageRegions() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-40'>Code</TableHead>
-              <TableHead>Libellé</TableHead>
-              <TableHead>Région délimitée</TableHead>
-              <TableHead className='w-28'>État</TableHead>
+              <TableHead className={COLONNE_CODE}>Code</TableHead>
+              <TableHead className={COLONNE_LIBELLE}>Libellé</TableHead>
+              <TableHead className={SOUS_40REM}>Région délimitée</TableHead>
+              <TableHead className={COLONNE_ETAT}>État</TableHead>
               <TableHead className='w-12' />
             </TableRow>
           </TableHeader>
@@ -108,8 +107,16 @@ export function PageRegions() {
             {requete.data?.map((region) => (
               <TableRow key={region.id}>
                 <TableCell className='font-mono'>{region.code}</TableCell>
-                <TableCell>{region.libelle}</TableCell>
-                <TableCell>
+                <TableCell className={COLONNE_LIBELLE} title={region.libelle}>
+                  <span className='block truncate'>{region.libelle}</span>
+                  {/* Sur un contenu étroit, la région délimitée passe sous le libellé. */}
+                  <span className='text-muted-foreground block truncate text-xs @min-[40rem]/content:hidden'>
+                    {region.enRegionDelimitee
+                      ? 'En région délimitée'
+                      : 'Hors région'}
+                  </span>
+                </TableCell>
+                <TableCell className={SOUS_40REM}>
                   {region.enRegionDelimitee ? (
                     <Badge variant='secondary'>En région délimitée</Badge>
                   ) : (
@@ -212,76 +219,79 @@ function FormulaireRegion({
   })
 
   return (
-    <Dialog open={ouvert} onOpenChange={onOuvertChange}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>
-            {region ? `Modifier « ${region.libelle} »` : 'Nouvelle région'}
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            id='formulaire-region'
-            onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
-            className='space-y-4'
-          >
-            <ErreurRacine errors={form.formState.errors} />
-            <FormField
-              control={form.control}
-              name='code'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Code</FormLabel>
-                  <FormControl>
-                    <Input {...field} autoComplete='off' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='libelle'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Libellé</FormLabel>
-                  <FormControl>
-                    <Input {...field} autoComplete='off' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='enRegionDelimitee'
-              render={({ field }) => (
-                <FormItem className='flex items-center gap-2'>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel>En région délimitée</FormLabel>
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-        <DialogFooter>
-          <Button variant='outline' onClick={() => onOuvertChange(false)}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='formulaire-region'
-            disabled={mutation.isPending}
-          >
-            Enregistrer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogueFormulaire
+      ouvert={ouvert}
+      onOuvertChange={onOuvertChange}
+      className='sm:max-w-md'
+      titre={region ? `Modifier « ${region.libelle} »` : 'Nouvelle région'}
+    >
+      <Form {...form}>
+        <form
+          id='formulaire-region'
+          onSubmit={form.handleSubmit((saisie) => mutation.mutate(saisie))}
+          className='space-y-4'
+        >
+          <ErreurRacine errors={form.formState.errors} />
+          <FormField
+            control={form.control}
+            name='code'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Code</FormLabel>
+                <FormControl>
+                  <Input {...field} autoComplete='off' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='libelle'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Libellé</FormLabel>
+                <FormControl>
+                  <Input {...field} autoComplete='off' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='enRegionDelimitee'
+            render={({ field }) => (
+              <FormItem className='flex items-center gap-2'>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>En région délimitée</FormLabel>
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
+      <DialogFooter>
+        <Button
+          variant='outline'
+          className='max-md:hidden'
+          onClick={() => onOuvertChange(false)}
+        >
+          Annuler
+        </Button>
+        <Button
+          className='max-md:w-full'
+          type='submit'
+          form='formulaire-region'
+          disabled={mutation.isPending}
+        >
+          Enregistrer
+        </Button>
+      </DialogFooter>
+    </DialogueFormulaire>
   )
 }

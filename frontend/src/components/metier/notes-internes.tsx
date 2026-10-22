@@ -107,8 +107,9 @@ export function CarnetNotesInternes<N extends NoteDuCarnet>({
       className='border-warning-border bg-warning/60 mt-8 scroll-mt-4 rounded-md border border-dashed p-5 shadow-xs'
     >
       <div className='border-warning-border mb-6 space-y-1.5 border-b pb-4'>
-        <h2 className='flex items-center gap-2 text-xl font-semibold'>
-          <NotebookPen className='size-5' /> Notes internes
+        <h2 className='flex flex-wrap items-center gap-2 text-xl font-semibold'>
+          <NotebookPen className='size-5 shrink-0' />
+          <span className='whitespace-nowrap'>Notes internes</span>
           {notes.length > 0 && (
             <Badge variant='secondary'>{notes.length}</Badge>
           )}

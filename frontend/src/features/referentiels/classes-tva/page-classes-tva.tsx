@@ -16,11 +16,15 @@ import { BadgeEtat } from '@/components/metier/badge-etat'
 import { CelluleOuvrir, EnteteOuvrir } from '@/components/metier/cellule-ouvrir'
 import { LignesEtat } from '@/components/metier/lignes-etat'
 import { PageMetier } from '@/components/metier/page-metier'
+import { COLONNE_CODE, COLONNE_ETAT, COLONNE_LIBELLE } from '../commun/colonnes'
 import { BarreFiltre } from '../commun/filtre-valeurs'
 import { useFiltreValeurs } from '../commun/use-filtre-valeurs'
 import { useGestionParametrage } from '../commun/use-gestion-parametrage'
 import { FormulaireValeurSimple } from '../listes-simples/formulaire-valeur-simple'
 import { formatDate, formatTaux } from './format'
+
+/** Sous 44rem de contenu, le début du taux en vigueur passe sous le libellé. */
+const DEPUIS = '@max-[44rem]/content:hidden'
 
 export function PageClassesTva() {
   const filtreValeurs = useFiltreValeurs()
@@ -54,11 +58,13 @@ export function PageClassesTva() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-40'>Code</TableHead>
-              <TableHead>Libellé</TableHead>
-              <TableHead className='text-end'>Taux en vigueur</TableHead>
-              <TableHead>En vigueur depuis</TableHead>
-              <TableHead className='w-28'>État</TableHead>
+              <TableHead className={COLONNE_CODE}>Code</TableHead>
+              <TableHead className={COLONNE_LIBELLE}>Libellé</TableHead>
+              <TableHead className='text-end whitespace-normal'>
+                Taux en vigueur
+              </TableHead>
+              <TableHead className={DEPUIS}>En vigueur depuis</TableHead>
+              <TableHead className={COLONNE_ETAT}>État</TableHead>
               <EnteteOuvrir />
             </TableRow>
           </TableHeader>
@@ -76,7 +82,15 @@ export function PageClassesTva() {
                 }
               >
                 <TableCell className='font-mono'>{classe.code}</TableCell>
-                <TableCell>{classe.libelle}</TableCell>
+                <TableCell className={COLONNE_LIBELLE} title={classe.libelle}>
+                  <span className='block truncate'>{classe.libelle}</span>
+                  {/* Sur un contenu étroit, le début du taux en vigueur passe sous le libellé. */}
+                  {classe.debutTauxEnVigueur && (
+                    <span className='text-muted-foreground block truncate text-xs @min-[44rem]/content:hidden'>
+                      Depuis le {formatDate(classe.debutTauxEnVigueur)}
+                    </span>
+                  )}
+                </TableCell>
                 <TableCell className='text-end'>
                   {classe.tauxEnVigueur != null ? (
                     formatTaux(classe.tauxEnVigueur)
@@ -84,7 +98,7 @@ export function PageClassesTva() {
                     <span className='text-muted-foreground'>Aucun</span>
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className={DEPUIS}>
                   {classe.debutTauxEnVigueur &&
                     formatDate(classe.debutTauxEnVigueur)}
                 </TableCell>
