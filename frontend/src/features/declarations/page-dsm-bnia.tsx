@@ -9,6 +9,8 @@ import {
   facturerSelectionDsm,
   listerToutesDsm,
 } from '@/api/generated'
+import { cn } from '@/lib/utils'
+import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -37,6 +39,7 @@ import {
 } from '@/components/ui/tooltip'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgePlein } from '@/components/metier/badge-statut'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
@@ -74,21 +77,27 @@ type Vue = 'en-cours' | 'validees' | 'facturees'
  * « absente » de l'onglet « En cours », grisée, faute de DSM à ouvrir ; seul son opérateur mène à sa fiche (RG-DEC-39, 40).
  * Spec 08 : dans « Validées », une sélection se facture d'un coup (RG-DEC-43) ; une DSM dont la facture est
  * demandée passe dans « Facturées », badge « Brouillon » (décision du 2026-10-14).
- * Tableau de bord (CDC §4.1) : l'onglet et l'état, ou un regroupement d'états, peuvent venir de l'URL.
+ * L'onglet et les filtres sont gardés dans l'adresse (`useFiltresAdresse`) : le retour depuis une DSM les retrouve ; le
+ * tableau de bord (CDC §4.1) y passe l'onglet et l'état, ou un regroupement d'états.
+ *
+ * Selon la largeur du contenu (`CartesListe`), comme la liste des opérateurs : l'opérateur prend la place qui reste et
+ * se tronque ; sous 70rem, le tableau perd ses dates (modification, ou envoi et validation) et le type ; sous 55rem,
+ * une carte par DSM (`SEUILS`).
  */
-export function PageDsmBnia({
-  vue: vueInitiale,
-  etat: etatInitial,
-}: {
-  vue?: Vue
-  etat?: string
-}) {
+export function PageDsmBnia() {
   const navigate = useNavigate()
-  const [recherche, setRecherche] = useState('')
-  const [type, setType] = useState<string>(TOUS)
-  const [vue, setVue] = useState<Vue>(vueInitiale ?? 'en-cours')
-  const [etat, setEtat] = useState<string>(etatInitial ?? TOUS)
-  const [enRetard, setEnRetard] = useState(false)
+  const [filtres, changer] = useFiltresAdresse({
+    vue: 'en-cours' as Vue,
+    type: TOUS,
+    etat: TOUS,
+    retard: false as boolean,
+    recherche: '',
+  })
+  const { vue, type, etat, retard: enRetard } = filtres
+  const [saisie, setSaisie, recherche] = useTexteAdresse(
+    filtres.recherche,
+    (texte) => changer({ recherche: texte })
+  )
   const [selection, setSelection] = useState<Set<number>>(new Set())
   const { actif } = useMoi()
   // RG-DEC-43 : facturer est réservé à qui gère la facturation au BNIA.
@@ -200,10 +209,10 @@ export function PageDsmBnia({
     >
       <Tabs
         value={vue}
-        onValueChange={(v) => setVue(v as Vue)}
+        onValueChange={(v) => changer({ vue: v as Vue })}
         className='mb-4'
       >
-        <TabsList>
+        <TabsList className='max-sm:w-full'>
           <TabsTrigger value='en-cours'>
             En cours <Nombre valeur={enCours.length} pret={listing.isSuccess} />
           </TabsTrigger>
@@ -217,63 +226,63 @@ export function PageDsmBnia({
           </TabsTrigger>
         </TabsList>
       </Tabs>
-      <div className='mb-4 flex flex-wrap items-end gap-4'>
-        <div className='relative'>
+      <div className='mb-4 flex flex-wrap items-center gap-2'>
+        <div className='relative w-full sm:w-auto'>
           <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
           <Input
             placeholder='Rechercher un opérateur'
             title='Code ou raison sociale'
             aria-label='Recherche par code ou raison sociale'
-            value={recherche}
-            onChange={(e) => setRecherche(e.target.value)}
-            className='h-9 w-72 ps-8'
+            value={saisie}
+            onChange={(e) => setSaisie(e.target.value)}
+            className='h-9 w-full ps-8 sm:w-72'
           />
         </div>
-        <div className='space-y-1'>
-          <Label htmlFor='filtre-type'>Type</Label>
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger id='filtre-type' className='w-40'>
+        <Select value={type} onValueChange={(v) => changer({ type: v })}>
+          <SelectTrigger
+            aria-label='Type de déclarant'
+            className='h-9 w-40 max-sm:min-w-0 max-sm:flex-1'
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={TOUS}>Tous les types</SelectItem>
+            {Object.entries(TYPES_DECLARANT).map(([valeur, libelle]) => (
+              <SelectItem key={valeur} value={valeur}>
+                {libelle}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {vue === 'en-cours' && (
+          <Select value={etat} onValueChange={(v) => changer({ etat: v })}>
+            <SelectTrigger
+              aria-label='État'
+              className='h-9 w-52 max-sm:min-w-0 max-sm:flex-1'
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={TOUS}>Tous</SelectItem>
-              {Object.entries(TYPES_DECLARANT).map(([valeur, libelle]) => (
+              <SelectItem value={TOUS}>Tous les états</SelectItem>
+              {Object.entries(GROUPES_ETATS).map(([valeur, g]) => (
+                <SelectItem key={valeur} value={valeur}>
+                  {g.libelle}
+                </SelectItem>
+              ))}
+              {Object.entries(EN_COURS).map(([valeur, libelle]) => (
                 <SelectItem key={valeur} value={valeur}>
                   {libelle}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-        {vue === 'en-cours' && (
-          <div className='space-y-1'>
-            <Label htmlFor='filtre-etat'>État</Label>
-            <Select value={etat} onValueChange={setEtat}>
-              <SelectTrigger id='filtre-etat' className='w-52'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={TOUS}>Tous</SelectItem>
-                {Object.entries(GROUPES_ETATS).map(([valeur, g]) => (
-                  <SelectItem key={valeur} value={valeur}>
-                    {g.libelle}
-                  </SelectItem>
-                ))}
-                {Object.entries(EN_COURS).map(([valeur, libelle]) => (
-                  <SelectItem key={valeur} value={valeur}>
-                    {libelle}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         )}
         {vue === 'en-cours' && (
-          <div className='flex h-9 items-center gap-2'>
+          <div className='flex h-9 items-center gap-2 px-1 max-sm:w-full'>
             <Checkbox
               id='filtre-retard'
               checked={enRetard}
-              onCheckedChange={(v) => setEnRetard(v === true)}
+              onCheckedChange={(v) => changer({ retard: v === true })}
             />
             <Label htmlFor='filtre-retard' className='font-normal'>
               En retard
@@ -307,7 +316,7 @@ export function PageDsmBnia({
           facturé, factures moins avoirs, ou calculé pour un brouillon.
         </p>
       )}
-      <div className='rounded-md border'>
+      <div className={cn('rounded-md border', SEUILS.tableau)}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -330,18 +339,16 @@ export function PageDsmBnia({
                 </TableHead>
               )}
               <TableHead>Opérateur</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead className={SEUILS.type}>Type</TableHead>
               <TableHead>Période</TableHead>
               <TableHead>État</TableHead>
               <TableHead>Échéance</TableHead>
               {enCoursVue ? (
-                <>
-                  <TableHead>Modifiée le</TableHead>
-                </>
+                <TableHead className={SEUILS.dates}>Modifiée le</TableHead>
               ) : (
                 <>
-                  <TableHead>Envoyée le</TableHead>
-                  <TableHead>Validée le</TableHead>
+                  <TableHead className={SEUILS.dates}>Envoyée le</TableHead>
+                  <TableHead className={SEUILS.dates}>Validée le</TableHead>
                 </>
               )}
               <TableHead className='text-right'>Total HT</TableHead>
@@ -383,61 +390,61 @@ export function PageDsmBnia({
                   </TableCell>
                 )}
                 {d.id == null ? (
-                  <TableCell data-operateur>
-                    <Link
-                      to='/bo/operateurs/$id'
-                      params={{ id: String(d.operateur) }}
-                      className='hover:text-foreground opacity-60 transition-opacity hover:underline hover:opacity-100'
-                    >
-                      <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
-                      {d.raisonSociale}
-                    </Link>
-                    {!d.operateurFacturable && <NonFacturable />}
+                  <TableCell
+                    data-operateur
+                    className={OPERATEUR}
+                    title={`${d.codeOperateur} · ${d.raisonSociale}`}
+                  >
+                    <div className='flex items-center'>
+                      <Link
+                        to='/bo/operateurs/$id'
+                        params={{ id: String(d.operateur) }}
+                        className='hover:text-foreground truncate opacity-60 transition-opacity hover:underline hover:opacity-100'
+                      >
+                        <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
+                        {d.raisonSociale}
+                      </Link>
+                      {!d.operateurFacturable && <NonFacturable />}
+                    </div>
                   </TableCell>
                 ) : (
-                  <TableCell>
-                    <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
-                    {d.raisonSociale}
-                    {!d.operateurFacturable && <NonFacturable />}
+                  <TableCell
+                    className={OPERATEUR}
+                    title={`${d.codeOperateur} · ${d.raisonSociale}`}
+                  >
+                    <div className='flex items-center'>
+                      <span className='truncate'>
+                        <span className='font-mono'>{d.codeOperateur}</span> ·{' '}
+                        {d.raisonSociale}
+                      </span>
+                      {!d.operateurFacturable && <NonFacturable />}
+                    </div>
                   </TableCell>
                 )}
-                <TableCell>{TYPES_DECLARANT[d.type]}</TableCell>
+                <TableCell className={SEUILS.type}>
+                  {TYPES_DECLARANT[d.type]}
+                </TableCell>
                 <TableCell className='font-medium'>
                   {d.periode.libelle}
                 </TableCell>
                 <TableCell>
-                  {d.etat ? (
-                    <BadgePlein
-                      statut={STATUT_ETAT[d.etat]}
-                      className={d.absente ? 'border-dashed' : undefined}
-                    >
-                      {d.libelleEtat}
-                    </BadgePlein>
-                  ) : (
-                    <Badge
-                      variant='outline'
-                      className={d.absente ? 'border-dashed' : undefined}
-                    >
-                      {d.libelleEtat}
-                    </Badge>
-                  )}
-                  {d.facturationDemandee && (
-                    <Badge variant='outline' className='ms-1'>
-                      Brouillon
-                    </Badge>
-                  )}
+                  <EtatDsm dsm={d} />
                 </TableCell>
                 <TableCell>
                   <Echeance echeance={d.echeance} enRetard={d.enRetard} />
                 </TableCell>
                 {enCoursVue ? (
-                  <>
-                    <TableCell>{formatDateHeure(d.modifieeLe)}</TableCell>
-                  </>
+                  <TableCell className={SEUILS.dates}>
+                    {formatDateHeure(d.modifieeLe)}
+                  </TableCell>
                 ) : (
                   <>
-                    <TableCell>{formatDateHeure(d.envoyeeLe)}</TableCell>
-                    <TableCell>{formatDateHeure(d.valideeLe)}</TableCell>
+                    <TableCell className={SEUILS.dates}>
+                      {formatDateHeure(d.envoyeeLe)}
+                    </TableCell>
+                    <TableCell className={SEUILS.dates}>
+                      {formatDateHeure(d.valideeLe)}
+                    </TableCell>
                   </>
                 )}
                 <TableCell className='text-right tabular-nums'>
@@ -463,6 +470,33 @@ export function PageDsmBnia({
           </TableBody>
         </Table>
       </div>
+      <CartesListe
+        requete={{
+          isPending: listing.isPending,
+          isError: listing.isError,
+          data: dsms,
+        }}
+        vide='Aucune DSM.'
+        masquee={SEUILS.cartes}
+      >
+        {(page ?? []).map((d) => (
+          <CarteDsm
+            key={d.id ?? `absente-${d.operateur}-${d.periode.debut}`}
+            dsm={d}
+            onOuvrir={
+              d.id == null ? undefined : () => ouvrir(d.operateur, d.id!)
+            }
+            selection={
+              selectionnable && d.id != null
+                ? {
+                    coche: selection.has(d.id),
+                    basculer: (coche) => basculer(d.id!, coche),
+                  }
+                : undefined
+            }
+          />
+        ))}
+      </CartesListe>
       <Pagination {...pagination} />
       <ConfirmDialog
         open={exclusion}
@@ -507,6 +541,108 @@ export function PageDsmBnia({
   )
 }
 
+/**
+ * Les seuils, en largeur du contenu, mesurés avec l'opérateur à 12rem (plus 34 px de marges) : le tableau entier fait
+ * au plus 1047 px (« En cours », « Facturées ») ; sous 70rem, il perd ses dates et le type (857 px au plus, « En
+ * cours », dont les états et les retards sont les plus larges) ; sous 55rem, une carte par DSM.
+ */
+const SEUILS = {
+  type: '@max-[70rem]/content:hidden',
+  dates: '@max-[70rem]/content:hidden',
+  tableau: '@max-[55rem]/content:hidden',
+  cartes: '@min-[55rem]/content:hidden',
+}
+/** La colonne de l'opérateur prend la place qui reste et se tronque, son nom complet en infobulle. */
+const OPERATEUR = 'w-full max-w-0 min-w-48'
+
+/** L'état d'une DSM, en pointillés pour une période absente, et « Brouillon » si sa facture est demandée. */
+function EtatDsm({ dsm: d }: { dsm: DsmListee }) {
+  return (
+    <span className='inline-flex flex-wrap items-center gap-1'>
+      {d.etat ? (
+        <BadgePlein
+          statut={STATUT_ETAT[d.etat]}
+          className={d.absente ? 'border-dashed' : undefined}
+        >
+          {d.libelleEtat}
+        </BadgePlein>
+      ) : (
+        <Badge
+          variant='outline'
+          className={d.absente ? 'border-dashed' : undefined}
+        >
+          {d.libelleEtat}
+        </Badge>
+      )}
+      {d.facturationDemandee && <Badge variant='outline'>Brouillon</Badge>}
+    </span>
+  )
+}
+
+/**
+ * Une DSM en carte : l'opérateur, la période et l'état, puis l'échéance et le total HT. Une période absente n'a pas de
+ * DSM à ouvrir : sa carte, grisée, mène à la fiche de l'opérateur. Dans « Validées », une case la sélectionne pour la
+ * facturation.
+ */
+function CarteDsm({
+  dsm: d,
+  onOuvrir,
+  selection,
+}: {
+  dsm: DsmListee
+  onOuvrir?: () => void
+  selection?: { coche: boolean; basculer: (coche: boolean) => void }
+}) {
+  return (
+    <CarteListe
+      onOuvrir={onOuvrir}
+      lien={
+        onOuvrir
+          ? undefined
+          : { to: '/bo/operateurs/$id', params: { id: String(d.operateur) } }
+      }
+      titre={
+        <span className={cn(d.id == null && 'opacity-60')}>
+          {d.raisonSociale}
+        </span>
+      }
+    >
+      <div
+        className={cn(
+          'flex flex-wrap items-center gap-x-2 gap-y-1 text-sm',
+          d.id == null && 'opacity-60'
+        )}
+      >
+        <span className='text-muted-foreground font-mono'>
+          {d.codeOperateur}
+        </span>
+        <span className='font-medium'>{d.periode.libelle}</span>
+        <EtatDsm dsm={d} />
+        {!d.operateurFacturable && <NonFacturable />}
+      </div>
+      <div className='text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-sm'>
+        <span className='inline-flex items-center gap-1'>
+          Échéance <Echeance echeance={d.echeance} enRetard={d.enRetard} />
+        </span>
+        {d.totalHt != null && (
+          <span className='text-foreground tabular-nums'>
+            · {formatEuros(d.totalHt)} HT
+          </span>
+        )}
+      </div>
+      {selection && (
+        <label className='relative z-10 flex w-fit items-center gap-2 pt-1 text-sm'>
+          <Checkbox
+            checked={selection.coche}
+            onCheckedChange={(v) => selection.basculer(v === true)}
+          />
+          Sélectionner pour la facturation
+        </label>
+      )}
+    </CarteListe>
+  )
+}
+
 /** RG-OPE-02 : l'opérateur n'est pas facturable ; sa fiche dit ce qui manque. */
 function NonFacturable() {
   return (
@@ -515,7 +651,7 @@ function NonFacturable() {
         <span
           tabIndex={0}
           aria-label='Opérateur non facturable'
-          className='text-warning-foreground ms-1 inline-flex align-middle'
+          className='text-warning-foreground ms-1 inline-flex shrink-0 align-middle'
           onClick={(e) => e.stopPropagation()}
         >
           <TriangleAlert className='size-4' />

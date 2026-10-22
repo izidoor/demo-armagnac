@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Link,
@@ -8,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { ArrowLeft, ChevronRight, FileDown } from 'lucide-react'
 import { consulterMaFacture, listerMesFactures } from '@/api/generated'
-import { useDebounce } from '@/hooks/use-debounce'
+import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -43,16 +42,28 @@ type FiltreSens = 'TOUS' | 'FACTURE' | 'AVOIR'
 /**
  * Portail, menu « Factures » (spec 08 §6.2, RG-FAC-28) : les factures et avoirs émis dont l'opérateur actif est le
  * client, retrouvés par numéro, période et date d'émission, distingués par sens et par nature d'origine. Jamais de
- * brouillon. Une ligne ouvre la pièce.
+ * brouillon. Une ligne ouvre la pièce. Les filtres sont gardés dans l'adresse (`useFiltresAdresse`) : le retour depuis
+ * une pièce les retrouve.
  */
 export function PageMesFactures({ operateur }: { operateur: number }) {
   const navigate = useNavigate()
-  const [numero, setNumero] = useState('')
-  const [periode, setPeriode] = useState('')
-  const [sens, setSens] = useState<FiltreSens>('TOUS')
-  const [du, setDu] = useState('')
-  const [au, setAu] = useState('')
-  const textes = useDebounce({ numero, periode })
+  const [filtres, changer] = useFiltresAdresse({
+    sens: 'TOUS' as FiltreSens,
+    numero: '',
+    periode: '',
+    du: '',
+    au: '',
+  })
+  const { sens, du, au } = filtres
+  const [numero, setNumero, numeroStable] = useTexteAdresse(
+    filtres.numero,
+    (texte) => changer({ numero: texte })
+  )
+  const [periode, setPeriode, periodeStable] = useTexteAdresse(
+    filtres.periode,
+    (texte) => changer({ periode: texte })
+  )
+  const textes = { numero: numeroStable, periode: periodeStable }
   const filtre = {
     numero: textes.numero || undefined,
     periode: textes.periode || undefined,
@@ -92,7 +103,10 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
         </div>
         <div className='space-y-1'>
           <Label htmlFor='filtre-sens'>Pièces</Label>
-          <Select value={sens} onValueChange={(v) => setSens(v as FiltreSens)}>
+          <Select
+            value={sens}
+            onValueChange={(v) => changer({ sens: v as FiltreSens })}
+          >
             <SelectTrigger id='filtre-sens' className='w-36'>
               <SelectValue />
             </SelectTrigger>
@@ -120,7 +134,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
             type='date'
             className='w-40'
             value={du}
-            onChange={(e) => setDu(e.target.value)}
+            onChange={(e) => changer({ du: e.target.value })}
           />
         </div>
         <div className='space-y-1'>
@@ -130,7 +144,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
             type='date'
             className='w-40'
             value={au}
-            onChange={(e) => setAu(e.target.value)}
+            onChange={(e) => changer({ au: e.target.value })}
           />
         </div>
       </div>

@@ -16,6 +16,7 @@ import {
   Building2,
   CircleCheck,
   CircleHelp,
+  Ellipsis,
   FileDown,
   FileSpreadsheet,
   FileUp,
@@ -29,9 +30,16 @@ import {
 import { toast } from 'sonner'
 import { type AnomalieDsm, type Dsm, type ManqueDsm } from '@/api/generated'
 import { lireProbleme } from '@/lib/probleme'
+import { cn } from '@/lib/utils'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -433,9 +441,14 @@ function EditeurDsm({
     <PageMetier
       titre={`DSM de ${dsm.periode.libelle}`}
       complement={dsm.raisonSociale}
+      retour={{ libelle: 'Retour', onRetour: retour }}
       description={
         <span className='flex flex-wrap items-center gap-2'>
-          <Button variant='link' className='h-auto p-0' onClick={retour}>
+          <Button
+            variant='link'
+            className='h-auto p-0 max-md:hidden'
+            onClick={retour}
+          >
             <ArrowLeft className='size-4' />
             Retour
           </Button>
@@ -476,9 +489,38 @@ function EditeurDsm({
       }
       actions={
         <div className='ms-auto flex flex-wrap justify-end gap-2'>
+          {/* Sur un téléphone, les actions de consultation passent dans « Plus » : restent les actions sur la DSM. */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' className='md:hidden'>
+                <Ellipsis className='size-4' /> Plus
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='start'>
+              <DropdownMenuItem asChild>
+                <a href={api.urlExcel(dsm.id)} download onClick={editerExcel}>
+                  <FileSpreadsheet /> Excel
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={editerPdf}>
+                <FileDown /> PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setHistoriqueOuvert(true)}>
+                <History /> Historique
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setAideOuverte(true)}>
+                <CircleHelp /> Aide
+              </DropdownMenuItem>
+              {saisissable && (
+                <DropdownMenuItem onSelect={() => onImporter(modifie)}>
+                  <FileUp /> Importer
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant='outline' asChild>
+              <Button variant='outline' className='max-md:hidden' asChild>
                 <a href={api.urlExcel(dsm.id)} download onClick={editerExcel}>
                   <FileSpreadsheet className='size-4' /> Excel
                 </a>
@@ -494,7 +536,11 @@ function EditeurDsm({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant='outline' onClick={editerPdf}>
+              <Button
+                variant='outline'
+                className='max-md:hidden'
+                onClick={editerPdf}
+              >
                 <FileDown className='size-4' /> PDF
               </Button>
             </TooltipTrigger>
@@ -504,14 +550,26 @@ function EditeurDsm({
                 : 'Le PDF de la DSM, dans un nouvel onglet.'}
             </TooltipContent>
           </Tooltip>
-          <Button variant='outline' onClick={() => setHistoriqueOuvert(true)}>
+          <Button
+            variant='outline'
+            className='max-md:hidden'
+            onClick={() => setHistoriqueOuvert(true)}
+          >
             <History className='size-4' /> Historique
           </Button>
-          <Button variant='outline' onClick={() => setAideOuverte(true)}>
+          <Button
+            variant='outline'
+            className='max-md:hidden'
+            onClick={() => setAideOuverte(true)}
+          >
             <CircleHelp className='size-4' /> Aide
           </Button>
           {saisissable && (
-            <Button variant='outline' onClick={() => onImporter(modifie)}>
+            <Button
+              variant='outline'
+              className='max-md:hidden'
+              onClick={() => onImporter(modifie)}
+            >
               <FileUp className='size-4' /> Importer
             </Button>
           )}
@@ -950,9 +1008,13 @@ function PanneauAnomalies({
               : `${manques.length} pièces manquantes, attendues avant la validation`}
           </AlertTitle>
           <AlertDescription>
+            {/* Sur un contenu étroit, les trois premières ; les autres sont dans l'onglet Pièces. */}
             <ul className='mt-1 space-y-1'>
               {manques.map((m, i) => (
-                <li key={i}>
+                <li
+                  key={i}
+                  className={cn(i >= 3 && '@max-[48rem]/content:hidden')}
+                >
                   <button
                     type='button'
                     className='text-left underline-offset-2 hover:underline'
@@ -963,6 +1025,15 @@ function PanneauAnomalies({
                 </li>
               ))}
             </ul>
+            {manques.length > 3 && (
+              <Button
+                variant='link'
+                className='h-auto p-0 @min-[48rem]/content:hidden'
+                onClick={onMontrerPieces}
+              >
+                Les {manques.length} pièces dans l'onglet Pièces
+              </Button>
+            )}
           </AlertDescription>
         </Alert>
       )}

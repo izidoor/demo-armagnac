@@ -78,6 +78,8 @@ const router = createRouter({
   context: { queryClient },
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
+  // Une nouvelle page s'ouvre en haut ; au retour, une page retrouve son défilement (une liste, là où on l'a quittée).
+  scrollRestoration: true,
 })
 
 // Suivi de l'utilisation (features/suivi) : chaque écran, sous le gabarit de sa route.

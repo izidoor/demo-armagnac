@@ -11,7 +11,7 @@ export type HeaderProps = React.HTMLAttributes<HTMLElement> & {
   /** Le titre de la page, en petit, montré quand celui de la page est passé sous l'en-tête. */
   titre?: React.ReactNode
   titreVisible?: boolean
-  /** Page de second niveau : sur écran étroit, une flèche de retour vers la page parente remplace le bouton du menu. */
+  /** Page de second niveau : sur écran étroit, une flèche de retour (`useRetour`) remplace le bouton du menu. */
   retour?: { libelle: string; onRetour: () => void }
 }
 
@@ -63,7 +63,7 @@ export function Header({
             size='icon'
             className='size-7 scale-125 md:hidden'
             onClick={retour.onRetour}
-            aria-label={`Retour : ${retour.libelle}`}
+            aria-label={retour.libelle}
           >
             <ArrowLeft />
           </Button>

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { exporterOperateurs, listerOperateurs } from '@/api/generated'
-import { useDebounce } from '@/hooks/use-debounce'
+import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -56,24 +56,24 @@ const TOUS = 'tous'
  * et ses badges « Non facturable », « Non certifiable » se résument en une icône (`Manques`) : une ligne par
  * opérateur.
  */
-export function PageOperateurs({
-  type: typeInitial,
-  recherche: rechercheInitiale,
-}: {
-  type?: TypeOperateur
-  recherche?: string
-}) {
+export function PageOperateurs() {
   const navigate = useNavigate()
-  const [recherche, setRecherche] = useState(rechercheInitiale ?? '')
-  const [type, setType] = useState<string>(typeInitial ?? TOUS)
-  const [etat, setEtat] = useState('actifs')
-  const [completude, setCompletude] = useState(TOUS)
+  const [filtres, changer] = useFiltresAdresse({
+    type: TOUS as string,
+    etat: 'actifs',
+    completude: TOUS as string,
+    recherche: '',
+  })
+  const { type, etat, completude } = filtres
+  const [recherche, setRecherche, rechercheStable] = useTexteAdresse(
+    filtres.recherche,
+    (texte) => changer({ recherche: texte })
+  )
   const [creation, setCreation] = useState(false)
   const { actif } = useMoi()
   // RG-OPE-32 : créer un opérateur demande la gestion du module Contacts dans l'opérateur BNIA (l'actif).
   const creationPermise =
     useDroits(actif?.operateur ?? 0)?.contacts === 'GESTION'
-  const rechercheStable = useDebounce(recherche)
 
   const filtre = {
     type: type === TOUS ? undefined : (type as TypeOperateur),
@@ -150,7 +150,7 @@ export function PageOperateurs({
             className='h-9 w-full ps-8 sm:w-96'
           />
         </div>
-        <Select value={type} onValueChange={setType}>
+        <Select value={type} onValueChange={(v) => changer({ type: v })}>
           <SelectTrigger className='h-9 w-36'>
             <SelectValue />
           </SelectTrigger>
@@ -163,7 +163,7 @@ export function PageOperateurs({
             ))}
           </SelectContent>
         </Select>
-        <Select value={etat} onValueChange={setEtat}>
+        <Select value={etat} onValueChange={(v) => changer({ etat: v })}>
           <SelectTrigger className='h-9 w-32'>
             <SelectValue />
           </SelectTrigger>
@@ -173,7 +173,10 @@ export function PageOperateurs({
             <SelectItem value={TOUS}>Tous</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={completude} onValueChange={setCompletude}>
+        <Select
+          value={completude}
+          onValueChange={(v) => changer({ completude: v })}
+        >
           <SelectTrigger className='h-9 w-44'>
             <SelectValue />
           </SelectTrigger>

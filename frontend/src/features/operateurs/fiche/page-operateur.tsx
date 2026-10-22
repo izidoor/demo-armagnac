@@ -10,7 +10,7 @@ import {
   supprimerOperateur,
 } from '@/api/generated'
 import { cn } from '@/lib/utils'
-import { useRetour } from '@/hooks/use-retour'
+import { useRetour, useVersParente } from '@/hooks/use-retour'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -58,7 +58,8 @@ export function PageOperateur({
   const bo = espace === 'bo'
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const retourALaListe = useRetour({ to: '/bo/operateurs' })
+  const retour = useRetour({ to: '/bo/operateurs' })
+  const versLaListe = useVersParente({ to: '/bo/operateurs' })
   const requete = useQuery({
     queryKey: [...cleOperateur(id), 'fiche'],
     queryFn: apiOperateur(id).fiche,
@@ -156,16 +157,14 @@ export function PageOperateur({
       titre={
         bo ? fiche.raisonSociale : `Mon entreprise · ${fiche.raisonSociale}`
       }
-      retour={
-        bo ? { libelle: 'Opérateurs', onRetour: retourALaListe } : undefined
-      }
+      retour={bo ? { libelle: 'Retour', onRetour: retour } : undefined}
       description={
         <span className='flex flex-wrap items-center gap-2'>
           {bo && (
             <Button
               variant='link'
               className='h-auto p-0 max-md:hidden'
-              onClick={retourALaListe}
+              onClick={versLaListe}
             >
               <ArrowLeft className='size-4' /> Opérateurs
             </Button>

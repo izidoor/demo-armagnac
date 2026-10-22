@@ -1,12 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { ChampsIdentite } from './champs-identite'
 import { millesimee } from './libelles'
 import { type IdentiteSaisie, versApi } from './saisie-ligne'
@@ -37,31 +31,23 @@ export function DialogueLigne({
     onOpenChange(false)
   }
   return (
-    <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-3xl'>
-        <DialogHeader>
-          <DialogTitle>Ajouter une ligne</DialogTitle>
-          <DialogDescription>
-            Une ligne millésimée (MB, MV) porte un millésime ; un assemblage
-            (NB, NV), une dénomination. Le compte d'âge d'une ligne MB se
-            calcule depuis son millésime.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={soumettre} className='space-y-4'>
-          <div className='grid gap-4 sm:grid-cols-[1fr_1.3fr_0.7fr]'>
-            <ChampsIdentite
-              etiquettes
-              valeur={identite}
-              onChange={setIdentite}
-            />
-          </div>
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={!complete}>
-              Ajouter
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <DialogueFormulaire
+      ouvert
+      onOuvertChange={onOpenChange}
+      className='sm:max-w-3xl'
+      titre='Ajouter une ligne'
+      description="Une ligne millésimée (MB, MV) porte un millésime ; un assemblage (NB, NV), une dénomination. Le compte d'âge d'une ligne MB se calcule depuis son millésime."
+    >
+      <form onSubmit={soumettre} className='space-y-4'>
+        <div className='grid gap-4 sm:grid-cols-[1fr_1.3fr_0.7fr]'>
+          <ChampsIdentite etiquettes valeur={identite} onChange={setIdentite} />
+        </div>
+        <div className='flex justify-end'>
+          <Button type='submit' className='max-md:w-full' disabled={!complete}>
+            Ajouter
+          </Button>
+        </div>
+      </form>
+    </DialogueFormulaire>
   )
 }

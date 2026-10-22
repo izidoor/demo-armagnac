@@ -13,12 +13,30 @@ export function retenirEntree(router: AnyRouter) {
   chemins.set(state.__TSR_index, pathname)
 }
 
+/** Le premier segment d'un chemin : l'espace (`bo`, `portail`), hors duquel le retour ne remonte pas (connexion). */
+const espace = (chemin: string) => chemin.split('/')[1]
+
 /**
- * Le retour d'une page de second niveau vers sa page parente (de la fiche d'un opérateur à la liste) : si la page
- * précédente dans l'historique est la parente, on y revient en arrière, comme le bouton retour du téléphone ; sinon
- * (page ouverte par un lien, une recherche, une adresse), on ouvre la parente.
+ * La flèche de retour d'une page de second niveau, dans l'en-tête : la page précédente, comme le bouton retour du
+ * téléphone (de la fiche d'un opérateur ouverte depuis une DSM, on revient à la DSM). Sans page précédente dans
+ * l'application et dans le même espace (page ouverte par une adresse, après la connexion), on ouvre la page parente.
  */
 export function useRetour(parente: NavigateOptions) {
+  const router = useRouter()
+  return () => {
+    const { pathname, state } = router.history.location
+    const precedente = chemins.get(state.__TSR_index - 1)
+    if (precedente && espace(precedente) === espace(pathname))
+      router.history.back()
+    else router.navigate(parente)
+  }
+}
+
+/**
+ * Le lien vers la page parente (« ← Opérateurs », sous le titre, sur ordinateur) : il mène à la parente. Si la page
+ * précédente est la parente, on y revient en arrière, pour retrouver son historique ; sinon on l'ouvre.
+ */
+export function useVersParente(parente: NavigateOptions) {
   const router = useRouter()
   return () => {
     const rang = router.history.location.state.__TSR_index

@@ -11,13 +11,6 @@ import {
 } from '@/api/generated'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -36,6 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
 import { apiDeclarations } from './api'
 import { formatDateHeure } from './format'
 import { identite } from './libelles'
@@ -441,96 +435,98 @@ function DialogueJustificatif({
   }
 
   return (
-    <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-xl'>
-        <DialogHeader>
-          <DialogTitle>Déposer un justificatif</DialogTitle>
-          <DialogDescription>
-            Un PDF de 10 Mo au plus, sur la DSM ou sur une de ses lignes.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={soumettre} className='space-y-4'>
-          <div className='grid gap-4 sm:grid-cols-2'>
-            <div className='space-y-1'>
-              <Label htmlFor='piece-mouvement'>Type de mouvement</Label>
-              <Select
-                value={typeMouvement}
-                onValueChange={(v) => choisirMouvement(v as TypeMouvement)}
-              >
-                <SelectTrigger id='piece-mouvement' className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {types.map((t) => (
-                    <SelectItem key={t.type} value={t.type}>
-                      {t.libelle}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className='space-y-1'>
-              <Label htmlFor='piece-type'>Type de pièce</Label>
-              <Select
-                value={typePiece}
-                onValueChange={(v) => setTypePiece(v as TypePiece)}
-              >
-                <SelectTrigger id='piece-type' className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {compatibles.map((p) => (
-                    <SelectItem key={p.type} value={p.type}>
-                      {p.libelle}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className='space-y-1'>
-              <Label htmlFor='piece-ligne'>Porte sur</Label>
-              <Select value={ligne} onValueChange={setLigne}>
-                <SelectTrigger id='piece-ligne' className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SUR_LA_DSM}>La DSM</SelectItem>
-                  {dsm.lignes
-                    .filter((l) => l.id != null)
-                    .map((l) => (
-                      <SelectItem key={l.id} value={String(l.id)}>
-                        Ligne {identite(l)}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className='space-y-1'>
-              <Label htmlFor='piece-reference'>Référence DAE/DAI</Label>
-              <Input
-                id='piece-reference'
-                value={reference}
-                onChange={(e) => setReference(e.target.value)}
-                placeholder='Facultative'
-              />
-            </div>
+    <DialogueFormulaire
+      ouvert
+      onOuvertChange={onOpenChange}
+      className='sm:max-w-xl'
+      titre='Déposer un justificatif'
+      description='Un PDF de 10 Mo au plus, sur la DSM ou sur une de ses lignes.'
+    >
+      <form onSubmit={soumettre} className='space-y-4'>
+        <div className='grid gap-4 sm:grid-cols-2'>
+          <div className='space-y-1'>
+            <Label htmlFor='piece-mouvement'>Type de mouvement</Label>
+            <Select
+              value={typeMouvement}
+              onValueChange={(v) => choisirMouvement(v as TypeMouvement)}
+            >
+              <SelectTrigger id='piece-mouvement' className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {types.map((t) => (
+                  <SelectItem key={t.type} value={t.type}>
+                    {t.libelle}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className='space-y-1'>
-            <Label htmlFor='piece-fichier'>Fichier PDF</Label>
+            <Label htmlFor='piece-type'>Type de pièce</Label>
+            <Select
+              value={typePiece}
+              onValueChange={(v) => setTypePiece(v as TypePiece)}
+            >
+              <SelectTrigger id='piece-type' className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {compatibles.map((p) => (
+                  <SelectItem key={p.type} value={p.type}>
+                    {p.libelle}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='space-y-1'>
+            <Label htmlFor='piece-ligne'>Porte sur</Label>
+            <Select value={ligne} onValueChange={setLigne}>
+              <SelectTrigger id='piece-ligne' className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={SUR_LA_DSM}>La DSM</SelectItem>
+                {dsm.lignes
+                  .filter((l) => l.id != null)
+                  .map((l) => (
+                    <SelectItem key={l.id} value={String(l.id)}>
+                      Ligne {identite(l)}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='space-y-1'>
+            <Label htmlFor='piece-reference'>Référence DAE/DAI</Label>
             <Input
-              id='piece-fichier'
-              type='file'
-              accept='application/pdf'
-              onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
+              id='piece-reference'
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              placeholder='Facultative'
             />
           </div>
-          <div className='flex justify-end'>
-            <Button type='submit' disabled={!fichier || depot.isPending}>
-              Déposer
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+        <div className='space-y-1'>
+          <Label htmlFor='piece-fichier'>Fichier PDF</Label>
+          <Input
+            id='piece-fichier'
+            type='file'
+            accept='application/pdf'
+            onChange={(e) => setFichier(e.target.files?.[0] ?? null)}
+          />
+        </div>
+        <div className='flex justify-end'>
+          <Button
+            type='submit'
+            className='max-md:w-full'
+            disabled={!fichier || depot.isPending}
+          >
+            Déposer
+          </Button>
+        </div>
+      </form>
+    </DialogueFormulaire>
   )
 }

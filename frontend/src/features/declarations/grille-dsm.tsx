@@ -32,6 +32,11 @@ type Sommes = ReturnType<typeof sommes>
  * d'information se confond avec celui de la page : le bleu de sa bordure, plus clair et plus coloré.
  */
 const CALCULEE = 'bg-info/60 dark:bg-info-border/50'
+/**
+ * Les colonnes « Clé » et « Compte d'âge », sous 40rem de grille (`@container/grille`) : masquées, rappelées sous la
+ * désignation dans la colonne fixe, pour laisser voir les volumes à côté d'elle sur un téléphone.
+ */
+const IDENTITE_LARGE = '@max-[40rem]/grille:hidden'
 const ENTETE_CALCULEE = 'bg-info dark:bg-info-border/80'
 /** Fond hachuré des colonnes sans objet pour un producteur (RG-DEC-16). */
 const SANS_OBJET =
@@ -182,17 +187,19 @@ export function GrilleDsm({
     />
   )
   return (
-    <div className='space-y-2'>
+    <div className='@container/grille space-y-2'>
       <Legende calculees={avecCalculees} sansObjet={avecSansObjet} />
       <div className='overflow-x-auto rounded-md border'>
         <Table className='[&_td]:border-r [&_th]:border-r [&_tr>*:last-child]:border-r-0'>
           <TableHeader>
             <TableRow className='bg-[color-mix(in_oklab,var(--muted)_50%,var(--background))] hover:bg-[color-mix(in_oklab,var(--muted)_50%,var(--background))] [&>th]:py-2 [&>th]:align-top'>
-              <TableHead className='sticky left-0 min-w-40 bg-[color-mix(in_oklab,var(--muted)_50%,var(--background))] whitespace-normal'>
+              <TableHead className='sticky left-0 min-w-40 bg-[color-mix(in_oklab,var(--muted)_50%,var(--background))] whitespace-normal @max-[40rem]/grille:min-w-28'>
                 {entete('designation', 'Millésime ou dénomination')}
               </TableHead>
-              <TableHead>{entete('cle', 'Clé')}</TableHead>
-              <TableHead className='text-center'>
+              <TableHead className={IDENTITE_LARGE}>
+                {entete('cle', 'Clé')}
+              </TableHead>
+              <TableHead className={cn('text-center', IDENTITE_LARGE)}>
                 {entete(
                   'compte',
                   <>
@@ -207,7 +214,7 @@ export function GrilleDsm({
                 <TableHead
                   key={c.numero}
                   className={cn(
-                    'h-auto min-w-36 py-2 text-right whitespace-normal',
+                    'h-auto min-w-36 py-2 text-right whitespace-normal @max-[40rem]/grille:min-w-28',
                     calculee(c) && ENTETE_CALCULEE,
                     c.grisee && 'bg-muted-foreground/10 text-muted-foreground'
                   )}
@@ -276,8 +283,11 @@ export function GrilleDsm({
                   id={`ligne-${onglet}-${i}`}
                   className={cn(ligneEnEvidence === i && 'bg-warning')}
                 >
-                  <TableCell className='bg-background sticky left-0 font-medium whitespace-nowrap'>
+                  <TableCell className='bg-background sticky left-0 font-medium whitespace-nowrap @max-[40rem]/grille:whitespace-normal'>
                     {designation(l)}
+                    <span className='text-muted-foreground block text-xs font-normal @min-[40rem]/grille:hidden'>
+                      {l.cle} · compte {comptes[i] ?? l.compte}
+                    </span>
                     {l.origine === 'AJOUT' && (
                       <span className='text-muted-foreground ml-1 text-xs'>
                         ajoutée
@@ -295,8 +305,10 @@ export function GrilleDsm({
                       </button>
                     )}
                   </TableCell>
-                  <TableCell className='font-medium'>{l.cle}</TableCell>
-                  <TableCell className='text-center'>
+                  <TableCell className={cn('font-medium', IDENTITE_LARGE)}>
+                    {l.cle}
+                  </TableCell>
+                  <TableCell className={cn('text-center', IDENTITE_LARGE)}>
                     {comptes[i] ?? l.compte}
                   </TableCell>
                   {visibles.map((c) => {
@@ -384,8 +396,8 @@ export function GrilleDsm({
                   </Button>
                 </TableCell>
                 {/* Cellules vides : le quadrillage se poursuit sous chaque colonne. */}
-                <TableCell />
-                <TableCell />
+                <TableCell className={IDENTITE_LARGE} />
+                <TableCell className={IDENTITE_LARGE} />
                 {visibles.map((c) => (
                   <TableCell
                     key={c.numero}
@@ -408,8 +420,8 @@ export function GrilleDsm({
           <TableFooter className='bg-muted'>
             <TableRow className='hover:bg-muted'>
               <TableCell className='bg-muted sticky left-0'>Total</TableCell>
-              <TableCell />
-              <TableCell />
+              <TableCell className={IDENTITE_LARGE} />
+              <TableCell className={IDENTITE_LARGE} />
               {visibles.map((c) => (
                 <TableCell
                   key={c.numero}
@@ -451,22 +463,25 @@ function Raccourcis({ saisissable }: { saisissable: boolean }) {
     <p className='text-muted-foreground flex flex-wrap gap-x-5 gap-y-1 text-xs'>
       {saisissable && (
         <>
-          <span>
+          <span className='pointer-coarse:hidden'>
             <Touche>↑</Touche> <Touche>↓</Touche> <Touche>Entrée</Touche> :
             cellule du dessus ou du dessous
           </span>
-          <span>
+          <span className='pointer-coarse:hidden'>
             <Touche>←</Touche> <Touche>→</Touche> : cellule voisine, depuis le
             bord du texte
           </span>
-          <span>
+          <span className='pointer-coarse:hidden'>
             <Touche>Tab</Touche> : cellule suivante
           </span>
         </>
       )}
-      <span>
+      <span className='@max-[40rem]/grille:hidden'>
         Clic sur « Millésime ou dénomination », « Clé » ou « Compte d'âge » :
         trier les lignes
+      </span>
+      <span className='@min-[40rem]/grille:hidden'>
+        « Millésime ou dénomination » : trier les lignes
       </span>
     </p>
   )

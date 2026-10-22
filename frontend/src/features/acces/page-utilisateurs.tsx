@@ -11,7 +11,7 @@ import {
   listerUtilisateurs,
   type EtatCompte,
 } from '@/api/generated'
-import { useDebounce } from '@/hooks/use-debounce'
+import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -70,12 +70,22 @@ function useEtatsComptes(utilisateurs: number[]) {
   }).data
 }
 
-/** Utilisateurs, au back-office (RG-OPE-53) : liste filtrable par nom ou e-mail, statut, opérateur. */
+/**
+ * Utilisateurs, au back-office (RG-OPE-53) : liste filtrable par nom ou e-mail, statut, opérateur. Les filtres sont
+ * gardés dans l'adresse (`useFiltresAdresse`) : le retour depuis un utilisateur les retrouve.
+ */
 export function PageUtilisateurs() {
   const navigate = useNavigate()
-  const [recherche, setRecherche] = useState('')
-  const [statut, setStatut] = useState(TOUS)
-  const texte = useDebounce(recherche.trim())
+  const [filtres, changer] = useFiltresAdresse({
+    statut: TOUS as string,
+    recherche: '',
+  })
+  const { statut } = filtres
+  const [recherche, setRecherche, stable] = useTexteAdresse(
+    filtres.recherche,
+    (texte) => changer({ recherche: texte })
+  )
+  const texte = stable.trim()
   const utilisateurs = useQuery({
     queryKey: ['utilisateurs', texte, statut],
     queryFn: () =>
@@ -101,7 +111,7 @@ export function PageUtilisateurs() {
           value={recherche}
           onChange={(e) => setRecherche(e.target.value)}
         />
-        <Select value={statut} onValueChange={setStatut}>
+        <Select value={statut} onValueChange={(v) => changer({ statut: v })}>
           <SelectTrigger className='w-48'>
             <SelectValue />
           </SelectTrigger>

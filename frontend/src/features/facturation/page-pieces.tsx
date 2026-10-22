@@ -11,7 +11,7 @@ import {
   type PieceListee,
 } from '@/api/generated'
 import { cn } from '@/lib/utils'
-import { useDebounce } from '@/hooks/use-debounce'
+import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -59,17 +59,11 @@ type OngletPieces = 'brouillons' | 'emises' | 'payees'
  * période et date d'émission (RG-FAC-27), et l'onglet « Brouillons », où qui gère la facturation sélectionne des
  * brouillons à émettre ensemble, avec un compte rendu par brouillon (RG-FAC-19) ; dans l'onglet « Émises », il
  * sélectionne des pièces à transmettre à Zeendoc, une seule fois chacune (RG-FAC-32, simulé) ; les pièces payées
- * passent dans l'onglet « Payées » (RG-FAC-33). Filtrable sur un client par
- * l'URL ; la fiche opérateur a son propre onglet « Factures ». Une ligne ouvre la pièce.
+ * passent dans l'onglet « Payées » (RG-FAC-33). Filtrable sur un client par l'URL ; la fiche opérateur a son propre
+ * onglet « Factures ». Une ligne ouvre la pièce. Le client, l'onglet et les filtres sont gardés dans l'adresse
+ * (`useFiltresAdresse`) : le retour depuis une pièce les retrouve.
  */
-export function PagePieces({
-  client,
-  onglet,
-}: {
-  client?: string
-  onglet: OngletPieces
-}) {
-  const navigate = useNavigate()
+export function PagePieces() {
   const queryClient = useQueryClient()
   const { actif } = useMoi()
   const gere = useDroits(actif?.operateur ?? 0)?.facturation === 'GESTION'
@@ -79,14 +73,36 @@ export function PagePieces({
     comptesRendus: CompteRenduEmission[]
     selection: PieceListee[]
   }>()
-  const [numero, setNumero] = useState('')
-  const [acheteur, setAcheteur] = useState('')
-  const [periode, setPeriode] = useState('')
-  const [du, setDu] = useState('')
-  const [au, setAu] = useState('')
-  const brouillons = onglet === 'brouillons'
+  const [filtres, changer] = useFiltresAdresse({
+    onglet: 'brouillons' as OngletPieces,
+    client: '',
+    numero: '',
+    acheteur: '',
+    periode: '',
+    du: '',
+    au: '',
+  })
+  const { onglet, du, au } = filtres
+  const client = filtres.client || undefined
   // Les textes saisis filtrent une fois la frappe arrêtée.
-  const textes = useDebounce({ numero, acheteur, periode })
+  const [numero, setNumero, numeroStable] = useTexteAdresse(
+    filtres.numero,
+    (texte) => changer({ numero: texte })
+  )
+  const [acheteur, setAcheteur, acheteurStable] = useTexteAdresse(
+    filtres.acheteur,
+    (texte) => changer({ acheteur: texte })
+  )
+  const [periode, setPeriode, periodeStable] = useTexteAdresse(
+    filtres.periode,
+    (texte) => changer({ periode: texte })
+  )
+  const textes = {
+    numero: numeroStable,
+    acheteur: acheteurStable,
+    periode: periodeStable,
+  }
+  const brouillons = onglet === 'brouillons'
   const filtre = {
     client,
     etat: brouillons ? ('BROUILLON' as const) : ('EMISE' as const),
@@ -167,10 +183,7 @@ export function PagePieces({
   })
   const changerOnglet = (o: string) => {
     setSelection(new Set())
-    navigate({
-      to: '/bo/facturation',
-      search: { client, onglet: o as OngletPieces },
-    })
+    changer({ onglet: o as OngletPieces })
   }
   const nomClient = pieces.find((p) => p.clientIdentifiant === client)
 
@@ -210,9 +223,7 @@ export function PagePieces({
                 size='icon'
                 className='size-6'
                 aria-label='Retirer le filtre sur le client'
-                onClick={() =>
-                  navigate({ to: '/bo/facturation', search: { onglet } })
-                }
+                onClick={() => changer({ client: '' })}
               >
                 <X className='size-4' />
               </Button>
@@ -260,7 +271,7 @@ export function PagePieces({
                 type='date'
                 className='w-40'
                 value={du}
-                onChange={(e) => setDu(e.target.value)}
+                onChange={(e) => changer({ du: e.target.value })}
               />
             </div>
             <div className='space-y-1'>
@@ -270,7 +281,7 @@ export function PagePieces({
                 type='date'
                 className='w-40'
                 value={au}
-                onChange={(e) => setAu(e.target.value)}
+                onChange={(e) => changer({ au: e.target.value })}
               />
             </div>
           </>
