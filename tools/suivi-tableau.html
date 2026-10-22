@@ -1,0 +1,520 @@
+<!doctype html>
+<!--
+  Tableau du suivi de l'utilisation du prototype : modèle rempli par `./suivi.sh tableau`, qui y insère les événements
+  bruts (rapport `evenements`, en base64) et écrit la page dans out/suivi-tableau.html. Visites, parcours et temps
+  passé sont recalculés ici, avec les règles de RapportSuivi.java : visite coupée après 30 min sans événement du
+  front, temps d'un événement jusqu'au suivant de la session (90 s au plus), fichiers rangés dans l'étape en cours.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi du prototype</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --ring: rgba(11, 11, 11, 0.10);
+    --serie: #2a78d6;
+    --chip: #f0efec;
+    --critique: #d03b3b;
+    --seq-1: #cde2fb; --seq-2: #9ec5f4; --seq-3: #5598e7; --seq-4: #256abf; --seq-5: #104281;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255, 255, 255, 0.10); --serie: #3987e5; --chip: #262624;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255, 255, 255, 0.10); --serie: #3987e5; --chip: #262624;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  .source { color: var(--ink-2); margin: 0 0 16px; }
+  .filtres {
+    display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end;
+    padding: 12px 0 16px; border-bottom: 1px solid var(--grid); margin-bottom: 20px;
+  }
+  .filtres label { display: grid; gap: 4px; color: var(--ink-2); font-size: 12px; }
+  .filtres input, .filtres select, .filtres button {
+    font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis);
+    border-radius: 6px; padding: 5px 8px; min-height: 32px;
+  }
+  .filtres input[type="text"] { width: 280px; max-width: 100%; }
+  .filtres button { cursor: pointer; }
+  .tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .tuile, .carte {
+    background: var(--surface); border-radius: 10px; box-shadow: 0 0 0 1px var(--ring);
+  }
+  .tuile { padding: 12px 14px; }
+  .tuile .valeur { font-size: 26px; font-weight: 600; }
+  .tuile .libelle { color: var(--ink-2); font-size: 12px; }
+  .carte { padding: 16px; margin-bottom: 20px; overflow-x: auto; }
+  .note { color: var(--muted); font-size: 12px; margin: -6px 0 12px; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th { color: var(--ink-2); font-weight: 500; font-size: 12px; }
+  td.nombre, th.nombre { text-align: right; }
+  tr.cliquable { cursor: pointer; }
+  tr.cliquable:hover td { background: var(--chip); }
+  .vide { color: var(--muted); }
+  /* Activité par jour : barres verticales ancrées sur la ligne de base. */
+  .jours { display: flex; align-items: flex-end; gap: 2px; height: 160px; border-bottom: 1px solid var(--axis); }
+  .jour { flex: 1 1 0; min-width: 6px; max-width: 48px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; }
+  .jour .etiquette { color: var(--ink-2); font-size: 11px; text-align: center; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+  .jour .barre { width: 100%; background: var(--serie); border-radius: 4px 4px 0 0; min-height: 2px; }
+  .jours-axe { display: flex; gap: 2px; color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .jours-axe span { flex: 1 1 0; min-width: 6px; max-width: 48px; text-align: center; overflow: hidden; }
+  /* Écrans : barres horizontales. */
+  .ecrans { display: grid; grid-template-columns: minmax(180px, 360px) 1fr auto; gap: 4px 12px; align-items: center; }
+  .ecrans .lieu { font-family: ui-monospace, monospace; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ecrans .piste { height: 14px; }
+  .ecrans .barre { height: 100%; background: var(--serie); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .ecrans .chiffre { color: var(--ink-2); font-variant-numeric: tabular-nums; font-size: 12px; text-align: right; }
+  /* Offre : grille sections × personnes. */
+  .grille td.cellule { text-align: center; min-width: 64px; border: 2px solid var(--surface); border-radius: 4px; }
+  .grille .section { font-family: ui-monospace, monospace; font-size: 12px; }
+  /* Visites. */
+  .visite { padding: 12px 0; border-bottom: 1px solid var(--grid); }
+  .visite:last-child { border-bottom: 0; }
+  .visite .tete { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; }
+  .visite .qui { font-weight: 600; }
+  .visite .quand { color: var(--ink-2); }
+  .parcours { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; }
+  .etape { background: var(--chip); border-radius: 6px; padding: 4px 8px; max-width: 100%; }
+  .etape .lieu { font-family: ui-monospace, monospace; font-size: 12px; }
+  .etape .duree { color: var(--ink-2); font-size: 12px; margin-left: 6px; }
+  .etape .fichier { display: block; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+  .fleche { color: var(--muted); padding-top: 4px; }
+  .refuse { color: var(--critique); font-weight: 500; }
+  .plus { margin-top: 12px; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  #infobulle {
+    position: fixed; pointer-events: none; z-index: 10; display: none; white-space: pre-line;
+    background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--ring), 0 4px 16px rgba(0, 0, 0, 0.18);
+    border-radius: 8px; padding: 8px 10px; font-size: 12px; max-width: 320px;
+  }
+  [data-info] { cursor: default; }
+  [data-info]:focus-visible { outline: 2px solid var(--serie); outline-offset: 1px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Suivi du prototype</h1>
+  <p class="source" id="source"></p>
+
+  <div class="filtres">
+    <label>Du <input type="date" id="du"></label>
+    <label>Au <input type="date" id="au"></label>
+    <label>Personne <select id="personne"><option value="">Toutes</option></select></label>
+    <label>Exclure (e-mails, séparés par des virgules) <input type="text" id="exclus" placeholder="moi@exemple.fr"></label>
+    <button type="button" id="reinitialiser">Réinitialiser</button>
+  </div>
+
+  <div class="tuiles" id="tuiles"></div>
+
+  <section class="carte">
+    <h2>Personnes</h2>
+    <p class="note">Cliquer une ligne pour ne voir que cette personne.</p>
+    <div id="personnes"></div>
+  </section>
+
+  <section class="carte">
+    <h2>Minutes passées par jour</h2>
+    <div id="jours"></div>
+  </section>
+
+  <section class="carte">
+    <h2>Visites</h2>
+    <p class="note">Les plus récentes d'abord. Chaque étape du parcours : l'écran, ses minutes, et les fichiers téléchargés (↓) ou importés (↑) depuis cet écran.</p>
+    <div id="visites"></div>
+  </section>
+
+  <section class="carte">
+    <h2>Écrans, par minutes passées</h2>
+    <div id="ecrans"></div>
+  </section>
+
+  <section class="carte">
+    <h2>Offre : minutes de lecture par section et par personne</h2>
+    <div id="offre"></div>
+  </section>
+
+  <section class="carte">
+    <h2>Fichiers téléchargés et importés</h2>
+    <div id="fichiers"></div>
+  </section>
+</main>
+<div id="infobulle" role="tooltip"></div>
+
+<script id="donnees" type="text/plain">
+__DONNEES__
+</script>
+<script>
+'use strict'
+
+const SOURCE = '__SOURCE__'
+const GENERE = '__GENERE__'
+const FRONT = new Set(['ECRAN', 'OFFRE', 'PRESENCE'])
+const PAUSE = 30 * 60 * 1000
+const PLAFOND = 90 * 1000
+const CLE = 'suivi-tableau-filtres'
+
+// ---- Données : CSV « ; » du rapport evenements, en base64 (aucun texte des données n'est interprété comme du HTML).
+function lire() {
+  const b64 = document.getElementById('donnees').textContent.replace(/\s+/g, '')
+  const octets = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))
+  const lignes = new TextDecoder().decode(octets).split('\n').filter((l) => l.trim() !== '')
+  const entetes = lignes.shift().split(';')
+  return lignes.map((l) => {
+    const valeurs = l.split(';')
+    const e = Object.fromEntries(entetes.map((h, i) => [h, valeurs[i] ?? '']))
+    e.t = new Date(e.instant.replace(' ', 'T')).getTime()
+    e.jour = e.instant.slice(0, 10)
+    e.statut = e.statut === '' ? null : Number(e.statut)
+    return e
+  }).sort((a, b) => a.t - b.t)
+}
+
+// ---- Calculs : les règles de RapportSuivi.java.
+function calculer(evenements) {
+  const parSession = new Map()
+  for (const e of evenements) {
+    if (!parSession.has(e.session)) parSession.set(e.session, [])
+    parSession.get(e.session).push(e)
+  }
+  const visites = []
+  for (const liste of parSession.values()) {
+    const front = liste.filter((e) => FRONT.has(e.type))
+    const fichiers = liste.filter((e) => !FRONT.has(e.type))
+    const siennes = []
+    let visite = null
+    front.forEach((e, i) => {
+      const suivant = front[i + 1]
+      e.temps = suivant ? Math.min(suivant.t - e.t, PLAFOND) : 0
+      if (!visite || e.t - visite.fin > PAUSE) {
+        visite = { email: e.email, appareil: e.appareil, debut: e.t, fin: e.t, etapes: [], fichiers: [] }
+        siennes.push(visite)
+      }
+      visite.fin = e.t
+      const derniere = visite.etapes[visite.etapes.length - 1]
+      if (derniere && derniere.lieu === e.lieu) derniere.temps += e.temps
+      else visite.etapes.push({ lieu: e.lieu, debut: e.t, temps: e.temps, fichiers: [] })
+    })
+    for (const f of fichiers) {
+      const v = siennes.find((s) => f.t >= s.debut && f.t < s.fin + PAUSE)
+      if (!v) continue
+      const etape = [...v.etapes].reverse().find((s) => s.debut <= f.t) ?? v.etapes[0]
+      etape.fichiers.push(f)
+      v.fichiers.push(f)
+    }
+    visites.push(...siennes)
+  }
+  visites.sort((a, b) => b.debut - a.debut)
+  return visites
+}
+
+// ---- Filtres, retenus par ce navigateur.
+let tous = []
+const champs = ['du', 'au', 'personne', 'exclus'].map((id) => document.getElementById(id))
+
+function filtres() {
+  const [du, au, personne, exclus] = champs.map((c) => c.value.trim())
+  return { du, au, personne, exclus: exclus.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean) }
+}
+
+function retenir() {
+  try { localStorage.setItem(CLE, JSON.stringify(champs.map((c) => c.value))) } catch { /* sans stockage */ }
+}
+
+function restaurer() {
+  try {
+    const valeurs = JSON.parse(localStorage.getItem(CLE) ?? 'null')
+    if (Array.isArray(valeurs)) champs.forEach((c, i) => { c.value = valeurs[i] ?? '' })
+  } catch { /* sans stockage */ }
+}
+
+function selection() {
+  const f = filtres()
+  return tous.filter((e) =>
+    (!f.du || e.jour >= f.du) && (!f.au || e.jour <= f.au) && (!f.personne || e.email === f.personne) &&
+    !f.exclus.includes(e.email.toLowerCase()))
+}
+
+// ---- Outils d'affichage : tout le texte passe par textContent.
+function el(tag, attributs = {}, ...enfants) {
+  const n = document.createElement(tag)
+  for (const [k, v] of Object.entries(attributs)) {
+    if (k === 'class') n.className = v
+    else if (k === 'style') Object.assign(n.style, v)
+    else if (k === 'info') { n.dataset.info = v; n.tabIndex = 0 }
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v)
+    else n.setAttribute(k, v)
+  }
+  for (const e of enfants.flat()) if (e !== null && e !== undefined) n.append(e instanceof Node ? e : String(e))
+  return n
+}
+
+const nombre = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1, minimumFractionDigits: 1 })
+const entier = new Intl.NumberFormat('fr-FR')
+const minutes = (ms) => nombre.format(ms / 60000)
+const dateHeure = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+const heure = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' })
+const jourCourt = (j) => `${j.slice(8, 10)}/${j.slice(5, 7)}`
+
+function tableau(colonnes, lignes, surClic) {
+  const t = el('table', {},
+    el('thead', {}, el('tr', {}, colonnes.map((c) => el('th', { class: c.nombre ? 'nombre' : '' }, c.titre)))))
+  const corps = el('tbody')
+  for (const l of lignes) {
+    const tr = el('tr', surClic ? { class: 'cliquable', onclick: () => surClic(l) } : {},
+      colonnes.map((c) => el('td', { class: c.nombre ? 'nombre' : '' }, c.valeur(l))))
+    corps.append(tr)
+  }
+  t.append(corps)
+  return t
+}
+
+function remplir(id, ...enfants) {
+  const n = document.getElementById(id)
+  n.replaceChildren(...enfants)
+}
+
+const rien = (texte = 'Aucune donnée pour ces filtres.') => el('p', { class: 'vide' }, texte)
+
+// ---- Sections.
+function afficher() {
+  const evenements = selection()
+  const visites = calculer(evenements)
+  const front = evenements.filter((e) => FRONT.has(e.type))
+  const fichiers = evenements.filter((e) => !FRONT.has(e.type))
+  const tempsTotal = front.reduce((s, e) => s + (e.temps ?? 0), 0)
+
+  remplir('tuiles',
+    tuile(new Set(evenements.map((e) => e.email)).size, 'personnes'),
+    tuile(visites.length, 'visites'),
+    tuile(Math.round(tempsTotal / 60000), 'minutes passées'),
+    tuile(fichiers.filter((e) => e.type === 'TELECHARGEMENT').length, 'téléchargements'),
+    tuile(fichiers.filter((e) => e.type === 'IMPORT').length, 'imports'))
+
+  afficherPersonnes(evenements, visites)
+  afficherJours(front, visites)
+  afficherVisites(visites)
+  afficherEcrans(front)
+  afficherOffre(front)
+  afficherFichiers(fichiers)
+}
+
+function tuile(valeur, libelle) {
+  return el('div', { class: 'tuile' }, el('div', { class: 'valeur' }, entier.format(valeur)), el('div', { class: 'libelle' }, libelle))
+}
+
+function afficherPersonnes(evenements, visites) {
+  const parEmail = new Map()
+  for (const e of evenements) {
+    if (!parEmail.has(e.email)) parEmail.set(e.email, { email: e.email, appareils: new Set(), temps: 0, visites: 0, telechargements: 0, imports: 0, premiere: e.t, derniere: e.t })
+    const p = parEmail.get(e.email)
+    p.appareils.add(e.appareil)
+    p.temps += e.temps ?? 0
+    if (e.type === 'TELECHARGEMENT') p.telechargements++
+    if (e.type === 'IMPORT') p.imports++
+    p.premiere = Math.min(p.premiere, e.t)
+    p.derniere = Math.max(p.derniere, e.t)
+  }
+  for (const v of visites) parEmail.get(v.email).visites++
+  const lignes = [...parEmail.values()].sort((a, b) => b.derniere - a.derniere)
+  remplir('personnes', lignes.length === 0 ? rien() : tableau([
+    { titre: 'E-mail', valeur: (p) => p.email },
+    { titre: 'Appareils', valeur: (p) => [...p.appareils].join(', ').toLowerCase() },
+    { titre: 'Visites', nombre: true, valeur: (p) => entier.format(p.visites) },
+    { titre: 'Minutes', nombre: true, valeur: (p) => minutes(p.temps) },
+    { titre: 'Téléchargements', nombre: true, valeur: (p) => entier.format(p.telechargements) },
+    { titre: 'Imports', nombre: true, valeur: (p) => entier.format(p.imports) },
+    { titre: 'Première venue', valeur: (p) => dateHeure.format(p.premiere) },
+    { titre: 'Dernière venue', valeur: (p) => dateHeure.format(p.derniere) },
+  ], lignes, (p) => { champs[2].value = p.email; retenir(); afficher() }))
+}
+
+function afficherJours(front, visites) {
+  if (front.length === 0) return remplir('jours', rien())
+  const parJour = new Map()
+  const premier = new Date(front[0].jour + 'T12:00')
+  const dernier = new Date(front[front.length - 1].jour + 'T12:00')
+  for (let d = premier; d <= dernier; d = new Date(d.getTime() + 86400000)) {
+    const j = d.toISOString().slice(0, 10)
+    parJour.set(j, { jour: j, temps: 0, visites: 0, personnes: new Set() })
+  }
+  for (const e of front) {
+    const j = parJour.get(e.jour)
+    j.temps += e.temps ?? 0
+    j.personnes.add(e.email)
+  }
+  for (const v of visites) {
+    const j = parJour.get(jourLocal(v.debut))
+    if (j) j.visites++
+  }
+  const jours = [...parJour.values()]
+  const max = Math.max(...jours.map((j) => j.temps), 1)
+  remplir('jours',
+    el('div', { class: 'jours' }, jours.map((j) => el('div', {
+      class: 'jour',
+      info: `${jourCourt(j.jour)}\n${minutes(j.temps)} min · ${j.visites} visite(s)\n${j.personnes.size} personne(s)`,
+    },
+      jours.length <= 14 && j.temps > 0 ? el('span', { class: 'etiquette' }, Math.round(j.temps / 60000)) : null,
+      el('div', { class: 'barre', style: { height: `${(j.temps / max) * 85}%` } })))),
+    el('div', { class: 'jours-axe' }, jours.map((j, i) => el('span', {}, jours.length <= 14 || i % Math.ceil(jours.length / 14) === 0 ? jourCourt(j.jour) : ''))))
+}
+
+function jourLocal(t) {
+  const d = new Date(t)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+let visitesMontrees = 30
+
+function afficherVisites(visites) {
+  if (visites.length === 0) return remplir('visites', rien())
+  const blocs = visites.slice(0, visitesMontrees).map((v) => el('div', { class: 'visite' },
+    el('div', { class: 'tete' },
+      el('span', { class: 'qui' }, v.email),
+      el('span', { class: 'quand' }, `${dateHeure.format(v.debut)} → ${heure.format(v.fin)} · ${Math.round((v.fin - v.debut) / 60000)} min · ${v.appareil.toLowerCase()}`)),
+    el('div', { class: 'parcours' }, v.etapes.flatMap((s, i) => [
+      i > 0 ? el('span', { class: 'fleche', 'aria-hidden': 'true' }, '→') : null,
+      el('div', { class: 'etape' },
+        el('span', { class: 'lieu' }, s.lieu),
+        el('span', { class: 'duree' }, `${minutes(s.temps)} min`),
+        s.fichiers.map(fichier)),
+    ]))))
+  const suite = visites.length > visitesMontrees
+    ? el('button', { class: 'plus', type: 'button', onclick: () => { visitesMontrees += 30; afficher() } }, `Afficher plus (${visites.length - visitesMontrees} restantes)`)
+    : null
+  remplir('visites', ...blocs, ...(suite ? [suite] : []))
+}
+
+function fichier(f) {
+  const refuse = f.statut !== null && f.statut >= 400
+  return el('span', { class: 'fichier' },
+    f.type === 'IMPORT' ? '↑ import ' : '↓ ',
+    f.detail || f.lieu,
+    refuse ? el('span', { class: 'refuse' }, ` ✕ refusé ${f.statut}`) : null)
+}
+
+function afficherEcrans(front) {
+  const parLieu = new Map()
+  for (const e of front) {
+    if (e.lieu.startsWith('offre/')) continue
+    if (!parLieu.has(e.lieu)) parLieu.set(e.lieu, { lieu: e.lieu, temps: 0, vues: 0, visiteurs: new Set() })
+    const l = parLieu.get(e.lieu)
+    l.temps += e.temps ?? 0
+    if (e.type === 'ECRAN') l.vues++
+    l.visiteurs.add(e.email)
+  }
+  const lieux = [...parLieu.values()].sort((a, b) => b.temps - a.temps || b.vues - a.vues)
+  if (lieux.length === 0) return remplir('ecrans', rien())
+  const max = Math.max(...lieux.map((l) => l.temps), 1)
+  remplir('ecrans', el('div', { class: 'ecrans' }, lieux.flatMap((l) => {
+    const info = `${l.lieu}\n${minutes(l.temps)} min · ${l.vues} vue(s) · ${l.visiteurs.size} visiteur(s)`
+    return [
+      el('span', { class: 'lieu', title: l.lieu }, l.lieu),
+      el('div', { class: 'piste', info }, el('div', { class: 'barre', style: { width: `${(l.temps / max) * 100}%` } })),
+      el('span', { class: 'chiffre' }, `${minutes(l.temps)} min · ${l.vues} vue(s)`),
+    ]
+  })))
+}
+
+function afficherOffre(front) {
+  const lectures = front.filter((e) => e.lieu.startsWith('offre/'))
+  if (lectures.length === 0) return remplir('offre', rien("Aucune section de l'offre lue pour ces filtres."))
+  const sections = [...new Set(lectures.map((e) => e.lieu.slice(6)))].sort()
+  const personnes = [...new Set(lectures.map((e) => e.email))].sort()
+  const temps = new Map()
+  for (const e of lectures) {
+    const cle = `${e.lieu.slice(6)}|${e.email}`
+    temps.set(cle, (temps.get(cle) ?? 0) + (e.temps ?? 0))
+  }
+  const max = Math.max(...temps.values(), 1)
+  const pas = (ms) => ms <= 0 ? null : Math.min(5, 1 + Math.floor((ms / max) * 5))
+  const t = el('table', { class: 'grille' },
+    el('thead', {}, el('tr', {}, el('th', {}, 'Section'), personnes.map((p) => el('th', { class: 'nombre' }, p)))),
+    el('tbody', {}, sections.map((s) => el('tr', {},
+      el('td', { class: 'section' }, s),
+      personnes.map((p) => {
+        const ms = temps.get(`${s}|${p}`) ?? 0
+        const n = pas(ms)
+        return el('td', {
+          class: 'cellule',
+          info: `${s}\n${p}\n${minutes(ms)} min`,
+          style: n ? { background: `var(--seq-${n})`, color: n >= 3 ? '#ffffff' : '#0b0b0b' } : {},
+        }, n ? minutes(ms) : '·')
+      })))))
+  remplir('offre', t)
+}
+
+function afficherFichiers(fichiers) {
+  if (fichiers.length === 0) return remplir('fichiers', rien('Aucun fichier téléchargé ni importé pour ces filtres.'))
+  const lignes = [...fichiers].reverse()
+  remplir('fichiers', tableau([
+    { titre: 'Quand', valeur: (f) => dateHeure.format(f.t) },
+    { titre: 'Qui', valeur: (f) => f.email },
+    { titre: 'Sens', valeur: (f) => f.type === 'IMPORT' ? '↑ import' : '↓ téléchargement' },
+    { titre: 'Fichier', valeur: (f) => f.detail || '—' },
+    { titre: 'Résultat', valeur: (f) => f.statut !== null && f.statut >= 400 ? el('span', { class: 'refuse' }, `✕ refusé ${f.statut}`) : 'accepté' },
+    { titre: 'Adresse', valeur: (f) => f.lieu },
+  ], lignes))
+}
+
+// ---- Infobulle : survol et focus clavier des éléments porteurs de data-info.
+const bulle = document.getElementById('infobulle')
+function montrer(cible, x, y) {
+  bulle.textContent = cible.dataset.info
+  bulle.style.display = 'block'
+  const l = bulle.offsetWidth
+  const h = bulle.offsetHeight
+  bulle.style.left = `${Math.min(x + 12, window.innerWidth - l - 8)}px`
+  bulle.style.top = `${Math.max(8, y - h - 12)}px`
+}
+document.addEventListener('mousemove', (e) => {
+  const cible = e.target.closest('[data-info]')
+  if (cible) montrer(cible, e.clientX, e.clientY)
+  else bulle.style.display = 'none'
+})
+document.addEventListener('focusin', (e) => {
+  const cible = e.target.closest('[data-info]')
+  if (!cible) return
+  const r = cible.getBoundingClientRect()
+  montrer(cible, r.left, r.top)
+})
+document.addEventListener('focusout', () => { bulle.style.display = 'none' })
+
+// ---- Démarrage.
+tous = lire()
+document.getElementById('source').textContent =
+  `${SOURCE} · données du ${GENERE} · ${entier.format(tous.length)} événements`
+const emails = [...new Set(tous.map((e) => e.email))].sort()
+for (const m of emails) champs[2].append(el('option', { value: m }, m))
+restaurer()
+champs.forEach((c) => c.addEventListener('input', () => { retenir(); visitesMontrees = 30; afficher() }))
+document.getElementById('reinitialiser').addEventListener('click', () => {
+  champs.forEach((c) => { c.value = '' })
+  retenir()
+  afficher()
+})
+afficher()
+</script>
+</body>
+</html>

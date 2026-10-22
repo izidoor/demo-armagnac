@@ -60,6 +60,22 @@ class MigrationDevConfigurationIT extends AbstractIT {
     }
 
     @Test
+    void le_suivi_de_l_utilisation_survit_a_une_remise_a_zero() {
+        Flyway flywayDev = Flyway.configure()
+                .configuration(flyway.getConfiguration())
+                .cleanDisabled(false)
+                .load();
+        jdbcClient.sql("""
+                insert into suivi.evenement (instant, session, email, appareil, type, lieu)
+                values (now(), 'migration', 'suivi.migration@exemple.fr', 'ORDINATEUR', 'ECRAN', '/bo')""").update();
+
+        MigrationDevConfiguration.migrer(flywayDev, true);
+
+        assertThat(jdbcClient.sql("select count(*) from suivi.evenement where email = 'suivi.migration@exemple.fr'")
+                .query(Integer.class).single()).isOne();
+    }
+
+    @Test
     void une_base_a_jour_est_conservee() {
         jdbcClient.sql("insert into referentiels.zone_commerciale (code, libelle) values ('GARDE', 'Gardée')").update();
 

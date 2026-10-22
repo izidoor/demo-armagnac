@@ -2,6 +2,11 @@
 
 Prototype pour appel d'offres de l'interprofession de l'armagnac.
 
+## Calendrier
+- 2026-10-21 : réponse à l'appel d'offres envoyée, avec les liens de connexion au prototype.
+- **2026-10-27 (mardi), 10h30 : présentation de l'offre au BNIA.** D'ici là, on améliore le prototype ;
+  chaque changement doit laisser la démonstration hébergée stable et montrable.
+
 ## Sources de vérité
 - Exigences : `docs/source/cdc/` (cahier des charges converti en Markdown). Ne jamais lire les PDF.
 - Reprise de données : `docs/source/agi/`.
@@ -110,5 +115,7 @@ Racine :
 - Déploiement du prototype (Scalingo, front embarqué, profils `prod,demo`) : `docs/deploiement-scalingo.md` ;
   remise à zéro de la démonstration hébergée : `./scalingo-reset.sh`
 - Ports propres à un worktree : `./worktree-env.sh`
+- Suivi de l'utilisation du prototype (pour l'auteur seul, jeton dans `.env.suivi`) : `./suivi.sh [--local] [tout|personnes|visites|ecrans|offre|fichiers|evenements|connexions|tableau] [depuis]`
+  (`tableau` : page de graphiques ouverte dans le navigateur)
 - Réponse à l'appel d'offres (« Voir l'offre ») : depuis `echanges-bnia/reponse`, `pnpm build` puis `pnpm publier`
   (pages servies après connexion sous `/api/offre/`)

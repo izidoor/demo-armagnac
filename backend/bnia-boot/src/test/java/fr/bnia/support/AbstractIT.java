@@ -31,7 +31,8 @@ import org.springframework.test.web.servlet.client.RestTestClient;
  * tout ; {@link #connecte(String)} ouvre la session d'un autre utilisateur, créé par {@link #membre}.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"bnia.authentification.code-fixe=000000", "bnia.declarations.detection-retards=-"})
+        properties = {"bnia.authentification.code-fixe=000000", "bnia.declarations.detection-retards=-",
+                "bnia.suivi.jeton=jeton-des-tests"})
 @AutoConfigureRestTestClient
 @Import(TestcontainersConfiguration.class)
 public abstract class AbstractIT {

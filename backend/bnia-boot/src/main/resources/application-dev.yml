@@ -28,6 +28,9 @@ bnia:
   authentification:
     # RG-AUT-01 : en dev, le code de connexion vaut toujours 000000.
     code-fixe: "000000"
+  # Export du suivi de l'utilisation : jeton fixe en dev, celui que ./suivi.sh utilise pour l'instance locale.
+  suivi:
+    jeton: ${BNIA_SUIVI_JETON:dev}
 
 logging:
   level:

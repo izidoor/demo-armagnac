@@ -10,6 +10,7 @@ import {
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { handleServerError } from '@/lib/handle-server-error'
+import { demarrerSuivi, ecranAffiche } from '@/features/suivi/suivi'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
 import { ThemeProvider } from './context/theme-provider'
@@ -77,6 +78,15 @@ const router = createRouter({
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
 })
+
+// Suivi de l'utilisation (features/suivi) : chaque écran, sous le gabarit de sa route.
+router.subscribe('onResolved', ({ toLocation }) => {
+  const gabarit =
+    router.state.matches[router.state.matches.length - 1]?.fullPath ??
+    toLocation.pathname
+  ecranAffiche(toLocation.pathname, toLocation.searchStr, gabarit)
+})
+demarrerSuivi()
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {

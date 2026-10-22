@@ -22,6 +22,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { sectionAffichee } from '@/features/suivi/suivi'
 
 /** Publiée par `pnpm publier` (echanges-bnia/reponse), servie après connexion par le back. */
 const RACINE = '/api/offre/'
@@ -116,6 +117,10 @@ function VisionneuseOffre({
         behavior: 'smooth',
       })
   }, [section])
+
+  useEffect(() => {
+    sectionAffichee(ouverte && section ? section.id : null)
+  }, [ouverte, section])
 
   useEffect(() => {
     if (!ouverte) return
