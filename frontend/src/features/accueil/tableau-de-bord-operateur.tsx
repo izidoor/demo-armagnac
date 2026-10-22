@@ -19,7 +19,7 @@ import { dansGroupe } from '@/features/declarations/libelles'
 import { cleFacturation } from '@/features/facturation/api'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
 import { useDroits, useMoi } from '@/features/session/session'
-import { Activite, Section } from './activite'
+import { Activite, GrilleActivites, Section } from './activite'
 
 /** Chiffres de démonstration, pour les contextes qui n'existent pas encore. */
 const DEMO = {
@@ -45,7 +45,7 @@ function Activites({ operateur }: { operateur: number }) {
   if (!droits) return <Skeleton className='h-48 w-full' />
   return (
     <Section titre='Activités'>
-      <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+      <GrilleActivites>
         {droits.declarations !== 'AUCUN' && (
           <ActivitesDsm operateur={operateur} />
         )}
@@ -71,7 +71,7 @@ function Activites({ operateur }: { operateur: number }) {
           valeur={DEMO.commandesBoutique}
           demo
         />
-      </div>
+      </GrilleActivites>
     </Section>
   )
 }

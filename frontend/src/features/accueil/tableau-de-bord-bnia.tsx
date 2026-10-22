@@ -36,7 +36,7 @@ import { GraphiqueComptes } from '@/features/declarations/graphiques-stocks'
 import { dansGroupe as dans } from '@/features/declarations/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
 import { useDroits, useMoi } from '@/features/session/session'
-import { Activite, Section, Valeur } from './activite'
+import { Activite, GrilleActivites, Section, Valeur } from './activite'
 import { GraphiqueExportations } from './graphique-exportations'
 
 type Module = 'declarations' | 'facturation'
@@ -94,7 +94,7 @@ export function TableauDeBordBnia() {
         </Section>
       )}
       <Section titre='Activités'>
-        <div className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+        <GrilleActivites>
           {declarations && <ActivitesDsm />}
           {facturation && <FacturesAValider />}
           <Activite
@@ -116,7 +116,7 @@ export function TableauDeBordBnia() {
             demo
           />
           <NouveauxMessages />
-        </div>
+        </GrilleActivites>
       </Section>
       <Section titre='Évolutions'>
         <div className='grid gap-6 xl:grid-cols-2'>
@@ -189,7 +189,8 @@ function CarteType({
         {avecStock && (
           <Lien to='/bo/declarations/stocks'>
             <p className='text-muted-foreground text-sm'>Stock total déclaré</p>
-            <Valeur valeur={`${entier.format(stockHl)} hl AP`} />
+            {/* « hl AP » d'un bloc : sur mobile, l'unité passe entière à la ligne. */}
+            <Valeur valeur={`${entier.format(stockHl)} hl\u00a0AP`} />
           </Lien>
         )}
       </CardContent>
@@ -198,8 +199,8 @@ function CarteType({
 }
 
 /**
- * Recherche rapide d'un opérateur actif (CDC §4.1) : un résultat ouvre sa fiche ; Entrée ouvre le listing des
- * opérateurs filtré par le texte, inactifs compris.
+ * Recherche rapide d'un opérateur actif (CDC §4.1) : un résultat ouvre sa fiche ; Entrée (ou « Rechercher » du
+ * clavier d'un téléphone), sans mention à l'écran, ouvre le listing des opérateurs filtré par le texte, inactifs compris.
  */
 function RechercheRapide() {
   const navigate = useNavigate()
@@ -242,7 +243,7 @@ function RechercheRapide() {
           <Input
             value={texte}
             onChange={(e) => setTexte(e.target.value)}
-            placeholder='3 caractères au moins, Entrée pour la liste'
+            placeholder='3 caractères au moins'
             aria-label='Rechercher un opérateur'
           />
         </form>

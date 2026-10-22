@@ -20,7 +20,7 @@ export function EnteteDemo({
 }) {
   return (
     <CardHeader>
-      <CardTitle className='flex items-center gap-2 text-base'>
+      <CardTitle className='flex flex-wrap items-center gap-2 text-base'>
         {titre}
         <Badge variant='outline' className='font-normal'>
           Démonstration
@@ -47,7 +47,8 @@ export function SelecteurVue<V extends string>({
       onValueChange={(v) => onChange(v as V)}
       className='mt-0 gap-0'
     >
-      <TabsList className='h-9'>
+      {/* Sur mobile, les onglets passent à la ligne plutôt que d'élargir la page. */}
+      <TabsList className='h-auto min-h-9 flex-wrap'>
         {vues.map((v) => (
           <TabsTrigger key={v.id} value={v.id} className='px-2 text-sm'>
             {v.libelle}

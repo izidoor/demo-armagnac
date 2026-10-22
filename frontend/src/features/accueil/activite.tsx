@@ -26,16 +26,30 @@ export function Section({
   )
 }
 
+/** La grille des activités : deux par ligne, quatre sur grand écran. */
+export function GrilleActivites({ children }: { children: ReactNode }) {
+  return (
+    <div className='grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4'>
+      {children}
+    </div>
+  )
+}
+
 /** Un nombre en attente de sa lecture. */
 export function Valeur({ valeur }: { valeur: string | undefined }) {
   return valeur === undefined ? (
     <Skeleton className='h-9 w-24' />
   ) : (
-    <span className='block text-3xl font-bold tabular-nums'>{valeur}</span>
+    <span className='block text-2xl font-bold tabular-nums sm:text-3xl'>
+      {valeur}
+    </span>
   )
 }
 
-/** Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. */
+/**
+ * Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. Deux par ligne sur mobile
+ * (`GrilleActivites`) : la carte s'y resserre.
+ */
 export function Activite({
   libelle,
   icone: Icone,
@@ -50,20 +64,23 @@ export function Activite({
   demo?: boolean
 }) {
   const contenu = (
-    <Card className='h-full gap-2 py-5'>
-      <CardHeader className='flex flex-row items-center justify-between gap-2 px-5'>
+    <Card className='h-full gap-2 py-4 sm:py-5'>
+      <CardHeader className='flex flex-row items-center justify-between gap-2 px-4 sm:px-5'>
         <span className='bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-lg'>
           <Icone className='size-[18px]' />
         </span>
         {demo ? (
-          <Badge variant='outline' className='font-normal'>
+          <Badge
+            variant='outline'
+            className='font-normal max-sm:px-1.5 max-sm:text-[10px]'
+          >
             Démonstration
           </Badge>
         ) : (
           lien && <ChevronRight className='text-muted-foreground size-4' />
         )}
       </CardHeader>
-      <CardContent className='space-y-1 px-5'>
+      <CardContent className='space-y-1 px-4 sm:px-5'>
         <Valeur
           valeur={valeur === undefined ? undefined : entier.format(valeur)}
         />
