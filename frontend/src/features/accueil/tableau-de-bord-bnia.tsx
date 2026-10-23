@@ -2,6 +2,7 @@ import { type ReactNode, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, type LinkProps, useNavigate } from '@tanstack/react-router'
 import {
+  Banknote,
   Building2,
   FileSearch,
   FileWarning,
@@ -95,6 +96,7 @@ export function TableauDeBordBnia() {
         <GrilleActivites>
           {declarations && <ActivitesDsm />}
           {facturation && <FacturesAValider />}
+          {facturation && <FacturesImpayees />}
           <Activite
             libelle='Demandes de certificat export'
             icone={Stamp}
@@ -345,6 +347,30 @@ function FacturesAValider() {
       icone={FileText}
       valeur={brouillons.data?.length}
       lien={{ to: '/bo/facturation', search: { onglet: 'brouillons' } }}
+    />
+  )
+}
+
+/**
+ * RG-FAC-33 : les factures émises que Zeendoc n'a pas encore vues réglées, comme l'onglet « Émises » et la carte
+ * « Factures non payées » du portail ; ouvre cet onglet.
+ */
+function FacturesImpayees() {
+  const emises = useQuery({
+    queryKey: ['facturation', 'pieces', { etat: 'EMISE' }],
+    queryFn: () =>
+      listerPieces({ query: { etat: 'EMISE' }, throwOnError: true }).then(
+        (r) => r.data
+      ),
+  })
+  return (
+    <Activite
+      libelle='Factures impayées'
+      icone={Banknote}
+      valeur={
+        emises.data?.filter((p) => p.sens === 'FACTURE' && !p.payeeLe).length
+      }
+      lien={{ to: '/bo/facturation', search: { onglet: 'emises' } }}
     />
   )
 }

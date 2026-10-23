@@ -206,7 +206,12 @@ function VuePiece({ piece }: { piece: Piece }) {
               </Link>
             </Button>
           )}
-          <Badge variant={VARIANTE_ETAT[piece.etat]}>{ETATS[piece.etat]}</Badge>
+          {/* Transmise à Zeendoc, une pièce est forcément émise : son état Zeendoc suffit. */}
+          {!piece.zeendoc && (
+            <Badge variant={VARIANTE_ETAT[piece.etat]}>
+              {ETATS[piece.etat]}
+            </Badge>
+          )}
           <BadgeZeendoc piece={piece} avecDates />
           {piece.origine && <span>{piece.origine.reference}</span>}
         </span>

@@ -103,7 +103,8 @@ export function PageDsmBnia() {
   // RG-DEC-43 : facturer est réservé à qui gère la facturation au BNIA.
   const facturer = useDroits(actif?.operateur ?? 0)?.facturation === 'GESTION'
   // Une seule lecture, filtrée par type : les onglets et leurs nombres se calculent dessus, et suivent donc
-  // ce filtre, comme la recherche d'un opérateur, faite dans le navigateur.
+  // ce filtre, comme la recherche d'un opérateur, faite dans le navigateur ; « En cours » suit aussi l'état et
+  // le retard, ses filtres propres.
   const listing = useQuery({
     queryKey: ['declarations', 'toutes', type],
     queryFn: () =>
@@ -120,8 +121,19 @@ export function PageDsmBnia() {
       !cherche ||
       sansAccents(`${d.codeOperateur} ${d.raisonSociale}`).includes(cherche)
   )
-  const enCours = toutes.filter((d) => d.etat !== 'VALIDEE')
   const etatDe = (d: DsmListee) => (d.absente ? ABSENTE : d.etat)
+  // L'onglet « En cours » et son nombre suivent aussi l'état et la case « En retard ».
+  const enCours = toutes
+    .filter((d) => d.etat !== 'VALIDEE')
+    .filter((d) => {
+      const e = etatDe(d)
+      return (
+        etat === TOUS ||
+        e === etat ||
+        (!!e && !!GROUPES_ETATS[etat]?.etats.includes(e))
+      )
+    })
+    .filter((d) => !enRetard || d.enRetard)
   // RG-DEC-34, 43 : une DSM validée sans facture vivante est à facturer ; facturée, ou sa facture demandée,
   // elle passe dans le dernier onglet.
   const validees = toutes.filter(
@@ -132,20 +144,7 @@ export function PageDsmBnia() {
     (d) => d.id != null && selection.has(d.id)
   )
   const dsms =
-    vue === 'validees'
-      ? validees
-      : vue === 'facturees'
-        ? facturees
-        : enCours
-            .filter((d) => {
-              const e = etatDe(d)
-              return (
-                etat === TOUS ||
-                e === etat ||
-                (!!e && !!GROUPES_ETATS[etat]?.etats.includes(e))
-              )
-            })
-            .filter((d) => !enRetard || d.enRetard)
+    vue === 'validees' ? validees : vue === 'facturees' ? facturees : enCours
   // Pagination dans le navigateur, par 15 (au-delà seulement, la barre apparaît).
   const { lignes: page, pagination } = usePagination(dsms, TAILLE_PAGE)
   const enCoursVue = vue === 'en-cours'

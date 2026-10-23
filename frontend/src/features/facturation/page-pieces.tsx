@@ -109,42 +109,47 @@ export function PagePieces() {
     periode: periodeStable,
   }
   const brouillons = onglet === 'brouillons'
-  const filtre = {
+  // Les filtres de chaque onglet : l'acheteur et la période valent pour les deux, le numéro et les dates
+  // d'émission pour les pièces émises seulement (« Émises » et « Payées »).
+  const filtreBrouillons = {
     client,
-    etat: brouillons ? ('BROUILLON' as const) : ('EMISE' as const),
-    numero: brouillons ? undefined : textes.numero || undefined,
+    etat: 'BROUILLON' as const,
     acheteur: textes.acheteur || undefined,
     periode: textes.periode || undefined,
-    du: brouillons ? undefined : du || undefined,
-    au: brouillons ? undefined : au || undefined,
   }
-  const listing = useQuery({
-    queryKey: [...cleFacturation, 'pieces', filtre],
-    queryFn: () =>
-      listerPieces({ query: filtre, throwOnError: true }).then((r) => r.data),
-  })
-  // « Émises » et « Payées » se partagent le listing des pièces émises, selon leur état Zeendoc.
-  const pieces = (listing.data ?? []).filter(
-    (p) => brouillons || (onglet === 'payees') === (p.zeendoc === 'PAYEE')
-  )
-  // Le nombre de brouillons en attente, sans les filtres de saisie (seul le client de l'URL compte).
-  const filtreBrouillons = { client, etat: 'BROUILLON' as const }
-  const enAttente = useQuery({
+  const filtreEmises = {
+    client,
+    etat: 'EMISE' as const,
+    numero: textes.numero || undefined,
+    acheteur: textes.acheteur || undefined,
+    periode: textes.periode || undefined,
+    du: du || undefined,
+    au: au || undefined,
+  }
+  // Le nombre de chaque onglet compte les lignes qu'il montre avec ces filtres, comme celles de la page DSM.
+  const listingBrouillons = useQuery({
     queryKey: [...cleFacturation, 'pieces', filtreBrouillons],
     queryFn: () =>
       listerPieces({ query: filtreBrouillons, throwOnError: true }).then(
         (r) => r.data
       ),
-  }).data?.length
-  // De même, le nombre de pièces émises non payées (onglet « Émises »).
-  const filtreEmises = { client, etat: 'EMISE' as const }
-  const nonPayees = useQuery({
+  })
+  const listingEmises = useQuery({
     queryKey: [...cleFacturation, 'pieces', filtreEmises],
     queryFn: () =>
       listerPieces({ query: filtreEmises, throwOnError: true }).then(
         (r) => r.data
       ),
-  }).data?.filter((p) => p.zeendoc !== 'PAYEE').length
+  })
+  const listing = brouillons ? listingBrouillons : listingEmises
+  // « Émises » et « Payées » se partagent le listing des pièces émises, selon leur état Zeendoc.
+  const pieces = (listing.data ?? []).filter(
+    (p) => brouillons || (onglet === 'payees') === (p.zeendoc === 'PAYEE')
+  )
+  const enAttente = listingBrouillons.data?.length
+  const nonPayees = listingEmises.data?.filter(
+    (p) => p.zeendoc !== 'PAYEE'
+  ).length
   // Seules les pièces affichées comptent : un filtre en masque, une émission en retire ; une pièce déjà transmise
   // ne se retransmet pas.
   const selectionnes = pieces.filter(

@@ -156,6 +156,8 @@ function BlocRetiraison({
           : 'Retiraison validée : stocks estimés et DSM la reçoivent.'
       )
       queryClient.invalidateQueries({ queryKey: cleContrats })
+      // RG-CA-21, 22 : ses mouvements entrent dans les stocks estimés et les DSM des deux parties.
+      queryClient.invalidateQueries({ queryKey: ['declarations'] })
     },
     onError: erreur,
     meta: { erreurAffichee: true },

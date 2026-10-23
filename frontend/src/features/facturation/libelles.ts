@@ -36,7 +36,8 @@ export const ETATS_ZEENDOC: Record<EtatZeendoc, string> = {
   PAYEE: 'Payé',
 }
 
-export const VARIANTE_ZEENDOC: Record<EtatZeendoc, 'secondary' | 'default'> = {
-  TRANSMISE: 'secondary',
-  PAYEE: 'default',
+/** Badge plein : « Transmis » de la couleur principale, « Payé » en vert, celui des états aboutis. */
+export const COULEUR_ZEENDOC: Record<EtatZeendoc, string> = {
+  TRANSMISE: 'bg-primary text-primary-foreground',
+  PAYEE: 'bg-success-foreground text-background',
 }
