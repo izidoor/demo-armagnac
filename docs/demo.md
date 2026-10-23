@@ -280,8 +280,8 @@ Portail (lot 3) :
 
 12. `observateur@negociant.fr` (Armagnacs de Gascogne), menu « Facturation > Factures » : les factures émises
     de Gascogne, sans les brouillons. Filtrer par numéro ou par période ; ouvrir la facture, puis « PDF ».
-    Tableau de bord (`agent@negociant.fr` ou `admin@negociant.fr`, qui lisent la facturation) : « Factures non
-    payées » vaut 1, la facture d'août.
+    La facture d'août, échue et impayée, a sa ligne teintée de rouge pâle. Tableau de bord (`agent@negociant.fr`
+    ou `admin@negociant.fr`, qui lisent la facturation) : « Factures non payées » vaut 1, la facture d'août.
 13. `admin@bnia.fr`, la même facture, bouton « Historique » : « Consultée » par Thomas Barrère, côté « Client »
     (ouverture, puis PDF).
 

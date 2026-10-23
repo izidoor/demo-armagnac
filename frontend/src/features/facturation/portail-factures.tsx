@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { ArrowLeft, ChevronRight, FileDown } from 'lucide-react'
 import { consulterMaFacture, listerMesFactures } from '@/api/generated'
+import { cn } from '@/lib/utils'
 import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,7 +35,7 @@ import { formatDate, formatEuros } from '@/features/declarations/format'
 import { SectionMessages } from '@/features/messagerie/section-messages'
 import { cleFacturation, urlPdfMaFacture } from './api'
 import { BadgeZeendoc } from './badge-zeendoc'
-import { SENS } from './libelles'
+import { echueImpayee, SENS } from './libelles'
 import { CarteNotePied, EntetePiece, Lignes } from './page-piece'
 
 type FiltreSens = 'TOUS' | 'FACTURE' | 'AVOIR'
@@ -177,7 +178,12 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
             {(lignes ?? []).map((p) => (
               <TableRow
                 key={p.id}
-                className='cursor-pointer'
+                className={cn(
+                  'cursor-pointer',
+                  // Échue et impayée (RG-FAC-33), comme au back-office : la ligne se teinte.
+                  echueImpayee(p) && 'bg-danger/50 hover:bg-danger/80'
+                )}
+                title={echueImpayee(p) ? 'Échue et impayée' : undefined}
                 onClick={() => ouvrir(p.id)}
               >
                 <TableCell className='font-mono font-medium'>

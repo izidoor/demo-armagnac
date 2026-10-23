@@ -1,6 +1,3 @@
-
-
-
 Mes utilisateurs : 
 - Personne : 
   - mettre des couleurs différentes pour les badge rôle
@@ -16,13 +13,8 @@ Messagerie, nouvelle conversation
 
 
 
-
-
-
-
 # démo
 
-# Négociant
 - DSM
     - Nécociant
       - rajouter à la main des quantités
@@ -41,3 +33,8 @@ Messagerie, nouvelle conversation
         - modifier un peu laubade
         - emettre gascogne
         - transmettre zeendoc
+        - facture en retard
+
+- Contrat
+  - 
+
