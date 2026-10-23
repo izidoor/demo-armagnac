@@ -32,6 +32,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FILIERE, type TypeDeclarant } from '@/components/metier/filiere'
+import { useContratsBnia } from '@/features/contrats/api'
 import { GraphiqueComptes } from '@/features/declarations/graphiques-stocks'
 import { dansGroupe as dans } from '@/features/declarations/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
@@ -46,7 +47,6 @@ const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
 /** Chiffres de démonstration, pour les contextes qui n'existent pas encore. */
 const DEMO = {
   certificatsExport: 7,
-  contrats: 4,
   commandesBoutique: 9,
 }
 
@@ -59,8 +59,8 @@ const lit = (droits: Droits | undefined, module: Module) =>
  * indicateur ouvre le listing préfiltré correspondant. Les blocs suivent les droits de l'utilisateur sur
  * l'opérateur BNIA : seuls ceux des modules qu'il lit s'affichent, et leurs lectures ne partent qu'alors. Les
  * chiffres viennent de la base quand le contexte existe (DSM, factures, messages), ceux des opérateurs et
- * des stocks de la filière (FILIERE) ; les certificats export,
- * contrats, commandes boutique et les graphiques sont des données de démonstration, marquées comme
+ * des stocks de la filière (FILIERE), ainsi que les contrats en attente d'approbation (RG-CA-25) ; les certificats export,
+ * commandes boutique et les graphiques sont des données de démonstration, marquées comme
  * telles.
  */
 export function TableauDeBordBnia() {
@@ -101,12 +101,7 @@ export function TableauDeBordBnia() {
             valeur={DEMO.certificatsExport}
             demo
           />
-          <Activite
-            libelle='Contrats Armagnac à valider'
-            icone={Handshake}
-            valeur={DEMO.contrats}
-            demo
-          />
+          {operateurs && <ContratsEnAttente />}
           <Activite
             libelle='Commandes boutique en attente'
             icone={ShoppingBag}
@@ -340,6 +335,19 @@ function FacturesAValider() {
       icone={FileText}
       valeur={brouillons.data?.length}
       lien={{ to: '/bo/facturation', search: { onglet: 'brouillons' } }}
+    />
+  )
+}
+
+/** RG-CA-25 : les contrats en projet, que le BNIA suit en lecture ; ouvre la liste filtrée. */
+function ContratsEnAttente() {
+  const contrats = useContratsBnia({})
+  return (
+    <Activite
+      libelle="Contrats en attente d'approbation"
+      icone={Handshake}
+      valeur={contrats.data?.filter((c) => c.etat === 'PROJET').length}
+      lien={{ to: '/bo/contrats', search: { etat: 'PROJET' } }}
     />
   )
 }

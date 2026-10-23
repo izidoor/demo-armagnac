@@ -1,7 +1,9 @@
 package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,11 @@ public enum TypeMouvement {
     /** RG-DEC-26 : les types de pièce qui justifient ce mouvement. */
     public Set<TypePiece> pieces() {
         return pieces;
+    }
+
+    /** Le type de mouvement d'une colonne, s'il appelle un justificatif. */
+    public static Optional<TypeMouvement> de(ColonneDsm colonne) {
+        return Arrays.stream(values()).filter(t -> t.colonnes.contains(colonne)).findFirst();
     }
 
     /** RG-DEC-26 : le type de pièce justifie ce mouvement. */

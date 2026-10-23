@@ -34,7 +34,14 @@ opérateur. Le sélecteur sous le titre de l'espace change d'opérateur actif.
 en plein écran la réponse à l'appel d'offres : les miniatures des sections à gauche, la section choisie à droite,
 les flèches vers la précédente et la suivante, le PDF à télécharger. Les pages sont servies sous `/api/offre/`, donc après connexion seulement.
 Elles sont publiées depuis `echanges-bnia/reponse`, après `pnpm build`, par `pnpm publier`, qui réécrit
-`backend/bnia-boot/src/main/resources/offre/`.
+`backend/bnia-boot/src/main/resources/offre/`, sauf son dossier `diaporama/`.
+
+En tête des miniatures, « Offre | Diaporama » passe au diaporama de la soutenance : diapositives 16:9, mises à
+l'échelle de l'écran ; flèches, Page précédente et Page suivante (télécommande), Début et Fin ; un clic avance.
+« Projeter » met la diapositive seule en plein écran (Échap en sort). Fermée, la visionneuse retient la diapositive :
+on reprend après la démonstration là où on s'est arrêté. Le diaporama est publié depuis `echanges-bnia/diaporama`,
+après `pnpm build` (HTML et PDF 16:9 dans `sortie/`), par `pnpm publier`, sous `resources/offre/diaporama/`.
+Sous 1024 px, le PDF du diaporama s'ajoute à celui de l'offre.
 
 ## Comptes
 

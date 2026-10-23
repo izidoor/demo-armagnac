@@ -82,11 +82,12 @@ class DemoDeclarationsIT extends AbstractIT {
 
         long gascogne = id("N320001");
         assertThat(points.consulter(anne, gascogne).orElseThrow().point().lignes()).hasSize(6);
-        // Spec 08 §7.1 : onze mois validés, à facturer, avant celui en compléments demandés.
+        // Spec 08 §7.1 : onze mois validés, à facturer, avant M−1 en compléments demandés ; le mois courant reste à
+        // initier (spec 06 RG-CA-24).
         List<DsmLigne> declarations = dsms.lister(anne, gascogne).stream().map(GererDsm.DsmDeLOperateur::dsm).toList();
         List<org.assertj.core.groups.Tuple> attendues = new java.util.ArrayList<>();
-        attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.COMPLEMENTS_DEMANDES, mois));
-        for (int m = 1; m <= 11; m++) {
+        attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.COMPLEMENTS_DEMANDES, mois.minusMonths(1)));
+        for (int m = 2; m <= 12; m++) {
             attendues.add(org.assertj.core.groups.Tuple.tuple(EtatDsm.VALIDEE, mois.minusMonths(m)));
         }
         assertThat(declarations).extracting(DsmLigne::etat, d -> d.periode().debut()).containsExactlyElementsOf(attendues);
@@ -112,7 +113,7 @@ class DemoDeclarationsIT extends AbstractIT {
                 seule("N320002", EtatDsm.ENVOYEE, mois.minusMonths(1)).id());
         assertThat(aInstruire.manques()).as("DAE déposés : validable").isEmpty();
         assertThat(aInstruire.enRetard()).as("attend le BNIA").isFalse();
-        assertThat(courante.enRetard()).as("mois courant").isFalse();
+        assertThat(courante.enRetard()).as("M−1 chez l'opérateur, échéance le 5").isEqualTo(LocalDate.now().getDayOfMonth() > 5);
         // RG-DEC-40 : Maison Saint-Puy n'a pas initié la DSM du mois dernier ; le listing ne la montre qu'en retard,
         // dès le 6 du mois, et c'en est la seule période absente.
         var absentes = listing.lister(anne, new FiltreDsm(Optional.empty(), Optional.empty(), Optional.empty(),
@@ -134,7 +135,7 @@ class DemoDeclarationsIT extends AbstractIT {
                     assertThat(m.message().protege()).isTrue();
                 });
 
-        var brouillon = dsms.consulter(anne, id("N400001"), seule("N400001", EtatDsm.BROUILLON, mois).id());
+        var brouillon = dsms.consulter(anne, id("N400001"), seule("N400001", EtatDsm.BROUILLON, mois.minusMonths(1)).id());
         assertThat(brouillon.anomalies()).extracting(a -> a.type())
                 .containsExactly(TypeAnomalie.ASSEMBLAGES_DESEQUILIBRES);
 

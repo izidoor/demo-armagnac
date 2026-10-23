@@ -61,13 +61,13 @@ Prototype pour appel d'offres de l'interprofession de l'armagnac.
   Exceptions sans clé étrangère : l'auteur d'une action (identifiant de l'utilisateur et copie de son nom,
   l'utilisateur pouvant être supprimé), le compte de connexion de `authentification` (ADR-011 amendé),
   l'origine et le client d'une facture (`Origine`, `ClientRef`, opaques ; ADR-011 amendé le 2026-10-14),
-  l'objet d'une conversation (`ObjetMetier`, opaque ; ADR-011 amendé le 2026-10-17).
+  l'objet d'une conversation (`ObjetMetier`, opaque ; ADR-011 amendé le 2026-10-17), le contrat d'un mouvement de contrat dans `declarations` (ADR-011 amendé le 2026-10-23).
 - Événements entre contextes : Spring, synchrones, traités dans la transaction de l'émetteur ; publiés
   par un port, écoutés dans `adapter.evenement` ; types dans la partie publiée (ou le module `-api`) du
   contexte dont l'autre dépend, jamais de cycle (ADR-013). Jamais de secret (mot de passe) dans un événement.
 - Personnes et droits (ADR-016) : dans `operateurs`. Rôles fixes `OBSERVATEUR`, `AGENT`, `ADMIN`, un par
   rattachement ; modules lus ou gérés par rôle ; le BNIA est un opérateur (type `BNIA`) dont les rôles
-  valent pour tous les opérateurs. **Les droits se vérifient dans les cas d'usage** : le controller passe
+  valent pour tous les opérateurs, sauf sur le module « Contrats », en lecture seule pour lui (ADR-016 amendé le 2026-10-23). **Les droits se vérifient dans les cas d'usage** : le controller passe
   l'`Acteur`, le cas d'usage obtient ses `Droits` sur l'opérateur concerné, et chaque cas d'usage a un
   test de refus. **Chaque nouveau contexte déclare son module** dans le tableau rôles × modules (spec 02
   §3.2.7).
@@ -119,3 +119,5 @@ Racine :
   (`tableau` : page de graphiques ouverte dans le navigateur)
 - Réponse à l'appel d'offres (« Voir l'offre ») : depuis `echanges-bnia/reponse`, `pnpm build` puis `pnpm publier`
   (pages servies après connexion sous `/api/offre/`)
+- Diaporama de la soutenance (« Voir l'offre », onglet Diaporama) : depuis `echanges-bnia/diaporama`, `pnpm build`
+  (HTML et PDF 16:9 dans `sortie/`) puis `pnpm publier` (servi sous `/api/offre/diaporama/`)

@@ -1,0 +1,196 @@
+/* Diaporama de la soutenance : diapositives 16:9 de 1280 × 720 px, aux couleurs de la réponse écrite. */
+
+:root {
+  --encre: #241f1b;
+  --texte: #3a332e;
+  --discret: #7a6f66;
+  --ambre: #9a5b1e;
+  --ambre-fonce: #6e3f12;
+  --ambre-pale: #f7efe5;
+  --ambre-moyen: #f0dfc8;
+  --filet: #e6dccf;
+  --serif: 'Source Serif 4 Variable', Georgia, serif;
+  --sans: 'Inter Variable', 'Noto Sans', sans-serif;
+}
+
+@page { size: 1280px 720px; margin: 0; }
+
+* { box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--texte);
+  font: 22px/1.45 var(--sans);
+  hyphens: manual;
+}
+
+/* Aperçu à l'écran : les diapositives l'une sous l'autre. */
+@media screen {
+  body { background: #e9e5e0; padding: 24px 0; }
+  .diapo { margin: 0 auto 24px; box-shadow: 0 1px 4px rgb(0 0 0 / .15); }
+}
+
+.diapo {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  padding: 60px 84px 72px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  break-after: page;
+}
+.diapo::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 10px; background: var(--ambre); }
+
+h1, h2, h3 { font-family: var(--serif); color: var(--encre); line-height: 1.15; margin: 0; }
+h1 { font-size: 46px; font-weight: 600; margin-bottom: 14px; }
+h2 { font-size: 28px; font-weight: 600; }
+h3 { font: 650 22px/1.25 var(--sans); }
+p { margin: 0; }
+ul { margin: 0; padding-left: 26px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--ambre); }
+strong { color: var(--encre); font-weight: 650; }
+
+.surtitre { font: 600 15px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ambre); margin-bottom: 12px; }
+.accroche { font: 26px/1.4 var(--serif); color: var(--encre); max-width: 1000px; }
+.discret { color: var(--discret); }
+.bas { margin-top: auto; }
+
+.pied { position: absolute; left: 84px; right: 60px; bottom: 26px; display: flex; justify-content: space-between;
+        font: 14px var(--sans); color: var(--discret); }
+.pied .numero { font-variant-numeric: tabular-nums; }
+
+/* Bandeau de conclusion, au bas d'une diapositive */
+.bandeau { background: var(--ambre-pale); border-left: 6px solid var(--ambre); padding: 16px 24px; font: 24px/1.35 var(--serif);
+           color: var(--encre); }
+
+/* Cartes en colonnes */
+.cartes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 34px; }
+.carte { background: var(--ambre-pale); border-radius: 12px; padding: 26px 26px 24px; display: flex; flex-direction: column; gap: 10px; }
+.carte .icone { width: 52px; height: 52px; border-radius: 10px; background: var(--ambre); color: #fff; display: grid; place-items: center; }
+.carte .icone svg { width: 30px; height: 30px; }
+.carte h3 { color: var(--ambre-fonce); margin-top: 4px; }
+.carte p, .carte li { font-size: 20px; line-height: 1.42; }
+.carte ul { padding-left: 22px; }
+
+/* ---- 1. Titre ---- */
+
+.d-titre { justify-content: center; padding-left: 120px; background: linear-gradient(90deg, #fff 62%, var(--ambre-pale)); }
+.d-titre::before { width: 18px; }
+.d-titre h1 { font-size: 64px; line-height: 1.08; max-width: 980px; margin-bottom: 26px; }
+.d-titre .sous-titre { font: 30px/1.35 var(--serif); color: var(--encre); max-width: 900px; }
+.d-titre .signature { position: absolute; left: 120px; bottom: 64px; font-size: 22px; line-height: 1.5; }
+.d-titre .signature strong { font-size: 26px; }
+.d-titre .signature span { color: var(--ambre-fonce); }
+
+/* ---- 2. Chiffres ---- */
+
+.chiffres { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 40px; }
+.chiffre { background: var(--ambre-pale); border-radius: 12px; padding: 28px 24px; display: flex; flex-direction: column; gap: 12px; }
+.chiffre .valeur { font: 600 50px/1 var(--serif); color: var(--ambre-fonce); white-space: nowrap; }
+.chiffre .unite { font: 600 22px var(--serif); }
+.chiffre .libelle { font-size: 20px; line-height: 1.38; color: var(--texte); }
+
+/* ---- 4. Trois places ---- */
+
+.places { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin: 26px 0 22px; }
+.place { border: 1.5px solid var(--filet); border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; }
+.place .role { font: 650 14px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ambre); }
+.place .logos { height: 58px; display: flex; align-items: center; gap: 16px; margin: 10px 0 8px; }
+.place .logos img { max-height: 54px; max-width: 46%; object-fit: contain; }
+.place h3 { font-size: 21px; }
+.place .periode { font-size: 16px; color: var(--discret); margin: 2px 0 10px; }
+.place ul { font-size: 18px; line-height: 1.38; padding-left: 20px; }
+.place li { margin-bottom: 4px; }
+
+/* ---- 6. Calendrier ---- */
+
+.d-calendrier { padding-bottom: 60px; }
+.d-calendrier h1 { margin-bottom: 6px; }
+.d-calendrier .accroche { font-size: 23px; }
+.d-calendrier .schema { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; margin: 4px -20px 0; }
+.d-calendrier .schema img { width: 100%; max-height: 100%; }
+.atouts { display: flex; gap: 14px; justify-content: center; }
+.atouts span { background: var(--ambre-pale); color: var(--ambre-fonce); border-radius: 999px; padding: 8px 22px; font-size: 19px; font-weight: 600; }
+
+/* ---- 7. Phase 1 ---- */
+
+.phase-un { display: grid; grid-template-columns: 340px 1fr; gap: 40px; margin-top: 18px; }
+.phase-un .intro-criteres { font-size: 22px; margin-bottom: 14px; }
+.phase-un .resume { display: flex; flex-direction: column; gap: 16px; }
+.phase-un .chiffre .valeur { font-size: 46px; }
+.criteres { list-style: none; padding: 0; counter-reset: critere; display: flex; flex-direction: column; gap: 8px; }
+.criteres li { counter-increment: critere; display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: center; margin: 0;
+               font-size: 19px; line-height: 1.3; }
+.criteres li::before { content: counter(critere); width: 40px; height: 40px; border-radius: 50%; background: var(--ambre); color: #fff;
+                       font: 650 20px/40px var(--sans); text-align: center; }
+.criteres strong { display: block; font-size: 20px; }
+
+/* ---- 8. Démonstration ---- */
+
+.d-demo { background: var(--ambre-fonce); color: #fff; }
+.d-demo::before { background: var(--ambre-moyen); }
+.d-demo .surtitre { color: var(--ambre-moyen); }
+.d-demo h1 { color: #fff; font-size: 58px; }
+.d-demo .adresse { font: 600 28px var(--sans); color: var(--ambre-moyen); letter-spacing: .01em; }
+.parcours { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 40px; }
+.parcours > div { background: rgb(255 255 255 / .1); border-radius: 12px; padding: 22px 24px; }
+.parcours .qui { font: 650 14px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ambre-moyen); }
+.parcours h3 { color: #fff; margin: 8px 0 8px; }
+.parcours p { font-size: 19px; line-height: 1.42; color: rgb(255 255 255 / .9); }
+.d-demo .bas { color: rgb(255 255 255 / .75); font-size: 18px; }
+.d-demo .pied { color: rgb(255 255 255 / .6); }
+
+/* ---- 9. Prix ---- */
+
+.prix { display: grid; grid-template-columns: 1fr 330px; gap: 36px; margin-top: 22px; align-items: start; }
+.d-prix .accroche { font-size: 23px; }
+table { width: 100%; border-collapse: collapse; font-size: 19px; line-height: 1.3; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--filet); }
+th { font-size: 15px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--discret);
+     border-bottom: 2px solid var(--ambre); }
+td.montant, th.montant { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+td.duree { white-space: nowrap; color: var(--discret); }
+tr.total td { border-bottom: none; font-weight: 650; color: var(--encre); font-size: 21px; }
+.prix .total-onze { background: var(--ambre-fonce); color: #fff; border-radius: 12px; padding: 26px 26px; display: flex; flex-direction: column; gap: 10px; }
+.total-onze .etiquette { font: 650 14px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ambre-moyen); }
+.total-onze .valeur { font: 600 46px/1 var(--serif); }
+.total-onze p { font-size: 18px; line-height: 1.4; color: rgb(255 255 255 / .9); }
+.total-onze .par-an { font: 600 26px var(--serif); color: #fff; }
+
+/* ---- 10. Maintenance ---- */
+
+.maintenance { display: grid; grid-template-columns: 1fr 1.25fr; gap: 44px; margin-top: 28px; }
+.maintenance h2 { font-size: 24px; margin-bottom: 16px; color: var(--ambre-fonce); }
+.etapes { display: flex; flex-direction: column; gap: 12px; }
+.etape { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: baseline; background: var(--ambre-pale);
+         border-radius: 10px; padding: 14px 20px; }
+.etape .quand { font-size: 17px; color: var(--discret); }
+.etape .combien { font: 600 28px var(--serif); color: var(--ambre-fonce); }
+.etape .combien small { font: 17px var(--sans); color: var(--texte); }
+
+/* ---- 11. Engagement ---- */
+
+.engagement { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 26px; align-items: start; }
+.engagement ul { font-size: 22px; line-height: 1.42; }
+.engagement li { margin-bottom: 14px; }
+.citation { position: relative; margin: 0; padding: 4px 0 0 52px; }
+.citation::before { content: '“'; position: absolute; left: 0; top: -14px; font: 700 90px/1 var(--serif); color: var(--ambre); }
+.citation blockquote { margin: 0; font: italic 22px/1.45 var(--serif); color: var(--encre); }
+.citation figcaption { margin-top: 14px; font-size: 17px; line-height: 1.4; }
+.citation figcaption span { color: var(--discret); }
+
+/* ---- 12. Questions ---- */
+
+.d-fin { justify-content: center; padding-left: 120px; background: linear-gradient(90deg, #fff 62%, var(--ambre-pale)); }
+.d-fin::before { width: 18px; }
+.d-fin h1 { font-size: 72px; margin-bottom: 18px; }
+.d-fin .accroche { font-size: 30px; }
+.coordonnees { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 6px 28px; margin-top: 48px; font-size: 22px; }
+.coordonnees dt { font: 650 14px/32px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ambre); }
+.coordonnees dd { margin: 0; color: var(--encre); }

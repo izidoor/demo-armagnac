@@ -1,6 +1,6 @@
 # ADR-016 : Personnes et accès dans `operateurs`
 
-- Statut : accepté
+- Statut : accepté ; amendé le 2026-10-23 (module « Contrats », spec 06)
 - Date : 2026-10-08
 - Amende : ADR-012 (agrégats de `operateurs`)
 - Spec : `docs/specs/02-operateurs/spec.md`, révision du 2026-10-08 (§3.2, décisions A-OPE-6 et 7)
@@ -70,3 +70,16 @@ Options écartées :
 - Plus d'identifiant tiré de la séquence avant l'insertion pour ces objets, chacun étant une racine.
 - Le code de la spec 02 (contacts dans `Operateur`, droits portail, journal des contacts) est à
   réimplémenter.
+
+## Amendement du 2026-10-23 (spec 06, décision A-CA-6)
+- **Module « Contrats »** ajouté (`Module.CONTRATS`) : `OBSERVATEUR` lit, `AGENT` et `ADMIN` gèrent.
+- **Exception à la valeur universelle du rôle BNIA** : un contrat se négocie entre ses deux parties, le
+  BNIA le consulte (vision du 2026-10-23). Un rôle tenu dans l'opérateur BNIA ne donne sur ce module que la
+  lecture, quel que soit le rôle. L'exception est dans `Droits.gere`, à côté de son inverse, la Facturation
+  (gestion par le seul rôle tenu au BNIA, spec 08) : les Contrats se gèrent par le seul rôle local. Le niveau
+  envoyé au front (`DroitsResponse`) en découle sans calcul en double ; les cas d'usage de `contratsarmagnac`
+  refusent en outre toute action au nom de l'opérateur BNIA (décision du 2026-10-23, à l'implémentation du
+  lot 1, qui remplace « `Droits` ne change pas »).
+- Écarté : un drapeau « géré par les seules parties » sur `Module`, qui mettrait une règle des contrats
+  dans `operateurs` ; l'exception appliquée par les seuls cas d'usage, qui obligeait `DroitsResponse` à la
+  réécrire pour que le front ne montre pas la gestion au BNIA.

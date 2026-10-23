@@ -84,6 +84,12 @@ export type AnomalieDsm = {
     type: 'STOCK_FIN_NEGATIF' | 'ASSEMBLAGES_DESEQUILIBRES' | 'PASSAGES_SOUS_BOIS_DESEQUILIBRES' | 'COMPTE_MV_TROP_VIEUX';
 };
 
+export type ApprobationContrat = {
+    le: string;
+    nom: string;
+    partie: 'ACHETEUR' | 'VENDEUR';
+};
+
 /**
  * Un article d'un catalogue, à la date du jour (RG-FAC-29)
  */
@@ -140,11 +146,26 @@ export type ArticlePropose = {
     unite?: string;
 };
 
+export type AuteurContrat = {
+    le: string;
+    nom: string;
+    partie: 'ACHETEUR' | 'VENDEUR';
+};
+
 export type Blocage = {
     /**
      * Conservé au journal, jamais envoyé (RG-OPE-50)
      */
     motif: string;
+};
+
+/**
+ * Un champ changé ; valeurs brutes (nombres en notation simple, énumérations par leur nom, dates ISO), absentes si vides
+ */
+export type ChangementContrat = {
+    apres?: string;
+    avant?: string;
+    champ: string;
 };
 
 export type ChangementEmail = {
@@ -350,6 +371,118 @@ export type Contenance = {
 };
 
 /**
+ * Un contrat d'achat Armagnac : sa version courante, ses approbations, l'écart et le journal (spec 06 §6)
+ */
+export type Contrat = {
+    acheteur: PartieContrat;
+    /**
+     * Approbations de la version courante
+     */
+    approbations: Array<ApprobationContrat>;
+    /**
+     * En projet : la partie dont l'approbation manque (RG-CA-08)
+     */
+    attend?: 'ACHETEUR' | 'VENDEUR';
+    campagne: string;
+    /**
+     * Date de la conclusion
+     */
+    dateContrat?: string;
+    /**
+     * En projet : l'écart montré à la partie qui doit approuver (RG-CA-09)
+     */
+    ecart?: EcartContrat;
+    etat: 'PROJET' | 'CONCLU' | 'EXECUTE' | 'ANNULE' | 'REFUSE';
+    id: number;
+    journal: Array<EntreeJournalContrat>;
+    /**
+     * Au portail : la partie de l'opérateur actif
+     */
+    maPartie?: 'ACHETEUR' | 'VENDEUR';
+    numero: string;
+    ouvertPar: 'ACHETEUR' | 'VENDEUR';
+    /**
+     * Au portail : l'acteur gère le module dans l'opérateur actif
+     */
+    peutAgir: boolean;
+    /**
+     * Par ligne du contrat : le volume retiré, en cours de validation, et le reste à retirer (RG-CA-13)
+     */
+    restes: Array<ResteContrat>;
+    /**
+     * Dans l'ordre de leur déclaration (spec 06 §3.4)
+     */
+    retiraisons: Array<RetiraisonContrat>;
+    /**
+     * Au vendeur, en projet : le grain que son stock estimé ne couvre plus (RG-CA-12)
+     */
+    stockInsuffisant?: string;
+    vendeur: PartieContrat;
+    version: VersionContrat;
+};
+
+/**
+ * Une retiraison de contrat inscrite sur une ligne de la DSM (spec 06 RG-CA-22, 23)
+ */
+export type ContratInscritDsm = {
+    colonne: number;
+    /**
+     * Identifiant du contrat
+     */
+    contrat: number;
+    libelle: string;
+    numero: string;
+    retiraison: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volume: number;
+};
+
+/**
+ * Un contrat dans une liste, sur sa version courante (RG-CA-25)
+ */
+export type ContratListe = {
+    aRetirerAvantLe?: string;
+    acheteur: PartieContrat;
+    /**
+     * En projet : la partie dont l'approbation manque
+     */
+    attend?: 'ACHETEUR' | 'VENDEUR';
+    /**
+     * Date de la conclusion
+     */
+    dateContrat?: string;
+    etat: 'PROJET' | 'CONCLU' | 'EXECUTE' | 'ANNULE' | 'REFUSE';
+    id: number;
+    /**
+     * Date de la version courante
+     */
+    modifieLe: string;
+    /**
+     * € HT
+     */
+    montantHt: number;
+    nombreLignes: number;
+    numero: string;
+    /**
+     * Au portail : l'onglet où il se range pour l'opérateur actif
+     */
+    onglet?: 'A_APPROUVER' | 'EN_NEGOCIATION' | 'CONCLUS' | 'EXECUTES' | 'ANNULES_REFUSES';
+    ouvertPar: 'ACHETEUR' | 'VENDEUR';
+    /**
+     * La première ligne : « 2015 » ou « Hors d'âge 20+ »
+     */
+    produit: string;
+    vendeur: PartieContrat;
+    versionCourante: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volumeAp: number;
+};
+
+/**
  * Une conversation telle que l'utilisateur la voit (spec 15 §6)
  */
 export type Conversation = {
@@ -466,6 +599,16 @@ export type CotisationDsm = {
 };
 
 /**
+ * Approbation ou refus de la version vue (RG-CA-08, 10)
+ */
+export type DecisionContrat = {
+    /**
+     * Numéro de la version vue, refusée si elle a changé
+     */
+    versionVue: number;
+};
+
+/**
  * Fichier déposé (ADR-018)
  */
 export type DocumentDsm = {
@@ -511,6 +654,10 @@ export type Droits = {
      */
     adminBnia: boolean;
     contacts: 'AUCUN' | 'LECTURE' | 'GESTION';
+    /**
+     * Contrats d'achat Armagnac, lecture seule pour le BNIA (spec 06 §3.6)
+     */
+    contrats: 'AUCUN' | 'LECTURE' | 'GESTION';
     /**
      * DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)
      */
@@ -567,6 +714,10 @@ export type Dsm = {
      * Échéance passée, DSM en brouillon ou en compléments demandés, opérateur au statut OUI (RG-DEC-40)
      */
     enRetard: boolean;
+    /**
+     * L'opérateur pourrait l'envoyer, mais sa période n'est pas finie : premier jour d'envoi (RG-CA-24)
+     */
+    envoiPossibleLe?: string;
     envoyeeLe?: string;
     etat: 'BROUILLON' | 'ENVOYEE' | 'EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'COMPLEMENTS_RECUS' | 'VALIDEE';
     id: number;
@@ -708,10 +859,51 @@ export type DsmResume = {
 };
 
 /**
+ * Ce qui a changé depuis la dernière version approuvée par la partie qui doit approuver (RG-CA-09)
+ */
+export type EcartContrat = {
+    /**
+     * Auteurs des versions intermédiaires
+     */
+    auteurs: Array<AuteurContrat>;
+    champs: Array<ChangementContrat>;
+    /**
+     * Dernière version approuvée par cette partie
+     */
+    depuis: number;
+    /**
+     * Version courante
+     */
+    jusqua: number;
+    lignes: Array<EcartLigneContrat>;
+};
+
+export type EcartLigneContrat = {
+    champs: Array<ChangementContrat>;
+    nature: 'AJOUTEE' | 'RETIREE' | 'MODIFIEE';
+    /**
+     * Rang de la ligne, à partir de 0
+     */
+    rang: number;
+};
+
+/**
  * Les brouillons à émettre, dans l'ordre de la sélection (RG-FAC-19)
  */
 export type EmissionBrouillons = {
     ids: Array<number>;
+};
+
+export type EntreeJournalContrat = {
+    action: 'OUVERTURE' | 'MODIFICATION' | 'APPROBATION' | 'REFUS' | 'CONCLUSION' | 'RETIRAISON_DECLAREE' | 'RETIRAISON_MODIFIEE' | 'RETIRAISON_VALIDEE' | 'RETIRAISON_RETIREE' | 'EXECUTION' | 'ANNULATION' | 'CLOTURE' | 'EDITION_PDF';
+    date: string;
+    /**
+     * Numéro de version ou de retiraison
+     */
+    detail?: number;
+    libelle: string;
+    nom: string;
+    partie?: 'ACHETEUR' | 'VENDEUR';
 };
 
 /**
@@ -722,7 +914,7 @@ export type EntreeJournalDeclarations = {
      * Copie du nom de l'acteur
      */
     acteur: string;
-    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE' | 'FACTURATION_ABANDONNEE';
+    action: 'DSM_INITIEE' | 'DSM_ENREGISTREE' | 'DSM_IMPORTEE' | 'DSM_ENVOYEE' | 'DSM_PRISE_EN_INSTRUCTION' | 'COMPLEMENTS_DEMANDES' | 'DSM_VALIDEE' | 'DSM_EDITEE' | 'BROUILLON_SUPPRIME' | 'JUSTIFICATIF_DEPOSE' | 'JUSTIFICATIF_SUPPRIME' | 'DRM_DEPOSEE' | 'DRM_SUPPRIMEE' | 'POINT_DE_DEPART_FIXE' | 'POINT_DE_DEPART_MODIFIE' | 'POINT_DE_DEPART_IMPORTE' | 'FACTURATION_DEMANDEE' | 'FACTURE_EMISE' | 'FACTURATION_ABANDONNEE' | 'CONTRAT_INSCRIT';
     date: string;
     /**
      * Nom de fichier, mois, format…
@@ -1053,6 +1245,27 @@ export type InvitationPublique = {
 };
 
 /**
+ * Une retiraison de contrat inscrite, justificatif de son mouvement (spec 06 RG-CA-23)
+ */
+export type JustificatifContratDsm = {
+    colonne: number;
+    /**
+     * Identifiant du contrat
+     */
+    contrat: number;
+    dateEnlevement: string;
+    libelle: string;
+    ligne: string;
+    numero: string;
+    retiraison: number;
+    typeMouvement: 'ACHAT' | 'REINTEGRATION' | 'AUTRES_FABRICATIONS' | 'VENTE_NEGOCE' | 'VENTE_EXPORT';
+    /**
+     * Litres d'alcool pur
+     */
+    volume: number;
+};
+
+/**
  * Justificatif d'une DSM (spec 05 §3.2.2)
  */
 export type JustificatifDsm = {
@@ -1098,6 +1311,40 @@ export type LigneConnexion = {
 };
 
 /**
+ * Une ligne du contrat et ses calculs (spec 06 §3.3, RG-CA-04)
+ */
+export type LigneContrat = {
+    appellation: 'ARMAGNAC' | 'BAS_ARMAGNAC' | 'ARMAGNAC_TENAREZE' | 'HAUT_ARMAGNAC' | 'BLANCHE_ARMAGNAC';
+    compte: string;
+    /**
+     * % vol.
+     */
+    degre: number;
+    denomination?: string;
+    millesime?: number;
+    /**
+     * € HT
+     */
+    montantHt: number;
+    /**
+     * € HT / hl AP
+     */
+    prix: number;
+    /**
+     * € HT / litre de volume
+     */
+    prixLitreVolume: number;
+    /**
+     * Hectolitres
+     */
+    volume: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volumeAp: number;
+};
+
+/**
  * Une ligne du détail de la cotisation (RG-DEC-33)
  */
 export type LigneCotisation = {
@@ -1125,6 +1372,10 @@ export type LigneDsm = {
      * MB : calculé (RG-DEC-12)
      */
     compte: string;
+    /**
+     * Les retiraisons de contrat inscrites sur la ligne (RG-CA-22)
+     */
+    contrats: Array<ContratInscritDsm>;
     /**
      * Lignes NB et NV
      */
@@ -1214,6 +1465,21 @@ export type LignePiece = {
     unite?: string;
 };
 
+export type LigneRetiraison = {
+    /**
+     * Rang de la ligne du contrat
+     */
+    rang: number;
+    /**
+     * Hectolitres
+     */
+    volume: number;
+    /**
+     * Litres d'alcool pur, au degré de la ligne
+     */
+    volumeAp: number;
+};
+
 /**
  * Une ligne saisie ; numéro vide pour une ligne nouvelle (RG-FAC-17)
  */
@@ -1271,6 +1537,26 @@ export type LigneStock = {
 };
 
 /**
+ * Une ligne du stock estimé sous bois du vendeur, où il choisit les lignes de son contrat (RG-CA-11, 12)
+ */
+export type LigneStockContrat = {
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    compte: string;
+    /**
+     * Lignes NB
+     */
+    denomination?: string;
+    /**
+     * Stock estimé, litres d'alcool pur
+     */
+    estime: number;
+    /**
+     * Lignes MB
+     */
+    millesime?: number;
+};
+
+/**
  * Une ligne du stock déclaré d'un opérateur : le stock de fin d'une ligne de sa dernière DSM validée (RG-DEC-42)
  */
 export type LigneStockDeclare = {
@@ -1300,6 +1586,35 @@ export type LigneStockDeclare = {
      */
     stock: number;
     type: 'PRODUCTEUR' | 'NEGOCIANT';
+};
+
+export type LigneStockEstime = {
+    /**
+     * Litres d'alcool pur
+     */
+    achats: number;
+    /**
+     * Litres d'alcool pur
+     */
+    base: number;
+    cle: 'MB' | 'MV' | 'NB' | 'NV';
+    compte: string;
+    /**
+     * Lignes NB et NV
+     */
+    denomination?: string;
+    /**
+     * Litres d'alcool pur
+     */
+    estime: number;
+    /**
+     * Lignes MB et MV
+     */
+    millesime?: number;
+    /**
+     * Litres d'alcool pur
+     */
+    ventes: number;
 };
 
 export type LigneStockInitial = {
@@ -1458,6 +1773,45 @@ export type Membre = {
     utilisateur: number;
 };
 
+export type MercurialeProduit = {
+    /**
+     * Assemblage seulement
+     */
+    compte?: string;
+    contrats: number;
+    denomination?: string;
+    libelle: string;
+    millesime?: number;
+    /**
+     * € HT / hl AP
+     */
+    prixMaximum: number;
+    /**
+     * € HT / hl AP
+     */
+    prixMinimum: number;
+    /**
+     * € HT / hl AP, pondéré par le volume AP
+     */
+    prixMoyen: number;
+    /**
+     * Litres d'alcool pur
+     */
+    volumeAp: number;
+};
+
+/**
+ * Les prix des contrats conclus ou exécutés d'une période, par produit (spec 06 RG-CA-26)
+ */
+export type Mercuriales = {
+    au: string;
+    du: string;
+    /**
+     * Les millésimes du plus récent au plus ancien, puis les assemblages
+     */
+    produits: Array<MercurialeProduit>;
+};
+
 /**
  * Message d'une conversation (spec 15 §3.4)
  */
@@ -1506,6 +1860,28 @@ export type ModificationBrouillon = {
      * Version de la pièce affichée
      */
     version: number;
+};
+
+/**
+ * Une nouvelle version du projet (RG-CA-07)
+ */
+export type ModificationContrat = {
+    contenu: SaisieContenuContrat;
+    /**
+     * Numéro de la version vue, refusée si elle a changé
+     */
+    versionVue: number;
+};
+
+/**
+ * Une nouvelle version de la retiraison, par la partie qui doit la valider (RG-CA-14)
+ */
+export type ModificationRetiraison = {
+    contenu: SaisieRetiraison;
+    /**
+     * Numéro de la version vue, refusée si elle a changé
+     */
+    versionVue: number;
 };
 
 /**
@@ -1733,6 +2109,17 @@ export type ParametrageFacturation = {
      * Vide tant qu'il n'est pas paramétré : l'émission est alors refusée (RG-FAC-09)
      */
     vendeur?: VendeurFacturation;
+};
+
+/**
+ * Un opérateur partie au contrat : son identité
+ */
+export type PartieContrat = {
+    code: string;
+    id: number;
+    nomCommercial?: string;
+    raisonSociale: string;
+    ville?: string;
 };
 
 export type Pays = {
@@ -1968,6 +2355,10 @@ export type PieceListee = {
  */
 export type PiecesDsm = {
     /**
+     * Les retiraisons de contrat inscrites, qui justifient leur type de mouvement sans PDF (RG-CA-23)
+     */
+    contrats: Array<JustificatifContratDsm>;
+    /**
      * Dans l'ordre de dépôt
      */
     justificatifs: Array<JustificatifDsm>;
@@ -2110,6 +2501,19 @@ export type Region = {
 };
 
 /**
+ * Une ligne du contrat et ses retiraisons (RG-CA-13), en hl
+ */
+export type ResteContrat = {
+    enCours: number;
+    /**
+     * Rang de la ligne, à partir de 0
+     */
+    rang: number;
+    reste: number;
+    retire: number;
+};
+
+/**
  * Autre opérateur, vu du portail : rien d'autre que ces champs (RG-OPE-37)
  */
 export type ResultatRechercheOperateur = {
@@ -2118,6 +2522,36 @@ export type ResultatRechercheOperateur = {
     nomCommercial?: string;
     raisonSociale: string;
     ville?: string;
+};
+
+/**
+ * Une retiraison (spec 06 §3.4) : sa version courante, ses approbations, son écart
+ */
+export type RetiraisonContrat = {
+    /**
+     * Approbations de la version courante
+     */
+    approbations: Array<ApprobationContrat>;
+    /**
+     * La partie qui doit la valider ; vide une fois validée
+     */
+    attend?: 'ACHETEUR' | 'VENDEUR';
+    auteur: AuteurContrat;
+    dateEnlevement: string;
+    derniere: boolean;
+    /**
+     * À valider après une modification : l'écart montré à la partie attendue (RG-CA-14)
+     */
+    ecart?: EcartContrat;
+    etat: 'A_VALIDER_VENDEUR' | 'A_VALIDER_ACHETEUR' | 'VALIDEE';
+    libelleEtat: string;
+    lignes: Array<LigneRetiraison>;
+    numero: number;
+    /**
+     * Au vendeur qui doit la valider : le grain que son stock estimé ne couvre pas (RG-CA-15)
+     */
+    stockInsuffisant?: string;
+    version: number;
 };
 
 /**
@@ -2221,6 +2655,45 @@ export type SaisieContenance = {
      * En litres, trois décimales au plus
      */
     volume: number;
+};
+
+/**
+ * Le contenu d'une version du contrat (spec 06 §3.2, RG-CA-03)
+ */
+export type SaisieContenuContrat = {
+    /**
+     * Affichée dans les listes, sans effet sur le stock
+     */
+    aRetirerAvantLe?: string;
+    /**
+     * Acompte en %, dans ]0 ; 100[
+     */
+    acompte?: number;
+    /**
+     * Caractéristiques complémentaires, imprimées
+     */
+    caracteristiques?: string;
+    /**
+     * Conditions et calendrier de retiraison, imprimés
+     */
+    conditionsRetiraison?: string;
+    lignes: Array<SaisieLigneContrat>;
+    solde: 'COMPTANT' | 'TRENTE_JOURS_FIN_DE_MOIS';
+};
+
+/**
+ * Un projet de contrat ouvert par l'opérateur actif (UC-CA-1)
+ */
+export type SaisieContrat = {
+    /**
+     * L'autre opérateur (recherche restreinte)
+     */
+    autrePartie: number;
+    contenu: SaisieContenuContrat;
+    /**
+     * La partie que tient l'opérateur actif
+     */
+    partie: 'ACHETEUR' | 'VENDEUR';
 };
 
 /**
@@ -2361,6 +2834,22 @@ export type SaisieInvitation = {
     titre?: number;
 };
 
+/**
+ * Une ligne : millésime, ou dénomination et compte d'âge ; volume en hl, degré en % vol., prix en € HT / hl AP
+ */
+export type SaisieLigneContrat = {
+    appellation: 'ARMAGNAC' | 'BAS_ARMAGNAC' | 'ARMAGNAC_TENAREZE' | 'HAUT_ARMAGNAC' | 'BLANCHE_ARMAGNAC';
+    /**
+     * Assemblage seulement : 00, 0 … 19, 20+
+     */
+    compte?: string;
+    degre: number;
+    denomination?: string;
+    millesime?: number;
+    prix: number;
+    volume: number;
+};
+
 export type SaisieLigneDsm = {
     cle: 'MB' | 'MV' | 'NB' | 'NV';
     /**
@@ -2383,6 +2872,17 @@ export type SaisieLigneDsm = {
      * 26 valeurs en litres d'alcool pur, indice 0 = colonne 1 ; colonnes 1 et 26 vides (calculées)
      */
     volumes: Array<number>;
+};
+
+export type SaisieLigneRetiraison = {
+    /**
+     * Rang de la ligne du contrat, à partir de 0
+     */
+    rang: number;
+    /**
+     * Hectolitres, au plus le reste à retirer
+     */
+    volume: number;
 };
 
 export type SaisieLigneStockInitial = {
@@ -2633,6 +3133,21 @@ export type SaisieRegion = {
     libelle: string;
 };
 
+/**
+ * Une retiraison : date d'enlèvement, dernière ou non, lignes du contrat retirées (spec 06 §3.4, RG-CA-13)
+ */
+export type SaisieRetiraison = {
+    /**
+     * Au plus tôt aujourd'hui (H-CA-3)
+     */
+    dateEnlevement: string;
+    /**
+     * Sa validation exécute le contrat (RG-CA-15)
+     */
+    derniere: boolean;
+    lignes: Array<SaisieLigneRetiraison>;
+};
+
 export type SaisieRole = {
     role: 'OBSERVATEUR' | 'AGENT' | 'ADMIN';
 };
@@ -2717,6 +3232,17 @@ export type StockDeclare = {
      */
     periode: PeriodeDeclaration;
     valideeLe?: string;
+};
+
+/**
+ * Le stock estimé d'un opérateur : base (dernière DSM validée ou point de départ) vieillie à aujourd'hui, plus achats, moins ventes de ses retiraisons validées (spec 06 RG-CA-11)
+ */
+export type StockEstime = {
+    /**
+     * Date de la base ; absente sans DSM validée ni point de départ
+     */
+    baseAu?: string;
+    lignes: Array<LigneStockEstime>;
 };
 
 /**
@@ -2844,6 +3370,28 @@ export type Ventes = {
     au: string;
     du: string;
     lignes: Array<LigneVendue>;
+};
+
+/**
+ * Une version du contenu (spec 06 §3.2) et ses calculs (RG-CA-04)
+ */
+export type VersionContrat = {
+    aRetirerAvantLe?: string;
+    acompte?: number;
+    auteur: AuteurContrat;
+    caracteristiques?: string;
+    conditionsRetiraison?: string;
+    lignes: Array<LigneContrat>;
+    /**
+     * € HT
+     */
+    montantHt: number;
+    numero: number;
+    solde: 'COMPTANT' | 'TRENTE_JOURS_FIN_DE_MOIS';
+    /**
+     * Litres d'alcool pur
+     */
+    volumeAp: number;
 };
 
 export type VisiteProposee = {
@@ -3106,6 +3654,80 @@ export type ConfirmerChangementEmailResponses = {
 };
 
 export type ConfirmerChangementEmailResponse = ConfirmerChangementEmailResponses[keyof ConfirmerChangementEmailResponses];
+
+export type ListerContratsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        operateur?: number;
+        numero?: string;
+    };
+    url: '/api/contrats';
+};
+
+export type ListerContratsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ContratListe>;
+};
+
+export type ListerContratsResponse = ListerContratsResponses[keyof ListerContratsResponses];
+
+export type ConsulterMercurialesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        du?: string;
+        au?: string;
+    };
+    url: '/api/contrats/mercuriales';
+};
+
+export type ConsulterMercurialesResponses = {
+    /**
+     * OK
+     */
+    200: Mercuriales;
+};
+
+export type ConsulterMercurialesResponse = ConsulterMercurialesResponses[keyof ConsulterMercurialesResponses];
+
+export type ConsulterContratData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/contrats/{id}';
+};
+
+export type ConsulterContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type ConsulterContratResponse = ConsulterContratResponses[keyof ConsulterContratResponses];
+
+export type EditerContratPdfData = {
+    body?: never;
+    path: {
+        id: number;
+    };
+    query?: never;
+    url: '/api/contrats/{id}/pdf';
+};
+
+export type EditerContratPdfResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type EditerContratPdfResponse = EditerContratPdfResponses[keyof EditerContratPdfResponses];
 
 export type ListerToutesDsmData = {
     body?: never;
@@ -4452,6 +5074,272 @@ export type ConsulterJournalContactResponses = {
 
 export type ConsulterJournalContactResponse = ConsulterJournalContactResponses[keyof ConsulterJournalContactResponses];
 
+export type ListerMesContratsData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats';
+};
+
+export type ListerMesContratsResponses = {
+    /**
+     * OK
+     */
+    200: Array<ContratListe>;
+};
+
+export type ListerMesContratsResponse = ListerMesContratsResponses[keyof ListerMesContratsResponses];
+
+export type OuvrirContratData = {
+    body: SaisieContrat;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats';
+};
+
+export type OuvrirContratResponses = {
+    /**
+     * Created
+     */
+    201: Contrat;
+};
+
+export type OuvrirContratResponse = OuvrirContratResponses[keyof OuvrirContratResponses];
+
+export type ConsulterStockPourContratData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/stock';
+};
+
+export type ConsulterStockPourContratResponses = {
+    /**
+     * OK
+     */
+    200: Array<LigneStockContrat>;
+};
+
+export type ConsulterStockPourContratResponse = ConsulterStockPourContratResponses[keyof ConsulterStockPourContratResponses];
+
+export type ConsulterMonContratData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}';
+};
+
+export type ConsulterMonContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type ConsulterMonContratResponse = ConsulterMonContratResponses[keyof ConsulterMonContratResponses];
+
+export type ModifierContratData = {
+    body: ModificationContrat;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}';
+};
+
+export type ModifierContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type ModifierContratResponse = ModifierContratResponses[keyof ModifierContratResponses];
+
+export type AnnulerContratData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/annulation';
+};
+
+export type AnnulerContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type AnnulerContratResponse = AnnulerContratResponses[keyof AnnulerContratResponses];
+
+export type ApprouverContratData = {
+    body: DecisionContrat;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/approbation';
+};
+
+export type ApprouverContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type ApprouverContratResponse = ApprouverContratResponses[keyof ApprouverContratResponses];
+
+export type CloturerContratData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/cloture';
+};
+
+export type CloturerContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type CloturerContratResponse = CloturerContratResponses[keyof CloturerContratResponses];
+
+export type EditerMonContratPdfData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/pdf';
+};
+
+export type EditerMonContratPdfResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type EditerMonContratPdfResponse = EditerMonContratPdfResponses[keyof EditerMonContratPdfResponses];
+
+export type RefuserContratData = {
+    body: DecisionContrat;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/refus';
+};
+
+export type RefuserContratResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type RefuserContratResponse = RefuserContratResponses[keyof RefuserContratResponses];
+
+export type DeclarerRetiraisonData = {
+    body: SaisieRetiraison;
+    path: {
+        operateur: number;
+        id: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/retiraisons';
+};
+
+export type DeclarerRetiraisonResponses = {
+    /**
+     * Created
+     */
+    201: Contrat;
+};
+
+export type DeclarerRetiraisonResponse = DeclarerRetiraisonResponses[keyof DeclarerRetiraisonResponses];
+
+export type RetirerRetiraisonData = {
+    body?: never;
+    path: {
+        operateur: number;
+        id: number;
+        numero: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/retiraisons/{numero}';
+};
+
+export type RetirerRetiraisonResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type RetirerRetiraisonResponse = RetirerRetiraisonResponses[keyof RetirerRetiraisonResponses];
+
+export type ModifierRetiraisonData = {
+    body: ModificationRetiraison;
+    path: {
+        operateur: number;
+        id: number;
+        numero: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/retiraisons/{numero}';
+};
+
+export type ModifierRetiraisonResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type ModifierRetiraisonResponse = ModifierRetiraisonResponses[keyof ModifierRetiraisonResponses];
+
+export type ValiderRetiraisonData = {
+    body: DecisionContrat;
+    path: {
+        operateur: number;
+        id: number;
+        numero: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/contrats/{id}/retiraisons/{numero}/validation';
+};
+
+export type ValiderRetiraisonResponses = {
+    /**
+     * OK
+     */
+    200: Contrat;
+};
+
+export type ValiderRetiraisonResponse = ValiderRetiraisonResponses[keyof ValiderRetiraisonResponses];
+
 export type ListerDenominationsData = {
     body?: never;
     path: {
@@ -5616,6 +6504,24 @@ export type ConsulterStockDeclareResponses = {
 };
 
 export type ConsulterStockDeclareResponse = ConsulterStockDeclareResponses[keyof ConsulterStockDeclareResponses];
+
+export type ConsulterStockEstimeData = {
+    body?: never;
+    path: {
+        operateur: number;
+    };
+    query?: never;
+    url: '/api/operateurs/{operateur}/stock-estime';
+};
+
+export type ConsulterStockEstimeResponses = {
+    /**
+     * OK
+     */
+    200: StockEstime;
+};
+
+export type ConsulterStockEstimeResponse = ConsulterStockEstimeResponses[keyof ConsulterStockEstimeResponses];
 
 export type ListerCentresInteretData = {
     body?: never;

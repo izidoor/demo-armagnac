@@ -25,12 +25,17 @@ public record Droits(long operateur, Optional<Role> local, Optional<Role> bnia) 
 
     /**
      * RG-OPE-31, 32 : gérer un module, par le rôle local ou par le rôle tenu au BNIA ; le Paramétrage et la
-     * Facturation, par le rôle tenu au BNIA seulement (spec 08 §3.12).
+     * Facturation, par le rôle tenu au BNIA seulement (spec 08 §3.12) ; les Contrats, par le rôle local seulement
+     * (RG-CA-01 : le BNIA les lit, seules les parties agissent).
      */
     public boolean gere(Module module) {
         boolean parBnia = bnia.map(r -> r.gere(module)).orElse(false);
-        boolean reserveAuBnia = module == Module.PARAMETRAGE || module == Module.FACTURATION;
-        return reserveAuBnia ? parBnia : parBnia || local.map(r -> r.gere(module)).orElse(false);
+        boolean parLocal = local.map(r -> r.gere(module)).orElse(false);
+        return switch (module) {
+            case PARAMETRAGE, FACTURATION -> parBnia;
+            case CONTRATS -> parLocal;
+            default -> parBnia || parLocal;
+        };
     }
 
     /** RG-OPE-32 : l'acteur appartient au personnel du BNIA (rattachement actif dans l'opérateur BNIA). */

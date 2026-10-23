@@ -38,7 +38,10 @@ class EditionDsmIT extends AbstractIT {
         }
     }
 
-    /** Un négociant au mois courant, un agent connecté, sa DSM avec ces volumes sur la première ligne. */
+    /**
+     * Un négociant au mois précédent (sa DSM s'envoie après la fin de sa période, spec 06 RG-CA-24), un agent connecté,
+     * sa DSM avec ces volumes sur la première ligne.
+     */
     private Map<?, ?> dsm(Map<Integer, String> volumes) {
         Map<String, Object> saisie = new HashMap<>();
         saisie.put("type", "NEGOCIANT");
@@ -47,7 +50,7 @@ class EditionDsmIT extends AbstractIT {
         saisie.put("ville", "Condom");
         saisie.put("accordDiffusionGeneral", false);
         operateur = creer("/api/operateurs", saisie);
-        creer("/api/operateurs/" + operateur + "/point-de-depart", Map.of("debut", LocalDate.now().withDayOfMonth(1),
+        creer("/api/operateurs/" + operateur + "/point-de-depart", Map.of("debut", LocalDate.now().withDayOfMonth(1).minusMonths(1),
                 "lignes", List.of(Map.of("cle", "NB", "denomination", "XO", "compte", "12",
                         "volume", new BigDecimal("4000")))));
         String email = emailUnique("agent");

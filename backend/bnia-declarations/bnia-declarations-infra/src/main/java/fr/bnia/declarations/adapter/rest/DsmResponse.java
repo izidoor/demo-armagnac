@@ -9,6 +9,7 @@ import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.IdentiteLigne;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.Manque;
+import fr.bnia.declarations.domain.MouvementContrat;
 import fr.bnia.declarations.domain.NiveauAnomalie;
 import fr.bnia.declarations.domain.OngletDsm;
 import fr.bnia.declarations.domain.OrigineLigne;
@@ -49,6 +50,8 @@ public record DsmResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
                 description = "Actions permises à l'utilisateur connecté, selon l'état et son côté (RG-DEC-01, 20 à 22, 24)")
         List<ActionDsm> actions,
+        @Schema(description = "L'opérateur pourrait l'envoyer, mais sa période n'est pas finie : premier jour d'envoi (RG-CA-24)")
+        LocalDate envoiPossibleLe,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<ColonneResponse> colonnes,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<LigneResponse> lignes,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Total de chaque colonne, 26 valeurs (RG-DEC-17)")
@@ -96,7 +99,26 @@ public record DsmResponse(
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "26 valeurs, colonne 26 calculée")
             List<BigDecimal> volumes,
             @Schema(requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal totalEntrees,
-            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal totalSorties) {
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) BigDecimal totalSorties,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                    description = "Les retiraisons de contrat inscrites sur la ligne (RG-CA-22)")
+            List<ContratInscritResponse> contrats) {
+    }
+
+    @Schema(name = "ContratInscritDsm", description = "Une retiraison de contrat inscrite sur une ligne de la DSM (spec 06 RG-CA-22, 23)")
+    public record ContratInscritResponse(
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Identifiant du contrat") long contrat,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "CA-2026-0001") String numero,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED) int retiraison,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "3") int colonne,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Litres d'alcool pur") BigDecimal volume,
+            @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Contrat CA-2026-0001, retiraison 1")
+            String libelle) {
+
+        static ContratInscritResponse depuis(MouvementContrat m) {
+            return new ContratInscritResponse(m.contrat(), m.numeroContrat(), m.retiraison(), m.colonne().numero(),
+                    m.volumeAp().litres(), m.libelle());
+        }
     }
 
     @Schema(name = "AnomalieDsm", description = "Anomalie de calcul, bloquante à l'envoi (RG-DEC-18)")
@@ -129,19 +151,22 @@ public record DsmResponse(
         return new DsmResponse(dsm.id(), dsm.operateur(), vue.operateur().code(), vue.operateur().raisonSociale(),
                 dsm.type(), PeriodeResponse.depuis(dsm.periode()), dsm.etat(), dsm.etat().libelle(vue.cote()), dsm.dateDia(),
                 dsm.envoyeeLe(), dsm.valideeLe(), dsm.valideePar() == null ? null : dsm.valideePar().nom(),
-                vue.actions().stream().sorted().toList(), colonnes,
-                dsm.lignes().stream().map(DsmResponse::ligne).toList(), volumes(dsm::total),
+                vue.actions().stream().sorted().toList(), vue.envoiPossibleLe().orElse(null), colonnes,
+                dsm.lignes().stream().map(l -> ligne(l, vue.contrats().stream()
+                        .filter(m -> m.identiteAu(dsm.periode().debut()).equals(l.identite())).toList())).toList(),
+                volumes(dsm::total),
                 vue.anomalies().stream().map(DsmResponse::anomalie).toList(),
                 vue.manques().stream().map(DsmResponse::manque).toList(),
                 CotisationResponse.depuis(vue.cotisation(), dsm.periode().fin()), vue.echeance(), vue.enRetard(),
                 vue.brouillonFacture().orElse(null), vue.manquePourFacturer(), dsm.version());
     }
 
-    private static LigneResponse ligne(LigneDsm ligne) {
+    private static LigneResponse ligne(LigneDsm ligne, List<MouvementContrat> contrats) {
         IdentiteLigne i = ligne.identite();
         return new LigneResponse(ligne.id(), i.cle(), i.millesime() == null ? null : i.millesime().annee(),
                 i.denomination() == null ? null : i.denomination().texte(), i.compte().toString(), ligne.origine(),
-                volumes(ligne::volume), ligne.totalEntrees().litres(), ligne.totalSorties().litres());
+                volumes(ligne::volume), ligne.totalEntrees().litres(), ligne.totalSorties().litres(),
+                contrats.stream().map(ContratInscritResponse::depuis).toList());
     }
 
     private static List<BigDecimal> volumes(Function<ColonneDsm, VolumeAlcoolPur> volume) {

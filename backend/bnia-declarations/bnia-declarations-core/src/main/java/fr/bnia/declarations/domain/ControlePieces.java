@@ -23,14 +23,17 @@ public final class ControlePieces {
 
     /**
      * RG-DEC-29 : un type de mouvement dont le total est non nul sans aucune pièce de ce type, rattachée à la
-     * DSM ou à une de ses lignes ; pour un producteur, un mois de la période sans DRM. Dans l'ordre des
-     * colonnes, puis des mois.
+     * DSM ou à une de ses lignes, ni mouvement de contrat inscrit (spec 06 RG-CA-23, H-CA-2) ; pour un producteur, un
+     * mois de la période sans DRM. Dans l'ordre des colonnes, puis des mois.
+     *
+     * @param contrats les mouvements de contrat inscrits dans la DSM
      */
     public static List<Manque> manques(DeclarationStocksMouvements dsm, List<Justificatif> justificatifs,
-            List<Drm> drms) {
+            List<Drm> drms, List<MouvementContrat> contrats) {
         List<Manque> manques = new ArrayList<>();
         Set<TypeMouvement> justifies = EnumSet.noneOf(TypeMouvement.class);
         justificatifs.forEach(j -> justifies.add(j.typeMouvement()));
+        contrats.forEach(m -> TypeMouvement.de(m.colonne()).ifPresent(justifies::add));
         for (TypeMouvement type : TypeMouvement.values()) {
             VolumeAlcoolPur total = type.colonnes().stream().map(dsm::total)
                     .reduce(VolumeAlcoolPur.ZERO, VolumeAlcoolPur::plus);

@@ -2,6 +2,7 @@ package fr.bnia.declarations.application.partage;
 
 import fr.bnia.declarations.domain.partage.DerniereDsmVue;
 import fr.bnia.declarations.domain.partage.StockDeclareVue;
+import fr.bnia.declarations.domain.partage.StockEstimeVue;
 import java.util.Optional;
 
 /**
@@ -16,4 +17,10 @@ public interface DeclarationsLecture {
 
     /** RG-DEC-42 : le stock déclaré de l'opérateur, pour sa fiche ; vide sans DSM validée. */
     Optional<StockDeclareVue> stockDeclare(long operateur);
+
+    /**
+     * RG-CA-11 (spec 06) : le stock estimé de l'opérateur, base vieillie à aujourd'hui et mouvements de contrat ;
+     * sans ligne s'il n'a ni DSM validée ni point de départ.
+     */
+    StockEstimeVue stockEstime(long operateur);
 }

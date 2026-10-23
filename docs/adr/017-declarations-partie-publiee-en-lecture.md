@@ -1,6 +1,6 @@
 # ADR-017 : `declarations`, partie publiée en lecture
 
-- Statut : accepté ; amendé le 2026-10-14 (factures, ADR-021)
+- Statut : accepté ; amendé le 2026-10-14 (factures, ADR-021) et le 2026-10-23 (contrats, spec 06)
 - Date : 2026-10-13
 - Étend : l'exception des ADR-008 et ADR-012 (partie publiée en lecture), réservée jusqu'ici à
   `referentiels` et `operateurs`
@@ -77,3 +77,18 @@ Options écartées :
 - Dépendances : `contratsarmagnac`, `distillation`, `notifications` et `statistiques` → `declarations` ;
   `declarations-infra` → `facturation-api` ; `facturation` → `operateurs` → `referentiels` → `commun`.
   Aucun cycle.
+
+## Amendement du 2026-10-23 (spec 06, décisions A-CA-1 et A-CA-3)
+- **Lecture directe confirmée** : le core de `contratsarmagnac` lit `OperateursLecture` et
+  `DeclarationsLecture`, sans port de passe-plat (option déjà écartée ci-dessus).
+- **Événements reçus** : `RetiraisonValidee` (contrat, numéro, retiraison, date d'enlèvement, vendeur,
+  acheteur, lignes : grain et volume AP) remplace `ContratValide`, `ContratModifie` et
+  `RetiraisonEffectuee`, jamais codés. Publié par `contratsarmagnac`, écouté dans `adapter.evenement` de
+  `declarations`, dans la transaction de l'émetteur (ADR-013) : l'échec de l'inscription dans la DSM annule
+  la validation de la retiraison.
+- **Lecture ajoutée** : le stock estimé d'un opérateur, par ligne de DSM, calculé à la lecture depuis la
+  dernière DSM validée (ou le point de départ) et les mouvements de contrat. Engagements, stock disponible
+  et bilan prévisionnel, prévus par la spec 05, sont abandonnés.
+- Écartés : un stock estimé matérialisé, mis à jour par événement (deux vérités) ; un calcul dans
+  `contratsarmagnac` (vieillissement dupliqué, copie des retiraisons toujours nécessaire au
+  préremplissage de la DSM).

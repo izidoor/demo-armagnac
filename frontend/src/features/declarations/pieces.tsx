@@ -1,9 +1,11 @@
 import { type FormEvent, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { FileText, Trash2, Upload } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { FileText, Handshake, Trash2, Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   type Dsm,
+  type JustificatifContratDsm,
   type JustificatifDsm,
   type MoisDrm,
   type PiecesDsm,
@@ -30,8 +32,8 @@ import {
 } from '@/components/ui/table'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
-import { apiDeclarations } from './api'
-import { formatDateHeure } from './format'
+import { apiDeclarations, type Espace } from './api'
+import { formatDate, formatDateHeure, formatLitres } from './format'
 import { identite } from './libelles'
 
 const SUR_LA_DSM = 'dsm'
@@ -48,14 +50,17 @@ type Suppression =
  * Onglet « Pièces » d'une DSM (spec 05 §6.3) : justificatifs groupés par type de mouvement (RG-DEC-26) et,
  * pour un producteur, une DRM par mois de la période (RG-DEC-27). Dépôt en PDF, ouverture dans un nouvel
  * onglet, suppression ; l'opérateur quand la DSM est chez lui, le BNIA tant qu'elle n'est pas validée
- * (RG-DEC-28). Les manques bloquent la validation, pas l'envoi (RG-DEC-29).
+ * (RG-DEC-28). Les manques bloquent la validation, pas l'envoi (RG-DEC-29). Une retiraison de contrat inscrite
+ * justifie son type de mouvement, sans PDF, avec le lien vers le contrat (spec 06 RG-CA-23).
  */
 export function OngletPieces({
+  espace,
   dsm,
   pieces,
   peutDeposer,
   onChange,
 }: {
+  espace: Espace
   dsm: Dsm
   pieces: PiecesDsm | undefined
   peutDeposer: boolean
@@ -121,6 +126,8 @@ export function OngletPieces({
             pieces={pieces.justificatifs.filter(
               (j) => j.typeMouvement === t.type
             )}
+            contrats={pieces.contrats.filter((j) => j.typeMouvement === t.type)}
+            espace={espace}
             url={(j) => api.urlJustificatif(dsm.id, j.id)}
             libelleLigne={libelleLigne}
             peutDeposer={peutDeposer}
@@ -200,6 +207,8 @@ function GroupeJustificatifs({
   type,
   attendu,
   pieces,
+  contrats,
+  espace,
   url,
   libelleLigne,
   peutDeposer,
@@ -209,6 +218,8 @@ function GroupeJustificatifs({
   type: TypeMouvementDsm
   attendu: boolean
   pieces: JustificatifDsm[]
+  contrats: JustificatifContratDsm[]
+  espace: Espace
   url: (j: JustificatifDsm) => string
   libelleLigne: (id: number) => string
   peutDeposer: boolean
@@ -232,10 +243,37 @@ function GroupeJustificatifs({
           </Button>
         )}
       </div>
+      {contrats.length > 0 && (
+        <ul className='space-y-1 border-b px-4 py-3 text-sm'>
+          {contrats.map((c) => (
+            <li
+              key={`${c.contrat}-${c.retiraison}-${c.colonne}-${c.ligne}`}
+              className='flex flex-wrap items-center gap-x-2'
+            >
+              <Handshake className='text-muted-foreground size-4' />
+              <Link
+                to={
+                  espace === 'bo' ? '/bo/contrats/$id' : '/portail/contrats/$id'
+                }
+                params={{ id: String(c.contrat) }}
+                className='font-medium underline-offset-4 hover:underline'
+              >
+                {c.libelle}
+              </Link>
+              <span className='text-muted-foreground'>
+                enlevée le {formatDate(c.dateEnlevement)} ·{' '}
+                {formatLitres(c.volume)} en colonne {c.colonne}, ligne {c.ligne}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
       {pieces.length === 0 ? (
-        <p className='text-muted-foreground px-4 py-3 text-sm'>
-          Aucune pièce n'a été déposée.
-        </p>
+        contrats.length === 0 && (
+          <p className='text-muted-foreground px-4 py-3 text-sm'>
+            Aucune pièce n'a été déposée.
+          </p>
+        )
       ) : (
         <Table>
           <TableHeader>

@@ -154,14 +154,15 @@ class FacturationIT extends AbstractIT {
     }
 
     /**
-     * La DSM du mois de l'opérateur, validée, aux volumes de la facture d'exemple : sorties France 839,11 L
-     * (colonne 17), export 2 254,15 L (colonne 22, avec son DAE).
+     * La DSM du mois précédent de l'opérateur, validée (une DSM ne s'envoie qu'après la fin de sa période, spec 06
+     * RG-CA-24), aux volumes de la facture d'exemple : sorties France 839,11 L (colonne 17), export 2 254,15 L
+     * (colonne 22, avec son DAE).
      */
     private long dsmValidee(long operateur) {
         String email = emailUnique("agent");
         membre(operateur, Role.AGENT, email);
         var agent = new fr.bnia.operateurs.domain.partage.Acteur(operateurs.utilisateurParEmail(email).orElseThrow());
-        points.fixer(admin, operateur, LocalDate.now().withDayOfMonth(1), List.of(new SaisieLigneStock(
+        points.fixer(admin, operateur, LocalDate.now().withDayOfMonth(1).minusMonths(1), List.of(new SaisieLigneStock(
                 CleConditionnement.NB, null, "XO", "12", VolumeAlcoolPur.litres("4000"))));
         DeclarationStocksMouvements dsm = dsms.initier(agent, operateur).dsm();
         LigneDsm ligne = dsm.lignes().getFirst();

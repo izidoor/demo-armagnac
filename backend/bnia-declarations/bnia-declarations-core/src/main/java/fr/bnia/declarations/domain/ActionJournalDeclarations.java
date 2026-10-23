@@ -27,7 +27,9 @@ public enum ActionJournalDeclarations {
     /** RG-DEC-34 : reçu de {@code facturation} ; détail : le numéro. */
     FACTURE_EMISE("Facture émise"),
     /** RG-DEC-34 : brouillon abandonné dans {@code facturation} ; la DSM redevient à facturer. */
-    FACTURATION_ABANDONNEE("Facturation abandonnée");
+    FACTURATION_ABANDONNEE("Facturation abandonnée"),
+    /** Spec 06 RG-CA-22 : une retiraison validée inscrite dans la DSM ; détail : le contrat et la retiraison. */
+    CONTRAT_INSCRIT("Retiraison de contrat inscrite");
 
     private final String libelle;
 

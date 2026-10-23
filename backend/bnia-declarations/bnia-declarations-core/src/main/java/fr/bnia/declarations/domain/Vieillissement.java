@@ -45,16 +45,29 @@ public final class Vieillissement {
 
     /** @param depuis le lendemain de la fin du stock repris : les 1er avril de {@code depuis} à {@code debut} comptent */
     private static List<LigneStockInitial> reprise(List<LigneDsm> lignes, LocalDate depuis, LocalDate debut) {
-        int anniversaires = anniversaires(depuis, debut);
+        return vieilli(lignes.stream()
+                .filter(l -> !l.stockFin().estNegatif() && !l.stockFin().estNul())
+                .map(l -> new LigneStockInitial(l.identite(), l.stockFin()))
+                .toList(), depuis, debut);
+    }
+
+    /**
+     * RG-CA-11 (spec 06), RG-DEC-14 : un stock daté, vieilli à {@code date} : compte {@code MB} recalculé depuis son
+     * millésime, {@code NB} +1 par 1er avril de {@code depuis} à {@code date}, bornés à {@code 20+}. Les lignes nulles
+     * sont écartées, les lignes devenues identiques fusionnent.
+     *
+     * @param depuis le lendemain de la date du stock
+     */
+    public static List<LigneStockInitial> vieilli(List<LigneStockInitial> lignes, LocalDate depuis, LocalDate date) {
+        int anniversaires = anniversaires(depuis, date);
         Map<IdentiteLigne, VolumeAlcoolPur> stock = new LinkedHashMap<>();
-        for (LigneDsm ligne : lignes) {
-            VolumeAlcoolPur fin = ligne.stockFin();
-            if (fin.estNegatif() || fin.estNul()) {
+        for (LigneStockInitial ligne : lignes) {
+            if (ligne.volume().estNul()) {
                 continue;
             }
-            IdentiteLigne identite = anniversaires > 0 ? vieillie(ligne.identite(), debut, anniversaires)
+            IdentiteLigne identite = anniversaires > 0 ? vieillie(ligne.identite(), date, anniversaires)
                     : ligne.identite();
-            stock.merge(identite, fin, VolumeAlcoolPur::plus);
+            stock.merge(identite, ligne.volume(), VolumeAlcoolPur::plus);
         }
         return stock.entrySet().stream().map(e -> new LigneStockInitial(e.getKey(), e.getValue())).toList();
     }

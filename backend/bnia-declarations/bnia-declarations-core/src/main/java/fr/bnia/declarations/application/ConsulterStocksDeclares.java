@@ -3,6 +3,7 @@ package fr.bnia.declarations.application;
 import fr.bnia.commun.application.UseCase;
 import fr.bnia.declarations.application.StocksLecture.LigneStock;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
+import fr.bnia.declarations.domain.StockEstime;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
@@ -31,15 +32,17 @@ public class ConsulterStocksDeclares {
     private final OperateursLecture operateurs;
     private final Autorisations autorisations;
     private final Clock horloge;
+    private final StocksEstimes estimes;
 
-    public ConsulterStocksDeclares(StocksLecture stocks, DsmLecture dsms, EditionsStocks editions,
-            OperateursLecture operateurs, Clock horloge) {
+    public ConsulterStocksDeclares(StocksLecture stocks, DsmLecture dsms, PointDeDepartRepository points,
+            MouvementsContrat mouvements, EditionsStocks editions, OperateursLecture operateurs, Clock horloge) {
         this.stocks = stocks;
         this.dsms = dsms;
         this.editions = editions;
         this.operateurs = operateurs;
         this.autorisations = new Autorisations(operateurs);
         this.horloge = horloge;
+        this.estimes = new StocksEstimes(dsms, stocks, points, mouvements, horloge);
     }
 
     /** Une ligne du stock déclaré, avec le code et la raison sociale de son opérateur. */
@@ -92,6 +95,12 @@ public class ConsulterStocksDeclares {
     public Optional<StockDeclare> deLOperateur(Acteur acteur, long operateur) {
         autorisations.exigerLecture(acteur, operateur);
         return stockDe(dsms, stocks, operateur);
+    }
+
+    /** RG-CA-11 (spec 06) : le stock estimé d'un opérateur, pour tout lecteur de ses déclarations. */
+    public StockEstime estimeDe(Acteur acteur, long operateur) {
+        autorisations.exigerLecture(acteur, operateur);
+        return estimes.de(operateur);
     }
 
     /** RG-DEC-42 : vide sans DSM validée ; sans ligne si toutes sont finies à 0. */

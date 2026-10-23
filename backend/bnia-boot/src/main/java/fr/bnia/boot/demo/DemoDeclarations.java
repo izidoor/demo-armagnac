@@ -56,15 +56,18 @@ import org.springframework.stereotype.Component;
  * <li>les négociants partent du premier du mois courant, avec un stock fixé par le BNIA au dernier jour du
  * mois précédent ; leur première DSM est celle du mois courant :
  * <ul>
- * <li>Armagnacs de Gascogne ({@code N320001}) : part de onze mois avant le mois courant (spec 08 §7.1, lots 1
- * et 2) ; ses DSM de ces onze mois sont validées, aux volumes de la facture d'exemple (sorties France 839,11 L,
- * export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle du mois courant, avec les
- * mêmes totaux, deux notes internes du BNIA (sur la DSM et sur sa première ligne) et sans justificatif, est en
- * compléments demandés, motif « DAE manquants pour l'export » (décision du 2026-10-21 : la démonstration du
- * portail tient dans les comptes {@code @negociant.fr} et {@code @producteur.fr}) ;</li>
+ * <li>Armagnacs de Gascogne ({@code N320001}) : part de douze mois avant le mois courant (spec 08 §7.1, lots 1
+ * et 2) ; ses DSM des onze premiers mois, jusqu'à M−2, sont validées, aux volumes de la facture d'exemple (sorties
+ * France 839,11 L, export 2 254,15 L, avec le DAE de l'export), pour que le BNIA les facture, en lot ; celle de M−1,
+ * avec les mêmes totaux, deux notes internes du BNIA (sur la DSM et sur sa première ligne) et sans justificatif, est
+ * en compléments demandés, motif « DAE manquants pour l'export » (décision du 2026-10-21 : la démonstration du
+ * portail tient dans les comptes {@code @negociant.fr} et {@code @producteur.fr}). Le mois courant reste à initier :
+ * une DSM ne s'envoie qu'après la fin de sa période (spec 06 RG-CA-24), et l'achat d'une retiraison validée s'y
+ * inscrira à l'initiation (RG-CA-22) ;</li>
  * <li>Maison Larressingle ({@code N320002}) : part du premier du mois <em>précédent</em> (décision du
  * 2026-10-14), DSM envoyée avec les DAE de ses exports : elle attend l'instruction du BNIA ;</li>
- * <li>Négoce des Landes ({@code N400001}) : en brouillon, avec une anomalie (Σ6 ≠ Σ12) ;</li>
+ * <li>Négoce des Landes ({@code N400001}) : part du premier du mois précédent, DSM de M−1 en brouillon, avec une
+ * anomalie (Σ6 ≠ Σ12) ;</li>
  * </ul></li>
  * <li>Maison Durand, Condom ({@code 000001}, producteur) : point de départ au 1er avril de l'an dernier, DSM
  * de cette année-là validée, avec ses douze DRM et le DAE de son export ; la suivante, en brouillon, montre le
@@ -202,9 +205,9 @@ public class DemoDeclarations implements ApplicationRunner {
     private static final int MOIS_VALIDES_GASCOGNE = 11;
 
     /**
-     * Onze DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM du mois courant,
-     * aux mêmes totaux, envoyée sans ses DAE : le BNIA demande les compléments. Le stock de départ couvre les sorties des onze mois et
-     * laisse au mois courant le même reliquat qu'avec deux.
+     * Onze DSM validées aux volumes de la facture d'exemple, à facturer (spec 08 §7.1) ; puis la DSM de M−1, aux mêmes
+     * totaux, envoyée sans ses DAE : le BNIA demande les compléments. Le stock de départ couvre les sorties des onze
+     * mois et laisse à M−1 le même reliquat qu'avec deux.
      */
     private void armagnacsDeGascogne() {
         Long id = aCharger("N320001");
@@ -212,7 +215,7 @@ public class DemoDeclarations implements ApplicationRunner {
             LOG.info("Démo : déclarations déjà chargées.");
             return;
         }
-        points.fixer(anne, id, moisCourant().minusMonths(MOIS_VALIDES_GASCOGNE), List.of(
+        points.fixer(anne, id, moisCourant().minusMonths(MOIS_VALIDES_GASCOGNE + 1), List.of(
                 stock(CleConditionnement.NB, "XO", "12", "10750.61"),
                 stock(CleConditionnement.NB, "VSOP", "5", "27106.40"),
                 stock(CleConditionnement.NV, "VSOP", "5", "865.20"),
@@ -273,13 +276,13 @@ public class DemoDeclarations implements ApplicationRunner {
         LOG.info("Démo : DSM de {} de la Maison Larressingle envoyée.", dsm.periode().libelle());
     }
 
-    /** DSM en brouillon, avec une anomalie qui bloque l'envoi. */
+    /** DSM du mois précédent en brouillon, avec une anomalie qui bloque l'envoi. */
     private void negoceDesLandes() {
         Long id = aCharger("N400001");
         if (id == null) {
             return;
         }
-        points.fixer(anne, id, moisCourant(), List.of(
+        points.fixer(anne, id, moisCourant().minusMonths(1), List.of(
                 stock(CleConditionnement.NB, "VSOP", "4", "1800.00"),
                 stock(CleConditionnement.NB, "XO", "10", "650.00"),
                 stock(CleConditionnement.MB, 2012, null, "400.00")));

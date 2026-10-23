@@ -20,6 +20,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgeEtat } from '@/components/metier/badge-etat'
 import { PageMetier } from '@/components/metier/page-metier'
 import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
+import { OngletContrats } from '@/features/contrats/onglet-contrats'
 import { OngletDeclarations } from '@/features/declarations/onglet-declarations'
 import { OngletFactures } from '@/features/facturation/onglet-factures'
 import { apiOperateur, cleOperateur, type Espace } from '../commun/api'
@@ -287,9 +288,11 @@ export function PageOperateur({
             />
           </TabsContent>
         )}
-        <TabsContent value='contrats'>
-          <AVenir titre='Contrats' />
-        </TabsContent>
+        {bo && (
+          <TabsContent value='contrats'>
+            <OngletContrats operateur={id} />
+          </TabsContent>
+        )}
         <TabsContent value='exportations'>
           <AVenir titre='Exportations' />
         </TabsContent>
@@ -442,7 +445,7 @@ function NavigationEtroite({
   )
 }
 
-/** Un onglet réservé à un contexte pas encore livré (contrats, suivis de sortie export). */
+/** Un onglet réservé à un contexte pas encore livré (suivis de sortie export). */
 function AVenir({ titre }: { titre: string }) {
   return (
     <Card>

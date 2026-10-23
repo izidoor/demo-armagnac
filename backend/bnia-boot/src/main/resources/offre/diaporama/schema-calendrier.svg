@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 268" font-family="Inter Variable, Noto Sans, sans-serif">
+  <!-- Échelle : 34 px par mois, novembre 2026 en x = 176 -->
+  <defs>
+    <pattern id="hachures" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="5" height="5" fill="#f7efe5"/>
+      <line x1="0" y1="0" x2="0" y2="5" stroke="#e2c9a8" stroke-width="2"/>
+    </pattern>
+    <linearGradient id="estompe" x1="0" x2="1">
+      <stop offset="0" stop-color="#b8aa98"/>
+      <stop offset="1" stop-color="#e6dccf"/>
+    </linearGradient>
+    <style>
+      .annee { font-size: 9px; font-weight: 650; fill: #6e3f12; }
+      .mois { font-size: 8px; fill: #7a6f66; }
+      .ligne-mois { stroke: #efe7dc; stroke-width: 1; }
+      .rubrique { font-size: 9px; font-weight: 600; fill: #241f1b; }
+      .rubrique-discret { font-size: 9px; font-weight: 600; fill: #7a6f66; }
+      .recette { fill: url(#hachures); stroke: #c9a27a; stroke-width: 1; }
+      .prod { fill: #9a5b1e; }
+      .phase { fill: #f7efe5; stroke: #e6dccf; }
+      .num-phase { font-size: 8.5px; font-weight: 650; fill: #6e3f12; }
+      .dans-recette { font-size: 7.5px; fill: #6e3f12; font-weight: 600; }
+      .dans-prod { font-size: 7.5px; fill: #fff; font-weight: 600; }
+      .dans-integraal { font-size: 7.5px; fill: #3a332e; }
+      .jalon { stroke: #6e3f12; stroke-width: 1; stroke-dasharray: 3 2; }
+      .texte-jalon { font-size: 8px; fill: #6e3f12; }
+      .campagne { fill: #fff3d6; }
+      .legende { font-size: 8px; fill: #5a504a; }
+    </style>
+  </defs>
+
+  <!-- Années et mois -->
+  <text class="annee" x="176" y="10">2026</text>
+  <text class="annee" x="244" y="10">2027</text>
+  <g class="mois" text-anchor="middle">
+    <text x="193" y="22">nov.</text><text x="227" y="22">déc.</text><text x="261" y="22">janv.</text>
+    <text x="295" y="22">févr.</text><text x="329" y="22">mars</text><text x="363" y="22">avr.</text>
+    <text x="397" y="22">mai</text><text x="431" y="22">juin</text><text x="465" y="22">juil.</text>
+    <text x="499" y="22">août</text><text x="533" y="22">sept.</text><text x="567" y="22">oct.</text>
+    <text x="601" y="22">nov.</text><text x="635" y="22">déc.</text>
+  </g>
+
+  <!-- Campagne DSM producteurs (mars) -->
+  <rect class="campagne" x="312" y="28" width="34" height="168"/>
+
+  <!-- Repères de mois -->
+  <g class="ligne-mois">
+    <line x1="176" y1="26" x2="176" y2="196"/><line x1="210" y1="26" x2="210" y2="196"/>
+    <line x1="244" y1="26" x2="244" y2="196"/><line x1="278" y1="26" x2="278" y2="196"/>
+    <line x1="312" y1="26" x2="312" y2="196"/><line x1="346" y1="26" x2="346" y2="196"/>
+    <line x1="380" y1="26" x2="380" y2="196"/><line x1="414" y1="26" x2="414" y2="196"/>
+    <line x1="448" y1="26" x2="448" y2="196"/><line x1="482" y1="26" x2="482" y2="196"/>
+    <line x1="516" y1="26" x2="516" y2="196"/><line x1="550" y1="26" x2="550" y2="196"/>
+    <line x1="584" y1="26" x2="584" y2="196"/><line x1="618" y1="26" x2="618" y2="196"/>
+    <line x1="652" y1="26" x2="652" y2="196"/>
+  </g>
+
+  <!-- Phases -->
+  <text class="rubrique-discret" x="0" y="42">Phases</text>
+  <rect class="phase" x="176" y="32" width="10" height="14" rx="2"/>
+  <text class="num-phase" x="181" y="42" text-anchor="middle">0</text>
+  <rect class="phase" x="187" y="32" width="90" height="14" rx="2"/>
+  <text class="num-phase" x="232" y="42" text-anchor="middle">1</text>
+  <rect class="phase" x="279" y="32" width="66" height="14" rx="2"/>
+  <text class="num-phase" x="312" y="42" text-anchor="middle">2</text>
+  <rect class="phase" x="347" y="32" width="66" height="14" rx="2"/>
+  <text class="num-phase" x="380" y="42" text-anchor="middle">3</text>
+  <rect class="phase" x="415" y="32" width="100" height="14" rx="2"/>
+  <text class="num-phase" x="465" y="42" text-anchor="middle">4</text>
+  <rect class="phase" x="517" y="32" width="32" height="14" rx="2"/>
+  <text class="num-phase" x="533" y="42" text-anchor="middle">5</text>
+
+  <!-- Integraal -->
+  <text class="rubrique-discret" x="0" y="64">Integraal et</text>
+  <text class="rubrique-discret" x="0" y="75">pro.armagnac.fr</text>
+  <rect x="176" y="58" width="340" height="18" rx="3" fill="url(#estompe)"/>
+  <text class="dans-integraal" x="286" y="70">outil de référence, allégé à chaque mise en production</text>
+
+  <!-- Lot 1 -->
+  <text class="rubrique" x="0" y="94">Connexion, opérateurs,</text>
+  <text class="rubrique" x="0" y="105">DSM, messagerie</text>
+  <rect class="recette" x="191" y="88" width="87" height="18" rx="3"/>
+  <text class="dans-recette" x="234" y="100" text-anchor="middle">recette</text>
+  <rect class="prod" x="279" y="88" width="373" height="18" rx="3"/>
+  <text class="dans-prod" x="287" y="100">production : DSM sur le portail</text>
+
+  <!-- Lot 2 -->
+  <text class="rubrique" x="0" y="122">DSM côté BNIA, export,</text>
+  <text class="rubrique" x="0" y="133">certificats, facturation</text>
+  <rect class="recette" x="279" y="116" width="66" height="18" rx="3"/>
+  <text class="dans-recette" x="312" y="128" text-anchor="middle">recette</text>
+  <rect class="prod" x="347" y="116" width="305" height="18" rx="3"/>
+  <text class="dans-prod" x="355" y="128">production : DSM côté BNIA, export, certificats, facturation</text>
+
+  <!-- Lot 3 -->
+  <text class="rubrique" x="0" y="150">Contrats d’achat,</text>
+  <text class="rubrique" x="0" y="161">fin de distillation</text>
+  <rect class="recette" x="347" y="144" width="66" height="18" rx="3"/>
+  <text class="dans-recette" x="380" y="156" text-anchor="middle">recette</text>
+  <rect class="prod" x="415" y="144" width="237" height="18" rx="3"/>
+  <text class="dans-prod" x="423" y="156">production : contrats d’achat, fin de distillation</text>
+
+  <!-- Lot 4 -->
+  <text class="rubrique" x="0" y="178">Statistiques, boutique,</text>
+  <text class="rubrique" x="0" y="189">contenus, historique</text>
+  <rect class="recette" x="415" y="172" width="100" height="18" rx="3"/>
+  <text class="dans-recette" x="465" y="184" text-anchor="middle">recette</text>
+  <rect class="prod" x="517" y="172" width="135" height="18" rx="3"/>
+  <text class="dans-prod" x="524" y="179.5">production : statistiques,</text>
+  <text class="dans-prod" x="524" y="187.5">boutique, contenus</text>
+
+  <!-- Jalons -->
+  <line class="jalon" x1="278" y1="50" x2="278" y2="216"/>
+  <line class="jalon" x1="516" y1="50" x2="516" y2="216"/>
+  <line class="jalon" x1="652" y1="50" x2="652" y2="216"/>
+  <text class="texte-jalon" x="274" y="214" text-anchor="end">fin janv. : le BNIA décide</text>
+  <text class="texte-jalon" x="274" y="224" text-anchor="end">de poursuivre ou d’arrêter</text>
+  <text class="texte-jalon" x="329" y="208" text-anchor="middle">campagne DSM</text>
+  <text class="texte-jalon" x="329" y="218" text-anchor="middle">producteurs</text>
+  <text class="texte-jalon" x="512" y="214" text-anchor="end">1er sept. : campagne de distillation,</text>
+  <text class="texte-jalon" x="512" y="224" text-anchor="end">arrêt d’Integraal</text>
+  <text class="texte-jalon" x="648" y="214" text-anchor="end">déc. : échéance</text>
+  <text class="texte-jalon" x="648" y="224" text-anchor="end">du BNIA</text>
+
+  <!-- Légende -->
+  <rect class="recette" x="0" y="246" width="22" height="10" rx="2"/>
+  <text class="legende" x="28" y="254">en recette : essayé par le groupe d’adoption, validé par le BNIA</text>
+  <rect class="prod" x="286" y="246" width="22" height="10" rx="2"/>
+  <text class="legende" x="314" y="254">en production : utilisé par tous</text>
+  <rect class="campagne" x="450" y="246" width="22" height="10"/>
+  <text class="legende" x="478" y="254">campagne DSM producteurs</text>
+</svg>
