@@ -166,11 +166,11 @@ Scénario :
    sur la part assujettie (296,95 €), TTC 2 152,90 €. Ajouter un taux de 62,00 € au 1er du mois précédent
    (le taux se lit à la fin de la période) : la cotisation de Gascogne suit, puis supprimer ce taux. Listing « DSM » : total HT sur chaque ligne ;
    les DSM validées sans facture sont dans « Validées », donc à facturer.
-9. Bouton « PDF » d'une DSM (n'importe quel compte qui la lit, observateur compris) : le PDF s'ouvre dans
+9. « Exporter », « PDF » d'une DSM (n'importe quel compte qui la lit, observateur compris) : le PDF s'ouvre dans
    un nouvel onglet, un onglet du format unique par page, volumes au format hl.l,cl, puis la cotisation ;
    « Document provisoire, DSM non validée » sur Gascogne, pas sur la DSM validée de Condom. L'édition
    apparaît à l'historique.
-10. `admin@landes.fr` (Bernard Dufau), DSM en brouillon de Négoce des Landes, bouton « Excel » : le
+10. `admin@landes.fr` (Bernard Dufau), DSM en brouillon de Négoce des Landes, « Exporter », « Excel » : le
     classeur au format du modèle du BNIA (cinq onglets, volumes au format hl.l,cl, totaux en formules,
     onglet « Cotisation »). Dans le tableur, ajouter une ligne au récapitulatif (`NV` « XO » 10), lui
     mettre 100 L en colonne 22 (onglet des ventes export, même rangée), ramener la colonne 12 (assemblages
@@ -178,14 +178,15 @@ Scénario :
     nouvelle est ajoutée, l'import est à l'historique. Taper « abc » dans une cellule de volume, ou changer
     le mois en A8, et réimporter : le fichier est refusé, chaque erreur située (onglet, ligne, colonne),
     rien n'est importé.
-11. `admin@bnia.fr`, DSM validée de Maison Durand, Condom : bouton « Excel ». Fiche de Maison Durand,
+11. `admin@bnia.fr`, DSM validée de Maison Durand, Condom : « Exporter », « Excel ». Fiche de Maison Durand,
     Eauze, onglet « Déclarations », « Importer depuis Excel » avec ce fichier : le point de départ est fixé
     au 1er avril qui suit la campagne du fichier, avec son stock de fin, vieilli d'un an.
 12. `admin@bnia.fr`, menu « Déclarations > DSM », onglet « En cours » : colonne « Échéance » (le 5 du mois courant pour M−1) ; Maison
     Larressingle, envoyée, attend le BNIA et n'est pas en retard ; Armagnacs de Gascogne, en compléments
     demandés, et Négoce des Landes, en brouillon, le sont dès le 6 du mois. Case « En retard » : ces deux-là ;
     état « Absente » : Maison Saint-Puy, sans DSM du mois dernier, en retard elle aussi ; ligne grisée, dont
-    seul l'opérateur mène à sa fiche. Les périodes absentes pas encore en retard ne sont pas listées. La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
+    seul l'opérateur mène à sa fiche. Tableau de bord : « DSM à relancer », en liseré rouge, compte ces trois-là (les DSM
+    en retard seulement ; sans retard, la carte n'apparaît pas) et ouvre cette vue. Les périodes absentes pas encore en retard ne sont pas listées. La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
     `notifications`, rien ne part encore.
 13. `admin@landes.fr`, « Mes DSM » : bandeau de l'échéance (le 5 du mois courant), passée dès le 6 :
     « envoyez votre déclaration au BNIA dès que possible ». En-tête de la DSM et éditions PDF et Excel :
@@ -203,8 +204,8 @@ Scénario :
 16. `agent@negociant.fr` (Armagnacs de Gascogne), menu « Déclarations > Stocks déclarés » : sans onglets,
     comme au back-office, deux graphiques de démonstration à l'échelle de son stock déclaré (sans choix du
     type), puis son stock de fin, ligne par ligne, avec le lien vers sa DSM.
-17. Même compte, tableau de bord : section « Activités », « DSM à saisir ou compléter », « DSM en attente du
-    BNIA », « Factures non payées », « Nouveaux messages », « Contrats à approuver », « Contrats en attente
+17. Même compte, tableau de bord : section « Activités », « DSM à saisir ou compléter », « DSM en retard » (liseré rouge,
+    seulement en retard : dès le 6 du mois, sa DSM de M−1 en compléments demandés), « DSM en attente du BNIA », « Factures non payées », « Nouveaux messages », « Contrats à approuver », « Contrats en attente
     d'approbation », « Retiraisons à valider » (chiffres réels, chacun ouvre sa page), puis deux cartes de démonstration (certificats
     export, commandes boutique).
 

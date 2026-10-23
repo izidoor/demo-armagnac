@@ -109,7 +109,7 @@ class PdfDsm implements EditionsDsm {
             entetes.add(colonne(String.valueOf(c.numero()), c.libelle(), c.griseePour(dsm.type())));
         }
         List<Map<String, Object>> rangees = new ArrayList<>();
-        for (LigneDsm ligne : dsm.lignes()) {
+        for (LigneDsm ligne : dsm.lignesParCompte()) {
             List<Map<String, Object>> cellules = new ArrayList<>();
             for (ColonneDsm c : colonnes) {
                 if (recapitulatif && c == ColonneDsm.C26) {

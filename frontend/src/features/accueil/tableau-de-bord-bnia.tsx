@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, type LinkProps, useNavigate } from '@tanstack/react-router'
 import {
   Building2,
-  FilePenLine,
   FileSearch,
+  FileWarning,
   FileText,
   Grape,
   Handshake,
@@ -283,8 +283,9 @@ function NouveauxMessages() {
 }
 
 /**
- * Les DSM, en trois compteurs calculés comme les onglets de la page DSM : à saisir ou relancer (périodes
- * absentes, brouillons, compléments demandés), à traiter par le BNIA, validées à facturer (RG-DEC-34, 43).
+ * Les DSM, en trois compteurs calculés sur la page DSM : à relancer (périodes absentes, brouillons, compléments
+ * demandés, en retard, RG-DEC-40 ; la carte, en alerte, n'apparaît qu'alors), à traiter par le BNIA, validées à
+ * facturer (RG-DEC-34, 43).
  */
 function ActivitesDsm() {
   const dsm = useQuery({
@@ -292,14 +293,23 @@ function ActivitesDsm() {
     queryFn: () => listerToutesDsm({ throwOnError: true }).then((r) => r.data),
   })
   const toutes = dsm.data
+  const aRelancer = toutes?.filter(
+    (d) => dans('A_SAISIR')(d) && d.enRetard
+  ).length
   return (
     <>
-      <Activite
-        libelle='DSM en attente de saisie'
-        icone={FilePenLine}
-        valeur={toutes?.filter(dans('A_SAISIR')).length}
-        lien={{ to: '/bo/declarations', search: { etat: 'A_SAISIR' } }}
-      />
+      {!!aRelancer && (
+        <Activite
+          libelle='DSM à relancer'
+          icone={FileWarning}
+          valeur={aRelancer}
+          lien={{
+            to: '/bo/declarations',
+            search: { etat: 'A_SAISIR', retard: true },
+          }}
+          alerte
+        />
+      )}
       <Activite
         libelle='DSM en attente de validation'
         icone={FileSearch}

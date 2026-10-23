@@ -15,7 +15,9 @@ import {
   ArrowLeft,
   Building2,
   CircleCheck,
+  ChevronDown,
   CircleHelp,
+  Download,
   Ellipsis,
   FileDown,
   FileSpreadsheet,
@@ -38,6 +40,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
@@ -201,7 +205,11 @@ function EditeurDsm({
   const [differe, setDiffere] = useState(brouillon)
   const [onglet, setOnglet] = useState<string>('RECAPITULATIF')
   const [ligneEnEvidence, setLigneEnEvidence] = useState<number | null>(null)
-  const [tri, setTri] = useState<TriLignes>(null)
+  // RG-DEC-45 : par défaut, comme aux éditions PDF et Excel, les lignes par compte d'âge croissant.
+  const [tri, setTri] = useState<TriLignes>({
+    colonne: 'compte',
+    sens: 'croissant',
+  })
   const [ajout, setAjout] = useState(false)
   const [suppression, setSuppression] = useState(false)
   const [historiqueOuvert, setHistoriqueOuvert] = useState(false)
@@ -499,59 +507,43 @@ function EditeurDsm({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='start'>
-              <DropdownMenuItem asChild>
-                <a href={api.urlExcel(dsm.id)} download onClick={editerExcel}>
-                  <FileSpreadsheet /> Excel
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={editerPdf}>
-                <FileDown /> PDF
-              </DropdownMenuItem>
+              <ElementsExport
+                urlExcel={api.urlExcel(dsm.id)}
+                onExcel={editerExcel}
+                onPdf={editerPdf}
+                modifie={modifie}
+              />
+              <DropdownMenuSeparator />
+              {saisissable && (
+                <DropdownMenuItem onSelect={() => onImporter(modifie)}>
+                  <FileUp /> Importer
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onSelect={() => setHistoriqueOuvert(true)}>
                 <History /> Historique
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setAideOuverte(true)}>
                 <CircleHelp /> Aide
               </DropdownMenuItem>
-              {saisissable && (
-                <DropdownMenuItem onSelect={() => onImporter(modifie)}>
-                  <FileUp /> Importer
-                </DropdownMenuItem>
-              )}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='outline' className='max-md:hidden' asChild>
-                <a href={api.urlExcel(dsm.id)} download onClick={editerExcel}>
-                  <FileSpreadsheet className='size-4' /> Excel
-                </a>
+          {/* Exporter : le classeur au format du modèle, ou le PDF (RG-DEC-35, 36). */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' className='max-md:hidden'>
+                <Download className='size-4' /> Exporter
+                <ChevronDown className='size-4' />
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {modifie
-                ? 'Le classeur de la DSM enregistrée, sans les modifications en cours.'
-                : saisissable
-                  ? 'Le classeur de la DSM, au format du modèle : remplissez-le, puis importez-le.'
-                  : 'Le classeur de la DSM, au format du modèle du BNIA.'}
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant='outline'
-                className='max-md:hidden'
-                onClick={editerPdf}
-              >
-                <FileDown className='size-4' /> PDF
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {modifie
-                ? 'Le PDF de la DSM enregistrée, sans les modifications en cours.'
-                : 'Le PDF de la DSM, dans un nouvel onglet.'}
-            </TooltipContent>
-          </Tooltip>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <ElementsExport
+                urlExcel={api.urlExcel(dsm.id)}
+                onExcel={editerExcel}
+                onPdf={editerPdf}
+                modifie={modifie}
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             variant='outline'
             className='max-md:hidden'
@@ -567,13 +559,21 @@ function EditeurDsm({
             <CircleHelp className='size-4' /> Aide
           </Button>
           {saisissable && (
-            <Button
-              variant='outline'
-              className='max-md:hidden'
-              onClick={() => onImporter(modifie)}
-            >
-              <FileUp className='size-4' /> Importer
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant='outline'
+                  className='max-md:hidden'
+                  onClick={() => onImporter(modifie)}
+                >
+                  <FileUp className='size-4' /> Importer
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Un classeur au format du modèle : ses volumes remplacent ceux de
+                la DSM.
+              </TooltipContent>
+            </Tooltip>
           )}
           {saisissable && (
             <Button
@@ -1075,5 +1075,39 @@ function ListeAnomalies({
         </ul>
       </AlertDescription>
     </Alert>
+  )
+}
+
+/**
+ * Les éditions de la DSM enregistrée, dans un menu : le classeur Excel au format du modèle, téléchargé (RG-DEC-36),
+ * et le PDF, dans un nouvel onglet (RG-DEC-35). Avec des modifications en cours, le menu prévient qu'elles n'y sont pas.
+ */
+function ElementsExport({
+  urlExcel,
+  onExcel,
+  onPdf,
+  modifie,
+}: {
+  urlExcel: string
+  onExcel: () => void
+  onPdf: () => void
+  modifie: boolean
+}) {
+  return (
+    <>
+      <DropdownMenuLabel className='text-muted-foreground font-normal'>
+        {modifie
+          ? 'Exporter la DSM enregistrée, sans les modifications en cours'
+          : 'Exporter'}
+      </DropdownMenuLabel>
+      <DropdownMenuItem asChild>
+        <a href={urlExcel} download onClick={onExcel}>
+          <FileSpreadsheet /> Excel
+        </a>
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={onPdf}>
+        <FileDown /> PDF
+      </DropdownMenuItem>
+    </>
   )
 }

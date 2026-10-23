@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -48,7 +49,7 @@ export function Valeur({ valeur }: { valeur: string | undefined }) {
 
 /**
  * Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. Deux par ligne sur mobile
- * (`GrilleActivites`) : la carte s'y resserre.
+ * (`GrilleActivites`) : la carte s'y resserre. En `alerte`, un liseré rouge et l'icône teintée : ce qui presse.
  */
 export function Activite({
   libelle,
@@ -56,17 +57,31 @@ export function Activite({
   valeur,
   lien,
   demo,
+  alerte,
 }: {
   libelle: string
   icone: LucideIcon
   valeur: number | undefined
   lien?: { to: LinkProps['to']; search?: LinkProps['search'] }
   demo?: boolean
+  alerte?: boolean
 }) {
   const contenu = (
-    <Card className='h-full gap-2 py-4 sm:py-5'>
+    <Card
+      className={cn(
+        'h-full gap-2 py-4 sm:py-5',
+        alerte && 'border-destructive'
+      )}
+    >
       <CardHeader className='flex flex-row items-center justify-between gap-2 px-4 sm:px-5'>
-        <span className='bg-muted text-muted-foreground flex size-9 items-center justify-center rounded-lg'>
+        <span
+          className={cn(
+            'flex size-9 items-center justify-center rounded-lg',
+            alerte
+              ? 'bg-danger text-danger-foreground'
+              : 'bg-muted text-muted-foreground'
+          )}
+        >
           <Icone className='size-[18px]' />
         </span>
         {demo ? (
@@ -92,7 +107,12 @@ export function Activite({
     <Link
       to={lien.to}
       search={lien.search}
-      className='hover:[&>[data-slot=card]]:border-primary/40 block rounded-xl transition-colors'
+      className={cn(
+        'block rounded-xl transition-colors',
+        alerte
+          ? 'hover:[&>[data-slot=card]]:border-destructive/70'
+          : 'hover:[&>[data-slot=card]]:border-primary/40'
+      )}
     >
       {contenu}
     </Link>

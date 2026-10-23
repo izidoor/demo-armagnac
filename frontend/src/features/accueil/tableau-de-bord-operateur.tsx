@@ -3,6 +3,7 @@ import {
   FilePenLine,
   FileSearch,
   FileText,
+  FileWarning,
   Handshake,
   Hourglass,
   Mail,
@@ -77,7 +78,8 @@ function Activites({ operateur }: { operateur: number }) {
 
 /**
  * Ses DSM, comptées comme au back-office (RG-DEC-40) : à saisir ou compléter (la période attendue qu'il peut
- * initier, ses brouillons, ses compléments demandés), puis envoyées au BNIA et pas encore validées.
+ * initier, ses brouillons, ses compléments demandés), en retard (la période attendue, son échéance passée : une au
+ * plus ; la carte, en alerte, n'apparaît qu'alors), puis envoyées au BNIA et pas encore validées.
  */
 function ActivitesDsm({ operateur }: { operateur: number }) {
   const dsms = useDsms(operateur).data
@@ -98,6 +100,15 @@ function ActivitesDsm({ operateur }: { operateur: number }) {
         valeur={aSaisir}
         lien={{ to: '/portail/declarations' }}
       />
+      {situation?.enRetard && (
+        <Activite
+          libelle='DSM en retard'
+          icone={FileWarning}
+          valeur={1}
+          lien={{ to: '/portail/declarations' }}
+          alerte
+        />
+      )}
       <Activite
         libelle='DSM en attente du BNIA'
         icone={FileSearch}

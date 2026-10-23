@@ -273,13 +273,17 @@ class ExcelDsm implements ClasseursDsm {
                 .fillColor(grisee ? GRIS : ENTETE).borderStyle("thin").set();
     }
 
-    /** Une rangée par ligne de la DSM, puis des rangées vierges : le classeur d'un brouillon sert de modèle. */
+    /**
+     * Une rangée par ligne de la DSM, par compte d'âge croissant (RG-DEC-45), puis des rangées vierges : le classeur
+     * d'un brouillon sert de modèle. L'import rapproche les lignes par leur identité, pas par leur rang.
+     */
     private static void lignes(Worksheet ws, Feuille feuille, DeclarationStocksMouvements dsm, int rangees) {
         Map<ColonneDsm, Integer> colonnes = feuille.colonnes();
+        List<LigneDsm> ordonnees = dsm.lignesParCompte();
         for (int i = 0; i < rangees; i++) {
             int ligne = feuille.premiere() + i;
             int recap = Feuille.RECAPITULATIF.premiere() + i;
-            LigneDsm ligneDsm = i < dsm.lignes().size() ? dsm.lignes().get(i) : null;
+            LigneDsm ligneDsm = i < ordonnees.size() ? ordonnees.get(i) : null;
             if (feuille == Feuille.RECAPITULATIF) {
                 identite(ws, ligne, ligneDsm);
             } else {

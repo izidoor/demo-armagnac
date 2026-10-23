@@ -42,11 +42,15 @@ const ENTETE_CALCULEE = 'bg-info dark:bg-info-border/80'
 const SANS_OBJET =
   'bg-muted bg-[image:repeating-linear-gradient(135deg,transparent_0_6px,var(--border)_6px_7px)]'
 
-/** Tri des lignes sur une colonne d'identité, commun aux cinq onglets. */
+/** Tri des lignes sur une colonne d'identité, commun aux cinq onglets ; `null` : l'ordre de saisie. */
 export type TriLignes = {
   colonne: 'designation' | 'cle' | 'compte'
   sens: 'croissant' | 'decroissant'
 } | null
+
+/** Le rang d'un compte d'âge : `00` avant `0`, `20+` après `19`. */
+const rangCompte = (compte: string) =>
+  compte === '00' ? -1 : compte === '20+' ? 20 : Number(compte)
 
 const comparaison = new Intl.Collator('fr', {
   numeric: true,
@@ -68,9 +72,11 @@ function ordonner(
     return designation(l)
   }
   const signe = tri.sens === 'croissant' ? 1 : -1
-  return rangs.sort(
-    (a, b) => signe * comparaison.compare(valeur(a), valeur(b)) || a - b
-  )
+  const comparer = (a: number, b: number) =>
+    tri.colonne === 'compte'
+      ? rangCompte(valeur(a)) - rangCompte(valeur(b))
+      : comparaison.compare(valeur(a), valeur(b))
+  return rangs.sort((a, b) => signe * comparer(a, b) || a - b)
 }
 
 const calculee = (c: ColonneDsm) =>

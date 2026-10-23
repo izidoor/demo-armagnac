@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -452,6 +453,14 @@ public final class DeclarationStocksMouvements {
 
     public List<LigneDsm> lignes() {
         return lignes;
+    }
+
+    /**
+     * RG-DEC-45 : les lignes dans l'ordre de présentation, par compte d'âge croissant ({@code 00}, {@code 0} …
+     * {@code 20+}), à égalité dans l'ordre de saisie.
+     */
+    public List<LigneDsm> lignesParCompte() {
+        return lignes.stream().sorted(Comparator.comparing(l -> l.identite().compte())).toList();
     }
 
     public Instant envoyeeLe() {

@@ -95,6 +95,18 @@ class DeclarationStocksMouvementsTest {
     }
 
     @Test
+    @DisplayName("RG-DEC-45 : les lignes se présentent par compte d'âge croissant, à égalité dans l'ordre de saisie")
+    void rg_dec_45_lignes_par_compte() {
+        DeclarationStocksMouvements dsm = dsmDeJuin();
+        List<LigneDsm> saisies = dsm.lignes();
+        assertThat(saisies).as("l'ordre de saisie est gardé").extracting(l -> l.identite().compte().toString())
+                .containsExactly("12", "5", "5", "15", "6", "00");
+        // Blanche 00, les deux VSOP 5 dans leur ordre de saisie, MV 2015 compte 6, XO 12, MB 2010 compte 15.
+        assertThat(dsm.lignesParCompte()).containsExactly(saisies.get(5), saisies.get(1), saisies.get(2),
+                saisies.get(4), saisies.get(0), saisies.get(3));
+    }
+
+    @Test
     @DisplayName("RG-DEC-13 : l'identité d'une ligne reprise ne se modifie pas")
     void rg_dec_13_identite_figee() {
         DeclarationStocksMouvements dsm = dsmDeJuin();
