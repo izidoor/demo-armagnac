@@ -50,9 +50,11 @@ export function Valeur({ valeur }: { valeur: string | undefined }) {
 /**
  * Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. Deux par ligne sur mobile
  * (`GrilleActivites`) : la carte s'y resserre. En `alerte`, un liseré rouge et l'icône teintée : ce qui presse.
+ * Sous deux, le libellé passe au `singulier` (« 0 contrat à approuver », « 1 facture impayée »), s'il diffère.
  */
 export function Activite({
   libelle,
+  singulier,
   icone: Icone,
   valeur,
   lien,
@@ -60,6 +62,7 @@ export function Activite({
   alerte,
 }: {
   libelle: string
+  singulier?: string
   icone: LucideIcon
   valeur: number | undefined
   lien?: { to: LinkProps['to']; search?: LinkProps['search'] }
@@ -99,7 +102,11 @@ export function Activite({
         <Valeur
           valeur={valeur === undefined ? undefined : entier.format(valeur)}
         />
-        <p className='text-muted-foreground text-sm'>{libelle}</p>
+        <p className='text-muted-foreground text-sm'>
+          {singulier && valeur !== undefined && valeur < 2
+            ? singulier
+            : libelle}
+        </p>
       </CardContent>
     </Card>
   )

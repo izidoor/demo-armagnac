@@ -100,6 +100,7 @@ export function TableauDeBordBnia() {
           {facturation && <FacturesImpayees />}
           <Activite
             libelle='Demandes de certificat export'
+            singulier='Demande de certificat export'
             icone={Stamp}
             valeur={DEMO.certificatsExport}
             demo
@@ -107,6 +108,7 @@ export function TableauDeBordBnia() {
           {operateurs && <ContratsEnAttente />}
           <Activite
             libelle='Commandes boutique en attente'
+            singulier='Commande boutique en attente'
             icone={ShoppingBag}
             valeur={DEMO.commandesBoutique}
             demo
@@ -278,6 +280,7 @@ function NouveauxMessages() {
   return (
     <Activite
       libelle='Nouveaux messages'
+      singulier='Nouveau message'
       icone={Mail}
       valeur={data?.nombre}
       lien={{ to: '/bo/messagerie' }}
@@ -345,6 +348,7 @@ function FacturesAValider() {
   return (
     <Activite
       libelle='Factures à valider'
+      singulier='Facture à valider'
       icone={FileText}
       valeur={brouillons.data?.length}
       lien={{ to: '/bo/facturation', search: { onglet: 'brouillons' } }}
@@ -369,6 +373,7 @@ function FacturesImpayees() {
   return (
     <Activite
       libelle='Factures impayées'
+      singulier='Facture impayée'
       icone={Banknote}
       valeur={echues}
       lien={{ to: '/bo/facturation', search: { onglet: 'emises' } }}
@@ -383,6 +388,7 @@ function ContratsEnAttente() {
   return (
     <Activite
       libelle="Contrats en attente d'approbation"
+      singulier="Contrat en attente d'approbation"
       icone={Handshake}
       valeur={contrats.data?.filter((c) => c.etat === 'PROJET').length}
       lien={{ to: '/bo/contrats', search: { etat: 'PROJET' } }}

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import {
+  Banknote,
   FilePenLine,
   FileSearch,
-  FileText,
   FileWarning,
   Handshake,
   Hourglass,
@@ -21,6 +21,7 @@ import {
 } from '@/features/declarations/api'
 import { dansGroupe } from '@/features/declarations/libelles'
 import { cleFacturation } from '@/features/facturation/api'
+import { echueImpayee } from '@/features/facturation/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
 import { useDroits, useMoi } from '@/features/session/session'
 import { Activite, GrilleActivites, Section } from './activite'
@@ -33,7 +34,7 @@ const DEMO = {
 
 /**
  * Tableau de bord du portail, pendant de celui du back-office : les activités de l'opérateur actif. Ses DSM à
- * saisir ou compléter et celles qui attendent le BNIA, pour qui lit ses déclarations ; ses factures non payées,
+ * saisir ou compléter et celles qui attendent le BNIA, pour qui lit ses déclarations ; ses factures échues et impayées,
  * pour qui lit sa facturation ; ses nouveaux messages (RG-MSG-11) ; ses contrats à approuver, ceux en attente de l'autre partie et ses retiraisons à valider (RG-CA-25). Les certificats export et commandes
  * boutique sont des données de démonstration, marquées comme telles.
  */
@@ -53,7 +54,7 @@ function Activites({ operateur }: { operateur: number }) {
           <ActivitesDsm operateur={operateur} />
         )}
         {droits.facturation !== 'AUCUN' && (
-          <FacturesNonPayees operateur={operateur} />
+          <FacturesImpayees operateur={operateur} />
         )}
         <NouveauxMessages operateur={operateur} />
         {droits.contrats !== 'AUCUN' && (
@@ -61,12 +62,14 @@ function Activites({ operateur }: { operateur: number }) {
         )}
         <Activite
           libelle='Demandes de certificat export en cours'
+          singulier='Demande de certificat export en cours'
           icone={Stamp}
           valeur={DEMO.certificatsExport}
           demo
         />
         <Activite
           libelle='Commandes boutique en attente'
+          singulier='Commande boutique en attente'
           icone={ShoppingBag}
           valeur={DEMO.commandesBoutique}
           demo
@@ -119,8 +122,11 @@ function ActivitesDsm({ operateur }: { operateur: number }) {
   )
 }
 
-/** Ses factures émises que Zeendoc n'a pas encore vues réglées (RG-FAC-33). */
-function FacturesNonPayees({ operateur }: { operateur: number }) {
+/**
+ * RG-FAC-13, 33 : ses factures échues et impayées, transmises à Zeendoc, non payées, leur échéance passée ; comme au
+ * back-office, affichée en alerte seulement s'il y en a. Ouvre ses factures, où leurs lignes sont teintées.
+ */
+function FacturesImpayees({ operateur }: { operateur: number }) {
   const factures = useQuery({
     queryKey: [...cleFacturation, 'portail', operateur, { sens: 'FACTURE' }],
     queryFn: () =>
@@ -130,12 +136,16 @@ function FacturesNonPayees({ operateur }: { operateur: number }) {
         throwOnError: true,
       }).then((r) => r.data),
   })
+  const echues = factures.data?.filter(echueImpayee).length
+  if (!echues) return null
   return (
     <Activite
-      libelle='Factures non payées'
-      icone={FileText}
-      valeur={factures.data?.filter((f) => !f.payeeLe).length}
+      libelle='Factures impayées'
+      singulier='Facture impayée'
+      icone={Banknote}
+      valeur={echues}
       lien={{ to: '/portail/factures' }}
+      alerte
     />
   )
 }
@@ -146,6 +156,7 @@ function NouveauxMessages({ operateur }: { operateur: number }) {
   return (
     <Activite
       libelle='Nouveaux messages'
+      singulier='Nouveau message'
       icone={Mail}
       valeur={data?.nombre}
       lien={{ to: '/portail/messagerie' }}
@@ -163,12 +174,14 @@ function ActivitesContrats({ operateur }: { operateur: number }) {
     <>
       <Activite
         libelle='Contrats à approuver'
+        singulier='Contrat à approuver'
         icone={Handshake}
         valeur={contrats?.filter((c) => c.onglet === 'A_APPROUVER').length}
         lien={{ to: '/portail/contrats' }}
       />
       <Activite
         libelle="Contrats en attente d'approbation"
+        singulier="Contrat en attente d'approbation"
         icone={Hourglass}
         valeur={contrats?.filter((c) => c.onglet === 'EN_NEGOCIATION').length}
         lien={{
@@ -178,6 +191,7 @@ function ActivitesContrats({ operateur }: { operateur: number }) {
       />
       <Activite
         libelle='Retiraisons à valider'
+        singulier='Retiraison à valider'
         icone={Truck}
         valeur={contrats?.filter((c) => c.retiraisonAValider).length}
         lien={{ to: '/portail/contrats', search: { onglet: 'CONCLUS' } }}

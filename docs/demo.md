@@ -205,7 +205,8 @@ Scénario :
     comme au back-office, deux graphiques de démonstration à l'échelle de son stock déclaré (sans choix du
     type), puis son stock de fin, ligne par ligne, avec le lien vers sa DSM.
 17. Même compte, tableau de bord : section « Activités », « DSM à saisir ou compléter », « DSM en retard » (liseré rouge,
-    seulement en retard : dès le 6 du mois, sa DSM de M−1 en compléments demandés), « DSM en attente du BNIA », « Factures non payées », « Nouveaux messages », « Contrats à approuver », « Contrats en attente
+    seulement en retard : dès le 6 du mois, sa DSM de M−1 en compléments demandés), « DSM en attente du BNIA », « Factures impayées » (liseré rouge, seulement s'il y en a : la facture
+    d'août), « Nouveaux messages », « Contrats à approuver », « Contrats en attente
     d'approbation », « Retiraisons à valider » (chiffres réels, chacun ouvre sa page), puis deux cartes de démonstration (certificats
     export, commandes boutique).
 
@@ -281,7 +282,8 @@ Portail (lot 3) :
 12. `observateur@negociant.fr` (Armagnacs de Gascogne), menu « Facturation > Factures » : les factures émises
     de Gascogne, sans les brouillons. Filtrer par numéro ou par période ; ouvrir la facture, puis « PDF ».
     La facture d'août, échue et impayée, a sa ligne teintée de rouge pâle. Tableau de bord (`agent@negociant.fr`
-    ou `admin@negociant.fr`, qui lisent la facturation) : « Factures non payées » vaut 1, la facture d'août.
+    ou `admin@negociant.fr`, qui lisent la facturation) : « Factures impayées », en liseré rouge, vaut 1, la facture
+    d'août ; sans facture échue, la carte n'apparaît pas.
 13. `admin@bnia.fr`, la même facture, bouton « Historique » : « Consultée » par Thomas Barrère, côté « Client »
     (ouverture, puis PDF).
 
