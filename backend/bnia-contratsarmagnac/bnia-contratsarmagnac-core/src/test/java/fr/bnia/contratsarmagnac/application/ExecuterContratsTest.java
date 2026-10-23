@@ -75,7 +75,7 @@ class ExecuterContratsTest {
     }
 
     @Test
-    @DisplayName("RG-CA-13, 15, 18, 19 : Henri déclare, Jeanne valide : RetiraisonValidee est publié, l'autre partie reçoit chaque fois un e-mail")
+    @DisplayName("RG-CA-13, 15, 18, 19, 25 : Henri déclare, Jeanne valide : RetiraisonValidee est publié, l'autre partie reçoit chaque fois un e-mail")
     void rg_ca_15_le_fil_de_la_retiraison() {
         cas.declarerRetiraison(HENRI, NEGOCIANT, id, retiraison(LE_30, false, "10"));
         assertThat(monde.courriels.a("admin@producteur.fr")).singleElement().satisfies(c -> {
@@ -83,10 +83,15 @@ class ExecuterContratsTest {
             assertThat(c.texte()).contains("Henri Castex (Armagnacs de Gascogne) a déclaré la retiraison n° 1")
                     .contains("pour le 30 octobre 2026").contains("https://bnia.example/portail/contrats/" + id);
         });
-        assertThat(monde.consulter().duPortail(JEANNE, PRODUCTEUR)).singleElement()
-                .satisfies(c -> assertThat(c.onglet()).contains(Onglet.A_APPROUVER));
-        assertThat(monde.consulter().duPortail(HENRI, NEGOCIANT)).singleElement()
-                .satisfies(c -> assertThat(c.onglet()).contains(Onglet.EN_NEGOCIATION));
+        // RG-CA-25 : le contrat reste dans « Conclus » ; la retiraison est à valider pour Jeanne seule.
+        assertThat(monde.consulter().duPortail(JEANNE, PRODUCTEUR)).singleElement().satisfies(c -> {
+            assertThat(c.onglet()).contains(Onglet.CONCLUS);
+            assertThat(c.retiraisonAValider()).isTrue();
+        });
+        assertThat(monde.consulter().duPortail(HENRI, NEGOCIANT)).singleElement().satisfies(c -> {
+            assertThat(c.onglet()).contains(Onglet.CONCLUS);
+            assertThat(c.retiraisonAValider()).isFalse();
+        });
 
         ContratAchatArmagnac contrat = cas.validerRetiraison(JEANNE, PRODUCTEUR, id, 1, 1);
 
@@ -110,8 +115,10 @@ class ExecuterContratsTest {
                 .satisfies(c -> assertThat(c.sujet()).isEqualTo("Retiraison validée, contrat CA-2026-0001"));
         assertThat(monde.journal.duContrat(id)).extracting(EntreeJournal::action).endsWith(
                 ActionContrat.RETIRAISON_DECLAREE, ActionContrat.RETIRAISON_VALIDEE);
-        assertThat(monde.consulter().duPortail(JEANNE, PRODUCTEUR)).singleElement()
-                .satisfies(c -> assertThat(c.onglet()).contains(Onglet.CONCLUS));
+        assertThat(monde.consulter().duPortail(JEANNE, PRODUCTEUR)).singleElement().satisfies(c -> {
+            assertThat(c.onglet()).contains(Onglet.CONCLUS);
+            assertThat(c.retiraisonAValider()).isFalse();
+        });
     }
 
     @Test

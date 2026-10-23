@@ -11,8 +11,9 @@ import { Pastilles } from './pastilles'
 
 /**
  * Portail, menu « Contrats » (spec 06 §6.2, RG-CA-25) : les contrats de l'opérateur actif, par onglets : à approuver
- * (un projet attend ma partie), en négociation (il attend l'autre), conclus, exécutés, annulés ou refusés. L'onglet est
- * gardé dans l'adresse. « Nouveau contrat » pour qui gère le module.
+ * (un projet attend ma partie), en négociation (il attend l'autre), conclus, exécutés, annulés ou refusés. Un contrat
+ * conclu dont une retiraison attend ma validation reste dans « Conclus », en tête. L'onglet est gardé dans l'adresse.
+ * « Nouveau contrat » pour qui gère le module.
  */
 export function PageMesContrats() {
   const { actif } = useMoi()
@@ -54,7 +55,12 @@ function MesContrats({ operateur }: { operateur: number }) {
       <ListeContrats
         espace='portail'
         operateur={operateur}
-        contrats={tous.filter((c) => c.onglet === filtres.onglet)}
+        contrats={tous
+          .filter((c) => c.onglet === filtres.onglet)
+          .sort(
+            (a, b) =>
+              Number(b.retiraisonAValider) - Number(a.retiraisonAValider)
+          )}
         chargement={contrats.isPending}
         vide={
           filtres.onglet === 'A_APPROUVER'

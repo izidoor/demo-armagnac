@@ -10067,6 +10067,10 @@
             "type" : "string",
             "description" : "La première ligne : « 2015 » ou « Hors d'âge 20+ »"
           },
+          "retiraisonAValider" : {
+            "type" : "boolean",
+            "description" : "Au portail, conclu : une retiraison attend la validation de l'opérateur actif"
+          },
           "vendeur" : {
             "$ref" : "#/components/schemas/PartieContrat"
           },
@@ -10079,7 +10083,7 @@
             "description" : "Litres d'alcool pur"
           }
         },
-        "required" : [ "acheteur", "etat", "id", "modifieLe", "montantHt", "nombreLignes", "numero", "ouvertPar", "produit", "vendeur", "versionCourante", "volumeAp" ]
+        "required" : [ "acheteur", "etat", "id", "modifieLe", "montantHt", "nombreLignes", "numero", "ouvertPar", "produit", "retiraisonAValider", "vendeur", "versionCourante", "volumeAp" ]
       },
       "Conversation" : {
         "type" : "object",

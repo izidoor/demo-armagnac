@@ -20,8 +20,8 @@ import { ETATS, PARTIES } from './libelles'
 
 /**
  * Une liste de contrats (RG-CA-25), du plus récemment modifié au plus ancien ; une ligne ouvre le contrat. Au portail
- * (`operateur`, l'opérateur actif), la colonne « Avec » nomme l'autre partie et son rôle ; au back-office, les deux
- * parties. Une ligne par contrat ; selon la largeur du contenu, le tableau perd la date puis le volume, et sous 40rem
+ * (`operateur`, l'opérateur actif), la colonne « Avec » nomme l'autre partie et son rôle, et un contrat conclu dont une
+ * retiraison attend sa validation le dit à côté de son état ; au back-office, les deux parties. Une ligne par contrat ; selon la largeur du contenu, le tableau perd la date puis le volume, et sous 40rem
  * une carte par contrat.
  */
 export function ListeContrats({
@@ -97,9 +97,12 @@ export function ListeContrats({
                   {c.numero}
                 </TableCell>
                 <TableCell>
-                  <BadgePlein statut={ETATS[c.etat].statut}>
-                    {ETATS[c.etat].libelle}
-                  </BadgePlein>
+                  <span className='flex items-center gap-2 whitespace-nowrap'>
+                    <BadgePlein statut={ETATS[c.etat].statut}>
+                      {ETATS[c.etat].libelle}
+                    </BadgePlein>
+                    {c.retiraisonAValider && <RetiraisonAValider />}
+                  </span>
                 </TableCell>
                 <TableCell
                   className='w-full max-w-0 truncate'
@@ -143,6 +146,7 @@ export function ListeContrats({
                 <BadgePlein statut={ETATS[c.etat].statut}>
                   {ETATS[c.etat].libelle}
                 </BadgePlein>
+                {c.retiraisonAValider && <RetiraisonAValider />}
               </span>
             }
           >
@@ -160,4 +164,9 @@ export function ListeContrats({
       <Pagination {...pagination} />
     </>
   )
+}
+
+/** RG-CA-25 : une retiraison du contrat conclu attend la validation de l'opérateur actif. */
+function RetiraisonAValider() {
+  return <BadgePlein statut='warning'>Retiraison à valider</BadgePlein>
 }

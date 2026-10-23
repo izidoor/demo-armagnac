@@ -8,6 +8,7 @@ import {
   Mail,
   ShoppingBag,
   Stamp,
+  Truck,
 } from 'lucide-react'
 import { listerMesFactures } from '@/api/generated'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -32,7 +33,7 @@ const DEMO = {
 /**
  * Tableau de bord du portail, pendant de celui du back-office : les activités de l'opérateur actif. Ses DSM à
  * saisir ou compléter et celles qui attendent le BNIA, pour qui lit ses déclarations ; ses factures non payées,
- * pour qui lit sa facturation ; ses nouveaux messages (RG-MSG-11) ; ses contrats à approuver et ceux en attente de l'autre partie (RG-CA-25). Les certificats export et commandes
+ * pour qui lit sa facturation ; ses nouveaux messages (RG-MSG-11) ; ses contrats à approuver, ceux en attente de l'autre partie et ses retiraisons à valider (RG-CA-25). Les certificats export et commandes
  * boutique sont des données de démonstration, marquées comme telles.
  */
 export function TableauDeBordOperateur() {
@@ -142,8 +143,8 @@ function NouveauxMessages({ operateur }: { operateur: number }) {
 }
 
 /**
- * RG-CA-25 : ses projets de contrat qui attendent sa partie, puis ceux qui attendent l'autre partie ; chacun ouvre son
- * onglet de la liste.
+ * RG-CA-25 : ses projets de contrat qui attendent sa partie, puis ceux qui attendent l'autre partie, puis ses contrats
+ * conclus dont une retiraison attend sa validation ; chacun ouvre son onglet de la liste.
  */
 function ActivitesContrats({ operateur }: { operateur: number }) {
   const contrats = useMesContrats(operateur).data
@@ -163,6 +164,12 @@ function ActivitesContrats({ operateur }: { operateur: number }) {
           to: '/portail/contrats',
           search: { onglet: 'EN_NEGOCIATION' },
         }}
+      />
+      <Activite
+        libelle='Retiraisons à valider'
+        icone={Truck}
+        valeur={contrats?.filter((c) => c.retiraisonAValider).length}
+        lien={{ to: '/portail/contrats', search: { onglet: 'CONCLUS' } }}
       />
     </>
   )

@@ -228,7 +228,7 @@ export function GrilleDsm({
                 >
                   <div className='flex flex-col items-end gap-1.5'>
                     <span className='text-sm leading-snug font-medium first-letter:uppercase'>
-                      {c.libelle}
+                      {c.libelle} <Unite />
                     </span>
                     <span
                       className={cn(
@@ -254,7 +254,9 @@ export function GrilleDsm({
                       title='Calculée : non modifiable'
                     >
                       <div className='flex flex-col items-end gap-1.5'>
-                        <span className='text-sm font-medium'>{libelle}</span>
+                        <span className='text-sm font-medium'>
+                          {libelle} <Unite />
+                        </span>
                         <Marque nature='calculee' />
                       </div>
                     </TableHead>
@@ -587,5 +589,14 @@ function Legende({
         </span>
       )}
     </div>
+  )
+}
+
+/** RG-DEC-15 : les volumes de la DSM sont en litres d'alcool pur. */
+function Unite() {
+  return (
+    <span className='font-normal whitespace-nowrap' title="Litres d'alcool pur">
+      (L AP)
+    </span>
   )
 }

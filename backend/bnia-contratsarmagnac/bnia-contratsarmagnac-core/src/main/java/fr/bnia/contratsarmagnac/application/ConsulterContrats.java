@@ -79,10 +79,11 @@ public class ConsulterContrats {
     /**
      * Un contrat listé, avec l'identité de ses parties.
      *
-     * @param onglet au portail seulement : l'onglet où il se range pour l'opérateur actif
+     * @param onglet             au portail seulement : l'onglet où il se range pour l'opérateur actif
+     * @param retiraisonAValider au portail, conclu : une retiraison attend la validation de l'opérateur actif
      */
     public record ContratListe(ContratLigne ligne, ResultatRecherche acheteur, ResultatRecherche vendeur,
-            Optional<Onglet> onglet) {
+            Optional<Onglet> onglet, boolean retiraisonAValider) {
     }
 
     /**
@@ -172,23 +173,26 @@ public class ConsulterContrats {
                         l.vendeur())).collect(Collectors.toSet())).stream()
                         .collect(Collectors.toMap(ResultatRecherche::id, Function.identity()));
         return lignes.stream().map(l -> new ContratListe(l, identite(identites, l.acheteur()),
-                identite(identites, l.vendeur()), operateur.map(o -> onglet(l, o)))).toList();
+                identite(identites, l.vendeur()), operateur.map(o -> onglet(l, o)),
+                operateur.filter(o -> l.retiraisonsAttendent().contains(maPartie(l, o))).isPresent())).toList();
     }
 
     /**
-     * RG-CA-25 : un projet, ou une retiraison d'un contrat conclu, est à approuver s'il attend ma partie, en
-     * négociation s'il attend l'autre.
+     * RG-CA-25 : un projet est à approuver s'il attend ma partie, en négociation s'il attend l'autre ; un contrat conclu
+     * reste dans « Conclus », même quand une de ses retiraisons attend une partie (révision du 2026-10-23).
      */
     static Onglet onglet(ContratLigne ligne, long operateur) {
-        Partie maPartie = ligne.acheteur() == operateur ? Partie.ACHETEUR : Partie.VENDEUR;
         return switch (ligne.etat()) {
-            case PROJET -> ligne.attend().filter(maPartie::equals).isPresent() ? Onglet.A_APPROUVER
+            case PROJET -> ligne.attend().filter(maPartie(ligne, operateur)::equals).isPresent() ? Onglet.A_APPROUVER
                     : Onglet.EN_NEGOCIATION;
-            case CONCLU -> ligne.retiraisonsAttendent().contains(maPartie) ? Onglet.A_APPROUVER
-                    : ligne.retiraisonsAttendent().isEmpty() ? Onglet.CONCLUS : Onglet.EN_NEGOCIATION;
+            case CONCLU -> Onglet.CONCLUS;
             case EXECUTE -> Onglet.EXECUTES;
             case ANNULE, REFUSE -> Onglet.ANNULES_REFUSES;
         };
+    }
+
+    private static Partie maPartie(ContratLigne ligne, long operateur) {
+        return ligne.acheteur() == operateur ? Partie.ACHETEUR : Partie.VENDEUR;
     }
 
     private static ResultatRecherche identite(Map<Long, ResultatRecherche> identites, long id) {

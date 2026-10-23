@@ -148,7 +148,9 @@ export function DialoguePointDeDepart({
           </div>
         </div>
         <div className='@container/stock space-y-2'>
-          <Label>Stock initial</Label>
+          <Label>
+            Stock initial <span className='whitespace-nowrap'>(L AP)</span>
+          </Label>
           {lignes.length === 0 && (
             <p className='text-muted-foreground text-sm'>
               Aucune ligne : l'opérateur part d'un stock nul.

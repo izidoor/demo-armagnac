@@ -20,6 +20,9 @@ public record ContratListeResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Partie ouvertPar,
         @Schema(description = "En projet : la partie dont l'approbation manque") Partie attend,
         @Schema(description = "Au portail : l'onglet où il se range pour l'opérateur actif") Onglet onglet,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED,
+                description = "Au portail, conclu : une retiraison attend la validation de l'opérateur actif")
+        boolean retiraisonAValider,
         @Schema(description = "Date de la conclusion") LocalDate dateContrat,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Date de la version courante") Instant modifieLe,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) int versionCourante,
@@ -34,6 +37,7 @@ public record ContratListeResponse(
         ContratLigne l = c.ligne();
         return new ContratListeResponse(l.id(), l.numero(), l.etat(), PartieResponse.depuis(c.acheteur()),
                 PartieResponse.depuis(c.vendeur()), l.ouvertPar(), l.attend().orElse(null), c.onglet().orElse(null),
+                c.retiraisonAValider(),
                 l.dateContrat().orElse(null), l.modifieLe(), l.versionCourante(), l.nombreLignes(), l.produit(),
                 l.volumeAp().litres(), l.montantHt(), l.aRetirerAvantLe().orElse(null));
     }

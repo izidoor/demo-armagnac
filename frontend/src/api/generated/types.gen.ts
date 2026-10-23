@@ -474,6 +474,10 @@ export type ContratListe = {
      * La première ligne : « 2015 » ou « Hors d'âge 20+ »
      */
     produit: string;
+    /**
+     * Au portail, conclu : une retiraison attend la validation de l'opérateur actif
+     */
+    retiraisonAValider: boolean;
     vendeur: PartieContrat;
     versionCourante: number;
     /**

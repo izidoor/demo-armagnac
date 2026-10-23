@@ -1,6 +1,6 @@
 # Démonstration
 
-Données fictives chargées par le profil `demo` (spec 01 §7.1, spec 02 §7.1, spec 03 §7.1, spec 05 §7.1), par les cas
+Données fictives chargées par le profil `demo` (§7.1 des specs 01, 02, 03, 05, 06, 08 et 15), par les cas
 d'usage, au démarrage. Le chargement est relançable : ce qui existe déjà n'est pas recréé.
 
 ## Lancer
@@ -50,19 +50,20 @@ Sous 1024 px, le PDF du diaporama s'ajoute à celui de l'offre.
 | `admin@bnia.fr` | Anne Lamarque | BNIA | `ADMIN` | Tout le back-office ; bloquer un utilisateur, désactiver ou supprimer un opérateur, rétrograder le dernier ADMIN d'un opérateur |
 | `agent@bnia.fr` | Luc Dubos | BNIA | `AGENT` | Back-office : fiches, contacts et Paramétrage gérés ; Accès en lecture |
 | `observateur@bnia.fr` | Claire Sentex | BNIA | `OBSERVATEUR` | Back-office en lecture seule |
-| `admin@producteur.fr` | Jeanne Durand | Maison Durand, Condom (opérateur actif) et Eauze | `ADMIN` des deux | Portail : « Mon entreprise », annuaire, invitations ; passage d'un chai à l'autre |
+| `admin@producteur.fr` | Jeanne Durand | Maison Durand, Condom (opérateur actif) et Eauze | `ADMIN` des deux | Portail : « Mon entreprise », annuaire, invitations ; passage d'un chai à l'autre ; vend dans le fil des contrats |
 | `agent@producteur.fr` | Sophie Martin | Maison Durand, Condom | `AGENT` | Portail : fiche et contacts gérés, accès en lecture |
 | `observateur@producteur.fr` | Pierre Roy | Maison Durand, Condom ; Eauze, accès suspendu | `OBSERVATEUR` | Portail en lecture seule ; Eauze n'est pas proposé (accès suspendu) |
-| `admin@negociant.fr` | Henri Castex | Armagnacs de Gascogne (`N320001`) | `ADMIN` | Portail d'un négociant : tout, dont les accès |
+| `admin@negociant.fr` | Henri Castex | Armagnacs de Gascogne (`N320001`) | `ADMIN` | Portail d'un négociant : tout, dont les accès ; achète dans le fil des contrats |
 | `agent@negociant.fr` | Julie Darrigade | Armagnacs de Gascogne | `AGENT` | Portail : fiche et contacts gérés, accès en lecture |
 | `observateur@negociant.fr` | Thomas Barrère | Armagnacs de Gascogne | `OBSERVATEUR` | Portail en lecture seule |
 | `admin@larressingle.fr` | Marie Lacoste | Maison Larressingle (`N320002`) | `ADMIN` | Portail : DSM envoyée, qui attend le BNIA |
 | `admin@landes.fr` | Bernard Dufau | Négoce des Landes (`N400001`) | `ADMIN` | Portail : DSM en brouillon avec une anomalie |
-
-Depuis le 2026-10-21, la démonstration du portail tient dans les comptes `@negociant.fr` (compléments demandés)
-et `@producteur.fr` (anomalie à corriger) : ce sont les seuls que présente la réponse à l'appel d'offres.
 | `admin@laubade.fr` | Hélène Lassus | Domaine de Laubade (`000003`) | `ADMIN` | Portail d'un producteur en sommeil : DSM 2024-2025 validée, en attente d'un nouveau point de départ |
 | `saisie@demo.fr` | Saisie Démo | Les quinze opérateurs ajoutés pour la facturation (`N320010` à `N470010`, `000020` à `000029`) | `AGENT` de chacun | Compte technique qui a saisi leurs DSM ; sélecteur à quinze opérateurs |
+
+Depuis le 2026-10-21, la démonstration du portail tient dans les comptes `@negociant.fr` (compléments demandés)
+et `@producteur.fr` (anomalie à corriger) : ce sont les seuls que présente la réponse à l'appel d'offres. Les
+contrats se jouent sur les deux mêmes (« Contrats »).
 
 Sans compte :
 
@@ -85,23 +86,26 @@ ses DRM. Les uns exportent (avec un DAE), les autres non ; les volumes varient d
 
 ## Déclarations (spec 05, lots 1 à 8)
 
-Les dates sont calculées depuis le jour du chargement. Négoce des Landes part du **premier du mois courant**
-(le 1er octobre 2026 pour un chargement en octobre 2026), Maison Larressingle du **premier du mois
-précédent**, Armagnacs de Gascogne du **premier du mois, onze mois avant** (spec 08 §7.1), avec un stock fixé
-par Anne Lamarque : leur première DSM est celle de ce mois.
+Les dates sont calculées depuis le jour du chargement, noté M (octobre 2026 pour un chargement en octobre
+2026). Une DSM ne s'envoie qu'à partir du lendemain de la fin de sa période (spec 06 RG-CA-24) : la
+démonstration des négociants porte donc sur le mois précédent, M−1. Négoce des Landes et Maison Larressingle
+partent du **premier du mois précédent** (le 1er septembre 2026), Armagnacs de Gascogne du **premier du mois,
+douze mois avant** (spec 08 §7.1), avec un stock fixé par Anne Lamarque : leur première DSM est celle de ce
+mois.
 
 - **Armagnacs de Gascogne (`N320001`, négociant)** : six lignes de stock initial (`NB` « XO » 12, `NB`
-  « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). DSM des onze mois
-  précédents **validées**, aux volumes de la facture d'exemple (sorties France 839,11 L, export 2 254,15 L,
-  avec le DAE de l'export) : à facturer (voir « Facturation »). DSM du mois
+  « VSOP » 5, `NV` « VSOP » 5, `MB` 2010, `MV` 2015 compte 6, `NB` « Blanche » `00`). Onze DSM
+  **validées**, de M−12 à M−2, aux volumes de la facture d'exemple (sorties France 839,11 L, export 2 254,15 L,
+  avec le DAE de l'export) : à facturer (voir « Facturation »). DSM de M−1
   envoyée par Julie Darrigade, prise en instruction puis en **compléments demandés** par Anne Lamarque, motif
   « DAE manquants pour l'export » : 40 L de XO passés dans l'assemblage VSOP (colonnes 12 et 6), sorties
   France 839,11 L et export 2 254,15 L (les volumes de la facture d'exemple) ; après le motif, un message de
   Julie et la réponse de Luc Dubos (messagerie), deux notes **internes** d'Anne Lamarque (sur la DSM et la ligne XO). Aucune pièce : il manque un justificatif pour
-  les ventes négoce et un pour l'export.
+  les ventes négoce et un pour l'export. La DSM du mois courant reste à initier : l'achat du contrat s'y
+  inscrira (voir « Contrats »).
 - **Maison Larressingle (`N320002`, négociant)** : DSM du mois précédent **envoyée** par Marie Lacoste, avec
   le DAE de chacun de ses deux exports : elle attend l'instruction du BNIA, qui peut la valider.
-- **Négoce des Landes (`N400001`, négociant)** : DSM du mois en **brouillon**, remplie par Bernard Dufau,
+- **Négoce des Landes (`N400001`, négociant)** : DSM de M−1 en **brouillon**, remplie par Bernard Dufau,
   avec une anomalie : les assemblages en entrée (colonne 6, 50 L) et en sortie (colonne 12, 60 L)
   diffèrent de 10 L.
 - **Maison Durand, Condom (`000001`, producteur)** : point de départ au 1er avril de l'an dernier (2025)
@@ -118,8 +122,9 @@ par Anne Lamarque : leur première DSM est celle de ce mois.
   60,00 €/hlAP à partir du 1er janvier 2024, 20 % exonérés de TVA. La DSM de Gascogne y vaut 1 855,95 € HT,
   comme la facture d'exemple. Les factures sont décrites plus bas (« Facturation »).
 
-La DSM suivante d'un négociant (reprise) ne s'initie qu'à partir du 1er du mois suivant : la reprise se
-montre sur le producteur.
+La DSM suivante d'un négociant (reprise) s'initie dès que la précédente est validée : Armagnacs de Gascogne,
+une fois M−1 validée (scénario 3), initie celle du mois courant, mais ne l'envoie qu'à partir du 1er du mois
+suivant (« Envoyer » désactivé, avec la date). Le vieillissement au 1er avril se montre sur le producteur.
 
 Scénario :
 
@@ -138,7 +143,8 @@ Scénario :
    pour les ventes négoce et un DAE pour l'export (n'importe quel PDF) ; « Renvoyer » : la DSM est en
    « Compléments envoyés ». Puis `admin@bnia.fr` : elle est en « Compléments reçus » ; « Valider »
    directement, sans la reprendre en instruction ; la DSM est figée. Sans les pièces, « Valider » reste
-   désactivé, avec son motif, et le panneau liste les pièces manquantes.
+   désactivé, avec son motif, et le panneau liste les pièces manquantes. `admin@negociant.fr`, « Mes DSM » :
+   la DSM du mois courant s'initie ; « Envoyer » y attend le 1er du mois suivant.
 4. `admin@producteur.fr` (Maison Durand, Condom), « Mes DSM » : initier la DSM de l'année. Les lignes
    reprennent le stock de fin de l'année validée ; au 1er avril, `NB` « Hors d'âge » 19 est passée à
    `20+` et a fusionné avec la ligne `20+` ; le compte de la `MB` 2015 a pris un an ; la « Blanche »
@@ -157,8 +163,8 @@ Scénario :
 8. `admin@bnia.fr`, roue crantée « Paramètres de l'application », rubrique « Cotisation > Taux CVO » : les deux taux, le
    premier clos au 31/12/2023. Ouvrir la DSM d'Armagnacs de Gascogne, onglet « Cotisation » : sorties
    France 100,69 € + 402,77 €, export 270,50 € + 1 081,99 €, total HT 1 855,95 €, TVA indicative à 20 %
-   sur la part assujettie (296,95 €), TTC 2 152,90 €. Ajouter un taux de 62,00 € au 1er du mois courant :
-   la cotisation de Gascogne suit, puis supprimer ce taux. Listing « DSM » : total HT sur chaque ligne ;
+   sur la part assujettie (296,95 €), TTC 2 152,90 €. Ajouter un taux de 62,00 € au 1er du mois précédent
+   (le taux se lit à la fin de la période) : la cotisation de Gascogne suit, puis supprimer ce taux. Listing « DSM » : total HT sur chaque ligne ;
    les DSM validées sans facture sont dans « Validées », donc à facturer.
 9. Bouton « PDF » d'une DSM (n'importe quel compte qui la lit, observateur compris) : le PDF s'ouvre dans
    un nouvel onglet, un onglet du format unique par page, volumes au format hl.l,cl, puis la cotisation ;
@@ -175,14 +181,15 @@ Scénario :
 11. `admin@bnia.fr`, DSM validée de Maison Durand, Condom : bouton « Excel ». Fiche de Maison Durand,
     Eauze, onglet « Déclarations », « Importer depuis Excel » avec ce fichier : le point de départ est fixé
     au 1er avril qui suit la campagne du fichier, avec son stock de fin, vieilli d'un an.
-12. `admin@bnia.fr`, menu « Déclarations > DSM », onglet « En cours » : colonne « Échéance » ; Maison
+12. `admin@bnia.fr`, menu « Déclarations > DSM », onglet « En cours » : colonne « Échéance » (le 5 du mois courant pour M−1) ; Maison
     Larressingle, envoyée, attend le BNIA et n'est pas en retard ; Armagnacs de Gascogne, en compléments
-    demandés sur le mois courant, n'est pas encore en retard. Case « En retard », état
-    « Absente » : Maison Saint-Puy, sans DSM du mois dernier, en retard dès le 6 du mois ; ligne grisée, dont
+    demandés, et Négoce des Landes, en brouillon, le sont dès le 6 du mois. Case « En retard » : ces deux-là ;
+    état « Absente » : Maison Saint-Puy, sans DSM du mois dernier, en retard elle aussi ; ligne grisée, dont
     seul l'opérateur mène à sa fiche. Les périodes absentes pas encore en retard ne sont pas listées. La détection quotidienne (6 h) publie `DeclarationEnRetard` une fois par période ; sans
     `notifications`, rien ne part encore.
-13. `admin@landes.fr`, « Mes DSM » : bandeau de
-    l'échéance à venir (le 5 du mois prochain). En-tête de la DSM et éditions PDF et Excel : l'échéance.
+13. `admin@landes.fr`, « Mes DSM » : bandeau de l'échéance (le 5 du mois courant), passée dès le 6 :
+    « envoyez votre déclaration au BNIA dès que possible ». En-tête de la DSM et éditions PDF et Excel :
+    l'échéance.
 14. `admin@bnia.fr`, fiche du Domaine de Laubade, onglet « Déclarations » : point de départ figé,
     « Fixer un nouveau point de départ » ; le stock proposé est celui de fin de la DSM 2024-2025. Choisir
     le 1er avril de l'année en cours, « Reprendre le stock vieilli à cette date » : `NB` « Hors d'âge »
@@ -197,8 +204,9 @@ Scénario :
     comme au back-office, deux graphiques de démonstration à l'échelle de son stock déclaré (sans choix du
     type), puis son stock de fin, ligne par ligne, avec le lien vers sa DSM.
 17. Même compte, tableau de bord : section « Activités », « DSM à saisir ou compléter », « DSM en attente du
-    BNIA », « Factures non payées », « Nouveaux messages » (chiffres réels, chacun ouvre sa page), puis trois
-    cartes de démonstration (contrats, certificats export, commandes boutique).
+    BNIA », « Factures non payées », « Nouveaux messages », « Contrats à approuver », « Contrats en attente
+    d'approbation », « Retiraisons à valider » (chiffres réels, chacun ouvre sa page), puis deux cartes de démonstration (certificats
+    export, commandes boutique).
 
 ## Facturation (spec 08, lots 1, 2, 3 et 5)
 
@@ -209,8 +217,8 @@ Scénario :
   factures `comptabilite@<code>.example` pour chaque négociant. Le Domaine de Laubade (`000003`), qui a une DSM
   validée, n'a pas de SIRET : il n'est pas facturable.
 - **Armagnacs de Gascogne** : ses **huit** DSM validées les plus anciennes sont **facturées** et leurs factures
-  **émises** par Anne Lamarque, chacune **à la fin du mois qui suit sa période** (DSM de novembre 2025 émise le
-  31 décembre 2025, etc.), numérotées dans l'ordre des dates (`2025000001`, puis `2026000001`…) ; chacune vaut
+  **émises** par Anne Lamarque, chacune **à la fin du mois qui suit sa période** (DSM d'octobre 2025 émise le
+  30 novembre 2025, etc.), numérotées dans l'ordre des dates (`2025000001`, puis `2026000001`…) ; chacune vaut
   1 855,95 € HT, 296,95 € de TVA, 2 152,90 € TTC, comme la facture d'exemple ; une **note** au journal de la
   première. La **neuvième** est demandée : un **brouillon** attend son émission. Les **deux** dernières restent
   **à facturer**.
@@ -268,14 +276,14 @@ Articles et ventes (lot 5) :
 15. « Facturation > Ventes » : deux graphiques de démonstration (chiffre d'affaires total, par secteur), puis,
     période « Année en cours », les lignes des factures émises cette année, total HT ; une ligne (ou son
     chevron) ouvre sa facture. « Exporter en PDF » (synthèse par article, TVA, totaux). Période « Année
-    précédente » : la facture de décembre 2025.
+    précédente » : les factures de novembre et de décembre 2025.
 16. `agent@negociant.fr` (Armagnacs de Gascogne), menu « Facturation > Cotisation » : deux graphiques de
     démonstration à l'échelle d'un négociant (cotisation totale, par ligne), puis ses lignes de cotisation de
     l'année (sorties France et export, parts assujettie et exonérée), total HT ; une ligne ouvre sa facture.
 
 ## Messagerie (spec 15, lots 1 à 6)
 
-- **Armagnacs de Gascogne**, DSM du mois courant en compléments demandés : le motif (« DAE manquants pour
+- **Armagnacs de Gascogne**, DSM de M−1 en compléments demandés : le motif (« DAE manquants pour
   l'export »), protégé, puis un message de Julie Darrigade et la réponse de Luc Dubos, non lue pour Gascogne ;
   deux notes internes d'Anne Lamarque (sur la DSM et sur la ligne XO).
 - **Conversations libres de Gascogne** : « Import de la matrice refusé », de Julie Darrigade, l'Excel de sa DSM en
@@ -301,3 +309,59 @@ Scénario :
 5. `admin@negociant.fr` (Henri Castex) : sa conversation libre, pas celle de Julie ; la conversation de la DSM et
    celle de la facture, oui. `observateur@negociant.fr` lit la conversation de la DSM sans y écrire, mais écrit dans
    celle de la facture ; il n'a pas « Nouvelle conversation » (l'observateur lit la Messagerie sans la gérer).
+
+## Contrats (spec 06, lots 1 à 3)
+
+- **Le fil** se joue sur deux comptes : Jeanne Durand (`admin@producteur.fr`, Maison Durand, Condom) vend,
+  Henri Castex (`admin@negociant.fr`, Armagnacs de Gascogne) achète. Le stock estimé de Condom part de sa DSM
+  2025-2026 validée, vieillie à aujourd'hui : 8,17 hl AP de `MB` 2015 notamment.
+- **Un projet d'avance**, ouvert par Henri : Gascogne acheteur, Condom vendeur, une ligne `NB` « Hors d'âge »
+  `20+`, 3 hl à 45 % (1,35 hl AP), 2 400 € HT / hl AP, soit 3 240,00 € HT, solde à 30 jours fin de mois. Il
+  attend Jeanne : un filet si la saisie en direct traîne, elle l'approuve en un geste.
+- **L'historique** : vingt contrats exécutés, conclus entre dix mois et demi et cinq semaines avant le
+  chargement, entre des opérateurs hors du fil (acheteurs : Maison Larressingle, Négoce des Landes, les
+  négociants de la facturation ; vendeurs : Domaine de Laubade, les producteurs de la facturation). Chacun
+  porte une ligne du stock sous bois de son vendeur, au barème de 1 300 € HT / hl AP au compte 7 et 50 € par
+  année de compte (1 750 € au compte 16, comme le CA-05), à quelques dizaines d'euros près. Clos sans
+  retiraison : aucun stock n'a bougé. Ils remplissent les listes du back-office et les mercuriales.
+
+Le BNIA lit tous les contrats et n'agit sur aucun (ADR-016) ; chaque action qui attend l'autre partie lui
+envoie un e-mail (ses `AGENT` et `ADMIN`), dans Mailpit.
+
+Scénario :
+
+1. `admin@producteur.fr` (Jeanne), tableau de bord : « Contrats à approuver » compte le projet d'Henri. Menu
+   « Contrats », onglet « À approuver » : il y est (pour aller vite, l'ouvrir et « Approuver » : conclu).
+2. « Nouveau contrat » : « Je suis le vendeur », l'autre partie Armagnacs de Gascogne (Condom n'est pas
+   proposé). Ligne choisie dans son stock estimé sous bois : `MB` 2015, 8,17 hl AP restants ; 30 hl à 47 %,
+   1 750 € HT / hl AP : 14,10 hl AP, le dépassement est signalé en direct et l'enregistrement refusé. Ramener
+   à 15 hl (7,05 hl AP, 12 337,50 € HT) : le projet part, il attend Henri ; l'e-mail est dans Mailpit.
+3. `admin@negociant.fr` (Henri), onglet « À approuver » : le projet de Jeanne. « Modifier », prix à 1 800 € :
+   il attend de nouveau Jeanne.
+4. `admin@producteur.fr` : l'écart est surligné (avant barré, puis après, avec son auteur). « Approuver » :
+   le contrat est conclu, daté du jour. « Plus » : « PDF », le formulaire CA-05 allégé, signatures comprises
+   (un projet porte « Projet, non conclu »).
+5. `admin@negociant.fr`, le contrat conclu, carte « Retiraisons » : « Déclarer une retiraison », enlèvement
+   aujourd'hui, dernière, le reste à retirer de la ligne. Au-delà du stock de Jeanne, le refus ne donne aucun
+   chiffre. La retiraison attend Jeanne ; le contrat reste dans « Conclus ».
+6. `admin@producteur.fr`, tableau de bord : « Retiraisons à valider » mène à l'onglet « Conclus », où le
+   contrat porte « Retiraison à valider », en tête. L'ouvrir, la retiraison « À valider par vous » :
+   « Valider » (au plus tard le jour de l'enlèvement) ; dernière, le contrat passe à « Exécutés ». Menu « Déclarations > Stocks déclarés »,
+   tableau « Stock estimé » : la `MB` 2015 a baissé de la vente. La DSM 2026-2027 de Condom, en brouillon, a
+   reçu la vente sur sa ligne `MB` 2015, marquée « Contrat CA-… » ; onglet « Pièces », le justificatif
+   « Contrat CA-…, retiraison 1 », lien vers le contrat.
+7. `admin@negociant.fr`, « Stocks déclarés » : le stock estimé de Gascogne a pris l'achat. L'achat attend la
+   DSM du mois courant : une fois M−1 validée par le BNIA (« Déclarations », scénario 3), « Mes DSM »,
+   initier le mois : une ligne `MB` 2015 ajoutée, l'achat en colonne 2 (vendeur producteur), justifié par le
+   contrat dans l'onglet « Pièces ». « Envoyer » attend le 1er du mois suivant.
+8. `admin@bnia.fr`, menu « Contrats > Contrats » : tous les contrats, onglets « En négociation »,
+   « Conclus », « Exécutés », « Annulés ou refusés », filtres opérateur et numéro ; un contrat s'ouvre en
+   lecture, sans action. Tableau de bord : « Contrats en attente d'approbation » compte les projets. Fiche de
+   Maison Durand, Condom, onglet « Contrats » : les siens, comme acheteur ou vendeur.
+9. « Contrats > Mercuriales », sur les douze derniers mois : par millésime, ou par dénomination et compte
+   d'âge, nombre de contrats, volume en hl AP, prix minimum, moyen pondéré et maximum. Le millésime 2015
+   compte le contrat de Jeanne et d'Henri, à 1 800 €.
+10. Le reste, sur un nouveau projet ou le contrat d'avance : « Refuser » (définitif, « Refusé par …, le … à
+    … ») ; sur un contrat conclu, « Plus » : « Annuler le contrat » ou « Plus de retiraison » (les
+    retiraisons non validées tombent) ; une retiraison non validée, « Retirer » par Henri, ou « Modifier » et
+    renvoyer par la partie attendue.
