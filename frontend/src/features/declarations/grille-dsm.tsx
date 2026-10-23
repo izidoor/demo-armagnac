@@ -293,6 +293,14 @@ export function GrilleDsm({
                         ajoutée
                       </span>
                     )}
+                    {l.contrats?.map((c) => (
+                      <span
+                        key={c}
+                        className='text-muted-foreground block text-xs font-normal'
+                      >
+                        {c}
+                      </span>
+                    ))}
                     {l.id != null && (notesParLigne?.get(l.id) ?? 0) > 0 && (
                       <button
                         type='button'

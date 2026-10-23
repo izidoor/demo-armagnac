@@ -19,6 +19,7 @@ import fr.bnia.declarations.domain.SaisieLigneDsm;
 import fr.bnia.declarations.domain.TypeDeclarant;
 import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.declarations.domain.partage.StockDeclareVue;
+import fr.bnia.declarations.domain.partage.StockEstimeVue;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -129,5 +130,27 @@ class ConsulterStocksDeclaresTest {
             assertThat(l.compte().toString()).isEqualTo("12");
             assertThat(l.stock()).isEqualTo(VolumeAlcoolPur.litres("1000"));
         });
+    }
+
+    @Test
+    @DisplayName("RG-CA-11 : stock estimé publié ; base du point de départ, puis de la dernière DSM validée")
+    void rg_ca_11_stock_estime() {
+        DeclarationsPubliees publiees = monde.declarationsPubliees();
+        StockEstimeVue depart = publiees.stockEstime(NEGOCIANT);
+        assertThat(depart.baseAu()).contains(GererPointDeDepartTest.JUIN);
+        assertThat(depart.lignes()).extracting(l -> l.cle() + " " + l.estime())
+                .containsExactly("NB 1500.00", "MB 640.25");
+
+        juinValidee();
+        StockEstimeVue apres = publiees.stockEstime(NEGOCIANT);
+        assertThat(apres.baseAu()).contains(LocalDate.of(2026, 6, 30));
+        assertThat(apres.lignes()).singleElement().satisfies(l -> {
+            assertThat(l.denomination()).isEqualTo("XO");
+            assertThat(l.base()).isEqualTo(VolumeAlcoolPur.litres("1000"));
+            assertThat(l.estime()).isEqualTo(VolumeAlcoolPur.litres("1000"));
+        });
+        assertThat(stocks.estimeDe(OBSERVATEUR_NEGOCIANT, NEGOCIANT).lignes()).hasSize(1);
+        assertThat(publiees.stockEstime(PRODUCTEUR).lignes()).as("ni DSM validée ni point de départ").isEmpty();
+        assertThatThrownBy(() -> stocks.estimeDe(OBSERVATEUR_NEGOCIANT, PRODUCTEUR)).isInstanceOf(AccesRefuse.class);
     }
 }

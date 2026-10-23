@@ -66,6 +66,14 @@ public record LigneDsm(Long id, IdentiteLigne identite, OrigineLigne origine, Ma
                 .reduce(VolumeAlcoolPur.ZERO, VolumeAlcoolPur::plus);
     }
 
+    /** RG-CA-22 (spec 06) : le volume d'un mouvement de contrat ajouté à une colonne. */
+    LigneDsm avecAjout(ColonneDsm colonne, VolumeAlcoolPur volume) {
+        EnumMap<ColonneDsm, VolumeAlcoolPur> copie = new EnumMap<>(ColonneDsm.class);
+        copie.putAll(volumes);
+        copie.merge(colonne, volume, VolumeAlcoolPur::plus);
+        return new LigneDsm(id, identite, origine, copie);
+    }
+
     LigneDsm avecId(Long nouvelId) {
         return new LigneDsm(nouvelId, identite, origine, volumes);
     }

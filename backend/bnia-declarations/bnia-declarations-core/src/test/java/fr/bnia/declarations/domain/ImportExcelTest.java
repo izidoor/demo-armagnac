@@ -139,7 +139,7 @@ class ImportExcelTest {
     void rg_dec_21_import_modifiable() {
         DeclarationStocksMouvements dsm = dsmDeJuin();
         refuse(null, () -> dsm.importer(List.of(), dsm.version() + 1));
-        dsm.envoyer(Exemples.MAINTENANT, null);
+        dsm.envoyer(Exemples.MAINTENANT, Exemples.AUJOURDHUI, null);
         refuse("RG-DEC-21", () -> dsm.importer(List.of(), null));
         refuse("RG-DEC-21", dsm::exigerModifiable);
     }

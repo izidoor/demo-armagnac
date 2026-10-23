@@ -4,12 +4,14 @@ import {
   FileSearch,
   FileText,
   Handshake,
+  Hourglass,
   Mail,
   ShoppingBag,
   Stamp,
 } from 'lucide-react'
 import { listerMesFactures } from '@/api/generated'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useMesContrats } from '@/features/contrats/api'
 import {
   apiDeclarations,
   cleDeclarations,
@@ -23,7 +25,6 @@ import { Activite, GrilleActivites, Section } from './activite'
 
 /** Chiffres de démonstration, pour les contextes qui n'existent pas encore. */
 const DEMO = {
-  contrats: 2,
   certificatsExport: 1,
   commandesBoutique: 1,
 }
@@ -31,7 +32,7 @@ const DEMO = {
 /**
  * Tableau de bord du portail, pendant de celui du back-office : les activités de l'opérateur actif. Ses DSM à
  * saisir ou compléter et celles qui attendent le BNIA, pour qui lit ses déclarations ; ses factures non payées,
- * pour qui lit sa facturation ; ses nouveaux messages (RG-MSG-11). Les contrats, certificats export et commandes
+ * pour qui lit sa facturation ; ses nouveaux messages (RG-MSG-11) ; ses contrats à approuver et ceux en attente de l'autre partie (RG-CA-25). Les certificats export et commandes
  * boutique sont des données de démonstration, marquées comme telles.
  */
 export function TableauDeBordOperateur() {
@@ -53,12 +54,9 @@ function Activites({ operateur }: { operateur: number }) {
           <FacturesNonPayees operateur={operateur} />
         )}
         <NouveauxMessages operateur={operateur} />
-        <Activite
-          libelle='Contrats Armagnac à valider'
-          icone={Handshake}
-          valeur={DEMO.contrats}
-          demo
-        />
+        {droits.contrats !== 'AUCUN' && (
+          <ActivitesContrats operateur={operateur} />
+        )}
         <Activite
           libelle='Demandes de certificat export en cours'
           icone={Stamp}
@@ -140,5 +138,32 @@ function NouveauxMessages({ operateur }: { operateur: number }) {
       valeur={data?.nombre}
       lien={{ to: '/portail/messagerie' }}
     />
+  )
+}
+
+/**
+ * RG-CA-25 : ses projets de contrat qui attendent sa partie, puis ceux qui attendent l'autre partie ; chacun ouvre son
+ * onglet de la liste.
+ */
+function ActivitesContrats({ operateur }: { operateur: number }) {
+  const contrats = useMesContrats(operateur).data
+  return (
+    <>
+      <Activite
+        libelle='Contrats à approuver'
+        icone={Handshake}
+        valeur={contrats?.filter((c) => c.onglet === 'A_APPROUVER').length}
+        lien={{ to: '/portail/contrats' }}
+      />
+      <Activite
+        libelle="Contrats en attente d'approbation"
+        icone={Hourglass}
+        valeur={contrats?.filter((c) => c.onglet === 'EN_NEGOCIATION').length}
+        lien={{
+          to: '/portail/contrats',
+          search: { onglet: 'EN_NEGOCIATION' },
+        }}
+      />
+    </>
   )
 }

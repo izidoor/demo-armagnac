@@ -4,6 +4,7 @@ import fr.bnia.declarations.domain.Anomalie;
 import fr.bnia.declarations.domain.CalendrierDeclaratif;
 import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.Manque;
+import fr.bnia.declarations.domain.MouvementContrat;
 import fr.bnia.declarations.domain.partage.Cote;
 import fr.bnia.declarations.domain.partage.EtatDsm;
 import fr.bnia.operateurs.domain.partage.Droits;
@@ -22,16 +23,20 @@ import java.util.function.Supplier;
  * décide des libellés d'état, son échéance et son retard (RG-DEC-39, 40), et le brouillon de sa facture
  * demandée (RG-DEC-43).
  *
+ * @param contrats           les mouvements de contrat inscrits dans la DSM (spec 06 RG-CA-22, 23)
+ * @param envoiPossibleLe    quand l'acteur peut envoyer la DSM mais que sa période n'est pas finie : le lendemain de sa
+ *                           fin (spec 06 RG-CA-24) ; « Envoyer » n'est pas offert d'ici là
  * @param brouillonFacture   la pièce de {@code facturation} dont la facture est demandée, pas encore émise
  * @param manquePourFacturer quand l'action « Facturer » est offerte, ce qui manque à l'opérateur pour le facturer
  *                           (RG-OPE-02) : non vide, l'action est refusée (RG-DEC-43) ; vide sinon
  */
 public record VueDsm(DeclarationStocksMouvements dsm, OperateurVue operateur, List<Anomalie> anomalies,
-        List<Manque> manques, CotisationDsm cotisation, Set<ActionDsm> actions, Cote cote, LocalDate echeance,
-        boolean enRetard, Optional<Long> brouillonFacture, List<String> manquePourFacturer) {
+        List<Manque> manques, List<MouvementContrat> contrats, CotisationDsm cotisation, Set<ActionDsm> actions, Optional<LocalDate> envoiPossibleLe,
+        Cote cote, LocalDate echeance, boolean enRetard, Optional<Long> brouillonFacture,
+        List<String> manquePourFacturer) {
 
     static VueDsm de(DeclarationStocksMouvements dsm, OperateurVue operateur, Droits droits, List<Manque> manques,
-            CotisationDsm cotisation, Optional<Long> brouillonFacture, Supplier<List<String>> manquePourFacturer,
+            List<MouvementContrat> contrats, CotisationDsm cotisation, Optional<Long> brouillonFacture, Supplier<List<String>> manquePourFacturer,
             LocalDate aujourdhui) {
         Set<ActionDsm> actions = EnumSet.noneOf(ActionDsm.class);
         actions.addAll(ActionDsm.permises(dsm, droits));
@@ -41,7 +46,12 @@ public record VueDsm(DeclarationStocksMouvements dsm, OperateurVue operateur, Li
                 && droits.bnia().map(r -> r.gere(Module.FACTURATION)).orElse(false)) {
             actions.add(ActionDsm.FACTURER);
         }
-        return new VueDsm(dsm, operateur, dsm.anomalies(), manques, cotisation, actions,
+        Optional<LocalDate> envoiPossibleLe = Optional.empty();
+        if (actions.contains(ActionDsm.ENVOYER) && !dsm.envoyablePar(aujourdhui)) {
+            actions.remove(ActionDsm.ENVOYER);
+            envoiPossibleLe = Optional.of(dsm.envoiPossibleLe());
+        }
+        return new VueDsm(dsm, operateur, dsm.anomalies(), manques, List.copyOf(contrats), cotisation, actions, envoiPossibleLe,
                 Autorisations.cote(droits), dsm.periode().echeance(dsm.type()),
                 CalendrierDeclaratif.enRetard(operateur.statutDeclarationStock(), dsm.type(), dsm.periode(),
                         Optional.of(dsm.etat()), aujourdhui), brouillonFacture,

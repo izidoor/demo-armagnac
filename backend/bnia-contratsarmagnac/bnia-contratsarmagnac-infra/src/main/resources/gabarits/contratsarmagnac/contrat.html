@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--
+  PDF d'un contrat d'achat d'Armagnac (spec 06, RG-CA-20, ADR-020) : le formulaire CA-05 allégé, sans visa du BNIA,
+  échéancier, rattachement à un pluriannuel, préavis, courtier ni mentions finales (vision du 2026-10-23).
+  XHTML bien formé (OpenHTMLtoPDF) : éléments vides fermés, aucune entité nommée. Les textes arrivent mis en forme
+  par PdfContrat.
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Contrat d'achat d'Armagnac</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm 12mm 14mm 12mm;
+      @bottom-right { content: "Page " counter(page) " / " counter(pages); font: 7pt Helvetica, sans-serif; color: #666; }
+    }
+    body { font-family: Helvetica, sans-serif; font-size: 8.5pt; color: #111; }
+    h1 { font-size: 13pt; margin: 0; text-align: center; }
+    p.loi { text-align: center; font-size: 7.5pt; margin: 2pt 0 4pt 0; }
+    table.tete { width: 100%; border-collapse: collapse; margin-bottom: 6pt; }
+    table.tete td { vertical-align: top; }
+    .numero { font-size: 11pt; font-weight: bold; text-align: right; }
+    .projet { border: 1.5pt solid #b45309; color: #b45309; font-weight: bold; text-align: center;
+      padding: 3pt; margin: 4pt 0 6pt 0; font-size: 10pt; }
+    h2 { font-size: 9.5pt; margin: 8pt 0 3pt 0; border-bottom: 0.5pt solid #999; padding-bottom: 1pt; }
+    table.parties { width: 100%; border-collapse: collapse; }
+    table.parties td { width: 50%; vertical-align: top; padding: 2pt 6pt 2pt 0; }
+    .role { font-weight: bold; text-transform: uppercase; font-size: 7.5pt; color: #444; }
+    .nom { font-weight: bold; font-size: 9.5pt; }
+    table.lignes { width: 100%; border-collapse: collapse; margin-top: 2pt; }
+    table.lignes th, table.lignes td { border: 0.5pt solid #999; padding: 2pt 3pt; }
+    table.lignes th { background: #e8e8e8; font-size: 7.5pt; vertical-align: bottom; }
+    table.lignes td.n { text-align: right; white-space: nowrap; }
+    table.lignes tr.total td { font-weight: bold; background: #f3f3f3; }
+    .case { display: inline-block; width: 7pt; height: 7pt; border: 0.6pt solid #111; text-align: center;
+      line-height: 7pt; font-size: 6.5pt; font-weight: bold; vertical-align: middle; margin-right: 2pt; }
+    p { margin: 2pt 0; }
+    .libre { white-space: pre-wrap; min-height: 10pt; }
+    table.signatures { width: 100%; border-collapse: collapse; margin-top: 10pt; }
+    table.signatures td { width: 50%; vertical-align: top; border: 0.5pt solid #999; padding: 4pt; height: 22mm; }
+  </style>
+</head>
+<body>
+
+<h1>CONTRAT D'ACHAT D'ARMAGNAC</h1>
+<p class="loi">conforme aux dispositions de l'article L. 631-24 du code rural et de la pêche maritime et aux dispositions
+  de l'accord interprofessionnel du BNIA du 09 novembre 2012</p>
+<table class="tete">
+  <tr>
+    <td>Campagne <strong th:text="${campagne}">2026 - 2027</strong></td>
+    <td class="numero">N° <span th:text="${numero}">CA-2026-0001</span><span th:if="${etat}" th:text="' – ' + ${etat}"></span></td>
+  </tr>
+</table>
+<div class="projet" th:if="${projet}">Projet, non conclu</div>
+
+<h2>1) Parties</h2>
+<table class="parties">
+  <tr>
+    <td th:each="p, s : ${parties}">
+      <div class="role" th:text="${s.first} ? 'Acheteur' : 'Vendeur'">Acheteur</div>
+      <div class="nom" th:text="${p.nom}">Raison sociale</div>
+      <div th:each="ligne : ${p.adresse}" th:text="${ligne}">Adresse</div>
+      <div>Téléphone : <span th:text="${p.telephone}"></span></div>
+      <div>N° BNIA : <span th:text="${p.numero}"></span></div>
+      <div>N° SIRET : <span th:text="${p.siret}"></span></div>
+      <div th:if="${!s.first}">N° CVI : <span th:text="${p.cvi}"></span></div>
+    </td>
+  </tr>
+</table>
+
+<h2>2) Marché conclu après agréage par l'acheteur</h2>
+<table class="lignes">
+  <thead>
+    <tr>
+      <th>Appellation</th>
+      <th>Compte d'âge</th>
+      <th>Millésime ou dénomination</th>
+      <th>Volume (hl)</th>
+      <th>Degré (% vol.)</th>
+      <th>Volume AP (hl AP)</th>
+      <th>Prix départ HT (€ / hl AP)</th>
+      <th>Prix départ HT (€ / l vol.)</th>
+      <th>Montant HT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr th:each="l : ${lignes}">
+      <td th:text="${l.appellation}">Bas Armagnac</td>
+      <td class="n" th:text="${l.compte}">16</td>
+      <td th:text="${l.produit}">2009</td>
+      <td class="n" th:text="${l.volume}">30,00</td>
+      <td class="n" th:text="${l.degre}">47,00</td>
+      <td class="n" th:text="${l.volumeAp}">14,10</td>
+      <td class="n" th:text="${l.prix}">1 750,00</td>
+      <td class="n" th:text="${l.prixLitre}">8,23</td>
+      <td class="n" th:text="${l.montant}">24 675,00 €</td>
+    </tr>
+    <tr class="total">
+      <td colspan="5">Total</td>
+      <td class="n" th:text="${totalAp}">14,10</td>
+      <td colspan="2"></td>
+      <td class="n" th:text="${totalHt}">24 675,00 €</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Caractéristiques complémentaires</h2>
+<p class="libre" th:text="${caracteristiques}"></p>
+<p>Les produits ne sont pas retournables après leur prise en charge, sauf non-conformité légale ou réglementaire.</p>
+<p>Ils sont de qualité saine, loyale et marchande, et conformes à l'appellation d'origine contrôlée.</p>
+<p>
+  <span th:each="a : ${appellations}"><span class="case" th:text="${a.cochee} ? 'X' : ''"></span> <span th:text="${a.libelle}">Armagnac</span>&#160;&#160;&#160; </span>
+</p>
+
+<h2>3) Conditions et calendrier de retiraison</h2>
+<p class="libre" th:text="${conditions}"></p>
+<p th:if="${avant}">À retirer avant le <span th:text="${avant}"></span>.</p>
+
+<h2>4) Conditions de paiement</h2>
+<p><span class="case" th:text="${acompte} ? 'X' : ''"></span> Acompte de <span th:text="${acompte} ?: '…'"></span></p>
+<p><span class="case" th:text="${comptant} ? 'X' : ''"></span> Comptant</p>
+<p><span class="case" th:text="${comptant} ? '' : 'X'"></span> 30 jours à compter de la fin du mois de livraison / retiraison</p>
+
+<h2>5) Modalité de révision</h2>
+<p>S'agissant d'un contrat ponctuel, celui-ci est ferme.</p>
+
+<p style="margin-top: 8pt;">Établi le <span th:text="${etabli} ?: '…'"></span></p>
+<table class="signatures">
+  <tr>
+    <td><div class="role">Le Vendeur</div><p th:text="${signatureVendeur}"></p></td>
+    <td><div class="role">L'Acheteur</div><p th:text="${signatureAcheteur}"></p></td>
+  </tr>
+</table>
+
+</body>
+</html>

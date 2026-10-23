@@ -30,6 +30,9 @@
     "description" : "Référentiel : circuits de distribution (C.10.9.2)",
     "name" : "circuits-distribution"
   }, {
+    "description" : "Contrats d'achat Armagnac (spec 06)",
+    "name" : "contratsarmagnac"
+  }, {
     "description" : "Référentiel : pays (C.10.5)",
     "name" : "pays"
   }, {
@@ -478,6 +481,137 @@
         },
         "summary" : "Confirmer un nouvel e-mail par le lien reçu ; l'identifiant de connexion suit (RG-OPE-48, RG-AUT-10)",
         "tags" : [ "mon-compte" ]
+      }
+    },
+    "/api/contrats" : {
+      "get" : {
+        "operationId" : "listerContrats",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "operateur",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "query",
+          "name" : "numero",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ContratListe"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Tous les contrats, filtrés par opérateur partie et par numéro (RG-CA-01, 25)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/contrats/mercuriales" : {
+      "get" : {
+        "operationId" : "consulterMercuriales",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "du",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "in" : "query",
+          "name" : "au",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Mercuriales"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les mercuriales des contrats conclus ou exécutés de la période, par défaut les 12 derniers mois (RG-CA-01, 26)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/contrats/{id}" : {
+      "get" : {
+        "operationId" : "consulterContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un contrat, en lecture (RG-CA-01, 09, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/contrats/{id}/pdf" : {
+      "get" : {
+        "operationId" : "editerContratPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF du contrat, au formulaire CA-05 allégé (RG-CA-01, 20)",
+        "tags" : [ "contratsarmagnac" ]
       }
     },
     "/api/declarations/dsm" : {
@@ -2931,6 +3065,581 @@
         "tags" : [ "contacts" ]
       }
     },
+    "/api/operateurs/{operateur}/contrats" : {
+      "get" : {
+        "operationId" : "listerMesContrats",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ContratListe"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Les contrats de l'opérateur actif, chacun rangé dans son onglet (RG-CA-01, 25)",
+        "tags" : [ "contratsarmagnac" ]
+      },
+      "post" : {
+        "operationId" : "ouvrirContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieContrat"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "L'opérateur actif ouvre un projet ; le vendeur, dans la limite de son stock estimé (RG-CA-01 à 06, 12, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/stock" : {
+      "get" : {
+        "operationId" : "consulterStockPourContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneStockContrat"
+                  }
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le stock estimé sous bois de l'opérateur actif, où le vendeur choisit ses lignes (RG-CA-11, 12)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}" : {
+      "get" : {
+        "operationId" : "consulterMonContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Un contrat de l'opérateur actif, avec l'écart à approuver et le journal (RG-CA-01, 09, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      },
+      "put" : {
+        "operationId" : "modifierContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationContrat"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une nouvelle version du projet, approuvée par son auteur seul (RG-CA-07, 12, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/annulation" : {
+      "post" : {
+        "operationId" : "annulerContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une partie annule le contrat conclu ; les retiraisons validées restent (RG-CA-17, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/approbation" : {
+      "post" : {
+        "operationId" : "approuverContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionContrat"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La partie attendue approuve la version courante : le contrat est conclu (RG-CA-08, 12, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/cloture" : {
+      "post" : {
+        "operationId" : "cloturerContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Une partie déclare que le contrat conclu n'aura plus de retiraison : il est exécuté (RG-CA-17, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/pdf" : {
+      "get" : {
+        "operationId" : "editerMonContratPdf",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le PDF du contrat, au formulaire CA-05 allégé ; « Projet, non conclu » avant la conclusion ; inscrit au journal (RG-CA-19, 20)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/refus" : {
+      "post" : {
+        "operationId" : "refuserContrat",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionContrat"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La partie attendue refuse le projet, définitivement (RG-CA-10, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/retiraisons" : {
+      "post" : {
+        "operationId" : "declarerRetiraison",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieRetiraison"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "Created"
+          }
+        },
+        "summary" : "L'acheteur déclare une retiraison, que le stock estimé du vendeur doit couvrir (RG-CA-13, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/retiraisons/{numero}" : {
+      "delete" : {
+        "operationId" : "retirerRetiraison",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "numero",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "L'acheteur retire une retiraison non validée (RG-CA-16, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      },
+      "put" : {
+        "operationId" : "modifierRetiraison",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "numero",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ModificationRetiraison"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La partie qui doit valider la retiraison la modifie ; elle attend alors l'autre (RG-CA-14, 18, 19)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
+    "/api/operateurs/{operateur}/contrats/{id}/retiraisons/{numero}/validation" : {
+      "post" : {
+        "operationId" : "validerRetiraison",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "in" : "path",
+          "name" : "numero",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionContrat"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Contrat"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La partie attendue valide la retiraison : stocks estimés et DSM la reçoivent (RG-CA-15, 18, 19, 21, 22)",
+        "tags" : [ "contratsarmagnac" ]
+      }
+    },
     "/api/operateurs/{operateur}/declarations/denominations" : {
       "get" : {
         "operationId" : "listerDenominations",
@@ -5287,6 +5996,34 @@
           }
         },
         "summary" : "Le stock déclaré de l'opérateur : le stock de fin de sa dernière DSM validée ; 204 sans DSM validée (RG-DEC-01, 42)",
+        "tags" : [ "declarations" ]
+      }
+    },
+    "/api/operateurs/{operateur}/stock-estime" : {
+      "get" : {
+        "operationId" : "consulterStockEstime",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "operateur",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StockEstime"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Le stock estimé de l'opérateur : base vieillie à aujourd'hui et retiraisons validées (RG-DEC-01, spec 06 RG-CA-11)",
         "tags" : [ "declarations" ]
       }
     },
@@ -8651,6 +9388,23 @@
         },
         "required" : [ "message", "niveau", "onglet", "type" ]
       },
+      "ApprobationContrat" : {
+        "type" : "object",
+        "properties" : {
+          "le" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "partie" : {
+            "type" : "string",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          }
+        },
+        "required" : [ "le", "nom", "partie" ]
+      },
       "ArticleCatalogue" : {
         "type" : "object",
         "description" : "Un article d'un catalogue, à la date du jour (RG-FAC-29)",
@@ -8750,6 +9504,23 @@
         },
         "required" : [ "code", "designation", "nature", "prixUnitaire", "source", "tvaCode", "tvaLibelle" ]
       },
+      "AuteurContrat" : {
+        "type" : "object",
+        "properties" : {
+          "le" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "partie" : {
+            "type" : "string",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          }
+        },
+        "required" : [ "le", "nom", "partie" ]
+      },
       "Blocage" : {
         "type" : "object",
         "properties" : {
@@ -8759,6 +9530,23 @@
           }
         },
         "required" : [ "motif" ]
+      },
+      "ChangementContrat" : {
+        "type" : "object",
+        "description" : "Un champ changé ; valeurs brutes (nombres en notation simple, énumérations par leur nom, dates ISO), absentes si vides",
+        "properties" : {
+          "apres" : {
+            "type" : "string"
+          },
+          "avant" : {
+            "type" : "string"
+          },
+          "champ" : {
+            "type" : "string",
+            "example" : "prix"
+          }
+        },
+        "required" : [ "champ" ]
       },
       "ChangementEmail" : {
         "type" : "object",
@@ -9097,6 +9885,202 @@
         },
         "required" : [ "actif", "id", "libelle", "volume" ]
       },
+      "Contrat" : {
+        "type" : "object",
+        "description" : "Un contrat d'achat Armagnac : sa version courante, ses approbations, l'écart et le journal (spec 06 §6)",
+        "properties" : {
+          "acheteur" : {
+            "$ref" : "#/components/schemas/PartieContrat"
+          },
+          "approbations" : {
+            "type" : "array",
+            "description" : "Approbations de la version courante",
+            "items" : {
+              "$ref" : "#/components/schemas/ApprobationContrat"
+            }
+          },
+          "attend" : {
+            "type" : "string",
+            "description" : "En projet : la partie dont l'approbation manque (RG-CA-08)",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          },
+          "campagne" : {
+            "type" : "string",
+            "example" : "2026-2027"
+          },
+          "dateContrat" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date de la conclusion"
+          },
+          "ecart" : {
+            "$ref" : "#/components/schemas/EcartContrat",
+            "description" : "En projet : l'écart montré à la partie qui doit approuver (RG-CA-09)"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "PROJET", "CONCLU", "EXECUTE", "ANNULE", "REFUSE" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "journal" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EntreeJournalContrat"
+            }
+          },
+          "maPartie" : {
+            "type" : "string",
+            "description" : "Au portail : la partie de l'opérateur actif",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          },
+          "numero" : {
+            "type" : "string",
+            "example" : "CA-2026-0001"
+          },
+          "ouvertPar" : {
+            "type" : "string",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          },
+          "peutAgir" : {
+            "type" : "boolean",
+            "description" : "Au portail : l'acteur gère le module dans l'opérateur actif"
+          },
+          "restes" : {
+            "type" : "array",
+            "description" : "Par ligne du contrat : le volume retiré, en cours de validation, et le reste à retirer (RG-CA-13)",
+            "items" : {
+              "$ref" : "#/components/schemas/ResteContrat"
+            }
+          },
+          "retiraisons" : {
+            "type" : "array",
+            "description" : "Dans l'ordre de leur déclaration (spec 06 §3.4)",
+            "items" : {
+              "$ref" : "#/components/schemas/RetiraisonContrat"
+            }
+          },
+          "stockInsuffisant" : {
+            "type" : "string",
+            "description" : "Au vendeur, en projet : le grain que son stock estimé ne couvre plus (RG-CA-12)"
+          },
+          "vendeur" : {
+            "$ref" : "#/components/schemas/PartieContrat"
+          },
+          "version" : {
+            "$ref" : "#/components/schemas/VersionContrat"
+          }
+        },
+        "required" : [ "acheteur", "approbations", "campagne", "etat", "id", "journal", "numero", "ouvertPar", "peutAgir", "restes", "retiraisons", "vendeur", "version" ]
+      },
+      "ContratInscritDsm" : {
+        "type" : "object",
+        "description" : "Une retiraison de contrat inscrite sur une ligne de la DSM (spec 06 RG-CA-22, 23)",
+        "properties" : {
+          "colonne" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 3
+          },
+          "contrat" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du contrat"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Contrat CA-2026-0001, retiraison 1"
+          },
+          "numero" : {
+            "type" : "string",
+            "example" : "CA-2026-0001"
+          },
+          "retiraison" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "colonne", "contrat", "libelle", "numero", "retiraison", "volume" ]
+      },
+      "ContratListe" : {
+        "type" : "object",
+        "description" : "Un contrat dans une liste, sur sa version courante (RG-CA-25)",
+        "properties" : {
+          "aRetirerAvantLe" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "acheteur" : {
+            "$ref" : "#/components/schemas/PartieContrat"
+          },
+          "attend" : {
+            "type" : "string",
+            "description" : "En projet : la partie dont l'approbation manque",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          },
+          "dateContrat" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date de la conclusion"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "PROJET", "CONCLU", "EXECUTE", "ANNULE", "REFUSE" ]
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modifieLe" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Date de la version courante"
+          },
+          "montantHt" : {
+            "type" : "number",
+            "description" : "€ HT"
+          },
+          "nombreLignes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "numero" : {
+            "type" : "string",
+            "example" : "CA-2026-0001"
+          },
+          "onglet" : {
+            "type" : "string",
+            "description" : "Au portail : l'onglet où il se range pour l'opérateur actif",
+            "enum" : [ "A_APPROUVER", "EN_NEGOCIATION", "CONCLUS", "EXECUTES", "ANNULES_REFUSES" ]
+          },
+          "ouvertPar" : {
+            "type" : "string",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          },
+          "produit" : {
+            "type" : "string",
+            "description" : "La première ligne : « 2015 » ou « Hors d'âge 20+ »"
+          },
+          "vendeur" : {
+            "$ref" : "#/components/schemas/PartieContrat"
+          },
+          "versionCourante" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "volumeAp" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "acheteur", "etat", "id", "modifieLe", "montantHt", "nombreLignes", "numero", "ouvertPar", "produit", "vendeur", "versionCourante", "volumeAp" ]
+      },
       "Conversation" : {
         "type" : "object",
         "description" : "Une conversation telle que l'utilisateur la voit (spec 15 §6)",
@@ -9245,6 +10229,18 @@
         },
         "required" : [ "factures", "finPeriode", "lignes", "statut" ]
       },
+      "DecisionContrat" : {
+        "type" : "object",
+        "description" : "Approbation ou refus de la version vue (RG-CA-08, 10)",
+        "properties" : {
+          "versionVue" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Numéro de la version vue, refusée si elle a changé"
+          }
+        },
+        "required" : [ "versionVue" ]
+      },
       "DocumentDsm" : {
         "type" : "object",
         "description" : "Fichier déposé (ADR-018)",
@@ -9316,6 +10312,11 @@
             "type" : "string",
             "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
           },
+          "contrats" : {
+            "type" : "string",
+            "description" : "Contrats d'achat Armagnac, lecture seule pour le BNIA (spec 06 §3.6)",
+            "enum" : [ "AUCUN", "LECTURE", "GESTION" ]
+          },
           "declarations" : {
             "type" : "string",
             "description" : "DSM, pièces, point de départ, stocks déclarés (spec 05 §3.7)",
@@ -9354,7 +10355,7 @@
             "enum" : [ "OBSERVATEUR", "AGENT", "ADMIN" ]
           }
         },
-        "required" : [ "acces", "adminBnia", "contacts", "declarations", "facturation", "messagerie", "operateur", "parametrage", "personnelBnia" ]
+        "required" : [ "acces", "adminBnia", "contacts", "contrats", "declarations", "facturation", "messagerie", "operateur", "parametrage", "personnelBnia" ]
       },
       "Dsm" : {
         "type" : "object",
@@ -9405,6 +10406,11 @@
           "enRetard" : {
             "type" : "boolean",
             "description" : "Échéance passée, DSM en brouillon ou en compléments demandés, opérateur au statut OUI (RG-DEC-40)"
+          },
+          "envoiPossibleLe" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "L'opérateur pourrait l'envoyer, mais sa période n'est pas finie : premier jour d'envoi (RG-CA-24)"
           },
           "envoyeeLe" : {
             "type" : "string",
@@ -9648,6 +10654,63 @@
         },
         "required" : [ "echeance", "etat", "facturee", "id", "libelleEtat", "periode", "type" ]
       },
+      "EcartContrat" : {
+        "type" : "object",
+        "description" : "Ce qui a changé depuis la dernière version approuvée par la partie qui doit approuver (RG-CA-09)",
+        "properties" : {
+          "auteurs" : {
+            "type" : "array",
+            "description" : "Auteurs des versions intermédiaires",
+            "items" : {
+              "$ref" : "#/components/schemas/AuteurContrat"
+            }
+          },
+          "champs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChangementContrat"
+            }
+          },
+          "depuis" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Dernière version approuvée par cette partie"
+          },
+          "jusqua" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Version courante"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EcartLigneContrat"
+            }
+          }
+        },
+        "required" : [ "auteurs", "champs", "depuis", "jusqua", "lignes" ]
+      },
+      "EcartLigneContrat" : {
+        "type" : "object",
+        "properties" : {
+          "champs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ChangementContrat"
+            }
+          },
+          "nature" : {
+            "type" : "string",
+            "enum" : [ "AJOUTEE", "RETIREE", "MODIFIEE" ]
+          },
+          "rang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Rang de la ligne, à partir de 0"
+          }
+        },
+        "required" : [ "champs", "nature", "rang" ]
+      },
       "EmissionBrouillons" : {
         "type" : "object",
         "description" : "Les brouillons à émettre, dans l'ordre de la sélection (RG-FAC-19)",
@@ -9662,6 +10725,36 @@
         },
         "required" : [ "ids" ]
       },
+      "EntreeJournalContrat" : {
+        "type" : "object",
+        "properties" : {
+          "action" : {
+            "type" : "string",
+            "enum" : [ "OUVERTURE", "MODIFICATION", "APPROBATION", "REFUS", "CONCLUSION", "RETIRAISON_DECLAREE", "RETIRAISON_MODIFIEE", "RETIRAISON_VALIDEE", "RETIRAISON_RETIREE", "EXECUTION", "ANNULATION", "CLOTURE", "EDITION_PDF" ]
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "detail" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Numéro de version ou de retiraison"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Modification"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "partie" : {
+            "type" : "string",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          }
+        },
+        "required" : [ "action", "date", "libelle", "nom" ]
+      },
       "EntreeJournalDeclarations" : {
         "type" : "object",
         "description" : "Action sur une DSM ou le point de départ, sans valeurs avant et après (RG-DEC-23)",
@@ -9672,7 +10765,7 @@
           },
           "action" : {
             "type" : "string",
-            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE", "FACTURATION_DEMANDEE", "FACTURE_EMISE", "FACTURATION_ABANDONNEE" ]
+            "enum" : [ "DSM_INITIEE", "DSM_ENREGISTREE", "DSM_IMPORTEE", "DSM_ENVOYEE", "DSM_PRISE_EN_INSTRUCTION", "COMPLEMENTS_DEMANDES", "DSM_VALIDEE", "DSM_EDITEE", "BROUILLON_SUPPRIME", "JUSTIFICATIF_DEPOSE", "JUSTIFICATIF_SUPPRIME", "DRM_DEPOSEE", "DRM_SUPPRIMEE", "POINT_DE_DEPART_FIXE", "POINT_DE_DEPART_MODIFIE", "POINT_DE_DEPART_IMPORTE", "FACTURATION_DEMANDEE", "FACTURE_EMISE", "FACTURATION_ABANDONNEE", "CONTRAT_INSCRIT" ]
           },
           "date" : {
             "type" : "string",
@@ -10282,6 +11375,51 @@
         },
         "required" : [ "compteExistant", "email", "expireLe", "nom", "operateur", "role" ]
       },
+      "JustificatifContratDsm" : {
+        "type" : "object",
+        "description" : "Une retiraison de contrat inscrite, justificatif de son mouvement (spec 06 RG-CA-23)",
+        "properties" : {
+          "colonne" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 3
+          },
+          "contrat" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Identifiant du contrat"
+          },
+          "dateEnlevement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Contrat CA-2026-0001, retiraison 1"
+          },
+          "ligne" : {
+            "type" : "string",
+            "example" : "« millésime 2015, clé MB, compte d'âge 10 »"
+          },
+          "numero" : {
+            "type" : "string",
+            "example" : "CA-2026-0001"
+          },
+          "retiraison" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "typeMouvement" : {
+            "type" : "string",
+            "enum" : [ "ACHAT", "REINTEGRATION", "AUTRES_FABRICATIONS", "VENTE_NEGOCE", "VENTE_EXPORT" ]
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "colonne", "contrat", "dateEnlevement", "libelle", "ligne", "numero", "retiraison", "typeMouvement", "volume" ]
+      },
       "JustificatifDsm" : {
         "type" : "object",
         "description" : "Justificatif d'une DSM (spec 05 §3.2.2)",
@@ -10368,6 +11506,52 @@
         },
         "required" : [ "date", "evenement", "identifiantSaisi", "libelle" ]
       },
+      "LigneContrat" : {
+        "type" : "object",
+        "description" : "Une ligne du contrat et ses calculs (spec 06 §3.3, RG-CA-04)",
+        "properties" : {
+          "appellation" : {
+            "type" : "string",
+            "enum" : [ "ARMAGNAC", "BAS_ARMAGNAC", "ARMAGNAC_TENAREZE", "HAUT_ARMAGNAC", "BLANCHE_ARMAGNAC" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "16"
+          },
+          "degre" : {
+            "type" : "number",
+            "description" : "% vol."
+          },
+          "denomination" : {
+            "type" : "string"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "montantHt" : {
+            "type" : "number",
+            "description" : "€ HT"
+          },
+          "prix" : {
+            "type" : "number",
+            "description" : "€ HT / hl AP"
+          },
+          "prixLitreVolume" : {
+            "type" : "number",
+            "description" : "€ HT / litre de volume"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Hectolitres"
+          },
+          "volumeAp" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "appellation", "compte", "degre", "montantHt", "prix", "prixLitreVolume", "volume", "volumeAp" ]
+      },
       "LigneCotisation" : {
         "type" : "object",
         "description" : "Une ligne du détail de la cotisation (RG-DEC-33)",
@@ -10418,6 +11602,13 @@
             "description" : "MB : calculé (RG-DEC-12)",
             "example" : "20+"
           },
+          "contrats" : {
+            "type" : "array",
+            "description" : "Les retiraisons de contrat inscrites sur la ligne (RG-CA-22)",
+            "items" : {
+              "$ref" : "#/components/schemas/ContratInscritDsm"
+            }
+          },
           "denomination" : {
             "type" : "string",
             "description" : "Lignes NB et NV"
@@ -10451,7 +11642,7 @@
             }
           }
         },
-        "required" : [ "cle", "compte", "origine", "totalEntrees", "totalSorties", "volumes" ]
+        "required" : [ "cle", "compte", "contrats", "origine", "totalEntrees", "totalSorties", "volumes" ]
       },
       "LigneJournal" : {
         "type" : "object",
@@ -10564,6 +11755,25 @@
         },
         "required" : [ "lignes", "numero", "recue", "sorte", "texte" ]
       },
+      "LigneRetiraison" : {
+        "type" : "object",
+        "properties" : {
+          "rang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Rang de la ligne du contrat"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Hectolitres"
+          },
+          "volumeAp" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur, au degré de la ligne"
+          }
+        },
+        "required" : [ "rang", "volume", "volumeAp" ]
+      },
       "LigneSaisie" : {
         "type" : "object",
         "description" : "Une ligne saisie ; numéro vide pour une ligne nouvelle (RG-FAC-17)",
@@ -10638,6 +11848,34 @@
         },
         "required" : [ "cle", "compte", "stock" ]
       },
+      "LigneStockContrat" : {
+        "type" : "object",
+        "description" : "Une ligne du stock estimé sous bois du vendeur, où il choisit les lignes de son contrat (RG-CA-11, 12)",
+        "properties" : {
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB"
+          },
+          "estime" : {
+            "type" : "number",
+            "description" : "Stock estimé, litres d'alcool pur"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB"
+          }
+        },
+        "required" : [ "cle", "compte", "estime" ]
+      },
       "LigneStockDeclare" : {
         "type" : "object",
         "description" : "Une ligne du stock déclaré d'un opérateur : le stock de fin d'une ligne de sa dernière DSM validée (RG-DEC-42)",
@@ -10690,6 +11928,45 @@
           }
         },
         "required" : [ "au", "cle", "codeOperateur", "compte", "dsm", "operateur", "raisonSociale", "stock", "type" ]
+      },
+      "LigneStockEstime" : {
+        "type" : "object",
+        "properties" : {
+          "achats" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          },
+          "base" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          },
+          "cle" : {
+            "type" : "string",
+            "enum" : [ "MB", "MV", "NB", "NV" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "example" : "20+"
+          },
+          "denomination" : {
+            "type" : "string",
+            "description" : "Lignes NB et NV"
+          },
+          "estime" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Lignes MB et MV"
+          },
+          "ventes" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "achats", "base", "cle", "compte", "estime", "ventes" ]
       },
       "LigneStockInitial" : {
         "type" : "object",
@@ -10966,6 +12243,70 @@
         },
         "required" : [ "bloqueParBnia", "contactPrincipal", "depuis", "dernierAdmin", "destinataireFactures", "email", "fiche", "id", "nom", "nomComplet", "operateur", "prenom", "role", "statut", "utilisateur" ]
       },
+      "MercurialeProduit" : {
+        "type" : "object",
+        "properties" : {
+          "compte" : {
+            "type" : "string",
+            "description" : "Assemblage seulement",
+            "example" : "20+"
+          },
+          "contrats" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "denomination" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string",
+            "example" : "Millésime 2015"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "prixMaximum" : {
+            "type" : "number",
+            "description" : "€ HT / hl AP"
+          },
+          "prixMinimum" : {
+            "type" : "number",
+            "description" : "€ HT / hl AP"
+          },
+          "prixMoyen" : {
+            "type" : "number",
+            "description" : "€ HT / hl AP, pondéré par le volume AP"
+          },
+          "volumeAp" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "contrats", "libelle", "prixMaximum", "prixMinimum", "prixMoyen", "volumeAp" ]
+      },
+      "Mercuriales" : {
+        "type" : "object",
+        "description" : "Les prix des contrats conclus ou exécutés d'une période, par produit (spec 06 RG-CA-26)",
+        "properties" : {
+          "au" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "du" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "produits" : {
+            "type" : "array",
+            "description" : "Les millésimes du plus récent au plus ancien, puis les assemblages",
+            "items" : {
+              "$ref" : "#/components/schemas/MercurialeProduit"
+            }
+          }
+        },
+        "required" : [ "au", "du", "produits" ]
+      },
       "Message" : {
         "type" : "object",
         "description" : "Message d'une conversation (spec 15 §3.4)",
@@ -11048,6 +12389,36 @@
           }
         },
         "required" : [ "condition", "lignes", "version" ]
+      },
+      "ModificationContrat" : {
+        "type" : "object",
+        "description" : "Une nouvelle version du projet (RG-CA-07)",
+        "properties" : {
+          "contenu" : {
+            "$ref" : "#/components/schemas/SaisieContenuContrat"
+          },
+          "versionVue" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Numéro de la version vue, refusée si elle a changé"
+          }
+        },
+        "required" : [ "contenu", "versionVue" ]
+      },
+      "ModificationRetiraison" : {
+        "type" : "object",
+        "description" : "Une nouvelle version de la retiraison, par la partie qui doit la valider (RG-CA-14)",
+        "properties" : {
+          "contenu" : {
+            "$ref" : "#/components/schemas/SaisieRetiraison"
+          },
+          "versionVue" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Numéro de la version vue, refusée si elle a changé"
+          }
+        },
+        "required" : [ "contenu", "versionVue" ]
       },
       "Moi" : {
         "type" : "object",
@@ -11421,6 +12792,29 @@
           }
         },
         "required" : [ "modifiable" ]
+      },
+      "PartieContrat" : {
+        "type" : "object",
+        "description" : "Un opérateur partie au contrat : son identité",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nomCommercial" : {
+            "type" : "string"
+          },
+          "raisonSociale" : {
+            "type" : "string"
+          },
+          "ville" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "id", "raisonSociale" ]
       },
       "Pays" : {
         "type" : "object",
@@ -11820,6 +13214,13 @@
         "type" : "object",
         "description" : "Pièces d'une DSM : justificatifs, mois de DRM, manques (spec 05 §6.3, onglet « Pièces »)",
         "properties" : {
+          "contrats" : {
+            "type" : "array",
+            "description" : "Les retiraisons de contrat inscrites, qui justifient leur type de mouvement sans PDF (RG-CA-23)",
+            "items" : {
+              "$ref" : "#/components/schemas/JustificatifContratDsm"
+            }
+          },
           "justificatifs" : {
             "type" : "array",
             "description" : "Dans l'ordre de dépôt",
@@ -11848,7 +13249,7 @@
             }
           }
         },
-        "required" : [ "justificatifs", "manques", "mois", "typesMouvement" ]
+        "required" : [ "contrats", "justificatifs", "manques", "mois", "typesMouvement" ]
       },
       "PointDeDepart" : {
         "type" : "object",
@@ -12107,6 +13508,27 @@
         },
         "required" : [ "actif", "code", "enRegionDelimitee", "id", "libelle" ]
       },
+      "ResteContrat" : {
+        "type" : "object",
+        "description" : "Une ligne du contrat et ses retiraisons (RG-CA-13), en hl",
+        "properties" : {
+          "enCours" : {
+            "type" : "number"
+          },
+          "rang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Rang de la ligne, à partir de 0"
+          },
+          "reste" : {
+            "type" : "number"
+          },
+          "retire" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "enCours", "rang", "reste", "retire" ]
+      },
       "ResultatRechercheOperateur" : {
         "type" : "object",
         "description" : "Autre opérateur, vu du portail : rien d'autre que ces champs (RG-OPE-37)",
@@ -12129,6 +13551,65 @@
           }
         },
         "required" : [ "code", "id", "raisonSociale" ]
+      },
+      "RetiraisonContrat" : {
+        "type" : "object",
+        "description" : "Une retiraison (spec 06 §3.4) : sa version courante, ses approbations, son écart",
+        "properties" : {
+          "approbations" : {
+            "type" : "array",
+            "description" : "Approbations de la version courante",
+            "items" : {
+              "$ref" : "#/components/schemas/ApprobationContrat"
+            }
+          },
+          "attend" : {
+            "type" : "string",
+            "description" : "La partie qui doit la valider ; vide une fois validée",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          },
+          "auteur" : {
+            "$ref" : "#/components/schemas/AuteurContrat"
+          },
+          "dateEnlevement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "derniere" : {
+            "type" : "boolean"
+          },
+          "ecart" : {
+            "$ref" : "#/components/schemas/EcartContrat",
+            "description" : "À valider après une modification : l'écart montré à la partie attendue (RG-CA-14)"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "A_VALIDER_VENDEUR", "A_VALIDER_ACHETEUR", "VALIDEE" ]
+          },
+          "libelleEtat" : {
+            "type" : "string",
+            "example" : "À valider par le vendeur"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneRetiraison"
+            }
+          },
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "stockInsuffisant" : {
+            "type" : "string",
+            "description" : "Au vendeur qui doit la valider : le grain que son stock estimé ne couvre pas (RG-CA-15)"
+          },
+          "version" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "approbations", "auteur", "dateEnlevement", "derniere", "etat", "libelleEtat", "lignes", "numero", "version" ]
       },
       "Retrait" : {
         "type" : "object",
@@ -12293,6 +13774,60 @@
           }
         },
         "required" : [ "volume" ]
+      },
+      "SaisieContenuContrat" : {
+        "type" : "object",
+        "description" : "Le contenu d'une version du contrat (spec 06 §3.2, RG-CA-03)",
+        "properties" : {
+          "aRetirerAvantLe" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Affichée dans les listes, sans effet sur le stock"
+          },
+          "acompte" : {
+            "type" : "number",
+            "description" : "Acompte en %, dans ]0 ; 100["
+          },
+          "caracteristiques" : {
+            "type" : "string",
+            "description" : "Caractéristiques complémentaires, imprimées"
+          },
+          "conditionsRetiraison" : {
+            "type" : "string",
+            "description" : "Conditions et calendrier de retiraison, imprimés"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SaisieLigneContrat"
+            }
+          },
+          "solde" : {
+            "type" : "string",
+            "enum" : [ "COMPTANT", "TRENTE_JOURS_FIN_DE_MOIS" ]
+          }
+        },
+        "required" : [ "lignes", "solde" ]
+      },
+      "SaisieContrat" : {
+        "type" : "object",
+        "description" : "Un projet de contrat ouvert par l'opérateur actif (UC-CA-1)",
+        "properties" : {
+          "autrePartie" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "L'autre opérateur (recherche restreinte)"
+          },
+          "contenu" : {
+            "$ref" : "#/components/schemas/SaisieContenuContrat"
+          },
+          "partie" : {
+            "type" : "string",
+            "description" : "La partie que tient l'opérateur actif",
+            "enum" : [ "ACHETEUR", "VENDEUR" ]
+          }
+        },
+        "required" : [ "autrePartie", "contenu", "partie" ]
       },
       "SaisieDesignations" : {
         "type" : "object",
@@ -12505,6 +14040,38 @@
         },
         "required" : [ "email", "role" ]
       },
+      "SaisieLigneContrat" : {
+        "type" : "object",
+        "description" : "Une ligne : millésime, ou dénomination et compte d'âge ; volume en hl, degré en % vol., prix en € HT / hl AP",
+        "properties" : {
+          "appellation" : {
+            "type" : "string",
+            "enum" : [ "ARMAGNAC", "BAS_ARMAGNAC", "ARMAGNAC_TENAREZE", "HAUT_ARMAGNAC", "BLANCHE_ARMAGNAC" ]
+          },
+          "compte" : {
+            "type" : "string",
+            "description" : "Assemblage seulement : 00, 0 … 19, 20+",
+            "example" : "20+"
+          },
+          "degre" : {
+            "type" : "number"
+          },
+          "denomination" : {
+            "type" : "string"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "prix" : {
+            "type" : "number"
+          },
+          "volume" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "appellation", "degre", "prix", "volume" ]
+      },
       "SaisieLigneDsm" : {
         "type" : "object",
         "properties" : {
@@ -12540,6 +14107,21 @@
           }
         },
         "required" : [ "cle", "volumes" ]
+      },
+      "SaisieLigneRetiraison" : {
+        "type" : "object",
+        "properties" : {
+          "rang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Rang de la ligne du contrat, à partir de 0"
+          },
+          "volume" : {
+            "type" : "number",
+            "description" : "Hectolitres, au plus le reste à retirer"
+          }
+        },
+        "required" : [ "rang", "volume" ]
       },
       "SaisieLigneStockInitial" : {
         "type" : "object",
@@ -12954,6 +14536,28 @@
         },
         "required" : [ "code", "enRegionDelimitee", "libelle" ]
       },
+      "SaisieRetiraison" : {
+        "type" : "object",
+        "description" : "Une retiraison : date d'enlèvement, dernière ou non, lignes du contrat retirées (spec 06 §3.4, RG-CA-13)",
+        "properties" : {
+          "dateEnlevement" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Au plus tôt aujourd'hui (H-CA-3)"
+          },
+          "derniere" : {
+            "type" : "boolean",
+            "description" : "Sa validation exécute le contrat (RG-CA-15)"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SaisieLigneRetiraison"
+            }
+          }
+        },
+        "required" : [ "dateEnlevement", "derniere", "lignes" ]
+      },
       "SaisieRole" : {
         "type" : "object",
         "properties" : {
@@ -13083,6 +14687,24 @@
           }
         },
         "required" : [ "dsm", "lignes", "periode" ]
+      },
+      "StockEstime" : {
+        "type" : "object",
+        "description" : "Le stock estimé d'un opérateur : base (dernière DSM validée ou point de départ) vieillie à aujourd'hui, plus achats, moins ventes de ses retiraisons validées (spec 06 RG-CA-11)",
+        "properties" : {
+          "baseAu" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date de la base ; absente sans DSM validée ni point de départ"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneStockEstime"
+            }
+          }
+        },
+        "required" : [ "lignes" ]
       },
       "TauxCvo" : {
         "type" : "object",
@@ -13313,6 +14935,51 @@
           }
         },
         "required" : [ "au", "du", "lignes" ]
+      },
+      "VersionContrat" : {
+        "type" : "object",
+        "description" : "Une version du contenu (spec 06 §3.2) et ses calculs (RG-CA-04)",
+        "properties" : {
+          "aRetirerAvantLe" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "acompte" : {
+            "type" : "number"
+          },
+          "auteur" : {
+            "$ref" : "#/components/schemas/AuteurContrat"
+          },
+          "caracteristiques" : {
+            "type" : "string"
+          },
+          "conditionsRetiraison" : {
+            "type" : "string"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LigneContrat"
+            }
+          },
+          "montantHt" : {
+            "type" : "number",
+            "description" : "€ HT"
+          },
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "solde" : {
+            "type" : "string",
+            "enum" : [ "COMPTANT", "TRENTE_JOURS_FIN_DE_MOIS" ]
+          },
+          "volumeAp" : {
+            "type" : "number",
+            "description" : "Litres d'alcool pur"
+          }
+        },
+        "required" : [ "auteur", "lignes", "montantHt", "numero", "solde", "volumeAp" ]
       },
       "VisiteProposee" : {
         "type" : "object",

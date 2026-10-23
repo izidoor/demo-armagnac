@@ -15,6 +15,8 @@ export type LigneBrouillon = {
   volumes: string[]
   /** Colonne 1, reprise, jamais saisie (RG-DEC-13). */
   stockDebut: number
+  /** Les retiraisons de contrat inscrites sur la ligne : « Contrat CA-2026-0001, retiraison 1 » (spec 06 RG-CA-22). */
+  contrats?: string[]
 }
 
 export type Brouillon = { dateDia: string; lignes: LigneBrouillon[] }
@@ -33,6 +35,7 @@ export function brouillonDe(dsm: Dsm): Brouillon {
         i === 0 || i === 25 ? '' : texteLitres(v)
       ),
       stockDebut: l.volumes[0],
+      contrats: l.contrats.map((c) => c.libelle),
     })),
   }
 }

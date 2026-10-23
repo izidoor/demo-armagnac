@@ -28,6 +28,7 @@
         <module>bnia-declarations</module>
         <module>bnia-facturation</module>
         <module>bnia-messagerie</module>
+        <module>bnia-contratsarmagnac</module>
         <module>bnia-boot</module>
     </modules>
 
@@ -102,6 +103,16 @@
             <dependency>
                 <groupId>fr.bnia</groupId>
                 <artifactId>bnia-declarations-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-contratsarmagnac-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-contratsarmagnac-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -5,6 +5,7 @@ import {
   FileText,
   Warehouse,
   Globe,
+  Handshake,
   History,
   Landmark,
   LayoutDashboard,
@@ -138,6 +139,19 @@ export const espaceBackOffice: Espace = {
       ],
     },
     {
+      // Spec 06, §6.1 : tous les contrats d'achat Armagnac, en lecture.
+      title: 'Contrats',
+      items: [
+        { title: 'Contrats', url: '/bo/contrats', icon: Handshake },
+        // RG-CA-26 : les prix des contrats conclus ou exécutés, par produit.
+        {
+          title: 'Mercuriales',
+          url: '/bo/contrats/mercuriales',
+          icon: TrendingUp,
+        },
+      ],
+    },
+    {
       // Spec 08, §6.1 : historique des factures et brouillons à émettre, articles, ventes.
       title: 'Facturation',
       items: [
@@ -206,6 +220,11 @@ export const espacePortail: Espace = {
           icon: Warehouse,
         },
       ],
+    },
+    {
+      // Spec 06, §6.2 : les contrats de l'opérateur actif, de la négociation à l'exécution.
+      title: 'Contrats',
+      items: [{ title: 'Contrats', url: '/portail/contrats', icon: Handshake }],
     },
     {
       // Spec 08, §6.2 : lu par tout rattachement actif (§3.12) ; le suivi des cotisations (RG-FAC-34).

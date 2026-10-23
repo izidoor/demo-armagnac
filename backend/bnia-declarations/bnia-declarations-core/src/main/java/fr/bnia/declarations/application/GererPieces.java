@@ -12,6 +12,7 @@ import fr.bnia.declarations.domain.DeclarationStocksMouvements;
 import fr.bnia.declarations.domain.Drm;
 import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.Manque;
+import fr.bnia.declarations.domain.MouvementContrat;
 import fr.bnia.declarations.domain.TypeMouvement;
 import fr.bnia.declarations.domain.TypePiece;
 import fr.bnia.declarations.domain.partage.Cote;
@@ -39,14 +40,16 @@ public class GererPieces {
 
     private final DsmRepository dsms;
     private final Pieces pieces;
+    private final MouvementsContrat mouvements;
     private final StockageDocuments stockage;
     private final Autorisations autorisations;
     private final Journaliste journaliste;
 
-    public GererPieces(DsmRepository dsms, Pieces pieces, StockageDocuments stockage, JournalDeclarations journal,
-            OperateursLecture operateurs, Clock horloge) {
+    public GererPieces(DsmRepository dsms, Pieces pieces, MouvementsContrat mouvements, StockageDocuments stockage,
+            JournalDeclarations journal, OperateursLecture operateurs, Clock horloge) {
         this.dsms = dsms;
         this.pieces = pieces;
+        this.mouvements = mouvements;
         this.stockage = stockage;
         this.autorisations = new Autorisations(operateurs);
         this.journaliste = new Journaliste(journal, operateurs, horloge);
@@ -56,11 +59,16 @@ public class GererPieces {
     public record MoisDrm(YearMonth mois, Optional<Drm> drm) {
     }
 
-    /** Les pièces d'une DSM : justificatifs, mois de DRM attendus, manques (RG-DEC-29). */
-    public record PiecesDsm(List<Justificatif> justificatifs, List<MoisDrm> mois, List<Manque> manques) {
+    /**
+     * Les pièces d'une DSM : justificatifs, mois de DRM attendus, manques (RG-DEC-29).
+     *
+     * @param contrats les mouvements de contrat inscrits, qui justifient leur type de mouvement (spec 06 RG-CA-23)
+     */
+    public record PiecesDsm(List<Justificatif> justificatifs, List<MoisDrm> mois, List<Manque> manques,
+            List<MouvementContrat> contrats) {
     }
 
-    /** RG-DEC-01, 27, 29 : les pièces de la DSM, lues en deux requêtes. */
+    /** RG-DEC-01, 27, 29, RG-CA-23 : les pièces de la DSM et ses mouvements de contrat, lus en trois requêtes. */
     public PiecesDsm pieces(Acteur acteur, long operateur, long dsm) {
         autorisations.exigerLecture(acteur, operateur);
         DeclarationStocksMouvements declaration = dsm(operateur, dsm);
@@ -70,7 +78,9 @@ public class GererPieces {
         List<MoisDrm> mois = declaration.moisAttendus().stream()
                 .map(m -> new MoisDrm(m, Optional.ofNullable(parMois.get(m))))
                 .toList();
-        return new PiecesDsm(justificatifs, mois, ControlePieces.manques(declaration, justificatifs, drms));
+        List<MouvementContrat> contrats = mouvements.inscritsDans(dsm);
+        return new PiecesDsm(justificatifs, mois, ControlePieces.manques(declaration, justificatifs, drms, contrats),
+                contrats);
     }
 
     /** RG-DEC-01, 23, 26, 28 : dépose un justificatif, sur la DSM ({@code ligne} absente) ou sur une de ses lignes. */

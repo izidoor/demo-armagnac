@@ -23,6 +23,7 @@ final class Exemples {
     static final PeriodeDeclaration PERIODE_JUIN = PeriodeDeclaration.commencant(TypeDeclarant.NEGOCIANT, JUIN);
     static final Auteur BNIA = new Auteur(1, "Agnès Martin");
     static final Instant MAINTENANT = Instant.parse("2026-10-13T08:00:00Z");
+    static final LocalDate AUJOURDHUI = LocalDate.of(2026, 10, 13);
 
     private Exemples() {
     }

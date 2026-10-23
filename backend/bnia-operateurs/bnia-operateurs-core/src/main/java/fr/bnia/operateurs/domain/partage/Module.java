@@ -24,7 +24,12 @@ public enum Module {
      * Conversations libres avec le BNIA (spec 15 §3.6) : gérées par les trois rôles, {@code OBSERVATEUR} compris ;
      * une conversation libre n'est lue, côté opérateur, que par son auteur (RG-MSG-02, exception à RG-OPE-31).
      */
-    MESSAGERIE("Messagerie");
+    MESSAGERIE("Messagerie"),
+    /**
+     * Contrats d'achat Armagnac (spec 06 §3.6) : lus par tout rattachement actif des parties et par le BNIA ; gérés
+     * par le seul rôle local, le BNIA n'agissant sur aucun contrat (RG-CA-01, ADR-016 amendé le 2026-10-23).
+     */
+    CONTRATS("Contrats");
 
     private final String libelle;
 

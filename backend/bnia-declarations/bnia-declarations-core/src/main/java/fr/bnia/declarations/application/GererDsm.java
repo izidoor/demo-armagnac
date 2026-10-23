@@ -16,6 +16,7 @@ import fr.bnia.declarations.domain.Justificatif;
 import fr.bnia.declarations.domain.LigneDsm;
 import fr.bnia.declarations.domain.LigneStockInitial;
 import fr.bnia.declarations.domain.Manque;
+import fr.bnia.declarations.domain.MouvementContrat;
 import fr.bnia.declarations.domain.NoteInterne;
 import fr.bnia.declarations.domain.PeriodeDeclaration;
 import fr.bnia.declarations.domain.PointDeDepartDeclaratif;
@@ -58,6 +59,7 @@ public class GererDsm {
     private final NotesInternes notes;
     private final Messagerie messagerie;
     private final Pieces pieces;
+    private final MouvementsContrat mouvements;
     private final StockageDocuments stockage;
     private final ClasseursDsm classeurs;
     private final PublicationEvenements evenements;
@@ -67,7 +69,8 @@ public class GererDsm {
     private final Cotisations cotisations;
 
     public GererDsm(DsmRepository dsms, PointDeDepartRepository points, DsmLecture lecture,
-            JournalDeclarations journal, NotesInternes notes, Messagerie messagerie, Pieces pieces, StockageDocuments stockage,
+            JournalDeclarations journal, NotesInternes notes, Messagerie messagerie, Pieces pieces,
+            MouvementsContrat mouvements, StockageDocuments stockage,
             ClasseursDsm classeurs, GrilleCotisationRepository grilles, FacturesDsm factures, PublicationEvenements evenements,
             OperateursLecture operateurs, ReferentielsLecture referentiels, ParametresDeclarations parametres,
             Clock horloge) {
@@ -78,6 +81,7 @@ public class GererDsm {
         this.notes = notes;
         this.messagerie = messagerie;
         this.pieces = pieces;
+        this.mouvements = mouvements;
         this.stockage = stockage;
         this.classeurs = classeurs;
         this.evenements = evenements;
@@ -101,14 +105,21 @@ public class GererDsm {
 
     /**
      * RG-DEC-01 à 05, 12 à 14, 23 : l'opérateur initie la DSM de la période attendue. Elle reprend le stock
-     * initial du point de départ, ou le stock de fin de la DSM validée qui la précède, vieilli au 1er avril.
+     * initial du point de départ, ou le stock de fin de la DSM validée qui la précède, vieilli au 1er avril. Les
+     * mouvements de contrat de la période qui l'attendaient s'y inscrivent (spec 06 RG-CA-22).
      */
     public VueDsm initier(Acteur acteur, long operateur) {
         OperateurVue vue = autorisations.exigerOperateur(acteur, operateur);
         PeriodeDeclaration periode = situation(vue).exigerInitiable();
-        DeclarationStocksMouvements dsm = dsms.inserer(DeclarationStocksMouvements.initier(operateur, vue.type(),
-                vue.statutDeclarationStock(), periode, stockDeDepart(operateur, periode)));
-        journaliste.noter(acteur, dsm, ActionJournalDeclarations.DSM_INITIEE, null);
+        DeclarationStocksMouvements nouvelle = DeclarationStocksMouvements.initier(operateur, vue.type(),
+                vue.statutDeclarationStock(), periode, stockDeDepart(operateur, periode));
+        List<MouvementContrat> inscrits = mouvements.enAttente(operateur, periode).stream()
+                .filter(nouvelle::inscrire).toList();
+        DeclarationStocksMouvements dsm = dsms.inserer(nouvelle);
+        inscrits.forEach(m -> mouvements.inscrire(m.id(), dsm.id()));
+        journaliste.noter(acteur, dsm, ActionJournalDeclarations.DSM_INITIEE,
+                inscrits.isEmpty() ? null : inscrits.stream().map(MouvementContrat::libelle).distinct()
+                        .collect(Collectors.joining(" ; ")));
         return vue(acteur, dsm, vue);
     }
 
@@ -204,11 +215,14 @@ public class GererDsm {
         }
     }
 
-    /** RG-DEC-01, 18, 20, 23 : l'opérateur envoie sa DSM sans anomalie, ou la renvoie après compléments. */
+    /**
+     * RG-DEC-01, 18, 20, 23 : l'opérateur envoie sa DSM sans anomalie, ou la renvoie après compléments ; pas avant le
+     * lendemain de la fin de sa période (spec 06 RG-CA-24).
+     */
     public VueDsm envoyer(Acteur acteur, long operateur, long id, Long version) {
         OperateurVue vue = autorisations.exigerOperateur(acteur, operateur);
         DeclarationStocksMouvements dsm = dsm(operateur, id);
-        boolean renvoi = dsm.envoyer(journaliste.maintenant(), version);
+        boolean renvoi = dsm.envoyer(journaliste.maintenant(), LocalDate.now(journaliste.horloge()), version);
         DeclarationStocksMouvements envoyee = dsms.mettreAJour(dsm);
         journaliste.noter(acteur, envoyee, ActionJournalDeclarations.DSM_ENVOYEE,
                 renvoi ? "Renvoi après compléments" : null);
@@ -318,8 +332,9 @@ public class GererDsm {
     }
 
     private VueDsm vue(Acteur acteur, DeclarationStocksMouvements dsm, OperateurVue operateur) {
-        return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm),
-                cotisations.de(dsm), cotisations.brouillon(dsm), () -> manquePourFacturer(operateur.id()),
+        List<MouvementContrat> contrats = dsm.id() == null ? List.of() : mouvements.inscritsDans(dsm.id());
+        return VueDsm.de(dsm, operateur, autorisations.droits(acteur, operateur.id()), manques(dsm, contrats),
+                contrats, cotisations.de(dsm), cotisations.brouillon(dsm), () -> manquePourFacturer(operateur.id()),
                 LocalDate.now(journaliste.horloge()));
     }
 
@@ -328,12 +343,16 @@ public class GererDsm {
         return operateurs.acheteur(operateur).map(AcheteurVue::manquePourFacturer).orElse(List.of());
     }
 
-    /** RG-DEC-29 : pièces lues en deux requêtes, jamais une par ligne. */
+    /** RG-DEC-29, RG-CA-23 : pièces et mouvements de contrat lus en trois requêtes, jamais une par ligne. */
     private List<Manque> manques(DeclarationStocksMouvements dsm) {
+        return dsm.id() == null ? List.of() : manques(dsm, mouvements.inscritsDans(dsm.id()));
+    }
+
+    private List<Manque> manques(DeclarationStocksMouvements dsm, List<MouvementContrat> contrats) {
         if (dsm.id() == null) {
             return List.of();
         }
-        return ControlePieces.manques(dsm, pieces.justificatifsDe(dsm.id()), pieces.drmsDe(dsm.id()));
+        return ControlePieces.manques(dsm, pieces.justificatifsDe(dsm.id()), pieces.drmsDe(dsm.id()), contrats);
     }
 
     private DeclarationStocksMouvements dsm(long operateur, long id) {

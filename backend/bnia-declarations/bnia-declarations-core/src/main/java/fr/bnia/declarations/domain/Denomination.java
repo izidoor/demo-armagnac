@@ -1,8 +1,7 @@
 package fr.bnia.declarations.domain;
 
 import fr.bnia.commun.domain.RegleEnfreinte;
-import java.text.Normalizer;
-import java.util.Locale;
+import fr.bnia.declarations.domain.partage.DenominationNormalisee;
 
 /**
  * Dénomination d'une ligne {@code NB} ou {@code NV} (glossaire, H-DEC-8) : texte libre, non vide. Deux
@@ -30,8 +29,7 @@ public record Denomination(String texte, String normalisee) {
     }
 
     static String normalise(String texte) {
-        String sansAccents = Normalizer.normalize(texte, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
-        return sansAccents.toUpperCase(Locale.ROOT).strip().replaceAll("\\s+", " ");
+        return DenominationNormalisee.de(texte);
     }
 
     /** Égalité de RG-DEC-11 : sur la forme normalisée seulement. */

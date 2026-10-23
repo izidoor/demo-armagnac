@@ -19,6 +19,8 @@ public record DroitsResponse(
         Niveau facturation,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Conversations libres (spec 15 §3.6)")
         Niveau messagerie,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Contrats d'achat Armagnac, lecture seule pour le BNIA (spec 06 §3.6)")
+        Niveau contrats,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Champs réservés, listing des opérateurs (RG-OPE-32, 36)")
         boolean personnelBnia,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Fin d'un opérateur, blocage (RG-OPE-25, 26, 50)")
@@ -34,6 +36,7 @@ public record DroitsResponse(
         return new DroitsResponse(d.operateur(), d.local().orElse(null), d.bnia().orElse(null), niveau(d, Module.CONTACTS),
                 niveau(d, Module.ACCES), niveau(d, Module.PARAMETRAGE),
                 niveau(d, Module.DECLARATIONS), niveau(d, Module.FACTURATION), niveau(d, Module.MESSAGERIE),
+                niveau(d, Module.CONTRATS),
                 d.personnelBnia(), d.adminBnia());
     }
 

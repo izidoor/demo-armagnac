@@ -65,4 +65,11 @@ class StocksDeclaresController {
         return stocks.deLOperateur(Acteurs.de(connecte), operateur).map(StockDeclareResponse::depuis)
                 .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
+
+    @GetMapping("/api/operateurs/{operateur}/stock-estime")
+    @Operation(operationId = "consulterStockEstime",
+            summary = "Le stock estimé de l'opérateur : base vieillie à aujourd'hui et retiraisons validées (RG-DEC-01, spec 06 RG-CA-11)")
+    StockEstimeResponse consulterEstime(Connecte connecte, @PathVariable long operateur) {
+        return StockEstimeResponse.depuis(stocks.estimeDe(Acteurs.de(connecte), operateur));
+    }
 }

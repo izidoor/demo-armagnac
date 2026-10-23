@@ -9,6 +9,7 @@ import fr.bnia.operateurs.domain.partage.TypeOperateur;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
  * cotisation ni état de facturation (analyse §3).
  */
 public final class DeclarationStocksMouvements {
+
+    private static final DateTimeFormatter JOUR = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final Long id;
     private final long operateur;
@@ -167,13 +170,19 @@ public final class DeclarationStocksMouvements {
 
     /**
      * RG-DEC-20 : l'opérateur envoie sa DSM en brouillon ({@code ENVOYEE}), ou ses compléments
-     * ({@code COMPLEMENTS_RECUS}), si elle n'a aucune anomalie de calcul (RG-DEC-18).
+     * ({@code COMPLEMENTS_RECUS}), si elle n'a aucune anomalie de calcul (RG-DEC-18), et pas avant le lendemain de la
+     * fin de sa période (spec 06 RG-CA-24, H-CA-4) : un mouvement de contrat de la période en cours trouve ainsi
+     * toujours sa DSM modifiable.
      *
      * @return {@code true} pour un renvoi après compléments
      */
-    public boolean envoyer(Instant le, Long versionLue) {
+    public boolean envoyer(Instant le, LocalDate aujourdhui, Long versionLue) {
         exigerEtat(EtatDsm.BROUILLON, EtatDsm.COMPLEMENTS_DEMANDES, "envoyée");
         Versions.verifier(versionLue, version, "La DSM de " + periode.libelle());
+        if (!envoyablePar(aujourdhui)) {
+            throw new RegleEnfreinte("RG-CA-24", "La DSM de " + periode.libelle() + " s'envoie à partir du "
+                    + envoiPossibleLe().format(JOUR) + ", lendemain de la fin de sa période.");
+        }
         int nombre = anomalies().size();
         if (nombre > 0) {
             throw new RegleEnfreinte("RG-DEC-20", "La DSM de " + periode.libelle() + " a " + nombre
@@ -183,6 +192,52 @@ public final class DeclarationStocksMouvements {
         this.etat = renvoi ? EtatDsm.COMPLEMENTS_RECUS : EtatDsm.ENVOYEE;
         this.envoyeeLe = Objects.requireNonNull(le, "le");
         return renvoi;
+    }
+
+    /** RG-CA-24 (spec 06) : le lendemain de la fin de la période, premier jour où la DSM s'envoie. */
+    public LocalDate envoiPossibleLe() {
+        return periode.fin().plusDays(1);
+    }
+
+    /** RG-CA-24 (spec 06) : la période est finie. */
+    public boolean envoyablePar(LocalDate aujourdhui) {
+        return !aujourdhui.isBefore(envoiPossibleLe());
+    }
+
+    /**
+     * RG-CA-22 (spec 06) : inscrit un mouvement de contrat de sa période dans la DSM modifiable. Son volume s'ajoute à
+     * sa colonne, sur la ligne de son grain, ajoutée au besoin ({@code AJOUT}, colonne 1 à 0, corrigeable comme toute
+     * saisie). Une colonne grisée pour le déclarant (achat d'un producteur, RG-DEC-16) n'inscrit rien. Sans contrôle
+     * de version : l'inscription suit la validation d'une retiraison, pas une saisie de l'écran.
+     *
+     * @return {@code false} si la colonne est grisée : rien n'est inscrit
+     */
+    public boolean inscrire(MouvementContrat mouvement) {
+        exigerModifiable();
+        if (mouvement.dateEnlevement().isBefore(periode.debut()) || mouvement.dateEnlevement().isAfter(periode.fin())) {
+            throw new IllegalArgumentException("Le mouvement du " + mouvement.dateEnlevement()
+                    + " n'est pas dans la période de la DSM (" + periode.libelle() + ").");
+        }
+        if (mouvement.colonne().griseePour(type)) {
+            return false;
+        }
+        IdentiteLigne identite = mouvement.identiteAu(periode.debut());
+        List<LigneDsm> nouvelles = new ArrayList<>();
+        boolean trouvee = false;
+        for (LigneDsm ligne : lignes) {
+            if (!trouvee && ligne.identite().equals(identite)) {
+                nouvelles.add(ligne.avecAjout(mouvement.colonne(), mouvement.volumeAp()));
+                trouvee = true;
+            } else {
+                nouvelles.add(ligne);
+            }
+        }
+        if (!trouvee) {
+            nouvelles.add(new LigneDsm(null, identite, OrigineLigne.AJOUT,
+                    Map.of(mouvement.colonne(), mouvement.volumeAp())));
+        }
+        this.lignes = List.copyOf(nouvelles);
+        return true;
     }
 
     /** RG-DEC-20 : le BNIA prend en instruction une DSM envoyée. */

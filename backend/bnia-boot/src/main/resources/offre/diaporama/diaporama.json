@@ -1,0 +1,53 @@
+{
+  "pdf": "diaporama-py-pollet.pdf",
+  "diapositives": [
+    {
+      "id": "01-titre",
+      "titre": "Titre"
+    },
+    {
+      "id": "02-offre",
+      "titre": "L’offre en quatre chiffres"
+    },
+    {
+      "id": "03-au-dela",
+      "titre": "Au-delà du cahier des charges"
+    },
+    {
+      "id": "04-profil",
+      "titre": "Les trois places"
+    },
+    {
+      "id": "05-propriete",
+      "titre": "Une plateforme qui appartient au BNIA"
+    },
+    {
+      "id": "06-calendrier",
+      "titre": "Remplacer Integraal par étapes"
+    },
+    {
+      "id": "07-phase-1",
+      "titre": "Phase 1 : juger sur pièces"
+    },
+    {
+      "id": "08-demonstration",
+      "titre": "Démonstration"
+    },
+    {
+      "id": "09-prix",
+      "titre": "Le prix"
+    },
+    {
+      "id": "10-maintenance",
+      "titre": "La maintenance"
+    },
+    {
+      "id": "11-engagement",
+      "titre": "Mon engagement"
+    },
+    {
+      "id": "12-questions",
+      "titre": "Questions"
+    }
+  ]
+}

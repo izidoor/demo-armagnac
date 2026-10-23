@@ -6,15 +6,17 @@ import { FILIERE, typeDeclarant } from '@/components/metier/filiere'
 import { PageMetier } from '@/components/metier/page-metier'
 import { TableDonnees } from '@/components/metier/table-donnees'
 import { useMoi } from '@/features/session/session'
-import { useStockDeclare } from './api'
+import { useStockDeclare, useStockEstime } from './api'
 import { colonnesLigneStock } from './colonnes-stocks'
 import { formatDate, formatDateHeure, formatLitres } from './format'
 import { type EchelleOperateur, GraphiquesStocks } from './graphiques-stocks'
+import { TableStockEstime } from './stock-estime'
 
 /**
  * Portail, « Stocks déclarés » (spec 05 §6.2), lu par tout lecteur des déclarations de l'opérateur actif
- * (RG-DEC-01), sans onglets, comme au back-office : deux graphiques de démonstration à l'échelle de l'opérateur,
- * puis le stock de fin de sa dernière DSM validée, ligne par ligne (RG-DEC-42).
+ * (RG-DEC-01), sans onglets, comme au back-office : deux graphiques de démonstration à l'échelle de l'opérateur, son
+ * stock estimé d'aujourd'hui (spec 06 RG-CA-11), puis le stock de fin de sa dernière DSM validée, ligne par ligne
+ * (RG-DEC-42).
  */
 export function PageEtatStocks() {
   const { actif } = useMoi()
@@ -30,6 +32,7 @@ export function PageEtatStocks() {
 
 function EtatStocks({ operateur, type }: { operateur: number; type: string }) {
   const stock = useStockDeclare(operateur)
+  const estime = useStockEstime(operateur)
   return (
     <PageMetier
       titre='Stocks déclarés'
@@ -42,6 +45,13 @@ function EtatStocks({ operateur, type }: { operateur: number; type: string }) {
           <GraphiquesStocks
             operateur={echelle(type, stock.data?.lignes ?? [])}
           />
+        )}
+        <Separator className='my-10' />
+        <h2 className='mb-4 text-xl font-semibold'>Stock estimé</h2>
+        {estime.isPending ? (
+          <Skeleton className='h-48 w-full' />
+        ) : (
+          estime.data && <TableStockEstime stock={estime.data} />
         )}
         <Separator className='my-10' />
         <h2 className='mb-4 text-xl font-semibold'>

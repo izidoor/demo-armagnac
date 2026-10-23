@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-/** La réponse à l'appel d'offres, servie après connexion, affichable dans une iframe de l'application. */
+/** La réponse à l'appel d'offres et le diaporama de la soutenance, servis après connexion, affichables dans une iframe. */
 class OffreIT extends AbstractIT {
 
     @Test
@@ -22,5 +22,20 @@ class OffreIT extends AbstractIT {
                 .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
                 .expectHeader().valueEquals("X-Frame-Options", "SAMEORIGIN");
         client.get().uri("/api/offre/inconnue.html").exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    @DisplayName("Le diaporama exige une session ; ses diapositives s'affichent dans une iframe de la même origine")
+    void diaporama_apres_connexion() {
+        anonyme().get().uri("/api/offre/diaporama/diaporama.json").exchange().expectStatus().isUnauthorized();
+
+        client.get().uri("/api/offre/diaporama/diaporama.json").exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.diapositives[0].id").isEqualTo("01-titre")
+                .jsonPath("$.pdf").isEqualTo("diaporama-py-pollet.pdf");
+        client.get().uri("/api/offre/diaporama/01-titre.html").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_HTML)
+                .expectHeader().valueEquals("X-Frame-Options", "SAMEORIGIN");
     }
 }

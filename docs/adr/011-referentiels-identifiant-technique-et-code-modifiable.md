@@ -1,7 +1,7 @@
 # ADR-011 : Référentiels, identifiant technique et code modifiable
 
 - Statut : accepté ; amendé le 2026-10-08 (auteur d'une action, identifiants `bigint` confirmés) le
-  2026-10-14 (références opaques de `facturation`) et le 2026-10-17 (objet d'une conversation)
+  2026-10-14 (références opaques de `facturation`) le 2026-10-17 (objet d'une conversation) et le 2026-10-23 (mouvement de contrat)
 - Date : 2026-10-06
 - Remplace : la « référence par code métier » de l'ADR-008 (décision A-REF-1 de la spec 01)
 - Spec : `docs/specs/01-referentiels/spec.md` (A-REF-1, RG-REF-02, RG-REF-04)
@@ -83,3 +83,14 @@ Options écartées :
 - L'opérateur d'une conversation garde, lui, sa clé étrangère : `messagerie` dépend d'`operateurs`, et un
   opérateur qui a des conversations ne se supprime pas, comme avec ses DSM.
 - Écartée : une clé étrangère par type d'objet, qui ferait dépendre la lib de chaque contexte métier.
+
+## Amendement du 2026-10-23 (spec 06, décision A-CA-4)
+- **Exception : le mouvement de contrat.** `contratsarmagnac` dépend de `declarations` (ADR-017), qui ne
+  le connaît pas. Le mouvement de contrat que `declarations` tient pour chaque ligne de retiraison validée
+  (`declarations.mouvement_contrat`) référence le contrat (identifiant et numéro copiés), la retiraison et
+  l'autre partie **sans clé étrangère**, comme `Origine` et `ObjetMetier`. Un index sur (contrat,
+  retiraison) rend l'écoute de `RetiraisonValidee` idempotente.
+- L'opérateur du mouvement et la DSM d'inscription gardent leur clé étrangère : ils sont dans le schéma de
+  `declarations` ou d'`operateurs`, dont `declarations` dépend.
+- Écartée : une clé étrangère de `declarations` vers `contratsarmagnac`, dépendance de schéma inverse de
+  celle du code.

@@ -4,6 +4,7 @@ import static fr.bnia.declarations.domain.ColonneDsm.C06;
 import static fr.bnia.declarations.domain.ColonneDsm.C12;
 import static fr.bnia.declarations.domain.ColonneDsm.C17;
 import static fr.bnia.declarations.domain.Exemples.BNIA;
+import static fr.bnia.declarations.domain.Exemples.AUJOURDHUI;
 import static fr.bnia.declarations.domain.Exemples.MAINTENANT;
 import static fr.bnia.declarations.domain.Exemples.OPERATEUR;
 import static fr.bnia.declarations.domain.Exemples.PERIODE_JUIN;
@@ -36,7 +37,7 @@ class CycleDsmTest {
 
     /** Chaque transition, et les états d'où elle part (RG-DEC-20). */
     private static final Map<String, Consumer<DeclarationStocksMouvements>> TRANSITIONS = Map.of(
-            "envoyer", d -> d.envoyer(MAINTENANT, null),
+            "envoyer", d -> d.envoyer(MAINTENANT, AUJOURDHUI, null),
             "prendre en instruction", d -> d.prendreEnInstruction(null),
             "demander des compléments", d -> d.demanderComplements(null),
             "valider", d -> d.valider(BNIA, MAINTENANT, null, List.of()));
@@ -51,14 +52,14 @@ class CycleDsmTest {
     @DisplayName("RG-DEC-20 : envoi, prise en instruction, compléments, renvoi (compléments reçus), validation directe")
     void rg_dec_20_cycle_complet() {
         DeclarationStocksMouvements dsm = dsmDeJuin();
-        assertThat(dsm.envoyer(MAINTENANT, 0L)).isFalse();
+        assertThat(dsm.envoyer(MAINTENANT, AUJOURDHUI, 0L)).isFalse();
         assertThat(dsm.etat()).isEqualTo(EtatDsm.ENVOYEE);
         assertThat(dsm.envoyeeLe()).isEqualTo(MAINTENANT);
         dsm.prendreEnInstruction(null);
         assertThat(dsm.etat()).isEqualTo(EtatDsm.EN_INSTRUCTION);
         dsm.demanderComplements(null);
         assertThat(dsm.etat()).isEqualTo(EtatDsm.COMPLEMENTS_DEMANDES);
-        assertThat(dsm.envoyer(MAINTENANT.plusSeconds(60), null)).isTrue();
+        assertThat(dsm.envoyer(MAINTENANT.plusSeconds(60), AUJOURDHUI, null)).isTrue();
         assertThat(dsm.etat()).isEqualTo(EtatDsm.COMPLEMENTS_RECUS);
         assertThat(dsm.envoyeeLe()).isEqualTo(MAINTENANT.plusSeconds(60));
         refuse("RG-DEC-20", () -> dsm.prendreEnInstruction(null));
@@ -89,8 +90,8 @@ class CycleDsmTest {
     void rg_dec_20_anomalie_bloque_envoi() {
         DeclarationStocksMouvements dsm = dsmDeJuin();
         dsm.enregistrer(saisie(dsm, Map.of(0, Map.of(C06, l("40")), 1, Map.of(C12, l("50")))), null);
-        assertThatThrownBy(() -> dsm.envoyer(MAINTENANT, null)).hasMessageContaining("1 anomalie");
-        refuse("RG-DEC-20", () -> dsm.envoyer(MAINTENANT, null));
+        assertThatThrownBy(() -> dsm.envoyer(MAINTENANT, AUJOURDHUI, null)).hasMessageContaining("1 anomalie");
+        refuse("RG-DEC-20", () -> dsm.envoyer(MAINTENANT, AUJOURDHUI, null));
         assertThat(dsm.etat()).isEqualTo(EtatDsm.BROUILLON);
     }
 

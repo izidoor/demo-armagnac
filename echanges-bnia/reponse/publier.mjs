@@ -1,5 +1,6 @@
 // Publie la réponse dans l'application, lue après connexion (« Voir l'offre » de la barre latérale) : une page HTML
-// par section, sa feuille de style, ses images, ses polices et le PDF, servis par le back sous /api/offre/.
+// par section, sa feuille de style, ses images, ses polices et le PDF, servis par le back sous /api/offre/ ; le
+// diaporama, publié par echanges-bnia/diaporama, sous /api/offre/diaporama/.
 // Usage, après pnpm build : pnpm publier → backend/bnia-boot/src/main/resources/offre/
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
@@ -10,7 +11,9 @@ const sortie = join(racine, 'sortie')
 const cible = join(racine, '..', '..', 'backend', 'bnia-boot', 'src', 'main', 'resources', 'offre')
 const PDF = 'reponse-ao-armagnac-py-pollet.pdf'
 
-rmSync(cible, { recursive: true, force: true })
+// Le diaporama, publié à part (echanges-bnia/diaporama), garde son dossier.
+mkdirSync(cible, { recursive: true })
+for (const entree of readdirSync(cible)) if (entree !== 'diaporama') rmSync(join(cible, entree), { recursive: true })
 mkdirSync(join(cible, 'polices'), { recursive: true })
 
 const html = readFileSync(join(sortie, 'reponse.html'), 'utf8')

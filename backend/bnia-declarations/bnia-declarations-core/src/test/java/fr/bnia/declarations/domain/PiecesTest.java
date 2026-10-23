@@ -1,5 +1,6 @@
 package fr.bnia.declarations.domain;
 
+import static fr.bnia.declarations.domain.Exemples.AUJOURDHUI;
 import static fr.bnia.declarations.domain.Exemples.BNIA;
 import static fr.bnia.declarations.domain.Exemples.MAINTENANT;
 import static fr.bnia.declarations.domain.Exemples.dsmDeJuin;
@@ -102,7 +103,7 @@ class PiecesTest {
         DeclarationStocksMouvements dsm = dsmDeJuin();
         dsm.exigerPiecesModifiables(Cote.OPERATEUR);
         dsm.exigerPiecesModifiables(Cote.BNIA);
-        dsm.envoyer(MAINTENANT, null);
+        dsm.envoyer(MAINTENANT, AUJOURDHUI, null);
         enfreint("RG-DEC-28", () -> dsm.exigerPiecesModifiables(Cote.OPERATEUR));
         dsm.exigerPiecesModifiables(Cote.BNIA);
         dsm.prendreEnInstruction(null);
@@ -111,7 +112,7 @@ class PiecesTest {
         dsm.demanderComplements(null);
         dsm.exigerPiecesModifiables(Cote.OPERATEUR);
         dsm.exigerPiecesModifiables(Cote.BNIA);
-        dsm.envoyer(MAINTENANT, null);
+        dsm.envoyer(MAINTENANT, AUJOURDHUI, null);
         enfreint("RG-DEC-28", () -> dsm.exigerPiecesModifiables(Cote.OPERATEUR));
         dsm.exigerPiecesModifiables(Cote.BNIA);
         dsm.valider(BNIA, MAINTENANT, null, List.of());
@@ -127,7 +128,7 @@ class PiecesTest {
                 0, Map.of(ColonneDsm.C15, l("10"), ColonneDsm.C21, l("120")),
                 1, Map.of(ColonneDsm.C22, l("40"), ColonneDsm.C23, l("60.50")))), null);
 
-        List<Manque> manques = ControlePieces.manques(dsm, List.of(), List.of());
+        List<Manque> manques = ControlePieces.manques(dsm, List.of(), List.of(), List.of());
 
         assertThat(manques).extracting(Manque::typeMouvement)
                 .containsExactly(TypeMouvement.VENTE_NEGOCE, TypeMouvement.VENTE_EXPORT);
@@ -136,7 +137,7 @@ class PiecesTest {
         assertThat(manques.get(1).message()).isEqualTo("Aucun justificatif pour les ventes à l'exportation (100,50 L,"
                 + " colonnes 22, 23, 24, 25).");
         assertThat(ControlePieces.manques(dsm, List.of(piece(TypeMouvement.VENTE_EXPORT, TypePiece.DAE, 101L),
-                piece(TypeMouvement.VENTE_NEGOCE, TypePiece.FACTURE, null)), List.of())).isEmpty();
+                piece(TypeMouvement.VENTE_NEGOCE, TypePiece.FACTURE, null)), List.of(), List.of())).isEmpty();
         assertThat(EnumSet.allOf(TypeMouvement.class).stream().flatMap(t -> t.colonnes().stream()))
                 .doesNotContain(ColonneDsm.C15);
     }
@@ -145,17 +146,17 @@ class PiecesTest {
     @DisplayName("RG-DEC-29 : un mois sans DRM manque ; la validation est refusée tant qu'il reste un manque")
     void rg_dec_29_drm_et_validation() {
         DeclarationStocksMouvements dsm = producteur();
-        List<Manque> manques = ControlePieces.manques(dsm, List.of(), drms(dsm, YearMonth.of(2025, 11)));
+        List<Manque> manques = ControlePieces.manques(dsm, List.of(), drms(dsm, YearMonth.of(2025, 11)), List.of());
         assertThat(manques).singleElement().satisfies(m -> {
             assertThat(m.type()).isEqualTo(Manque.TypeManque.DRM);
             assertThat(m.mois()).isEqualTo(YearMonth.of(2025, 11));
             assertThat(m.message()).isEqualTo("DRM de novembre 2025 non déposée.");
         });
-        dsm.envoyer(MAINTENANT, null);
+        dsm.envoyer(MAINTENANT, AUJOURDHUI, null);
         dsm.prendreEnInstruction(null);
         enfreint("RG-DEC-29", () -> dsm.valider(BNIA, MAINTENANT, null, manques));
         assertThat(dsm.etat()).isEqualTo(EtatDsm.EN_INSTRUCTION);
-        dsm.valider(BNIA, MAINTENANT, null, ControlePieces.manques(dsm, List.of(), drms(dsm)));
+        dsm.valider(BNIA, MAINTENANT, null, ControlePieces.manques(dsm, List.of(), drms(dsm), List.of()));
         assertThat(dsm.etat()).isEqualTo(EtatDsm.VALIDEE);
     }
 }

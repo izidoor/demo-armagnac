@@ -66,6 +66,7 @@ final class Monde {
     final NotesEnMemoire notes = new NotesEnMemoire();
     final MessagerieCapturee messagerie = new MessagerieCapturee();
     final PiecesEnMemoire pieces = new PiecesEnMemoire();
+    final MouvementsEnMemoire mouvements = new MouvementsEnMemoire();
     final StockageEnMemoire stockage = new StockageEnMemoire();
     final ClasseursEnMemoire classeurs = new ClasseursEnMemoire();
     final EvenementsCaptures evenements = new EvenementsCaptures();
@@ -134,7 +135,7 @@ final class Monde {
     }
 
     GererDsm gererDsm() {
-        return new GererDsm(dsms, points, dsms, journal, notes, messagerie, pieces, stockage, classeurs, grilles, factures,
+        return new GererDsm(dsms, points, dsms, journal, notes, messagerie, pieces, mouvements, stockage, classeurs, grilles, factures,
                 evenements, operateurs, referentiels, PARAMETRES, HORLOGE);
     }
 
@@ -143,7 +144,7 @@ final class Monde {
     }
 
     GererPieces gererPieces() {
-        return new GererPieces(dsms, pieces, stockage, journal, operateurs, HORLOGE);
+        return new GererPieces(dsms, pieces, mouvements, stockage, journal, operateurs, HORLOGE);
     }
 
     ListerDsm listerDsm() {
@@ -163,7 +164,7 @@ final class Monde {
     }
 
     DeclarationsPubliees declarationsPubliees() {
-        return new DeclarationsPubliees(dsms, stocks);
+        return new DeclarationsPubliees(dsms, stocks, points, mouvements, HORLOGE);
     }
 
     FacturerDsm facturerDsm() {
@@ -178,7 +179,11 @@ final class Monde {
         return new DetecterRetards(operateurs, calendriers, retards, evenements, horloge);
     }
 
+    InscrireRetiraisons inscrireRetiraisons() {
+        return new InscrireRetiraisons(mouvements, dsms, journal, operateurs, referentiels, HORLOGE);
+    }
+
     ConsulterStocksDeclares consulterStocks() {
-        return new ConsulterStocksDeclares(stocks, dsms, editionsStocks, operateurs, HORLOGE);
+        return new ConsulterStocksDeclares(stocks, dsms, points, mouvements, editionsStocks, operateurs, HORLOGE);
     }
 }

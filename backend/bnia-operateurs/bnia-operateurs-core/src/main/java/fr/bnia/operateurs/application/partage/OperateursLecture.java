@@ -3,6 +3,7 @@ package fr.bnia.operateurs.application.partage;
 import fr.bnia.operateurs.domain.partage.AcheteurVue;
 import fr.bnia.operateurs.domain.partage.Droits;
 import fr.bnia.operateurs.domain.partage.EtatConnexion;
+import fr.bnia.operateurs.domain.partage.IdentiteLegaleVue;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
 import fr.bnia.operateurs.domain.partage.PersonneVue;
 import fr.bnia.operateurs.domain.partage.ResultatRecherche;
@@ -24,6 +25,9 @@ public interface OperateursLecture {
 
     /** {@code facturation} : l'opérateur vu comme acheteur, avec ce qui manque pour le facturer (RG-OPE-02, 23). */
     Optional<AcheteurVue> acheteur(long id);
+
+    /** {@code contratsarmagnac} : SIRET, CVI et téléphone, imprimés sur le contrat (spec 06 RG-CA-20). */
+    Optional<IdentiteLegaleVue> identiteLegale(long id);
 
     /** Imports Excel, dont les fichiers portent des codes. */
     Optional<OperateurVue> operateurParCode(String code);

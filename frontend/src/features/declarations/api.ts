@@ -8,6 +8,7 @@ import {
   consulterPointDeDepart,
   consulterSituationDsm,
   consulterStockDeclare,
+  consulterStockEstime,
   demanderComplementsDsm,
   deposerDrm,
   deposerJustificatifDsm,
@@ -243,6 +244,17 @@ export function useStockDeclare(operateur: number) {
   return useQuery({
     queryKey: [...cleDeclarations(operateur), 'stock-declare'],
     queryFn: apiDeclarations(operateur).stockDeclare,
+  })
+}
+
+/** RG-CA-11 (spec 06) : le stock estimé de l'opérateur, base vieillie à aujourd'hui et retiraisons validées. */
+export function useStockEstime(operateur: number) {
+  return useQuery({
+    queryKey: [...cleDeclarations(operateur), 'stock-estime'],
+    queryFn: () =>
+      consulterStockEstime({ path: { operateur }, throwOnError: true }).then(
+        (r) => r.data
+      ),
   })
 }
 

@@ -6,6 +6,7 @@ import fr.bnia.operateurs.application.OperateurRepository;
 import fr.bnia.operateurs.application.UtilisateurRepository;
 import fr.bnia.operateurs.application.partage.OperateursLecture;
 import fr.bnia.operateurs.domain.Adresse;
+import fr.bnia.operateurs.domain.Cvi;
 import fr.bnia.operateurs.domain.Email;
 import fr.bnia.operateurs.domain.IdentiteOperateur;
 import fr.bnia.operateurs.domain.NumeroTva;
@@ -17,6 +18,7 @@ import fr.bnia.operateurs.domain.partage.Acteur;
 import fr.bnia.operateurs.domain.partage.AdresseVue;
 import fr.bnia.operateurs.domain.partage.Droits;
 import fr.bnia.operateurs.domain.partage.EtatConnexion;
+import fr.bnia.operateurs.domain.partage.IdentiteLegaleVue;
 import fr.bnia.operateurs.domain.partage.OperateurVue;
 import fr.bnia.operateurs.domain.partage.PersonneVue;
 import fr.bnia.operateurs.domain.partage.ResultatRecherche;
@@ -78,6 +80,15 @@ class JdbcOperateursLecture implements OperateursLecture {
                     Optional.ofNullable(i.siret()).map(Siret::valeur),
                     Optional.ofNullable(i.numeroTva()).map(NumeroTva::valeur), adresse(i.adresse()), email,
                     o.manquePourFacturer(email.isPresent()), o.estActif());
+        });
+    }
+
+    @Override
+    public Optional<IdentiteLegaleVue> identiteLegale(long id) {
+        return repository.parId(id).map(o -> {
+            IdentiteOperateur i = o.identite();
+            return new IdentiteLegaleVue(o.id(), Optional.ofNullable(i.siret()).map(Siret::valeur),
+                    Optional.ofNullable(i.cvi()).map(Cvi::valeur), Optional.ofNullable(i.telephone1()));
         });
     }
 

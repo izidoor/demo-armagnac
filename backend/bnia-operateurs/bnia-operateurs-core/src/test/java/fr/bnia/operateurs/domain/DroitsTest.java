@@ -50,6 +50,22 @@ class DroitsTest {
     }
 
     @Test
+    @DisplayName("RG-CA-01 : les Contrats sont lus par le BNIA et gérés par le seul rôle local")
+    void rg_ca_01_module_contrats() {
+        assertThat(Role.OBSERVATEUR.gere(Module.CONTRATS)).isFalse();
+        assertThat(Role.AGENT.gere(Module.CONTRATS)).isTrue();
+        assertThat(Role.ADMIN.gere(Module.CONTRATS)).isTrue();
+
+        Droits agentLocal = new Droits(5, Optional.of(Role.AGENT), Optional.empty());
+        assertThat(agentLocal.gere(Module.CONTRATS)).isTrue();
+        Droits adminBnia = new Droits(5, Optional.empty(), Optional.of(Role.ADMIN));
+        assertThat(adminBnia.lit(Module.CONTRATS)).as("le BNIA consulte").isTrue();
+        assertThat(adminBnia.gere(Module.CONTRATS)).as("mais n'agit pas").isFalse();
+        Droits cumul = new Droits(5, Optional.of(Role.AGENT), Optional.of(Role.ADMIN));
+        assertThat(cumul.gere(Module.CONTRATS)).as("par son rôle local").isTrue();
+    }
+
+    @Test
     @DisplayName("RG-OPE-31 : sans rattachement actif, aucun droit ; le Paramétrage n'est qu'au BNIA")
     void rg_ope_31_sans_acces() {
         Droits aucun = Droits.aucun(5);

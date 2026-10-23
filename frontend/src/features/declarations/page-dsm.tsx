@@ -79,7 +79,7 @@ import {
 import { ListeDenominations } from './champs-identite'
 import { OngletCotisation } from './cotisation'
 import { DialogueLigne } from './dialogue-ligne'
-import { formatDateHeure } from './format'
+import { formatDate, formatDateHeure } from './format'
 import { GrilleDsm, type TriLignes } from './grille-dsm'
 import { DialogueImportExcel } from './import-excel'
 import { TableJournalDeclarations } from './journal'
@@ -384,8 +384,10 @@ function EditeurDsm({
     manques.length > 0
       ? `${manques.length === 1 ? 'Une pièce manque' : `${manques.length} pièces manquent`} : déposez-les dans l'onglet Pièces.`
       : null
-  const motifEnvoiImpossible =
-    anomalies.length > 0
+  // Spec 06 RG-CA-24 : avant la fin de la période, « Envoyer » est montré, désactivé, avec la date d'envoi.
+  const motifEnvoiImpossible = dsm.envoiPossibleLe
+    ? `La DSM s'envoie à partir du ${formatDate(dsm.envoiPossibleLe)}, lendemain de la fin de sa période.`
+    : anomalies.length > 0
       ? "Corrigez les anomalies avant l'envoi."
       : erreurApercu || !brouillonLisible(brouillon)
         ? "Corrigez la saisie avant l'envoi."
@@ -585,7 +587,7 @@ function EditeurDsm({
               Enregistrer
             </Button>
           )}
-          {permis('ENVOYER') && (
+          {(permis('ENVOYER') || dsm.envoiPossibleLe) && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={motifEnvoiImpossible ? 0 : undefined}>
@@ -779,6 +781,7 @@ function EditeurDsm({
             </p>
           </div>
           <OngletPieces
+            espace={espace}
             dsm={dsm}
             pieces={pieces.data}
             peutDeposer={permis('DEPOSER_PIECES')}

@@ -26,7 +26,7 @@ public enum Role {
      */
     public boolean gere(Module module) {
         return switch (module) {
-            case CONTACTS, PARAMETRAGE, DECLARATIONS, FACTURATION, MESSAGERIE -> this != OBSERVATEUR;
+            case CONTACTS, PARAMETRAGE, DECLARATIONS, FACTURATION, MESSAGERIE, CONTRATS -> this != OBSERVATEUR;
             case ACCES -> this == ADMIN;
         };
     }

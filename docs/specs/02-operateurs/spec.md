@@ -316,14 +316,15 @@ rattachement (RG-OPE-29) ; ses informations professionnelles, par une fiche dans
 
 **3.2.7 Rôles et modules** (liste fermée, définie par l'application, vision §2.5)
 
-| Rôle | Contacts (contacts, fiches professionnelles, fiche et présentation de l'opérateur) | Accès (invitations, rôles, suspensions, retraits) | Paramétrage (référentiels ; opérateur BNIA seulement) | Déclarations (DSM, pièces, notes internes, point de départ, stocks déclarés ; spec 05 §3.7) | Facturation (factures et avoirs ; gestion par l'opérateur BNIA seulement ; spec 08 §3.12) | Messagerie (conversations libres ; spec 15 §3.6) |
-|---|---|---|---|---|---|---|
-| `OBSERVATEUR` | lecture | lecture | lecture | lecture | lecture | lecture (gestion jusqu'au 2026-10-21) |
-| `AGENT` | gestion | lecture | gestion | gestion | gestion | gestion |
-| `ADMIN` | gestion | gestion | gestion | gestion | gestion | gestion |
+| Rôle | Contacts (contacts, fiches professionnelles, fiche et présentation de l'opérateur) | Accès (invitations, rôles, suspensions, retraits) | Paramétrage (référentiels ; opérateur BNIA seulement) | Déclarations (DSM, pièces, notes internes, point de départ, stocks déclarés ; spec 05 §3.7) | Facturation (factures et avoirs ; gestion par l'opérateur BNIA seulement ; spec 08 §3.12) | Messagerie (conversations libres ; spec 15 §3.6) | Contrats (contrats d'achat Armagnac ; gestion par les parties seulement ; spec 06 §3.6) |
+|---|---|---|---|---|---|---|---|
+| `OBSERVATEUR` | lecture | lecture | lecture | lecture | lecture | lecture (gestion jusqu'au 2026-10-21) | lecture |
+| `AGENT` | gestion | lecture | gestion | gestion | gestion | gestion | gestion |
+| `ADMIN` | gestion | gestion | gestion | gestion | gestion | gestion | gestion |
 
 Gérer un module permet d'y tout faire (créer, modifier, supprimer). Un rôle tenu dans l'opérateur BNIA
-vaut pour tous les opérateurs (RG-OPE-32). Un nouveau module (DSM, contrats…) ajoute une colonne.
+vaut pour tous les opérateurs (RG-OPE-32), sauf sur les Contrats : il ne donne que la lecture (spec 06 RG-CA-01,
+ADR-016 amendé le 2026-10-23). Un nouveau module ajoute une colonne.
 
 **3.2.8 Journal** (hors agrégat, en ajout seul ; remplace le journal des contacts)
 
@@ -453,6 +454,7 @@ Presque tous les contextes lisent un opérateur. Ils le font par une **partie pu
 | Type | `statistiques` |
 | Adresse, pays, e-mail résolu du destinataire des factures | `boutique` |
 | L'opérateur vu comme acheteur : raison sociale, SIRET, n° de TVA, adresse, e-mail résolu du destinataire des factures, ce qui manque pour le facturer (`AcheteurVue`, RG-OPE-02) | `facturation` (port `Clients`, spec 08 §3.11), qui le recopie sur la facture |
+| L'identité légale : SIRET, CVI, premier téléphone (`IdentiteLegaleVue`) | `contratsarmagnac`, qui l'imprime sur le contrat (spec 06 RG-CA-20) |
 | Raison sociale et adresse de l'expéditeur | `exportation` (certificat, figées) |
 | Région (et « en région délimitée » via `referentiels`), appellations, diffusion des millésimes, accès aux statistiques | `statistiques` |
 | L'utilisateur peut-il se connecter (non bloqué, un rattachement utilisable) ; utilisateur d'un e-mail | `authentification` (RG-AUT-04, 09) |
@@ -726,3 +728,5 @@ Chaque RG-OPE-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-17 | Révision demandée par la spec 15 (`messagerie`), livrée par son lot 2 : module « Messagerie » (`Module.MESSAGERIE`, §3.2.7), géré par les trois rôles, `OBSERVATEUR` compris ; exception à RG-OPE-31 : une conversation libre n'est lue, côté opérateur, que par son auteur ; module Déclarations : « commentaires » remplacés par « notes internes ». |
 | 2026-10-21 | Révisions demandées par l'utilisateur : `OBSERVATEUR` lit le module Messagerie sans le gérer, comme tous les autres modules (§3.2.7, `Role.gere`) ; le niveau `messagerie` s'ajoute aux droits de l'API (`Droits`) ; détail dans la spec 15 (journal du 2026-10-21). Portail : accueil en tableau de bord d'*Activités* (carte de recherche d'opérateur retirée), chevron au bout des lignes de « Mes utilisateurs », comme sur toutes les tables (§6.2) ; de même au back-office, liste des utilisateurs (module Accès). |
 | 2026-10-21 | Écrans (demande de l'utilisateur) : sur la fiche opérateur, « Désactiver » (ou « Réactiver ») et « Supprimer » ; sur la page d'un contact, « Supprimer » ; sur celle d'un membre, « Suspendre l'accès » (ou « Réactiver l'accès ») et « Retirer l'accès » ; sur celle d'un utilisateur (Accès), « Bloquer » (ou « Débloquer ») : ces actions quittent l'en-tête pour le cadre « Zone danger » en bas de page, chacune avec ce qu'elle entraîne (convention de la spec 00). |
+| 2026-10-23 | Révision demandée par la spec 06 (`contratsarmagnac`), livrée par son lot 1 : module « Contrats » (`Module.CONTRATS`, §3.2.7), géré par `AGENT` et `ADMIN` ; exception à RG-OPE-32 : un rôle tenu dans l'opérateur BNIA n'y donne que la lecture (`Droits.gere` : rôle local seulement, comme la Facturation par le seul rôle tenu au BNIA) ; niveau `contrats` dans les droits de l'API. |
+| 2026-10-23 | Révision demandée par la spec 06 (`contratsarmagnac`), lot 3 : lecture publiée de l'identité légale d'un opérateur (`OperateursLecture.identiteLegale`, `IdentiteLegaleVue` : SIRET, CVI, premier téléphone), imprimée sur le PDF du contrat (§5.2). |
