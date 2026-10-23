@@ -21,7 +21,8 @@ import { ETATS, PARTIES } from './libelles'
 /**
  * Une liste de contrats (RG-CA-25), du plus récemment modifié au plus ancien ; une ligne ouvre le contrat. Au portail
  * (`operateur`, l'opérateur actif), la colonne « Avec » nomme l'autre partie et son rôle, et un contrat conclu dont une
- * retiraison attend sa validation le dit à côté de son état ; au back-office, les deux parties. Une ligne par contrat ; selon la largeur du contenu, le tableau perd la date puis le volume, et sous 40rem
+ * retiraison attend sa validation le dit à côté de son état ; au back-office, le vendeur puis l'acheteur ont chacun leur
+ * colonne. Une ligne par contrat ; selon la largeur du contenu, le tableau perd la date puis le volume, et sous 40rem
  * une carte par contrat.
  */
 export function ListeContrats({
@@ -43,9 +44,9 @@ export function ListeContrats({
       ? navigate({ to: '/bo/contrats/$id', params: { id: String(id) } })
       : navigate({ to: '/portail/contrats/$id', params: { id: String(id) } })
   const { lignes, pagination } = usePagination(contrats, TAILLE_PAGE)
+  const bo = operateur === undefined
+  // Au portail : l'autre partie et son rôle.
   const parties = (c: ContratListe) => {
-    if (operateur === undefined)
-      return `${c.vendeur.raisonSociale} → ${c.acheteur.raisonSociale}`
     const autreEstVendeur = c.acheteur.id === operateur
     const autre = autreEstVendeur ? c.vendeur : c.acheteur
     return `${autre.raisonSociale} (${PARTIES[autreEstVendeur ? 'VENDEUR' : 'ACHETEUR'].toLowerCase()})`
@@ -62,9 +63,14 @@ export function ListeContrats({
             <TableRow>
               <TableHead>Numéro</TableHead>
               <TableHead>État</TableHead>
-              <TableHead className='w-full'>
-                {operateur === undefined ? 'Vendeur → acheteur' : 'Avec'}
-              </TableHead>
+              {bo ? (
+                <>
+                  <TableHead className='w-1/2'>Vendeur</TableHead>
+                  <TableHead className='w-1/2'>Acheteur</TableHead>
+                </>
+              ) : (
+                <TableHead className='w-full'>Avec</TableHead>
+              )}
               <TableHead>Produit</TableHead>
               <TableHead className='text-right @max-[52rem]/content:hidden'>
                 Volume
@@ -80,7 +86,7 @@ export function ListeContrats({
             {contrats.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={bo ? 9 : 8}
                   className='text-muted-foreground h-16 text-center'
                 >
                   {chargement ? 'Chargement…' : vide}
@@ -104,12 +110,29 @@ export function ListeContrats({
                     {c.retiraisonAValider && <RetiraisonAValider />}
                   </span>
                 </TableCell>
-                <TableCell
-                  className='w-full max-w-0 truncate'
-                  title={parties(c)}
-                >
-                  {parties(c)}
-                </TableCell>
+                {bo ? (
+                  <>
+                    <TableCell
+                      className='w-1/2 max-w-0 truncate'
+                      title={c.vendeur.raisonSociale}
+                    >
+                      {c.vendeur.raisonSociale}
+                    </TableCell>
+                    <TableCell
+                      className='w-1/2 max-w-0 truncate'
+                      title={c.acheteur.raisonSociale}
+                    >
+                      {c.acheteur.raisonSociale}
+                    </TableCell>
+                  </>
+                ) : (
+                  <TableCell
+                    className='w-full max-w-0 truncate'
+                    title={parties(c)}
+                  >
+                    {parties(c)}
+                  </TableCell>
+                )}
                 <TableCell className='whitespace-nowrap'>
                   {produit(c)}
                 </TableCell>
@@ -150,7 +173,20 @@ export function ListeContrats({
               </span>
             }
           >
-            <div className='truncate text-sm'>{parties(c)}</div>
+            {bo ? (
+              <>
+                <div className='truncate text-sm'>
+                  <span className='text-muted-foreground'>Vendeur : </span>
+                  {c.vendeur.raisonSociale}
+                </div>
+                <div className='truncate text-sm'>
+                  <span className='text-muted-foreground'>Acheteur : </span>
+                  {c.acheteur.raisonSociale}
+                </div>
+              </>
+            ) : (
+              <div className='truncate text-sm'>{parties(c)}</div>
+            )}
             <div className='text-muted-foreground text-sm'>
               {[
                 produit(c),

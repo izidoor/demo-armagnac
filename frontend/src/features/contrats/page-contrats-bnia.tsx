@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react'
 import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Input } from '@/components/ui/input'
 import { PageMetier } from '@/components/metier/page-metier'
@@ -39,11 +40,13 @@ export function PageContratsBnia() {
       titre='Contrats'
       description="Les contrats d'achat Armagnac entre opérateurs, conclus par l'accord des parties."
     >
-      <div className='mb-4'>
+      <div className='relative mb-4 w-full sm:w-64'>
+        <Search className='text-muted-foreground absolute start-2.5 top-2.5 size-4' />
         <Input
-          aria-label='Numéro'
-          placeholder='Numéro (CA-2026-…)'
-          className='w-full sm:w-64'
+          placeholder='Rechercher un contrat'
+          title='Par numéro (CA-2026-…)'
+          aria-label='Contrat, par numéro'
+          className='h-9 w-full ps-8'
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
         />
