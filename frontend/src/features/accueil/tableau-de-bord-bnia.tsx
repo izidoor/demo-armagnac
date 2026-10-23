@@ -36,6 +36,7 @@ import { FILIERE, type TypeDeclarant } from '@/components/metier/filiere'
 import { useContratsBnia } from '@/features/contrats/api'
 import { GraphiqueComptes } from '@/features/declarations/graphiques-stocks'
 import { dansGroupe as dans } from '@/features/declarations/libelles'
+import { echueImpayee } from '@/features/facturation/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
 import { useDroits, useMoi } from '@/features/session/session'
 import { Activite, GrilleActivites, Section, Valeur } from './activite'
@@ -352,8 +353,8 @@ function FacturesAValider() {
 }
 
 /**
- * RG-FAC-33 : les factures émises que Zeendoc n'a pas encore vues réglées, comme l'onglet « Émises » et la carte
- * « Factures non payées » du portail ; ouvre cet onglet.
+ * RG-FAC-13, 33 : les factures échues et impayées, transmises à Zeendoc, non payées, leur échéance passée ;
+ * affichée en alerte, seulement s'il y en a. Ouvre l'onglet « Émises », où leurs lignes sont teintées.
  */
 function FacturesImpayees() {
   const emises = useQuery({
@@ -363,14 +364,15 @@ function FacturesImpayees() {
         (r) => r.data
       ),
   })
+  const echues = emises.data?.filter(echueImpayee).length
+  if (!echues) return null
   return (
     <Activite
       libelle='Factures impayées'
       icone={Banknote}
-      valeur={
-        emises.data?.filter((p) => p.sens === 'FACTURE' && !p.payeeLe).length
-      }
+      valeur={echues}
       lien={{ to: '/bo/facturation', search: { onglet: 'emises' } }}
+      alerte
     />
   )
 }

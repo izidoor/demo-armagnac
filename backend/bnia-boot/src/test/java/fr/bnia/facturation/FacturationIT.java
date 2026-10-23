@@ -569,7 +569,9 @@ class FacturationIT extends AbstractIT {
         assertThat((String) comptesRendus.getLast().get("motif")).contains("n'est pas émise");
         client.get().uri(PIECES + "?client={client}", String.valueOf(operateur)).exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$[0].zeendoc").isEqualTo("TRANSMISE")
-                .jsonPath("$[0].transmiseLe").exists();
+                .jsonPath("$[0].transmiseLe").exists()
+                // L'échéance, pour les factures échues et impayées du tableau de bord.
+                .jsonPath("$[0].echeance").exists();
         client.get().uri(PIECES + "/{id}/journal", emise).exchange().expectStatus().isOk()
                 .expectBody().jsonPath("$[0].evenement").isEqualTo("TRANSMISE")
                 .jsonPath("$[0].cote").isEqualTo("VENDEUR");

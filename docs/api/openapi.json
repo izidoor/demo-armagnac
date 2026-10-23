@@ -13153,6 +13153,11 @@
             "format" : "date",
             "description" : "Vide pour un brouillon"
           },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date",
+            "description" : "Date d'échéance ; vide pour un brouillon (RG-FAC-13)"
+          },
           "etat" : {
             "type" : "string",
             "enum" : [ "BROUILLON", "EMISE" ]

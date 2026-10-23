@@ -59,11 +59,14 @@ export function CarteListe({
   lien,
   onOuvrir,
   titre,
+  className,
   children,
 }: {
   lien?: { to: LinkProps['to']; params?: LinkProps['params'] }
   onOuvrir?: () => void
   titre: ReactNode
+  /** Une teinte de fond, pour une carte qui se distingue (par exemple, une facture échue). */
+  className?: string
   children?: ReactNode
 }) {
   const ouvrante = lien !== undefined || onOuvrir !== undefined
@@ -71,7 +74,8 @@ export function CarteListe({
     <li
       className={cn(
         'bg-card relative flex items-start gap-2 rounded-lg border p-3 shadow-xs',
-        ouvrante && 'hover:border-primary/40 transition-colors'
+        ouvrante && 'hover:border-primary/40 transition-colors',
+        className
       )}
     >
       <div className='min-w-0 flex-1 space-y-1'>

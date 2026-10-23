@@ -16,6 +16,7 @@ public record PieceListeeResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED) EtatPiece etat,
         @Schema(description = "Vide pour un brouillon", example = "2026000001") String numero,
         @Schema(description = "Vide pour un brouillon") LocalDate dateEmission,
+        @Schema(description = "Date d'échéance ; vide pour un brouillon (RG-FAC-13)") LocalDate echeance,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Armagnacs de Gascogne") String acheteur,
         @Schema(description = "Identifiant du client chez l'hôte (opérateur) ; vide pour un client libre")
         String clientIdentifiant,
@@ -34,7 +35,8 @@ public record PieceListeeResponse(
         @Schema(description = "Vide tant que la pièce n'est pas payée") LocalDate payeeLe) {
 
     static PieceListeeResponse de(PieceLigne p) {
-        return new PieceListeeResponse(p.id(), p.sens(), p.etat(), p.numero(), p.dateEmission(), p.nomAcheteur(),
+        return new PieceListeeResponse(p.id(), p.sens(), p.etat(), p.numero(), p.dateEmission(), p.echeance(),
+                p.nomAcheteur(),
                 p.client() == null ? null : p.client().identifiant(), p.client() == null ? null : p.client().code(),
                 p.origine() == null ? null : p.origine().nature(),
                 p.origine() == null ? null : p.origine().libelleNature(),

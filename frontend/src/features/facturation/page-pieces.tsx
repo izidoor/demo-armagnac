@@ -53,7 +53,7 @@ import {
 import { useDroits, useMoi } from '@/features/session/session'
 import { cleFacturation } from './api'
 import { BadgeZeendoc } from './badge-zeendoc'
-import { SENS } from './libelles'
+import { echueImpayee, SENS } from './libelles'
 
 /** La transmission à Zeendoc est simulée : le loader dure au moins ce délai, pour la démonstration. */
 const DELAI_ZEENDOC = 1500
@@ -510,7 +510,12 @@ export function TablePieces({
             {(lignes ?? []).map((p) => (
               <TableRow
                 key={p.id}
-                className='cursor-pointer'
+                className={cn(
+                  'cursor-pointer',
+                  // Échue et impayée (RG-FAC-33) : la ligne se teinte.
+                  echueImpayee(p) && 'bg-danger/50 hover:bg-danger/80'
+                )}
+                title={echueImpayee(p) ? 'Échue et impayée' : undefined}
                 onClick={() =>
                   navigate({
                     to: '/bo/facturation/$id',
@@ -670,6 +675,7 @@ function CartePiece({
   return (
     <CarteListe
       lien={{ to: '/bo/facturation/$id', params: { id: String(p.id) } }}
+      className={echueImpayee(p) ? 'bg-danger/50' : undefined}
       titre={
         brouillon ? (
           (p.libelleNature ?? 'Brouillon')

@@ -29,7 +29,7 @@ class JdbcPiecesLecture implements PiecesLecture {
 
     @Override
     public List<PieceLigne> rechercher(FiltrePieces filtre) {
-        return jdbcClient.sql("select id, sens, etat, numero, date_emission, acheteur_nom, acheteur_client_identifiant,"
+        return jdbcClient.sql("select id, sens, etat, numero, date_emission, echeance, acheteur_nom, acheteur_client_identifiant,"
                         + " acheteur_client_code, origine_source, origine_nature, origine_libelle_nature,"
                         + " origine_identifiant, origine_reference, libelle_periode, total_ht, total_tva, total_ttc,"
                         + " creee_le, zeendoc, zeendoc_transmise_le, zeendoc_payee_le from " + SCHEMA + ".facture"
@@ -55,7 +55,8 @@ class JdbcPiecesLecture implements PiecesLecture {
                 .param("au", filtre.au().orElse(null), Types.DATE)
                 .query((rs, n) -> new PieceLigne(rs.getLong("id"), SensPiece.valueOf(rs.getString("sens")),
                         EtatPiece.valueOf(rs.getString("etat")), rs.getString("numero"),
-                        rs.getObject("date_emission", LocalDate.class), rs.getString("acheteur_nom"),
+                        rs.getObject("date_emission", LocalDate.class), rs.getObject("echeance", LocalDate.class),
+                        rs.getString("acheteur_nom"),
                         rs.getString("acheteur_client_identifiant") == null ? null
                                 : new ClientRef(rs.getString("acheteur_client_identifiant"),
                                         rs.getString("acheteur_client_code")),

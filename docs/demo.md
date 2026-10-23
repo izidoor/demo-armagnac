@@ -236,8 +236,10 @@ Scénario :
 
 Scénario :
 
-1. `admin@bnia.fr`, tableau de bord : « Factures à valider » vaut 0, « Factures impayées » compte les factures
-   émises non payées (cinq pour un chargement en octobre) et ouvre l'onglet « Émises ». Menu « Facturation >
+1. `admin@bnia.fr`, tableau de bord : « Factures à valider » vaut 0, « Factures impayées », en liseré rouge, compte les
+   factures échues et impayées (transmises à Zeendoc, échéance passée) : 1, celle de Gascogne d'août ; elle ouvre
+   l'onglet « Émises », où sa ligne est teintée de rouge pâle (de même dans l'onglet « Factures » de la fiche).
+   Sans facture échue, la carte n'apparaît pas. Menu « Facturation >
    Factures » : onglet « Brouillons » vide ; onglet « Émises » : les
    factures du mois, à transmettre, et celle de Gascogne d'août, « Transmis », impayée ; onglet « Payées » : les
    autres, « Payé ». Ouvrir une facture de Gascogne : acheteur, dates, échéance au dernier jour du mois suivant

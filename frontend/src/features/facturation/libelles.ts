@@ -1,4 +1,4 @@
-import { type Piece } from '@/api/generated'
+import { type Piece, type PieceListee } from '@/api/generated'
 
 type EtatPiece = Piece['etat']
 type SensPiece = Piece['sens']
@@ -40,4 +40,25 @@ export const ETATS_ZEENDOC: Record<EtatZeendoc, string> = {
 export const COULEUR_ZEENDOC: Record<EtatZeendoc, string> = {
   TRANSMISE: 'bg-primary text-primary-foreground',
   PAYEE: 'bg-success-foreground text-background',
+}
+
+/** Le jour, au format ISO des dates de l'API (`2026-10-23`), dans le fuseau du navigateur. */
+function jourIso(date = new Date()) {
+  const deux = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${deux(date.getMonth() + 1)}-${deux(date.getDate())}`
+}
+
+/**
+ * RG-FAC-13, 33 : une facture échue et impayée, transmise à Zeendoc, non payée, son échéance passée. Le tableau de
+ * bord du back-office les compte ; le tableau des pièces les teinte.
+ */
+export function echueImpayee(
+  p: Pick<PieceListee, 'sens' | 'zeendoc' | 'echeance'>
+) {
+  return (
+    p.sens === 'FACTURE' &&
+    p.zeendoc === 'TRANSMISE' &&
+    !!p.echeance &&
+    p.echeance < jourIso()
+  )
 }

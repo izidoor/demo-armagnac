@@ -2323,6 +2323,10 @@ export type PieceListee = {
      * Vide pour un brouillon
      */
     dateEmission?: string;
+    /**
+     * Date d'échéance ; vide pour un brouillon (RG-FAC-13)
+     */
+    echeance?: string;
     etat: 'BROUILLON' | 'EMISE';
     ht: number;
     id: number;
