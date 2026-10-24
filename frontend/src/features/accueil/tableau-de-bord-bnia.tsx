@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, type LinkProps, useNavigate } from '@tanstack/react-router'
 import {
@@ -16,13 +16,7 @@ import {
   ShoppingBag,
   Stamp,
 } from 'lucide-react'
-import {
-  type Droits,
-  listerPieces,
-  listerToutesDsm,
-  rechercherOperateurs,
-} from '@/api/generated'
-import { useDebounce } from '@/hooks/use-debounce'
+import { type Droits, listerPieces, listerToutesDsm } from '@/api/generated'
 import {
   Card,
   CardContent,
@@ -30,7 +24,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FILIERE, type TypeDeclarant } from '@/components/metier/filiere'
 import { useContratsBnia } from '@/features/contrats/api'
@@ -38,6 +31,7 @@ import { GraphiqueComptes } from '@/features/declarations/graphiques-stocks'
 import { dansGroupe as dans } from '@/features/declarations/libelles'
 import { echueImpayee } from '@/features/facturation/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
+import { RechercheOperateur } from '@/features/operateurs/portail/recherche-operateur'
 import { useDroits, useMoi } from '@/features/session/session'
 import { Activite, GrilleActivites, Section, Valeur } from './activite'
 import { GraphiqueExportations } from './graphique-exportations'
@@ -197,23 +191,12 @@ function CarteType({
 }
 
 /**
- * Recherche rapide d'un opérateur actif (CDC §4.1) : un résultat ouvre sa fiche ; Entrée (ou « Rechercher » du
- * clavier d'un téléphone), sans mention à l'écran, ouvre le listing des opérateurs filtré par le texte, inactifs compris.
+ * Recherche rapide d'un opérateur actif (CDC §4.1), cinq résultats : un résultat ouvre sa fiche, au clic ou au clavier
+ * (flèches, Entrée) ; Entrée sans résultat en surbrillance (ou « Rechercher » du clavier d'un téléphone), sans mention à
+ * l'écran, ouvre le listing des opérateurs filtré par le texte, inactifs compris.
  */
 function RechercheRapide() {
   const navigate = useNavigate()
-  const [texte, setTexte] = useState('')
-  const stable = useDebounce(texte.trim())
-  const { data, isFetching } = useQuery({
-    queryKey: ['recherche-operateurs', stable],
-    queryFn: () =>
-      rechercherOperateurs({
-        query: { texte: stable },
-        throwOnError: true,
-      }).then((r) => r.data),
-    enabled: stable.length >= 3,
-  })
-  const resultats = stable.length >= 3 ? (data ?? []).slice(0, 5) : []
   return (
     <Card className='lg:col-span-2 xl:col-span-1'>
       <CardHeader className='flex flex-row items-center gap-3'>
@@ -227,48 +210,17 @@ function RechercheRapide() {
           </CardDescription>
         </div>
       </CardHeader>
-      <CardContent className='space-y-2'>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (texte.trim())
-              navigate({
-                to: '/bo/operateurs',
-                search: { recherche: texte.trim() },
-              })
-          }}
-        >
-          <Input
-            value={texte}
-            onChange={(e) => setTexte(e.target.value)}
-            placeholder='3 caractères au moins'
-            aria-label='Rechercher un opérateur'
-          />
-        </form>
-        {stable.length >= 3 && !isFetching && resultats.length === 0 && (
-          <p className='text-muted-foreground px-2 text-sm'>
-            Aucun opérateur actif ne correspond.
-          </p>
-        )}
-        <ul className='text-sm'>
-          {resultats.map((o) => (
-            <li key={o.id}>
-              <Link
-                to='/bo/operateurs/$id'
-                params={{ id: String(o.id) }}
-                className='hover:bg-muted flex items-center gap-1 rounded-md px-2 py-1.5'
-              >
-                <span className='font-mono'>{o.code}</span>
-                <span className='truncate'>· {o.raisonSociale}</span>
-                {o.ville && (
-                  <span className='text-muted-foreground truncate'>
-                    · {o.ville}
-                  </span>
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <CardContent>
+        <RechercheOperateur
+          limite={5}
+          placeholder='3 caractères au moins'
+          onChoisir={(o) =>
+            navigate({ to: '/bo/operateurs/$id', params: { id: String(o.id) } })
+          }
+          onEntree={(texte) =>
+            navigate({ to: '/bo/operateurs', search: { recherche: texte } })
+          }
+        />
       </CardContent>
     </Card>
   )

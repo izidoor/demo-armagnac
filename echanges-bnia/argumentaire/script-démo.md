@@ -13,13 +13,7 @@ Messagerie, nouvelle conversation
 
 
 
-- recherche opérateur sur le dashboard BNIA et dans l'interface de création de création de contrat : la navigation avec les touches du clavier ne fonctionne pas. -> Combobox de shadcn.ui ?
-
-- en thème sombre, la ligne total des dsm ne ressort pas ( en thème clair, oui)
-
 - harmoniser les onglets des pages sur les onglets de la page contrats ?
-
-- constat : vendeur -> mettre aussi en litre le stock
 
 - dashboard : le réorganiser 
   - bnia 
@@ -29,8 +23,7 @@ Messagerie, nouvelle conversation
       - mettre deux cars 1/4 : nouveaux messages + 
     - mettre des graphique pour les opéreteurs
 
-
-
+- dsm : essayer d'alléger l'écran
 
 # démo
 

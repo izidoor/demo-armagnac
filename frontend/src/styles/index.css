@@ -195,7 +195,8 @@
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.3095 0.0266 266.7132);
   --secondary-foreground: oklch(0.9219 0 0);
-  --muted: oklch(0.3095 0.0266 266.7132);
+  /* Plus clair que les cartes (0,3106), pour qu'un fond « muted » s'en détache : ligne de total, cellules sans objet. */
+  --muted: oklch(0.36 0.0266 266.7132);
   --muted-foreground: oklch(0.7155 0 0);
   --accent: oklch(0.338 0.0589 267.5867);
   --accent-foreground: oklch(0.8823 0.0571 254.1284);
