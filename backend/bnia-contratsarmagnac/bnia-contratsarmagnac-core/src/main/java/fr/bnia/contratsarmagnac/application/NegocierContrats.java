@@ -31,13 +31,13 @@ public class NegocierContrats {
     private final Clock horloge;
 
     public NegocierContrats(ContratRepository contrats, Numerotation numerotation, JournalContrats journal,
-            EnvoiCourriels envoi, OperateursLecture operateurs, DeclarationsLecture declarations,
-            ParametresContrats parametres, Clock horloge) {
+            EnvoiCourriels envoi, EnvoiNotifications notifications, OperateursLecture operateurs,
+            DeclarationsLecture declarations, ParametresContrats parametres, Clock horloge) {
         this.numerotation = numerotation;
         this.operateurs = operateurs;
         this.declarations = declarations;
         this.autorisations = new Autorisations(operateurs);
-        this.registre = new Registre(contrats, journal, envoi, operateurs, parametres, horloge);
+        this.registre = new Registre(contrats, journal, envoi, notifications, operateurs, parametres, horloge);
         this.horloge = horloge;
     }
 

@@ -94,8 +94,9 @@ demarrerSuivi()
 // Retour des pages de second niveau (useRetour) : le chemin de chaque entrée de l'historique.
 router.subscribe('onResolved', () => retenirEntree(router))
 
-// Application installable (PWA) : le service worker ne garde rien en cache (public/sw.js). En dev, Vite s'en passe.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+// Application installable (PWA) : le service worker ne garde rien en cache et affiche les notifications push
+// (public/sw.js). Aussi en dev, pour essayer le push sur localhost.
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {})
   })

@@ -2112,6 +2112,81 @@
         "tags" : [ "mon-compte" ]
       }
     },
+    "/api/notifications/abonnements" : {
+      "post" : {
+        "operationId" : "abonnerAppareil",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaisieAbonnement"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Abonner cet appareil à mes notifications ; une adresse déjà connue passe à moi (RG-NOT-01, 02)",
+        "tags" : [ "notifications" ]
+      }
+    },
+    "/api/notifications/cle-publique" : {
+      "get" : {
+        "operationId" : "clePubliqueNotifications",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ClePubliquePush"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "La clé publique VAPID, pour abonner un appareil ; vide si l'installation n'envoie pas de notification push (RG-NOT-07)",
+        "tags" : [ "notifications" ]
+      }
+    },
+    "/api/notifications/desabonnement" : {
+      "post" : {
+        "operationId" : "desabonnerAppareil",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AdresseAbonnement"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Désabonner cet appareil (désactivation, déconnexion) ; sans effet sur l'appareil d'un autre (RG-NOT-05)",
+        "tags" : [ "notifications" ]
+      }
+    },
+    "/api/notifications/essai" : {
+      "post" : {
+        "operationId" : "essayerNotifications",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Envoyer une notification d'essai à tous mes appareils abonnés (RG-NOT-06)",
+        "tags" : [ "notifications" ]
+      }
+    },
     "/api/operateurs" : {
       "get" : {
         "operationId" : "listerOperateurs",
@@ -9308,6 +9383,16 @@
         },
         "required" : [ "adresseFacturation", "categorie", "manques" ]
       },
+      "AdresseAbonnement" : {
+        "type" : "object",
+        "description" : "L'adresse de l'abonnement push d'un appareil",
+        "properties" : {
+          "adresse" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "adresse" ]
+      },
       "AdresseFacturation" : {
         "type" : "object",
         "description" : "Adresse d'un acheteur ou du vendeur (spec 08 §3.5, §3.7)",
@@ -9655,6 +9740,16 @@
           }
         },
         "required" : [ "actif", "code", "id", "libelle" ]
+      },
+      "ClePubliquePush" : {
+        "type" : "object",
+        "description" : "La clé publique VAPID du serveur (RG-NOT-07)",
+        "properties" : {
+          "clePublique" : {
+            "type" : "string",
+            "description" : "En base64url ; vide si l'installation n'envoie pas de notification push"
+          }
+        }
       },
       "CodePropose" : {
         "type" : "object",
@@ -13630,6 +13725,25 @@
           }
         },
         "required" : [ "conserverContact" ]
+      },
+      "SaisieAbonnement" : {
+        "type" : "object",
+        "description" : "L'abonnement push que le navigateur a reçu de son service push (RG-NOT-01)",
+        "properties" : {
+          "adresse" : {
+            "type" : "string",
+            "description" : "endpoint, URL HTTPS"
+          },
+          "cleP256dh" : {
+            "type" : "string",
+            "description" : "keys.p256dh, en base64url"
+          },
+          "secretAuth" : {
+            "type" : "string",
+            "description" : "keys.auth, en base64url"
+          }
+        },
+        "required" : [ "adresse", "cleP256dh", "secretAuth" ]
       },
       "SaisieAcceptation" : {
         "type" : "object",

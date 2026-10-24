@@ -56,6 +56,44 @@ class ExecuterContratsTest {
                 millesime2015("15", "1750"))).id();
         negocier.approuver(HENRI, NEGOCIANT, id, 1);
         monde.courriels.envoyes.clear();
+        monde.notifications.envoyees.clear();
+    }
+
+    @Test
+    @DisplayName("RG-CA-18 : une notification push à l'autre partie à chaque retiraison déclarée, modifiée ou validée, à"
+            + " l'annulation et à la clôture")
+    void rg_ca_18_notifications_des_retiraisons() {
+        cas.declarerRetiraison(HENRI, NEGOCIANT, id, retiraison(LE_30, false, "10"));
+        assertThat(monde.notifications.envoyees).singleElement().satisfies(n -> {
+            assertThat(n.utilisateurs()).containsExactly(80L);
+            assertThat(n.titre()).isEqualTo("Retiraison à valider, contrat CA-2026-0001");
+            assertThat(n.texte()).isEqualTo("Henri Castex (Armagnacs de Gascogne) a déclaré la retiraison n° 1, pour le"
+                    + " 30 octobre 2026 ; elle attend votre validation.");
+            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id);
+        });
+        cas.modifierRetiraison(JEANNE, PRODUCTEUR, id, 1, 1, retiraison(LE_30, false, "2"));
+        assertThat(monde.notifications.a(70)).singleElement()
+                .satisfies(n -> assertThat(n.titre()).isEqualTo("Retiraison modifiée, contrat CA-2026-0001"));
+        cas.validerRetiraison(HENRI, NEGOCIANT, id, 1, 2);
+        assertThat(monde.notifications.a(80)).last().satisfies(n -> {
+            assertThat(n.titre()).isEqualTo("Retiraison validée, contrat CA-2026-0001");
+            assertThat(n.texte()).endsWith("a validé la retiraison n° 1 : elle est inscrite dans votre DSM.");
+        });
+        cas.cloturer(HENRI, NEGOCIANT, id);
+        assertThat(monde.notifications.a(80)).last()
+                .satisfies(n -> assertThat(n.titre()).isEqualTo("Contrat CA-2026-0001 exécuté"));
+        assertThat(monde.notifications.envoyees).hasSize(4);
+    }
+
+    @Test
+    @DisplayName("RG-CA-18 : l'annulation est notifiée à l'autre partie")
+    void rg_ca_18_notification_de_l_annulation() {
+        cas.annuler(JEANNE, PRODUCTEUR, id);
+        assertThat(monde.notifications.a(70)).singleElement().satisfies(n -> {
+            assertThat(n.titre()).isEqualTo("Contrat CA-2026-0001 annulé");
+            assertThat(n.texte()).isEqualTo(
+                    "Jeanne Durand (Maison Durand) a annulé le contrat ; ses retiraisons validées restent.");
+        });
     }
 
     private static SaisieRetiraison retiraison(LocalDate date, boolean derniere, String volume) {

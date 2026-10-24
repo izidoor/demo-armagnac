@@ -151,6 +151,36 @@ class NegocierContratsTest {
     }
 
     @Test
+    @DisplayName("RG-CA-18 : une notification push aux AGENT et ADMIN de l'autre partie, à l'ouverture, à la modification,"
+            + " à la conclusion, au refus ; une phrase sans montant ni volume, et le lien du contrat")
+    void rg_ca_18_notifications() {
+        long id = projetDeJeanne("15").id();
+        assertThat(monde.notifications.envoyees).singleElement().satisfies(n -> {
+            assertThat(n.utilisateurs()).as("Henri ; ni l'observateur ni le contact").containsExactly(70L);
+            assertThat(n.titre()).isEqualTo("Projet de contrat CA-2026-0001 à approuver");
+            assertThat(n.texte()).isEqualTo(
+                    "Jeanne Durand (Maison Durand) vous propose un projet de contrat ; il attend votre approbation.");
+            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id);
+        });
+
+        cas.modifier(HENRI, NEGOCIANT, id, 1, millesime2015("15", "1700"));
+        assertThat(monde.notifications.a(80)).singleElement().satisfies(n -> {
+            assertThat(n.titre()).isEqualTo("Projet de contrat CA-2026-0001 modifié");
+            assertThat(n.texte()).doesNotContain("1700").doesNotContain("15");
+        });
+        cas.approuver(JEANNE, PRODUCTEUR, id, 2);
+        assertThat(monde.notifications.a(70)).last().satisfies(n -> {
+            assertThat(n.titre()).isEqualTo("Contrat CA-2026-0001 conclu");
+            assertThat(n.texte()).isEqualTo("Jeanne Durand (Maison Durand) a approuvé le contrat : il est conclu.");
+        });
+
+        long refuse = projetDeJeanne("1").id();
+        cas.refuser(HENRI, NEGOCIANT, refuse, 1);
+        assertThat(monde.notifications.a(80)).last()
+                .satisfies(n -> assertThat(n.titre()).isEqualTo("Projet de contrat CA-2026-0002 refusé"));
+    }
+
+    @Test
     @DisplayName("RG-CA-01 : le BNIA n'agit sur aucun contrat ; un observateur lit sans agir ; un tiers ne voit pas le contrat")
     void rg_ca_01_refus() {
         long id = projetDeJeanne("15").id();

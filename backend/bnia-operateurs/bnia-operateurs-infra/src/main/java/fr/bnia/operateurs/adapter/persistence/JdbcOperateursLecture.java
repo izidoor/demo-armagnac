@@ -185,11 +185,11 @@ class JdbcOperateursLecture implements OperateursLecture {
                     centres.computeIfAbsent(rs.getLong("fiche_id"), f -> new HashSet<>()).add(rs.getLong("centre_interet_id"));
                 });
         return jdbcClient.sql("""
-                        select c.fiche_id, c.nom, c.prenom, c.email, f.fonction, null as role
+                        select c.fiche_id, c.nom, c.prenom, c.email, f.fonction, null as role, null as utilisateur_id
                           from %1$scontact c join %1$sfiche_professionnelle f on f.id = c.fiche_id
                          where c.operateur_id = :operateur
                         union all
-                        select r.fiche_id, u.nom, u.prenom, u.email, f.fonction, r.role
+                        select r.fiche_id, u.nom, u.prenom, u.email, f.fonction, r.role, r.utilisateur_id
                           from %1$srattachement r join %1$sutilisateur u on u.id = r.utilisateur_id
                           join %1$sfiche_professionnelle f on f.id = r.fiche_id
                          where r.operateur_id = :operateur
@@ -223,7 +223,8 @@ class JdbcOperateursLecture implements OperateursLecture {
         String role = rs.getString("role");
         return new PersonneVue(operateur, fiche, prenom == null ? nom : prenom + " " + nom,
                 Optional.ofNullable(rs.getString("fonction")), Optional.ofNullable(rs.getString("email")),
-                Set.copyOf(centres.getOrDefault(fiche, Set.of())), Optional.ofNullable(role).map(Role::valueOf));
+                Set.copyOf(centres.getOrDefault(fiche, Set.of())), Optional.ofNullable(role).map(Role::valueOf),
+                Optional.ofNullable(rs.getObject("utilisateur_id", Long.class)));
     }
 
     /** @param condition constante, jamais une saisie utilisateur ; rien si la valeur est absente */

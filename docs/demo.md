@@ -344,7 +344,8 @@ Scénario :
   retiraison : aucun stock n'a bougé. Ils remplissent les listes du back-office et les mercuriales.
 
 Le BNIA lit tous les contrats et n'agit sur aucun (ADR-016) ; chaque action qui attend l'autre partie lui
-envoie un e-mail (ses `AGENT` et `ADMIN`), dans Mailpit.
+envoie un e-mail (ses `AGENT` et `ADMIN`), dans Mailpit, et une notification push à leurs appareils abonnés
+(ci-dessous).
 
 Scénario :
 
@@ -383,3 +384,26 @@ Scénario :
     … ») ; sur un contrat conclu, « Plus » : « Annuler le contrat » ou « Plus de retiraison » (les
     retiraisons non validées tombent) ; une retiraison non validée, « Retirer » par Henri, ou « Modifier » et
     renvoyer par la partie attendue.
+
+## Notifications push (spec 11)
+
+Aucun appareil n'est abonné au chargement : chacun active les notifications sur le sien, dans « Mon compte »,
+onglet « Profil », section « Notifications sur cet appareil ». En dev, sur `localhost`, Chrome ou Firefox suffisent ;
+sur un téléphone, il faut la démonstration hébergée (HTTPS).
+
+- **Android** : ouvrir la démonstration dans Chrome, l'installer (« Ajouter à l'écran d'accueil ») ou non,
+  se connecter, « Activer les notifications », accepter.
+- **iPhone, iPad** (iOS 16.4 et plus) : dans Safari, Partager, « Sur l'écran d'accueil » ; ouvrir BNIA depuis
+  son icône, se connecter, « Activer les notifications », accepter. Dans Safari même, la section explique
+  cette marche.
+- « Envoyer une notification d'essai » vérifie l'appareil : elle arrive en quelques secondes.
+- Plusieurs appareils sur le même compte reçoivent chacun la notification. Se déconnecter désabonne l'appareil.
+- Écran allumé, mode « Ne pas déranger » ou « Concentration » coupé : sinon la notification est retenue.
+
+Scénario : Henri (`admin@negociant.fr`) active les notifications sur un téléphone. Sur l'ordinateur, Jeanne
+(`admin@producteur.fr`) ouvre un projet de contrat (scénario des contrats, étape 2) : le téléphone sonne,
+« Projet de contrat CA-… à approuver » ; un appui ouvre le contrat. Même chose à chaque étape du fil :
+modification, approbation, retiraison déclarée, modifiée, validée, annulation, « Plus de retiraison ».
+
+La remise à zéro de la démonstration (`./scalingo-reset.sh`) et toute modification de `V1__schema.sql` effacent
+les abonnements : il faut réactiver les notifications sur chaque appareil.

@@ -4,6 +4,7 @@ Mes utilisateurs :
 
 
 Messagerie, nouvelle conversation
+- nouveaux messages au singulier dans la messagerie ?
 - sur desktop : afficher le form dans l'espace conversation.
 - il faut également que le BNIA puisse ouvrir des conversavtions
   - exmeple : pour demander une DSM qui n'a pas été ouverte ! absente !!!
@@ -11,6 +12,13 @@ Messagerie, nouvelle conversation
     - ligne DSM Absente/En retard -> bouton à relancer !!!
 
 
+
+- en thème sombre, la ligne total des dsm ne ressort pas ( en thème clair, oui)
+- harmoniser les onglets des pages sur les onglets de la page contrats ?
+- constrat : vendeur -> mettre aussi en litre le stock
+
+
+- pwa -> déconnexion quand je ferme l'appli.
 
 
 # démo
@@ -38,3 +46,18 @@ Messagerie, nouvelle conversation
 - Contrat
   - 
 
+
+
+
+
+salut, 
+je continue de préparer mon passage devant la commisson d'attribution du projet mardi prochain.
+je réfléchis à la démo du prototype.
+je voudrais que l'on réfléchisse à la possibilité de mettre des notifications push dans la pwa intallées, pour alerter sur
+- vous avez un contrat d'achat à valider ( adressée à la seconde partie, aprés que la première partie a validé le projet)
+- ... a validé le contrat le contrat d'achat ( adressée à la première partie, aprés que la seconde a validé)
+- ... a modifié le contrat, vous devez le valider
+- idem pour les retiraisons.
+
+ca te semble enviseagable ? quelles sont les enjeux techniques ? qu'il y a t-il d'importants à savoir ?
+est-ce que cela fonctionne sur tous les téléphones ? est-ce que cela va nécessité des paramètrages sur chaque téléphone ?

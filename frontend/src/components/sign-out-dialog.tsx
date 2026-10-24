@@ -2,19 +2,24 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { seDeconnecter } from '@/api/generated'
 import { ConfirmDialog } from '@/components/confirm-dialog'
+import { desabonnerCetAppareil } from '@/features/notifications/push'
 
 interface SignOutDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-/** Ferme la session côté serveur (RG-AUT-09), oublie les données en cache, revient à la connexion. */
+/**
+ * Désabonne cet appareil des notifications push (RG-NOT-05), ferme la session côté serveur (RG-AUT-09), oublie les
+ * données en cache, revient à la connexion.
+ */
 export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const handleSignOut = async () => {
     try {
+      await desabonnerCetAppareil()
       await seDeconnecter({ throwOnError: true })
     } finally {
       queryClient.clear()

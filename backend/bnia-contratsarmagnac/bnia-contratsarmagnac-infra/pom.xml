@@ -12,7 +12,7 @@
 
     <artifactId>bnia-contratsarmagnac-infra</artifactId>
     <name>BNIA : contratsarmagnac, infra</name>
-    <description>Contexte contratsarmagnac : adapters REST, persistance et e-mails.</description>
+    <description>Contexte contratsarmagnac : adapters REST, persistance, e-mails et notifications push.</description>
 
     <dependencies>
         <dependency>
@@ -22,6 +22,11 @@
         <dependency>
             <groupId>fr.bnia</groupId>
             <artifactId>bnia-commun-infra</artifactId>
+        </dependency>
+        <!-- RG-CA-18 : notifications push à l'autre partie, par la lib en aval notifications (ADR-024). -->
+        <dependency>
+            <groupId>fr.bnia</groupId>
+            <artifactId>bnia-notifications-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

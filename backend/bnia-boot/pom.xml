@@ -46,6 +46,10 @@
         </dependency>
         <dependency>
             <groupId>fr.bnia</groupId>
+            <artifactId>bnia-notifications-infra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.bnia</groupId>
             <artifactId>bnia-contratsarmagnac-infra</artifactId>
         </dependency>
         <!-- Migration Flyway unique, commune à tous les contextes (ADR-005). -->

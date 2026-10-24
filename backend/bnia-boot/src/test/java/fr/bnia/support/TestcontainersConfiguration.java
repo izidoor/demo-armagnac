@@ -3,6 +3,7 @@ package fr.bnia.support;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
@@ -23,5 +24,12 @@ public class TestcontainersConfiguration {
     @Bean
     CourrielsCaptures courriels() {
         return new CourrielsCaptures();
+    }
+
+    /** À la place de Web Push (spec 11) : préféré à {@code WebPushHttp}, qui n'a pas de clé dans les tests. */
+    @Bean
+    @Primary
+    PushCaptures push() {
+        return new PushCaptures();
     }
 }

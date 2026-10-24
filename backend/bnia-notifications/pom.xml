@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>fr.bnia</groupId>
+        <artifactId>bnia-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>bnia-notifications</artifactId>
+    <packaging>pom</packaging>
+    <name>BNIA : notifications</name>
+    <description>Contexte notifications (spec 11), lib en aval, réduit au canal push : les contextes métier lui confient leurs notifications par son module d'API (ADR-024).</description>
+
+    <!-- Trois modules (ADR-021, ADR-024) : -api, seul visible des autres contextes ; -core en Java pur ; -infra pour les adapters. -->
+    <modules>
+        <module>bnia-notifications-api</module>
+        <module>bnia-notifications-core</module>
+        <module>bnia-notifications-infra</module>
+    </modules>
+</project>

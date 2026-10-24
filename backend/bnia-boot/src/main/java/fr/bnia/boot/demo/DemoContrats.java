@@ -86,8 +86,10 @@ public class DemoContrats implements ApplicationRunner {
         this.horloge = new DemoFacturation.HorlogeReglable(horloge);
         ParametresContrats parametres = new ParametresContrats("");
         this.negocierLe = new NegocierContrats(contrats, numerotation, journal, courriel -> {
+        }, notification -> {
         }, lecture, declarations, parametres, this.horloge);
         this.executerLe = new ExecuterContrats(contrats, journal, courriel -> {
+        }, notification -> {
         }, evenements, lecture, declarations, parametres, this.horloge);
     }
 

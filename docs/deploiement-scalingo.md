@@ -31,13 +31,24 @@ scalingo --app bnia-demo env-set \
   MAVEN_CUSTOM_OPTS="-DskipTests=true -Pfront" \
   BNIA_DB_POOL=5 \
   JAVA_OPTS="-Xmx256m -XX:MaxMetaspaceSize=192m -XX:ReservedCodeCacheSize=64m -Xss512k -XX:+UseSerialGC" \
-  BNIA_URL_PUBLIQUE=https://bnia-demo.osc-fr1.scalingo.io
+  BNIA_URL_PUBLIQUE=https://bnia-demo.osc-fr1.scalingo.io \
+  BNIA_NOTIFICATIONS_VAPID_PUBLIQUE=<clé publique> \
+  BNIA_NOTIFICATIONS_VAPID_PRIVEE=<clé privée>
 ```
 
 - `BNIA_DB_POOL=5` : la base Sandbox n'accepte qu'une dizaine de connexions.
 - `JAVA_OPTS` : tient dans un conteneur M (512 Mo) ; mesuré à environ 300 Mo après démarrage et
   sollicitation de toutes les routes de lecture.
-- `BNIA_URL_PUBLIQUE` : adresse mise dans les liens des e-mails.
+- `BNIA_URL_PUBLIQUE` : adresse mise dans les liens des e-mails ; aussi le contact VAPID des notifications push
+  (`sub`, exigé par Apple : URL HTTPS ou `mailto:`).
+- `BNIA_NOTIFICATIONS_VAPID_PUBLIQUE` et `_PRIVEE` : paire VAPID de la démonstration (spec 11, ADR-024), propre à
+  elle, jamais celle de dev. Sans elles, pas de notification push. Changer de paire invalide les abonnements des
+  appareils. Génération (point P-256 non compressé et scalaire, en base64url) :
+  ```bash
+  openssl ecparam -name prime256v1 -genkey -noout -out vapid.pem
+  openssl ec -in vapid.pem -pubout -outform DER | tail -c 65 | base64 -w0 | tr '+/' '-_' | tr -d '='   # publique
+  openssl ec -in vapid.pem -outform DER | head -c 39 | tail -c 32 | base64 -w0 | tr '+/' '-_' | tr -d '='   # privée
+  ```
 - Sans serveur SMTP (`spring.mail.host` absent), les e-mails ne partent pas : ils sont écrits dans le journal
   (`scalingo logs`), liens d'invitation compris.
 

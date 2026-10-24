@@ -41,12 +41,12 @@ public class ExecuterContrats {
     private final Clock horloge;
 
     public ExecuterContrats(ContratRepository contrats, JournalContrats journal, EnvoiCourriels envoi,
-            PublicationEvenements evenements, OperateursLecture operateurs, DeclarationsLecture declarations,
-            ParametresContrats parametres, Clock horloge) {
+            EnvoiNotifications notifications, PublicationEvenements evenements, OperateursLecture operateurs,
+            DeclarationsLecture declarations, ParametresContrats parametres, Clock horloge) {
         this.declarations = declarations;
         this.evenements = evenements;
         this.autorisations = new Autorisations(operateurs);
-        this.registre = new Registre(contrats, journal, envoi, operateurs, parametres, horloge);
+        this.registre = new Registre(contrats, journal, envoi, notifications, operateurs, parametres, horloge);
         this.horloge = horloge;
     }
 

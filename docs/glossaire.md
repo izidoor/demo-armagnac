@@ -187,7 +187,7 @@ là où elle est utilisée (ADR-011).
 | Membre BNIA | `MembreBnia` | Statut ou rôle interne au BNIA associé à un opérateur ; liste administrable, sens à préciser (Q-OPE-4). | p.101 |
 | Centre d'intérêt | `CentreInteret` | Domaine d'activité d'un contact (comptabilité, marketing, production), pour cibler les communications. | p.21, 130 |
 
-## 9. Messagerie
+## 9. Messagerie et notifications
 
 | Terme | Code | Définition | Réf. |
 |---|---|---|---|
@@ -198,6 +198,8 @@ là où elle est utilisée (ADR-011).
 | Côté | `Cote` | `OPERATEUR` ou `BNIA`, selon l'opérateur actif de l'acteur. Un message est lu ou non lu par côté, sans dire qui l'a lu. | spec 15 RG-MSG-03, 09 |
 | Nouveaux messages | — | Messages non lus de mon côté dans les conversations que je peux lire ; comptés au tableau de bord. Afficher une conversation les lit ; « marquer non lu » en remet un. | spec 15 RG-MSG-10, 11 |
 | Objet conversable | `ObjetsConversables`, `TypeObjet` | Objet métier dont le contexte décrit à `messagerie` l'opérateur et le libellé. | spec 15 §3.2, §3.5 |
+| Notification push | `Notification`, `MessagePush` | Alerte du système affichée sur les appareils abonnés de ses destinataires, même application fermée : un titre, une phrase sans montant ni volume, un lien. S'ajoute à l'e-mail. Distincte d'un message, écrit par une personne. | spec 11 §3.2, RG-NOT-03 |
+| Abonnement push | `Abonnement` | Ce qui permet d'envoyer des notifications push à un appareil : un par appareil où un utilisateur les a activées, depuis Mon compte ; retiré à sa déconnexion. | spec 11 §3.1, RG-NOT-01, 05 |
 
 ## 10. Systèmes
 

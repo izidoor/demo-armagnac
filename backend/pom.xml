@@ -28,6 +28,7 @@
         <module>bnia-declarations</module>
         <module>bnia-facturation</module>
         <module>bnia-messagerie</module>
+        <module>bnia-notifications</module>
         <module>bnia-contratsarmagnac</module>
         <module>bnia-boot</module>
     </modules>
@@ -143,6 +144,21 @@
             <dependency>
                 <groupId>fr.bnia</groupId>
                 <artifactId>bnia-messagerie-infra</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-notifications-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-notifications-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fr.bnia</groupId>
+                <artifactId>bnia-notifications-infra</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

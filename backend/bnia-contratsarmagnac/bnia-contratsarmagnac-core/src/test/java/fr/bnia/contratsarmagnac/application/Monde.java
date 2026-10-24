@@ -60,6 +60,7 @@ final class Monde {
     final ContratsEnMemoire contrats = new ContratsEnMemoire();
     final JournalEnMemoire journal = new JournalEnMemoire();
     final CourrielsCaptures courriels = new CourrielsCaptures();
+    final NotificationsCaptures notifications = new NotificationsCaptures();
     final List<Object> evenements = new java.util.ArrayList<>();
     final List<EditionsContrats.EditionContrat> editions = new java.util.ArrayList<>();
     private int rang;
@@ -87,11 +88,11 @@ final class Monde {
             default -> "Utilisateur " + i.getArgument(0);
         }));
         when(operateurs.personnes(NEGOCIANT)).thenReturn(List.of(
-                personne(NEGOCIANT, "Henri Castex", "admin@negociant.fr", Role.ADMIN),
-                personne(NEGOCIANT, "Paul Lecteur", "lecteur@negociant.fr", Role.OBSERVATEUR),
-                personne(NEGOCIANT, "Contact sans compte", "contact@negociant.fr", null)));
+                personne(NEGOCIANT, 70L, "Henri Castex", "admin@negociant.fr", Role.ADMIN),
+                personne(NEGOCIANT, 71L, "Paul Lecteur", "lecteur@negociant.fr", Role.OBSERVATEUR),
+                personne(NEGOCIANT, null, "Contact sans compte", "contact@negociant.fr", null)));
         when(operateurs.personnes(PRODUCTEUR)).thenReturn(List.of(
-                personne(PRODUCTEUR, "Jeanne Durand", "admin@producteur.fr", Role.ADMIN)));
+                personne(PRODUCTEUR, 80L, "Jeanne Durand", "admin@producteur.fr", Role.ADMIN)));
         when(operateurs.identiteLegale(anyLong())).thenAnswer(i -> Optional.of(new IdentiteLegaleVue(
                 i.getArgument(0), Optional.of("77699995500029"), Optional.of("3205600001"),
                 Optional.of("05 62 28 00 00"))));
@@ -120,19 +121,19 @@ final class Monde {
                 NiveauDiffusion.REFUS, new TreeSet<>(), false, Optional.empty(), actif);
     }
 
-    private PersonneVue personne(long operateur, String nom, String email, Role role) {
+    private PersonneVue personne(long operateur, Long utilisateur, String nom, String email, Role role) {
         return new PersonneVue(operateur, ++rang, nom, Optional.empty(), Optional.of(email), Set.of(),
-                Optional.ofNullable(role));
+                Optional.ofNullable(role), Optional.ofNullable(utilisateur));
     }
 
     NegocierContrats negocier() {
-        return new NegocierContrats(contrats, annee -> ++numero, journal, courriels, operateurs, declarations,
-                new ParametresContrats("https://bnia.example"), HORLOGE);
+        return new NegocierContrats(contrats, annee -> ++numero, journal, courriels, notifications, operateurs,
+                declarations, new ParametresContrats("https://bnia.example"), HORLOGE);
     }
 
     ExecuterContrats executer() {
-        return new ExecuterContrats(contrats, journal, courriels, evenements::add, operateurs, declarations,
-                new ParametresContrats("https://bnia.example"), HORLOGE);
+        return new ExecuterContrats(contrats, journal, courriels, notifications, evenements::add, operateurs,
+                declarations, new ParametresContrats("https://bnia.example"), HORLOGE);
     }
 
     EditerContrats editer() {

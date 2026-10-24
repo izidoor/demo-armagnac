@@ -31,6 +31,13 @@ bnia:
   # Export du suivi de l'utilisation : jeton fixe en dev, celui que ./suivi.sh utilise pour l'instance locale.
   suivi:
     jeton: ${BNIA_SUIVI_JETON:dev}
+  # Notifications push : paire VAPID de dev, sans valeur hors de cette machine (la démo hébergée a la sienne,
+  # docs/deploiement-scalingo.md). Navigateur sur localhost, contexte sûr : pas besoin de HTTPS.
+  notifications:
+    vapid:
+      cle-publique: BDrbPCjaovTfkg1Pw_UqoDyYFFR2EVLcesViS8pjqZj54w90VGpVluJX69xn44mgBSepvKfzD2Ul5ppgUjeLmds
+      cle-privee: s2Zlp1upOAHcE5jpucTk315hbG_p3eg54aopyR3mdDU
+      sujet: mailto:plateforme@bnia.example
 
 logging:
   level:

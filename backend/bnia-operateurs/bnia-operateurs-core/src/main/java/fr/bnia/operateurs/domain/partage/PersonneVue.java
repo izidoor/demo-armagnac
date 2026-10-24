@@ -10,6 +10,8 @@ import java.util.Set;
  * @param fiche          identifiant de sa fiche professionnelle, stable d'un état à l'autre (RG-OPE-30)
  * @param centresInteret identifiants des centres d'intérêt dans {@code referentiels}
  * @param role           pour un membre seulement
+ * @param utilisateur    pour un membre seulement : son identifiant d'utilisateur ({@code notifications} : ses
+ *                       appareils abonnés, spec 11)
  */
 public record PersonneVue(
         long operateur,
@@ -18,5 +20,6 @@ public record PersonneVue(
         Optional<String> fonction,
         Optional<String> email,
         Set<Long> centresInteret,
-        Optional<Role> role) {
+        Optional<Role> role,
+        Optional<Long> utilisateur) {
 }

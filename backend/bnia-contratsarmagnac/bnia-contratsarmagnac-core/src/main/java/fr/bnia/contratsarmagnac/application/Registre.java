@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Chargement et enregistrement d'un contrat, partagés par les cas d'usage d'écriture : après l'enregistrement, ses
- * faits vont au journal (RG-CA-19) et aux e-mails de l'autre partie (RG-CA-18).
+ * faits vont au journal (RG-CA-19), aux e-mails et aux notifications push de l'autre partie (RG-CA-18).
  */
 final class Registre {
 
@@ -23,12 +23,13 @@ final class Registre {
     private final Courrier courrier;
     private final Clock horloge;
 
-    Registre(ContratRepository contrats, JournalContrats journal, EnvoiCourriels envoi, OperateursLecture operateurs,
-            ParametresContrats parametres, Clock horloge) {
+    Registre(ContratRepository contrats, JournalContrats journal, EnvoiCourriels envoi,
+            EnvoiNotifications notifications, OperateursLecture operateurs, ParametresContrats parametres,
+            Clock horloge) {
         this.contrats = contrats;
         this.journal = journal;
         this.operateurs = operateurs;
-        this.courrier = new Courrier(envoi, operateurs, parametres);
+        this.courrier = new Courrier(envoi, notifications, operateurs, parametres);
         this.horloge = horloge;
     }
 
@@ -52,7 +53,7 @@ final class Registre {
         return enregistre(contrats.mettreAJour(contrat), faits);
     }
 
-    /** RG-CA-18, 19 : journal et e-mails des faits, une fois le contrat enregistré (son identifiant est connu). */
+    /** RG-CA-18, 19 : journal, e-mails et push des faits, une fois le contrat enregistré (son identifiant est connu). */
     private ContratAchatArmagnac enregistre(ContratAchatArmagnac contrat, List<Fait> faits) {
         faits.forEach(f -> {
             journal.ajouter(contrat.id(), f);

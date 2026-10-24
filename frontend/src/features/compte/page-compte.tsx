@@ -57,6 +57,7 @@ import {
   ChampNouveauMotDePasse,
   LONGUEUR_MOT_DE_PASSE,
 } from '@/features/auth/mot-de-passe'
+import { NotificationsAppareil } from '@/features/notifications/section-notifications'
 import { Lecture } from '@/features/operateurs/commun/champs'
 import {
   ROLES,
@@ -79,8 +80,9 @@ const dateHeure = new Intl.DateTimeFormat('fr-FR', {
 })
 
 /**
- * « Mon compte » (spec 02 §6.3, spec 03 §6.1), mis en page comme le Paramétrage : profil, e-mail,
- * opérateurs et opérateur actif, fiche professionnelle dans chaque opérateur, mot de passe, connexions.
+ * « Mon compte » (spec 02 §6.3, spec 03 §6.1, spec 11 §6), mis en page comme le Paramétrage : profil, affichage et
+ * notifications de l'appareil, e-mail, opérateurs et opérateur actif, fiche professionnelle dans chaque opérateur, mot
+ * de passe, connexions.
  * Ouvert à tout utilisateur connecté (RG-OPE-33).
  */
 const sections: SectionPage[] = [
@@ -89,7 +91,7 @@ const sections: SectionPage[] = [
     titre: 'Profil',
     icon: UserRound,
     description:
-      "Votre nom, tel que les autres utilisateurs le voient, et l'affichage de l'application.",
+      "Votre nom, tel que les autres utilisateurs le voient, l'affichage de l'application et ses notifications sur cet appareil.",
   },
   {
     cle: 'compte',
@@ -135,6 +137,10 @@ export function PageCompte() {
           <Separator className='my-8' />
           <Section titre='Affichage'>
             <Affichage />
+          </Section>
+          <Separator className='my-8' />
+          <Section titre='Notifications sur cet appareil'>
+            <NotificationsAppareil />
           </Section>
         </>
       )}

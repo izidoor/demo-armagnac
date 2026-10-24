@@ -39,6 +39,13 @@ export type AcheteurPiece = {
 };
 
 /**
+ * L'adresse de l'abonnement push d'un appareil
+ */
+export type AdresseAbonnement = {
+    adresse: string;
+};
+
+/**
  * Adresse d'un acheteur ou du vendeur (spec 08 §3.5, §3.7)
  */
 export type AdresseFacturation = {
@@ -220,6 +227,16 @@ export type ClasseTvaLigne = {
      * Taux applicable aujourd'hui ; absent s'il n'y en a pas (RG-REF-12)
      */
     tauxEnVigueur?: number;
+};
+
+/**
+ * La clé publique VAPID du serveur (RG-NOT-07)
+ */
+export type ClePubliquePush = {
+    /**
+     * En base64url ; vide si l'installation n'envoie pas de notification push
+     */
+    clePublique?: string;
 };
 
 export type CodePropose = {
@@ -2573,6 +2590,24 @@ export type Retrait = {
 };
 
 /**
+ * L'abonnement push que le navigateur a reçu de son service push (RG-NOT-01)
+ */
+export type SaisieAbonnement = {
+    /**
+     * endpoint, URL HTTPS
+     */
+    adresse: string;
+    /**
+     * keys.p256dh, en base64url
+     */
+    cleP256dh: string;
+    /**
+     * keys.auth, en base64url
+     */
+    secretAuth: string;
+};
+
+/**
  * Identité confirmée par une personne nouvelle (RG-OPE-42)
  */
 export type SaisieAcceptation = {
@@ -4573,6 +4608,70 @@ export type ModifierMonProfilResponses = {
 };
 
 export type ModifierMonProfilResponse = ModifierMonProfilResponses[keyof ModifierMonProfilResponses];
+
+export type AbonnerAppareilData = {
+    body: SaisieAbonnement;
+    path?: never;
+    query?: never;
+    url: '/api/notifications/abonnements';
+};
+
+export type AbonnerAppareilResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type AbonnerAppareilResponse = AbonnerAppareilResponses[keyof AbonnerAppareilResponses];
+
+export type ClePubliqueNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/notifications/cle-publique';
+};
+
+export type ClePubliqueNotificationsResponses = {
+    /**
+     * OK
+     */
+    200: ClePubliquePush;
+};
+
+export type ClePubliqueNotificationsResponse = ClePubliqueNotificationsResponses[keyof ClePubliqueNotificationsResponses];
+
+export type DesabonnerAppareilData = {
+    body: AdresseAbonnement;
+    path?: never;
+    query?: never;
+    url: '/api/notifications/desabonnement';
+};
+
+export type DesabonnerAppareilResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DesabonnerAppareilResponse = DesabonnerAppareilResponses[keyof DesabonnerAppareilResponses];
+
+export type EssayerNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/notifications/essai';
+};
+
+export type EssayerNotificationsResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type EssayerNotificationsResponse = EssayerNotificationsResponses[keyof EssayerNotificationsResponses];
 
 export type ListerOperateursData = {
     body?: never;
