@@ -57,15 +57,17 @@ import { Route as BoFacturationArticlesRouteImport } from './routes/bo/facturati
 import { Route as BoFacturationIdRouteImport } from './routes/bo/facturation/$id'
 import { Route as BoDeclarationsStocksRouteImport } from './routes/bo/declarations/stocks'
 import { Route as BoContratsMercurialesRouteImport } from './routes/bo/contrats/mercuriales'
-import { Route as BoContratsIdRouteImport } from './routes/bo/contrats/$id'
 import { Route as BoAccesConnexionsRouteImport } from './routes/bo/acces/connexions'
 import { Route as PortailContratsIdIndexRouteImport } from './routes/portail/contrats/$id.index'
 import { Route as BoParametrageClassesTvaIndexRouteImport } from './routes/bo/parametrage/classes-tva/index'
 import { Route as BoOperateursIdIndexRouteImport } from './routes/bo/operateurs/$id/index'
+import { Route as BoContratsIdIndexRouteImport } from './routes/bo/contrats/$id.index'
 import { Route as BoAccesUtilisateursIndexRouteImport } from './routes/bo/acces/utilisateurs/index'
+import { Route as PortailContratsIdRetiraisonsRouteImport } from './routes/portail/contrats/$id.retiraisons'
 import { Route as PortailContratsIdModifierRouteImport } from './routes/portail/contrats/$id.modifier'
 import { Route as PortailAnnuaireGenrePersonneRouteImport } from './routes/portail/annuaire/$genre/$personne'
 import { Route as BoParametrageClassesTvaIdRouteImport } from './routes/bo/parametrage/classes-tva/$id'
+import { Route as BoContratsIdRetiraisonsRouteImport } from './routes/bo/contrats/$id.retiraisons'
 import { Route as BoAccesUtilisateursIdRouteImport } from './routes/bo/acces/utilisateurs/$id'
 import { Route as BoOperateursIdDsmDsmRouteImport } from './routes/bo/operateurs/$id/dsm/$dsm'
 import { Route as BoOperateursIdPersonnesGenrePersonneRouteImport } from './routes/bo/operateurs/$id/personnes/$genre/$personne'
@@ -315,11 +317,6 @@ const BoContratsMercurialesRoute = BoContratsMercurialesRouteImport.update({
   path: '/contrats/mercuriales',
   getParentRoute: () => BoRouteRoute,
 } as any)
-const BoContratsIdRoute = BoContratsIdRouteImport.update({
-  id: '/contrats/$id',
-  path: '/contrats/$id',
-  getParentRoute: () => BoRouteRoute,
-} as any)
 const BoAccesConnexionsRoute = BoAccesConnexionsRouteImport.update({
   id: '/acces/connexions',
   path: '/acces/connexions',
@@ -341,11 +338,22 @@ const BoOperateursIdIndexRoute = BoOperateursIdIndexRouteImport.update({
   path: '/operateurs/$id/',
   getParentRoute: () => BoRouteRoute,
 } as any)
+const BoContratsIdIndexRoute = BoContratsIdIndexRouteImport.update({
+  id: '/contrats/$id/',
+  path: '/contrats/$id/',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoAccesUtilisateursIndexRoute =
   BoAccesUtilisateursIndexRouteImport.update({
     id: '/acces/utilisateurs/',
     path: '/acces/utilisateurs/',
     getParentRoute: () => BoRouteRoute,
+  } as any)
+const PortailContratsIdRetiraisonsRoute =
+  PortailContratsIdRetiraisonsRouteImport.update({
+    id: '/contrats/$id/retiraisons',
+    path: '/contrats/$id/retiraisons',
+    getParentRoute: () => PortailRouteRoute,
   } as any)
 const PortailContratsIdModifierRoute =
   PortailContratsIdModifierRouteImport.update({
@@ -365,6 +373,11 @@ const BoParametrageClassesTvaIdRoute =
     path: '/classes-tva/$id',
     getParentRoute: () => BoParametrageRouteRoute,
   } as any)
+const BoContratsIdRetiraisonsRoute = BoContratsIdRetiraisonsRouteImport.update({
+  id: '/contrats/$id/retiraisons',
+  path: '/contrats/$id/retiraisons',
+  getParentRoute: () => BoRouteRoute,
+} as any)
 const BoAccesUtilisateursIdRoute = BoAccesUtilisateursIdRouteImport.update({
   id: '/acces/utilisateurs/$id',
   path: '/acces/utilisateurs/$id',
@@ -407,7 +420,6 @@ export interface FileRoutesByFullPath {
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
-  '/bo/contrats/$id': typeof BoContratsIdRoute
   '/bo/contrats/mercuriales': typeof BoContratsMercurialesRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
@@ -434,10 +446,13 @@ export interface FileRoutesByFullPath {
   '/portail/declarations': typeof PortailDeclarationsIndexRoute
   '/portail/factures': typeof PortailFacturesIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
+  '/bo/contrats/$id/retiraisons': typeof BoContratsIdRetiraisonsRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
   '/portail/contrats/$id/modifier': typeof PortailContratsIdModifierRoute
+  '/portail/contrats/$id/retiraisons': typeof PortailContratsIdRetiraisonsRoute
   '/bo/acces/utilisateurs': typeof BoAccesUtilisateursIndexRoute
+  '/bo/contrats/$id': typeof BoContratsIdIndexRoute
   '/bo/operateurs/$id': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
   '/portail/contrats/$id': typeof PortailContratsIdIndexRoute
@@ -466,7 +481,6 @@ export interface FileRoutesByTo {
   '/bo': typeof BoIndexRoute
   '/portail': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
-  '/bo/contrats/$id': typeof BoContratsIdRoute
   '/bo/contrats/mercuriales': typeof BoContratsMercurialesRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
@@ -493,10 +507,13 @@ export interface FileRoutesByTo {
   '/portail/declarations': typeof PortailDeclarationsIndexRoute
   '/portail/factures': typeof PortailFacturesIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
+  '/bo/contrats/$id/retiraisons': typeof BoContratsIdRetiraisonsRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
   '/portail/contrats/$id/modifier': typeof PortailContratsIdModifierRoute
+  '/portail/contrats/$id/retiraisons': typeof PortailContratsIdRetiraisonsRoute
   '/bo/acces/utilisateurs': typeof BoAccesUtilisateursIndexRoute
+  '/bo/contrats/$id': typeof BoContratsIdIndexRoute
   '/bo/operateurs/$id': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva': typeof BoParametrageClassesTvaIndexRoute
   '/portail/contrats/$id': typeof PortailContratsIdIndexRoute
@@ -529,7 +546,6 @@ export interface FileRoutesById {
   '/bo/': typeof BoIndexRoute
   '/portail/': typeof PortailIndexRoute
   '/bo/acces/connexions': typeof BoAccesConnexionsRoute
-  '/bo/contrats/$id': typeof BoContratsIdRoute
   '/bo/contrats/mercuriales': typeof BoContratsMercurialesRoute
   '/bo/declarations/stocks': typeof BoDeclarationsStocksRoute
   '/bo/facturation/$id': typeof BoFacturationIdRoute
@@ -556,10 +572,13 @@ export interface FileRoutesById {
   '/portail/declarations/': typeof PortailDeclarationsIndexRoute
   '/portail/factures/': typeof PortailFacturesIndexRoute
   '/bo/acces/utilisateurs/$id': typeof BoAccesUtilisateursIdRoute
+  '/bo/contrats/$id/retiraisons': typeof BoContratsIdRetiraisonsRoute
   '/bo/parametrage/classes-tva/$id': typeof BoParametrageClassesTvaIdRoute
   '/portail/annuaire/$genre/$personne': typeof PortailAnnuaireGenrePersonneRoute
   '/portail/contrats/$id/modifier': typeof PortailContratsIdModifierRoute
+  '/portail/contrats/$id/retiraisons': typeof PortailContratsIdRetiraisonsRoute
   '/bo/acces/utilisateurs/': typeof BoAccesUtilisateursIndexRoute
+  '/bo/contrats/$id/': typeof BoContratsIdIndexRoute
   '/bo/operateurs/$id/': typeof BoOperateursIdIndexRoute
   '/bo/parametrage/classes-tva/': typeof BoParametrageClassesTvaIndexRoute
   '/portail/contrats/$id/': typeof PortailContratsIdIndexRoute
@@ -593,7 +612,6 @@ export interface FileRouteTypes {
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
-    | '/bo/contrats/$id'
     | '/bo/contrats/mercuriales'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
@@ -620,10 +638,13 @@ export interface FileRouteTypes {
     | '/portail/declarations'
     | '/portail/factures'
     | '/bo/acces/utilisateurs/$id'
+    | '/bo/contrats/$id/retiraisons'
     | '/bo/parametrage/classes-tva/$id'
     | '/portail/annuaire/$genre/$personne'
     | '/portail/contrats/$id/modifier'
+    | '/portail/contrats/$id/retiraisons'
     | '/bo/acces/utilisateurs'
+    | '/bo/contrats/$id'
     | '/bo/operateurs/$id'
     | '/bo/parametrage/classes-tva'
     | '/portail/contrats/$id'
@@ -652,7 +673,6 @@ export interface FileRouteTypes {
     | '/bo'
     | '/portail'
     | '/bo/acces/connexions'
-    | '/bo/contrats/$id'
     | '/bo/contrats/mercuriales'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
@@ -679,10 +699,13 @@ export interface FileRouteTypes {
     | '/portail/declarations'
     | '/portail/factures'
     | '/bo/acces/utilisateurs/$id'
+    | '/bo/contrats/$id/retiraisons'
     | '/bo/parametrage/classes-tva/$id'
     | '/portail/annuaire/$genre/$personne'
     | '/portail/contrats/$id/modifier'
+    | '/portail/contrats/$id/retiraisons'
     | '/bo/acces/utilisateurs'
+    | '/bo/contrats/$id'
     | '/bo/operateurs/$id'
     | '/bo/parametrage/classes-tva'
     | '/portail/contrats/$id'
@@ -714,7 +737,6 @@ export interface FileRouteTypes {
     | '/bo/'
     | '/portail/'
     | '/bo/acces/connexions'
-    | '/bo/contrats/$id'
     | '/bo/contrats/mercuriales'
     | '/bo/declarations/stocks'
     | '/bo/facturation/$id'
@@ -741,10 +763,13 @@ export interface FileRouteTypes {
     | '/portail/declarations/'
     | '/portail/factures/'
     | '/bo/acces/utilisateurs/$id'
+    | '/bo/contrats/$id/retiraisons'
     | '/bo/parametrage/classes-tva/$id'
     | '/portail/annuaire/$genre/$personne'
     | '/portail/contrats/$id/modifier'
+    | '/portail/contrats/$id/retiraisons'
     | '/bo/acces/utilisateurs/'
+    | '/bo/contrats/$id/'
     | '/bo/operateurs/$id/'
     | '/bo/parametrage/classes-tva/'
     | '/portail/contrats/$id/'
@@ -1108,13 +1133,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoContratsMercurialesRouteImport
       parentRoute: typeof BoRouteRoute
     }
-    '/bo/contrats/$id': {
-      id: '/bo/contrats/$id'
-      path: '/contrats/$id'
-      fullPath: '/bo/contrats/$id'
-      preLoaderRoute: typeof BoContratsIdRouteImport
-      parentRoute: typeof BoRouteRoute
-    }
     '/bo/acces/connexions': {
       id: '/bo/acces/connexions'
       path: '/acces/connexions'
@@ -1143,12 +1161,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoOperateursIdIndexRouteImport
       parentRoute: typeof BoRouteRoute
     }
+    '/bo/contrats/$id/': {
+      id: '/bo/contrats/$id/'
+      path: '/contrats/$id'
+      fullPath: '/bo/contrats/$id'
+      preLoaderRoute: typeof BoContratsIdIndexRouteImport
+      parentRoute: typeof BoRouteRoute
+    }
     '/bo/acces/utilisateurs/': {
       id: '/bo/acces/utilisateurs/'
       path: '/acces/utilisateurs'
       fullPath: '/bo/acces/utilisateurs'
       preLoaderRoute: typeof BoAccesUtilisateursIndexRouteImport
       parentRoute: typeof BoRouteRoute
+    }
+    '/portail/contrats/$id/retiraisons': {
+      id: '/portail/contrats/$id/retiraisons'
+      path: '/contrats/$id/retiraisons'
+      fullPath: '/portail/contrats/$id/retiraisons'
+      preLoaderRoute: typeof PortailContratsIdRetiraisonsRouteImport
+      parentRoute: typeof PortailRouteRoute
     }
     '/portail/contrats/$id/modifier': {
       id: '/portail/contrats/$id/modifier'
@@ -1170,6 +1202,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/bo/parametrage/classes-tva/$id'
       preLoaderRoute: typeof BoParametrageClassesTvaIdRouteImport
       parentRoute: typeof BoParametrageRouteRoute
+    }
+    '/bo/contrats/$id/retiraisons': {
+      id: '/bo/contrats/$id/retiraisons'
+      path: '/contrats/$id/retiraisons'
+      fullPath: '/bo/contrats/$id/retiraisons'
+      preLoaderRoute: typeof BoContratsIdRetiraisonsRouteImport
+      parentRoute: typeof BoRouteRoute
     }
     '/bo/acces/utilisateurs/$id': {
       id: '/bo/acces/utilisateurs/$id'
@@ -1228,7 +1267,6 @@ interface BoRouteRouteChildren {
   BoMessagerieRoute: typeof BoMessagerieRoute
   BoIndexRoute: typeof BoIndexRoute
   BoAccesConnexionsRoute: typeof BoAccesConnexionsRoute
-  BoContratsIdRoute: typeof BoContratsIdRoute
   BoContratsMercurialesRoute: typeof BoContratsMercurialesRoute
   BoDeclarationsStocksRoute: typeof BoDeclarationsStocksRoute
   BoFacturationIdRoute: typeof BoFacturationIdRoute
@@ -1239,7 +1277,9 @@ interface BoRouteRouteChildren {
   BoFacturationIndexRoute: typeof BoFacturationIndexRoute
   BoOperateursIndexRoute: typeof BoOperateursIndexRoute
   BoAccesUtilisateursIdRoute: typeof BoAccesUtilisateursIdRoute
+  BoContratsIdRetiraisonsRoute: typeof BoContratsIdRetiraisonsRoute
   BoAccesUtilisateursIndexRoute: typeof BoAccesUtilisateursIndexRoute
+  BoContratsIdIndexRoute: typeof BoContratsIdIndexRoute
   BoOperateursIdIndexRoute: typeof BoOperateursIdIndexRoute
   BoOperateursIdDsmDsmRoute: typeof BoOperateursIdDsmDsmRoute
   BoOperateursIdPersonnesGenrePersonneRoute: typeof BoOperateursIdPersonnesGenrePersonneRoute
@@ -1251,7 +1291,6 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoMessagerieRoute: BoMessagerieRoute,
   BoIndexRoute: BoIndexRoute,
   BoAccesConnexionsRoute: BoAccesConnexionsRoute,
-  BoContratsIdRoute: BoContratsIdRoute,
   BoContratsMercurialesRoute: BoContratsMercurialesRoute,
   BoDeclarationsStocksRoute: BoDeclarationsStocksRoute,
   BoFacturationIdRoute: BoFacturationIdRoute,
@@ -1262,7 +1301,9 @@ const BoRouteRouteChildren: BoRouteRouteChildren = {
   BoFacturationIndexRoute: BoFacturationIndexRoute,
   BoOperateursIndexRoute: BoOperateursIndexRoute,
   BoAccesUtilisateursIdRoute: BoAccesUtilisateursIdRoute,
+  BoContratsIdRetiraisonsRoute: BoContratsIdRetiraisonsRoute,
   BoAccesUtilisateursIndexRoute: BoAccesUtilisateursIndexRoute,
+  BoContratsIdIndexRoute: BoContratsIdIndexRoute,
   BoOperateursIdIndexRoute: BoOperateursIdIndexRoute,
   BoOperateursIdDsmDsmRoute: BoOperateursIdDsmDsmRoute,
   BoOperateursIdPersonnesGenrePersonneRoute:
@@ -1288,6 +1329,7 @@ interface PortailRouteRouteChildren {
   PortailFacturesIndexRoute: typeof PortailFacturesIndexRoute
   PortailAnnuaireGenrePersonneRoute: typeof PortailAnnuaireGenrePersonneRoute
   PortailContratsIdModifierRoute: typeof PortailContratsIdModifierRoute
+  PortailContratsIdRetiraisonsRoute: typeof PortailContratsIdRetiraisonsRoute
   PortailContratsIdIndexRoute: typeof PortailContratsIdIndexRoute
 }
 
@@ -1307,6 +1349,7 @@ const PortailRouteRouteChildren: PortailRouteRouteChildren = {
   PortailFacturesIndexRoute: PortailFacturesIndexRoute,
   PortailAnnuaireGenrePersonneRoute: PortailAnnuaireGenrePersonneRoute,
   PortailContratsIdModifierRoute: PortailContratsIdModifierRoute,
+  PortailContratsIdRetiraisonsRoute: PortailContratsIdRetiraisonsRoute,
   PortailContratsIdIndexRoute: PortailContratsIdIndexRoute,
 }
 

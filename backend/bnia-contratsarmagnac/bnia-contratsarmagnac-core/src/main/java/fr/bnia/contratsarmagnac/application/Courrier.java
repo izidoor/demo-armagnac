@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 /**
  * Rédige les e-mails et les notifications push à l'autre partie (RG-CA-18) et les confie à l'envoi, après la validation
  * de la transaction. Ils vont à ses membres {@code AGENT} et {@code ADMIN} : l'e-mail à ceux qui ont un e-mail, le push
- * à leurs appareils abonnés (spec 11) ; le lien vise le contrat au portail. Le push, lu sur l'écran verrouillé, n'a
- * qu'une phrase, sans montant ni volume.
+ * à leurs appareils abonnés (spec 11) ; le lien vise le contrat au portail, et pour le push d'une retiraison, ses
+ * retiraisons (page à part sur mobile). Le push, lu sur l'écran verrouillé, n'a qu'une phrase, sans montant ni volume.
  */
 final class Courrier {
 
@@ -98,7 +98,11 @@ final class Courrier {
                     .flatMap(Optional::stream)
                     .collect(Collectors.toSet());
             if (!utilisateurs.isEmpty()) {
-                notifications.envoyer(new NotificationContrat(utilisateurs, m.sujet(), m.push(), chemin));
+                String page = switch (fait.action()) {
+                    case RETIRAISON_DECLAREE, RETIRAISON_MODIFIEE, RETIRAISON_VALIDEE -> chemin + "/retiraisons";
+                    default -> chemin;
+                };
+                notifications.envoyer(new NotificationContrat(utilisateurs, m.sujet(), m.push(), page));
             }
         });
     }

@@ -1,6 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, Check, Pencil, Plus, Truck, X } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import {
+  AlertTriangle,
+  Check,
+  ChevronRight,
+  CircleCheck,
+  Pencil,
+  Plus,
+  Truck,
+  X,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import {
   type Contrat,
@@ -18,7 +28,9 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgePlein } from '@/components/metier/badge-statut'
 import { DialogueFormulaire } from '@/components/metier/dialogue-formulaire'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import { formatDate, formatDateHeure } from '@/features/declarations/format'
+import { aDesRetiraisons, droitsRetiraisons } from './acces-retiraisons'
 import { apiContrats, cleContrats, type Espace } from './api'
 import {
   designation,
@@ -31,81 +43,58 @@ import {
 import { ETATS_RETIRAISON, PARTIES } from './libelles'
 import { Surligne } from './surligne'
 
+/** La retiraison ouverte en saisie : rien, une nouvelle ({}), ou celle qu'on modifie. */
+export type SaisieOuverte = { retiraison?: RetiraisonContrat } | undefined
+
 /**
- * Les retiraisons d'un contrat conclu (spec 06 §6.2, RG-CA-13 à 16) : le reste à retirer par ligne, puis chaque
- * retiraison, ce qu'elle attend et, après une modification, son écart surligné. L'acheteur déclare et retire ; la
- * partie attendue valide ou modifie. Au vendeur, une retiraison que son stock estimé ne couvre pas est signalée et ne se
- * valide pas.
+ * Les retiraisons d'un contrat conclu (spec 06 §6.2, RG-CA-13 à 16), dans la page du contrat, sur ordinateur : le
+ * reste à retirer par ligne, puis chaque retiraison, ce qu'elle attend et, après une modification, son écart surligné.
+ * L'acheteur déclare et retire ; la partie attendue valide ou modifie. Au vendeur, une retiraison que son stock estimé
+ * ne couvre pas est signalée et ne se valide pas ; l'une ou l'autre partie clôture les retiraisons. Sur mobile, elles
+ * ont leur page (`PageRetiraisons`) ; un lien vers elles qui arrive sur ordinateur ouvre le contrat à cette carte
+ * (`#retiraisons`).
  */
 export function CarteRetiraisons({
   espace,
   operateur,
   contrat: c,
+  className,
 }: {
   espace: Espace
   operateur: number
   contrat: Contrat
+  className?: string
 }) {
-  const [saisie, setSaisie] = useState<
-    { retiraison?: RetiraisonContrat } | undefined
-  >()
-  const agit = espace === 'portail' && c.peutAgir && c.etat === 'CONCLU'
-  const resteTotal = c.restes.reduce((t, r) => t + r.reste, 0)
-  const peutDeclarer = agit && c.maPartie === 'ACHETEUR' && resteTotal > 0
-  if (c.etat === 'PROJET' || c.etat === 'REFUSE') return null
+  const [saisie, setSaisie] = useState<SaisieOuverte>()
+  const carte = useRef<HTMLDivElement>(null)
+  const { agit, peutDeclarer } = droitsRetiraisons(espace, c)
+  useEffect(() => {
+    if (window.location.hash === '#retiraisons')
+      carte.current?.scrollIntoView({ block: 'start' })
+  }, [])
+  if (!aDesRetiraisons(c)) return null
   return (
-    <Card>
+    <Card
+      ref={carte}
+      id='retiraisons'
+      className={cn('scroll-mt-20', className)}
+    >
       <CardHeader className='flex flex-row flex-wrap items-center justify-between gap-2'>
         <CardTitle>Retiraisons</CardTitle>
         {peutDeclarer && (
-          <Button onClick={() => setSaisie({})} className='max-md:w-full'>
+          <Button onClick={() => setSaisie({})}>
             <Plus /> Déclarer une retiraison
           </Button>
         )}
       </CardHeader>
       <CardContent className='space-y-4'>
-        <ul className='space-y-1 text-sm'>
-          {c.version.lignes.map((l, rang) => {
-            const r = c.restes[rang]
-            return (
-              <li
-                key={rang}
-                className='flex flex-wrap justify-between gap-x-3 gap-y-0.5'
-              >
-                <span className='font-medium'>{designation(l)}</span>
-                <span className='text-muted-foreground tabular-nums'>
-                  {formatHl(r.retire)} retirés
-                  {r.enCours > 0 &&
-                    ` · ${formatHl(r.enCours)} à valider`} ·{' '}
-                  <span className='text-foreground font-medium'>
-                    reste {formatHl(r.reste)}
-                  </span>{' '}
-                  sur {formatHl(l.volume)}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-        {c.retiraisons.length === 0 ? (
-          <p className='text-muted-foreground text-sm'>
-            {c.etat === 'CONCLU'
-              ? c.maPartie === 'VENDEUR'
-                ? "Aucune retiraison : l'acheteur la déclare, vous la validez."
-                : 'Aucune retiraison pour le moment.'
-              : 'Aucune retiraison.'}
-          </p>
-        ) : (
-          c.retiraisons.map((r) => (
-            <BlocRetiraison
-              key={r.numero}
-              operateur={operateur}
-              contrat={c}
-              retiraison={r}
-              agit={agit}
-              onModifier={() => setSaisie({ retiraison: r })}
-            />
-          ))
-        )}
+        <RestesARetirer contrat={c} />
+        <ListeRetiraisons
+          operateur={operateur}
+          contrat={c}
+          agit={agit}
+          onModifier={(r) => setSaisie({ retiraison: r })}
+        />
       </CardContent>
       {saisie && (
         <FormulaireRetiraison
@@ -117,6 +106,179 @@ export function CarteRetiraisons({
       )}
     </Card>
   )
+}
+
+/**
+ * Sur mobile, dans la page du contrat, sous ce qu'il attend : l'accès à la page des retiraisons, avec le nombre de
+ * celles qui attendent ma partie.
+ */
+export function AccesRetiraisons({
+  espace,
+  contrat: c,
+}: {
+  espace: Espace
+  contrat: Contrat
+}) {
+  const { agit, aValider } = droitsRetiraisons(espace, c)
+  if (!aDesRetiraisons(c)) return null
+  const nombre = c.retiraisons.length
+  return (
+    <Button
+      asChild
+      size='lg'
+      variant={agit ? 'default' : 'outline'}
+      className='h-auto w-full justify-between py-3 md:hidden'
+    >
+      <Link
+        to={
+          espace === 'bo'
+            ? '/bo/contrats/$id/retiraisons'
+            : '/portail/contrats/$id/retiraisons'
+        }
+        params={{ id: String(c.id) }}
+      >
+        <span className='flex items-center gap-2'>
+          <Truck />
+          {agit ? 'Gérer les retiraisons' : 'Voir les retiraisons'}
+        </span>
+        <span className='flex items-center gap-2 text-sm font-normal'>
+          {aValider > 0 ? (
+            <BadgePlein statut='warning'>{aValider} à valider</BadgePlein>
+          ) : (
+            nombre > 0 && <span className='opacity-80'>{nombre}</span>
+          )}
+          <ChevronRight />
+        </span>
+      </Link>
+    </Button>
+  )
+}
+
+/**
+ * « Clôturer les retiraisons » (RG-CA-17), pour l'une ou l'autre partie d'un contrat conclu, dans le cadre « Fin des
+ * retiraisons », en bas de la page : il n'aura plus de retiraison et passe à « exécuté », même s'il reste du volume ;
+ * les retiraisons non validées tombent, les validées restent.
+ */
+export function CloturerRetiraisons({
+  operateur,
+  contrat: c,
+  className,
+}: {
+  operateur: number
+  contrat: Contrat
+  className?: string
+}) {
+  const queryClient = useQueryClient()
+  const [confirmation, setConfirmation] = useState(false)
+  const api = apiContrats(operateur)
+  const enCours = c.retiraisons.some((r) => r.etat !== 'VALIDEE')
+  const cloturer = useMutation({
+    mutationFn: () => api.cloturer(c.id),
+    onSuccess: () => {
+      setConfirmation(false)
+      toast.success('Retiraisons clôturées : le contrat est exécuté.')
+      queryClient.invalidateQueries({ queryKey: cleContrats })
+    },
+    onError: (e) => {
+      const probleme = lireProbleme(e)
+      toast.error(probleme.detail ?? probleme.titre)
+      queryClient.invalidateQueries({ queryKey: cleContrats })
+    },
+    meta: { erreurAffichee: true },
+  })
+  return (
+    <ZoneDanger titre='Fin des retiraisons' className={className}>
+      <ActionDanger
+        titre='Clôturer les retiraisons'
+        description={`Le contrat n'aura plus de retiraison : il passe à «\u00a0exécuté\u00a0», même s'il reste du volume à retirer ; l'autre partie en est avertie par e-mail.${enCours ? ' Ses retiraisons non validées sont supprimées ; les validées restent.' : ''}`}
+      >
+        <Button variant='outline' onClick={() => setConfirmation(true)}>
+          <CircleCheck /> Clôturer les retiraisons
+        </Button>
+      </ActionDanger>
+      <ConfirmDialog
+        open={confirmation}
+        onOpenChange={setConfirmation}
+        feuilleMobile
+        title={
+          <>
+            Clôturer les retiraisons du contrat{' '}
+            <span className='whitespace-nowrap'>{c.numero}</span> ?
+          </>
+        }
+        desc={
+          "Le contrat n'aura plus de retiraison : il passe à « exécuté », même s'il reste du volume à retirer ; l'autre partie en est avertie par e-mail." +
+          (enCours
+            ? ' Les retiraisons non validées seront supprimées ; les validées restent.'
+            : '')
+        }
+        confirmText='Clôturer'
+        isLoading={cloturer.isPending}
+        handleConfirm={() => cloturer.mutate()}
+      />
+    </ZoneDanger>
+  )
+}
+
+/** Le reste à retirer de chaque ligne : retiré, à valider, reste, sur le volume du contrat. */
+export function RestesARetirer({ contrat: c }: { contrat: Contrat }) {
+  return (
+    <ul className='space-y-1 text-sm'>
+      {c.version.lignes.map((l, rang) => {
+        const r = c.restes[rang]
+        return (
+          <li
+            key={rang}
+            className='flex flex-wrap justify-between gap-x-3 gap-y-0.5'
+          >
+            <span className='font-medium'>{designation(l)}</span>
+            <span className='text-muted-foreground tabular-nums'>
+              {formatHl(r.retire)} retirés
+              {r.enCours > 0 && ` · ${formatHl(r.enCours)} à valider`} ·{' '}
+              <span className='text-foreground font-medium'>
+                reste {formatHl(r.reste)}
+              </span>{' '}
+              sur {formatHl(l.volume)}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+/** Chaque retiraison, de la première à la dernière ; sans retiraison, ce qui l'amènera. */
+export function ListeRetiraisons({
+  operateur,
+  contrat: c,
+  agit,
+  onModifier,
+}: {
+  operateur: number
+  contrat: Contrat
+  agit: boolean
+  onModifier: (r: RetiraisonContrat) => void
+}) {
+  if (c.retiraisons.length === 0)
+    return (
+      <p className='text-muted-foreground text-sm'>
+        {c.etat === 'CONCLU'
+          ? c.maPartie === 'VENDEUR'
+            ? "Aucune retiraison : l'acheteur la déclare, vous la validez."
+            : 'Aucune retiraison pour le moment.'
+          : 'Aucune retiraison.'}
+      </p>
+    )
+  return c.retiraisons.map((r) => (
+    <BlocRetiraison
+      key={r.numero}
+      operateur={operateur}
+      contrat={c}
+      retiraison={r}
+      agit={agit}
+      onModifier={() => onModifier(r)}
+    />
+  ))
 }
 
 /** Une retiraison : état, date, lignes, auteur ; l'écart surligné ; les actions de la partie attendue. */
@@ -177,7 +339,7 @@ function BlocRetiraison({
   return (
     <div
       className={cn(
-        'space-y-2 rounded-md border p-3',
+        'bg-card space-y-2 rounded-md border p-3',
         aMoi && 'border-warning-border'
       )}
     >
@@ -306,7 +468,7 @@ const aujourdhui = () => new Date().toLocaleDateString('sv-SE')
  * aujourd'hui, « dernière » ou non, et le volume retiré de chaque ligne, au plus son reste (RG-CA-13, 14). Le contrôle
  * du stock estimé du vendeur se fait à l'enregistrement.
  */
-function FormulaireRetiraison({
+export function FormulaireRetiraison({
   operateur,
   contrat: c,
   retiraison,

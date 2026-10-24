@@ -126,7 +126,8 @@ Mon compte, onglet **Profil**, section « Notifications sur cet appareil », au 
 | Activées | « Activées sur cet appareil », « Envoyer une notification d'essai », « Désactiver » |
 
 La notification affiche le titre, le texte et l'icône de BNIA ; un appui ouvre son lien dans une fenêtre de
-l'application déjà ouverte, sinon dans une nouvelle. Se déconnecter désabonne d'abord l'appareil (RG-NOT-05).
+l'application déjà ouverte, sinon dans une nouvelle (le lien d'une retiraison ouvre la page des retiraisons du
+contrat sur un téléphone, sa carte dans le contrat sur ordinateur, spec 06 §6.2). Se déconnecter désabonne d'abord l'appareil (RG-NOT-05).
 
 ## 7. Données
 

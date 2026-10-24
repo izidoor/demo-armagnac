@@ -198,7 +198,7 @@ RG-OPE-32 : un rôle tenu dans l'opérateur BNIA ne donne que la lecture (RG-CA-
 | RG-CA-15 | La partie qui doit valider une retiraison la valide si sa date d'enlèvement n'est pas passée (validation au plus tard le jour de l'enlèvement) et si le stock estimé du vendeur la couvre : `VALIDEE`, `RetiraisonValidee` publié dans la transaction (ADR-013). Dernière, le contrat est `EXECUTE`. | vision, décision du 2026-10-23, H-CA-3 | 2 |
 | RG-CA-16 | L'acheteur retire une retiraison non validée : elle est supprimée, le journal le garde. | décision du 2026-10-23 (souplesse du prototype) | 2 |
 | RG-CA-17 | Sur un contrat `CONCLU`, une partie l'annule (`ANNULE`) ou déclare qu'il n'aura plus de retiraison (`EXECUTE`) ; ses retiraisons non validées sont supprimées, les validées restent. E-mail à l'autre partie. | vision | 2 |
-| RG-CA-18 | Chaque action qui attend l'autre partie ou la concerne (ouverture, modification, approbation, conclusion, refus, retiraison déclarée, modifiée ou validée, annulation, clôture) envoie un e-mail à ses membres `AGENT` et `ADMIN` actifs, avec le lien vers le contrat, et une notification push à leurs appareils abonnés (spec 11) : pour titre le sujet de l'e-mail, une phrase sans montant ni volume, le lien du contrat au portail. | §5.12 p.77, vision ; décision du 2026-10-24 (push) | 1 |
+| RG-CA-18 | Chaque action qui attend l'autre partie ou la concerne (ouverture, modification, approbation, conclusion, refus, retiraison déclarée, modifiée ou validée, annulation, clôture) envoie un e-mail à ses membres `AGENT` et `ADMIN` actifs, avec le lien vers le contrat, et une notification push à leurs appareils abonnés (spec 11) : pour titre le sujet de l'e-mail, une phrase sans montant ni volume, le lien du contrat au portail (de ses retiraisons pour une retiraison déclarée, modifiée ou validée). | §5.12 p.77, vision ; décision du 2026-10-24 (push) | 1 |
 | RG-CA-19 | Le journal garde chaque action du §3.5, acteur et nom copiés ; il se lit avec le contrat. | C.4.1.1.3 p.113-114, §5.5.6 p.68 | 1 |
 | RG-CA-20 | L'édition PDF reprend le formulaire CA-05 sans visa, mentions finales, échéancier, rattachement, préavis ni courtier : en-tête et campagne, numéro, parties (identité, adresse, téléphone, n° BNIA, SIRET, CVI du vendeur), lignes et calculs, appellations cochées, caractéristiques complémentaires et mentions fixes, retiraison, paiement, « S'agissant d'un contrat ponctuel, celui-ci est ferme. », signatures de l'acheteur et du vendeur (date et auteur des approbations). Un projet porte « Projet, non conclu ». | §4.5.1.4 p.31, C.4.1.1.4 p.114, vision, CA-05 | 3 |
 | RG-CA-21 | À réception de `RetiraisonValidee`, `declarations` crée par ligne un mouvement `ACHAT` pour l'acheteur et un `VENTE` pour le vendeur. Colonne : achat en 2 si le vendeur est `PRODUCTEUR`, en 3 sinon ; vente en 20 si l'acheteur est en région délimitée, en 21 sinon. | analyse du 2026-10-23, §4.4.3 p.23 | 2 |
@@ -236,7 +236,7 @@ Ce contexte ne publie qu'un événement, `RetiraisonValidee`, dont le type est d
 ## 6. Écrans
 
 Pensés d'abord pour le téléphone, selon les principes du passage en PWA : cartes, formulaires en pleine page,
-actions dans « Plus ».
+annulation dans la zone à risque, en bas.
 
 ### 6.1 Back-office
 
@@ -257,8 +257,12 @@ actions dans « Plus ».
 - **Détail du contrat** : état et ce qu'il attend, parties, lignes et total ; quand ma partie doit approuver,
   l'écart surligné (avant barré, après) et les actions Approuver, Modifier, Refuser ; au vendeur, l'alerte
   d'un stock qui ne couvre pas le projet (« Approuver » désactivé) ; refusé : « Refusé par …, le … à … » ; Retiraisons (reste à
-  retirer par ligne, « Déclarer une retiraison » pour l'acheteur, retiraison à valider avec son écart) ;
-  Journal ; « PDF » en en-tête (dans « Plus » une fois conclu, avec Annuler et Plus de retiraison).
+  retirer par ligne, « Déclarer une retiraison » pour l'acheteur, retiraison à valider avec son écart ; sur un téléphone, page à part, entrée par la droite,
+  ouverte par « Gérer les retiraisons » sous ce que le contrat attend, avec le nombre de retiraisons qui attendent ma
+  partie ; un lien vers elle ouvert sur ordinateur mène à la carte Retiraisons du contrat) ; Journal ; « PDF » en
+  en-tête ; conclu, en bas de la page, le cadre « Fin des retiraisons » (« Clôturer les retiraisons », RG-CA-17, pour
+  l'une ou l'autre partie ; sur un téléphone, en bas de la page des retiraisons) puis la zone à risque (« Annuler le
+  contrat »).
 - « Déclarations > Stocks déclarés » : colonne du stock estimé à côté du stock déclaré, par ligne (UC-CA-6).
 - DSM : lignes ajoutées par un contrat marquées « Contrat CA-… » ; onglet Pièces : le justificatif contrat.
 - Tableau de bord : cartes « Contrats à approuver », « Contrats en attente d'approbation » et « Retiraisons à
@@ -364,3 +368,6 @@ Chaque RG-CA-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-23 | RG-CA-25 révisée (demande de l'utilisateur, après essai) : un contrat conclu reste dans « Conclus » même quand une retiraison attend une partie ; il quittait « Conclus » pour « À approuver » ou « En négociation » malgré son état « Conclu ». Celui dont une retiraison attend ma partie porte « Retiraison à valider » et passe en tête de l'onglet (`retiraisonAValider` sur la liste du portail) ; carte « Retiraisons à valider » au tableau de bord du portail, vers « Conclus ». |
 | 2026-10-23 | Listing des contrats du back-office (§6.1, demande de l'utilisateur) : le vendeur puis l'acheteur ont chacun leur colonne, au lieu de « Vendeur → acheteur » ; en carte, une ligne pour chacun. Même liste dans l'onglet « Contrats » de la fiche opérateur. |
 | 2026-10-24 | Notifications push (demande de l'utilisateur, pour la soutenance) : RG-CA-18 envoie, en plus de l'e-mail, une notification push aux appareils abonnés des mêmes destinataires, pour les neuf mêmes faits (spec 11, ADR-024). Port `EnvoiNotifications` du core, adapter `NotificationsContrats` sur `bnia-notifications-api` ; destinataires par `PersonneVue.utilisateur` ; la démonstration charge ses contrats sans push. |
+| 2026-10-24 | Retiraisons sur téléphone (demande de l'utilisateur) : page à part (`/portail/contrats/{id}/retiraisons`, et au back-office), entrée par la droite, ouverte par « Gérer les retiraisons » (« Voir les retiraisons » en lecture) entre ce que le contrat attend et ses parties ; sur ordinateur, la carte reste dans le contrat. RG-CA-18 : le push d'une retiraison déclarée, modifiée ou validée ouvre cette page ; l'e-mail garde le lien du contrat. |
+| 2026-10-24 | « Plus de retiraison » quitte le menu « Plus » du contrat et devient « Clôturer les retiraisons », à côté de « Déclarer une retiraison », dans la page des retiraisons sur téléphone et leur carte sur ordinateur (demande de l'utilisateur). Le menu « Plus » du contrat conclu disparaît : « PDF » reste en en-tête, comme dans les autres états, et « Annuler le contrat » passe dans la zone à risque, en bas de la page. |
+| 2026-10-24 | « Clôturer les retiraisons » quitte l'en-tête des retiraisons pour un cadre « Fin des retiraisons », au style de la zone à risque, en bas de la page des retiraisons sur téléphone et en bas du contrat sur ordinateur (demande de l'utilisateur). Refus, annulation et clôture se confirment en feuille du bas sur téléphone. |

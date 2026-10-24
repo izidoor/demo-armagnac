@@ -358,9 +358,10 @@ Scénario :
 3. `admin@negociant.fr` (Henri), onglet « À approuver » : le projet de Jeanne. « Modifier », prix à 1 800 € :
    il attend de nouveau Jeanne.
 4. `admin@producteur.fr` : l'écart est surligné (avant barré, puis après, avec son auteur). « Approuver » :
-   le contrat est conclu, daté du jour. « Plus » : « PDF », le formulaire CA-05 allégé, signatures comprises
+   le contrat est conclu, daté du jour. « PDF » : le formulaire CA-05 allégé, signatures comprises
    (un projet porte « Projet, non conclu »).
-5. `admin@negociant.fr`, le contrat conclu, carte « Retiraisons » : « Déclarer une retiraison », enlèvement
+5. `admin@negociant.fr`, le contrat conclu, carte « Retiraisons » (sur téléphone, « Gérer les retiraisons »,
+   page à part) : « Déclarer une retiraison », enlèvement
    aujourd'hui, dernière, le reste à retirer de la ligne. Au-delà du stock de Jeanne, le refus ne donne aucun
    chiffre. La retiraison attend Jeanne ; le contrat reste dans « Conclus ».
 6. `admin@producteur.fr`, tableau de bord : « Retiraisons à valider » mène à l'onglet « Conclus », où le
@@ -381,8 +382,9 @@ Scénario :
    d'âge, nombre de contrats, volume en hl AP, prix minimum, moyen pondéré et maximum. Le millésime 2015
    compte le contrat de Jeanne et d'Henri, à 1 800 €.
 10. Le reste, sur un nouveau projet ou le contrat d'avance : « Refuser » (définitif, « Refusé par …, le … à
-    … ») ; sur un contrat conclu, « Plus » : « Annuler le contrat » ou « Plus de retiraison » (les
-    retiraisons non validées tombent) ; une retiraison non validée, « Retirer » par Henri, ou « Modifier » et
+    … ») ; sur un contrat conclu, « Annuler le contrat » dans la zone à risque, en bas, et
+    « Clôturer les retiraisons » dans « Fin des retiraisons », juste au-dessus (sur téléphone, en bas de la page
+    des retiraisons) ; les retiraisons non validées tombent ; une retiraison non validée, « Retirer » par Henri, ou « Modifier » et
     renvoyer par la partie attendue.
 
 ## Notifications push (spec 11)
@@ -408,7 +410,7 @@ sur un téléphone, il faut la démonstration hébergée (HTTPS).
 Scénario : Henri (`admin@negociant.fr`) active les notifications sur un téléphone. Sur l'ordinateur, Jeanne
 (`admin@producteur.fr`) ouvre un projet de contrat (scénario des contrats, étape 2) : le téléphone sonne,
 « Projet de contrat CA-… à approuver » ; un appui ouvre le contrat. Même chose à chaque étape du fil :
-modification, approbation, retiraison déclarée, modifiée, validée, annulation, « Plus de retiraison ».
+modification, approbation, retiraison déclarée, modifiée, validée, annulation, « Clôturer les retiraisons ».
 
 La remise à zéro de la démonstration (`./scalingo-reset.sh`) et toute modification de `V1__schema.sql` effacent
 les abonnements : il faut réactiver les notifications sur chaque appareil.

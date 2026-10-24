@@ -1,4 +1,5 @@
 import { type ReactNode, useContext } from 'react'
+import { cn } from '@/lib/utils'
 import { useTitreSorti } from '@/hooks/use-titre-sorti'
 import { ActionsEntete } from '@/components/layout/actions-entete'
 import { Header, type HeaderProps } from '@/components/layout/header'
@@ -18,8 +19,13 @@ type PageMetierProps = {
   pleineHauteur?: boolean
   /** Page de second niveau : la flèche de retour de l'en-tête, sur écran étroit (`Header`). */
   retour?: HeaderProps['retour']
+  /** Sur écran étroit, la page entre par la droite, par-dessus celle qu'elle détaille (les retiraisons d'un contrat). */
+  entreeDroite?: boolean
   children: ReactNode
 }
+
+const ENTREE_DROITE =
+  'max-md:animate-in max-md:slide-in-from-right max-md:duration-200 max-md:ease-out'
 
 /**
  * Gabarit commun des pages métier : en-tête, titre, description, actions. Dans le Paramétrage, l'en-tête
@@ -32,6 +38,7 @@ export function PageMetier({
   actions,
   pleineHauteur = false,
   retour,
+  entreeDroite = false,
   children,
 }: PageMetierProps) {
   const imbriquee = useContext(PageImbriquee)
@@ -81,23 +88,31 @@ export function PageMetier({
     </>
   )
   if (imbriquee) return contenu
-  return (
+  const entree = entreeDroite ? ENTREE_DROITE : undefined
+  const page = (
     <>
       <Header
         fixed
         titre={complement ? `${titre} – ${complement}` : titre}
         titreVisible={titreSorti}
         retour={retour}
+        className={entree}
       >
         <ActionsEntete />
       </Header>
       {pleineHauteur ? (
-        <Main fixed className='max-lg:overflow-y-auto'>
+        <Main fixed className={cn('max-lg:overflow-y-auto', entree)}>
           {contenu}
         </Main>
       ) : (
-        <Main>{contenu}</Main>
+        <Main className={entree}>{contenu}</Main>
       )}
     </>
+  )
+  // L'en-tête et le contenu glissent ensemble ; le cadre coupe ce qui dépasse à droite, sans barre de défilement.
+  return entreeDroite ? (
+    <div className='flex flex-1 flex-col max-md:overflow-x-clip'>{page}</div>
+  ) : (
+    page
   )
 }

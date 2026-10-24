@@ -5,20 +5,31 @@ Mes utilisateurs :
 
 Messagerie, nouvelle conversation
 - nouveaux messages au singulier dans la messagerie ?
-- sur desktop : afficher le form dans l'espace conversation.
+- sur desktop : afficher le formulaire dans l'espace conversation.
 - il faut également que le BNIA puisse ouvrir des conversavtions
-  - exmeple : pour demander une DSM qui n'a pas été ouverte ! absente !!!
+  - exemple : pour demander une DSM qui n'a pas été ouverte ! absente !!!
     - ou alors, il faut rendre la ligne cliquable -> pour avoir la messagerie
     - ligne DSM Absente/En retard -> bouton à relancer !!!
 
 
 
+- recherche opérateur sur le dashboard BNIA et dans l'interface de création de création de contrat : la navigation avec les touches du clavier ne fonctionne pas. -> Combobox de shadcn.ui ?
+
 - en thème sombre, la ligne total des dsm ne ressort pas ( en thème clair, oui)
+
 - harmoniser les onglets des pages sur les onglets de la page contrats ?
-- constrat : vendeur -> mettre aussi en litre le stock
+
+- constat : vendeur -> mettre aussi en litre le stock
+
+- dashboard : le réorganiser 
+  - bnia 
+  - opérateurs : 
+    - 1ere ligne
+      - mettre un card qui résume l'entreprise 1/3
+      - mettre deux cars 1/4 : nouveaux messages + 
+    - mettre des graphique pour les opéreteurs
 
 
-- pwa -> déconnexion quand je ferme l'appli.
 
 
 # démo

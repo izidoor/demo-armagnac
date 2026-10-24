@@ -60,8 +60,8 @@ class ExecuterContratsTest {
     }
 
     @Test
-    @DisplayName("RG-CA-18 : une notification push à l'autre partie à chaque retiraison déclarée, modifiée ou validée, à"
-            + " l'annulation et à la clôture")
+    @DisplayName("RG-CA-18 : une notification push à l'autre partie à chaque retiraison déclarée, modifiée ou validée"
+            + " (vers les retiraisons du contrat), à l'annulation et à la clôture (vers le contrat)")
     void rg_ca_18_notifications_des_retiraisons() {
         cas.declarerRetiraison(HENRI, NEGOCIANT, id, retiraison(LE_30, false, "10"));
         assertThat(monde.notifications.envoyees).singleElement().satisfies(n -> {
@@ -69,19 +69,24 @@ class ExecuterContratsTest {
             assertThat(n.titre()).isEqualTo("Retiraison à valider, contrat CA-2026-0001");
             assertThat(n.texte()).isEqualTo("Henri Castex (Armagnacs de Gascogne) a déclaré la retiraison n° 1, pour le"
                     + " 30 octobre 2026 ; elle attend votre validation.");
-            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id);
+            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id + "/retiraisons");
         });
         cas.modifierRetiraison(JEANNE, PRODUCTEUR, id, 1, 1, retiraison(LE_30, false, "2"));
-        assertThat(monde.notifications.a(70)).singleElement()
-                .satisfies(n -> assertThat(n.titre()).isEqualTo("Retiraison modifiée, contrat CA-2026-0001"));
+        assertThat(monde.notifications.a(70)).singleElement().satisfies(n -> {
+            assertThat(n.titre()).isEqualTo("Retiraison modifiée, contrat CA-2026-0001");
+            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id + "/retiraisons");
+        });
         cas.validerRetiraison(HENRI, NEGOCIANT, id, 1, 2);
         assertThat(monde.notifications.a(80)).last().satisfies(n -> {
             assertThat(n.titre()).isEqualTo("Retiraison validée, contrat CA-2026-0001");
             assertThat(n.texte()).endsWith("a validé la retiraison n° 1 : elle est inscrite dans votre DSM.");
+            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id + "/retiraisons");
         });
         cas.cloturer(HENRI, NEGOCIANT, id);
-        assertThat(monde.notifications.a(80)).last()
-                .satisfies(n -> assertThat(n.titre()).isEqualTo("Contrat CA-2026-0001 exécuté"));
+        assertThat(monde.notifications.a(80)).last().satisfies(n -> {
+            assertThat(n.titre()).isEqualTo("Contrat CA-2026-0001 exécuté");
+            assertThat(n.lien()).isEqualTo("/portail/contrats/" + id);
+        });
         assertThat(monde.notifications.envoyees).hasSize(4);
     }
 

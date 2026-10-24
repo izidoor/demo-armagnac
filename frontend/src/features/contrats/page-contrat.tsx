@@ -5,8 +5,6 @@ import {
   AlertTriangle,
   Ban,
   Check,
-  CircleCheck,
-  Ellipsis,
   FileDown,
   Hourglass,
   Pencil,
@@ -26,16 +24,11 @@ import { useRetour } from '@/hooks/use-retour'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { BadgePlein } from '@/components/metier/badge-statut'
 import { PageMetier } from '@/components/metier/page-metier'
+import { ActionDanger, ZoneDanger } from '@/components/metier/zone-danger'
 import {
   formatDate,
   formatDateHeure,
@@ -59,7 +52,11 @@ import {
   valeurChamp,
 } from './format'
 import { APPELLATIONS, CHAMPS, ETATS, PARTIES, SOLDES } from './libelles'
-import { CarteRetiraisons } from './retiraisons'
+import {
+  AccesRetiraisons,
+  CarteRetiraisons,
+  CloturerRetiraisons,
+} from './retiraisons'
 import { Surligne } from './surligne'
 
 /**
@@ -67,8 +64,9 @@ import { Surligne } from './surligne'
  * ses approbations et son journal. À la partie qui doit approuver, l'écart avec la dernière version qu'elle a approuvée
  * est surligné, l'avant barré (RG-CA-09), et les actions Approuver, Modifier, Refuser sont proposées ; l'autre partie
  * peut encore modifier. Au vendeur, un projet que son stock estimé ne couvre plus est signalé, et ne s'approuve pas
- * (RG-CA-12). Conclu, il reçoit des retiraisons (RG-CA-13 à 16), et « Plus » l'annule ou le clôt (RG-CA-17). Au
- * back-office, la même page, en lecture (RG-CA-01).
+ * (RG-CA-12). Conclu, il reçoit des retiraisons (RG-CA-13 à 16) : dans la page sur ordinateur, dans leur page sur
+ * mobile (« Gérer les retiraisons », sous ce qu'il attend), et en bas, « Fin des retiraisons » les clôture (en bas de
+ * la page des retiraisons sur mobile) et la zone à risque l'annule (RG-CA-17). Au back-office, la même page, en lecture (RG-CA-01).
  */
 export function PageContrat({
   espace,
@@ -140,22 +138,19 @@ function DetailContrat({
       }
       retour={{ libelle: 'Retour', onRetour: retour }}
       actions={
-        espace === 'portail' && c.peutAgir && c.etat === 'CONCLU' ? (
-          <ActionsConclu operateur={operateur} contrat={c} onPdf={editerPdf} />
-        ) : (
-          <div className='flex w-full flex-wrap gap-2 md:w-auto'>
-            {espace === 'portail' && c.peutAgir && c.etat === 'PROJET' && (
-              <Actions operateur={operateur} contrat={c} />
-            )}
-            <Button
-              variant='outline'
-              onClick={editerPdf}
-              className='max-md:flex-1'
-            >
-              <FileDown /> PDF
-            </Button>
-          </div>
-        )
+        <div className='flex w-full flex-wrap gap-2 md:w-auto'>
+          {espace === 'portail' && c.peutAgir && c.etat === 'PROJET' && (
+            <Actions operateur={operateur} contrat={c} />
+          )}
+          {/* Seul, le PDF reste à droite ; avec Approuver, Modifier, Refuser, il partage la ligne. */}
+          <Button
+            variant='outline'
+            onClick={editerPdf}
+            className='max-md:flex-1 max-md:only:ms-auto max-md:only:flex-none'
+          >
+            <FileDown /> PDF
+          </Button>
+        </div>
       }
     >
       <div className='space-y-4'>
@@ -170,6 +165,7 @@ function DetailContrat({
             </AlertDescription>
           </Alert>
         )}
+        <AccesRetiraisons espace={espace} contrat={c} />
         <Card>
           <CardHeader>
             <CardTitle>Parties</CardTitle>
@@ -200,7 +196,12 @@ function DetailContrat({
             />
           </CardContent>
         </Card>
-        <CarteRetiraisons espace={espace} operateur={operateur} contrat={c} />
+        <CarteRetiraisons
+          espace={espace}
+          operateur={operateur}
+          contrat={c}
+          className='max-md:hidden'
+        />
         <Card>
           <CardHeader>
             <CardTitle>Conditions</CardTitle>
@@ -259,6 +260,17 @@ function DetailContrat({
           </CardContent>
         </Card>
       </div>
+      {espace === 'portail' && c.peutAgir && c.etat === 'CONCLU' && (
+        <>
+          {/* Sur téléphone, la clôture est en bas de la page des retiraisons. */}
+          <CloturerRetiraisons
+            operateur={operateur}
+            contrat={c}
+            className='max-md:hidden'
+          />
+          <AnnulationContrat operateur={operateur} contrat={c} />
+        </>
+      )}
     </PageMetier>
   )
 }
@@ -414,6 +426,7 @@ function Actions({
       <ConfirmDialog
         open={refus}
         onOpenChange={setRefus}
+        feuilleMobile
         title={`Refuser le projet ${c.numero} ?`}
         desc="Le refus est définitif : le projet ne pourra plus être modifié ni approuvé. Pour proposer d'autres conditions, modifiez-le plutôt."
         confirmText='Refuser'
@@ -426,30 +439,25 @@ function Actions({
 }
 
 /**
- * Contrat conclu : dans « Plus », le PDF (RG-CA-20), l'annuler, ou déclarer qu'il n'aura plus de retiraison
- * (RG-CA-17) ; les retiraisons non validées tombent, les validées restent.
+ * Contrat conclu, en bas de la page : « Annuler le contrat » (RG-CA-17), dans la zone à risque ; ses retiraisons non
+ * validées tombent, les validées restent. « Fin des retiraisons », au-dessus, les clôture.
  */
-function ActionsConclu({
+function AnnulationContrat({
   operateur,
   contrat: c,
-  onPdf,
 }: {
   operateur: number
   contrat: Contrat
-  onPdf: () => void
 }) {
   const queryClient = useQueryClient()
-  const [confirmation, setConfirmation] = useState<'annuler' | 'cloturer'>()
+  const [confirmation, setConfirmation] = useState(false)
   const api = apiContrats(operateur)
   const enCours = c.retiraisons.some((r) => r.etat !== 'VALIDEE')
-  const clore = useMutation({
-    mutationFn: (action: 'annuler' | 'cloturer') =>
-      action === 'annuler' ? api.annuler(c.id) : api.cloturer(c.id),
-    onSuccess: (contrat) => {
-      setConfirmation(undefined)
-      toast.success(
-        contrat.etat === 'ANNULE' ? 'Contrat annulé.' : 'Contrat exécuté.'
-      )
+  const annuler = useMutation({
+    mutationFn: () => api.annuler(c.id),
+    onSuccess: () => {
+      setConfirmation(false)
+      toast.success('Contrat annulé.')
       queryClient.invalidateQueries({ queryKey: cleContrats })
     },
     onError: (e) => {
@@ -460,53 +468,30 @@ function ActionsConclu({
     meta: { erreurAffichee: true },
   })
   const suite = enCours
-    ? ' Les retiraisons non validées seront supprimées ; les validées restent.'
-    : ''
+    ? ' Ses retiraisons non validées sont supprimées ; les validées restent.'
+    : ' Ses retiraisons validées restent.'
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant='outline' className='max-md:w-full'>
-            <Ellipsis /> Plus
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end'>
-          <DropdownMenuItem onSelect={onPdf}>
-            <FileDown /> PDF
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setConfirmation('cloturer')}>
-            <CircleCheck /> Plus de retiraison
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className='text-destructive'
-            onSelect={() => setConfirmation('annuler')}
-          >
-            <Ban /> Annuler le contrat
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <ZoneDanger>
+      <ActionDanger
+        titre='Annuler le contrat'
+        description={`L'annulation est définitive ; l'autre partie en est avertie par e-mail.${suite}`}
+      >
+        <Button variant='destructive' onClick={() => setConfirmation(true)}>
+          <Ban /> Annuler le contrat
+        </Button>
+      </ActionDanger>
       <ConfirmDialog
-        open={confirmation !== undefined}
-        onOpenChange={(o) => !o && setConfirmation(undefined)}
-        title={
-          confirmation === 'annuler'
-            ? `Annuler le contrat ${c.numero} ?`
-            : `Le contrat ${c.numero} n'aura plus de retiraison ?`
-        }
-        desc={
-          (confirmation === 'annuler'
-            ? "L'annulation est définitive ; l'autre partie en est avertie par e-mail."
-            : "Le contrat passe à « exécuté », même s'il reste du volume à retirer ; l'autre partie en est avertie par e-mail.") +
-          suite
-        }
-        confirmText={
-          confirmation === 'annuler' ? 'Annuler le contrat' : 'Confirmer'
-        }
-        destructive={confirmation === 'annuler'}
-        isLoading={clore.isPending}
-        handleConfirm={() => confirmation && clore.mutate(confirmation)}
+        open={confirmation}
+        onOpenChange={setConfirmation}
+        feuilleMobile
+        title={`Annuler le contrat ${c.numero} ?`}
+        desc={`L'annulation est définitive ; l'autre partie en est avertie par e-mail.${suite}`}
+        confirmText='Annuler le contrat'
+        destructive
+        isLoading={annuler.isPending}
+        handleConfirm={() => annuler.mutate()}
       />
-    </>
+    </ZoneDanger>
   )
 }
 
