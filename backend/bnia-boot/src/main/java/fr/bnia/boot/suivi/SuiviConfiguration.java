@@ -76,7 +76,7 @@ class SuiviConfiguration implements WebMvcConfigurer {
     @Bean
     @Order(1)
     SecurityFilterChain exportSuivi(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/suivi/export/**", "/api/suivi/remise-a-zero")
+        http.securityMatcher("/api/suivi/export/**", "/api/suivi/reset")
                 .authorizeHttpRequests(regles -> regles.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)

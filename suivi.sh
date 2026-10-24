@@ -4,7 +4,7 @@
 # Rapports : tout (par défaut : personnes, visites, ecrans, offre, fichiers), personnes, visites (avec le parcours de
 # chacune), ecrans, offre, fichiers (téléchargements, exports, imports), evenements, connexions.
 # tableau : page de graphiques, écrite dans out/suivi-tableau.html (ignoré par git) et ouverte dans le navigateur.
-# remise-a-zero : efface tout le suivi de l'instance, après confirmation ; définitif.
+# reset : efface tout le suivi de l'instance, après confirmation ; définitif.
 # Instance hébergée : adresse et jeton dans .env.suivi, à la racine (ignoré par git) :
 #   BNIA_SUIVI_URL=https://bnia-demo.osc-fr1.scalingo.io
 #   BNIA_SUIVI_JETON=<valeur de BNIA_SUIVI_JETON sur Scalingo>
@@ -82,7 +82,7 @@ remettre_a_zero() {
         exit 1
     fi
     statut=$(curl -sS -o "$brut" -w '%{http_code}' -X POST -H "Authorization: Bearer ${BNIA_SUIVI_JETON}" \
-        "${BNIA_SUIVI_URL%/}/api/suivi/remise-a-zero") || {
+        "${BNIA_SUIVI_URL%/}/api/suivi/reset") || {
         echo "Instance injoignable : ${BNIA_SUIVI_URL}" >&2
         exit 1
     }
@@ -106,6 +106,6 @@ case "$rapport" in
             exporter "$r"
         done ;;
     tableau) tableau ;;
-    remise-a-zero) remettre_a_zero ;;
+    reset) remettre_a_zero ;;
     *) exporter "$rapport" ;;
 esac

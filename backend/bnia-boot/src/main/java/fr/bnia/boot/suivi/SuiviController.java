@@ -95,7 +95,7 @@ class SuiviController {
      * Efface tout le suivi, avec le même jeton que l'export ; renvoie le nombre d'événements effacés. Sans jeton
      * configuré, la remise à zéro n'existe pas (404).
      */
-    @PostMapping("/remise-a-zero")
+    @PostMapping("/reset")
     ResponseEntity<String> remettreAZero(
             @RequestHeader(name = "Authorization", required = false) String autorisation) {
         if (!jeton.configure()) {

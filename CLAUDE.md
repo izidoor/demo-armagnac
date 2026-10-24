@@ -116,7 +116,7 @@ Racine :
   remise à zéro de la démonstration hébergée : `./scalingo-reset.sh`
 - Ports propres à un worktree : `./worktree-env.sh`
 - Suivi de l'utilisation du prototype (pour l'auteur seul, jeton dans `.env.suivi`, `docs/suivi-utilisation.md`) : `./suivi.sh [--local] [tout|personnes|visites|ecrans|offre|fichiers|evenements|connexions|tableau] [depuis]`,
-  `./suivi.sh [--local] remise-a-zero` (efface tout le suivi, après confirmation)
+  `./suivi.sh [--local] reset` (efface tout le suivi, après confirmation)
   (`tableau` : page de graphiques ouverte dans le navigateur)
 - Réponse à l'appel d'offres (« Voir l'offre ») : depuis `echanges-bnia/reponse`, `pnpm build` puis `pnpm publier`
   (pages servies après connexion sous `/api/offre/`)

@@ -75,12 +75,12 @@ class SuiviIT extends AbstractIT {
         String email = emailUnique("remise");
         evenement(email, OffsetDateTime.parse("2026-01-05T10:00:00Z"), "ECRAN", "/bo");
 
-        anonyme().post().uri("/api/suivi/remise-a-zero").exchange().expectStatus().isUnauthorized();
-        anonyme().post().uri("/api/suivi/remise-a-zero").header("Authorization", "Bearer mauvais")
+        anonyme().post().uri("/api/suivi/reset").exchange().expectStatus().isUnauthorized();
+        anonyme().post().uri("/api/suivi/reset").header("Authorization", "Bearer mauvais")
                 .exchange().expectStatus().isUnauthorized();
         assertThat(exporter("evenements")).contains(email);
 
-        String effaces = anonyme().post().uri("/api/suivi/remise-a-zero").header("Authorization", JETON)
+        String effaces = anonyme().post().uri("/api/suivi/reset").header("Authorization", JETON)
                 .exchange().expectStatus().isOk()
                 .expectBody(String.class).returnResult().getResponseBody();
         assertThat(Integer.parseInt(effaces)).isPositive();

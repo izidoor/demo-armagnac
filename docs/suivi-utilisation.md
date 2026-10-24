@@ -30,13 +30,13 @@ supprime le volume Docker, ou par une remise à zéro volontaire (ci-dessous).
 ## Remettre le suivi à zéro
 
 ```bash
-./suivi.sh remise-a-zero           # instance hébergée (.env.suivi)
-./suivi.sh --local remise-a-zero   # instance locale
+./suivi.sh reset          # instance hébergée (.env.suivi)
+./suivi.sh --local reset  # instance locale
 ```
 
 Le script demande de taper « effacer », puis vide la table `suivi.evenement` et donne le nombre d'événements effacés.
 C'est définitif : aucune archive n'est gardée. La remise à zéro exige le même jeton que l'export
-(`POST /api/suivi/remise-a-zero`). Elle ne touche ni la démonstration (le rapport `connexions` la lit) ni les
+(`POST /api/suivi/reset`). Elle ne touche ni la démonstration (le rapport `connexions` la lit) ni les
 cookies `?suivi=non` des navigateurs exclus.
 
 ## Ne pas se compter soi-même
@@ -138,7 +138,7 @@ Les requêtes des rapports sont dans `RapportSuivi.java` (remplacer `:depuis` pa
 | `frontend/src/features/suivi/suivi.ts` | Écrans, sections de l'offre, présence ; appareil ; cookie `?suivi=non` |
 | `frontend/src/main.tsx`, `features/offre/offre.tsx` | Branchements : changement de route, section affichée |
 | `backend/bnia-boot/src/main/java/fr/bnia/boot/suivi/SuiviConfiguration.java` | Schéma `suivi`, intercepteur, chaîne de sécurité de l'export |
-| `SuiviController.java` | `POST /api/suivi/evenements` (sous session), `GET /api/suivi/export/{rapport}` et `POST /api/suivi/remise-a-zero` (jeton) ; hors du contrat OpenAPI |
+| `SuiviController.java` | `POST /api/suivi/evenements` (sous session), `GET /api/suivi/export/{rapport}` et `POST /api/suivi/reset` (jeton) ; hors du contrat OpenAPI |
 | `SuiviFichiers.java` | Relève téléchargements et imports, côté serveur |
 | `JournalSuivi.java` | Écriture des événements |
 | `RapportSuivi.java` | Les rapports, en SQL |
