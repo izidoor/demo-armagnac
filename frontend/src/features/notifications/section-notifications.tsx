@@ -15,6 +15,9 @@ import {
 
 const CLE_ETAT = ['notifications', 'etat-appareil']
 
+/** Android range les notifications d'une application web dans le volet, sans bannière : réglage du téléphone. */
+const ANDROID = /Android/.test(navigator.userAgent)
+
 /**
  * « Notifications sur cet appareil », dans Mon compte (spec 11 §6) : chacun active le push sur chacun de ses appareils,
  * sans module ni rôle (RG-OPE-33). Les e-mails partent dans tous les cas (RG-CA-18).
@@ -97,6 +100,13 @@ export function NotificationsAppareil() {
           <Badge variant='secondary'>
             <Bell /> Activées sur cet appareil
           </Badge>
+          {ANDROID && (
+            <p className='text-muted-foreground text-sm'>
+              Pour qu'elles s'affichent en bannière, avec un son : Paramètres,
+              Applications, BNIA, Notifications, « Afficher en pop-up » (ou
+              appui long sur une notification de BNIA, puis « Paramètres »).
+            </p>
+          )}
           <div className='flex flex-wrap gap-2'>
             <Button disabled={occupe} onClick={() => essai.mutate()}>
               <Send /> Envoyer une notification d'essai

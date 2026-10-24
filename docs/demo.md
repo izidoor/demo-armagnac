@@ -392,7 +392,12 @@ onglet « Profil », section « Notifications sur cet appareil ». En dev, sur `
 sur un téléphone, il faut la démonstration hébergée (HTTPS).
 
 - **Android** : ouvrir la démonstration dans Chrome, l'installer (« Ajouter à l'écran d'accueil ») ou non,
-  se connecter, « Activer les notifications », accepter.
+  se connecter, « Activer les notifications », accepter. Puis, **une fois par téléphone**, pour que la
+  notification s'affiche en bannière avec un son (sinon elle arrive en silence, dans le volet) : Paramètres,
+  Applications, BNIA, Notifications, « Afficher en pop-up » (ou importance « Urgente », selon le fabricant) ;
+  plus vite : appui long sur une notification de BNIA dans le volet, puis « Paramètres ». Android réserve ce
+  réglage à l'utilisateur : le site ne peut pas le poser. À refaire pour chaque installation (celle de
+  `localhost` et celle de la démonstration hébergée sont deux applications).
 - **iPhone, iPad** (iOS 16.4 et plus) : dans Safari, Partager, « Sur l'écran d'accueil » ; ouvrir BNIA depuis
   son icône, se connecter, « Activer les notifications », accepter. Dans Safari même, la section explique
   cette marche.
