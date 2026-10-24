@@ -91,6 +91,23 @@ class SuiviController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Efface tout le suivi, avec le même jeton que l'export ; renvoie le nombre d'événements effacés. Sans jeton
+     * configuré, la remise à zéro n'existe pas (404).
+     */
+    @PostMapping("/remise-a-zero")
+    ResponseEntity<String> remettreAZero(
+            @RequestHeader(name = "Authorization", required = false) String autorisation) {
+        if (!jeton.configure()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!jeton.accepte(autorisation)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        int effaces = jdbc.sql("delete from suivi.evenement").update();
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(Integer.toString(effaces));
+    }
+
     private String csv(RapportSuivi rapport, LocalDate depuis) {
         return jdbc.sql(rapport.sql()).param("depuis", depuis).query((ResultSet lignes) -> {
             ResultSetMetaData colonnes = lignes.getMetaData();

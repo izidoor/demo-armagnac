@@ -69,13 +69,14 @@ class SuiviConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * L'export ne passe pas par une session : il exige le jeton ({@link SuiviController}). Cette chaîne précède celle
-     * de toute l'API ({@code SecuriteConfiguration}, dans {@code authentification}), qui reste inchangée.
+     * L'export et la remise à zéro ne passent pas par une session : ils exigent le jeton ({@link SuiviController}).
+     * Cette chaîne précède celle de toute l'API ({@code SecuriteConfiguration}, dans {@code authentification}), qui
+     * reste inchangée.
      */
     @Bean
     @Order(1)
     SecurityFilterChain exportSuivi(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/suivi/export/**")
+        http.securityMatcher("/api/suivi/export/**", "/api/suivi/remise-a-zero")
                 .authorizeHttpRequests(regles -> regles.anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)

@@ -19,8 +19,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 /**
- * Suivi de l'utilisation : événements du front sous session, fichiers relevés par le serveur, export par jeton
- * ({@code bnia.suivi.jeton} des tests).
+ * Suivi de l'utilisation : événements du front sous session, fichiers relevés par le serveur, export et remise à
+ * zéro par jeton ({@code bnia.suivi.jeton} des tests).
  */
 class SuiviIT extends AbstractIT {
 
@@ -67,6 +67,24 @@ class SuiviIT extends AbstractIT {
                 .exchange().expectStatus().isUnauthorized();
         anonyme().get().uri("/api/suivi/export/inconnu").header("Authorization", JETON)
                 .exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    @DisplayName("La remise à zéro exige le jeton ; elle efface tout le suivi et renvoie le nombre d'événements effacés")
+    void remise_a_zero() {
+        String email = emailUnique("remise");
+        evenement(email, OffsetDateTime.parse("2026-01-05T10:00:00Z"), "ECRAN", "/bo");
+
+        anonyme().post().uri("/api/suivi/remise-a-zero").exchange().expectStatus().isUnauthorized();
+        anonyme().post().uri("/api/suivi/remise-a-zero").header("Authorization", "Bearer mauvais")
+                .exchange().expectStatus().isUnauthorized();
+        assertThat(exporter("evenements")).contains(email);
+
+        String effaces = anonyme().post().uri("/api/suivi/remise-a-zero").header("Authorization", JETON)
+                .exchange().expectStatus().isOk()
+                .expectBody(String.class).returnResult().getResponseBody();
+        assertThat(Integer.parseInt(effaces)).isPositive();
+        assertThat(exporter("evenements")).doesNotContain(email);
     }
 
     @Test

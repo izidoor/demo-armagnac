@@ -4,6 +4,7 @@
 # Rapports : tout (par défaut : personnes, visites, ecrans, offre, fichiers), personnes, visites (avec le parcours de
 # chacune), ecrans, offre, fichiers (téléchargements, exports, imports), evenements, connexions.
 # tableau : page de graphiques, écrite dans out/suivi-tableau.html (ignoré par git) et ouverte dans le navigateur.
+# remise-a-zero : efface tout le suivi de l'instance, après confirmation ; définitif.
 # Instance hébergée : adresse et jeton dans .env.suivi, à la racine (ignoré par git) :
 #   BNIA_SUIVI_URL=https://bnia-demo.osc-fr1.scalingo.io
 #   BNIA_SUIVI_JETON=<valeur de BNIA_SUIVI_JETON sur Scalingo>
@@ -72,6 +73,29 @@ tableau() {
     fi
 }
 
+# Efface tout le suivi de l'instance, après confirmation.
+remettre_a_zero() {
+    local reponse statut
+    read -r -p "Effacer tout le suivi de ${BNIA_SUIVI_URL} ? C'est définitif. Taper « effacer » pour confirmer : " reponse
+    if [[ "$reponse" != effacer ]]; then
+        echo "Rien n'a été effacé." >&2
+        exit 1
+    fi
+    statut=$(curl -sS -o "$brut" -w '%{http_code}' -X POST -H "Authorization: Bearer ${BNIA_SUIVI_JETON}" \
+        "${BNIA_SUIVI_URL%/}/api/suivi/remise-a-zero") || {
+        echo "Instance injoignable : ${BNIA_SUIVI_URL}" >&2
+        exit 1
+    }
+    case "$statut" in
+        200) echo "Suivi remis à zéro : $(cat "$brut") événements effacés." ;;
+        401) echo "Jeton refusé : comparer BNIA_SUIVI_JETON du serveur et de .env.suivi." >&2; exit 1 ;;
+        404) echo "Remise à zéro introuvable : serveur sans jeton (BNIA_SUIVI_JETON absent), ou d'une version" \
+                  "antérieure à la remise à zéro (le redéployer ou redémarrer le back local)." >&2
+             exit 1 ;;
+        *) echo "Réponse ${statut} de la remise à zéro" >&2; exit 1 ;;
+    esac
+}
+
 brut=$(mktemp)
 trap 'rm -f "$brut"' EXIT
 
@@ -82,5 +106,6 @@ case "$rapport" in
             exporter "$r"
         done ;;
     tableau) tableau ;;
+    remise-a-zero) remettre_a_zero ;;
     *) exporter "$rapport" ;;
 esac

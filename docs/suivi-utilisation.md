@@ -24,8 +24,20 @@ Les fichiers sont relevés par le serveur parce que beaucoup passent par un lien
 
 Dans le schéma `suivi` (table `suivi.evenement`), créé par l'application au démarrage, hors de Flyway et de
 `V1__schema.sql`. `flyway clean` ne vide que les schémas de `spring.flyway.schemas` : le suivi survit à une V1 modifiée
-comme à `scalingo-reset.sh`. Il ne disparaît qu'avec l'addon PostgreSQL, ou en local avec `./dev-reset.sh`, qui
-supprime le volume Docker.
+comme à `scalingo-reset.sh`. Il ne disparaît qu'avec l'addon PostgreSQL, en local avec `./dev-reset.sh`, qui
+supprime le volume Docker, ou par une remise à zéro volontaire (ci-dessous).
+
+## Remettre le suivi à zéro
+
+```bash
+./suivi.sh remise-a-zero           # instance hébergée (.env.suivi)
+./suivi.sh --local remise-a-zero   # instance locale
+```
+
+Le script demande de taper « effacer », puis vide la table `suivi.evenement` et donne le nombre d'événements effacés.
+C'est définitif : aucune archive n'est gardée. La remise à zéro exige le même jeton que l'export
+(`POST /api/suivi/remise-a-zero`). Elle ne touche ni la démonstration (le rapport `connexions` la lit) ni les
+cookies `?suivi=non` des navigateurs exclus.
 
 ## Ne pas se compter soi-même
 
@@ -126,12 +138,12 @@ Les requêtes des rapports sont dans `RapportSuivi.java` (remplacer `:depuis` pa
 | `frontend/src/features/suivi/suivi.ts` | Écrans, sections de l'offre, présence ; appareil ; cookie `?suivi=non` |
 | `frontend/src/main.tsx`, `features/offre/offre.tsx` | Branchements : changement de route, section affichée |
 | `backend/bnia-boot/src/main/java/fr/bnia/boot/suivi/SuiviConfiguration.java` | Schéma `suivi`, intercepteur, chaîne de sécurité de l'export |
-| `SuiviController.java` | `POST /api/suivi/evenements` (sous session), `GET /api/suivi/export/{rapport}` (jeton) ; hors du contrat OpenAPI |
+| `SuiviController.java` | `POST /api/suivi/evenements` (sous session), `GET /api/suivi/export/{rapport}` et `POST /api/suivi/remise-a-zero` (jeton) ; hors du contrat OpenAPI |
 | `SuiviFichiers.java` | Relève téléchargements et imports, côté serveur |
 | `JournalSuivi.java` | Écriture des événements |
 | `RapportSuivi.java` | Les rapports, en SQL |
 | `JetonSuivi.java` | Contrôle du jeton (`bnia.suivi.jeton`, `BNIA_SUIVI_JETON`) |
-| `suivi.sh` | Lecture des rapports et génération du tableau |
+| `suivi.sh` | Lecture des rapports, génération du tableau, remise à zéro |
 | `tools/suivi-tableau.html` | Modèle du tableau : mise en forme, calculs et graphiques en JavaScript |
 
 Tests : `SuiviIT`, `JetonSuiviTest`, `SuiviFichiersTest`, et `MigrationDevConfigurationIT` pour la survie aux remises
