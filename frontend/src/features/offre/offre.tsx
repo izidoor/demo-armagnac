@@ -97,8 +97,8 @@ export function BoutonOffre() {
 }
 
 /**
- * Sous `lg`, à la place de « Voir l'offre » : les PDF de l'offre et du diaporama, ouverts dans la visionneuse de
- * l'appareil. La lecture page par page n'a pas la place sur un téléphone ni sur une tablette.
+ * Sur tablette, sous `lg`, à la place de « Voir l'offre » : les PDF de l'offre et du diaporama, ouverts dans la
+ * visionneuse de l'appareil, la lecture page par page n'y ayant pas la place. Rien sur téléphone (`AppSidebar`).
  */
 export function LienOffrePdf() {
   const petitEcran = window.matchMedia('(max-width: 1023px)').matches

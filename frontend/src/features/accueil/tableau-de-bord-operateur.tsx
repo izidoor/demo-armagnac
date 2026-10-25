@@ -1,42 +1,62 @@
 import { useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import {
-  Banknote,
+  ArrowDownUp,
+  BadgeCheck,
+  Building2,
   FilePenLine,
   FileSearch,
   FileWarning,
+  Globe,
+  Grape,
   Handshake,
   Hourglass,
   Mail,
-  ShoppingBag,
+  ReceiptEuro,
+  Ship,
   Stamp,
   Truck,
+  UserRound,
 } from 'lucide-react'
-import { listerMesFactures } from '@/api/generated'
+import { type Droits, listerMesFactures } from '@/api/generated'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMesContrats } from '@/features/contrats/api'
 import {
   apiDeclarations,
   cleDeclarations,
   useDsms,
+  useStockEstime,
 } from '@/features/declarations/api'
+import { formatDate } from '@/features/declarations/format'
 import { dansGroupe } from '@/features/declarations/libelles'
 import { cleFacturation } from '@/features/facturation/api'
 import { echueImpayee } from '@/features/facturation/libelles'
 import { useNouveauxMessages } from '@/features/messagerie/nouveaux'
+import { apiOperateur, cleOperateur } from '@/features/operateurs/commun/api'
+import {
+  APPELLATIONS,
+  ROLES,
+  TYPES,
+} from '@/features/operateurs/commun/libelles'
 import { useDroits, useMoi } from '@/features/session/session'
-import { Activite, GrilleActivites, Section } from './activite'
+import { Activite, Section, Theme, ThemesActivites } from './activite'
 
 /** Chiffres de démonstration, pour les contextes qui n'existent pas encore. */
 const DEMO = {
+  suivisExport: 1,
   certificatsExport: 1,
-  commandesBoutique: 1,
+  certificatsDelivres: 12,
 }
 
+const entier = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 })
+
 /**
- * Tableau de bord du portail, pendant de celui du back-office : les activités de l'opérateur actif. Ses DSM à
- * saisir ou compléter et celles qui attendent le BNIA, pour qui lit ses déclarations ; ses factures échues et impayées,
- * pour qui lit sa facturation ; ses nouveaux messages (RG-MSG-11) ; ses contrats à approuver, ceux en attente de l'autre partie et ses retiraisons à valider (RG-CA-25). Les certificats export et commandes
- * boutique sont des données de démonstration, marquées comme telles.
+ * Tableau de bord du portail, pendant de celui du back-office, pour l'opérateur actif. En tête, l'accueil de
+ * l'utilisateur et le résumé de son entreprise, ses nouveaux messages (RG-MSG-11) et ses factures à régler, pour qui
+ * lit sa facturation ; puis son activité rangée par thème : ses DSM, pour qui lit ses déclarations ; ses contrats
+ * (RG-CA-25), pour qui lit ses contrats ; l'export, données de démonstration marquées comme telles.
  */
 export function TableauDeBordOperateur() {
   const { actif } = useMoi()
@@ -47,49 +67,192 @@ export function TableauDeBordOperateur() {
 function Activites({ operateur }: { operateur: number }) {
   const droits = useDroits(operateur)
   if (!droits) return <Skeleton className='h-48 w-full' />
+  const lit = (module: keyof Droits) => droits[module] !== 'AUCUN'
   return (
-    <Section titre='Activités'>
-      <GrilleActivites>
-        {droits.declarations !== 'AUCUN' && (
-          <ActivitesDsm operateur={operateur} />
-        )}
-        {droits.facturation !== 'AUCUN' && (
-          <FacturesImpayees operateur={operateur} />
-        )}
+    <div className='space-y-10'>
+      <div className='grid grid-cols-2 gap-3 sm:gap-4 @min-[56rem]/content:grid-cols-4'>
+        <Bienvenue operateur={operateur} stock={lit('declarations')} />
         <NouveauxMessages operateur={operateur} />
-        {droits.contrats !== 'AUCUN' && (
-          <ActivitesContrats operateur={operateur} />
-        )}
-        <Activite
-          libelle='Demandes de certificat export en cours'
-          singulier='Demande de certificat export en cours'
-          icone={Stamp}
-          valeur={DEMO.certificatsExport}
-          demo
-        />
-        <Activite
-          libelle='Commandes boutique en attente'
-          singulier='Commande boutique en attente'
-          icone={ShoppingBag}
-          valeur={DEMO.commandesBoutique}
-          demo
-        />
-      </GrilleActivites>
-    </Section>
+        {lit('facturation') && <FacturesARegler operateur={operateur} />}
+      </div>
+      <Section titre='Votre activité'>
+        <ThemesActivites>
+          {lit('declarations') && (
+            <Theme
+              titre='Déclarations de stocks et mouvements'
+              icone={ArrowDownUp}
+              couleur='var(--chart-3)'
+              lien={{ to: '/portail/declarations', libelle: 'Mes DSM' }}
+            >
+              <ActivitesDsm operateur={operateur} />
+            </Theme>
+          )}
+          {lit('contrats') && (
+            <Theme
+              titre='Contrats'
+              icone={Handshake}
+              couleur='var(--chart-5)'
+              lien={{ to: '/portail/contrats', libelle: 'Mes contrats' }}
+            >
+              <ActivitesContrats operateur={operateur} />
+            </Theme>
+          )}
+          <Theme titre='Export' icone={Globe} couleur='var(--chart-4)'>
+            <Activite
+              libelle='Suivis export à déclarer'
+              singulier='Suivi export à déclarer'
+              icone={Ship}
+              valeur={DEMO.suivisExport}
+              demo
+            />
+            <Activite
+              libelle='Demandes de certificat export en cours'
+              singulier='Demande de certificat export en cours'
+              icone={Stamp}
+              valeur={DEMO.certificatsExport}
+              demo
+            />
+            <Activite
+              libelle='Certificats export délivrés cette année'
+              singulier='Certificat export délivré cette année'
+              icone={BadgeCheck}
+              valeur={DEMO.certificatsDelivres}
+              demo
+            />
+          </Theme>
+        </ThemesActivites>
+      </Section>
+    </div>
   )
 }
 
 /**
- * Ses DSM, comptées comme au back-office (RG-DEC-40) : à saisir ou compléter (la période attendue qu'il peut
- * initier, ses brouillons, ses compléments demandés), en retard (la période attendue, son échéance passée : une au
- * plus ; la carte, en alerte, n'apparaît qu'alors), puis envoyées au BNIA et pas encore validées.
+ * L'accueil : le prénom de l'utilisateur, son rôle et le type de l'entreprise active en badges, sa raison sociale en
+ * titre, qui ouvre « Mon entreprise », puis sur une ligne ses appellations, l'une sous l'autre, son stock estimé
+ * (RG-CA-11) et sa prochaine DSM (RG-DEC-39) pour qui lit ses déclarations. Teintée de la couleur de son type, comme
+ * au back-office.
  */
-function ActivitesDsm({ operateur }: { operateur: number }) {
-  const dsms = useDsms(operateur).data
-  const situation = useQuery({
+function Bienvenue({
+  operateur,
+  stock: avecStock,
+}: {
+  operateur: number
+  stock: boolean
+}) {
+  const { moi, actif } = useMoi()
+  const fiche = useQuery({
+    queryKey: [...cleOperateur(operateur), 'fiche'],
+    queryFn: apiOperateur(operateur).fiche,
+  }).data
+  const producteur = actif?.type === 'PRODUCTEUR'
+  const couleur = producteur ? 'var(--chart-5)' : 'var(--chart-2)'
+  const Icone = producteur ? Grape : Building2
+  return (
+    <Card
+      className='relative col-span-2 gap-4 overflow-hidden py-5'
+      style={{
+        background: `linear-gradient(135deg, color-mix(in oklch, ${couleur} 14%, var(--card)), var(--card) 70%)`,
+        borderColor: `color-mix(in oklch, ${couleur} 30%, var(--border))`,
+      }}
+    >
+      <Icone
+        aria-hidden
+        className='pointer-events-none absolute -top-6 -right-6 size-40 opacity-[0.07]'
+        style={{ color: couleur }}
+      />
+      <CardContent className='space-y-4 px-5'>
+        <div className='space-y-1.5'>
+          <p className='flex flex-wrap items-center gap-2 text-lg font-medium'>
+            Bienvenue, {moi.prenom}
+            {actif && (
+              <>
+                <Badge className='bg-primary text-primary-foreground border-transparent'>
+                  <UserRound /> {ROLES[actif.role]}
+                </Badge>
+                <Badge
+                  className='border-transparent text-white'
+                  style={{ background: couleur }}
+                >
+                  <Icone /> {TYPES[actif.type]}
+                </Badge>
+              </>
+            )}
+          </p>
+          <Link
+            to='/portail/entreprise'
+            title='Mon entreprise'
+            className='block text-2xl leading-tight font-bold tracking-tight underline-offset-4 hover:underline sm:text-3xl'
+          >
+            {actif?.raisonSociale}
+          </Link>
+        </div>
+        <div className='flex flex-wrap items-start gap-x-6 gap-y-3 sm:gap-x-8'>
+          {!!fiche?.appellations.length && (
+            <div className='flex flex-col items-start gap-1'>
+              {fiche.appellations.map((a) => (
+                <Badge key={a} variant='outline' className='font-normal'>
+                  {APPELLATIONS[a]}
+                </Badge>
+              ))}
+            </div>
+          )}
+          {avecStock && <ChiffresDeclarations operateur={operateur} />}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+/** Son stock estimé, en hl AP (RG-CA-11), et sa prochaine DSM, avec son échéance (RG-DEC-39). */
+function ChiffresDeclarations({ operateur }: { operateur: number }) {
+  const stock = useStockEstime(operateur).data
+  const situation = useSituation(operateur)
+  return (
+    <div className='flex gap-6 sm:gap-8'>
+      <div>
+        <p className='text-muted-foreground text-xs'>Stock estimé</p>
+        {stock === undefined ? (
+          <Skeleton className='mt-1 h-6 w-24' />
+        ) : (
+          <p className='text-lg font-semibold tabular-nums'>
+            {entier.format(
+              stock.lignes.reduce((s, l) => s + l.estime, 0) / 100
+            )}{' '}
+            hl&nbsp;AP
+          </p>
+        )}
+      </div>
+      {situation?.periode && (
+        <div>
+          <p className='text-muted-foreground text-xs'>Prochaine DSM</p>
+          <p className='text-lg font-semibold'>{situation.periode.libelle}</p>
+          {situation.echeance && (
+            <p className='text-muted-foreground text-xs'>
+              avant le {formatDate(situation.echeance)}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Sa situation déclarative : période attendue ou en cours, échéance, retard (RG-DEC-39, 40). */
+function useSituation(operateur: number) {
+  return useQuery({
     queryKey: [...cleDeclarations(operateur), 'situation'],
     queryFn: apiDeclarations(operateur).situation,
   }).data
+}
+
+/**
+ * Ses DSM, comptées comme au back-office (RG-DEC-40) : en retard (la période attendue, son échéance passée : une au
+ * plus ; en alerte s'il y en a), à saisir ou compléter (la période attendue qu'il peut initier, ses brouillons, ses
+ * compléments demandés), puis envoyées au BNIA et pas encore validées.
+ */
+function ActivitesDsm({ operateur }: { operateur: number }) {
+  const dsms = useDsms(operateur).data
+  const situation = useSituation(operateur)
   const aSaisir =
     dsms && situation
       ? dsms.filter(dansGroupe('A_SAISIR')).length +
@@ -98,20 +261,18 @@ function ActivitesDsm({ operateur }: { operateur: number }) {
   return (
     <>
       <Activite
+        libelle='DSM en retard'
+        icone={FileWarning}
+        valeur={situation && (situation.enRetard ? 1 : 0)}
+        lien={{ to: '/portail/declarations' }}
+        alerte={situation?.enRetard}
+      />
+      <Activite
         libelle='DSM à saisir ou compléter'
         icone={FilePenLine}
         valeur={aSaisir}
         lien={{ to: '/portail/declarations' }}
       />
-      {situation?.enRetard && (
-        <Activite
-          libelle='DSM en retard'
-          icone={FileWarning}
-          valeur={1}
-          lien={{ to: '/portail/declarations' }}
-          alerte
-        />
-      )}
       <Activite
         libelle='DSM en attente du BNIA'
         icone={FileSearch}
@@ -123,10 +284,10 @@ function ActivitesDsm({ operateur }: { operateur: number }) {
 }
 
 /**
- * RG-FAC-13, 33 : ses factures échues et impayées, transmises à Zeendoc, non payées, leur échéance passée ; comme au
- * back-office, affichée en alerte seulement s'il y en a. Ouvre ses factures, où leurs lignes sont teintées.
+ * Ses factures à régler : émises, pas encore payées (RG-FAC-33). En alerte (RG-FAC-13) si l'une est échue et
+ * impayée ; ouvre ses factures, où ces lignes sont teintées.
  */
-function FacturesImpayees({ operateur }: { operateur: number }) {
+function FacturesARegler({ operateur }: { operateur: number }) {
   const factures = useQuery({
     queryKey: [...cleFacturation, 'portail', operateur, { sens: 'FACTURE' }],
     queryFn: () =>
@@ -135,17 +296,19 @@ function FacturesImpayees({ operateur }: { operateur: number }) {
         query: { sens: 'FACTURE' },
         throwOnError: true,
       }).then((r) => r.data),
-  })
-  const echues = factures.data?.filter(echueImpayee).length
-  if (!echues) return null
+  }).data
   return (
     <Activite
-      libelle='Factures impayées'
-      singulier='Facture impayée'
-      icone={Banknote}
-      valeur={echues}
+      libelle='Factures à régler'
+      singulier='Facture à régler'
+      icone={ReceiptEuro}
+      couleur='var(--chart-2)'
+      valeur={
+        factures?.filter((f) => f.sens === 'FACTURE' && f.zeendoc !== 'PAYEE')
+          .length
+      }
       lien={{ to: '/portail/factures' }}
-      alerte
+      alerte={!!factures?.some(echueImpayee)}
     />
   )
 }
@@ -158,6 +321,7 @@ function NouveauxMessages({ operateur }: { operateur: number }) {
       libelle='Nouveaux messages'
       singulier='Nouveau message'
       icone={Mail}
+      couleur='var(--chart-6)'
       valeur={data?.nombre}
       lien={{ to: '/portail/messagerie' }}
     />

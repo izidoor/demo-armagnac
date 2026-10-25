@@ -244,7 +244,8 @@ annulation dans la zone à risque, en bas.
   numéro ; détail en lecture : lignes, versions et écart, retiraisons, journal, PDF) ; **Mercuriales**
   (période, tableau par millésime ou dénomination et compte d'âge).
 - Fiche opérateur, onglet « Contrats » : le listing filtré sur l'opérateur, comme acheteur ou vendeur.
-- Tableau de bord : carte « Contrats en attente d'approbation », valeur réelle.
+- Tableau de bord : carte « Contrats Armagnac & vin », sans nombre, qui ouvre le listing (« Voir tous les contrats »),
+  dans la ligne « Contrats & ODG ».
 
 ### 6.2 Portail
 
@@ -371,3 +372,5 @@ Chaque RG-CA-nn a au moins un test qui porte son identifiant (CLAUDE.md).
 | 2026-10-24 | Retiraisons sur téléphone (demande de l'utilisateur) : page à part (`/portail/contrats/{id}/retiraisons`, et au back-office), entrée par la droite, ouverte par « Gérer les retiraisons » (« Voir les retiraisons » en lecture) entre ce que le contrat attend et ses parties ; sur ordinateur, la carte reste dans le contrat. RG-CA-18 : le push d'une retiraison déclarée, modifiée ou validée ouvre cette page ; l'e-mail garde le lien du contrat. |
 | 2026-10-24 | « Plus de retiraison » quitte le menu « Plus » du contrat et devient « Clôturer les retiraisons », à côté de « Déclarer une retiraison », dans la page des retiraisons sur téléphone et leur carte sur ordinateur (demande de l'utilisateur). Le menu « Plus » du contrat conclu disparaît : « PDF » reste en en-tête, comme dans les autres états, et « Annuler le contrat » passe dans la zone à risque, en bas de la page. |
 | 2026-10-24 | « Clôturer les retiraisons » quitte l'en-tête des retiraisons pour un cadre « Fin des retiraisons », au style de la zone à risque, en bas de la page des retiraisons sur téléphone et en bas du contrat sur ordinateur (demande de l'utilisateur). Refus, annulation et clôture se confirment en feuille du bas sur téléphone. |
+| 2026-10-25 | Tableau de bord du back-office (demande de l'utilisateur, §6.1) : la carte « Contrats en attente d'approbation » devient « Contrats Armagnac & vin », sans nombre, qui ouvre le listing (« Voir tous les contrats ») ; elle ouvre la ligne « Contrats & ODG », avant « Distillation » et « Synchronisation ODG » (démonstration). |
+| 2026-10-25 | Tableau de bord du portail (demande de l'utilisateur, §6.2) : les cartes « Contrats à approuver », « Contrats en attente d'approbation » et « Retiraisons à valider » forment la ligne « Contrats » de « Votre activité », avec le lien « Mes contrats ». |

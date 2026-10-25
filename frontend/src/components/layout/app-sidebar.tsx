@@ -27,8 +27,8 @@ type AppSidebarProps = {
 /**
  * Barre latérale ; sur mobile, tiroir de navigation, sans le titre de l'espace, qui reçoit ce que l'en-tête n'a pas la
  * place de montrer : « Mon compte » en tête, à côté de la croix, et sous un trait l'opérateur actif (pour qui en a
- * plusieurs) ; les paramètres (back-office), au pied. L'offre : « Voir l'offre » dès `lg`, son PDF
- * en dessous.
+ * plusieurs) ; les paramètres (back-office), au pied. L'offre : « Voir l'offre » dès `lg`, son PDF et celui du
+ * diaporama en dessous, sur tablette ; rien sur téléphone.
  */
 export function AppSidebar({ espace }: AppSidebarProps) {
   const { collapsible, variant } = useLayout()
@@ -86,24 +86,29 @@ export function AppSidebar({ espace }: AppSidebarProps) {
       <SidebarFooter className='bg-sidebar-bandeau border-sidebar-trait border-t pb-16 max-lg:hidden'>
         <BoutonOffre />
       </SidebarFooter>
-      <SidebarFooter className='bg-sidebar-bandeau border-sidebar-trait border-t pt-4 lg:hidden'>
-        {isMobile && espace.url === '/bo' && (
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                className='[font-variant-caps:all-small-caps]'
-              >
-                <Link to='/bo/parametrage' onClick={() => setOpenMobile(false)}>
-                  <Settings />
-                  Paramètres
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        )}
-        <LienOffrePdf />
-      </SidebarFooter>
+      {(!isMobile || espace.url === '/bo') && (
+        <SidebarFooter className='bg-sidebar-bandeau border-sidebar-trait border-t pt-4 lg:hidden'>
+          {isMobile && espace.url === '/bo' && (
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className='[font-variant-caps:all-small-caps]'
+                >
+                  <Link
+                    to='/bo/parametrage'
+                    onClick={() => setOpenMobile(false)}
+                  >
+                    <Settings />
+                    Paramètres
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          )}
+          {!isMobile && <LienOffrePdf />}
+        </SidebarFooter>
+      )}
       <SidebarRail />
     </Sidebar>
   )

@@ -139,6 +139,8 @@
   --chart-3: oklch(0.55 0.09 195);
   --chart-4: oklch(0.5 0.11 255);
   --chart-5: oklch(0.6 0.12 130);
+  /* Prune, hors des graphiques : sixième thème des activités du tableau de bord. */
+  --chart-6: oklch(0.5 0.13 320);
   --sidebar: oklch(0.9431 0.0068 53.4442);
   --sidebar-foreground: oklch(0.2178 0 0);
   --sidebar-primary: oklch(0.465 0.147 24.9381);
@@ -227,6 +229,7 @@
   --chart-3: oklch(0.7 0.11 195);
   --chart-4: oklch(0.68 0.13 255);
   --chart-5: oklch(0.72 0.14 130);
+  --chart-6: oklch(0.7 0.13 320);
   --sidebar: oklch(0.31 0.0283 267.7408);
   --sidebar-foreground: oklch(0.9219 0 0);
   --sidebar-primary: oklch(0.6397 0.172 36.4421);
