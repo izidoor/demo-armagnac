@@ -25,6 +25,11 @@ Messagerie, nouvelle conversation
 
 - dsm : essayer d'alléger l'écran
 
+- rajouter bouton de téléchargment de la base avec les données
+
+- mettre le code sur git
+
+
 # démo
 
 - DSM
@@ -53,15 +58,22 @@ Messagerie, nouvelle conversation
 
 
 
+pour la diapo 4 : 
+- mets plutôt 4 carrés en rajoutant le 4ème : la documentation -> spécification détaillée de chaque module est incluse dans le doc. 
 
-salut, 
-je continue de préparer mon passage devant la commisson d'attribution du projet mardi prochain.
-je réfléchis à la démo du prototype.
-je voudrais que l'on réfléchisse à la possibilité de mettre des notifications push dans la pwa intallées, pour alerter sur
-- vous avez un contrat d'achat à valider ( adressée à la seconde partie, aprés que la première partie a validé le projet)
-- ... a validé le contrat le contrat d'achat ( adressée à la première partie, aprés que la seconde a validé)
-- ... a modifié le contrat, vous devez le valider
-- idem pour les retiraisons.
+pour la diapo 5 : 
+- je serai parti de fait/projection et j'aurai fait pour chacun une comparaison indépendant/agence. Exemple : 
+  - constat "Un interlocuteur unique" : 
+    - ce que ca apporte : celui qui écoute est celui qui construit. Efficacité. Pas de discours commercial. Lien direct, confiance sur le long terme. En plus, vu ma situation -> BNIA le seul client, celui qui a la priorité
+    - alors qu'en agence : je te laisse broder
+  - constat "Le développeur a un accident"
+    - indépendant : s'il me choissisent, je m'engage à leur fournir dés le début du projet une liste de plusieurs noms de freelance comme moi, de confiance. Le code leur appartient + spécification détaillée.
+    - agence : le risque existe aussi, et même plus grand car le développeur peut quitter l'agance ( autre emploi, démission). L'agence doit le remplacer; le remplaçant doit être formé. Et il doit aussi etre formé sur les autres clients. En plus en agence, les spécifications détaillées sont trés souvent absentes.
+-> alors pourquoi ce chois paraît plus risqué : 
+  - rappel risque = probabilité * surcoût
+    - probabilité -> est au moins aussi grande, voire plus élevé en agence ( accident + démission)
+    - surcôut -> dans les deux cas, il y a un retard. Mais :
+      - les phases que j'ai déja faites sont payées, on ne revient pas dessus
+      - le BNIA peut agir lui meme dés le lendemain avec la liste freealnce communiquée
+      - en agence : le BNIA n'a pas la main, opaque. Il subit.
 
-ca te semble enviseagable ? quelles sont les enjeux techniques ? qu'il y a t-il d'importants à savoir ?
-est-ce que cela fonctionne sur tous les téléphones ? est-ce que cela va nécessité des paramètrages sur chaque téléphone ?
