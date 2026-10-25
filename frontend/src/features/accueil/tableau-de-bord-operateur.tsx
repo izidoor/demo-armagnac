@@ -274,7 +274,7 @@ function ActivitesDsm({ operateur }: { operateur: number }) {
         lien={{ to: '/portail/declarations' }}
       />
       <Activite
-        libelle='DSM en attente du BNIA'
+        libelle='DSM en instruction par le BNIA'
         icone={FileSearch}
         valeur={dsms?.filter(dansGroupe('A_TRAITER')).length}
         lien={{ to: '/portail/declarations' }}

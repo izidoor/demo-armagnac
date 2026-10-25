@@ -6,7 +6,11 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { ArrowLeft, ChevronRight, FileDown } from 'lucide-react'
-import { consulterMaFacture, listerMesFactures } from '@/api/generated'
+import {
+  consulterMaFacture,
+  listerMesFactures,
+  type PieceListee,
+} from '@/api/generated'
 import { cn } from '@/lib/utils'
 import { useFiltresAdresse, useTexteAdresse } from '@/hooks/use-filtres-adresse'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { CarteListe, CartesListe } from '@/components/metier/cartes-liste'
 import { PageMetier } from '@/components/metier/page-metier'
 import { Pagination } from '@/components/metier/pagination'
 import { TAILLE_PAGE, usePagination } from '@/components/metier/use-pagination'
@@ -39,6 +44,19 @@ import { echueImpayee, SENS } from './libelles'
 import { CarteNotePied, EntetePiece, Lignes } from './page-piece'
 
 type FiltreSens = 'TOUS' | 'FACTURE' | 'AVOIR'
+
+/**
+ * Les seuils du tableau, selon la largeur du contenu (`CartesListe`, 34 px de marges). L'objet prend la place qui
+ * reste et se tronque (8rem au moins) ; le tableau complet fait 913 px avec l'objet à 8rem. Sous 64rem, il perd la
+ * période, que la référence de l'origine rappelle (736 px) ; sous 53rem, le HT et la TVA (568 px) ; sous 40rem, une
+ * carte par pièce.
+ */
+const SEUILS = {
+  periode: '@max-[64rem]/content:hidden',
+  montants: '@max-[53rem]/content:hidden',
+  tableau: '@max-[40rem]/content:hidden',
+  cartes: '@min-[40rem]/content:hidden',
+}
 
 /**
  * Portail, menu « Factures » (spec 08 §6.2, RG-FAC-28) : les factures et avoirs émis dont l'opérateur actif est le
@@ -91,12 +109,12 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
       titre='Factures'
       description='Les factures et avoirs que le BNIA vous a adressés.'
     >
-      <div className='mb-4 flex flex-wrap items-end gap-4'>
+      <div className='mb-4 grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap sm:gap-4'>
         <div className='space-y-1'>
           <Label htmlFor='filtre-numero'>Numéro</Label>
           <Input
             id='filtre-numero'
-            className='w-36'
+            className='sm:w-36'
             placeholder='2026…'
             value={numero}
             onChange={(e) => setNumero(e.target.value)}
@@ -108,7 +126,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
             value={sens}
             onValueChange={(v) => changer({ sens: v as FiltreSens })}
           >
-            <SelectTrigger id='filtre-sens' className='w-36'>
+            <SelectTrigger id='filtre-sens' className='w-full sm:w-36'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -118,11 +136,11 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
             </SelectContent>
           </Select>
         </div>
-        <div className='space-y-1'>
+        <div className='col-span-2 space-y-1'>
           <Label htmlFor='filtre-periode'>Période</Label>
           <Input
             id='filtre-periode'
-            className='w-44'
+            className='sm:w-44'
             placeholder='juillet 2026'
             value={periode}
             onChange={(e) => setPeriode(e.target.value)}
@@ -133,7 +151,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
           <Input
             id='filtre-du'
             type='date'
-            className='w-40'
+            className='sm:w-40'
             value={du}
             onChange={(e) => changer({ du: e.target.value })}
           />
@@ -143,22 +161,26 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
           <Input
             id='filtre-au'
             type='date'
-            className='w-40'
+            className='sm:w-40'
             value={au}
             onChange={(e) => changer({ au: e.target.value })}
           />
         </div>
       </div>
-      <div className='rounded-md border'>
+      <div className={cn('rounded-md border', SEUILS.tableau)}>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Numéro</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Objet</TableHead>
-              <TableHead>Période</TableHead>
-              <TableHead className='text-right'>HT</TableHead>
-              <TableHead className='text-right'>TVA</TableHead>
+              <TableHead className={SEUILS.periode}>Période</TableHead>
+              <TableHead className={cn('text-right', SEUILS.montants)}>
+                HT
+              </TableHead>
+              <TableHead className={cn('text-right', SEUILS.montants)}>
+                TVA
+              </TableHead>
               <TableHead className='text-right'>TTC</TableHead>
               <TableHead>Zeendoc</TableHead>
               <TableHead className='w-0' />
@@ -186,7 +208,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
                 title={echueImpayee(p) ? 'Échue et impayée' : undefined}
                 onClick={() => ouvrir(p.id)}
               >
-                <TableCell className='font-mono font-medium'>
+                <TableCell className='font-mono font-medium whitespace-nowrap'>
                   {p.numero}
                   {p.sens === 'AVOIR' && (
                     <Badge variant='secondary' className='ms-2'>
@@ -195,19 +217,30 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
                   )}
                 </TableCell>
                 <TableCell>{formatDate(p.dateEmission)}</TableCell>
-                <TableCell>
-                  <span className='block'>
+                <TableCell
+                  className='w-full max-w-0 min-w-32'
+                  title={[p.libelleNature ?? SENS[p.sens], p.reference]
+                    .filter(Boolean)
+                    .join(' · ')}
+                >
+                  <span className='block truncate'>
                     {p.libelleNature ?? SENS[p.sens]}
                   </span>
-                  <span className='text-muted-foreground text-xs'>
+                  <span className='text-muted-foreground block truncate text-xs'>
                     {p.reference}
                   </span>
                 </TableCell>
-                <TableCell>{p.libellePeriode}</TableCell>
-                <TableCell className='text-right tabular-nums'>
+                <TableCell className={SEUILS.periode}>
+                  {p.libellePeriode}
+                </TableCell>
+                <TableCell
+                  className={cn('text-right tabular-nums', SEUILS.montants)}
+                >
                   {formatEuros(p.ht)}
                 </TableCell>
-                <TableCell className='text-right tabular-nums'>
+                <TableCell
+                  className={cn('text-right tabular-nums', SEUILS.montants)}
+                >
                   {formatEuros(p.tva)}
                 </TableCell>
                 <TableCell className='text-right font-medium tabular-nums'>
@@ -237,8 +270,53 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
           </TableBody>
         </Table>
       </div>
+      <CartesListe
+        requete={listing}
+        vide='Aucune facture.'
+        masquee={SEUILS.cartes}
+      >
+        {(lignes ?? []).map((p) => (
+          <CartePiece key={p.id} piece={p} />
+        ))}
+      </CartesListe>
       <Pagination {...pagination} />
     </PageMetier>
+  )
+}
+
+/**
+ * Une pièce en carte, comme au back-office : son numéro et son état Zeendoc, la référence de l'origine et son libellé,
+ * puis la date et le TTC ; teintée si elle est échue et impayée (RG-FAC-33).
+ */
+function CartePiece({ piece: p }: { piece: PieceListee }) {
+  return (
+    <CarteListe
+      lien={{ to: '/portail/factures/$id', params: { id: String(p.id) } }}
+      className={echueImpayee(p) ? 'bg-danger/50' : undefined}
+      titre={
+        <span className='flex flex-wrap items-center gap-2'>
+          <span className='font-mono'>{p.numero}</span>
+          {p.sens === 'AVOIR' && (
+            <Badge variant='secondary'>{SENS[p.sens]}</Badge>
+          )}
+          <BadgeZeendoc piece={p} />
+        </span>
+      }
+    >
+      <div className='truncate text-sm'>
+        {[p.reference, p.libelleNature ?? SENS[p.sens]]
+          .filter(Boolean)
+          .join(' · ')}
+      </div>
+      <div className='flex justify-between gap-2 text-sm'>
+        <span className='text-muted-foreground'>
+          {formatDate(p.dateEmission)}
+        </span>
+        <span className='font-medium whitespace-nowrap tabular-nums'>
+          {formatEuros(p.ttc)} TTC
+        </span>
+      </div>
+    </CarteListe>
   )
 }
 

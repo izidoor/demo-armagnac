@@ -17,10 +17,16 @@ Messagerie, nouvelle conversation
 
 
 IMPORTANT
+- table aggrégées -> arrondir et mettre les unités
 - rajouter bouton de téléchargement de la base avec les données
 - mettre le code sur git
 - diaporama "Choisir un indépendant, est-ce vraiement risqué ?"
-- diaporama...
+- diaporama  :
+  - il reste des points à valider -> adapatabilité
+    - BDF -> on avait fait un tiers, on commence le second tiers. Bdf nous demande de refaire quasi tout le premier tiers à cause des services juridiques.
+    - livraison incrémentales : 
+      - les BNIA décide aussi de la chronologie
+  - ma situation, mon activité dans 5 ans
 - vérifier contrat avec les infos de benoit
 
 
