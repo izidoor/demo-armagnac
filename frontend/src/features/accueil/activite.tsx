@@ -1,9 +1,4 @@
-import {
-  createContext,
-  type CSSProperties,
-  type ReactNode,
-  useContext,
-} from 'react'
+import { createContext, type ReactNode, useContext } from 'react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import {
   ArrowRight,
@@ -12,8 +7,7 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 /** Les briques des tableaux de bord, communes au back-office et au portail. */
@@ -38,25 +32,24 @@ export function Section({
 }
 
 /**
- * La présentation des activités d'un thème (`Theme`) : en cartes, sur la ligne du thème (contenu large), ou en lignes
- * d'une liste, dans la carte du thème (contenu étroit) ; avec la couleur du thème. Hors thème : en cartes, sans couleur.
+ * La présentation des activités d'un thème (`Theme`) : en cellules de la carte du thème, sur sa ligne (contenu large),
+ * ou en lignes d'une liste, dans la carte du thème (contenu étroit), avec la couleur du thème. Hors thème : une carte
+ * à part.
  */
 const Presentation = createContext<{
   mode: 'carte' | 'ligne'
   couleur?: string
+  cellule?: boolean
 }>({ mode: 'carte' })
 
 const teinte = (couleur: string, part: number, fond = 'transparent') =>
   `color-mix(in oklch, ${couleur} ${part}%, ${fond})`
 
-/** Au survol, une carte cliquable prend le fond `--survol`, comme une ligne de tableau : prête à être ouverte. */
-const SURVOL = 'transition-colors hover:bg-(--survol)'
-
 /**
- * Les activités rangées par thème (`Theme`). Contenu large (56rem) : une ligne de quatre colonnes par thème, la
- * première carte, teintée, portant son nom ; plus étroit : une carte par thème, ses activités en liste, deux cartes
- * par ligne dès 36rem. Les thèmes sont rendus une fois par présentation, chacune masquée hors de son seuil (les
- * lectures, partagées par TanStack Query, ne partent qu'une fois).
+ * Les activités rangées par thème (`Theme`). Contenu large (56rem) : une carte par thème sur une grille de quatre
+ * colonnes, son nom dans la première, ses activités dans les suivantes, alignées d'un thème à l'autre ; plus étroit :
+ * une carte par thème, ses activités en liste, deux cartes par ligne dès 36rem. Les thèmes sont rendus une fois par
+ * présentation, chacune masquée hors de son seuil (les lectures, partagées par TanStack Query, ne partent qu'une fois).
  */
 export function ThemesActivites({ children }: { children: ReactNode }) {
   return (
@@ -67,7 +60,7 @@ export function ThemesActivites({ children }: { children: ReactNode }) {
         </div>
       </Presentation.Provider>
       <Presentation.Provider value={{ mode: 'carte' }}>
-        <div className='grid grid-cols-4 gap-4 @max-[56rem]/content:hidden'>
+        <div className='grid grid-cols-4 gap-5 @max-[56rem]/content:hidden'>
           {children}
         </div>
       </Presentation.Provider>
@@ -81,40 +74,31 @@ type LienTheme = {
   libelle: string
 }
 
+const LARGEUR = { 1: 'col-span-2', 2: 'col-span-3', 3: 'col-span-4' }
+
 /**
- * Un thème d'activités (DSM, export, facturation…), à sa couleur : en tête de sa ligne, une carte teintée à son nom,
- * avec le lien vers son module ; sur contenu étroit, une carte dont l'en-tête teinté porte le nom et le lien, et les
- * activités une liste. Un thème d'une seule activité peut suivre le précédent sur sa ligne (`suite`).
+ * Un thème d'activités (DSM, export, facturation…) : sur contenu large, une carte sobre, son nom, son icône à la
+ * couleur du thème et le lien vers son module dans la première cellule, ses activités dans les suivantes, séparées
+ * d'un filet ; sur contenu étroit, une carte dont l'en-tête teinté porte le nom et le lien, et les activités une
+ * liste. Sur contenu large, la carte prend autant de colonnes que ses `colonnes` d'activités (trois au plus, par
+ * défaut), plus la sienne : deux thèmes d'une activité partagent une ligne.
  */
 export function Theme({
   titre,
   icone: Icone,
   couleur,
   lien,
-  suite,
+  colonnes = 3,
   children,
 }: {
   titre: string
   icone: LucideIcon
   couleur: string
   lien?: LienTheme
-  suite?: boolean
+  colonnes?: 1 | 2 | 3
   children: ReactNode
 }) {
   const { mode } = useContext(Presentation)
-  const activites = (
-    <Presentation.Provider value={{ mode, couleur }}>
-      {children}
-    </Presentation.Provider>
-  )
-  const pastille = (
-    <span
-      className='flex size-9 shrink-0 items-center justify-center rounded-lg text-white'
-      style={{ background: couleur }}
-    >
-      <Icone className='size-[18px]' />
-    </span>
-  )
   if (mode === 'ligne')
     return (
       <Card className='gap-0 overflow-hidden py-0'>
@@ -122,7 +106,12 @@ export function Theme({
           className='flex items-center gap-3 border-b px-4 py-3'
           style={{ background: teinte(couleur, 10, 'var(--card)') }}
         >
-          {pastille}
+          <span
+            className='flex size-9 shrink-0 items-center justify-center rounded-lg text-white'
+            style={{ background: couleur }}
+          >
+            <Icone className='size-[18px]' />
+          </span>
           <h3 className='min-w-0 flex-1 leading-snug font-semibold'>{titre}</h3>
           {lien && (
             <Link
@@ -134,68 +123,78 @@ export function Theme({
             </Link>
           )}
         </div>
-        <div className='divide-y'>{activites}</div>
+        <div className='divide-y'>
+          <Presentation.Provider value={{ mode, couleur }}>
+            {children}
+          </Presentation.Provider>
+        </div>
       </Card>
     )
   return (
-    <>
-      <Card
-        className={cn(
-          'relative gap-3 overflow-hidden py-5',
-          !suite && 'col-start-1'
-        )}
-        style={{
-          background: teinte(couleur, 9, 'var(--card)'),
-          borderColor: teinte(couleur, 30, 'var(--border)'),
-        }}
-      >
-        <CardHeader className='px-5'>{pastille}</CardHeader>
-        <CardContent className='mt-auto space-y-2 px-5'>
-          <h3 className='text-lg leading-snug font-semibold'>{titre}</h3>
+    <Card
+      className={cn(
+        'grid grid-cols-subgrid gap-0 overflow-hidden py-0',
+        LARGEUR[colonnes]
+      )}
+    >
+      <div className='bg-muted/40 flex flex-col gap-4 p-6'>
+        <Icone className='size-5' style={{ color: couleur }} />
+        <div className='mt-auto space-y-1.5'>
+          <h3 className='leading-snug font-semibold'>{titre}</h3>
           {lien && (
             <Link
               to={lien.to}
               search={lien.search}
-              className='text-muted-foreground hover:text-foreground relative z-10 inline-flex items-center gap-1 text-sm'
+              className='text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm'
             >
               {lien.libelle} <ArrowRight className='size-3.5' />
             </Link>
           )}
-        </CardContent>
-        <Icone
-          aria-hidden
-          className='pointer-events-none absolute -right-5 -bottom-5 size-28 opacity-[0.08]'
-          style={{ color: couleur }}
-        />
-      </Card>
-      {activites}
-    </>
+        </div>
+      </div>
+      <Presentation.Provider value={{ mode, couleur, cellule: true }}>
+        {children}
+      </Presentation.Provider>
+    </Card>
   )
 }
 
-/** Un nombre en attente de sa lecture. */
-export function Valeur({ valeur }: { valeur: string | undefined }) {
+/** Un nombre en attente de sa lecture, suivi de son `unite`, plus discrète, d'un bloc. */
+export function Valeur({
+  valeur,
+  unite,
+}: {
+  valeur: string | undefined
+  unite?: string
+}) {
   return valeur === undefined ? (
     <Skeleton className='h-9 w-24' />
   ) : (
-    <span className='block text-2xl font-bold tabular-nums sm:text-3xl'>
+    <span className='block text-2xl font-semibold tabular-nums sm:text-3xl'>
       {valeur}
+      {unite && (
+        <span className='text-muted-foreground ml-1.5 text-base font-normal whitespace-nowrap'>
+          {unite}
+        </span>
+      )}
     </span>
   )
 }
 
 /**
- * Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. Deux par ligne sur mobile, la
- * carte s'y resserre ; dans un thème (`Theme`), carte de sa ligne ou ligne de sa liste, l'icône
- * à la couleur du thème. En `alerte`, un liseré rouge (un nombre rouge en liste) et un triangle « Attention » à côté
- * du nombre : ce qui presse ; hors thème, l'icône aussi passe au rouge.
+ * Une activité : un nombre de choses à faire, et le listing préfiltré où les faire. Dans un thème (`Theme`), cellule
+ * de sa carte ou ligne de sa liste, l'icône de la ligne à la couleur du thème ; hors thème, une carte à part (deux par
+ * ligne sur mobile, la carte s'y resserre). En cellule ou en carte, sobre : icône discrète, nombre, libellé en gris.
+ * En `alerte`, le nombre en rouge et un triangle « Attention » à côté : ce qui presse.
  * Sous deux, le libellé passe au `singulier` (« 0 contrat à approuver », « 1 facture impayée »), s'il diffère. Une
  * `valeur` textuelle nomme ce dont le libellé dit l'état (« Otentik », « Service opérationnel »), précédée
  * d'un point vert si `pastille` ; en liste, elle passe en titre de la ligne, le point à droite ; sans valeur (`null`), le
- * libellé seul, suivi de l'`action` du lien (« Voir tous les contrats »). Hors thème, une `couleur` propre teinte
- * l'icône comme dans un thème.
+ * libellé seul, suivi de l'`action` du lien (« Voir tous les contrats »). Hors thème, un `titre` (« Messagerie »)
+ * coiffe la carte, à côté de son icône, à sa `couleur`, comme le nom d'un thème.
  */
 export function Activite({
+  titre,
+  couleur: couleurTitre,
   libelle,
   singulier,
   icone: Icone,
@@ -205,8 +204,9 @@ export function Activite({
   alerte,
   pastille,
   action,
-  couleur: couleurPropre,
 }: {
+  titre?: string
+  couleur?: string
   libelle: string
   singulier?: string
   icone: LucideIcon
@@ -216,34 +216,13 @@ export function Activite({
   alerte?: boolean
   pastille?: boolean
   action?: string
-  couleur?: string
 }) {
-  const presentation = useContext(Presentation)
-  const mode = presentation.mode
-  const couleur = couleurPropre ?? presentation.couleur
+  const { mode, couleur, cellule } = useContext(Presentation)
   const texte =
     singulier && typeof valeur === 'number' && valeur < 2 ? singulier : libelle
   const affichee = typeof valeur === 'number' ? entier.format(valeur) : valeur
   const point = pastille && (
-    <span className='bg-success-point mr-2 inline-block size-2.5 rounded-full align-middle' />
-  )
-  const icone = (
-    <span
-      className={cn(
-        'flex size-9 shrink-0 items-center justify-center rounded-lg',
-        !couleur &&
-          (alerte
-            ? 'bg-danger text-danger-foreground'
-            : 'bg-muted text-muted-foreground')
-      )}
-      style={
-        couleur
-          ? { background: teinte(couleur, 15), color: couleur }
-          : undefined
-      }
-    >
-      <Icone className='size-[18px]' />
-    </span>
+    <span className='bg-success-point size-2.5 shrink-0 rounded-full' />
   )
   if (mode === 'ligne') {
     const etat = typeof valeur === 'string'
@@ -253,7 +232,19 @@ export function Activite({
     ].filter(Boolean)
     const ligne = (
       <div className='flex items-center gap-3 px-4 py-3'>
-        {icone}
+        <span
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center rounded-lg',
+            !couleur && 'bg-muted text-muted-foreground'
+          )}
+          style={
+            couleur
+              ? { background: teinte(couleur, 15), color: couleur }
+              : undefined
+          }
+        >
+          <Icone className='size-[18px]' />
+        </span>
         <div className='min-w-0 flex-1'>
           <p className='text-[0.9375rem] leading-snug font-medium'>
             {etat ? valeur : texte}
@@ -306,42 +297,36 @@ export function Activite({
       ligne
     )
   }
-  const contenu = (
-    <Card
+  const corps = (
+    <div
       className={cn(
-        'h-full gap-2 py-4 sm:py-5',
-        lien && SURVOL,
-        alerte && 'border-destructive'
+        'flex h-full flex-col gap-4',
+        cellule ? 'border-l p-6' : 'p-4 sm:p-5',
+        lien && 'hover:bg-muted/50 transition-colors'
       )}
-      style={
-        lien
-          ? ({
-              '--survol': teinte(
-                alerte ? 'var(--destructive)' : (couleur ?? 'var(--primary)'),
-                alerte ? 5 : 7,
-                'var(--card)'
-              ),
-            } as CSSProperties)
-          : undefined
-      }
     >
-      <CardHeader className='flex flex-row items-center justify-between gap-2 px-4 sm:px-5'>
-        {icone}
-        {demo ? (
-          <Badge
-            variant='outline'
-            className='font-normal max-sm:px-1.5 max-sm:text-[10px]'
-          >
-            Démonstration
-          </Badge>
+      <div className='text-muted-foreground flex items-center justify-between gap-2'>
+        {titre ? (
+          <h3 className='text-foreground flex min-w-0 items-center gap-2 leading-snug font-semibold'>
+            <Icone
+              className='size-5 shrink-0'
+              style={{ color: couleurTitre }}
+            />
+            {titre}
+          </h3>
         ) : (
-          lien && <ChevronRight className='text-muted-foreground size-4' />
+          <Icone className='size-[18px]' />
         )}
-      </CardHeader>
-      <CardContent className='space-y-1 px-4 sm:px-5'>
+        {demo ? (
+          <span className='text-xs max-sm:text-[10px]'>Démonstration</span>
+        ) : (
+          lien && <ChevronRight className='size-4' />
+        )}
+      </div>
+      <div className='mt-auto space-y-1'>
         {affichee === null ? (
           <>
-            <p className='text-lg leading-snug font-semibold'>{texte}</p>
+            <p className='leading-snug font-semibold sm:text-lg'>{texte}</p>
             {action && (
               <p className='text-muted-foreground inline-flex items-center gap-1 text-sm'>
                 {action} <ArrowRight className='size-3.5' />
@@ -355,10 +340,11 @@ export function Activite({
             ) : (
               <span
                 className={cn(
-                  'flex items-center font-bold tabular-nums',
+                  'flex items-center gap-2 font-semibold tabular-nums',
                   typeof valeur === 'string'
-                    ? 'h-9 text-xl font-semibold sm:text-2xl'
-                    : 'text-2xl sm:text-3xl'
+                    ? 'h-9 text-xl'
+                    : 'text-2xl sm:text-3xl',
+                  alerte && 'text-danger-foreground'
                 )}
               >
                 {point}
@@ -366,18 +352,23 @@ export function Activite({
                 {alerte && (
                   <TriangleAlert
                     aria-label='Attention'
-                    className='text-destructive ml-auto size-7 sm:size-8'
+                    className='text-destructive size-5'
                   />
                 )}
               </span>
             )}
-            <p className='text-sm leading-snug font-medium sm:text-base'>
+            <p className='text-muted-foreground text-sm leading-snug'>
               {texte}
             </p>
           </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
+  )
+  const contenu = cellule ? (
+    corps
+  ) : (
+    <Card className='h-full gap-0 overflow-hidden py-0'>{corps}</Card>
   )
   return lien ? (
     <Link to={lien.to} search={lien.search} className='block rounded-xl'>

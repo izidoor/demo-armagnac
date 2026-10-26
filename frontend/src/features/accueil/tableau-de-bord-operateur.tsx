@@ -70,7 +70,7 @@ function Activites({ operateur }: { operateur: number }) {
   const lit = (module: keyof Droits) => droits[module] !== 'AUCUN'
   return (
     <div className='space-y-10'>
-      <div className='grid grid-cols-2 gap-3 sm:gap-4 @min-[56rem]/content:grid-cols-4'>
+      <div className='grid grid-cols-2 gap-3 sm:gap-4 @min-[56rem]/content:grid-cols-4 @min-[56rem]/content:gap-5'>
         <Bienvenue operateur={operateur} stock={lit('declarations')} />
         <NouveauxMessages operateur={operateur} />
         {lit('facturation') && <FacturesARegler operateur={operateur} />}
@@ -129,7 +129,7 @@ function Activites({ operateur }: { operateur: number }) {
 /**
  * L'accueil : le prénom de l'utilisateur, son rôle et le type de l'entreprise active en badges, sa raison sociale en
  * titre, qui ouvre « Mon entreprise », puis sur une ligne ses appellations, l'une sous l'autre, son stock estimé
- * (RG-CA-11) et sa prochaine DSM (RG-DEC-39) pour qui lit ses déclarations. Teintée de la couleur de son type, comme
+ * (RG-CA-11) et sa prochaine DSM (RG-DEC-39) pour qui lit ses déclarations. L'icône du type à sa couleur, comme
  * au back-office.
  */
 function Bienvenue({
@@ -148,32 +148,18 @@ function Bienvenue({
   const couleur = producteur ? 'var(--chart-5)' : 'var(--chart-2)'
   const Icone = producteur ? Grape : Building2
   return (
-    <Card
-      className='relative col-span-2 gap-4 overflow-hidden py-5'
-      style={{
-        background: `linear-gradient(135deg, color-mix(in oklch, ${couleur} 14%, var(--card)), var(--card) 70%)`,
-        borderColor: `color-mix(in oklch, ${couleur} 30%, var(--border))`,
-      }}
-    >
-      <Icone
-        aria-hidden
-        className='pointer-events-none absolute -top-6 -right-6 size-40 opacity-[0.07]'
-        style={{ color: couleur }}
-      />
+    <Card className='col-span-2 gap-4 py-5'>
       <CardContent className='space-y-4 px-5'>
         <div className='space-y-1.5'>
           <p className='flex flex-wrap items-center gap-2 text-lg font-medium'>
             Bienvenue, {moi.prenom}
             {actif && (
               <>
-                <Badge className='bg-primary text-primary-foreground border-transparent'>
+                <Badge variant='outline' className='font-normal'>
                   <UserRound /> {ROLES[actif.role]}
                 </Badge>
-                <Badge
-                  className='border-transparent text-white'
-                  style={{ background: couleur }}
-                >
-                  <Icone /> {TYPES[actif.type]}
+                <Badge variant='outline' className='font-normal'>
+                  <Icone style={{ color: couleur }} /> {TYPES[actif.type]}
                 </Badge>
               </>
             )}
@@ -181,7 +167,7 @@ function Bienvenue({
           <Link
             to='/portail/entreprise'
             title='Mon entreprise'
-            className='block text-2xl leading-tight font-bold tracking-tight underline-offset-4 hover:underline sm:text-3xl'
+            className='block text-2xl leading-tight font-semibold tracking-tight underline-offset-4 hover:underline sm:text-3xl'
           >
             {actif?.raisonSociale}
           </Link>
@@ -299,10 +285,11 @@ function FacturesARegler({ operateur }: { operateur: number }) {
   }).data
   return (
     <Activite
+      titre='Facturation'
+      couleur='var(--chart-2)'
       libelle='Factures à régler'
       singulier='Facture à régler'
       icone={ReceiptEuro}
-      couleur='var(--chart-2)'
       valeur={
         factures?.filter((f) => f.sens === 'FACTURE' && f.zeendoc !== 'PAYEE')
           .length
@@ -318,10 +305,11 @@ function NouveauxMessages({ operateur }: { operateur: number }) {
   const { data } = useNouveauxMessages(operateur)
   return (
     <Activite
+      titre='Messagerie'
+      couleur='var(--chart-6)'
       libelle='Nouveaux messages'
       singulier='Nouveau message'
       icone={Mail}
-      couleur='var(--chart-6)'
       valeur={data?.nombre}
       lien={{ to: '/portail/messagerie' }}
     />

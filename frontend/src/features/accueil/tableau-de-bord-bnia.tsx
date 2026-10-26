@@ -104,10 +104,16 @@ export function TableauDeBordBnia() {
             titre='Messagerie'
             icone={MessagesSquare}
             couleur='var(--chart-6)'
+            colonnes={1}
           >
             <NouveauxMessages />
           </Theme>
-          <Theme titre='Boutique' icone={Store} couleur='var(--chart-6)' suite>
+          <Theme
+            titre='Boutique'
+            icone={Store}
+            couleur='var(--chart-6)'
+            colonnes={1}
+          >
             <Activite
               libelle='Nouvelles commandes'
               singulier='Nouvelle commande'
@@ -249,17 +255,9 @@ function CarteType({
   const { operateurs, stockHl } = FILIERE[type]
   return (
     <Card>
-      <CardHeader className='flex flex-row items-center gap-3'>
-        <span
-          className='flex size-10 items-center justify-center rounded-lg'
-          style={{
-            background: `color-mix(in oklch, ${couleur} 15%, transparent)`,
-            color: couleur,
-          }}
-        >
-          <Icone className='size-5' />
-        </span>
-        <CardTitle className='text-lg'>{libelle}</CardTitle>
+      <CardHeader className='flex flex-row items-center gap-2.5'>
+        <Icone className='size-5' style={{ color: couleur }} />
+        <CardTitle className='text-base'>{libelle}</CardTitle>
       </CardHeader>
       <CardContent className='grid grid-cols-2 gap-6'>
         <Lien to='/bo/operateurs' search={{ type }}>
@@ -270,7 +268,7 @@ function CarteType({
           <Lien to='/bo/declarations/stocks'>
             <p className='text-muted-foreground text-sm'>Stock total déclaré</p>
             {/* « hl AP » d'un bloc : sur mobile, l'unité passe entière à la ligne. */}
-            <Valeur valeur={`${entier.format(stockHl)} hl\u00a0AP`} />
+            <Valeur valeur={entier.format(stockHl)} unite='hl AP' />
           </Lien>
         )}
       </CardContent>
@@ -287,12 +285,10 @@ function RechercheRapide() {
   const navigate = useNavigate()
   return (
     <Card className='lg:col-span-2 xl:col-span-1'>
-      <CardHeader className='flex flex-row items-center gap-3'>
-        <span className='bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-lg'>
-          <Search className='size-5' />
-        </span>
-        <div>
-          <CardTitle className='text-lg'>Recherche rapide</CardTitle>
+      <CardHeader className='flex flex-row items-start gap-2.5'>
+        <Search className='text-muted-foreground size-5' />
+        <div className='space-y-1.5'>
+          <CardTitle className='text-base'>Recherche rapide</CardTitle>
           <CardDescription>
             Code, raison sociale ou nom commercial
           </CardDescription>

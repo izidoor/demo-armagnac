@@ -21,7 +21,6 @@ IMPORTANT
 - table aggrégées -> arrondir et mettre les unités
 - vérifier contrat avec les infos de benoit
 - démo des contrats
-- revoir les dashboards
 - enlever argumentaire du repo 
 
 
