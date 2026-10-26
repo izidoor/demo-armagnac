@@ -1,6 +1,7 @@
 import {
   Building2,
   Contact,
+  Database,
   FileSpreadsheet,
   FileText,
   Warehouse,
@@ -26,7 +27,7 @@ import { type Espace, type NavGroup } from '../types'
  * puis les référentiels du module Paramétrage, lus par tout le personnel du BNIA, gérés par ses agents et
  * administrateurs. Hors de la barre latérale : sections de la page ouverte par la roue crantée de
  * l'en-tête, chacune enchaînant ses blocs ; chaque bloc mène à sa section, pour la recherche. La section
- * Sécurité est réglée par un ADMIN du BNIA seul (RG-AUT-16).
+ * Sécurité est réglée par un ADMIN du BNIA seul (RG-AUT-16), qui seul télécharge aussi les Données.
  */
 const GEOGRAPHIE = '/bo/parametrage/geographie'
 const QUALIFICATION = '/bo/parametrage/qualification'
@@ -97,6 +98,19 @@ export const parametrage: NavGroup = {
         {
           title: 'Double authentification',
           url: '/bo/parametrage/securite',
+        },
+      ],
+    },
+    {
+      // La base et les documents déposés, téléchargés par un ADMIN du BNIA (SauvegardeController) ;
+      // le dépôt GitHub public et sa documentation.
+      title: 'Données',
+      icon: Database,
+      items: [
+        { title: 'Copie des données', url: '/bo/parametrage/donnees' },
+        {
+          title: 'Code source et documentation',
+          url: '/bo/parametrage/donnees',
         },
       ],
     },

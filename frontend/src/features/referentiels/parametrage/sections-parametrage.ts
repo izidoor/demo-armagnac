@@ -15,6 +15,7 @@ const descriptions: Record<string, string> = {
   '/bo/parametrage/taux-cvo': 'Grille des taux de la cotisation CVO des DSM.',
   '/bo/parametrage/securite':
     'Double authentification, pour toute l’application.',
+  '/bo/parametrage/donnees': 'Copie des données, code source et documentation.',
 }
 
 /** Une entrée par section ; tous les référentiels d'une section mènent à la même page. */

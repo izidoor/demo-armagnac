@@ -115,6 +115,8 @@ Racine :
 - Déploiement du prototype (Scalingo, front embarqué, profils `prod,demo`) : `docs/deploiement-scalingo.md` ;
   remise à zéro de la démonstration hébergée : `./scalingo-reset.sh`
 - Ports propres à un worktree : `./worktree-env.sh`
+- Copie des données téléchargée par un ADMIN du BNIA (Paramètres, « Données ») : fichiers fixes, à régénérer
+  par `./sauvegarde-demo.sh` (après `./mvnw package`) quand V1 ou la démonstration change
 - Suivi de l'utilisation du prototype (pour l'auteur seul, jeton dans `.env.suivi`, `docs/suivi-utilisation.md`) : `./suivi.sh [--local] [tout|personnes|visites|ecrans|offre|fichiers|evenements|connexions|tableau] [depuis]`,
   `./suivi.sh [--local] reset` (efface tout le suivi, après confirmation)
   (`tableau` : page de graphiques ouverte dans le navigateur)

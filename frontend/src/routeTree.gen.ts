@@ -50,6 +50,7 @@ import { Route as BoParametrageTauxCvoRouteImport } from './routes/bo/parametrag
 import { Route as BoParametrageSecuriteRouteImport } from './routes/bo/parametrage/securite'
 import { Route as BoParametrageQualificationRouteImport } from './routes/bo/parametrage/qualification'
 import { Route as BoParametrageGeographieRouteImport } from './routes/bo/parametrage/geographie'
+import { Route as BoParametrageDonneesRouteImport } from './routes/bo/parametrage/donnees'
 import { Route as BoParametrageCommercialisationRouteImport } from './routes/bo/parametrage/commercialisation'
 import { Route as BoParametrageBniaRouteImport } from './routes/bo/parametrage/bnia'
 import { Route as BoFacturationVentesRouteImport } from './routes/bo/facturation/ventes'
@@ -281,6 +282,11 @@ const BoParametrageGeographieRoute = BoParametrageGeographieRouteImport.update({
   path: '/geographie',
   getParentRoute: () => BoParametrageRouteRoute,
 } as any)
+const BoParametrageDonneesRoute = BoParametrageDonneesRouteImport.update({
+  id: '/donnees',
+  path: '/donnees',
+  getParentRoute: () => BoParametrageRouteRoute,
+} as any)
 const BoParametrageCommercialisationRoute =
   BoParametrageCommercialisationRouteImport.update({
     id: '/commercialisation',
@@ -427,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/bo/facturation/ventes': typeof BoFacturationVentesRoute
   '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/donnees': typeof BoParametrageDonneesRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/securite': typeof BoParametrageSecuriteRoute
@@ -488,6 +495,7 @@ export interface FileRoutesByTo {
   '/bo/facturation/ventes': typeof BoFacturationVentesRoute
   '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/donnees': typeof BoParametrageDonneesRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/securite': typeof BoParametrageSecuriteRoute
@@ -553,6 +561,7 @@ export interface FileRoutesById {
   '/bo/facturation/ventes': typeof BoFacturationVentesRoute
   '/bo/parametrage/bnia': typeof BoParametrageBniaRoute
   '/bo/parametrage/commercialisation': typeof BoParametrageCommercialisationRoute
+  '/bo/parametrage/donnees': typeof BoParametrageDonneesRoute
   '/bo/parametrage/geographie': typeof BoParametrageGeographieRoute
   '/bo/parametrage/qualification': typeof BoParametrageQualificationRoute
   '/bo/parametrage/securite': typeof BoParametrageSecuriteRoute
@@ -619,6 +628,7 @@ export interface FileRouteTypes {
     | '/bo/facturation/ventes'
     | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/donnees'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/securite'
@@ -680,6 +690,7 @@ export interface FileRouteTypes {
     | '/bo/facturation/ventes'
     | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/donnees'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/securite'
@@ -744,6 +755,7 @@ export interface FileRouteTypes {
     | '/bo/facturation/ventes'
     | '/bo/parametrage/bnia'
     | '/bo/parametrage/commercialisation'
+    | '/bo/parametrage/donnees'
     | '/bo/parametrage/geographie'
     | '/bo/parametrage/qualification'
     | '/bo/parametrage/securite'
@@ -1084,6 +1096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoParametrageGeographieRouteImport
       parentRoute: typeof BoParametrageRouteRoute
     }
+    '/bo/parametrage/donnees': {
+      id: '/bo/parametrage/donnees'
+      path: '/donnees'
+      fullPath: '/bo/parametrage/donnees'
+      preLoaderRoute: typeof BoParametrageDonneesRouteImport
+      parentRoute: typeof BoParametrageRouteRoute
+    }
     '/bo/parametrage/commercialisation': {
       id: '/bo/parametrage/commercialisation'
       path: '/commercialisation'
@@ -1237,6 +1256,7 @@ declare module '@tanstack/react-router' {
 interface BoParametrageRouteRouteChildren {
   BoParametrageBniaRoute: typeof BoParametrageBniaRoute
   BoParametrageCommercialisationRoute: typeof BoParametrageCommercialisationRoute
+  BoParametrageDonneesRoute: typeof BoParametrageDonneesRoute
   BoParametrageGeographieRoute: typeof BoParametrageGeographieRoute
   BoParametrageQualificationRoute: typeof BoParametrageQualificationRoute
   BoParametrageSecuriteRoute: typeof BoParametrageSecuriteRoute
@@ -1249,6 +1269,7 @@ interface BoParametrageRouteRouteChildren {
 const BoParametrageRouteRouteChildren: BoParametrageRouteRouteChildren = {
   BoParametrageBniaRoute: BoParametrageBniaRoute,
   BoParametrageCommercialisationRoute: BoParametrageCommercialisationRoute,
+  BoParametrageDonneesRoute: BoParametrageDonneesRoute,
   BoParametrageGeographieRoute: BoParametrageGeographieRoute,
   BoParametrageQualificationRoute: BoParametrageQualificationRoute,
   BoParametrageSecuriteRoute: BoParametrageSecuriteRoute,
