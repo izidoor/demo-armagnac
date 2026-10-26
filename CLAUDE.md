@@ -123,4 +123,4 @@ Racine :
 - Réponse à l'appel d'offres (« Voir l'offre ») : depuis `echanges-bnia/reponse`, `pnpm build` puis `pnpm publier`
   (pages servies après connexion sous `/api/offre/`)
 - Diaporama de la soutenance (« Voir l'offre », onglet Diaporama) : depuis `echanges-bnia/diaporama`, `pnpm build`
-  (HTML et PDF 16:9 dans `sortie/`) puis `pnpm publier` (servi sous `/api/offre/diaporama/`)
+  (HTML et PDF 16:9 dans `sortie/`) ; `pnpm publier` reconstruit puis publie (servi sous `/api/offre/diaporama/`)

@@ -6,44 +6,44 @@
       "titre": "Titre"
     },
     {
-      "id": "02-offre",
-      "titre": "L’offre en résumé"
+      "id": "02-pitch",
+      "titre": "Pitch"
     },
     {
       "id": "03-propriete",
       "titre": "Une plateforme qui appartient au BNIA"
     },
     {
-      "id": "04-prestataire",
+      "id": "04-offre",
+      "titre": "L’offre en résumé"
+    },
+    {
+      "id": "05-prestataire",
       "titre": "Le prestataire"
     },
     {
-      "id": "05-profil",
+      "id": "06-profil",
       "titre": "Les trois places"
     },
     {
-      "id": "06-independant",
+      "id": "07-independant",
       "titre": "Un indépendant ou une agence"
     },
     {
-      "id": "07-risque",
+      "id": "08-risque",
       "titre": "Choisir un indépendant, est-ce vraiment risqué ?"
     },
     {
-      "id": "08-iterations",
+      "id": "09-iterations",
       "titre": "Livrer par petites étapes"
-    },
-    {
-      "id": "09-calendrier",
-      "titre": "Remplacer Integraal par étapes"
     },
     {
       "id": "10-phase-1",
       "titre": "Phase 1 : un premier incrément de valeur pour bâtir la confiance"
     },
     {
-      "id": "11-prix",
-      "titre": "Le prix"
+      "id": "11-calendrier",
+      "titre": "Remplacer Integraal par étapes"
     },
     {
       "id": "12-maintenance",

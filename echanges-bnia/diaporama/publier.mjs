@@ -1,7 +1,7 @@
 // Publie le diaporama dans l'application, à côté de l'offre (« Voir l'offre », choix « Diaporama ») : une page HTML
 // par diapositive, sa feuille de style, ses images, ses polices et le PDF, servis par le back sous
 // /api/offre/diaporama/.
-// Usage, après pnpm build : pnpm publier → backend/bnia-boot/src/main/resources/offre/diaporama/
+// Usage : pnpm publier (reconstruit d'abord le diaporama, comme pnpm build) → backend/bnia-boot/src/main/resources/offre/diaporama/
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'

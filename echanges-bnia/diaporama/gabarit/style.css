@@ -69,6 +69,8 @@ strong { color: var(--encre); font-weight: 650; }
 .bandeau { background: var(--ambre-pale); border-left: 6px solid var(--ambre); padding: 16px 24px; font: 24px/1.35 var(--serif);
            color: var(--encre); }
 .bandeau + .bandeau { margin-top: 10px; }
+.bandeau.fonce { background: var(--ambre-fonce); border-left: none; border-radius: 12px; padding: 20px 28px; color: #fff; }
+.bandeau.fonce strong { display: block; color: #fff; font-size: 31px; line-height: 1.2; margin-bottom: 4px; }
 
 /* Cartes en colonnes */
 .cartes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 34px; }
@@ -89,10 +91,36 @@ strong { color: var(--encre); font-weight: 650; }
 .d-titre .signature strong { font-size: 26px; }
 .d-titre .signature span { color: var(--ambre-fonce); }
 
-/* ---- 2. L'offre en résumé : la réalisation complète, puis les premières étapes, séparées ---- */
+/* ---- 2. Pitch : trois atouts, puis la promesse ---- */
 
-.chiffres { display: grid; grid-template-columns: 1fr 1fr 2px 1fr 1fr; gap: 20px; margin-top: 34px; }
-.chiffres .separation { background: var(--ambre-moyen); margin: 0 4px; }
+.atouts-pitch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 18px 0 20px; }
+.atout { background: var(--ambre-pale); border-radius: 12px; padding: 18px 22px 20px; display: flex; flex-direction: column; gap: 8px; }
+.atout .icone { width: 42px; height: 42px; border-radius: 10px; background: var(--ambre); color: #fff; display: grid; place-items: center; }
+.atout .icone svg { width: 24px; height: 24px; }
+.atout .qui { font: 650 14px/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ambre); margin-top: 4px; }
+.atout p { font: 21px/1.3 var(--serif); color: var(--encre); }
+.promesse { flex: 1; background: var(--ambre-fonce); color: #fff; border-radius: 12px; padding: 28px 36px; display: flex; flex-direction: column;
+            justify-content: center; gap: 18px; }
+.promesse .etiquette { font: 650 16px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ambre-moyen); }
+.promesse ul { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; padding: 0; list-style: none; }
+.promesse li { margin: 0; font: 24px/1.4 var(--serif); }
+.promesse strong { display: block; color: #fff; font-size: 31px; line-height: 1.2; margin-bottom: 8px; }
+
+/* ---- 3. Propriété : quatre cartes ---- */
+
+.cartes.quatre { grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 28px 0 0; }
+.cartes.quatre .carte { padding: 22px 22px 20px; gap: 8px; }
+.cartes.quatre .carte p, .cartes.quatre .carte li { font-size: 19px; }
+.cartes.quatre .carte ul { padding-left: 20px; line-height: 1.35; }
+.cartes.quatre .carte li { margin-bottom: 4px; }
+
+/* ---- 4. L'offre en résumé : la réalisation complète en haut, les premières étapes en bas ---- */
+
+.chiffres { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
+.d-offre .chiffres { flex: 1; grid-auto-rows: 1fr; }
+.d-offre .chiffre { justify-content: center; padding: 24px 32px; }
+.d-offre .chiffre .valeur { font-size: 56px; }
+.d-offre .chiffre .libelle { font-size: 21px; }
 .chiffre { background: var(--ambre-pale); border-radius: 12px; padding: 28px 24px; display: flex; flex-direction: column; gap: 12px; }
 .chiffre .valeur { font: 600 50px/1 var(--serif); color: var(--ambre-fonce); white-space: nowrap; }
 .chiffre .unite { font: 600 22px var(--serif); }
@@ -101,15 +129,7 @@ strong { color: var(--encre); font-weight: 650; }
 .chiffre.premiers .valeur { color: #fff; }
 .chiffre.premiers .libelle { color: rgb(255 255 255 / .9); }
 
-/* ---- 3. Propriété : quatre cartes ---- */
-
-.cartes.quatre { grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 24px 0 22px; }
-.cartes.quatre .carte { padding: 22px 22px 20px; gap: 8px; }
-.cartes.quatre .carte p, .cartes.quatre .carte li { font-size: 18px; }
-.cartes.quatre .carte ul { padding-left: 20px; line-height: 1.35; }
-.cartes.quatre .carte li { margin-bottom: 4px; }
-
-/* ---- 4. Le prestataire : deux métiers, un parcours ---- */
+/* ---- 5. Le prestataire : deux métiers, un parcours ---- */
 
 .cartes.deux { grid-template-columns: 1fr 1fr; margin-top: 26px; }
 .cartes.deux .carte { flex-direction: row; align-items: flex-start; gap: 22px; }
@@ -128,7 +148,7 @@ strong { color: var(--encre); font-weight: 650; }
 .parcours .vision { margin: auto -22px -20px; padding: 14px 22px 16px; background: var(--ambre-fonce); font: 600 21px/1.3 var(--serif);
                     color: #fff; }
 
-/* ---- 5. Trois places ---- */
+/* ---- 6. Trois places ---- */
 
 .places { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin: 26px 0 22px; }
 .place { border: 1.5px solid var(--filet); border-radius: 12px; padding: 20px 22px; display: flex; flex-direction: column; }
@@ -140,7 +160,7 @@ strong { color: var(--encre); font-weight: 650; }
 .place ul { font-size: 18px; line-height: 1.38; padding-left: 20px; }
 .place li { margin-bottom: 4px; }
 
-/* ---- 6. Indépendant ou agence ---- */
+/* ---- 7. Indépendant ou agence ---- */
 
 .versus { display: grid; grid-template-columns: 190px 1fr 1fr; gap: 12px 18px; margin-top: 14px; }
 .versus > div { border-radius: 12px; padding: 14px 20px; border: 1.5px solid var(--filet); }
@@ -154,7 +174,7 @@ strong { color: var(--encre); font-weight: 650; }
 .versus li { margin-bottom: 4px; }
 .versus li:last-child { margin-bottom: 0; }
 
-/* ---- 7. Le risque ---- */
+/* ---- 8. Le risque ---- */
 
 .formule { font: 600 34px var(--serif); color: var(--encre); margin-top: 6px; }
 .formule span { color: var(--ambre); }
@@ -167,7 +187,7 @@ strong { color: var(--encre); font-weight: 650; }
 .facteur .verdict { margin-top: auto; padding-top: 14px; border-top: 1.5px solid var(--ambre-moyen); font: 600 22px/1.3 var(--serif);
                     color: var(--encre); }
 
-/* ---- 8. Petites étapes ---- */
+/* ---- 9. Petites étapes ---- */
 
 .iterations { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; margin-top: 24px; }
 .comparaison { display: flex; flex-direction: column; gap: 16px; }
@@ -185,19 +205,11 @@ strong { color: var(--encre); font-weight: 650; }
 .escalier span:nth-child(2) { height: 44px; }
 .escalier span:nth-child(3) { height: 54px; }
 .escalier span:nth-child(4) { height: 64px; }
+.iterations > :last-child { align-self: end; }
 .iterations h2 { font-size: 24px; color: var(--ambre-fonce); margin-bottom: 14px; }
 .gains { font-size: 20px; line-height: 1.38; padding-left: 24px; }
 .gains li { margin-bottom: 12px; }
-
-/* ---- 9. Calendrier ---- */
-
-.d-calendrier { padding-bottom: 60px; }
-.d-calendrier h1 { margin-bottom: 6px; }
-.d-calendrier .accroche { font-size: 23px; }
-.d-calendrier .schema { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; margin: 4px -20px 0; }
-.d-calendrier .schema img { width: 100%; max-height: 100%; }
-.atouts { display: flex; gap: 14px; justify-content: center; }
-.atouts span { background: var(--ambre-pale); color: var(--ambre-fonce); border-radius: 999px; padding: 8px 22px; font-size: 19px; font-weight: 600; }
+.gains li:last-child { margin-bottom: 0; }
 
 /* ---- 10. Phase 1 ---- */
 
@@ -213,21 +225,26 @@ strong { color: var(--encre); font-weight: 650; }
                        font: 650 19px/36px var(--sans); text-align: center; }
 .criteres strong { display: block; font-size: 20px; }
 
-/* ---- 11. Prix ---- */
+/* ---- 11. Calendrier ---- */
 
-.prix { margin-top: 22px; }
-.d-prix .accroche { font-size: 23px; }
+.d-calendrier { padding-bottom: 60px; }
+.d-calendrier h1 { margin-bottom: 6px; }
+.d-calendrier .accroche { font-size: 23px; }
+.d-calendrier .schema { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; margin: 4px -20px 0; }
+.d-calendrier .schema img { width: 100%; max-height: 100%; }
+.atouts { display: flex; gap: 14px; justify-content: center; }
+.atouts span { background: var(--ambre-pale); color: var(--ambre-fonce); border-radius: 999px; padding: 8px 22px; font-size: 19px; font-weight: 600; }
+
+/* Tableaux */
+
 table { width: 100%; border-collapse: collapse; font-size: 19px; line-height: 1.3; }
 th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--filet); }
 th { font-size: 15px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--discret);
      border-bottom: 2px solid var(--ambre); }
-td.montant, th.montant { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-td.duree { white-space: nowrap; color: var(--discret); }
-tr.total td { border-bottom: none; font-weight: 650; color: var(--encre); font-size: 21px; }
 
 /* ---- 12. Maintenance ---- */
 
-.maintenance { display: grid; grid-template-columns: 1fr 1.25fr; gap: 44px; margin-top: 28px; }
+.maintenance { display: grid; grid-template-columns: 1fr 1.25fr; gap: 44px; margin: 14px 0 20px; }
 .maintenance h2 { font-size: 24px; margin-bottom: 16px; color: var(--ambre-fonce); }
 .etapes { display: flex; flex-direction: column; gap: 12px; }
 .etape { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: baseline; background: var(--ambre-pale);

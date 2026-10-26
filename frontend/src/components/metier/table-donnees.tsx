@@ -232,8 +232,9 @@ export function TableDonnees<T>({
   const table = useReactTable({
     data: donnees,
     columns: colonnes,
-    // Seules s'agrègent les colonnes qui le déclarent (pas de somme d'un prix unitaire, par exemple).
-    defaultColumn: { aggregationFn: undefined },
+    // Seules s'agrègent les colonnes qui le déclarent (pas de somme d'un prix unitaire, par exemple). Sans
+    // `aggregatedCell` par défaut (la valeur brute, `toString()`), un sous-total passe par `meta.format`.
+    defaultColumn: { aggregationFn: undefined, aggregatedCell: undefined },
     state: {
       sorting: tri,
       columnFilters: filtres,
