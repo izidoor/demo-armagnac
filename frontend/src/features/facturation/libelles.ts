@@ -36,6 +36,12 @@ export const ETATS_ZEENDOC: Record<EtatZeendoc, string> = {
   PAYEE: 'Payé',
 }
 
+/** Au portail, l'état vu par le client : Zeendoc ne le concerne pas, une facture transmise lui reste à payer. */
+export const ETATS_PORTAIL: Record<EtatZeendoc, string> = {
+  TRANSMISE: 'À payer',
+  PAYEE: 'Payé',
+}
+
 /** Badge plein : « Transmis » de la couleur principale, « Payé » en vert, celui des états aboutis. */
 export const COULEUR_ZEENDOC: Record<EtatZeendoc, string> = {
   TRANSMISE: 'bg-primary text-primary-foreground',

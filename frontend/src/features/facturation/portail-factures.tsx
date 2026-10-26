@@ -182,7 +182,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
                 TVA
               </TableHead>
               <TableHead className='text-right'>TTC</TableHead>
-              <TableHead>Zeendoc</TableHead>
+              <TableHead>État</TableHead>
               <TableHead className='w-0' />
             </TableRow>
           </TableHeader>
@@ -247,7 +247,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
                   {formatEuros(p.ttc)}
                 </TableCell>
                 <TableCell>
-                  <BadgeZeendoc piece={p} />
+                  <BadgeZeendoc piece={p} portail />
                 </TableCell>
                 <TableCell>
                   <Button
@@ -285,7 +285,7 @@ export function PageMesFactures({ operateur }: { operateur: number }) {
 }
 
 /**
- * Une pièce en carte, comme au back-office : son numéro et son état Zeendoc, la référence de l'origine et son libellé,
+ * Une pièce en carte, comme au back-office : son numéro et son état (« À payer », « Payé »), la référence de l'origine et son libellé,
  * puis la date et le TTC ; teintée si elle est échue et impayée (RG-FAC-33).
  */
 function CartePiece({ piece: p }: { piece: PieceListee }) {
@@ -299,7 +299,7 @@ function CartePiece({ piece: p }: { piece: PieceListee }) {
           {p.sens === 'AVOIR' && (
             <Badge variant='secondary'>{SENS[p.sens]}</Badge>
           )}
-          <BadgeZeendoc piece={p} />
+          <BadgeZeendoc piece={p} portail />
         </span>
       }
     >
@@ -365,7 +365,7 @@ export function PageMaFacture({
             Retour
           </Button>
           {piece.origine && <span>{piece.origine.reference}</span>}
-          <BadgeZeendoc piece={piece} avecDates />
+          <BadgeZeendoc piece={piece} avecDates portail />
         </span>
       }
       actions={

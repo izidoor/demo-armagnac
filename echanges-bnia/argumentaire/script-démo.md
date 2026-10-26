@@ -1,12 +1,3 @@
-je voudrais que l'on fusionne les diapos 2 et 3
-ca donnerait : 
-Le prestataire
-Pierre-Yves POLLET
-pas de sous titre
-les trois cartes 
-
-
-
 
 Mes utilisateurs : 
 - Personne : 

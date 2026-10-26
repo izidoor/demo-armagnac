@@ -1,4 +1,4 @@
-# Statut d'indépendant, sans historique client : questions difficiles
++# Statut d'indépendant, sans historique client : questions difficiles
 
 Préparation de la présentation de l'offre au BNIA, mardi 27 octobre 2026 à 10h30.
 
