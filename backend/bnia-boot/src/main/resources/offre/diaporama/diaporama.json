@@ -7,58 +7,62 @@
     },
     {
       "id": "02-offre",
-      "titre": "L’offre en quatre chiffres"
+      "titre": "L’offre en résumé"
     },
     {
-      "id": "03-profil",
-      "titre": "Les trois places"
-    },
-    {
-      "id": "04-propriete",
+      "id": "03-propriete",
       "titre": "Une plateforme qui appartient au BNIA"
     },
     {
-      "id": "05-independant",
+      "id": "04-prestataire",
+      "titre": "Le prestataire"
+    },
+    {
+      "id": "05-profil",
+      "titre": "Les trois places"
+    },
+    {
+      "id": "06-independant",
       "titre": "Un indépendant ou une agence"
     },
     {
-      "id": "06-risque",
-      "titre": "Le risque, calculé"
+      "id": "07-risque",
+      "titre": "Choisir un indépendant, est-ce vraiment risqué ?"
     },
     {
-      "id": "07-iterations",
+      "id": "08-iterations",
       "titre": "Livrer par petites étapes"
     },
     {
-      "id": "08-calendrier",
+      "id": "09-calendrier",
       "titre": "Remplacer Integraal par étapes"
     },
     {
-      "id": "09-phase-1",
-      "titre": "Phase 1 : juger sur pièces"
+      "id": "10-phase-1",
+      "titre": "Phase 1 : un premier incrément de valeur pour bâtir la confiance"
     },
     {
-      "id": "10-prix",
+      "id": "11-prix",
       "titre": "Le prix"
     },
     {
-      "id": "11-maintenance",
+      "id": "12-maintenance",
       "titre": "La maintenance"
     },
     {
-      "id": "12-engagement",
+      "id": "13-engagement",
       "titre": "Mon engagement"
     },
     {
-      "id": "13-conclusion",
-      "titre": "En résumé"
+      "id": "14-conclusion",
+      "titre": "Synthèse"
     },
     {
-      "id": "14-demo-dsm",
+      "id": "15-demo-dsm",
       "titre": "Démonstration : de la DSM à la facture"
     },
     {
-      "id": "15-demo-contrats",
+      "id": "16-demo-contrats",
       "titre": "Démonstration : le contrat, sur téléphone"
     }
   ]
