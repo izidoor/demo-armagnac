@@ -1,3 +1,12 @@
+je voudrais que l'on fusionne les diapos 2 et 3
+ca donnerait : 
+Le prestataire
+Pierre-Yves POLLET
+pas de sous titre
+les trois cartes 
+
+
+
 
 Mes utilisateurs : 
 - Personne : 
@@ -18,7 +27,6 @@ Messagerie, nouvelle conversation
 
 
 IMPORTANT
-- table aggrégées -> arrondir et mettre les unités
 - vérifier contrat avec les infos de benoit
 - démo des contrats
 - enlever argumentaire du repo 
@@ -47,7 +55,14 @@ IMPORTANT
         - facture en retard
 
 - Contrat
-  - 
+  - NB ne pas oublier d'activer les notifications dans mon compte au rechargement de la base !
+  - il existe de base un contrat fait le negociant, en attente d'approbation par le producteur.
+  - faire un nouveau contrat par le producteur
+    - choisir "gascogne" pour l'acheteur
+  - l'acheteur : 
+    - modifier la quantité
+  - le vendeur
+    - valider
 
 
 

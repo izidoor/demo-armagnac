@@ -6,24 +6,24 @@
       "titre": "Titre"
     },
     {
-      "id": "02-pitch",
-      "titre": "Pitch"
-    },
-    {
-      "id": "03-propriete",
-      "titre": "Une plateforme qui appartient au BNIA"
-    },
-    {
-      "id": "04-offre",
-      "titre": "L’offre en résumé"
-    },
-    {
-      "id": "05-prestataire",
+      "id": "02-prestataire",
       "titre": "Le prestataire"
     },
     {
-      "id": "06-profil",
+      "id": "03-profil",
       "titre": "Les trois places"
+    },
+    {
+      "id": "04-pitch",
+      "titre": "La promesse"
+    },
+    {
+      "id": "05-offre",
+      "titre": "L’offre en résumé"
+    },
+    {
+      "id": "06-propriete",
+      "titre": "Une plateforme qui appartient au BNIA"
     },
     {
       "id": "07-independant",
@@ -38,32 +38,24 @@
       "titre": "Livrer par petites étapes"
     },
     {
-      "id": "10-phase-1",
-      "titre": "Phase 1 : un premier incrément de valeur pour bâtir la confiance"
+      "id": "10-calendrier",
+      "titre": "Remplacer Integraal par étapes"
     },
     {
-      "id": "11-calendrier",
-      "titre": "Remplacer Integraal par étapes"
+      "id": "11-phase-1",
+      "titre": "Phase 1 : un premier incrément de valeur pour bâtir la confiance"
     },
     {
       "id": "12-maintenance",
       "titre": "La maintenance"
     },
     {
-      "id": "13-engagement",
-      "titre": "Mon engagement"
-    },
-    {
-      "id": "14-conclusion",
+      "id": "13-conclusion",
       "titre": "Synthèse"
     },
     {
-      "id": "15-demo-dsm",
-      "titre": "Démonstration : de la DSM à la facture"
-    },
-    {
-      "id": "16-demo-contrats",
-      "titre": "Démonstration : le contrat, sur téléphone"
+      "id": "14-demo",
+      "titre": "Le prototype : DSM et Contrats"
     }
   ]
 }
